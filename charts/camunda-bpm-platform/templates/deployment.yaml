@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "camunda-bpm-platform.fullname" . }}
+  labels:
+    {{- include "camunda-bpm-platform.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.general.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "camunda-bpm-platform.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "camunda-bpm-platform.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "camunda-bpm-platform.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DEBUG
+              value: "{{ .Values.general.debug }}"
+            - name: JMX_PROMETHEUS
+              value: "{{ .Values.metrics.enabled }}"
+            {{- if .Values.database.external.enabled }}
+            - name: DB_DRIVER
+              value: "{{ .Values.database.external.driver }}"
+            - name: DB_URL
+              value: "{{ .Values.database.external.url }}"
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.external.credentialsSecertName }}
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.external.credentialsSecertName }}
+                  key: DB_PASSWORD
+            {{- end }}
+          ports:
+            - name: {{ .Values.service.portName }}
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+            {{- if .Values.metrics.enabled }}
+            - name: {{ .Values.metrics.service.portName }}
+              containerPort: {{ .Values.metrics.service.port }}
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /camunda/
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 60
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{ if .Values.database.internal.enabled -}}
+          volumeMounts:
+          - name: camunda-h2-dbs
+            mountPath: /camunda/camunda-h2-dbs
+          {{- end }}
+      {{ if .Values.database.internal.enabled -}}
+      volumes:
+        - name: camunda-h2-dbs
+          persistentVolumeClaim:
+            claimName: {{ include "camunda-bpm-platform.fullname" . }}-database
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

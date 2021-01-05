@@ -1,0 +1,14 @@
+{{- if .Values.database.internal.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "camunda-bpm-platform.fullname" . }}-database
+  labels:
+    {{- include "camunda-bpm-platform.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "{{ .Values.database.internal.diskSize }}"
+{{- end }}
