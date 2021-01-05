@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odacomponentcontroller
+  namespace: {{if .Values.global.namespace}}{{.Values.global.namespace}}{{else}}{{.Release.Name}}-canvas{{end}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: odacomponentcontroller
+  template:
+    metadata:
+      labels:
+        app: odacomponentcontroller
+    spec:
+      serviceAccountName: odacomponent-account
+      containers:
+      - name: odacomponentcontroller
+        image: {{.Values.deployment.image}}
