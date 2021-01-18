@@ -1,0 +1,2904 @@
+apiVersion: v1
+data:
+  pc_swagger.yaml: |
+    openapi: 3.0.1
+    info:
+    x-wso2-basePath: /catalogManagement
+    x-wso2-production-endpoints:
+      urls:
+        - http://next-pc:8191/catalogManagement
+    title: OpenAPI definition
+    version: v0
+    servers:
+    - url: 'http://35.230.142.105/catalogManagement'
+        description: Generated server url
+    paths:
+    /v1/catalog:
+        get:
+        tags:
+            - catalog
+        summary: List catalogs
+        description: >-
+            This operation lists Catalog entities. Attribute selection is enabled
+            for all first level attributes. Filtering may be available depending on
+            the compliance level supported by an implementation.
+        operationId: readAll
+        parameters:
+            - name: offset
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: sort
+            in: query
+            required: false
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: successful operation
+            headers:
+                X-Total-Count:
+                description: Total number of items matching criteria
+                style: simple
+                X-Result-Count:
+                description: Actual number of items returned in the response body
+                style: simple
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/CatalogEntity'
+            '400':
+            description: Bad Request
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '401':
+            description: Unauthorized
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '403':
+            description: Forbidden
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '404':
+            description: Not Found
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '405':
+            description: Method Not allowed
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '409':
+            description: Conflict
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '500':
+            description: Internal Server Error
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+        put:
+        tags:
+            - catalog
+        summary: Update catalog
+        description: This operation updates a catalog entity.
+        operationId: update
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/CatalogEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/CatalogEntity'
+        post:
+        tags:
+            - catalog
+        summary: Create catalog
+        description: >-
+            This operation creates Catalog entities.\nAttribute selection is enabled
+            for all first level attributes.\nFiltering may be available depending on
+            the compliance level supported by an implementation.
+        operationId: create
+        parameters:
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/CatalogEntity'
+            required: true
+        responses:
+            '201':
+            description: Created
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/CatalogEntity'
+            '400':
+            description: Bad Request
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '401':
+            description: Unauthorized
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '403':
+            description: Forbidden
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '405':
+            description: Method Not allowed
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '409':
+            description: Conflict
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '500':
+            description: Internal Server Error
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+    '/v1/catalog/{entityId}':
+        get:
+        tags:
+            - catalog
+        summary: Retrieve catalog
+        description: >-
+            This operation retrieves Catalog entities. Attribute selection is
+            enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation.
+        operationId: read
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/CatalogEntity'
+        delete:
+        tags:
+            - catalog
+        summary: Delete catalog
+        description: This operation deletes a catalog entity.
+        operationId: delete
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+        patch:
+        tags:
+            - catalog
+        summary: Patch catalog
+        description: >-
+            This operation allows partial updates of a catalog entity. Support of
+            json/merge is mandatory, support of json patch is optional.
+        operationId: patch
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/merge-patch+json:
+                schema:
+                type: string
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/CatalogEntity'
+    /v1/constraint:
+        get:
+        tags:
+            - constraint
+        summary: List constraints
+        description: >-
+            This operation list Constraint entities. Attribute selection is enabled
+            for all first level attributes. Filtering may be available depending on
+            the compliance level supported by an implementation.
+        operationId: readAll_1
+        parameters:
+            - name: offset
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: sort
+            in: query
+            required: false
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/ConstraintEntity'
+        put:
+        tags:
+            - constraint
+        summary: Update constraint
+        description: This operation updates a constraint entity.
+        operationId: update_1
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ConstraintEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ConstraintEntity'
+        post:
+        tags:
+            - constraint
+        summary: Create constraint
+        description: >-
+            This operation creates Constraint entities. Attribute selection is
+            enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation.
+        operationId: create_1
+        parameters:
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ConstraintEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ConstraintEntity'
+    '/v1/constraint/{entityId}':
+        get:
+        tags:
+            - constraint
+        summary: Retrieve constraint
+        description: >-
+            This operation retrieves Constraint entities. Attribute selection is
+            enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation.
+        operationId: read_1
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ConstraintEntity'
+        delete:
+        tags:
+            - constraint
+        summary: Delete constraint
+        description: This operation deletes a constraint entity.
+        operationId: delete_1
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+        patch:
+        tags:
+            - constraint
+        summary: Patch constraint
+        description: >-
+            This operation allows partial updates of a constraint entity. Support of
+            json/merge is mandatory, support of json patch is optional.
+        operationId: patch_1
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/merge-patch+json:
+                schema:
+                type: string
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ConstraintEntity'
+    /v1/general/parameters:
+        get:
+        tags:
+            - general
+        operationId: read_2
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/Parameter'
+    /v1/i18N/insertAllMessages:
+        post:
+        tags:
+            - i18n
+        operationId: insertAll
+        requestBody:
+            content:
+            application/json:
+                schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/I18NMessageSource'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/JsonResponse'
+    /v1/i18N:
+        post:
+        tags:
+            - i18n
+        operationId: insert
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/I18NMessageSource'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/JsonResponse'
+    /v1/category:
+        get:
+        tags:
+            - category
+        summary: List categories
+        description: >-
+            This operation list Category entities. Attribute selection is enabled
+            for all first level attributes. Filtering may be available depending on
+            the compliance level supported by an implementation.
+        operationId: readAll_2
+        parameters:
+            - name: offset
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: sort
+            in: query
+            required: false
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: Success
+            headers:
+                X-Total-Count:
+                description: Total number of items matching criteria
+                style: simple
+                X-Result-Count:
+                description: Actual number of items returned in the response body
+                style: simple
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/CategoryEntity'
+            '400':
+            description: Bad Request
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '401':
+            description: Unauthorized
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '403':
+            description: Forbidden
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '404':
+            description: Not Found
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '405':
+            description: Method Not allowed
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '409':
+            description: Conflict
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '500':
+            description: Internal Server Error
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+        put:
+        tags:
+            - category
+        summary: Update category
+        description: This operation updates a category entity
+        operationId: update_2
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/CategoryEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/CategoryEntity'
+        post:
+        tags:
+            - category
+        summary: Create category
+        description: >-
+            This operation creates category entities. Attribute selection is enabled
+            for all first level attributes. Filtering may be available depending on
+            the compliance level supported by an implementation.
+        operationId: create_2
+        parameters:
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/CategoryEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/CategoryEntity'
+    '/v1/category/{entityId}':
+        get:
+        tags:
+            - category
+        summary: Retrieve category
+        description: >-
+            This operation retrieves category entities. Attribute selection is
+            enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation.
+        operationId: read_3
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/CategoryEntity'
+        delete:
+        tags:
+            - category
+        summary: Delete category
+        description: This operation deletes a category entity.
+        operationId: delete_2
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+        patch:
+        tags:
+            - category
+        summary: Patch category
+        description: >-
+            This operation allows partial updates of a category entity. Support of
+            json/merge s mandatory, support of json/patch is optional.
+        operationId: patch_2
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/merge-patch+json:
+                schema:
+                type: string
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/CategoryEntity'
+    /v1/productSpecification:
+        get:
+        tags:
+            - productSpecification
+        summary: List product specifications
+        description: >-
+            This operation list product specification entities. Attribute selection
+            is enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation and a
+            server may accept only queries with specified filtering to avoid an
+            answer with too many items.
+        operationId: readAll_3
+        parameters:
+            - name: offset
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: sort
+            in: query
+            required: false
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: successful operation
+            headers:
+                X-Total-Count:
+                description: Total number of items matching criteria
+                style: simple
+                X-Result-Count:
+                description: Actual number of items returned in the response body
+                style: simple
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/ProductSpecificationEntity'
+            '400':
+            description: Bad Request
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '401':
+            description: Unauthorized
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '403':
+            description: Forbidden
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '404':
+            description: Not Found
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '405':
+            description: Method Not allowed
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '409':
+            description: Conflict
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '500':
+            description: Internal Server Error
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+        put:
+        tags:
+            - productSpecification
+        summary: Update product specification
+        description: This operation updates a product specification entity.
+        operationId: update_3
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ProductSpecificationEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductSpecificationEntity'
+        post:
+        tags:
+            - productSpecification
+        summary: Create product specification
+        description: >-
+            This operation creates Catalog entities. Attribute selection is enabled
+            for all first level attributes. Filtering may be available depending on
+            the compliance level supported by an implementation.
+        operationId: create_3
+        parameters:
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ProductSpecificationEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductSpecificationEntity'
+    '/v1/productSpecification/{entityId}':
+        get:
+        tags:
+            - productSpecification
+        summary: Retrieve product specification
+        description: >-
+            This operation retrieves product specification entities. Attribute
+            selection is enabled for all first level attributes. Filtering may be
+            available depending on the compliance level supported by an
+            implementation and a server may accept only queries with specified
+            filtering to avoid an answer with too many items.
+        operationId: read_4
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductSpecificationEntity'
+        delete:
+        tags:
+            - productSpecification
+        summary: Delete product specification
+        description: This operation deletes a product specification entity.
+        operationId: delete_3
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+        patch:
+        tags:
+            - productSpecification
+        summary: Patch product specification
+        description: >-
+            This operation allows partial updates of a product specification entity.
+            Support of json/merge is mandatory, support of json patch is optional.
+        operationId: patch_3
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/merge-patch+json:
+                schema:
+                type: string
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductSpecificationEntity'
+    /v1/productSpecification/relatedProdSpecCharacteristics:
+        post:
+        tags:
+            - productSpecification
+        summary: Retrieve related product specification characteristics
+        description: This operation retrieves related product specification characteristics.
+        operationId: getRelatedProdSpecCharacteristics
+        parameters:
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ProductSpecificationEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/ProductSpecCharacteristic'
+    /v1/productOffering:
+        get:
+        tags:
+            - productOffering
+        summary: List product offerings
+        description: >-
+            This operation list Product Offering entities. Attribute selection is
+            enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation.
+        operationId: readAll_4
+        parameters:
+            - name: offset
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: sort
+            in: query
+            required: false
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: successful operation
+            headers:
+                X-Total-Count:
+                description: Total number of items matching criteria
+                style: simple
+                X-Result-Count:
+                description: Actual number of items returned in the response body
+                style: simple
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/ProductOfferingEntity'
+            '400':
+            description: Bad Request
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '401':
+            description: Unauthorized
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '403':
+            description: Forbidden
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '404':
+            description: Not Found
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '405':
+            description: Method Not allowed
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '409':
+            description: Conflict
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '500':
+            description: Internal Server Error
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+        put:
+        tags:
+            - productOffering
+        summary: Update product offering
+        description: This operation updates a product offering entity.
+        operationId: update_4
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ProductOfferingEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductOfferingEntity'
+        post:
+        tags:
+            - productOffering
+        summary: Create product offering
+        description: >-
+            This operation creates Product Offering entities. Attribute selection is
+            enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation.
+        operationId: create_4
+        parameters:
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ProductOfferingEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductOfferingEntity'
+    '/v1/productOffering/{entityId}':
+        get:
+        tags:
+            - productOffering
+        summary: Retrieve product offering
+        description: >-
+            This operation retrieves Product Offering entities. Attribute selection
+            is enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation.
+        operationId: read_5
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductOfferingEntity'
+        delete:
+        tags:
+            - productOffering
+        summary: Delete product offering
+        description: This operation deletes a product offering entity.
+        operationId: delete_4
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+        patch:
+        tags:
+            - productOffering
+        summary: Patch product offering
+        description: >-
+            This operation allows partial updates of a product offering entity.
+            Support of json/merge s mandatory, support of json/patch is optional.
+        operationId: patch_4
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/merge-patch+json:
+                schema:
+                type: string
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductOfferingEntity'
+    /v1/pla:
+        get:
+        tags:
+            - pricingLogicAlgorithm
+        summary: List pla
+        description: >-
+            This operation list pla entities. Attribute selection is enabled for all
+            first level attributes. Filtering may be available depending on the
+            compliance level supported by an implementation and a server may accept
+            only queries with specified filtering to avoid an answer with too many
+            items.
+        operationId: readAll_5
+        parameters:
+            - name: offset
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: sort
+            in: query
+            required: false
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: Success
+            headers:
+                X-Total-Count:
+                description: Total number of items matching criteria
+                style: simple
+                X-Result-Count:
+                description: Actual number of items returned in the response body
+                style: simple
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/PricingLogicAlgorithmEntity'
+            '400':
+            description: Bad Request
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '401':
+            description: Unauthorized
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '403':
+            description: Forbidden
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '404':
+            description: Not Found
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '405':
+            description: Method Not allowed
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '409':
+            description: Conflict
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '500':
+            description: Internal Server Error
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+        put:
+        tags:
+            - pricingLogicAlgorithm
+        summary: Update pla
+        description: This operation updates a pla entity.
+        operationId: update_5
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/PricingLogicAlgorithmEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/PricingLogicAlgorithmEntity'
+        post:
+        tags:
+            - pricingLogicAlgorithm
+        summary: Create pla
+        description: >-
+            This operation creates pla entities. Attribute selection is enabled for
+            all first level attributes. Filtering may be available depending on the
+            compliance level supported by an implementation.
+        operationId: create_5
+        parameters:
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/PricingLogicAlgorithmEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/PricingLogicAlgorithmEntity'
+    '/v1/pla/{entityId}':
+        get:
+        tags:
+            - pricingLogicAlgorithm
+        summary: Retrieve pla
+        description: >-
+            This operation retrieves pla entities. Attribute selection is enabled
+            for all first level attributes. Filtering may be available depending on
+            the compliance level supported by an implementation and a server may
+            accept only queries with specified filtering to avoid an answer with too
+            many items.
+        operationId: read_6
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/PricingLogicAlgorithmEntity'
+        delete:
+        tags:
+            - pricingLogicAlgorithm
+        summary: Delete pla
+        description: This operation deletes a pla entity.
+        operationId: delete_5
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+        patch:
+        tags:
+            - pricingLogicAlgorithm
+        summary: Patch pla
+        description: >-
+            This operation allows partial updates of a pla entity. Support of
+            json/merge is mandatory, support of json patch is optional.
+        operationId: patch_5
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/merge-patch+json:
+                schema:
+                type: string
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/PricingLogicAlgorithmEntity'
+    /v1/productCharacteristic:
+        get:
+        tags:
+            - productCharacteristicTemplate
+        summary: List product Characteristics
+        description: >-
+            This operation list product characteristic entities. Attribute selection
+            is enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation and a
+            server may accept only queries with specified filtering to avoid an
+            answer with too many items.
+        operationId: readAll_6
+        parameters:
+            - name: offset
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: sort
+            in: query
+            required: false
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: successful operation
+            headers:
+                X-Total-Count:
+                description: Total number of items matching criteria
+                style: simple
+                X-Result-Count:
+                description: Actual number of items returned in the response body
+                style: simple
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/ProductCharacteristicEntity'
+            '400':
+            description: Bad Request
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '401':
+            description: Unauthorized
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '403':
+            description: Forbidden
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '404':
+            description: Not Found
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '405':
+            description: Method Not allowed
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '409':
+            description: Conflict
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+            '500':
+            description: Internal Server Error
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ExceptionResponse'
+        put:
+        tags:
+            - productCharacteristicTemplate
+        summary: Update product characteristic
+        description: This operation updates a product characteristic entity.
+        operationId: update_6
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ProductCharacteristicEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductCharacteristicEntity'
+        post:
+        tags:
+            - productCharacteristicTemplate
+        summary: Create product characteristic
+        description: >-
+            This operation creates Catalog entities. Attribute selection is enabled
+            for all first level attributes. Filtering may be available depending on
+            the compliance level supported by an implementation.
+        operationId: create_6
+        parameters:
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ProductCharacteristicEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductCharacteristicEntity'
+    '/v1/productCharacteristic/{entityId}':
+        get:
+        tags:
+            - productCharacteristicTemplate
+        summary: Retrieve product characteristic
+        description: >-
+            This operation retrieves product characteristic entities. Attribute
+            selection is enabled for all first level attributes. Filtering may be
+            available depending on the compliance level supported by an
+            implementation and a server may accept only queries with specified
+            filtering to avoid an answer with too many items.
+        operationId: read_7
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductCharacteristicEntity'
+        delete:
+        tags:
+            - productCharacteristicTemplate
+        summary: Delete product characteristic
+        description: This operation deletes a product characteristic entity.
+        operationId: delete_6
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+        patch:
+        tags:
+            - productCharacteristicTemplate
+        summary: Patch product characteristic
+        description: >-
+            This operation allows partial updates of a product characteristic
+            entity. Support of json/merge is mandatory, support of json patch is
+            optional.
+        operationId: patch_6
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/merge-patch+json:
+                schema:
+                type: string
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductCharacteristicEntity'
+    /v1/productOfferingPrice:
+        get:
+        tags:
+            - productOfferingPrice
+        summary: List product offering prices
+        description: >-
+            This operation list product offering price entities. Attribute selection
+            is enabled for all first level attributes. Filtering may be available
+            depending on the compliance level supported by an implementation and a
+            server may accept only queries with specified filtering to avoid an
+            answer with too many items.
+        operationId: readAll_7
+        parameters:
+            - name: offset
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                format: int32
+            - name: sort
+            in: query
+            required: false
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    type: array
+                    items:
+                    $ref: '#/components/schemas/ProductOfferingPriceEntity'
+        put:
+        tags:
+            - productOfferingPrice
+        summary: Update product offering price
+        description: This operation updates a product offering price entity.
+        operationId: update_7
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ProductOfferingPriceEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductOfferingPriceEntity'
+        post:
+        tags:
+            - productOfferingPrice
+        summary: Create product offering price
+        description: >-
+            This operation creates Product Offering Price entities. Attribute
+            selection is enabled for all first level attributes. Filtering may be
+            available depending on the compliance level supported by an
+            implementation.
+        operationId: create_7
+        parameters:
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/json:
+                schema:
+                $ref: '#/components/schemas/ProductOfferingPriceEntity'
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductOfferingPriceEntity'
+    '/v1/productOfferingPrice/{entityId}':
+        get:
+        tags:
+            - productOfferingPrice
+        summary: Retrieve product offering price
+        description: >-
+            This operation retrieves product offering price entities. Attribute
+            selection is enabled for all first level attributes. Filtering may be
+            available depending on the compliance level supported by an
+            implementation and a server may accept only queries with specified
+            filtering to avoid an answer with too many items.
+        operationId: read_8
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+            - name: fields
+            in: query
+            required: false
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductOfferingPriceEntity'
+        delete:
+        tags:
+            - productOfferingPrice
+        summary: Delete product offering price
+        description: This operation deletes a product offering price entity.
+        operationId: delete_7
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        responses:
+            '200':
+            description: default response
+        patch:
+        tags:
+            - productOfferingPrice
+        summary: Patch product offering price
+        description: >-
+            This operation allows partial updates of aproduct offering price entity.
+            Support of json/merge is mandatory, support of json patch is optional.
+        operationId: patch_7
+        parameters:
+            - name: entityId
+            in: path
+            required: true
+            schema:
+                type: string
+        requestBody:
+            content:
+            application/merge-patch+json:
+                schema:
+                type: string
+            required: true
+        responses:
+            '200':
+            description: default response
+            content:
+                application/json:
+                schema:
+                    $ref: '#/components/schemas/ProductOfferingPriceEntity'
+    components:
+    schemas:
+        ExceptionResponse:
+        type: object
+        properties:
+            type:
+            type: string
+            title:
+            type: string
+            instance:
+            type: string
+            invalidParams:
+            type: array
+            items:
+                $ref: '#/components/schemas/ValidationParam'
+            exceptionParams:
+            type: object
+            additionalProperties:
+                type: object
+            detail:
+            type: string
+        ValidationParam:
+        type: object
+        properties:
+            name:
+            type: string
+            value:
+            type: object
+            reason:
+            type: string
+            message:
+            type: string
+        CatalogEntity:
+        type: object
+        properties:
+            type:
+            type: string
+            baseType:
+            type: string
+            schemaLocation:
+            type: string
+            id:
+            type: string
+            version:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            lastUpdate:
+            type: string
+            format: date-time
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            category:
+            type: array
+            items:
+                $ref: '#/components/schemas/CategoryRef'
+            relatedParty:
+            type: array
+            items:
+                $ref: '#/components/schemas/RelatedPartyRef'
+        CategoryRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        RelatedPartyRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            role:
+            type: string
+        TimePeriod:
+        type: object
+        properties:
+            startDateTime:
+            type: string
+            format: date-time
+            endDateTime:
+            type: string
+            format: date-time
+        ConstraintEntity:
+        type: object
+        properties:
+            type:
+            type: string
+            baseType:
+            type: string
+            schemaLocation:
+            type: string
+            id:
+            type: string
+            version:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            lastUpdate:
+            type: string
+            format: date-time
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            referredType:
+            type: string
+        Parameter:
+        type: object
+        properties:
+            key:
+            type: string
+            value:
+            type: object
+        I18NMessageSource:
+        type: object
+        properties:
+            id:
+            type: string
+            key:
+            type: string
+            value:
+            type: string
+            domain:
+            type: string
+            msgType:
+            type: string
+            language:
+            type: string
+            type:
+            type: string
+            httpStatus:
+            type: string
+            title:
+            type: string
+        JsonResponse:
+        type: object
+        properties:
+            errorCode:
+            type: string
+            errorMsg:
+            type: string
+            errorDomain:
+            type: string
+            successMsg:
+            type: string
+            model:
+            type: object
+            additionalProperties:
+                type: object
+        CategoryEntity:
+        type: object
+        properties:
+            type:
+            type: string
+            baseType:
+            type: string
+            schemaLocation:
+            type: string
+            id:
+            type: string
+            version:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            lastUpdate:
+            type: string
+            format: date-time
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            parentId:
+            type: string
+            subCategory:
+            type: array
+            items:
+                $ref: '#/components/schemas/CategoryRef'
+            productOffering:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductOfferingRef'
+            isRoot:
+            type: boolean
+        ProductOfferingRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        Attachment:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            type:
+            type: string
+            description:
+            type: string
+            url:
+            type: string
+            mimeType:
+            type: string
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+        BundledProductSpecification:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            type:
+            type: string
+        ProductSpecCharRelationship:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            specType:
+            type: string
+            enum:
+                - aggregation
+                - migration
+                - substitution
+                - dependency
+                - exclusivity
+            charSpecSeq:
+            type: integer
+            format: int32
+            type:
+            type: string
+            enum:
+                - aggregation
+                - migration
+                - substitution
+                - dependency
+                - exclusivity
+        ProductSpecCharacteristic:
+        type: object
+        properties:
+            type:
+            type: string
+            schemaLocation:
+            type: string
+            valueSchemaLocation:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            valueType:
+            type: string
+            enum:
+                - string
+                - number
+                - date
+                - true/false
+                - integer
+            configurable:
+            type: boolean
+            minCardinality:
+            type: integer
+            format: int32
+            maxCardinality:
+            type: integer
+            format: int32
+            regex:
+            type: string
+            extensible:
+            type: boolean
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            productSpecCharacteristicValue:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductSpecCharacteristicValue'
+            productSpecCharRelationship:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductSpecCharRelationship'
+            isUnique:
+            type: boolean
+        ProductSpecCharacteristicValue:
+        type: object
+        properties:
+            type:
+            type: string
+            schemaLocation:
+            type: string
+            valueType:
+            type: string
+            enum:
+                - string
+                - number
+                - date
+                - true/false
+                - integer
+            value:
+            type: string
+            unitOfMeasure:
+            type: string
+            enum:
+                - Second
+                - Minute
+                - Hour
+                - Day
+                - Week
+                - Month
+                - Year
+                - M
+                - Mm
+                - Cm
+                - Km
+                - Kg
+                - Pound
+                - Bps
+                - Mbps
+                - Gbps
+                - Question
+                - Byte
+                - Mb
+                - Gb
+                - Tb
+                - None
+                - Address
+                - Color
+                - Duration
+                - Joule
+                - Number
+                - Phone Number
+                - Size
+                - Currency
+            valueFrom:
+            type: string
+            valueTo:
+            type: string
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            rangeInterval:
+            type: string
+            enum:
+                - Open
+                - Closed
+                - Closed Bottom
+                - Closed Top
+            regex:
+            type: string
+            isDefault:
+            type: boolean
+        ProductSpecificationEntity:
+        type: object
+        properties:
+            type:
+            type: string
+            baseType:
+            type: string
+            schemaLocation:
+            type: string
+            id:
+            type: string
+            version:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            lastUpdate:
+            type: string
+            format: date-time
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            productNumber:
+            type: string
+            brand:
+            type: string
+            relatedParty:
+            type: array
+            items:
+                $ref: '#/components/schemas/RelatedPartyRef'
+            attachment:
+            type: array
+            items:
+                $ref: '#/components/schemas/Attachment'
+            bundledProductSpecification:
+            type: array
+            items:
+                $ref: '#/components/schemas/BundledProductSpecification'
+            targetProductSchema:
+            $ref: '#/components/schemas/TargetProductSchemaRef'
+            productSpecificationRelationship:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductSpecificationRelationship'
+            serviceSpecification:
+            type: array
+            items:
+                $ref: '#/components/schemas/ServiceSpecificationRef'
+            resourceSpecification:
+            type: array
+            items:
+                $ref: '#/components/schemas/ResourceSpecificationRef'
+            productSpecCharacteristic:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductSpecCharacteristic'
+            isBundle:
+            type: boolean
+        ProductSpecificationRelationship:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            type:
+            type: string
+            enum:
+                - migration
+                - substitution
+                - dependency
+                - exclusivity
+        ResourceSpecificationRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        ServiceSpecificationRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        TargetProductSchemaRef:
+        type: object
+        properties:
+            schemaLocation:
+            type: string
+            referredType:
+            type: string
+        AgreementRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        BundledProdOfferOption:
+        type: object
+        properties:
+            numberRelOfferLowerLimit:
+            type: integer
+            format: int32
+            numberRelOfferUpperLimit:
+            type: integer
+            format: int32
+            numberRelOfferDefault:
+            type: integer
+            format: int32
+        BundledProductReference:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            bundledProdOfferOption:
+            $ref: '#/components/schemas/BundledProdOfferOption'
+        ChannelRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        EntityRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            internal:
+            type: boolean
+        MarketSegmentRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        PlaceRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            geoLocationUrl:
+            type: string
+            address:
+            type: string
+            role:
+            type: string
+        ProdSpecCharValueUse:
+        type: object
+        properties:
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            name:
+            type: string
+            description:
+            type: string
+            minCardinality:
+            type: integer
+            format: int32
+            maxCardinality:
+            type: integer
+            format: int32
+            productSpecification:
+            $ref: '#/components/schemas/EntityRef'
+            productSpecCharacteristicValue:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductSpecCharacteristicValue'
+        ProductOfferingEntity:
+        type: object
+        properties:
+            type:
+            type: string
+            baseType:
+            type: string
+            schemaLocation:
+            type: string
+            id:
+            type: string
+            version:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            lastUpdate:
+            type: string
+            format: date-time
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            productSpecification:
+            $ref: '#/components/schemas/EntityRef'
+            serviceCandidate:
+            $ref: '#/components/schemas/ServiceCandidateRef'
+            resourceCandidate:
+            $ref: '#/components/schemas/EntityRef'
+            serviceLevelAgreement:
+            $ref: '#/components/schemas/SLARef'
+            agreement:
+            type: array
+            items:
+                $ref: '#/components/schemas/AgreementRef'
+            category:
+            type: array
+            items:
+                $ref: '#/components/schemas/CategoryRef'
+            channel:
+            type: array
+            items:
+                $ref: '#/components/schemas/ChannelRef'
+            marketSegment:
+            type: array
+            items:
+                $ref: '#/components/schemas/MarketSegmentRef'
+            place:
+            type: array
+            items:
+                $ref: '#/components/schemas/PlaceRef'
+            bundledProductOffering:
+            type: array
+            items:
+                $ref: '#/components/schemas/BundledProductReference'
+            productOfferingTerm:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductOfferingTerm'
+            productOfferingPrice:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductOfferingPriceRef'
+            attachment:
+            type: array
+            items:
+                $ref: '#/components/schemas/Attachment'
+            prodSpecCharValueUse:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProdSpecCharValueUse'
+            isBundle:
+            type: boolean
+            isSellable:
+            type: boolean
+        ProductOfferingPriceRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            type:
+            type: string
+        ProductOfferingTerm:
+        type: object
+        properties:
+            type:
+            type: string
+            schemaLocation:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            duration:
+            $ref: '#/components/schemas/Quantity'
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+        Quantity:
+        type: object
+        properties:
+            amount:
+            type: number
+            format: float
+            units:
+            type: string
+        SLARef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        ServiceCandidateRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        PricingLogicAlgorithmEntity:
+        type: object
+        properties:
+            type:
+            type: string
+            baseType:
+            type: string
+            schemaLocation:
+            type: string
+            id:
+            type: string
+            version:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            lastUpdate:
+            type: string
+            format: date-time
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            plaSpecId:
+            type: string
+        ProductCharacteristicEntity:
+        type: object
+        properties:
+            type:
+            type: string
+            baseType:
+            type: string
+            schemaLocation:
+            type: string
+            id:
+            type: string
+            version:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            lastUpdate:
+            type: string
+            format: date-time
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            valueSchemaLocation:
+            type: string
+            valueType:
+            type: string
+            enum:
+                - string
+                - number
+                - date
+                - true/false
+                - integer
+            configurable:
+            type: boolean
+            minCardinality:
+            type: integer
+            format: int32
+            maxCardinality:
+            type: integer
+            format: int32
+            regex:
+            type: string
+            extensible:
+            type: boolean
+            productCharacteristicValue:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductSpecCharacteristicValue'
+            characteristicType:
+            type: string
+            enum:
+                - Simple Value
+                - Single Choice
+                - Range
+                - Multiple Choice
+            isUnique:
+            type: boolean
+        BundledPopRelationship:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            type:
+            type: string
+        ConstraintRef:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+        Money:
+        type: object
+        properties:
+            value:
+            type: number
+            format: float
+            units:
+            type: string
+            enum:
+                - AUD
+                - EUR
+                - USD
+                - TRY
+        PopRelationship:
+        type: object
+        properties:
+            id:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            referredType:
+            type: string
+            version:
+            type: string
+            type:
+            type: string
+            relationshipType:
+            type: string
+        PricingLogicAlgorithm:
+        type: object
+        properties:
+            type:
+            type: string
+            baseType:
+            type: string
+            schemaLocation:
+            type: string
+            id:
+            type: string
+            version:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            lastUpdate:
+            type: string
+            format: date-time
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            plaSpecId:
+            type: string
+        ProductOfferingPriceEntity:
+        type: object
+        properties:
+            type:
+            type: string
+            baseType:
+            type: string
+            schemaLocation:
+            type: string
+            id:
+            type: string
+            version:
+            type: string
+            href:
+            type: string
+            name:
+            type: string
+            description:
+            type: string
+            lastUpdate:
+            type: string
+            format: date-time
+            lifecycleStatus:
+            type: string
+            enum:
+                - In Study
+                - In Design
+                - In Test
+                - Active
+                - Launched
+                - Retired
+                - Obsolete
+                - Rejected
+                - None
+            validFor:
+            $ref: '#/components/schemas/TimePeriod'
+            priceType:
+            type: string
+            enum:
+                - One Time Charge
+                - Data Tariff Charge
+                - Simple Usage Charge
+                - Recurring Charge
+                - Per Line Charge
+                - Parametric charge
+                - Per Contract Charge
+                - Voice Tariff Charge
+                - Simple Usage Discount
+                - Recurring Discount
+                - Voice Tariff Discount
+                - One Time Discount
+                - One Time Allowance
+                - Recurring Allowance
+                - Weekend Allowance
+                - Weekend Voice Allowance
+                - Weekend Data Allowance
+                - Data Commitment
+                - Threshold Commıtment
+                - Usage Commitment
+            unitOfMeasure:
+            $ref: '#/components/schemas/Quantity'
+            price:
+            $ref: '#/components/schemas/Money'
+            recurringChargePeriodType:
+            type: string
+            recurringChargePeriodLength:
+            type: integer
+            format: int32
+            percentage:
+            type: number
+            format: double
+            pricingLogicAlgorithm:
+            type: array
+            items:
+                $ref: '#/components/schemas/PricingLogicAlgorithm'
+            constraint:
+            type: array
+            items:
+                $ref: '#/components/schemas/ConstraintRef'
+            prodSpecCharValueUse:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProdSpecCharValueUse'
+            place:
+            type: array
+            items:
+                $ref: '#/components/schemas/PlaceRef'
+            bundledPopRelationship:
+            type: array
+            items:
+                $ref: '#/components/schemas/BundledPopRelationship'
+            popRelationship:
+            type: array
+            items:
+                $ref: '#/components/schemas/PopRelationship'
+            productOfferingTerm:
+            type: array
+            items:
+                $ref: '#/components/schemas/ProductOfferingTerm'
+            tax:
+            type: array
+            items:
+                $ref: '#/components/schemas/Tax'
+            isBundle:
+            type: boolean
+        Tax:
+        type: object
+        properties:
+            taxAmount:
+            $ref: '#/components/schemas/Money'
+            taxRate:
+            type: number
+            taxCategory:
+            type: string
+
+                        
+kind: ConfigMap
+metadata:
+  name: next-pc-swagger

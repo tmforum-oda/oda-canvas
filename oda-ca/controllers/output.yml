@@ -1,0 +1,956 @@
+apiVersion: v1
+data:
+  swagger.yaml: "components:\n  schemas:\n    AgreementRef:\n      properties:\n \
+    \       href:\n          type: string\n        id:\n          type: string\n \
+    \       name:\n          type: string\n        referredType:\n          type:\
+    \ string\n        version:\n          type: string\n      type: object\n    Attachment:\n\
+    \      properties:\n        description:\n          type: string\n        href:\n\
+    \          type: string\n        id:\n          type: string\n        mimeType:\n\
+    \          type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        type:\n          type: string\n        url:\n\
+    \          type: string\n        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n\
+    \        version:\n          type: string\n      type: object\n    BundledPopRelationship:\n\
+    \      properties:\n        href:\n          type: string\n        id:\n     \
+    \     type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        type:\n          type: string\n        version:\n\
+    \          type: string\n      type: object\n    BundledProdOfferOption:\n   \
+    \   properties:\n        numberRelOfferDefault:\n          format: int32\n   \
+    \       type: integer\n        numberRelOfferLowerLimit:\n          format: int32\n\
+    \          type: integer\n        numberRelOfferUpperLimit:\n          format:\
+    \ int32\n          type: integer\n      type: object\n    BundledProductReference:\n\
+    \      properties:\n        bundledProdOfferOption:\n          $ref: '#/components/schemas/BundledProdOfferOption'\n\
+    \        href:\n          type: string\n        id:\n          type: string\n\
+    \        lifecycleStatus:\n          enum:\n          - In Study\n          -\
+    \ In Design\n          - In Test\n          - Active\n          - Launched\n \
+    \         - Retired\n          - Obsolete\n          - Rejected\n          - None\n\
+    \          type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        version:\n          type: string\n      type:\
+    \ object\n    BundledProductSpecification:\n      properties:\n        href:\n\
+    \          type: string\n        id:\n          type: string\n        lifecycleStatus:\n\
+    \          enum:\n          - In Study\n          - In Design\n          - In\
+    \ Test\n          - Active\n          - Launched\n          - Retired\n      \
+    \    - Obsolete\n          - Rejected\n          - None\n          type: string\n\
+    \        name:\n          type: string\n        referredType:\n          type:\
+    \ string\n        type:\n          type: string\n        version:\n          type:\
+    \ string\n      type: object\n    CatalogEntity:\n      properties:\n        baseType:\n\
+    \          type: string\n        category:\n          items:\n            $ref:\
+    \ '#/components/schemas/CategoryRef'\n          type: array\n        description:\n\
+    \          type: string\n        href:\n          type: string\n        id:\n\
+    \          type: string\n        lastUpdate:\n          format: date-time\n  \
+    \        type: string\n        lifecycleStatus:\n          enum:\n          -\
+    \ In Study\n          - In Design\n          - In Test\n          - Active\n \
+    \         - Launched\n          - Retired\n          - Obsolete\n          - Rejected\n\
+    \          - None\n          type: string\n        name:\n          type: string\n\
+    \        relatedParty:\n          items:\n            $ref: '#/components/schemas/RelatedPartyRef'\n\
+    \          type: array\n        schemaLocation:\n          type: string\n    \
+    \    type:\n          type: string\n        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n\
+    \        version:\n          type: string\n      type: object\n    CategoryEntity:\n\
+    \      properties:\n        baseType:\n          type: string\n        description:\n\
+    \          type: string\n        href:\n          type: string\n        id:\n\
+    \          type: string\n        isRoot:\n          type: boolean\n        lastUpdate:\n\
+    \          format: date-time\n          type: string\n        lifecycleStatus:\n\
+    \          enum:\n          - In Study\n          - In Design\n          - In\
+    \ Test\n          - Active\n          - Launched\n          - Retired\n      \
+    \    - Obsolete\n          - Rejected\n          - None\n          type: string\n\
+    \        name:\n          type: string\n        parentId:\n          type: string\n\
+    \        productOffering:\n          items:\n            $ref: '#/components/schemas/ProductOfferingRef'\n\
+    \          type: array\n        schemaLocation:\n          type: string\n    \
+    \    subCategory:\n          items:\n            $ref: '#/components/schemas/CategoryRef'\n\
+    \          type: array\n        type:\n          type: string\n        validFor:\n\
+    \          $ref: '#/components/schemas/TimePeriod'\n        version:\n       \
+    \   type: string\n      type: object\n    CategoryRef:\n      properties:\n  \
+    \      href:\n          type: string\n        id:\n          type: string\n  \
+    \      name:\n          type: string\n        referredType:\n          type: string\n\
+    \        version:\n          type: string\n      type: object\n    ChannelRef:\n\
+    \      properties:\n        href:\n          type: string\n        id:\n     \
+    \     type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        version:\n          type: string\n      type:\
+    \ object\n    ConstraintEntity:\n      properties:\n        baseType:\n      \
+    \    type: string\n        description:\n          type: string\n        href:\n\
+    \          type: string\n        id:\n          type: string\n        lastUpdate:\n\
+    \          format: date-time\n          type: string\n        lifecycleStatus:\n\
+    \          enum:\n          - In Study\n          - In Design\n          - In\
+    \ Test\n          - Active\n          - Launched\n          - Retired\n      \
+    \    - Obsolete\n          - Rejected\n          - None\n          type: string\n\
+    \        name:\n          type: string\n        referredType:\n          type:\
+    \ string\n        schemaLocation:\n          type: string\n        type:\n   \
+    \       type: string\n        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n\
+    \        version:\n          type: string\n      type: object\n    ConstraintRef:\n\
+    \      properties:\n        href:\n          type: string\n        id:\n     \
+    \     type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        version:\n          type: string\n      type:\
+    \ object\n    EntityRef:\n      properties:\n        href:\n          type: string\n\
+    \        id:\n          type: string\n        internal:\n          type: boolean\n\
+    \        name:\n          type: string\n        referredType:\n          type:\
+    \ string\n        version:\n          type: string\n      type: object\n    ExceptionResponse:\n\
+    \      properties:\n        detail:\n          type: string\n        exceptionParams:\n\
+    \          additionalProperties:\n            type: object\n          type: object\n\
+    \        instance:\n          type: string\n        invalidParams:\n         \
+    \ items:\n            $ref: '#/components/schemas/ValidationParam'\n         \
+    \ type: array\n        title:\n          type: string\n        type:\n       \
+    \   type: string\n      type: object\n    I18NMessageSource:\n      properties:\n\
+    \        domain:\n          type: string\n        httpStatus:\n          type:\
+    \ string\n        id:\n          type: string\n        key:\n          type: string\n\
+    \        language:\n          type: string\n        msgType:\n          type:\
+    \ string\n        title:\n          type: string\n        type:\n          type:\
+    \ string\n        value:\n          type: string\n      type: object\n    JsonResponse:\n\
+    \      properties:\n        errorCode:\n          type: string\n        errorDomain:\n\
+    \          type: string\n        errorMsg:\n          type: string\n        model:\n\
+    \          additionalProperties:\n            type: object\n          type: object\n\
+    \        successMsg:\n          type: string\n      type: object\n    MarketSegmentRef:\n\
+    \      properties:\n        href:\n          type: string\n        id:\n     \
+    \     type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        version:\n          type: string\n      type:\
+    \ object\n    Money:\n      properties:\n        units:\n          enum:\n   \
+    \       - AUD\n          - EUR\n          - USD\n          - TRY\n          type:\
+    \ string\n        value:\n          format: float\n          type: number\n  \
+    \    type: object\n    Parameter:\n      properties:\n        key:\n         \
+    \ type: string\n        value:\n          type: object\n      type: object\n \
+    \   PlaceRef:\n      properties:\n        address:\n          type: string\n \
+    \       geoLocationUrl:\n          type: string\n        href:\n          type:\
+    \ string\n        id:\n          type: string\n        name:\n          type:\
+    \ string\n        referredType:\n          type: string\n        role:\n     \
+    \     type: string\n        version:\n          type: string\n      type: object\n\
+    \    PopRelationship:\n      properties:\n        href:\n          type: string\n\
+    \        id:\n          type: string\n        name:\n          type: string\n\
+    \        referredType:\n          type: string\n        relationshipType:\n  \
+    \        type: string\n        type:\n          type: string\n        version:\n\
+    \          type: string\n      type: object\n    PricingLogicAlgorithm:\n    \
+    \  properties:\n        baseType:\n          type: string\n        description:\n\
+    \          type: string\n        href:\n          type: string\n        id:\n\
+    \          type: string\n        lastUpdate:\n          format: date-time\n  \
+    \        type: string\n        lifecycleStatus:\n          enum:\n          -\
+    \ In Study\n          - In Design\n          - In Test\n          - Active\n \
+    \         - Launched\n          - Retired\n          - Obsolete\n          - Rejected\n\
+    \          - None\n          type: string\n        name:\n          type: string\n\
+    \        plaSpecId:\n          type: string\n        schemaLocation:\n       \
+    \   type: string\n        type:\n          type: string\n        validFor:\n \
+    \         $ref: '#/components/schemas/TimePeriod'\n        version:\n        \
+    \  type: string\n      type: object\n    PricingLogicAlgorithmEntity:\n      properties:\n\
+    \        baseType:\n          type: string\n        description:\n          type:\
+    \ string\n        href:\n          type: string\n        id:\n          type:\
+    \ string\n        lastUpdate:\n          format: date-time\n          type: string\n\
+    \        lifecycleStatus:\n          enum:\n          - In Study\n          -\
+    \ In Design\n          - In Test\n          - Active\n          - Launched\n \
+    \         - Retired\n          - Obsolete\n          - Rejected\n          - None\n\
+    \          type: string\n        name:\n          type: string\n        plaSpecId:\n\
+    \          type: string\n        schemaLocation:\n          type: string\n   \
+    \     type:\n          type: string\n        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n\
+    \        version:\n          type: string\n      type: object\n    ProdSpecCharValueUse:\n\
+    \      properties:\n        description:\n          type: string\n        maxCardinality:\n\
+    \          format: int32\n          type: integer\n        minCardinality:\n \
+    \         format: int32\n          type: integer\n        name:\n          type:\
+    \ string\n        productSpecCharacteristicValue:\n          items:\n        \
+    \    $ref: '#/components/schemas/ProductSpecCharacteristicValue'\n          type:\
+    \ array\n        productSpecification:\n          $ref: '#/components/schemas/EntityRef'\n\
+    \        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n      type:\
+    \ object\n    ProductCharacteristicEntity:\n      properties:\n        baseType:\n\
+    \          type: string\n        characteristicType:\n          enum:\n      \
+    \    - Simple Value\n          - Single Choice\n          - Range\n          -\
+    \ Multiple Choice\n          type: string\n        configurable:\n          type:\
+    \ boolean\n        description:\n          type: string\n        extensible:\n\
+    \          type: boolean\n        href:\n          type: string\n        id:\n\
+    \          type: string\n        isUnique:\n          type: boolean\n        lastUpdate:\n\
+    \          format: date-time\n          type: string\n        lifecycleStatus:\n\
+    \          enum:\n          - In Study\n          - In Design\n          - In\
+    \ Test\n          - Active\n          - Launched\n          - Retired\n      \
+    \    - Obsolete\n          - Rejected\n          - None\n          type: string\n\
+    \        maxCardinality:\n          format: int32\n          type: integer\n \
+    \       minCardinality:\n          format: int32\n          type: integer\n  \
+    \      name:\n          type: string\n        productCharacteristicValue:\n  \
+    \        items:\n            $ref: '#/components/schemas/ProductSpecCharacteristicValue'\n\
+    \          type: array\n        regex:\n          type: string\n        schemaLocation:\n\
+    \          type: string\n        type:\n          type: string\n        validFor:\n\
+    \          $ref: '#/components/schemas/TimePeriod'\n        valueSchemaLocation:\n\
+    \          type: string\n        valueType:\n          enum:\n          - string\n\
+    \          - number\n          - date\n          - true/false\n          - integer\n\
+    \          type: string\n        version:\n          type: string\n      type:\
+    \ object\n    ProductOfferingEntity:\n      properties:\n        agreement:\n\
+    \          items:\n            $ref: '#/components/schemas/AgreementRef'\n   \
+    \       type: array\n        attachment:\n          items:\n            $ref:\
+    \ '#/components/schemas/Attachment'\n          type: array\n        baseType:\n\
+    \          type: string\n        bundledProductOffering:\n          items:\n \
+    \           $ref: '#/components/schemas/BundledProductReference'\n          type:\
+    \ array\n        category:\n          items:\n            $ref: '#/components/schemas/CategoryRef'\n\
+    \          type: array\n        channel:\n          items:\n            $ref:\
+    \ '#/components/schemas/ChannelRef'\n          type: array\n        description:\n\
+    \          type: string\n        href:\n          type: string\n        id:\n\
+    \          type: string\n        isBundle:\n          type: boolean\n        isSellable:\n\
+    \          type: boolean\n        lastUpdate:\n          format: date-time\n \
+    \         type: string\n        lifecycleStatus:\n          enum:\n          -\
+    \ In Study\n          - In Design\n          - In Test\n          - Active\n \
+    \         - Launched\n          - Retired\n          - Obsolete\n          - Rejected\n\
+    \          - None\n          type: string\n        marketSegment:\n          items:\n\
+    \            $ref: '#/components/schemas/MarketSegmentRef'\n          type: array\n\
+    \        name:\n          type: string\n        place:\n          items:\n   \
+    \         $ref: '#/components/schemas/PlaceRef'\n          type: array\n     \
+    \   prodSpecCharValueUse:\n          items:\n            $ref: '#/components/schemas/ProdSpecCharValueUse'\n\
+    \          type: array\n        productOfferingPrice:\n          items:\n    \
+    \        $ref: '#/components/schemas/ProductOfferingPriceRef'\n          type:\
+    \ array\n        productOfferingTerm:\n          items:\n            $ref: '#/components/schemas/ProductOfferingTerm'\n\
+    \          type: array\n        productSpecification:\n          $ref: '#/components/schemas/EntityRef'\n\
+    \        resourceCandidate:\n          $ref: '#/components/schemas/EntityRef'\n\
+    \        schemaLocation:\n          type: string\n        serviceCandidate:\n\
+    \          $ref: '#/components/schemas/ServiceCandidateRef'\n        serviceLevelAgreement:\n\
+    \          $ref: '#/components/schemas/SLARef'\n        type:\n          type:\
+    \ string\n        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n\
+    \        version:\n          type: string\n      type: object\n    ProductOfferingPriceEntity:\n\
+    \      properties:\n        baseType:\n          type: string\n        bundledPopRelationship:\n\
+    \          items:\n            $ref: '#/components/schemas/BundledPopRelationship'\n\
+    \          type: array\n        constraint:\n          items:\n            $ref:\
+    \ '#/components/schemas/ConstraintRef'\n          type: array\n        description:\n\
+    \          type: string\n        href:\n          type: string\n        id:\n\
+    \          type: string\n        isBundle:\n          type: boolean\n        lastUpdate:\n\
+    \          format: date-time\n          type: string\n        lifecycleStatus:\n\
+    \          enum:\n          - In Study\n          - In Design\n          - In\
+    \ Test\n          - Active\n          - Launched\n          - Retired\n      \
+    \    - Obsolete\n          - Rejected\n          - None\n          type: string\n\
+    \        name:\n          type: string\n        percentage:\n          format:\
+    \ double\n          type: number\n        place:\n          items:\n         \
+    \   $ref: '#/components/schemas/PlaceRef'\n          type: array\n        popRelationship:\n\
+    \          items:\n            $ref: '#/components/schemas/PopRelationship'\n\
+    \          type: array\n        price:\n          $ref: '#/components/schemas/Money'\n\
+    \        priceType:\n          enum:\n          - One Time Charge\n          -\
+    \ Data Tariff Charge\n          - Simple Usage Charge\n          - Recurring Charge\n\
+    \          - Per Line Charge\n          - Parametric charge\n          - Per Contract\
+    \ Charge\n          - Voice Tariff Charge\n          - Simple Usage Discount\n\
+    \          - Recurring Discount\n          - Voice Tariff Discount\n         \
+    \ - One Time Discount\n          - One Time Allowance\n          - Recurring Allowance\n\
+    \          - Weekend Allowance\n          - Weekend Voice Allowance\n        \
+    \  - Weekend Data Allowance\n          - Data Commitment\n          - \"Threshold\
+    \ Comm\\u0131tment\"\n          - Usage Commitment\n          type: string\n \
+    \       pricingLogicAlgorithm:\n          items:\n            $ref: '#/components/schemas/PricingLogicAlgorithm'\n\
+    \          type: array\n        prodSpecCharValueUse:\n          items:\n    \
+    \        $ref: '#/components/schemas/ProdSpecCharValueUse'\n          type: array\n\
+    \        productOfferingTerm:\n          items:\n            $ref: '#/components/schemas/ProductOfferingTerm'\n\
+    \          type: array\n        recurringChargePeriodLength:\n          format:\
+    \ int32\n          type: integer\n        recurringChargePeriodType:\n       \
+    \   type: string\n        schemaLocation:\n          type: string\n        tax:\n\
+    \          items:\n            $ref: '#/components/schemas/Tax'\n          type:\
+    \ array\n        type:\n          type: string\n        unitOfMeasure:\n     \
+    \     $ref: '#/components/schemas/Quantity'\n        validFor:\n          $ref:\
+    \ '#/components/schemas/TimePeriod'\n        version:\n          type: string\n\
+    \      type: object\n    ProductOfferingPriceRef:\n      properties:\n       \
+    \ href:\n          type: string\n        id:\n          type: string\n       \
+    \ name:\n          type: string\n        referredType:\n          type: string\n\
+    \        type:\n          type: string\n        version:\n          type: string\n\
+    \      type: object\n    ProductOfferingRef:\n      properties:\n        href:\n\
+    \          type: string\n        id:\n          type: string\n        name:\n\
+    \          type: string\n        referredType:\n          type: string\n     \
+    \   version:\n          type: string\n      type: object\n    ProductOfferingTerm:\n\
+    \      properties:\n        description:\n          type: string\n        duration:\n\
+    \          $ref: '#/components/schemas/Quantity'\n        name:\n          type:\
+    \ string\n        schemaLocation:\n          type: string\n        type:\n   \
+    \       type: string\n        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n\
+    \      type: object\n    ProductSpecCharRelationship:\n      properties:\n   \
+    \     charSpecSeq:\n          format: int32\n          type: integer\n       \
+    \ href:\n          type: string\n        id:\n          type: string\n       \
+    \ name:\n          type: string\n        referredType:\n          type: string\n\
+    \        specType:\n          enum:\n          - aggregation\n          - migration\n\
+    \          - substitution\n          - dependency\n          - exclusivity\n \
+    \         type: string\n        type:\n          enum:\n          - aggregation\n\
+    \          - migration\n          - substitution\n          - dependency\n   \
+    \       - exclusivity\n          type: string\n        validFor:\n          $ref:\
+    \ '#/components/schemas/TimePeriod'\n        version:\n          type: string\n\
+    \      type: object\n    ProductSpecCharacteristic:\n      properties:\n     \
+    \   configurable:\n          type: boolean\n        description:\n          type:\
+    \ string\n        extensible:\n          type: boolean\n        isUnique:\n  \
+    \        type: boolean\n        maxCardinality:\n          format: int32\n   \
+    \       type: integer\n        minCardinality:\n          format: int32\n    \
+    \      type: integer\n        name:\n          type: string\n        productSpecCharRelationship:\n\
+    \          items:\n            $ref: '#/components/schemas/ProductSpecCharRelationship'\n\
+    \          type: array\n        productSpecCharacteristicValue:\n          items:\n\
+    \            $ref: '#/components/schemas/ProductSpecCharacteristicValue'\n   \
+    \       type: array\n        regex:\n          type: string\n        schemaLocation:\n\
+    \          type: string\n        type:\n          type: string\n        validFor:\n\
+    \          $ref: '#/components/schemas/TimePeriod'\n        valueSchemaLocation:\n\
+    \          type: string\n        valueType:\n          enum:\n          - string\n\
+    \          - number\n          - date\n          - true/false\n          - integer\n\
+    \          type: string\n      type: object\n    ProductSpecCharacteristicValue:\n\
+    \      properties:\n        isDefault:\n          type: boolean\n        rangeInterval:\n\
+    \          enum:\n          - Open\n          - Closed\n          - Closed Bottom\n\
+    \          - Closed Top\n          type: string\n        regex:\n          type:\
+    \ string\n        schemaLocation:\n          type: string\n        type:\n   \
+    \       type: string\n        unitOfMeasure:\n          enum:\n          - Second\n\
+    \          - Minute\n          - Hour\n          - Day\n          - Week\n   \
+    \       - Month\n          - Year\n          - M\n          - Mm\n          -\
+    \ Cm\n          - Km\n          - Kg\n          - Pound\n          - Bps\n   \
+    \       - Mbps\n          - Gbps\n          - Question\n          - Byte\n   \
+    \       - Mb\n          - Gb\n          - Tb\n          - None\n          - Address\n\
+    \          - Color\n          - Duration\n          - Joule\n          - Number\n\
+    \          - Phone Number\n          - Size\n          - Currency\n          type:\
+    \ string\n        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n\
+    \        value:\n          type: string\n        valueFrom:\n          type: string\n\
+    \        valueTo:\n          type: string\n        valueType:\n          enum:\n\
+    \          - string\n          - number\n          - date\n          - true/false\n\
+    \          - integer\n          type: string\n      type: object\n    ProductSpecificationEntity:\n\
+    \      properties:\n        attachment:\n          items:\n            $ref: '#/components/schemas/Attachment'\n\
+    \          type: array\n        baseType:\n          type: string\n        brand:\n\
+    \          type: string\n        bundledProductSpecification:\n          items:\n\
+    \            $ref: '#/components/schemas/BundledProductSpecification'\n      \
+    \    type: array\n        description:\n          type: string\n        href:\n\
+    \          type: string\n        id:\n          type: string\n        isBundle:\n\
+    \          type: boolean\n        lastUpdate:\n          format: date-time\n \
+    \         type: string\n        lifecycleStatus:\n          enum:\n          -\
+    \ In Study\n          - In Design\n          - In Test\n          - Active\n \
+    \         - Launched\n          - Retired\n          - Obsolete\n          - Rejected\n\
+    \          - None\n          type: string\n        name:\n          type: string\n\
+    \        productNumber:\n          type: string\n        productSpecCharacteristic:\n\
+    \          items:\n            $ref: '#/components/schemas/ProductSpecCharacteristic'\n\
+    \          type: array\n        productSpecificationRelationship:\n          items:\n\
+    \            $ref: '#/components/schemas/ProductSpecificationRelationship'\n \
+    \         type: array\n        relatedParty:\n          items:\n            $ref:\
+    \ '#/components/schemas/RelatedPartyRef'\n          type: array\n        resourceSpecification:\n\
+    \          items:\n            $ref: '#/components/schemas/ResourceSpecificationRef'\n\
+    \          type: array\n        schemaLocation:\n          type: string\n    \
+    \    serviceSpecification:\n          items:\n            $ref: '#/components/schemas/ServiceSpecificationRef'\n\
+    \          type: array\n        targetProductSchema:\n          $ref: '#/components/schemas/TargetProductSchemaRef'\n\
+    \        type:\n          type: string\n        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n\
+    \        version:\n          type: string\n      type: object\n    ProductSpecificationRelationship:\n\
+    \      properties:\n        href:\n          type: string\n        id:\n     \
+    \     type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        type:\n          enum:\n          - migration\n\
+    \          - substitution\n          - dependency\n          - exclusivity\n \
+    \         type: string\n        validFor:\n          $ref: '#/components/schemas/TimePeriod'\n\
+    \        version:\n          type: string\n      type: object\n    Quantity:\n\
+    \      properties:\n        amount:\n          format: float\n          type:\
+    \ number\n        units:\n          type: string\n      type: object\n    RelatedPartyRef:\n\
+    \      properties:\n        href:\n          type: string\n        id:\n     \
+    \     type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        role:\n          type: string\n        validFor:\n\
+    \          $ref: '#/components/schemas/TimePeriod'\n        version:\n       \
+    \   type: string\n      type: object\n    ResourceSpecificationRef:\n      properties:\n\
+    \        href:\n          type: string\n        id:\n          type: string\n\
+    \        name:\n          type: string\n        referredType:\n          type:\
+    \ string\n        version:\n          type: string\n      type: object\n    SLARef:\n\
+    \      properties:\n        href:\n          type: string\n        id:\n     \
+    \     type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        version:\n          type: string\n      type:\
+    \ object\n    ServiceCandidateRef:\n      properties:\n        href:\n       \
+    \   type: string\n        id:\n          type: string\n        name:\n       \
+    \   type: string\n        referredType:\n          type: string\n        version:\n\
+    \          type: string\n      type: object\n    ServiceSpecificationRef:\n  \
+    \    properties:\n        href:\n          type: string\n        id:\n       \
+    \   type: string\n        name:\n          type: string\n        referredType:\n\
+    \          type: string\n        version:\n          type: string\n      type:\
+    \ object\n    TargetProductSchemaRef:\n      properties:\n        referredType:\n\
+    \          type: string\n        schemaLocation:\n          type: string\n   \
+    \   type: object\n    Tax:\n      properties:\n        taxAmount:\n          $ref:\
+    \ '#/components/schemas/Money'\n        taxCategory:\n          type: string\n\
+    \        taxRate:\n          type: number\n      type: object\n    TimePeriod:\n\
+    \      properties:\n        endDateTime:\n          format: date-time\n      \
+    \    type: string\n        startDateTime:\n          format: date-time\n     \
+    \     type: string\n      type: object\n    ValidationParam:\n      properties:\n\
+    \        message:\n          type: string\n        name:\n          type: string\n\
+    \        reason:\n          type: string\n        value:\n          type: object\n\
+    \      type: object\ninfo:\n  title: OpenAPI definition\n  version: v0\nopenapi:\
+    \ 3.0.1\npaths:\n  /v1/catalog:\n    get:\n      description: This operation lists\
+    \ Catalog entities. Attribute selection is enabled\n        for all first level\
+    \ attributes. Filtering may be available depending on the\n        compliance\
+    \ level supported by an implementation.\n      operationId: readAll\n      parameters:\n\
+    \      - in: query\n        name: offset\n        required: false\n        schema:\n\
+    \          format: int32\n          type: integer\n      - in: query\n       \
+    \ name: limit\n        required: false\n        schema:\n          format: int32\n\
+    \          type: integer\n      - in: query\n        name: sort\n        required:\
+    \ false\n        schema:\n          type: string\n      - in: query\n        name:\
+    \ fields\n        required: false\n        schema:\n          type: string\n \
+    \     responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                items:\n                  $ref: '#/components/schemas/CatalogEntity'\n\
+    \                type: array\n          description: successful operation\n  \
+    \        headers:\n            X-Result-Count:\n              description: Actual\
+    \ number of items returned in the response body\n              style: simple\n\
+    \            X-Total-Count:\n              description: Total number of items\
+    \ matching criteria\n              style: simple\n        '400':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Bad Request\n        '401':\n          content:\n    \
+    \        application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Unauthorized\n        '403':\n          content:\n   \
+    \         application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Forbidden\n        '404':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Not Found\n        '405':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Method Not allowed\n        '409':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Conflict\n        '500':\n          content:\n       \
+    \     application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Internal Server Error\n      summary: List catalogs\n\
+    \      tags:\n      - catalog\n    post:\n      description: This operation creates\
+    \ Catalog entities.\\nAttribute selection is\n        enabled for all first level\
+    \ attributes.\\nFiltering may be available depending\n        on the compliance\
+    \ level supported by an implementation.\n      operationId: create\n      parameters:\n\
+    \      - in: query\n        name: fields\n        required: false\n        schema:\n\
+    \          type: string\n      requestBody:\n        content:\n          application/json:\n\
+    \            schema:\n              $ref: '#/components/schemas/CatalogEntity'\n\
+    \        required: true\n      responses:\n        '201':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/CatalogEntity'\n\
+    \          description: Created\n        '400':\n          content:\n        \
+    \    application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Bad Request\n        '401':\n          content:\n    \
+    \        application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Unauthorized\n        '403':\n          content:\n   \
+    \         application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Forbidden\n        '405':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Method Not allowed\n        '409':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Conflict\n        '500':\n          content:\n       \
+    \     application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Internal Server Error\n      summary: Create catalog\n\
+    \      tags:\n      - catalog\n    put:\n      description: This operation updates\
+    \ a catalog entity.\n      operationId: update\n      requestBody:\n        content:\n\
+    \          application/json:\n            schema:\n              $ref: '#/components/schemas/CatalogEntity'\n\
+    \        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/CatalogEntity'\n\
+    \          description: default response\n      summary: Update catalog\n    \
+    \  tags:\n      - catalog\n  /v1/catalog/{entityId}:\n    delete:\n      description:\
+    \ This operation deletes a catalog entity.\n      operationId: delete\n      parameters:\n\
+    \      - in: path\n        name: entityId\n        required: true\n        schema:\n\
+    \          type: string\n      responses:\n        '200':\n          description:\
+    \ default response\n      summary: Delete catalog\n      tags:\n      - catalog\n\
+    \    get:\n      description: This operation retrieves Catalog entities. Attribute\
+    \ selection\n        is enabled for all first level attributes. Filtering may\
+    \ be available depending\n        on the compliance level supported by an implementation.\n\
+    \      operationId: read\n      parameters:\n      - in: path\n        name: entityId\n\
+    \        required: true\n        schema:\n          type: string\n      - in:\
+    \ query\n        name: fields\n        required: false\n        schema:\n    \
+    \      type: string\n      responses:\n        '200':\n          content:\n  \
+    \          application/json:\n              schema:\n                $ref: '#/components/schemas/CatalogEntity'\n\
+    \          description: default response\n      summary: Retrieve catalog\n  \
+    \    tags:\n      - catalog\n    patch:\n      description: This operation allows\
+    \ partial updates of a catalog entity. Support\n        of json/merge is mandatory,\
+    \ support of json patch is optional.\n      operationId: patch\n      parameters:\n\
+    \      - in: path\n        name: entityId\n        required: true\n        schema:\n\
+    \          type: string\n      requestBody:\n        content:\n          application/merge-patch+json:\n\
+    \            schema:\n              type: string\n        required: true\n   \
+    \   responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/CatalogEntity'\n\
+    \          description: default response\n      summary: Patch catalog\n     \
+    \ tags:\n      - catalog\n  /v1/category:\n    get:\n      description: This operation\
+    \ list Category entities. Attribute selection is enabled\n        for all first\
+    \ level attributes. Filtering may be available depending on the\n        compliance\
+    \ level supported by an implementation.\n      operationId: readAll_2\n      parameters:\n\
+    \      - in: query\n        name: offset\n        required: false\n        schema:\n\
+    \          format: int32\n          type: integer\n      - in: query\n       \
+    \ name: limit\n        required: false\n        schema:\n          format: int32\n\
+    \          type: integer\n      - in: query\n        name: sort\n        required:\
+    \ false\n        schema:\n          type: string\n      - in: query\n        name:\
+    \ fields\n        required: false\n        schema:\n          type: string\n \
+    \     responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                items:\n                  $ref: '#/components/schemas/CategoryEntity'\n\
+    \                type: array\n          description: Success\n          headers:\n\
+    \            X-Result-Count:\n              description: Actual number of items\
+    \ returned in the response body\n              style: simple\n            X-Total-Count:\n\
+    \              description: Total number of items matching criteria\n        \
+    \      style: simple\n        '400':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Bad Request\n        '401':\n          content:\n    \
+    \        application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Unauthorized\n        '403':\n          content:\n   \
+    \         application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Forbidden\n        '404':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Not Found\n        '405':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Method Not allowed\n        '409':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Conflict\n        '500':\n          content:\n       \
+    \     application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Internal Server Error\n      summary: List categories\n\
+    \      tags:\n      - category\n    post:\n      description: This operation creates\
+    \ category entities. Attribute selection is\n        enabled for all first level\
+    \ attributes. Filtering may be available depending\n        on the compliance\
+    \ level supported by an implementation.\n      operationId: create_2\n      parameters:\n\
+    \      - in: query\n        name: fields\n        required: false\n        schema:\n\
+    \          type: string\n      requestBody:\n        content:\n          application/json:\n\
+    \            schema:\n              $ref: '#/components/schemas/CategoryEntity'\n\
+    \        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/CategoryEntity'\n\
+    \          description: default response\n      summary: Create category\n   \
+    \   tags:\n      - category\n    put:\n      description: This operation updates\
+    \ a category entity\n      operationId: update_2\n      requestBody:\n       \
+    \ content:\n          application/json:\n            schema:\n              $ref:\
+    \ '#/components/schemas/CategoryEntity'\n        required: true\n      responses:\n\
+    \        '200':\n          content:\n            application/json:\n         \
+    \     schema:\n                $ref: '#/components/schemas/CategoryEntity'\n \
+    \         description: default response\n      summary: Update category\n    \
+    \  tags:\n      - category\n  /v1/category/{entityId}:\n    delete:\n      description:\
+    \ This operation deletes a category entity.\n      operationId: delete_2\n   \
+    \   parameters:\n      - in: path\n        name: entityId\n        required: true\n\
+    \        schema:\n          type: string\n      responses:\n        '200':\n \
+    \         description: default response\n      summary: Delete category\n    \
+    \  tags:\n      - category\n    get:\n      description: This operation retrieves\
+    \ category entities. Attribute selection\n        is enabled for all first level\
+    \ attributes. Filtering may be available depending\n        on the compliance\
+    \ level supported by an implementation.\n      operationId: read_3\n      parameters:\n\
+    \      - in: path\n        name: entityId\n        required: true\n        schema:\n\
+    \          type: string\n      - in: query\n        name: fields\n        required:\
+    \ false\n        schema:\n          type: string\n      responses:\n        '200':\n\
+    \          content:\n            application/json:\n              schema:\n  \
+    \              $ref: '#/components/schemas/CategoryEntity'\n          description:\
+    \ default response\n      summary: Retrieve category\n      tags:\n      - category\n\
+    \    patch:\n      description: This operation allows partial updates of a category\
+    \ entity. Support\n        of json/merge s mandatory, support of json/patch is\
+    \ optional.\n      operationId: patch_2\n      parameters:\n      - in: path\n\
+    \        name: entityId\n        required: true\n        schema:\n          type:\
+    \ string\n      requestBody:\n        content:\n          application/merge-patch+json:\n\
+    \            schema:\n              type: string\n        required: true\n   \
+    \   responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/CategoryEntity'\n\
+    \          description: default response\n      summary: Patch category\n    \
+    \  tags:\n      - category\n  /v1/constraint:\n    get:\n      description: This\
+    \ operation list Constraint entities. Attribute selection is\n        enabled\
+    \ for all first level attributes. Filtering may be available depending\n     \
+    \   on the compliance level supported by an implementation.\n      operationId:\
+    \ readAll_1\n      parameters:\n      - in: query\n        name: offset\n    \
+    \    required: false\n        schema:\n          format: int32\n          type:\
+    \ integer\n      - in: query\n        name: limit\n        required: false\n \
+    \       schema:\n          format: int32\n          type: integer\n      - in:\
+    \ query\n        name: sort\n        required: false\n        schema:\n      \
+    \    type: string\n      - in: query\n        name: fields\n        required:\
+    \ false\n        schema:\n          type: string\n      responses:\n        '200':\n\
+    \          content:\n            application/json:\n              schema:\n  \
+    \              items:\n                  $ref: '#/components/schemas/ConstraintEntity'\n\
+    \                type: array\n          description: default response\n      summary:\
+    \ List constraints\n      tags:\n      - constraint\n    post:\n      description:\
+    \ This operation creates Constraint entities. Attribute selection\n        is\
+    \ enabled for all first level attributes. Filtering may be available depending\n\
+    \        on the compliance level supported by an implementation.\n      operationId:\
+    \ create_1\n      parameters:\n      - in: query\n        name: fields\n     \
+    \   required: false\n        schema:\n          type: string\n      requestBody:\n\
+    \        content:\n          application/json:\n            schema:\n        \
+    \      $ref: '#/components/schemas/ConstraintEntity'\n        required: true\n\
+    \      responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ConstraintEntity'\n\
+    \          description: default response\n      summary: Create constraint\n \
+    \     tags:\n      - constraint\n    put:\n      description: This operation updates\
+    \ a constraint entity.\n      operationId: update_1\n      requestBody:\n    \
+    \    content:\n          application/json:\n            schema:\n            \
+    \  $ref: '#/components/schemas/ConstraintEntity'\n        required: true\n   \
+    \   responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ConstraintEntity'\n\
+    \          description: default response\n      summary: Update constraint\n \
+    \     tags:\n      - constraint\n  /v1/constraint/{entityId}:\n    delete:\n \
+    \     description: This operation deletes a constraint entity.\n      operationId:\
+    \ delete_1\n      parameters:\n      - in: path\n        name: entityId\n    \
+    \    required: true\n        schema:\n          type: string\n      responses:\n\
+    \        '200':\n          description: default response\n      summary: Delete\
+    \ constraint\n      tags:\n      - constraint\n    get:\n      description: This\
+    \ operation retrieves Constraint entities. Attribute selection\n        is enabled\
+    \ for all first level attributes. Filtering may be available depending\n     \
+    \   on the compliance level supported by an implementation.\n      operationId:\
+    \ read_1\n      parameters:\n      - in: path\n        name: entityId\n      \
+    \  required: true\n        schema:\n          type: string\n      - in: query\n\
+    \        name: fields\n        required: false\n        schema:\n          type:\
+    \ string\n      responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ConstraintEntity'\n\
+    \          description: default response\n      summary: Retrieve constraint\n\
+    \      tags:\n      - constraint\n    patch:\n      description: This operation\
+    \ allows partial updates of a constraint entity. Support\n        of json/merge\
+    \ is mandatory, support of json patch is optional.\n      operationId: patch_1\n\
+    \      parameters:\n      - in: path\n        name: entityId\n        required:\
+    \ true\n        schema:\n          type: string\n      requestBody:\n        content:\n\
+    \          application/merge-patch+json:\n            schema:\n              type:\
+    \ string\n        required: true\n      responses:\n        '200':\n         \
+    \ content:\n            application/json:\n              schema:\n           \
+    \     $ref: '#/components/schemas/ConstraintEntity'\n          description: default\
+    \ response\n      summary: Patch constraint\n      tags:\n      - constraint\n\
+    \  /v1/general/parameters:\n    get:\n      operationId: read_2\n      responses:\n\
+    \        '200':\n          content:\n            application/json:\n         \
+    \     schema:\n                items:\n                  $ref: '#/components/schemas/Parameter'\n\
+    \                type: array\n          description: default response\n      tags:\n\
+    \      - general\n  /v1/i18N:\n    post:\n      operationId: insert\n      requestBody:\n\
+    \        content:\n          application/json:\n            schema:\n        \
+    \      $ref: '#/components/schemas/I18NMessageSource'\n        required: true\n\
+    \      responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/JsonResponse'\n\
+    \          description: default response\n      tags:\n      - i18n\n  /v1/i18N/insertAllMessages:\n\
+    \    post:\n      operationId: insertAll\n      requestBody:\n        content:\n\
+    \          application/json:\n            schema:\n              items:\n    \
+    \            $ref: '#/components/schemas/I18NMessageSource'\n              type:\
+    \ array\n        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/JsonResponse'\n\
+    \          description: default response\n      tags:\n      - i18n\n  /v1/pla:\n\
+    \    get:\n      description: This operation list pla entities. Attribute selection\
+    \ is enabled\n        for all first level attributes. Filtering may be available\
+    \ depending on the\n        compliance level supported by an implementation and\
+    \ a server may accept only\n        queries with specified filtering to avoid\
+    \ an answer with too many items.\n      operationId: readAll_5\n      parameters:\n\
+    \      - in: query\n        name: offset\n        required: false\n        schema:\n\
+    \          format: int32\n          type: integer\n      - in: query\n       \
+    \ name: limit\n        required: false\n        schema:\n          format: int32\n\
+    \          type: integer\n      - in: query\n        name: sort\n        required:\
+    \ false\n        schema:\n          type: string\n      - in: query\n        name:\
+    \ fields\n        required: false\n        schema:\n          type: string\n \
+    \     responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                items:\n                  $ref: '#/components/schemas/PricingLogicAlgorithmEntity'\n\
+    \                type: array\n          description: Success\n          headers:\n\
+    \            X-Result-Count:\n              description: Actual number of items\
+    \ returned in the response body\n              style: simple\n            X-Total-Count:\n\
+    \              description: Total number of items matching criteria\n        \
+    \      style: simple\n        '400':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Bad Request\n        '401':\n          content:\n    \
+    \        application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Unauthorized\n        '403':\n          content:\n   \
+    \         application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Forbidden\n        '404':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Not Found\n        '405':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Method Not allowed\n        '409':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Conflict\n        '500':\n          content:\n       \
+    \     application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Internal Server Error\n      summary: List pla\n     \
+    \ tags:\n      - pricingLogicAlgorithm\n    post:\n      description: This operation\
+    \ creates pla entities. Attribute selection is enabled\n        for all first\
+    \ level attributes. Filtering may be available depending on the\n        compliance\
+    \ level supported by an implementation.\n      operationId: create_5\n      parameters:\n\
+    \      - in: query\n        name: fields\n        required: false\n        schema:\n\
+    \          type: string\n      requestBody:\n        content:\n          application/json:\n\
+    \            schema:\n              $ref: '#/components/schemas/PricingLogicAlgorithmEntity'\n\
+    \        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/PricingLogicAlgorithmEntity'\n\
+    \          description: default response\n      summary: Create pla\n      tags:\n\
+    \      - pricingLogicAlgorithm\n    put:\n      description: This operation updates\
+    \ a pla entity.\n      operationId: update_5\n      requestBody:\n        content:\n\
+    \          application/json:\n            schema:\n              $ref: '#/components/schemas/PricingLogicAlgorithmEntity'\n\
+    \        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/PricingLogicAlgorithmEntity'\n\
+    \          description: default response\n      summary: Update pla\n      tags:\n\
+    \      - pricingLogicAlgorithm\n  /v1/pla/{entityId}:\n    delete:\n      description:\
+    \ This operation deletes a pla entity.\n      operationId: delete_5\n      parameters:\n\
+    \      - in: path\n        name: entityId\n        required: true\n        schema:\n\
+    \          type: string\n      responses:\n        '200':\n          description:\
+    \ default response\n      summary: Delete pla\n      tags:\n      - pricingLogicAlgorithm\n\
+    \    get:\n      description: This operation retrieves pla entities. Attribute\
+    \ selection is enabled\n        for all first level attributes. Filtering may\
+    \ be available depending on the\n        compliance level supported by an implementation\
+    \ and a server may accept only\n        queries with specified filtering to avoid\
+    \ an answer with too many items.\n      operationId: read_6\n      parameters:\n\
+    \      - in: path\n        name: entityId\n        required: true\n        schema:\n\
+    \          type: string\n      - in: query\n        name: fields\n        required:\
+    \ false\n        schema:\n          type: string\n      responses:\n        '200':\n\
+    \          content:\n            application/json:\n              schema:\n  \
+    \              $ref: '#/components/schemas/PricingLogicAlgorithmEntity'\n    \
+    \      description: default response\n      summary: Retrieve pla\n      tags:\n\
+    \      - pricingLogicAlgorithm\n    patch:\n      description: This operation\
+    \ allows partial updates of a pla entity. Support\n        of json/merge is mandatory,\
+    \ support of json patch is optional.\n      operationId: patch_5\n      parameters:\n\
+    \      - in: path\n        name: entityId\n        required: true\n        schema:\n\
+    \          type: string\n      requestBody:\n        content:\n          application/merge-patch+json:\n\
+    \            schema:\n              type: string\n        required: true\n   \
+    \   responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/PricingLogicAlgorithmEntity'\n\
+    \          description: default response\n      summary: Patch pla\n      tags:\n\
+    \      - pricingLogicAlgorithm\n  /v1/productCharacteristic:\n    get:\n     \
+    \ description: This operation list product characteristic entities. Attribute\n\
+    \        selection is enabled for all first level attributes. Filtering may be\
+    \ available\n        depending on the compliance level supported by an implementation\
+    \ and a server\n        may accept only queries with specified filtering to avoid\
+    \ an answer with too\n        many items.\n      operationId: readAll_6\n    \
+    \  parameters:\n      - in: query\n        name: offset\n        required: false\n\
+    \        schema:\n          format: int32\n          type: integer\n      - in:\
+    \ query\n        name: limit\n        required: false\n        schema:\n     \
+    \     format: int32\n          type: integer\n      - in: query\n        name:\
+    \ sort\n        required: false\n        schema:\n          type: string\n   \
+    \   - in: query\n        name: fields\n        required: false\n        schema:\n\
+    \          type: string\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                items:\n\
+    \                  $ref: '#/components/schemas/ProductCharacteristicEntity'\n\
+    \                type: array\n          description: successful operation\n  \
+    \        headers:\n            X-Result-Count:\n              description: Actual\
+    \ number of items returned in the response body\n              style: simple\n\
+    \            X-Total-Count:\n              description: Total number of items\
+    \ matching criteria\n              style: simple\n        '400':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Bad Request\n        '401':\n          content:\n    \
+    \        application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Unauthorized\n        '403':\n          content:\n   \
+    \         application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Forbidden\n        '404':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Not Found\n        '405':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Method Not allowed\n        '409':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Conflict\n        '500':\n          content:\n       \
+    \     application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Internal Server Error\n      summary: List product Characteristics\n\
+    \      tags:\n      - productCharacteristicTemplate\n    post:\n      description:\
+    \ This operation creates Catalog entities. Attribute selection is\n        enabled\
+    \ for all first level attributes. Filtering may be available depending\n     \
+    \   on the compliance level supported by an implementation.\n      operationId:\
+    \ create_6\n      parameters:\n      - in: query\n        name: fields\n     \
+    \   required: false\n        schema:\n          type: string\n      requestBody:\n\
+    \        content:\n          application/json:\n            schema:\n        \
+    \      $ref: '#/components/schemas/ProductCharacteristicEntity'\n        required:\
+    \ true\n      responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ProductCharacteristicEntity'\n\
+    \          description: default response\n      summary: Create product characteristic\n\
+    \      tags:\n      - productCharacteristicTemplate\n    put:\n      description:\
+    \ This operation updates a product characteristic entity.\n      operationId:\
+    \ update_6\n      requestBody:\n        content:\n          application/json:\n\
+    \            schema:\n              $ref: '#/components/schemas/ProductCharacteristicEntity'\n\
+    \        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ProductCharacteristicEntity'\n\
+    \          description: default response\n      summary: Update product characteristic\n\
+    \      tags:\n      - productCharacteristicTemplate\n  /v1/productCharacteristic/{entityId}:\n\
+    \    delete:\n      description: This operation deletes a product characteristic\
+    \ entity.\n      operationId: delete_6\n      parameters:\n      - in: path\n\
+    \        name: entityId\n        required: true\n        schema:\n          type:\
+    \ string\n      responses:\n        '200':\n          description: default response\n\
+    \      summary: Delete product characteristic\n      tags:\n      - productCharacteristicTemplate\n\
+    \    get:\n      description: This operation retrieves product characteristic\
+    \ entities. Attribute\n        selection is enabled for all first level attributes.\
+    \ Filtering may be available\n        depending on the compliance level supported\
+    \ by an implementation and a server\n        may accept only queries with specified\
+    \ filtering to avoid an answer with too\n        many items.\n      operationId:\
+    \ read_7\n      parameters:\n      - in: path\n        name: entityId\n      \
+    \  required: true\n        schema:\n          type: string\n      - in: query\n\
+    \        name: fields\n        required: false\n        schema:\n          type:\
+    \ string\n      responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ProductCharacteristicEntity'\n\
+    \          description: default response\n      summary: Retrieve product characteristic\n\
+    \      tags:\n      - productCharacteristicTemplate\n    patch:\n      description:\
+    \ This operation allows partial updates of a product characteristic\n        entity.\
+    \ Support of json/merge is mandatory, support of json patch is optional.\n   \
+    \   operationId: patch_6\n      parameters:\n      - in: path\n        name: entityId\n\
+    \        required: true\n        schema:\n          type: string\n      requestBody:\n\
+    \        content:\n          application/merge-patch+json:\n            schema:\n\
+    \              type: string\n        required: true\n      responses:\n      \
+    \  '200':\n          content:\n            application/json:\n              schema:\n\
+    \                $ref: '#/components/schemas/ProductCharacteristicEntity'\n  \
+    \        description: default response\n      summary: Patch product characteristic\n\
+    \      tags:\n      - productCharacteristicTemplate\n  /v1/productOffering:\n\
+    \    get:\n      description: This operation list Product Offering entities. Attribute\
+    \ selection\n        is enabled for all first level attributes. Filtering may\
+    \ be available depending\n        on the compliance level supported by an implementation.\n\
+    \      operationId: readAll_4\n      parameters:\n      - in: query\n        name:\
+    \ offset\n        required: false\n        schema:\n          format: int32\n\
+    \          type: integer\n      - in: query\n        name: limit\n        required:\
+    \ false\n        schema:\n          format: int32\n          type: integer\n \
+    \     - in: query\n        name: sort\n        required: false\n        schema:\n\
+    \          type: string\n      - in: query\n        name: fields\n        required:\
+    \ false\n        schema:\n          type: string\n      responses:\n        '200':\n\
+    \          content:\n            application/json:\n              schema:\n  \
+    \              items:\n                  $ref: '#/components/schemas/ProductOfferingEntity'\n\
+    \                type: array\n          description: successful operation\n  \
+    \        headers:\n            X-Result-Count:\n              description: Actual\
+    \ number of items returned in the response body\n              style: simple\n\
+    \            X-Total-Count:\n              description: Total number of items\
+    \ matching criteria\n              style: simple\n        '400':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Bad Request\n        '401':\n          content:\n    \
+    \        application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Unauthorized\n        '403':\n          content:\n   \
+    \         application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Forbidden\n        '404':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Not Found\n        '405':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Method Not allowed\n        '409':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Conflict\n        '500':\n          content:\n       \
+    \     application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Internal Server Error\n      summary: List product offerings\n\
+    \      tags:\n      - productOffering\n    post:\n      description: This operation\
+    \ creates Product Offering entities. Attribute selection\n        is enabled for\
+    \ all first level attributes. Filtering may be available depending\n        on\
+    \ the compliance level supported by an implementation.\n      operationId: create_4\n\
+    \      parameters:\n      - in: query\n        name: fields\n        required:\
+    \ false\n        schema:\n          type: string\n      requestBody:\n       \
+    \ content:\n          application/json:\n            schema:\n              $ref:\
+    \ '#/components/schemas/ProductOfferingEntity'\n        required: true\n     \
+    \ responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ProductOfferingEntity'\n\
+    \          description: default response\n      summary: Create product offering\n\
+    \      tags:\n      - productOffering\n    put:\n      description: This operation\
+    \ updates a product offering entity.\n      operationId: update_4\n      requestBody:\n\
+    \        content:\n          application/json:\n            schema:\n        \
+    \      $ref: '#/components/schemas/ProductOfferingEntity'\n        required: true\n\
+    \      responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ProductOfferingEntity'\n\
+    \          description: default response\n      summary: Update product offering\n\
+    \      tags:\n      - productOffering\n  /v1/productOffering/{entityId}:\n   \
+    \ delete:\n      description: This operation deletes a product offering entity.\n\
+    \      operationId: delete_4\n      parameters:\n      - in: path\n        name:\
+    \ entityId\n        required: true\n        schema:\n          type: string\n\
+    \      responses:\n        '200':\n          description: default response\n \
+    \     summary: Delete product offering\n      tags:\n      - productOffering\n\
+    \    get:\n      description: This operation retrieves Product Offering entities.\
+    \ Attribute selection\n        is enabled for all first level attributes. Filtering\
+    \ may be available depending\n        on the compliance level supported by an\
+    \ implementation.\n      operationId: read_5\n      parameters:\n      - in: path\n\
+    \        name: entityId\n        required: true\n        schema:\n          type:\
+    \ string\n      - in: query\n        name: fields\n        required: false\n \
+    \       schema:\n          type: string\n      responses:\n        '200':\n  \
+    \        content:\n            application/json:\n              schema:\n    \
+    \            $ref: '#/components/schemas/ProductOfferingEntity'\n          description:\
+    \ default response\n      summary: Retrieve product offering\n      tags:\n  \
+    \    - productOffering\n    patch:\n      description: This operation allows partial\
+    \ updates of a product offering entity.\n        Support of json/merge s mandatory,\
+    \ support of json/patch is optional.\n      operationId: patch_4\n      parameters:\n\
+    \      - in: path\n        name: entityId\n        required: true\n        schema:\n\
+    \          type: string\n      requestBody:\n        content:\n          application/merge-patch+json:\n\
+    \            schema:\n              type: string\n        required: true\n   \
+    \   responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ProductOfferingEntity'\n\
+    \          description: default response\n      summary: Patch product offering\n\
+    \      tags:\n      - productOffering\n  /v1/productOfferingPrice:\n    get:\n\
+    \      description: This operation list product offering price entities. Attribute\n\
+    \        selection is enabled for all first level attributes. Filtering may be\
+    \ available\n        depending on the compliance level supported by an implementation\
+    \ and a server\n        may accept only queries with specified filtering to avoid\
+    \ an answer with too\n        many items.\n      operationId: readAll_7\n    \
+    \  parameters:\n      - in: query\n        name: offset\n        required: false\n\
+    \        schema:\n          format: int32\n          type: integer\n      - in:\
+    \ query\n        name: limit\n        required: false\n        schema:\n     \
+    \     format: int32\n          type: integer\n      - in: query\n        name:\
+    \ sort\n        required: false\n        schema:\n          type: string\n   \
+    \   - in: query\n        name: fields\n        required: false\n        schema:\n\
+    \          type: string\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                items:\n\
+    \                  $ref: '#/components/schemas/ProductOfferingPriceEntity'\n \
+    \               type: array\n          description: default response\n      summary:\
+    \ List product offering prices\n      tags:\n      - productOfferingPrice\n  \
+    \  post:\n      description: This operation creates Product Offering Price entities.\
+    \ Attribute\n        selection is enabled for all first level attributes. Filtering\
+    \ may be available\n        depending on the compliance level supported by an\
+    \ implementation.\n      operationId: create_7\n      parameters:\n      - in:\
+    \ query\n        name: fields\n        required: false\n        schema:\n    \
+    \      type: string\n      requestBody:\n        content:\n          application/json:\n\
+    \            schema:\n              $ref: '#/components/schemas/ProductOfferingPriceEntity'\n\
+    \        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ProductOfferingPriceEntity'\n\
+    \          description: default response\n      summary: Create product offering\
+    \ price\n      tags:\n      - productOfferingPrice\n    put:\n      description:\
+    \ This operation updates a product offering price entity.\n      operationId:\
+    \ update_7\n      requestBody:\n        content:\n          application/json:\n\
+    \            schema:\n              $ref: '#/components/schemas/ProductOfferingPriceEntity'\n\
+    \        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ProductOfferingPriceEntity'\n\
+    \          description: default response\n      summary: Update product offering\
+    \ price\n      tags:\n      - productOfferingPrice\n  /v1/productOfferingPrice/{entityId}:\n\
+    \    delete:\n      description: This operation deletes a product offering price\
+    \ entity.\n      operationId: delete_7\n      parameters:\n      - in: path\n\
+    \        name: entityId\n        required: true\n        schema:\n          type:\
+    \ string\n      responses:\n        '200':\n          description: default response\n\
+    \      summary: Delete product offering price\n      tags:\n      - productOfferingPrice\n\
+    \    get:\n      description: This operation retrieves product offering price\
+    \ entities. Attribute\n        selection is enabled for all first level attributes.\
+    \ Filtering may be available\n        depending on the compliance level supported\
+    \ by an implementation and a server\n        may accept only queries with specified\
+    \ filtering to avoid an answer with too\n        many items.\n      operationId:\
+    \ read_8\n      parameters:\n      - in: path\n        name: entityId\n      \
+    \  required: true\n        schema:\n          type: string\n      - in: query\n\
+    \        name: fields\n        required: false\n        schema:\n          type:\
+    \ string\n      responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ProductOfferingPriceEntity'\n\
+    \          description: default response\n      summary: Retrieve product offering\
+    \ price\n      tags:\n      - productOfferingPrice\n    patch:\n      description:\
+    \ This operation allows partial updates of aproduct offering price\n        entity.\
+    \ Support of json/merge is mandatory, support of json patch is optional.\n   \
+    \   operationId: patch_7\n      parameters:\n      - in: path\n        name: entityId\n\
+    \        required: true\n        schema:\n          type: string\n      requestBody:\n\
+    \        content:\n          application/merge-patch+json:\n            schema:\n\
+    \              type: string\n        required: true\n      responses:\n      \
+    \  '200':\n          content:\n            application/json:\n              schema:\n\
+    \                $ref: '#/components/schemas/ProductOfferingPriceEntity'\n   \
+    \       description: default response\n      summary: Patch product offering price\n\
+    \      tags:\n      - productOfferingPrice\n  /v1/productSpecification:\n    get:\n\
+    \      description: This operation list product specification entities. Attribute\
+    \ selection\n        is enabled for all first level attributes. Filtering may\
+    \ be available depending\n        on the compliance level supported by an implementation\
+    \ and a server may accept\n        only queries with specified filtering to avoid\
+    \ an answer with too many items.\n      operationId: readAll_3\n      parameters:\n\
+    \      - in: query\n        name: offset\n        required: false\n        schema:\n\
+    \          format: int32\n          type: integer\n      - in: query\n       \
+    \ name: limit\n        required: false\n        schema:\n          format: int32\n\
+    \          type: integer\n      - in: query\n        name: sort\n        required:\
+    \ false\n        schema:\n          type: string\n      - in: query\n        name:\
+    \ fields\n        required: false\n        schema:\n          type: string\n \
+    \     responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                items:\n                  $ref: '#/components/schemas/ProductSpecificationEntity'\n\
+    \                type: array\n          description: successful operation\n  \
+    \        headers:\n            X-Result-Count:\n              description: Actual\
+    \ number of items returned in the response body\n              style: simple\n\
+    \            X-Total-Count:\n              description: Total number of items\
+    \ matching criteria\n              style: simple\n        '400':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Bad Request\n        '401':\n          content:\n    \
+    \        application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Unauthorized\n        '403':\n          content:\n   \
+    \         application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Forbidden\n        '404':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Not Found\n        '405':\n          content:\n      \
+    \      application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Method Not allowed\n        '409':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Conflict\n        '500':\n          content:\n       \
+    \     application/json:\n              schema:\n                $ref: '#/components/schemas/ExceptionResponse'\n\
+    \          description: Internal Server Error\n      summary: List product specifications\n\
+    \      tags:\n      - productSpecification\n    post:\n      description: This\
+    \ operation creates Catalog entities. Attribute selection is\n        enabled\
+    \ for all first level attributes. Filtering may be available depending\n     \
+    \   on the compliance level supported by an implementation.\n      operationId:\
+    \ create_3\n      parameters:\n      - in: query\n        name: fields\n     \
+    \   required: false\n        schema:\n          type: string\n      requestBody:\n\
+    \        content:\n          application/json:\n            schema:\n        \
+    \      $ref: '#/components/schemas/ProductSpecificationEntity'\n        required:\
+    \ true\n      responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ProductSpecificationEntity'\n\
+    \          description: default response\n      summary: Create product specification\n\
+    \      tags:\n      - productSpecification\n    put:\n      description: This\
+    \ operation updates a product specification entity.\n      operationId: update_3\n\
+    \      requestBody:\n        content:\n          application/json:\n         \
+    \   schema:\n              $ref: '#/components/schemas/ProductSpecificationEntity'\n\
+    \        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                $ref: '#/components/schemas/ProductSpecificationEntity'\n\
+    \          description: default response\n      summary: Update product specification\n\
+    \      tags:\n      - productSpecification\n  /v1/productSpecification/relatedProdSpecCharacteristics:\n\
+    \    post:\n      description: This operation retrieves related product specification\
+    \ characteristics.\n      operationId: getRelatedProdSpecCharacteristics\n   \
+    \   parameters:\n      - in: query\n        name: fields\n        required: false\n\
+    \        schema:\n          type: string\n      requestBody:\n        content:\n\
+    \          application/json:\n            schema:\n              $ref: '#/components/schemas/ProductSpecificationEntity'\n\
+    \        required: true\n      responses:\n        '200':\n          content:\n\
+    \            application/json:\n              schema:\n                items:\n\
+    \                  $ref: '#/components/schemas/ProductSpecCharacteristic'\n  \
+    \              type: array\n          description: default response\n      summary:\
+    \ Retrieve related product specification characteristics\n      tags:\n      -\
+    \ productSpecification\n  /v1/productSpecification/{entityId}:\n    delete:\n\
+    \      description: This operation deletes a product specification entity.\n \
+    \     operationId: delete_3\n      parameters:\n      - in: path\n        name:\
+    \ entityId\n        required: true\n        schema:\n          type: string\n\
+    \      responses:\n        '200':\n          description: default response\n \
+    \     summary: Delete product specification\n      tags:\n      - productSpecification\n\
+    \    get:\n      description: This operation retrieves product specification entities.\
+    \ Attribute\n        selection is enabled for all first level attributes. Filtering\
+    \ may be available\n        depending on the compliance level supported by an\
+    \ implementation and a server\n        may accept only queries with specified\
+    \ filtering to avoid an answer with too\n        many items.\n      operationId:\
+    \ read_4\n      parameters:\n      - in: path\n        name: entityId\n      \
+    \  required: true\n        schema:\n          type: string\n      - in: query\n\
+    \        name: fields\n        required: false\n        schema:\n          type:\
+    \ string\n      responses:\n        '200':\n          content:\n            application/json:\n\
+    \              schema:\n                $ref: '#/components/schemas/ProductSpecificationEntity'\n\
+    \          description: default response\n      summary: Retrieve product specification\n\
+    \      tags:\n      - productSpecification\n    patch:\n      description: This\
+    \ operation allows partial updates of a product specification\n        entity.\
+    \ Support of json/merge is mandatory, support of json patch is optional.\n   \
+    \   operationId: patch_3\n      parameters:\n      - in: path\n        name: entityId\n\
+    \        required: true\n        schema:\n          type: string\n      requestBody:\n\
+    \        content:\n          application/merge-patch+json:\n            schema:\n\
+    \              type: string\n        required: true\n      responses:\n      \
+    \  '200':\n          content:\n            application/json:\n              schema:\n\
+    \                $ref: '#/components/schemas/ProductSpecificationEntity'\n   \
+    \       description: default response\n      summary: Patch product specification\n\
+    \      tags:\n      - productSpecification\nservers:\n- description: Generated\
+    \ server url\n  url: http://35.230.142.105/catalogManagement\nx-wso2-basePath:\
+    \ /catalogManagement\nx-wso2-production-endpoints:\n  urls:\n  - http://next-pc:8191/catalogManagement\n"
+kind: ConfigMap
+metadata:
+  name: next-pc-swagger
