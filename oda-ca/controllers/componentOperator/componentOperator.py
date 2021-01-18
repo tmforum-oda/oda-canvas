@@ -11,6 +11,7 @@ logger.setLevel(int(os.getenv('LOGGING', 30))) #Logging level default = WARNING
 componentNameSpaceList = os.getenv('COMPONENT_NAMESPACE', 30).split(',')
 logging.info("Component controller monitoring namespaces: %s", ''.join(componentNameSpaceList))
 
+CONST_HTTP_CONFLICT = 409
 
 @kopf.on.create('', 'v1', 'services')
 def adopt_service(meta, spec, body, **kwargs):
@@ -43,9 +44,10 @@ def adopt_service(meta, spec, body, **kwargs):
                     logging.debug('Patch service with owner. api_response = %s', api_response)
                     logging.info('Adding component %s as parent of service %s', name, meta.get('name'))
                 except ApiException as e:   
-                    logging.warning("Exception when calling core_api_instance.patch_namespaced_service:")
-                    logging.info(e)
-                    raise kopf.TemporaryError("Exception updating service.")
+                    if e.status == CONST_HTTP_CONFLICT: # Conflict = try again
+                        raise kopf.TemporaryError("Conflict updating service.")
+                    else:
+                        logging.error("Exception when calling core_api_instance.patch_namespaced_service: %s", e)
 
 
 
@@ -80,9 +82,10 @@ def adopt_deployment(meta, spec, body, **kwargs):
                         api_response = apps_api_instance.patch_namespaced_deployment(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
                         logging.debug('Patch deployment with owner. api_response = %s', api_response)
                     except ApiException as e:
-                        logging.warning("Exception when calling apps_api_instance.patch_namespaced_deployment:")
-                        logging.info(e)
-                        raise kopf.TemporaryError("Exception updating deployment.")
+                        if e.status == CONST_HTTP_CONFLICT: # Conflict = try again
+                            raise kopf.TemporaryError("Conflict updating deployment.")
+                        else:
+                            logging.error("Exception when calling apps_api_instance.patch_namespaced_deployment: %s", e)
 
 
 
@@ -150,53 +153,53 @@ def api_status(meta, status, spec, **kwargs):
     logging.info(f"Update called for api {meta['name']}")
     logging.debug(f"status: {status}")
     namespace = meta.get('namespace')
+    if 'ingress' in status.keys(): 
+        if 'url' in status['ingress'].keys(): 
+            if 'ownerReferences' in meta.keys():
+                api_instance = kubernetes.client.CustomObjectsApi()
+                group = 'oda.tmforum.org' # str | the custom resource's group
+                version = 'v1alpha1' # str | the custom resource's version
+                plural = 'components' # str | the custom resource's plural name
+                name = meta['ownerReferences'][0]['name'] # str | the custom object's name
 
-    if 'ownerReferences' in meta.keys():
+                try:
+                    parent_component = api_instance.get_namespaced_custom_object(group, version, namespace, plural, name)
 
-        api_instance = kubernetes.client.CustomObjectsApi()
-        group = 'oda.tmforum.org' # str | the custom resource's group
-        version = 'v1alpha1' # str | the custom resource's version
-        plural = 'components' # str | the custom resource's plural name
-        name = meta['ownerReferences'][0]['name'] # str | the custom object's name
+                except ApiException as e:
+                    logging.warning("Exception when calling CustomObjectsApi->get_namespaced_custom_object: %s\n" % e)
+                    raise kopf.TemporaryError("Exception updating service.")
 
-        try:
-            parent_component = api_instance.get_namespaced_custom_object(group, version, namespace, plural, name)
+                logging.debug(f"api parent is {parent_component}")
 
-        except ApiException as e:
-            logging.warning("Exception when calling CustomObjectsApi->get_namespaced_custom_object: %s\n" % e)
-            raise kopf.TemporaryError("Exception updating service.")
+                # find the correct array entry to update
 
-        logging.debug(f"api parent is {parent_component}")
+                for key in range(len(parent_component['status']['exposedAPIs'])):
+                    if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['exposedAPIs'][key]['url'] = status['ingress']['url']
+                        if 'developerUI' in status['ingress'].keys():
+                            parent_component['status']['exposedAPIs'][key]['developerUI'] = status['ingress']['developerUI']
 
-        # find the correct array entry to update
+                #get all the exposed APIs in the staus and create a summary string
 
-        for key in range(len(parent_component['status']['exposedAPIs'])):
-            if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
-                parent_component['status']['exposedAPIs'][key]['url'] = status['ingress']['url']
-                if 'developerUI' in status['ingress'].keys():
-                    parent_component['status']['exposedAPIs'][key]['developerUI'] = status['ingress']['developerUI']
-
-        #get all the exposed APIs in the staus and create a summary string
-
-        exposedAPIsummary = ''
-        developerUIsummary = ''
-        countOfCompleteAPIs = 0
-        for api in parent_component['status']['exposedAPIs']:
-            if 'url' in api.keys():
-                exposedAPIsummary = exposedAPIsummary + api['url'] + ' '
-                if 'developerUI' in api.keys():
-                    developerUIsummary = developerUIsummary + api['developerUI'] + ' '
-                countOfCompleteAPIs = countOfCompleteAPIs + 1
-        parent_component['status']['exposedAPIsummary'] = exposedAPIsummary 
-        parent_component['status']['developerUIsummary'] = developerUIsummary 
-        if countOfCompleteAPIs == len(parent_component['status']['exposedAPIs']):
-            parent_component['status']['deployment_status'] = 'Complete'
-        else:
-            parent_component['status']['deployment_status'] = 'In-Progress'
-        try:
-            api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_component)
-            logging.info(f"Added ip: {status['ingress']['url']} to parent component: {name}")
-            logging.debug(f"api_response {api_response}")
-        except ApiException as e:
-            logging.warning("Exception when calling api_instance.patch_namespaced_custom_object:")
-            logging.info(e)
+                exposedAPIsummary = ''
+                developerUIsummary = ''
+                countOfCompleteAPIs = 0
+                for api in parent_component['status']['exposedAPIs']:
+                    if 'url' in api.keys():
+                        exposedAPIsummary = exposedAPIsummary + api['url'] + ' '
+                        if 'developerUI' in api.keys():
+                            developerUIsummary = developerUIsummary + api['developerUI'] + ' '
+                        countOfCompleteAPIs = countOfCompleteAPIs + 1
+                parent_component['status']['exposedAPIsummary'] = exposedAPIsummary 
+                parent_component['status']['developerUIsummary'] = developerUIsummary 
+                if countOfCompleteAPIs == len(parent_component['status']['exposedAPIs']):
+                    parent_component['status']['deployment_status'] = 'Complete'
+                else:
+                    parent_component['status']['deployment_status'] = 'In-Progress'
+                try:
+                    api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_component)
+                    logging.info(f"Added ip: {status['ingress']['url']} to parent component: {name}")
+                    logging.debug(f"api_response {api_response}")
+                except ApiException as e:
+                    logging.warning("Exception when calling api_instance.patch_namespaced_custom_object:")
+                    logging.info(e)

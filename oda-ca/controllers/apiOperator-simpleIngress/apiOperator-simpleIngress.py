@@ -23,11 +23,16 @@ def ingress(meta, spec, **kwargs):
 
     client = kubernetes.client
 
+
     try:
         networking_v1_beta1_api = client.NetworkingV1beta1Api()
+        hostname = None
+        if 'hostname' in spec.keys():
+            hostname=spec['hostname']
+
         ingress_spec=client.NetworkingV1beta1IngressSpec(
             rules=[client.NetworkingV1beta1IngressRule(
-                host=spec['hostname'],
+                host=hostname,
                 http=client.NetworkingV1beta1HTTPIngressRuleValue(
                     paths=[client.NetworkingV1beta1HTTPIngressPath(
                         path=spec['path'],
@@ -109,7 +114,7 @@ def ingress_status(meta, status, spec, **kwargs):
                 if isinstance(ingress, list):
                     if len(ingress)>0:
                         ingressTarget = ingress[0]
-                        if parent_api['spec']['hostname']: #if api specifies hostname then use hostname
+                        if 'hostname' in parent_api['spec'].keys(): #if api specifies hostname then use hostname
                             parent_api['status']['ingress']['url'] = parent_api['spec']['hostname'] + parent_api['spec']['path']
                             if 'developerUI' in parent_api['spec']:
                                 parent_api['status']['ingress']['developerUI'] = parent_api['spec']['hostname'] + parent_api['spec']['developerUI']
@@ -120,6 +125,8 @@ def ingress_status(meta, status, spec, **kwargs):
                             else:
                                 logging.warning('Ingress target does not contain ip or hostname')
                             api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
+                            logging.info(f"Updated parent api: {name} status to {parent_api['status']}")
+                            logging.debug(f"api_response {api_response}")
                         else:    #if api doesn't specify hostname then use ip
                             if 'ip' in ingressTarget.keys():
                                 parent_api['status']['ingress']['url'] = ingressTarget['ip'] + parent_api['spec']['path']
@@ -133,15 +140,17 @@ def ingress_status(meta, status, spec, **kwargs):
                                     parent_api['status']['ingress']['developerUI'] = ingressTarget['hostname'] + parent_api['spec']['developerUI']
                                 parent_api['status']['ingress']['ip'] = ingressTarget['hostname']
                                 api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
+                                logging.info(f"Updated parent api: {name} status to {parent_api['status']}")
+                                logging.debug(f"api_response {api_response}")
                             else:
                                 logging.warning('Ingress target does not contain ip or hostname')
+
                     else:
                         logging.warning('Ingress is an empty list')
                 else:
                     logging.warning('Ingress is not a list')
+
             else:
                 logging.warning('Load Balancer doesnt have an ingress resource')
 
-            logging.info(f"Added ip: {status['loadBalancer']['ingress'][0]['ip']} to parent api: {name}")
-            logging.debug(f"api_response {api_response}")
 
