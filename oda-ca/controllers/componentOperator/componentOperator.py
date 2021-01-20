@@ -4,11 +4,13 @@ import yaml
 import logging
 from kubernetes.client.rest import ApiException
 import os
-print('Logging set to ',os.environ.get('LOGGING'))
+
+logging_level = os.environ.get('LOGGING',20)
+print('Logging set to ',logging_level)
 
 logger = logging.getLogger()
-logger.setLevel(int(os.getenv('LOGGING', 30))) #Logging level default = WARNING
-componentNameSpaceList = os.getenv('COMPONENT_NAMESPACE', 30).split(',')
+logger.setLevel(int(logging_level)) #Logging level default = INFO
+componentNameSpaceList = os.getenv('COMPONENT_NAMESPACE', 'components').split(',')
 logging.info("Component controller monitoring namespaces: %s", ''.join(componentNameSpaceList))
 
 CONST_HTTP_CONFLICT = 409
