@@ -7,10 +7,9 @@ logger = logging.getLogger()
 #logger.setLevel(10) #DEBUG
 
 @kopf.on.create('oda.tmforum.org', 'v1alpha1', 'apis')
-def ingress(meta, spec, **kwargs):
+def ingress(meta, spec, namespace, **kwargs):
 
     logging.debug(f"oda.tmforum.org api is called with body: {spec}")
-    namespace = meta.get('namespace')
 
     # get API details and create ingress
     logging.debug(f"api has name: {meta['name']}")
