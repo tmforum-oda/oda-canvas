@@ -1,0 +1,51 @@
+apiVersion: "apiextensions.k8s.io/v1beta1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "components.oda.tmforum.org"
+spec:
+  group: "oda.tmforum.org"
+  version: "v1alpha1"
+  scope: "Namespaced"
+  names:
+    plural: "components"
+    singular: "component"
+    kind: "component"
+  validation:
+    openAPIV3Schema:
+      required: ["spec"]
+      properties:
+        spec:
+          type: object                    
+          required: ["coreFunction", "eventNotification", "management", "security"]
+          properties:
+            coreFunction:
+              type: object  
+              properties:
+                exposedAPIs: 
+                  type: array                
+                dependantAPIs: 
+                  type: array            
+            eventNotification:
+              type: object  
+              properties:
+                publishedEvents: 
+                  type: array                
+                subscribedEvents: 
+                  type: array            
+            management:
+              type: array                
+            security:
+              type: object                
+  additionalPrinterColumns:
+  - name: exposed_APIs
+    type: string
+    description: list the endpoints for exposed APIs
+    JSONPath: .status.exposedAPIsummary
+  - name: developer_UI
+    type: string
+    description: list the Developer User Interface(s)
+    JSONPath: .status.developerUIsummary
+  - name: deployment_status
+    type: string
+    description: Deployment status [in progress, complete, failed]
+    JSONPath: .status.deployment_status

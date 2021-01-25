@@ -1,0 +1,3 @@
+deployment:
+  image: lesterthomas/odacomponentcontroller-ingress:latest
+  monitorednamespaces: 'components'           # comma separated list of namespaces

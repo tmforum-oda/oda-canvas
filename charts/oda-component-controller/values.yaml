@@ -1,6 +1,0 @@
-peering:
-  enabled: true
-
-deployment:
-  enabled: true
-  image: lesterthomas/odacomponentcontroller:0.33

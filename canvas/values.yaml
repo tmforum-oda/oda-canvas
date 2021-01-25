@@ -1,0 +1,7 @@
+global:
+  namespaceCanvas:
+    create: false
+    name: canvas
+  namespaceDefault:
+    create: false
+    name: components
