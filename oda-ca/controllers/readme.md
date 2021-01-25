@@ -6,7 +6,10 @@ The Reference Implementaiton Operator is created using the KOPF (Kubernetes Oper
 
 ## Installation
 
-Install the CRDs (Custom Resource Definitions) by following the instructions in https://github.com/tmforum-rand/oda-component-definitions/tree/master/validation
+For the production environments, the controller is installed by Helm charts in the [tmforum-oda/oda-canvas-charts](https://github.com/tmforum-oda/oda-canvas-charts) repository. The instructions below allow you to install a development environmnet to further develop these controllers.
+
+Install the CRDs (Custom Resource Definitions) by following the instructions in https://github.com/tmforum-oda/oda-ca/tree/master/custom-resource-definitions
+
 
 Then install the required libraries:
 
