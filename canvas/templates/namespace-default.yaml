@@ -1,0 +1,6 @@
+{{- if .Values.global.namespaceDefault.create -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{.Values.global.namespaceDefault.name}}
+{{- end }}
