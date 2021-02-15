@@ -7,7 +7,7 @@ logger = logging.getLogger()
 #logger.setLevel(10) #DEBUG
 
 @kopf.on.create('oda.tmforum.org', 'v1alpha1', 'apis')
-def ingress(meta, spec, namespace, **kwargs):
+def ingress(meta, spec, status, body, namespace, **kwargs):
 
     logging.debug(f"oda.tmforum.org api is called with body: {spec}")
 
@@ -69,6 +69,7 @@ def ingress(meta, spec, namespace, **kwargs):
         body=body
     )
     logging.debug(f"ingressResource created: {ingressResource}")
+    logging.info(f"[{namespace}/{name}] ingress resource created with name {meta['name']}")
 
     mydict = ingressResource.to_dict()
 
@@ -78,8 +79,7 @@ def ingress(meta, spec, namespace, **kwargs):
 
 # When ingress adds IP address of load balancer, update parent API object
 @kopf.on.field('networking.k8s.io', 'v1beta1', 'ingresses', field='status.loadBalancer')
-def ingress_status(meta, status, spec, **kwargs):
-    logging.info(f"Update called for ingress {meta['name']}")
+def ingress_status(meta, spec, status, body, namespace, **kwargs): 
     logging.debug(f"Status: {status}")
     namespace = meta.get('namespace')
 
@@ -124,7 +124,8 @@ def ingress_status(meta, status, spec, **kwargs):
                             else:
                                 logging.warning('Ingress target does not contain ip or hostname')
                             api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
-                            logging.info(f"Updated parent api: {name} status to {parent_api['status']}")
+                            logging.info(f"[{namespace}/{name}] Updated parent api: {name} status to {parent_api['status']}")
+
                             logging.debug(f"api_response {api_response}")
                         else:    #if api doesn't specify hostname then use ip
                             if 'ip' in ingressTarget.keys():
@@ -139,7 +140,7 @@ def ingress_status(meta, status, spec, **kwargs):
                                     parent_api['status']['ingress']['developerUI'] = ingressTarget['hostname'] + parent_api['spec']['developerUI']
                                 parent_api['status']['ingress']['ip'] = ingressTarget['hostname']
                                 api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
-                                logging.info(f"Updated parent api: {name} status to {parent_api['status']}")
+                                logging.info(f"[{namespace}/{name}] Updated parent api: {name} status to {parent_api['status']}")
                                 logging.debug(f"api_response {api_response}")
                             else:
                                 logging.warning('Ingress target does not contain ip or hostname')

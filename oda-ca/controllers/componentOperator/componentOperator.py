@@ -113,7 +113,7 @@ def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwa
         kopf.append_owner_reference(newBody, owner=parent_component)
         core_api_instance = kubernetes.client.CoreV1Api()
         try:
-            logging.info(f"[{namespace}/{name}] core_api_instance.patch_namespaced_persistent_volume_claim")
+            logging.debug(f"[{namespace}/{name}] core_api_instance.patch_namespaced_persistent_volume_claim")
             api_response = core_api_instance.patch_namespaced_persistent_volume_claim(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
             logging.debug('Patch deployment with owner. api_response = %s', api_response)
             logging.info(f'[{namespace}/{name}] Adding {component_name} as parent of persistentvolumeclaim')
@@ -124,6 +124,7 @@ def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwa
                 logging.error("Exception when calling apps_api_instance.patch_namespaced_persistent_volume_claim: %s", e)
 
 
+@kopf.on.resume('oda.tmforum.org', 'v1alpha1', 'components')
 @kopf.on.create('oda.tmforum.org', 'v1alpha1', 'components')
 def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 
@@ -168,6 +169,8 @@ def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
                     body=my_resource,
                 )
             logging.debug(f"Resource created: {apiObj}")
+            logging.info(f"[{namespace}/{name}] creating api resource {my_resource['metadata']['name']}")
+
         except ApiException as e:
             logging.warning("Exception when calling api.create_namespaced_custom_object: %s", e)
             raise kopf.TemporaryError("Exception creating API custom resource.")
@@ -181,7 +184,6 @@ def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 @kopf.on.field('oda.tmforum.org', 'v1alpha1', 'apis', field='status.ingress')
 def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
 
-    logging.info(f"[{namespace}/{name}] Update called for api ")
     logging.debug(f"status: {status}")
     if 'ingress' in status.keys(): 
         if 'url' in status['ingress'].keys(): 
