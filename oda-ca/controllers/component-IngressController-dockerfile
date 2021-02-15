@@ -2,4 +2,4 @@ FROM python:3.7
 RUN pip install kopf
 RUN pip install kubernetes
 ADD . /
-CMD kopf run --standalone componentOperator/componentOperator.py apiOperator-simpleIngress/apiOperator-simpleIngress.py
+CMD kopf run --namespace=components --standalone componentOperator/componentOperator.py apiOperator-simpleIngress/apiOperator-simpleIngress.py

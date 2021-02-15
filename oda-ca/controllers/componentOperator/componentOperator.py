@@ -9,8 +9,6 @@ logging_level = os.environ.get('LOGGING',20)
 print('Logging set to ',logging_level)
 logger = logging.getLogger()
 logger.setLevel(int(logging_level)) #Logging level default = INFO
-componentNameSpaceList = os.getenv('COMPONENT_NAMESPACE', 'components').split(',')
-logging.info(f"Component controller monitoring namespaces: {''.join(componentNameSpaceList)}")
 
 CONST_HTTP_CONFLICT = 409
 CONST_HTTP_NOT_FOUND = 404
@@ -21,38 +19,36 @@ CONST_HTTP_NOT_FOUND = 404
 def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
 
     logging.debug("adopt_service called for service - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")    
-    logging.debug("Checking if namespace %s is in componentNameSpaceList %s ", namespace, ''.join(componentNameSpaceList))
-    if namespace in componentNameSpaceList:
-        logging.debug("Checking if oda.tmforum.org/componentName is in labels %s ", ''.join(labels.keys()))
-        if 'oda.tmforum.org/componentName' in labels.keys():
+    logging.debug("Checking if oda.tmforum.org/componentName is in labels %s ", ''.join(labels.keys()))
+    if 'oda.tmforum.org/componentName' in labels.keys():
 
-            # get the parent component object
-            group = 'oda.tmforum.org' # str | the custom resource's group
-            version = 'v1alpha1' # str | the custom resource's version
-            plural = 'components' # str | the custom resource's plural name
-            component_name = labels['oda.tmforum.org/componentName'] # str | the custom object's name
-            try:
-                custom_objects_api =  kubernetes.client.CustomObjectsApi()
-                parent_component = custom_objects_api.get_namespaced_custom_object(group, version, namespace, plural, component_name)
-            except ApiException as e:
-                if e.status == CONST_HTTP_NOT_FOUND: # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    raise kopf.TemporaryError("Cannot find parent component " + component_name)
-                else:
-                    logging.error("Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
-            
-            #append oener reference to parent component
-            newBody = dict(body) # cast the service body to a dict
-            kopf.append_owner_reference(newBody, owner=parent_component)
-            core_api_instance = kubernetes.client.CoreV1Api()
-            try:
-                api_response = core_api_instance.patch_namespaced_service(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
-                logging.debug('Patch service with owner. api_response = %s', api_response)
-                logging.info(f'[{namespace}/{name}] Adding component {component_name} as parent of service')
-            except ApiException as e:   
-                if e.status == CONST_HTTP_CONFLICT: # Conflict = try again
-                    raise kopf.TemporaryError("Conflict updating service.")
-                else:
-                    logging.error("Exception when calling core_api_instance.patch_namespaced_service: %s", e)
+        # get the parent component object
+        group = 'oda.tmforum.org' # str | the custom resource's group
+        version = 'v1alpha1' # str | the custom resource's version
+        plural = 'components' # str | the custom resource's plural name
+        component_name = labels['oda.tmforum.org/componentName'] # str | the custom object's name
+        try:
+            custom_objects_api =  kubernetes.client.CustomObjectsApi()
+            parent_component = custom_objects_api.get_namespaced_custom_object(group, version, namespace, plural, component_name)
+        except ApiException as e:
+            if e.status == CONST_HTTP_NOT_FOUND: # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                raise kopf.TemporaryError("Cannot find parent component " + component_name)
+            else:
+                logging.error("Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
+        
+        #append oener reference to parent component
+        newBody = dict(body) # cast the service body to a dict
+        kopf.append_owner_reference(newBody, owner=parent_component)
+        core_api_instance = kubernetes.client.CoreV1Api()
+        try:
+            api_response = core_api_instance.patch_namespaced_service(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            logging.debug('Patch service with owner. api_response = %s', api_response)
+            logging.info(f'[{namespace}/{name}] Adding component {component_name} as parent of service')
+        except ApiException as e:   
+            if e.status == CONST_HTTP_CONFLICT: # Conflict = try again
+                raise kopf.TemporaryError("Conflict updating service.")
+            else:
+                logging.error("Exception when calling core_api_instance.patch_namespaced_service: %s", e)
 
 
 
@@ -63,35 +59,33 @@ def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
 def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 
     logging.debug("Create called for deployment - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")
-    logging.debug("Checking if namespace %s is in componentNameSpaceList %s ", namespace, ''.join(componentNameSpaceList))
-    if namespace in componentNameSpaceList:   
-        if 'oda.tmforum.org/componentName' in labels.keys():
-            # get the parent component object
-            group = 'oda.tmforum.org' # str | the custom resource's group
-            version = 'v1alpha1' # str | the custom resource's version
-            plural = 'components' # str | the custom resource's plural name
-            component_name = labels['oda.tmforum.org/componentName'] # str | the custom object's name
-            try:
-                custom_objects_api =  kubernetes.client.CustomObjectsApi()
-                parent_component = custom_objects_api.get_namespaced_custom_object(group, version, namespace, plural, component_name)
-            except ApiException as e:
-                if e.status == CONST_HTTP_NOT_FOUND: # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    raise kopf.TemporaryError("Cannot find parent component " + component_name)
-                else:
-                    logging.error("Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
-                
-            newBody = dict(body) # cast the service body to a dict    
-            kopf.append_owner_reference(newBody, owner=parent_component)
-            apps_api_instance = kubernetes.client.AppsV1Api()
-            try:
-                api_response = apps_api_instance.patch_namespaced_deployment(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
-                logging.debug('Patch deployment with owner. api_response = %s', api_response)
-                logging.info(f'[{namespace}/{name}] Adding component {component_name} as parent of deployment')
-            except ApiException as e:
-                if e.status == CONST_HTTP_CONFLICT: # Conflict = try again
-                    raise kopf.TemporaryError("Conflict updating deployment.")
-                else:
-                    logging.error("Exception when calling apps_api_instance.patch_namespaced_deployment: %s", e)
+    if 'oda.tmforum.org/componentName' in labels.keys():
+        # get the parent component object
+        group = 'oda.tmforum.org' # str | the custom resource's group
+        version = 'v1alpha1' # str | the custom resource's version
+        plural = 'components' # str | the custom resource's plural name
+        component_name = labels['oda.tmforum.org/componentName'] # str | the custom object's name
+        try:
+            custom_objects_api =  kubernetes.client.CustomObjectsApi()
+            parent_component = custom_objects_api.get_namespaced_custom_object(group, version, namespace, plural, component_name)
+        except ApiException as e:
+            if e.status == CONST_HTTP_NOT_FOUND: # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                raise kopf.TemporaryError("Cannot find parent component " + component_name)
+            else:
+                logging.error("Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
+            
+        newBody = dict(body) # cast the service body to a dict    
+        kopf.append_owner_reference(newBody, owner=parent_component)
+        apps_api_instance = kubernetes.client.AppsV1Api()
+        try:
+            api_response = apps_api_instance.patch_namespaced_deployment(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            logging.debug('Patch deployment with owner. api_response = %s', api_response)
+            logging.info(f'[{namespace}/{name}] Adding component {component_name} as parent of deployment')
+        except ApiException as e:
+            if e.status == CONST_HTTP_CONFLICT: # Conflict = try again
+                raise kopf.TemporaryError("Conflict updating deployment.")
+            else:
+                logging.error("Exception when calling apps_api_instance.patch_namespaced_deployment: %s", e)
 
 
 
@@ -100,36 +94,34 @@ def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwargs):
 
     logging.debug("Create called for persistentvolumeclaim - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")
-    logging.debug("Checking if namespace %s is in componentNameSpaceList %s ", namespace, ''.join(componentNameSpaceList))
-    if namespace in componentNameSpaceList:   
-        if 'oda.tmforum.org/componentName' in labels.keys():
-            # get the parent component object
-            group = 'oda.tmforum.org' # str | the custom resource's group
-            version = 'v1alpha1' # str | the custom resource's version
-            plural = 'components' # str | the custom resource's plural name
-            component_name = labels['oda.tmforum.org/componentName'] # str | the custom object's name
-            try:
-                custom_objects_api =  kubernetes.client.CustomObjectsApi()
-                parent_component = custom_objects_api.get_namespaced_custom_object(group, version, namespace, plural, component_name)
-            except ApiException as e:
-                if e.status == CONST_HTTP_NOT_FOUND: # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    raise kopf.TemporaryError("Cannot find parent component " + component_name)
-                else:
-                    logging.error("Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
-                
-            newBody = dict(body) # cast the service body to a dict    
-            kopf.append_owner_reference(newBody, owner=parent_component)
-            core_api_instance = kubernetes.client.CoreV1Api()
-            try:
-                logging.info(f"[{namespace}/{name}] core_api_instance.patch_namespaced_persistent_volume_claim")
-                api_response = core_api_instance.patch_namespaced_persistent_volume_claim(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
-                logging.debug('Patch deployment with owner. api_response = %s', api_response)
-                logging.info(f'[{namespace}/{name}] Adding {component_name} as parent of persistentvolumeclaim')
-            except ApiException as e:
-                if e.status == CONST_HTTP_CONFLICT: # Conflict = try again
-                    raise kopf.TemporaryError("Conflict updating persistentvolumeclaim.")
-                else:
-                    logging.error("Exception when calling apps_api_instance.patch_namespaced_persistent_volume_claim: %s", e)
+    if 'oda.tmforum.org/componentName' in labels.keys():
+        # get the parent component object
+        group = 'oda.tmforum.org' # str | the custom resource's group
+        version = 'v1alpha1' # str | the custom resource's version
+        plural = 'components' # str | the custom resource's plural name
+        component_name = labels['oda.tmforum.org/componentName'] # str | the custom object's name
+        try:
+            custom_objects_api =  kubernetes.client.CustomObjectsApi()
+            parent_component = custom_objects_api.get_namespaced_custom_object(group, version, namespace, plural, component_name)
+        except ApiException as e:
+            if e.status == CONST_HTTP_NOT_FOUND: # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                raise kopf.TemporaryError("Cannot find parent component " + component_name)
+            else:
+                logging.error("Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
+            
+        newBody = dict(body) # cast the service body to a dict    
+        kopf.append_owner_reference(newBody, owner=parent_component)
+        core_api_instance = kubernetes.client.CoreV1Api()
+        try:
+            logging.info(f"[{namespace}/{name}] core_api_instance.patch_namespaced_persistent_volume_claim")
+            api_response = core_api_instance.patch_namespaced_persistent_volume_claim(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            logging.debug('Patch deployment with owner. api_response = %s', api_response)
+            logging.info(f'[{namespace}/{name}] Adding {component_name} as parent of persistentvolumeclaim')
+        except ApiException as e:
+            if e.status == CONST_HTTP_CONFLICT: # Conflict = try again
+                raise kopf.TemporaryError("Conflict updating persistentvolumeclaim.")
+            else:
+                logging.error("Exception when calling apps_api_instance.patch_namespaced_persistent_volume_claim: %s", e)
 
 
 @kopf.on.create('oda.tmforum.org', 'v1alpha1', 'components')
@@ -138,53 +130,51 @@ def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     logging.debug(f"oda.tmforum.org components is called with spec: {spec}")
     logging.debug(f"oda.tmforum.org components is called with status: {status}")
     namespace = meta.get('namespace')
-    logging.debug("Checking if namespace %s is in componentNameSpaceList %s ", namespace, ''.join(componentNameSpaceList))
-    if namespace in componentNameSpaceList:   
 
-        # get exposed APIS
-        exposedAPIs = spec['coreFunction']['exposedAPIs']
-        logging.debug(f"exposedAPIs: {exposedAPIs}")
+    # get exposed APIS
+    exposedAPIs = spec['coreFunction']['exposedAPIs']
+    logging.debug(f"exposedAPIs: {exposedAPIs}")
 
-        api = kubernetes.client.CustomObjectsApi()
+    api = kubernetes.client.CustomObjectsApi()
 
-        apiChildren = []
-        for exposedAPI in exposedAPIs:
-            # API as custom resource defined as Dict
-            logging.debug(f"exposedAPI: {exposedAPI}")
+    apiChildren = []
+    for exposedAPI in exposedAPIs:
+        # API as custom resource defined as Dict
+        logging.debug(f"exposedAPI: {exposedAPI}")
 
-            my_resource = {
-                "apiVersion": "oda.tmforum.org/v1alpha1",
-                "kind": "api",
-                "metadata": {},
-                "spec": {
-                }
+        my_resource = {
+            "apiVersion": "oda.tmforum.org/v1alpha1",
+            "kind": "api",
+            "metadata": {},
+            "spec": {
             }
+        }
 
-            # Make it our child: assign the namespace, name, labels, owner references, etc.
-            kopf.adopt(my_resource)
-            logging.debug(f"my_resource (adopted): {my_resource}")
-            newName = my_resource['metadata']['ownerReferences'][0]['name'] + '-' + exposedAPI['name']
-            my_resource['metadata']['name'] = newName.lower()
-            my_resource['spec'] = exposedAPI
-            if 'developerUI' in exposedAPI.keys():
-                my_resource['spec']['developerUI'] = exposedAPI['developerUI']
-            # create the resource
-            try:
-                apiObj = api.create_namespaced_custom_object(
-                        group="oda.tmforum.org",
-                        version="v1alpha1",
-                        namespace=namespace,
-                        plural="apis",
-                        body=my_resource,
-                    )
-                logging.debug(f"Resource created: {apiObj}")
-            except ApiException as e:
-                logging.warning("Exception when calling api.create_namespaced_custom_object: %s", e)
-                raise kopf.TemporaryError("Exception creating API custom resource.")
-            apiChildren.append({"name": my_resource['metadata']['name'], "uid": apiObj['metadata']['uid']})
+        # Make it our child: assign the namespace, name, labels, owner references, etc.
+        kopf.adopt(my_resource)
+        logging.debug(f"my_resource (adopted): {my_resource}")
+        newName = my_resource['metadata']['ownerReferences'][0]['name'] + '-' + exposedAPI['name']
+        my_resource['metadata']['name'] = newName.lower()
+        my_resource['spec'] = exposedAPI
+        if 'developerUI' in exposedAPI.keys():
+            my_resource['spec']['developerUI'] = exposedAPI['developerUI']
+        # create the resource
+        try:
+            apiObj = api.create_namespaced_custom_object(
+                    group="oda.tmforum.org",
+                    version="v1alpha1",
+                    namespace=namespace,
+                    plural="apis",
+                    body=my_resource,
+                )
+            logging.debug(f"Resource created: {apiObj}")
+        except ApiException as e:
+            logging.warning("Exception when calling api.create_namespaced_custom_object: %s", e)
+            raise kopf.TemporaryError("Exception creating API custom resource.")
+        apiChildren.append({"name": my_resource['metadata']['name'], "uid": apiObj['metadata']['uid']})
 
-        # Update the parent's status.
-        return apiChildren
+    # Update the parent's status.
+    return apiChildren
 
 
 # When api adds url address of where api is exposed, update parent API object
