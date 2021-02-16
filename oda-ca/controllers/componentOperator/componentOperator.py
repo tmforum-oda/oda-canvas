@@ -14,7 +14,7 @@ CONST_HTTP_CONFLICT = 409
 CONST_HTTP_NOT_FOUND = 404
 
 
-@kopf.on.resume('', 'v1', 'services')
+# @kopf.on.resume('', 'v1', 'services')
 @kopf.on.create('', 'v1', 'services')
 def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
 
@@ -54,7 +54,7 @@ def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
 
 
 
-@kopf.on.resume('apps', 'v1', 'deployments')
+# @kopf.on.resume('apps', 'v1', 'deployments')
 @kopf.on.create('apps', 'v1', 'deployments')
 def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 
@@ -89,7 +89,7 @@ def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 
 
 
-@kopf.on.resume('', 'v1', 'persistentvolumeclaims')
+# @kopf.on.resume('', 'v1', 'persistentvolumeclaims')
 @kopf.on.create('', 'v1', 'persistentvolumeclaims')
 def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwargs):
 
@@ -124,7 +124,7 @@ def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwa
                 logging.error("Exception when calling apps_api_instance.patch_namespaced_persistent_volume_claim: %s", e)
 
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha1', 'components')
+# @kopf.on.resume('oda.tmforum.org', 'v1alpha1', 'components')
 @kopf.on.create('oda.tmforum.org', 'v1alpha1', 'components')
 def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 

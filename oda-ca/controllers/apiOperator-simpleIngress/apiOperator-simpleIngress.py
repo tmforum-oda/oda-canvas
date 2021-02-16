@@ -3,11 +3,14 @@ import kubernetes.client
 import yaml
 import logging
 from kubernetes.client.rest import ApiException
+import os
+
 logger = logging.getLogger()
-#logger.setLevel(10) #DEBUG
+ingress_class = os.environ.get('INGRESS_CLASS','nginx') 
+print('Ingress set to ',ingress_class)
 
 @kopf.on.create('oda.tmforum.org', 'v1alpha1', 'apis')
-def ingress(meta, spec, status, body, namespace, **kwargs):
+def ingress(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"oda.tmforum.org api is called with body: {spec}")
 
@@ -52,7 +55,7 @@ def ingress(meta, spec, status, body, namespace, **kwargs):
         "kind": "Ingress",
         "metadata": {
             "name": meta['name'],
-            "annotations": {"kubernetes.io/ingress.class": "nginx"}
+            "annotations": {"kubernetes.io/ingress.class": ingress_class}
             },
         "spec": ingress_spec
     }
@@ -79,7 +82,7 @@ def ingress(meta, spec, status, body, namespace, **kwargs):
 
 # When ingress adds IP address of load balancer, update parent API object
 @kopf.on.field('networking.k8s.io', 'v1beta1', 'ingresses', field='status.loadBalancer')
-def ingress_status(meta, spec, status, body, namespace, **kwargs): 
+def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs): 
     logging.debug(f"Status: {status}")
     namespace = meta.get('namespace')
 
@@ -151,6 +154,6 @@ def ingress_status(meta, spec, status, body, namespace, **kwargs):
                     logging.warning('Ingress is not a list')
 
             else:
-                logging.warning('Load Balancer doesnt have an ingress resource')
+                logging.debug('Load Balancer doesnt have an ingress resource')
 
 
