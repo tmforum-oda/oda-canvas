@@ -22,3 +22,7 @@ spec:
           value: '20'           
         - name: COMPONENT_NAMESPACE
           value: {{.Values.deployment.monitorednamespaces}}
+        {{- if .Values.deployment.ingressClass.enabled }}
+        - name: INGRESS_CLASS
+          value: {{ .Values.deployment.ingressClass.name }}
+        {{ end }}
