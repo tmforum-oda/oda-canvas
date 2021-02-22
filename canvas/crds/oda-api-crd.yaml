@@ -1,17 +1,50 @@
-apiVersion: "apiextensions.k8s.io/v1beta1"
+apiVersion: "apiextensions.k8s.io/v1"
 kind: "CustomResourceDefinition"
 metadata:
   name: "apis.oda.tmforum.org"
 spec:
   group: "oda.tmforum.org"
-  version: "v1alpha1"
   scope: "Namespaced"
   names:
     plural: "apis"
     singular: "api"
     kind: "api"
-  additionalPrinterColumns:
-  - name: API_endpoint
-    type: string
-    description: API endpoint Url
-    JSONPath: .status.ingress.url
+  versions: 
+  - name: "v1alpha1"
+    # Each version can be enabled/disabled by Served flag.
+    served: true
+    # One and only one version must be marked as the storage version.
+    storage: false
+    deprecated: true
+    # This overrides the default warning returned to API clients making v1alpha1 API requests.
+    deprecationWarning: "oda.tmforum.org/v1alpha1 API is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object               
+    additionalPrinterColumns:
+    - name: API_endpoint
+      type: string
+      description: API endpoint Url
+      jsonPath: .status.ingress.url
+  - name: "v1alpha2"
+    # Each version can be enabled/disabled by Served flag.
+    served: true
+    # One and only one version must be marked as the storage version.
+    storage: true
+    deprecated: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object                
+    additionalPrinterColumns:
+    - name: API_endpoint
+      type: string
+      description: API endpoint Url
+      jsonPath: .status.ingress.url
