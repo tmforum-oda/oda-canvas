@@ -14,10 +14,10 @@ spec:
     # Each version can be enabled/disabled by Served flag.
     served: true
     # One and only one version must be marked as the storage version.
-    storage: false
-    deprecated: true
+    storage: true
+    deprecated: false
     # This overrides the default warning returned to API clients making v1alpha1 API requests.
-    deprecationWarning: "oda.tmforum.org/v1alpha1 API is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
+    # deprecationWarning: "oda.tmforum.org/v1alpha1 API is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
     schema:
       openAPIV3Schema:
         type: object
@@ -25,6 +25,10 @@ spec:
         properties:
           spec:
             type: object               
+            x-kubernetes-preserve-unknown-fields: true
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true    
     additionalPrinterColumns:
     - name: API_endpoint
       type: string
@@ -34,7 +38,7 @@ spec:
     # Each version can be enabled/disabled by Served flag.
     served: true
     # One and only one version must be marked as the storage version.
-    storage: true
+    storage: false
     deprecated: false
     schema:
       openAPIV3Schema:
@@ -43,6 +47,10 @@ spec:
         properties:
           spec:
             type: object                
+            x-kubernetes-preserve-unknown-fields: true    
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true    
     additionalPrinterColumns:
     - name: API_endpoint
       type: string
