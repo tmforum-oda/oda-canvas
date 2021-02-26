@@ -14,9 +14,9 @@ spec:
     # Each version can be enabled/disabled by Served flag.
     served: true
     # One and only one version must be marked as the storage version.
-    storage: true
-    deprecated: false
-#    deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
+    storage: false
+#   deprecated: true
+#   deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
     schema:
       openAPIV3Schema:
         type: object
@@ -89,10 +89,34 @@ spec:
                       type: string
               security:
                 type: object  
-                properties:  
+                properties:
                   securitySchemes: 
                     type: object
                     x-kubernetes-preserve-unknown-fields: true    
+              version:
+                type: string
+              description:
+                type: string
+              componenttype:
+                type: string
+              selector:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true    
+              componentkinds:
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true    
+              maintainers:
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true    
+              owners:
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true    
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true    
@@ -113,8 +137,8 @@ spec:
     # Each version can be enabled/disabled by Served flag.
     served: true
     # One and only one version must be marked as the storage version.
-    storage: false
-    deprecated: false
+    storage: true
+#    deprecated: false
 #    deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
     schema:
       openAPIV3Schema:
@@ -192,6 +216,43 @@ spec:
                   securitySchemes: 
                     type: object
                     x-kubernetes-preserve-unknown-fields: true    
+                  partyrole:
+                    type: object
+                    properties:
+                      specification:
+                        type: string
+                      implementation:
+                        type: string
+                      path:
+                        type: string
+                      developerUI:
+                        type: string
+                      port:
+                        type: integer                
+              version:
+                type: string
+              description:
+                type: string
+              componenttype:
+                type: string
+              selector:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true    
+              componentkinds:
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true    
+              maintainers:
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true    
+              owners:
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true    
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true    
