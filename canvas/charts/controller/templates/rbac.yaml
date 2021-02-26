@@ -18,6 +18,14 @@ rules:
   - apiGroups: [apiextensions.k8s.io]
     resources: [customresourcedefinitions]
     verbs: [list, get]
+    
+  # Framework: posting the events about the handlers progress/errors.
+  - apiGroups: [events.k8s.io]
+    resources: [events]
+    verbs: [create]
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create]
 
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [oda.tmforum.org]
@@ -30,26 +38,26 @@ rules:
     resources: [apis]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: [""] # "" indicates the core API group
-    resources: ["services", "pods", "configmaps"]
+    resources: ["services", "services/status", "pods", "configmaps" ,"persistentvolumeclaims", "persistentvolumeclaims/status"]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: ["networking.k8s.io"]
-    resources: ["ingresses"]
+    resources: ["ingresses", "ingresses/status"]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: ["extensions", "apps"]
-    resources: ["deployments"]
+    resources: ["deployments", "deployments/status"]
     verbs: [list, watch, patch, get, create, update, delete]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
-  namespace: {{.Values.global.namespaceCanvas.name}}
+  namespace: {{.Values.global.namespaceDefault.name}}
   name: odacomponent-role-namespaced
 rules:
 
   # Framework: knowing which other operators are running (i.e. peering).
   - apiGroups: [zalando.org]
-    resources: [kopfpeerings]
+    resources: ["kopfpeerings"]
     verbs: [list, watch, patch, get]
 
   # Framework: posting the events about the handlers progress/errors.
@@ -71,13 +79,13 @@ rules:
     resources: [apis]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: [""] # "" indicates the core API group
-    resources: ["services", "pods", "configmaps"]
+    resources: ["services","services/status", "pods", "configmaps", "persistentvolumeclaims", "persistentvolumeclaims/status"]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: ["networking.k8s.io"]
-    resources: ["ingresses"]
+    resources: ["ingresses", "ingresses/status"]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: ["extensions", "apps"]
-    resources: ["deployments"]
+    resources: ["deployments", "deployments/status"]
     verbs: [list, watch, patch, get, create, update, delete]
 
   # Application: other resources it produces and manipulates.
@@ -105,7 +113,7 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
-  namespace: {{.Values.global.namespaceCanvas.name}}
+  namespace: {{.Values.global.namespaceDefault.name}}
   name: odacomponent-rolebinding-namespaced
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -114,3 +122,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: odacomponent-account
+    namespace: {{.Values.global.namespaceDefault.name}}
