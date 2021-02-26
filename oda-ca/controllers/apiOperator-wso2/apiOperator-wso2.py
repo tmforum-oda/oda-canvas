@@ -11,7 +11,7 @@ logger.setLevel(int(os.getenv('LOGGING', 30))) #Logging level default = WARNING
 
 # when an oda.tmforum.org api resource is created, create the corresponding wso2 custom resource (including
 # storing the swagger for the api in a configmap). 
-@kopf.on.create('oda.tmforum.org', 'v1alpha1', 'apis')
+@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'apis')
 def ingress(meta, spec, **kwargs):
 
     logging.debug(f"oda.tmforum.org api is called with body: {spec}")
@@ -102,7 +102,7 @@ def ingress_status(meta, status, spec, **kwargs):
 
         api_instance = kubernetes.client.CustomObjectsApi()
         group = 'oda.tmforum.org' # str | the custom resource's group
-        version = 'v1alpha1' # str | the custom resource's version
+        version = 'v1alpha2' # str | the custom resource's version
         namespace = namespace # str | The custom resource's namespace
         plural = 'apis' # str | the custom resource's plural name
 

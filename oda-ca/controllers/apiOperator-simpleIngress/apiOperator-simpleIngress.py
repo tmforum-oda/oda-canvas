@@ -9,7 +9,7 @@ logger = logging.getLogger()
 ingress_class = os.environ.get('INGRESS_CLASS','nginx') 
 print('Ingress set to ',ingress_class)
 
-@kopf.on.create('oda.tmforum.org', 'v1alpha1', 'apis')
+@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'apis')
 def ingress(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"oda.tmforum.org api is called with body: {spec}")
@@ -93,7 +93,7 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
 
             api_instance = kubernetes.client.CustomObjectsApi()
             group = 'oda.tmforum.org' # str | the custom resource's group
-            version = 'v1alpha1' # str | the custom resource's version
+            version = 'v1alpha2' # str | the custom resource's version
             namespace = namespace # str | The custom resource's namespace
             plural = 'apis' # str | the custom resource's plural name
             name = meta['ownerReferences'][0]['name'] # str | the custom object's name

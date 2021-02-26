@@ -24,7 +24,7 @@ def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
 
         # get the parent component object
         group = 'oda.tmforum.org' # str | the custom resource's group
-        version = 'v1alpha1' # str | the custom resource's version
+        version = 'v1alpha2' # str | the custom resource's version
         plural = 'components' # str | the custom resource's plural name
         component_name = labels['oda.tmforum.org/componentName'] # str | the custom object's name
         try:
@@ -62,7 +62,7 @@ def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
     if 'oda.tmforum.org/componentName' in labels.keys():
         # get the parent component object
         group = 'oda.tmforum.org' # str | the custom resource's group
-        version = 'v1alpha1' # str | the custom resource's version
+        version = 'v1alpha2' # str | the custom resource's version
         plural = 'components' # str | the custom resource's plural name
         component_name = labels['oda.tmforum.org/componentName'] # str | the custom object's name
         try:
@@ -97,7 +97,7 @@ def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwa
     if 'oda.tmforum.org/componentName' in labels.keys():
         # get the parent component object
         group = 'oda.tmforum.org' # str | the custom resource's group
-        version = 'v1alpha1' # str | the custom resource's version
+        version = 'v1alpha2' # str | the custom resource's version
         plural = 'components' # str | the custom resource's plural name
         component_name = labels['oda.tmforum.org/componentName'] # str | the custom object's name
         try:
@@ -124,8 +124,8 @@ def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwa
                 logging.error("Exception when calling apps_api_instance.patch_namespaced_persistent_volume_claim: %s", e)
 
 
-# @kopf.on.resume('oda.tmforum.org', 'v1alpha1', 'components')
-@kopf.on.create('oda.tmforum.org', 'v1alpha1', 'components')
+# @kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
+@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
 def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"oda.tmforum.org components is called with spec: {spec}")
@@ -144,7 +144,7 @@ def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
         logging.debug(f"exposedAPI: {exposedAPI}")
 
         my_resource = {
-            "apiVersion": "oda.tmforum.org/v1alpha1",
+            "apiVersion": "oda.tmforum.org/v1alpha2",
             "kind": "api",
             "metadata": {},
             "spec": {
@@ -163,7 +163,7 @@ def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
         try:
             apiObj = api.create_namespaced_custom_object(
                     group="oda.tmforum.org",
-                    version="v1alpha1",
+                    version="v1alpha2",
                     namespace=namespace,
                     plural="apis",
                     body=my_resource,
@@ -181,7 +181,7 @@ def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 
 
 # When api adds url address of where api is exposed, update parent API object
-@kopf.on.field('oda.tmforum.org', 'v1alpha1', 'apis', field='status.ingress')
+@kopf.on.field('oda.tmforum.org', 'v1alpha2', 'apis', field='status.ingress')
 def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"status: {status}")
@@ -189,7 +189,7 @@ def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
         if 'url' in status['ingress'].keys(): 
             if 'ownerReferences' in meta.keys():
                 group = 'oda.tmforum.org' # str | the custom resource's group
-                version = 'v1alpha1' # str | the custom resource's version
+                version = 'v1alpha2' # str | the custom resource's version
                 plural = 'components' # str | the custom resource's plural name
                 name = meta['ownerReferences'][0]['name'] # str | the custom object's name
 
