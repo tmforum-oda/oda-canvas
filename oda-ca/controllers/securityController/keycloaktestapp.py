@@ -8,9 +8,9 @@ import datetime
 
 from cloudevents.http import CloudEvent, to_structured
 
-kcBaseURL = "http://k8s-1:8088/auth"
+kcBaseURL = "http://k8s-1:8080/auth"
 componentName = "r1-productcatalog"
-prBaseURL = "http://192.168.3.94/" + componentName + "/tmf-api/partyRoleManagement/v4"
+prBaseURL = "http://localhost/" + componentName + "/tmf-api/partyRoleManagement/v4"
 realm = "myrealm"
 
 def reportEvent(message, subject):
@@ -111,7 +111,7 @@ def getClientList(token: str, realm: str) -> bool:
         print(clientList)
         return clientList
     except requests.HTTPError as e:
-            reportEvent(str(e), f"secCon couldn't GET clients for {clientname}")
+            reportEvent(str(e), f"secCon couldn't GET clients for {realm}")
 
 def addRolesToClient(token: str, realm: str, clientId: str, clientroles: list):
     """
