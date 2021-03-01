@@ -15,11 +15,10 @@ logger.setLevel(int(logging_level)) #Logging level default = INFO
 @kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components') # called by kopf framework when a component is created
 @kopf.on.update('oda.tmforum.org', 'v1alpha2', 'components') # or updated
 def securityRoles(meta, spec, status, body, namespace, labels, name, **kwargs):
-    logging.info(f"oda.tmforum.org component {name} created/updated with spec: {spec}")
+    logging.info(f"oda.tmforum.org component {name} created/updated")
     statusValue = {'identityProvider': 'Keycloak'}
     return statusValue # the return value is added to the status field of the k8s object under securityRoles parameter (corresponds to function name)
 
 @kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'components') # called by kopf framework when a component is deleted
 def securityRolesDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
     logging.info(f"oda.tmforum.org component {name} deleted")
-    statusValue = {'identityProvider': 'Keycloak'}
