@@ -128,59 +128,86 @@ def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwa
 @kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
 def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 
-    logging.debug(f"oda.tmforum.org components is called with spec: {spec}")
-    logging.debug(f"oda.tmforum.org components is called with status: {status}")
-    namespace = meta.get('namespace')
+    logging.debug(f"oda.tmforum.org components exposedAPIs is called with spec: {spec}")
+    logging.debug(f"oda.tmforum.org components exposedAPIs is called with status: {status}")
 
     # get exposed APIS
     exposedAPIs = spec['coreFunction']['exposedAPIs']
     logging.debug(f"exposedAPIs: {exposedAPIs}")
 
-    api = kubernetes.client.CustomObjectsApi()
-
     apiChildren = []
     for exposedAPI in exposedAPIs:
-        # API as custom resource defined as Dict
-        logging.debug(f"exposedAPI: {exposedAPI}")
-
-        my_resource = {
-            "apiVersion": "oda.tmforum.org/v1alpha2",
-            "kind": "api",
-            "metadata": {},
-            "spec": {
-            }
-        }
-
-        # Make it our child: assign the namespace, name, labels, owner references, etc.
-        kopf.adopt(my_resource)
-        logging.debug(f"my_resource (adopted): {my_resource}")
-        newName = my_resource['metadata']['ownerReferences'][0]['name'] + '-' + exposedAPI['name']
-        my_resource['metadata']['name'] = newName.lower()
-        my_resource['spec'] = exposedAPI
-        if 'developerUI' in exposedAPI.keys():
-            my_resource['spec']['developerUI'] = exposedAPI['developerUI']
-        # create the resource
-        try:
-            apiObj = api.create_namespaced_custom_object(
-                    group="oda.tmforum.org",
-                    version="v1alpha2",
-                    namespace=namespace,
-                    plural="apis",
-                    body=my_resource,
-                )
-            logging.debug(f"Resource created: {apiObj}")
-            logging.info(f"[{namespace}/{name}] creating api resource {my_resource['metadata']['name']}")
-
-        except ApiException as e:
-            logging.warning("Exception when calling api.create_namespaced_custom_object: %s", e)
-            raise kopf.TemporaryError("Exception creating API custom resource.")
-        apiChildren.append({"name": my_resource['metadata']['name'], "uid": apiObj['metadata']['uid']})
+        resultStatus=createAPIResource(exposedAPI, namespace, name)
+        apiChildren.append(resultStatus)
 
     # Update the parent's status.
     return apiChildren
 
 
-# When api adds url address of where api is exposed, update parent API object
+# @kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
+@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
+def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
+
+    logging.debug(f"oda.tmforum.org components securityAPIs is called with spec: {spec}")
+    logging.debug(f"oda.tmforum.org components securityAPIs is called with status: {status}")
+
+    apiChildren = []
+
+    # get security exposed APIS
+    try:
+        partyRole = spec['security']['partyrole']
+        partyRole['name'] = 'partyrole'
+        resultStatus=createAPIResource(partyRole, namespace, name)
+        apiChildren.append(resultStatus)
+    except AttributeError:
+        logging.warning(f"oda.tmforum.org components securityAPIs - component {name} has no partyrole property")
+
+
+    # Update the parent's status.
+    return apiChildren
+
+# helper function to create API resource
+def createAPIResource(inAPI, namespace, name):
+
+    # API as custom resource defined as Dict
+    logging.debug(f"exposedAPI: {inAPI}")
+
+    my_resource = {
+        "apiVersion": "oda.tmforum.org/v1alpha2",
+        "kind": "api",
+        "metadata": {},
+        "spec": {
+        }
+    }
+
+    # Make it our child: assign the namespace, name, labels, owner references, etc.
+    kopf.adopt(my_resource)
+    logging.debug(f"my_resource (adopted): {my_resource}")
+    newName = my_resource['metadata']['ownerReferences'][0]['name'] + '-' + inAPI['name']
+    my_resource['metadata']['name'] = newName.lower()
+    my_resource['spec'] = inAPI
+    if 'developerUI' in inAPI.keys():
+        my_resource['spec']['developerUI'] = inAPI['developerUI']
+    # create the resource
+    try:
+        api = kubernetes.client.CustomObjectsApi()
+        apiObj = api.create_namespaced_custom_object(
+                group="oda.tmforum.org",
+                version="v1alpha2",
+                namespace=namespace,
+                plural="apis",
+                body=my_resource,
+            )
+        logging.debug(f"Resource created: {apiObj}")
+        logging.info(f"[{namespace}/{name}] creating api resource {my_resource['metadata']['name']}")
+
+    except ApiException as e:
+        logging.warning("Exception when calling api.create_namespaced_custom_object: %s", e)
+        raise kopf.TemporaryError("Exception creating API custom resource.")
+    return {"name": my_resource['metadata']['name'], "uid": apiObj['metadata']['uid']}
+
+
+# When api adds url address of where api is exposed, update parent Component object
 @kopf.on.field('oda.tmforum.org', 'v1alpha2', 'apis', field='status.ingress')
 def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
 
@@ -202,12 +229,19 @@ def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                     else:
                         logging.error("Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
 
-                # find the correct array entry to update
+                # find the correct array entry to update either in exposedAPIs or securityAPIs
                 for key in range(len(parent_component['status']['exposedAPIs'])):
                     if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
                         parent_component['status']['exposedAPIs'][key]['url'] = status['ingress']['url']
                         if 'developerUI' in status['ingress'].keys():
                             parent_component['status']['exposedAPIs'][key]['developerUI'] = status['ingress']['developerUI']
+                for key in range(len(parent_component['status']['securityAPIs'])):
+                    if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['securityAPIs'][key]['url'] = status['ingress']['url']
+                        if 'developerUI' in status['ingress'].keys():
+                            parent_component['status']['securityAPIs'][key]['developerUI'] = status['ingress']['developerUI']
+
+
 
                 #get all the exposed APIs in the staus and create a summary string
                 exposedAPIsummary = ''
@@ -219,9 +253,12 @@ def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                         if 'developerUI' in api.keys():
                             developerUIsummary = developerUIsummary + api['developerUI'] + ' '
                         countOfCompleteAPIs = countOfCompleteAPIs + 1
+                for api in parent_component['status']['securityAPIs']:
+                    if 'url' in api.keys():
+                        countOfCompleteAPIs = countOfCompleteAPIs + 1
                 parent_component['status']['exposedAPIsummary'] = exposedAPIsummary 
                 parent_component['status']['developerUIsummary'] = developerUIsummary 
-                if countOfCompleteAPIs == len(parent_component['status']['exposedAPIs']):
+                if countOfCompleteAPIs == (len(parent_component['status']['exposedAPIs']) + len(parent_component['status']['securityAPIs'])):
                     parent_component['status']['deployment_status'] = 'Complete'
                 else:
                     parent_component['status']['deployment_status'] = 'In-Progress'
@@ -232,3 +269,4 @@ def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                     logging.debug(f"api_response {api_response}")
                 except ApiException as e:
                     logging.warning("Exception when calling api_instance.patch_namespaced_custom_object: %s", e)
+                    raise kopf.TemporaryError("Exception when calling api_instance.patch_namespaced_custom_object for component " + name)
