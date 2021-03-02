@@ -159,7 +159,7 @@ def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
         partyRole['name'] = 'partyrole'
         resultStatus=createAPIResource(partyRole, namespace, name)
         apiChildren.append(resultStatus)
-    except AttributeError:
+    except KeyError:
         logging.warning(f"oda.tmforum.org components securityAPIs - component {name} has no partyrole property")
 
 
