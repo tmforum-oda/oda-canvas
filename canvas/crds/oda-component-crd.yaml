@@ -92,17 +92,17 @@ spec:
                 properties:
                   securitySchemes: 
                     type: object
-                    x-kubernetes-preserve-unknown-fields: true    
+                    x-kubernetes-preserve-unknown-fields: true                        
               version:
                 type: string
               description:
                 type: string
-              componenttype:
+              type:
                 type: string
               selector:
                 type: object
                 x-kubernetes-preserve-unknown-fields: true    
-              componentkinds:
+              componentKinds:
                 type: array
                 items:
                   type: object
@@ -233,12 +233,12 @@ spec:
                 type: string
               description:
                 type: string
-              componenttype:
+              type:
                 type: string
               selector:
                 type: object
                 x-kubernetes-preserve-unknown-fields: true    
-              componentkinds:
+              componentKinds:
                 type: array
                 items:
                   type: object
