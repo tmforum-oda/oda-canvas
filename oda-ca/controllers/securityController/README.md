@@ -1,3 +1,18 @@
+# Security Controller
+
+This is the reference implementaiton of a security controller that takes metadata from ODA Component and uses it to automatically configure the Identity service (using Keycloak in the reference implementation). The security controller expects the component to expose a TMF669 PartyRole API detailing all the roles to be added to the identity service. The sequence diagram shows the overall flow:
+
+
+![Sequence diagram](documentation/securitySequence-keycloak.png)
+
+
+
+The security controller consists of two modules, both written in Python. The first module uses the KOPF (https://kopf.readthedocs.io/) framework to listen for components being deployed in the ODA Canvas. It set's up the base `Client` registration in Keycloak and then registers for call-back events from the components PartyRole API. The second module provides the API server where these PartyRole callback events are handled. It receives create/update/delete events and creates/updates/deletes the corresponding  roles in Keycloak. See the more detailed sequence diagram below:
+
+
+![Sequence diagram](documentation/securitySequence-keycloak-detailed.png)
+
+
 # Notes
 
 Keycloak setup

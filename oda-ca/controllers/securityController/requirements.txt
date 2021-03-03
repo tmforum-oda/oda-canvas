@@ -9,3 +9,4 @@ kopf
 kubernetes
 pykube-ng
 pyyaml
+flask

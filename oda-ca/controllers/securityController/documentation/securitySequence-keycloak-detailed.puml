@@ -1,0 +1,28 @@
+@startuml
+
+actor "CatalogAdmin"
+actor "Operations"
+
+
+"Operations"-> ProductCatalogComponent: Install
+ProductCatalogComponent -> "securityController-keycloak": on.create 
+"securityController-keycloak" -> ProductCatalogComponent: Register securityListener to PartyRole events
+"securityController-keycloak" -[hidden]-> "securityController-apiListener"
+"securityController-keycloak" -> Keycloak: Register client
+"CatalogAdmin" -> ProductCatalogComponent: Create Role
+ProductCatalogComponent-> "securityController-apiListener": PartyRoleCreationNotification event
+"securityController-apiListener" -> Keycloak: create role
+"CatalogAdmin" -> ProductCatalogComponent: Update Role
+ProductCatalogComponent-> "securityController-apiListener": PartyRoleAttributeValueChangeNotification event
+"securityController-apiListener" -> Keycloak: Update role
+"CatalogAdmin" -> ProductCatalogComponent: Delete Role
+ProductCatalogComponent-> "securityController-apiListener": PartyRoleDeletionNotification event
+"securityController-apiListener" -> Keycloak: Delete role
+"CatalogAdmin" -> ProductCatalogComponent: Create Role
+ProductCatalogComponent-> "securityController-apiListener": PartyRoleCreationNotification event
+"securityController-apiListener" -> Keycloak: create role
+"Operations"-> ProductCatalogComponent: Uninstall
+ProductCatalogComponent -> "securityController-keycloak": on.delete 
+"securityController-keycloak" -> Keycloak: Delete client and all roles for component
+
+@enduml

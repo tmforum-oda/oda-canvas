@@ -11,7 +11,7 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv1
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -25,7 +25,7 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv2
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -39,7 +39,7 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv3
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -53,7 +53,7 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv4
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -67,7 +67,7 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv5
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -81,7 +81,7 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv6
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -95,7 +95,7 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv7
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -109,7 +109,7 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv8
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -123,7 +123,7 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv9
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -137,4 +137,4 @@ spec:
     storage: 5Gi
   hostPath:
     path: /tmp/pv10
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Recycle
