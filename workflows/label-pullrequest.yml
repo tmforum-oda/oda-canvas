@@ -1,0 +1,71 @@
+name: Auto label PR
+on: 
+  pull_request:
+    types: [ assigned, opened, synchronize, reopened, edited]
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log(github.event)
+      - name: Execute for pull request comments only
+        if: github.event.issue.pull_request
+        run: echo "This is a pull request comment event"
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            // lookup issues linked to this pull request; Get the labels for each issue and add to pull request;
+            const pull_request = await github.request(context.payload.pull_request.url)
+            //
+            // For each issue there may be a CONNECTED_EVENT and/or a DISCONNECTED_EVENT on the timeline and may be 
+            // mentioned with a # in the pr body. We need to count for each event type and if the
+            // total is Odd, the issue is connected and if Even it is not connected.
+            // 
+            // query the timeline for this pull request. 
+            const graphql_response = await github.graphql('{ resource(url: "' + pull_request.data.html_url + '") { ... on PullRequest { timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) { nodes { ... on ConnectedEvent { id subject { ... on Issue { number }}} ... on DisconnectedEvent { id subject { ... on Issue { number }}}}}}}}')
+            var linked_issues={}
+            graphql_response.resource.timelineItems.nodes.forEach(function (node, index) {
+              const issue_no = node.subject.number
+              if (linked_issues[issue_no]){
+                delete linked_issues[issue_no]
+              } else {
+                linked_issues[issue_no] = true
+              }
+            })
+            // query for the body
+            const regex = /#([0-9]+)/g;
+            const found = pull_request.data.body.match(regex);
+            if (found) {
+              found.forEach(function (item, index) {
+                var issue_no=item.substring(1)            
+                if (linked_issues[issue_no]){
+                  delete linked_issues[issue_no]
+                } else {
+                  linked_issues[issue_no] = true
+                }
+              })
+            }
+            const repository_url = pull_request.data.head.repo.url
+            labels={}
+            for (const index in linked_issues) {
+              const issue = await github.request(repository_url + '/issues/' + index)
+              linked_issues[index] = issue
+              const issue_labels = await github.request(repository_url + '/issues/' + index + '/labels')
+              issue_labels.data.forEach( function (item, index) {
+                labels[item.name] = item.url
+              })
+            }
+            var labels_array = []
+            for (const index in labels) {
+              labels_array.push(index)
+            }
+            console.log({labels_array: labels_array})
+            // add labels array to this pull request
+            if (labels_array.length>0) {
+              github.request('POST ' + repository_url + '/issues/' + pull_request.data.number + '/labels', {labels:labels_array})
+            }
