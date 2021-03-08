@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-keycloak
+  #namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Release.Name }}-keycloak
+    {{- include "keycloak.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-keycloak
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-keycloak
+        {{- include "keycloak.labels" . | nindent 8 }}
+      namespace: {{ .Release.Namespace }}
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:{{ .Chart.AppVersion }}
+        env:
+        - name: KEYCLOAK_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: keycloak_admin_user
+        - name: KEYCLOAK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: keycloak_admin_password
+        - name: PROXY_ADDRESS_FORWARDING
+          value: "true"
+        {{- if or .Values.dbaas.enabled .Values.postgresql.enabled }}
+        - name: DB_VENDOR
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name}}-configmap
+              key: dbVendor
+        - name: DB_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name}}-configmap
+              key: dbAddress
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name}}-configmap
+              key: dbPort
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: postgres_db_user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: postgres_db_password
+        {{ end }}
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: https
+          containerPort: 8443
+        readinessProbe:
+          httpGet:
+            path: /auth/realms/master
+            port: http

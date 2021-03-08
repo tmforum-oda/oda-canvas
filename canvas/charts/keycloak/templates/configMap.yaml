@@ -1,0 +1,19 @@
+{{- if or .Values.dbaas.enabled .Values.postgresql.enabled}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+data:
+  {{- if .Values.dbaas.enabled }}
+  dbVendor: {{ .Values.dbaas.vendor }}
+  dbAddress: {{ .Values.dbaas.address }}
+  dbPort: {{ .Values.dbaas.port | quote }}
+  {{ else if .Values.postgresql.enabled }}
+  dbVendor: "postgres"
+  dbAddress: {{ .Release.Name }}-postgresql.{{ .Release.Namespace }}
+  dbPort: {{ .Values.dbaas.port | quote }}
+  {{ end }}
+{{ end }}
