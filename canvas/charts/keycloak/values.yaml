@@ -14,7 +14,7 @@ secret:
 dbaas:
   enabled: false
   vendor: "postgres"
-  address: "xaas.yayoi.co.uk"
+  address: "postgres.canvas"
   port: "5432"
 
 ingress:
