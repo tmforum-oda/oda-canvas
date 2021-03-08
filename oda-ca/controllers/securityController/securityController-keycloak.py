@@ -82,20 +82,21 @@ username = os.environ.get('KEYCLOAK_USER')
 password = os.environ.get('KEYCLOAK_PASSWORD')
 kcBaseURL = os.environ.get('KEYCLOAK_BASE')
 kcRealm = os.environ.get('KEYCLOAK_REALM')
-print('Logging set to ',logging_level)
+print('Logging set to ',logging_level)  
 logger = logging.getLogger()
 logger.setLevel(int(logging_level)) #Logging level default = INFO
 
 
 # Kopf handlers -------------
 
+
 # @kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.create('oda.tmforum.org', 'v1alpha1', 'components') # called by kopf framework when a component is created
-@kopf.on.update('oda.tmforum.org', 'v1alpha1', 'components') # or updated
-def securityRoles(meta, spec, status, body, namespace, labels, name, **kwargs):
+@kopf.on.update('oda.tmforum.org', 'v1alpha2', 'components', field='status.deployment_status', value='Complete') # called by kopf framework when a component's status is updated
+def securityRoles(meta, spec, status, body, namespace, labels, name, old, new, **kwargs):
     """
     Handler for component create/update
     """
+    logging.info(f'status.deployment_status = {old} -> {new}')
     token = getToken(username, password)
     if not createClient(name, token, kcRealm):
         logging.info(formatCloudEvent(f"Could not add oda.tmforum.org component {name}. Will rety.", f"secCon: component create/update"))
@@ -104,10 +105,9 @@ def securityRoles(meta, spec, status, body, namespace, labels, name, **kwargs):
         logging.info(formatCloudEvent(f"oda.tmforum.org component {name} created/updated", f"secCon: component create/update"))
     statusValue = {'identityProvider': 'Keycloak'}
     return statusValue # the return value is added to the status field of the k8s object under securityRoles parameter (corresponds to function name)
+    
 
-
-
-@kopf.on.delete('oda.tmforum.org', 'v1alpha1', 'components') # called by kopf framework when a component is deleted
+@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'components') # called by kopf framework when a component is deleted
 def securityRolesDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
     """
     Handler to delete component from Keycloak
