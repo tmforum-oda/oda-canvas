@@ -1,4 +1,4 @@
-name: Auto label PR
+name: Automatically label and approve pull request
 on: 
   pull_request:
     types: [ assigned, opened, synchronize, reopened, edited]
@@ -7,15 +7,15 @@ jobs:
   diff:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v3
+      - name: Verify Linked Issue
+        uses: hattan/verify-linked-issue-action@v1.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            console.log(github.event)
-      - name: Execute for pull request comments only
-        if: github.event.issue.pull_request
-        run: echo "This is a pull request comment event"
-      - uses: actions/github-script@v3
+          message: 'Error! No linked issues found. Please edit your pull request to mention issues that it closes (using close #<issue_id>).'
+      - name: Label Pull Request
+        id: label
+        uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -67,5 +67,34 @@ jobs:
             console.log({labels_array: labels_array})
             // add labels array to this pull request
             if (labels_array.length>0) {
-              github.request('POST ' + repository_url + '/issues/' + pull_request.data.number + '/labels', {labels:labels_array})
+              await github.request('POST ' + repository_url + '/issues/' + pull_request.data.number + '/labels', {labels:labels_array})
+            }  
+            // depending on the labels, decide whether we can auto-approve.
+            const auto_approved = ['documentation', 'bug-fix', 'refactor']
+            Array.prototype.remove = function() {
+              var what, a = arguments, L = a.length, ax
+              while (L && this.length) {
+                what = a[--L]
+                while ((ax = this.indexOf(what)) !== -1) {
+                  this.splice(ax, 1)
+                }
+              }
+              return this;
             }
+            console.log(labels_array)
+            auto_approved.forEach( function (item, index) {
+              labels_array.remove(item)
+            })
+            console.log(labels_array)
+            // if nothing left in labels_array then auto-approve.
+            if (labels_array.length == 0) {
+              const pullRequest = context.payload.pull_request
+              const repository = context.repo
+              await github.pulls.merge({
+                merge_method: "merge",
+                owner: repository.owner,
+                pull_number: pullRequest.number,
+                repo: repository.repo,
+              })        
+            }            
+
