@@ -1,2 +1,5 @@
 .vscode/
 __pycache__/
+*.pyc
+controllers/securityController/__pycache__/
+controllers/securityController/__pycache__/securityControllerAPIserver-keycloak.cpython-37.pyc

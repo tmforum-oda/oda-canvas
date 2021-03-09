@@ -9,6 +9,8 @@ logger = logging.getLogger()
 ingress_class = os.environ.get('INGRESS_CLASS','nginx') 
 print('Ingress set to ',ingress_class)
 
+HTTP_SCHEME = "http://"
+
 @kopf.on.create('oda.tmforum.org', 'v1alpha2', 'apis')
 def ingress(meta, spec, status, body, namespace, labels, name, **kwargs):
 
@@ -18,14 +20,7 @@ def ingress(meta, spec, status, body, namespace, labels, name, **kwargs):
     logging.debug(f"api has name: {meta['name']}")
     logging.debug(f"api implementation at: {spec['implementation']}")
 
-    # newName = my_resource['metadata']['ownerReferences'][0]['name'] + '-' + exposedAPI['name']
-    # my_resource['metadata']['name'] = newName.lower()
-    # my_resource['spec']['specification'] = exposedAPI['specification']
-    # my_resource['spec']['implementation'] = exposedAPI['implementation']
-
     client = kubernetes.client
-
-
     try:
         networking_v1_beta1_api = client.NetworkingV1beta1Api()
         hostname = None
@@ -60,7 +55,6 @@ def ingress(meta, spec, status, body, namespace, labels, name, **kwargs):
         "spec": ingress_spec
     }
 
-
     # Make it our child: assign the namespace, name, labels, owner references, etc.
     kopf.adopt(body)
     logging.debug(f"body (adopted): {body}")
@@ -80,7 +74,7 @@ def ingress(meta, spec, status, body, namespace, labels, name, **kwargs):
     return {"name": meta['name'], "uid": mydict['metadata']['uid']}
 
 
-# When ingress adds IP address of load balancer, update parent API object
+# When ingress adds IP address/dns of load balancer, update parent API object
 @kopf.on.field('networking.k8s.io', 'v1beta1', 'ingresses', field='status.loadBalancer')
 def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs): 
     logging.debug(f"Status: {status}")
@@ -117,9 +111,9 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                     if len(ingress)>0:
                         ingressTarget = ingress[0]
                         if 'hostname' in parent_api['spec'].keys(): #if api specifies hostname then use hostname
-                            parent_api['status']['ingress']['url'] = parent_api['spec']['hostname'] + parent_api['spec']['path']
+                            parent_api['status']['ingress']['url'] = HTTP_SCHEME + parent_api['spec']['hostname'] + parent_api['spec']['path']
                             if 'developerUI' in parent_api['spec']:
-                                parent_api['status']['ingress']['developerUI'] = parent_api['spec']['hostname'] + parent_api['spec']['developerUI']
+                                parent_api['status']['ingress']['developerUI'] = HTTP_SCHEME + parent_api['spec']['hostname'] + parent_api['spec']['developerUI']
                             if 'ip' in ingressTarget.keys():
                                 parent_api['status']['ingress']['ip'] = ingressTarget['ip']
                             elif 'hostname' in ingressTarget.keys():
@@ -132,15 +126,15 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                             logging.debug(f"api_response {api_response}")
                         else:    #if api doesn't specify hostname then use ip
                             if 'ip' in ingressTarget.keys():
-                                parent_api['status']['ingress']['url'] = ingressTarget['ip'] + parent_api['spec']['path']
+                                parent_api['status']['ingress']['url'] = HTTP_SCHEME + ingressTarget['ip'] + parent_api['spec']['path']
                                 if 'developerUI' in parent_api['spec']:
-                                    parent_api['status']['ingress']['developerUI'] = ingressTarget['ip'] + parent_api['spec']['developerUI']
+                                    parent_api['status']['ingress']['developerUI'] = HTTP_SCHEME + ingressTarget['ip'] + parent_api['spec']['developerUI']
                                 parent_api['status']['ingress']['ip'] = ingressTarget['ip']
                                 api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
                             elif 'hostname' in ingressTarget.keys():
-                                parent_api['status']['ingress']['url'] = ingressTarget['hostname'] + parent_api['spec']['path']
+                                parent_api['status']['ingress']['url'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api['spec']['path']
                                 if 'developerUI' in parent_api['spec']:
-                                    parent_api['status']['ingress']['developerUI'] = ingressTarget['hostname'] + parent_api['spec']['developerUI']
+                                    parent_api['status']['ingress']['developerUI'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api['spec']['developerUI']
                                 parent_api['status']['ingress']['ip'] = ingressTarget['hostname']
                                 api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
                                 logging.info(f"[{namespace}/{name}] Updated parent api: {name} status to {parent_api['status']}")

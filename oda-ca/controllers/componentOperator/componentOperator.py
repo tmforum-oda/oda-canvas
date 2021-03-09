@@ -151,14 +151,14 @@ def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     logging.debug(f"oda.tmforum.org components securityAPIs is called with spec: {spec}")
     logging.debug(f"oda.tmforum.org components securityAPIs is called with status: {status}")
 
-    apiChildren = []
+    apiChildren = {}
 
     # get security exposed APIS
     try:
         partyRole = spec['security']['partyrole']
         partyRole['name'] = 'partyrole'
         resultStatus=createAPIResource(partyRole, namespace, name)
-        apiChildren.append(resultStatus)
+        apiChildren['partyrole'] = resultStatus
     except KeyError:
         logging.warning(f"oda.tmforum.org components securityAPIs - component {name} has no partyrole property")
 
@@ -235,13 +235,11 @@ def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                         parent_component['status']['exposedAPIs'][key]['url'] = status['ingress']['url']
                         if 'developerUI' in status['ingress'].keys():
                             parent_component['status']['exposedAPIs'][key]['developerUI'] = status['ingress']['developerUI']
-                for key in range(len(parent_component['status']['securityAPIs'])):
+                for key in (parent_component['status']['securityAPIs']):
                     if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
                         parent_component['status']['securityAPIs'][key]['url'] = status['ingress']['url']
                         if 'developerUI' in status['ingress'].keys():
                             parent_component['status']['securityAPIs'][key]['developerUI'] = status['ingress']['developerUI']
-
-
 
                 #get all the exposed APIs in the staus and create a summary string
                 exposedAPIsummary = ''
@@ -254,7 +252,7 @@ def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                             developerUIsummary = developerUIsummary + api['developerUI'] + ' '
                         countOfCompleteAPIs = countOfCompleteAPIs + 1
                 for api in parent_component['status']['securityAPIs']:
-                    if 'url' in api.keys():
+                    if 'url' in parent_component['status']['securityAPIs'][api].keys():
                         countOfCompleteAPIs = countOfCompleteAPIs + 1
                 parent_component['status']['exposedAPIsummary'] = exposedAPIsummary 
                 parent_component['status']['developerUIsummary'] = developerUIsummary 
