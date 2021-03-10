@@ -16,7 +16,7 @@ spec:
       serviceAccountName: odacomponent-account
       containers:
       - name: oda-controller-ingress
-        image: {{.Values.deployment.image}}
+        image: {{.Values.deployment.compconimage}}
         env:
         - name: LOGGING
           value: '20'           
@@ -26,3 +26,12 @@ spec:
         - name: INGRESS_CLASS
           value: {{ .Values.deployment.ingressClass.name }}
         {{ end }}
+      - name: seccon
+        image: {{.Values.deployment.secconimage}}
+        imagePullPolicy: Always
+        env:
+        - name: LOGGING
+          value: '20'           
+        ports:
+        - name: seccon
+          containerPort: 5000        

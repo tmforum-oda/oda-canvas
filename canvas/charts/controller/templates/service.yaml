@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: seccon
+  labels:
+    app: oda-controller-ingress #link service to Pod and not individual container
+spec:
+  ports:
+  - port: 5000
+    targetPort: seccon
+    name: seccon
+  type: NodePort
+  selector:
+    app: oda-controller-ingress
