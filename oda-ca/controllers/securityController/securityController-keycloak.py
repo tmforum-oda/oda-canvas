@@ -96,7 +96,7 @@ def formatCloudEvent(message: str, subject: str) -> str:
     attributes = {
         "specversion" : "1.0",
         "type" : "org.tmforum.for.type.event.an.invented.burton.brian",
-        "source" : "http://seccon.canvas",
+        "source" : "http://seccon.canvas.svc.cluster.local",
         "subject": subject,
         "id" : str(uuid.uuid4()),
         "time" : datetime.datetime.now().isoformat(),
@@ -146,7 +146,10 @@ def securityClientAdd(meta, spec, status, body, namespace, labels, name, old, ne
 
     # ! This uncommented section is for the new version of status.securityAPIs based on dicts
     if 'securityAPIs' in status:
-        rooturl = status['securityAPIs']['partyrole']['url']
+        #rooturl = status['securityAPIs']['partyrole']['url']
+        rooturl = 'http://' + spec['security']['partyrole']['implementation'] + '.components.svc.cluster.local:' + str(spec['security']['partyrole']['port']) + spec['security']['partyrole']['path']
+        logging.info(f"using component root url: {rooturl}")
+
     else:
         raise kopf.TemporaryError("status.SecurityAPIs not populated. Will retry.", delay=10)
 
@@ -162,7 +165,7 @@ def securityClientAdd(meta, spec, status, body, namespace, labels, name, old, ne
     return statusValue # the return value is added to the status field of the k8s object under securityRoles parameter (corresponds to function name)
     
 
-@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'components') # called by kopf framework when a component is deleted
+@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'components', retries=5) # called by kopf framework when a component is deleted
 def securityClientDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
     """
     Handler to delete component from Keycloak

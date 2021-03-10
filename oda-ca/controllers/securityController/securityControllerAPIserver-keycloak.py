@@ -113,7 +113,7 @@ app = Flask(__name__)
 def partyRoleListener():
     try: # to process incoming POSTs
         doc = request.json
-        logging.debug(f"security-APIListener received {doc}")
+        logging.info(f"security-APIListener received {doc}")
         partyRole = doc['event']['partyRole']
         logging.debug(f"partyRole = {partyRole}")
         if partyRole['@baseType'] != 'PartyRole':
@@ -123,6 +123,10 @@ def partyRoleListener():
 
         token = getToken(username, password)
         clientList = getClientList(token, kcRealm)
+        componentName = partyRole['href'].split('/tmf-api/')[0]
+        componentName = componentName.split('://')[1]
+        componentName = componentName.split('/')[1]
+        
         client = clientList[componentName]
         if eventType==PARTY_ROLE_CREATION:
             if createRole(partyRole, client, token, kcRealm):
