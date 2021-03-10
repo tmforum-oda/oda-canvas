@@ -20,7 +20,15 @@ spec:
         env:
         - name: LOGGING
           value: '20'           
-        - name: COMPONENT_NAMESPACE
+        - name: KEYCLOAK_USER
+          value: 'admin'      
+        - name: KEYCLOAK_PASSWORD
+          value: 'adpass'      
+        - name: KEYCLOAK_BASE
+          value: 'http://canvas-keycloak:8088/auth'      
+        - name: KEYCLOAK_REALM
+          value: 'myrelm'  
+        - name: COMPONENT_NAMESPACE    
           value: {{.Values.deployment.monitorednamespaces}}
         {{- if .Values.deployment.ingressClass.enabled }}
         - name: INGRESS_CLASS
@@ -32,6 +40,14 @@ spec:
         env:
         - name: LOGGING
           value: '20'           
+        - name: KEYCLOAK_USER
+          value: 'admin'      
+        - name: KEYCLOAK_PASSWORD
+          value: 'adpass'      
+        - name: KEYCLOAK_BASE
+          value: 'http://canvas-keycloak:8088/auth'      
+        - name: KEYCLOAK_REALM
+          value: 'myrelm'  
         ports:
         - name: seccon
           containerPort: 5000        
