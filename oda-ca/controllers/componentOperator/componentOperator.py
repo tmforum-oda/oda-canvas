@@ -16,7 +16,7 @@ CONST_HTTP_NOT_FOUND = 404
 
 # @kopf.on.resume('', 'v1', 'services')
 @kopf.on.create('', 'v1', 'services')
-def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
+async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
 
     logging.debug("adopt_service called for service - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")    
     logging.debug("Checking if oda.tmforum.org/componentName is in labels %s ", ''.join(labels.keys()))
@@ -56,7 +56,7 @@ def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
 
 # @kopf.on.resume('apps', 'v1', 'deployments')
 @kopf.on.create('apps', 'v1', 'deployments')
-def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
+async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 
     logging.debug("Create called for deployment - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")
     if 'oda.tmforum.org/componentName' in labels.keys():
@@ -91,7 +91,7 @@ def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 
 # @kopf.on.resume('', 'v1', 'persistentvolumeclaims')
 @kopf.on.create('', 'v1', 'persistentvolumeclaims')
-def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwargs):
+async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwargs):
 
     logging.debug("Create called for persistentvolumeclaim - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")
     if 'oda.tmforum.org/componentName' in labels.keys():
@@ -126,7 +126,7 @@ def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwa
 
 # @kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
 @kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
-def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
+async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"oda.tmforum.org components exposedAPIs is called with spec: {spec}")
     logging.debug(f"oda.tmforum.org components exposedAPIs is called with status: {status}")
@@ -146,7 +146,7 @@ def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 
 # @kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
 @kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
-def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
+async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"oda.tmforum.org components securityAPIs is called with spec: {spec}")
     logging.debug(f"oda.tmforum.org components securityAPIs is called with status: {status}")
@@ -202,14 +202,14 @@ def createAPIResource(inAPI, namespace, name):
         logging.info(f"[{namespace}/{name}] creating api resource {my_resource['metadata']['name']}")
 
     except ApiException as e:
-        logging.warning("Exception when calling api.create_namespaced_custom_object: %s", e)
+        logging.warning(f"Exception when calling api.create_namespaced_custom_object: error: {e} API resource: {my_resource}")
         raise kopf.TemporaryError("Exception creating API custom resource.")
-    return {"name": my_resource['metadata']['name'], "uid": apiObj['metadata']['uid']}
+    return {"name": my_resource['metadata']['name'], "uid": apiObj['metadata']['uid'], "ready": False}
 
 
 # When api adds url address of where api is exposed, update parent Component object
 @kopf.on.field('oda.tmforum.org', 'v1alpha2', 'apis', field='status.ingress')
-def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
+async def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"status: {status}")
     if 'ingress' in status.keys(): 
@@ -240,31 +240,68 @@ def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                         parent_component['status']['securityAPIs'][key]['url'] = status['ingress']['url']
                         if 'developerUI' in status['ingress'].keys():
                             parent_component['status']['securityAPIs'][key]['developerUI'] = status['ingress']['developerUI']
+                summaryAndUpdate(status, namespace, name, parent_component, plural, group, version)
 
-                #get all the exposed APIs in the staus and create a summary string
-                exposedAPIsummary = ''
-                developerUIsummary = ''
-                countOfCompleteAPIs = 0
-                for api in parent_component['status']['exposedAPIs']:
-                    if 'url' in api.keys():
-                        exposedAPIsummary = exposedAPIsummary + api['url'] + ' '
-                        if 'developerUI' in api.keys():
-                            developerUIsummary = developerUIsummary + api['developerUI'] + ' '
-                        countOfCompleteAPIs = countOfCompleteAPIs + 1
-                for api in parent_component['status']['securityAPIs']:
-                    if 'url' in parent_component['status']['securityAPIs'][api].keys():
-                        countOfCompleteAPIs = countOfCompleteAPIs + 1
-                parent_component['status']['exposedAPIsummary'] = exposedAPIsummary 
-                parent_component['status']['developerUIsummary'] = developerUIsummary 
-                if countOfCompleteAPIs == (len(parent_component['status']['exposedAPIs']) + len(parent_component['status']['securityAPIs'])):
-                    parent_component['status']['deployment_status'] = 'Complete'
-                else:
-                    parent_component['status']['deployment_status'] = 'In-Progress'
+# When api confirms implementation is ready, update parent Component object
+@kopf.on.field('oda.tmforum.org', 'v1alpha2', 'apis', field='status.implementation')
+async def api_status(meta, spec, status, body, namespace, labels, name, **kwargs):
+
+    logging.debug(f"status: {status}")
+    if 'ready' in status['implementation'].keys(): 
+        if status['implementation']['ready'] == True:
+            if 'ownerReferences' in meta.keys():
+                group = 'oda.tmforum.org' # str | the custom resource's group
+                version = 'v1alpha2' # str | the custom resource's version
+                plural = 'components' # str | the custom resource's plural name
+                name = meta['ownerReferences'][0]['name'] # str | the custom object's name
+
                 try:
                     custom_objects_api =  kubernetes.client.CustomObjectsApi()
-                    api_response = custom_objects_api.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_component)
-                    logging.info(f"[{namespace}/{name}] Added ip: {status['ingress']['url']} to parent component: {name}")
-                    logging.debug(f"api_response {api_response}")
+                    parent_component = custom_objects_api.get_namespaced_custom_object(group, version, namespace, plural, name)
                 except ApiException as e:
-                    logging.warning("Exception when calling api_instance.patch_namespaced_custom_object: %s", e)
-                    raise kopf.TemporaryError("Exception when calling api_instance.patch_namespaced_custom_object for component " + name)
+                    if e.status == CONST_HTTP_NOT_FOUND: # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                        raise kopf.TemporaryError("Cannot find parent component " + name)
+                    else:
+                        logging.error("Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
+
+                # find the correct array entry to update either in exposedAPIs or securityAPIs
+                for key in range(len(parent_component['status']['exposedAPIs'])):
+                    if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['exposedAPIs'][key]['ready'] = True
+                for key in (parent_component['status']['securityAPIs']):
+                    if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['securityAPIs'][key]['ready'] = True
+                summaryAndUpdate(status, namespace, name, parent_component, plural, group, version)
+
+
+def summaryAndUpdate(status, namespace, name, parent_component, plural, group, version):
+
+    #get all the exposed APIs in the staus and create a summary string
+    exposedAPIsummary = ''
+    developerUIsummary = ''
+    countOfCompleteAPIs = 0
+    for api in parent_component['status']['exposedAPIs']:
+        if 'url' in api.keys():
+            exposedAPIsummary = exposedAPIsummary + api['url'] + ' '
+            if 'developerUI' in api.keys():
+                developerUIsummary = developerUIsummary + api['developerUI'] + ' '
+            if api['ready']==True:
+                countOfCompleteAPIs = countOfCompleteAPIs + 1
+    for api in parent_component['status']['securityAPIs']:
+        if 'url' in parent_component['status']['securityAPIs'][api].keys():
+            if parent_component['status']['securityAPIs'][api]['ready']==True:
+                countOfCompleteAPIs = countOfCompleteAPIs + 1
+    parent_component['status']['exposedAPIsummary'] = exposedAPIsummary 
+    parent_component['status']['developerUIsummary'] = developerUIsummary 
+    if countOfCompleteAPIs == (len(parent_component['status']['exposedAPIs']) + len(parent_component['status']['securityAPIs'])):
+        parent_component['status']['deployment_status'] = 'Complete'
+    else:
+        parent_component['status']['deployment_status'] = 'In-Progress'
+    try:
+        custom_objects_api =  kubernetes.client.CustomObjectsApi()
+        api_response = custom_objects_api.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_component)
+        logging.info(f"[{namespace}/{name}] updated status: {status} to parent component: {name}")
+        logging.debug(f"api_response {api_response}")
+    except ApiException as e:
+        logging.warning("Exception when calling api_instance.patch_namespaced_custom_object: %s", e)
+        raise kopf.TemporaryError("Exception when calling api_instance.patch_namespaced_custom_object for component " + name)

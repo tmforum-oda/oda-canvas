@@ -120,7 +120,12 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                                 parent_api['status']['ingress']['ip'] = ingressTarget['hostname'] 
                             else:
                                 logging.warning('Ingress target does not contain ip or hostname')
-                            api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
+                            try:
+                                api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
+                            except ApiException as e:
+                                logging.warning("Exception when calling api_instance.patch_namespaced_custom_object: %s\n" % e)
+                                raise kopf.TemporaryError("Exception updating API.")
+
                             logging.info(f"[{namespace}/{name}] Updated parent api: {name} status to {parent_api['status']}")
 
                             logging.debug(f"api_response {api_response}")
@@ -136,7 +141,12 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                                 if 'developerUI' in parent_api['spec']:
                                     parent_api['status']['ingress']['developerUI'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api['spec']['developerUI']
                                 parent_api['status']['ingress']['ip'] = ingressTarget['hostname']
-                                api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
+                                try:
+                                    api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
+                                except ApiException as e:
+                                    logging.warning("Exception when calling api_instance.patch_namespaced_custom_object: %s\n" % e)
+                                    raise kopf.TemporaryError("Exception updating API.")
+
                                 logging.info(f"[{namespace}/{name}] Updated parent api: {name} status to {parent_api['status']}")
                                 logging.debug(f"api_response {api_response}")
                             else:
@@ -150,4 +160,36 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
             else:
                 logging.debug('Load Balancer doesnt have an ingress resource')
 
+
+# When service where implementation is ready, update parent API object
+@kopf.on.create('discovery.k8s.io', 'v1beta1', 'endpointslice')
+@kopf.on.update('discovery.k8s.io', 'v1beta1', 'endpointslice')
+def implementation_status(meta, spec, status, body, namespace, labels, name, **kwargs): 
+    logging.info(f"endpointslice body: {body}")
+    serviceName = meta['ownerReferences'][0]['name']
+    anyEndpointReady = False
+    if body['endpoints'] != None:
+        for endpoint in body['endpoints']:
+            logging.debug(f"endpoint: {endpoint}")
+            if endpoint['conditions']['ready'] == True:
+                anyEndpointReady = True 
+                # find the corresponding API resource and update status
+                # query for api with spec.implementation equal to service name
+                api_instance = kubernetes.client.CustomObjectsApi()
+                group = 'oda.tmforum.org' # str | the custom resource's group
+                version = 'v1alpha2' # str | the custom resource's version
+                namespace = namespace # str | The custom resource's namespace
+                plural = 'apis' # str | the custom resource's plural name
+                api_response = api_instance.list_namespaced_custom_object(group, version, namespace, plural)
+                found = False
+                logging.info(f"[endpointslice/{serviceName}] api list has ={ len(api_response['items'])} items")
+                for api in api_response['items']:       
+                    if api['spec']['implementation'] == serviceName:
+                        found = True
+                        # logging.info(f"[endpointslice/{serviceName}] api={api}")
+                        api['status']['implementation'] = {"ready": True}
+                        api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, api['metadata']['name'], api)
+                if found == False:
+                    logging.info("[endpointslice/" + serviceName + "] Can't find API resource.")                  
+    logging.info(f"[endpointslice/{serviceName}] is ready={anyEndpointReady}")
 
