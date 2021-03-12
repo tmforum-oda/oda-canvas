@@ -25,7 +25,7 @@ service:
   port: 8088
 
 postgresql:
-  enabled: false
+  enabled: true
   postgresqlUsername: "keycloak"
   postgresqlPassword: "keycloakdbuser"
   postgresqlDatabase: "keycloak"

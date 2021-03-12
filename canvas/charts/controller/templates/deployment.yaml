@@ -2,7 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: oda-controller-ingress
-  namespace: {{.Values.global.namespaceCanvas.name}}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "controller.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -10,44 +12,28 @@ spec:
       app: oda-controller-ingress
   template:
     metadata:
+      namespace: {{ .Release.Namespace }}
       labels:
         app: oda-controller-ingress
+        {{- include "controller.labels" . | nindent 8 }}
     spec:
       serviceAccountName: odacomponent-account
       containers:
       - name: oda-controller-ingress
         image: {{.Values.deployment.compconimage}}
-        env:
-        - name: LOGGING
-          value: '20'           
-        - name: KEYCLOAK_USER
-          value: 'admin'      
-        - name: KEYCLOAK_PASSWORD
-          value: 'adpass'      
-        - name: KEYCLOAK_BASE
-          value: 'http://canvas-keycloak:8088/auth'      
-        - name: KEYCLOAK_REALM
-          value: 'myrelm'  
-        - name: COMPONENT_NAMESPACE    
-          value: {{.Values.deployment.monitorednamespaces}}
-        {{- if .Values.deployment.ingressClass.enabled }}
-        - name: INGRESS_CLASS
-          value: {{ .Values.deployment.ingressClass.name }}
-        {{ end }}
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-configmap
+          - secretRef:
+              name: {{ .Release.Name }}-secret
       - name: seccon
         image: {{.Values.deployment.secconimage}}
         imagePullPolicy: Always
-        env:
-        - name: LOGGING
-          value: '20'           
-        - name: KEYCLOAK_USER
-          value: 'admin'      
-        - name: KEYCLOAK_PASSWORD
-          value: 'adpass'      
-        - name: KEYCLOAK_BASE
-          value: 'http://canvas-keycloak:8088/auth'      
-        - name: KEYCLOAK_REALM
-          value: 'myrelm'  
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-configmap
+          - secretRef:
+              name: {{ .Release.Name }}-secret
         ports:
         - name: seccon
           containerPort: 5000        

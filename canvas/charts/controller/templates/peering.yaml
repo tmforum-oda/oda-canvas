@@ -3,10 +3,14 @@ apiVersion: zalando.org/v1
 kind: ClusterKopfPeering
 metadata:
   name: default
+  labels:
+    {{- include "controller.labels" . | nindent 2 }}
 ---
 apiVersion: zalando.org/v1
 kind: KopfPeering
 metadata:
-  namespace: {{.Values.global.namespaceCanvas.name}}
+  namespace: {{ .Release.Namespace }}
   name: default
+  labels:
+    {{- include "controller.labels" . | nindent 2 }}
 ---
