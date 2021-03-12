@@ -4,7 +4,7 @@ kind: ClusterKopfPeering
 metadata:
   name: default
   labels:
-    {{- include "controller.labels" . | nindent 2 }}
+    {{- include "controller.labels" . | nindent 4 }}
 ---
 apiVersion: zalando.org/v1
 kind: KopfPeering
@@ -12,5 +12,5 @@ metadata:
   namespace: {{ .Release.Namespace }}
   name: default
   labels:
-    {{- include "controller.labels" . | nindent 2 }}
+    {{- include "controller.labels" . | nindent 4 }}
 ---

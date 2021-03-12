@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: oda-controller-ingress #link service to Pod and not individual container
+    {{- include "controller.labels" . | nindent 4 }}
 spec:
   ports:
   - port: 5000
