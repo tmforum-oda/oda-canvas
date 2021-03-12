@@ -21,6 +21,7 @@ spec:
       containers:
       - name: oda-controller-ingress
         image: {{.Values.deployment.compconimage}}
+        imagePullPolicy: Always
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-configmap
