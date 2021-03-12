@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: {{.Values.global.namespaceCanvas.name}}
+  namespace: {{ .Release.Namespace }}
   name: odacomponent-account
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -108,7 +108,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: odacomponent-account
-    namespace: {{.Values.global.namespaceCanvas.name}}
+    namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
