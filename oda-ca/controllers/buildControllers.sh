@@ -1,6 +1,6 @@
-docker build --file component-IngressController-dockerfile -t lesterthomas/odacomponentcontroller-ingress:0.9 -t lesterthomas/odacomponentcontroller-ingress:latest .
-docker push lesterthomas/odacomponentcontroller-ingress --all-tags
-docker build --file component-wso2Controller-dockerfile -t lesterthomas/odacomponentcontroller-wso2:0.9 -t lesterthomas/odacomponentcontroller-wso2:latest .
-docker push lesterthomas/odacomponentcontroller-wso2  --all-tags
-docker build --file securityControllerAPIserver-keycloak-dockerfile -t lesterthomas/odaseccon-keycloak:0.1 -t lesterthomas/odaseccon-keycloak:latest .
-docker push lesterthomas/odaseccon-keycloak  --all-tags
+docker build --file component-IngressController-dockerfile -t brianjburton/odacomponentcontroller-ingress:0.10 -t brianjburton/odacomponentcontroller-ingress:latest .
+docker push brianjburton/odacomponentcontroller-ingress --all-tags
+docker build --file component-wso2Controller-dockerfile -t brianjburton/odacomponentcontroller-wso2:0.9 -t brianjburton/odacomponentcontroller-wso2:latest .
+docker push brianjburton/odacomponentcontroller-wso2  --all-tags
+docker build --file securityControllerAPIserver-keycloak-dockerfile -t brianjburton/odaseccon-keycloak:0.2 -t brianjburton/odaseccon-keycloak:latest .
+docker push brianjburton/odaseccon-keycloak  --all-tags

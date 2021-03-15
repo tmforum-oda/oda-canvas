@@ -26,7 +26,6 @@ def registerListener(url: str) -> bool:
     """
     try:
         r = requests.post(url, json = {"callback": "http://seccon.canvas:5000/listener"})
-        #r = requests.post(url, json = {"callback": "http://192.168.3.226:5000/listener"})
         r.raise_for_status()
         return True
     except requests.HTTPError as e:

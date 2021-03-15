@@ -57,41 +57,39 @@ def getClientList(token: str, realm: str) -> dict:
         logging.debug(clientList)
         return clientList
     except requests.HTTPError as e:
-            logging.warning(formatCloudEvent(str(e), f"secCon couldn't GET clients for {realm}"))
+        logging.warning(formatCloudEvent(str(e), f"secCon couldn't GET clients for {realm}"))
 
-def createRole(role: str, client: str, token: str, realm: str) -> bool:
+def addRole(role: str, clientId: str, token: str, realm: str) -> bool:
     """
-    POSTs a new role to a client named according to the componentName for a new component
+    POST new roles to the right client in the right realm in Keycloak
     """
-    try:
-        r = requests.post(kcBaseURL + '/admin/realms/'+ realm +'/clients', json={"clientId": client}, headers={'Authorization': 'Bearer ' + token})
+
+    try: # to add new role to Keycloak
+        r = requests.post(kcBaseURL + '/admin/realms/'+ realm +'/clients/' + clientId + '/roles', json = {"name": role}, headers={'Authorization': 'Bearer ' + token})
         r.raise_for_status()
-        return True
+        return True # because the role was successfully created
     except requests.HTTPError as e:
-            logging.warning(formatCloudEvent(str(e), f"secCon couldn't POST new client {client} in realm {realm}"))
-            return False
+        if r.status_code == 409:
+            return True # because the role already exists, which is acceptable but suspicious
+        else:
+            logging.warning(formatCloudEvent(str(e), f"secCon couldn't POST new role for {clientId}"))
+            return False # because we failed to add the role
 
 def delRole(role: str, client: str, token: str, realm: str) -> bool:
     """
-    DELETEs a client
+    DELETE removed roles from the right client in the right realm in Keycloak
     """
-    try:
-        r_a = requests.get(kcBaseURL + '/admin/realms/'+ realm +'/clients', params={"clientId": client}, headers={'Authorization': 'Bearer ' + token})
-        r_a.raise_for_status()
+
+    try: # to to remove role from Keycloak
+        r = requests.delete(kcBaseURL + '/admin/realms/'+ realm +'/clients/' + client + '/roles/' + role, headers={'Authorization': 'Bearer ' + token})
+        r.raise_for_status()
+        return True # because we deleted the role
     except requests.HTTPError as e:
-            logging.warning(formatCloudEvent(str(e), f"secCon couldn't GET ID for client {client} in realm {realm}"))
-            return False
-    try: # to find the right client
-        targetClient = r_a.json()[0]['id']
-    except:
-        pass
-    try:
-        r_b = requests.delete(kcBaseURL + '/admin/realms/'+ realm +'/clients/' + targetClient, headers={'Authorization': 'Bearer ' + token})
-        r_b.raise_for_status()
-        return True
-    except requests.HTTPError as e:
-            logging.warning(formatCloudEvent(str(e), f"secCon couldn't DELETE client {client} in realm {realm}"))
-            return False
+        if r.status_code == 404:
+            return True # because the role does not exist which is acceptable but suspicious
+        else:
+            logging.warning(formatCloudEvent(str(e), f"secCon couldn't POST new role for {client}"))
+            return False # because we failed to delete the role
 
 # Initial setup ----------------------------------------------------------
 
@@ -128,16 +126,17 @@ def partyRoleListener():
         componentName = componentName.split('/')[1]
         
         client = clientList[componentName]
+
         if eventType==PARTY_ROLE_CREATION:
-            if createRole(partyRole, client, token, kcRealm):
+            if addRole(partyRole['name'], client, token, kcRealm):
                 logging.debug(formatCloudEvent(f"Keycloak role {partyRole} added to {client}", "secCon event listener success"))
             else:
-                logging.debug(formatCloudEvent(f"Keycloak role update failed for {partyRole} in {client}", "secCon event listener error"))
+                logging.debug(formatCloudEvent(f"Keycloak role create failed for {partyRole} in {client}", "secCon event listener error"))
         elif eventType==PARTY_ROLE_UPDATE:
             pass
             #logging.debug(f"Update Keycloak for UPDATE")
         elif eventType==PARTY_ROLE_DELETION:
-            if delRole(partyRole, client, token, kcRealm):
+            if delRole(partyRole['name'], client, token, kcRealm):
                 logging.debug(formatCloudEvent(f"Keycloak role {partyRole} deleted from {client}", "secCon event listener success"))
             else:
                 logging.debug(formatCloudEvent(f"Keycloak role delete failed for {partyRole} in {client}", "secCon event listener error"))
