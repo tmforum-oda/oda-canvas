@@ -1,6 +1,6 @@
 {
   "name": "@lesterthomas/cv",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "ODA Component Viewer Javascript client.",
   "main": "index.js",
   "scripts": {

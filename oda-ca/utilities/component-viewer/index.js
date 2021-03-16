@@ -6,26 +6,47 @@ const colors = require('colors');
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
-/*
-const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
+// get namespace from Environment variable or command-line
+var namespace = 'default'
+if (process.env.NAMESPACE) {
+    namespace = process.env.NAMESPACE
+}
+process.argv.forEach(function (val, index, array) {
+    if ((val == '-n') || (val == '--namespace')) {
+        if (array[index+1]) {
+            namespace = array[index+1]
+        } else {
+            console.error('Please provide the namespace value after %s', val)
+            process.exit(1)
+        }
+    }
+    if ((val == '-h') || (val == '--help')) {
+        console.log('')
+        console.log('ODA Component Viewer')
+        console.log('--------------------')
+        console.log('')
+        console.log('Displays the status of ODA Components deployed in the kubernetes cluster (based on kubeconfig). By default it uses the `default` namespace. Alternative namespace can be set with NAMESPACE environment variable or -n <namespace>. ')
+        console.log('')
+        process.exit(0)
+    }
+  });
 
-k8sApi.listNamespacedPod('components').then((res) => {
-    console.log(res.body);
-});
-*/
-
-var intervalTimer = setInterval(displayComponent, 1000)
+var intervalTimer = setInterval(displayComponent, 2000)
 
 function displayComponent() {
+
     try {
         const customk8sApi = kc.makeApiClient(k8s.CustomObjectsApi);
         console.clear()
-        customk8sApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha2', 'components', 'components').then((res) => {
+
+        customk8sApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha2', namespace, 'components').then((res) => {
             for (var key in res.body.items) {
                 var item = res.body.items[key]
                 console.log('')
                 console.log('')
                 console.log('Component: %s', item.metadata.name)
+                console.log('Namespace: %s', namespace)
+
                 var deployment_status = 'Starting'
                 if (item.hasOwnProperty('status')) {
                     if (item.status.hasOwnProperty('deployment_status')) {
@@ -79,7 +100,7 @@ function displayComponent() {
                 console.log('')
             }
             if (res.body.items.length == 0) {
-                console.log('No ODA Components to view')
+                console.log('No ODA Components to view in namespace %s', namespace)
             }
         });
     } 
