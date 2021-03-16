@@ -1,6 +1,6 @@
 {
   "name": "@lesterthomas/cv",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "ODA Component Viewer Javascript client.",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   "bin": {
     "cv": "./index.js"
   },
+  "repository": "https://github.com/tmforum-oda/oda-ca/tree/master/utilities/component-viewer",
   "dependencies": {
     "@kubernetes/client-node": "^0.14.0",
     "colors": "^1.4.0",
