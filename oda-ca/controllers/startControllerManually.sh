@@ -1,1 +1,0 @@
-kubectl run odacomponentcontroller --serviceaccount='odacomponent-account' --image lesterthomas/odacomponentcontroller:0.25 -t -i --generator=run-pod/v1 --command /bin/bash

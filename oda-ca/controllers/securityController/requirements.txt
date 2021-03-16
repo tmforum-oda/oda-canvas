@@ -1,3 +1,6 @@
+requests
+argparse
+cloudevents
 kopf
 kubernetes
 pykube-ng
@@ -6,3 +9,4 @@ kopf
 kubernetes
 pykube-ng
 pyyaml
+flask
