@@ -1,6 +1,6 @@
 deployment:
-  compconimage: lesterthomas/odacomponentcontroller-ingress:latest
-  secconimage: lesterthomas/odaseccon-keycloak:latest
+  compconimage: brianjburton/odacomponentcontroller-ingress:latest
+  secconimage: brianjburton/odaseccon-keycloak:latest
   monitorednamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false
