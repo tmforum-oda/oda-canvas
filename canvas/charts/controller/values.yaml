@@ -1,6 +1,15 @@
 deployment:
-  image: lesterthomas/odacomponentcontroller-ingress:latest
+  compconimage: brianjburton/odacomponentcontroller-ingress:latest
+  secconimage: brianjburton/odaseccon-keycloak:latest
   monitorednamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false
     name: nginx
+secret:
+  enabled: false
+  user: admin
+  pass: adpass
+configmap:
+  #kcbase: http://canvas-keycloak:8088/auth # trying to parameterise this in the configmap
+  kcrealm: myrealm
+  loglevel: '20'

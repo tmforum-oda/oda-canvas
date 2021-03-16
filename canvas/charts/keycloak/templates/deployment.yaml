@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-keycloak
+  labels:
+    app: {{ .Release.Name }}-keycloak
+    {{- include "keycloak.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-keycloak
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-keycloak
+        {{- include "keycloak.labels" . | nindent 8 }}
+      namespace: {{ .Release.Namespace }}
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:{{ .Chart.AppVersion }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name}}-kc-configmap
+        - secretRef:
+            name: {{ .Release.Name }}-secret
+        env:
+        - name: PROXY_ADDRESS_FORWARDING
+          value: "true"
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: https
+          containerPort: 8443
+#        readinessProbe:
+#          httpGet:
+#            path: /auth/realms/master
+#            port: http

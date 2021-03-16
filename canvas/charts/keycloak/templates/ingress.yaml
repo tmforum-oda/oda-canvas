@@ -1,0 +1,22 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-keycloak
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.class }}
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  tls:
+    - hosts:
+      - keycloak.{{ .Release.Namespace }}
+  rules:
+  - host: keycloak.{{ .Release.Namespace }}
+    http:
+      paths:
+      - backend:
+          serviceName: {{ .Release.Name }}-keycloak
+          servicePort: 8080
+{{- end -}}
