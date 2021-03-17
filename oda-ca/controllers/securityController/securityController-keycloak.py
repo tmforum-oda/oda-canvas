@@ -1,8 +1,5 @@
 import kopf
-import kubernetes.client
-import yaml
 import logging
-from kubernetes.client.rest import ApiException
 import os
 import requests
 import uuid
@@ -11,14 +8,6 @@ import datetime
 from cloudevents.http import CloudEvent, to_structured
 
 # Helper functions ----------
-
-#def processUrl(url: str) -> str:
-#    """
-#    This is an horrific bodge until we can add the URL scheme to status.securityAPIs.url
-#    """
-#    if (url.find("http://") == -1) and (url.find("https://") == -1):
-#        url = "http://" + url
-#    return url
 
 def registerListener(url: str) -> None:
     """
