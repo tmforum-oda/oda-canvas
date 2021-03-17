@@ -12,81 +12,92 @@ from cloudevents.http import CloudEvent, to_structured
 
 # Helper functions ----------
 
-def processUrl(url: str) -> str:
-    """
-    This is an horrific bodge until we can add the URL scheme to status.securityAPIs.url
-    """
-    if (url.find("http://") == -1) and (url.find("https://") == -1):
-        url = "http://" + url
-    return url
+#def processUrl(url: str) -> str:
+#    """
+#    This is an horrific bodge until we can add the URL scheme to status.securityAPIs.url
+#    """
+#    if (url.find("http://") == -1) and (url.find("https://") == -1):
+#        url = "http://" + url
+#    return url
 
-def registerListener(url: str) -> bool:
+def registerListener(url: str) -> None:
     """
     Register the listener URL with partyRoleManagement for role updates
+
+    Returns nothing, or raises an exception for the caller to catch
     """
-    try:
+
+    try: # to register the listener
         r = requests.post(url, json = {"callback": "http://seccon.canvas:5000/listener"})
         r.raise_for_status()
-        return True
     except requests.HTTPError as e:
-        logging.warning(formatCloudEvent(str(e), "secCon couldn't register partyRoleManagement listener"))
-        return False
+        raise
 
 
 def getToken(user: str, pwd: str) -> str:
     """
     Takes the admin username and password and returns a session token for future Bearer authentication
+
+    Returns the token, or raises an exception for the caller to catch
     """
-    try:
+
+    try: # to get the token from Keycloak
         r = requests.post(kcBaseURL + '/realms/master/protocol/openid-connect/token', data = {"username": user, "password": pwd, "grant_type": "password", "client_id": "admin-cli"})
         r.raise_for_status()
         return r.json()["access_token"]
     except requests.HTTPError as e:
-        logging.warning(formatCloudEvent(str(e), "secCon couldn't GET Keycloak token"))
+        raise
 
-def createClient(client: str, url: str, token: str, realm: str) -> bool:
+def createClient(client: str, url: str, token: str, realm: str) -> None:
     """
     POSTs a new client named according to the componentName for a new component
+
+    Returns nothing, or raises an exception for the caller to catch
     """
-    try:
+
+    try: # to create the client in Keycloak
         r = requests.post(kcBaseURL + '/admin/realms/'+ realm +'/clients', json={"clientId": client, "rootUrl": url}, headers={'Authorization': 'Bearer ' + token})
         r.raise_for_status()
-        return True
     except requests.HTTPError as e:
         # ! This might hide actual errors
         # ! The keycloak API isn't idempotent.
         # ! If a client exists it returns 409 instead of 201
         # ! But why did we call createClient for a client that exists?
         if e.response.status_code == 409:
-            return True # because the client (already) exists, which is what we want
+            pass # because the client (already) exists, which is what we want
         else:
-            logging.warning(formatCloudEvent(str(e), f"secCon couldn't POST new client {client} in realm {realm}"))
-            return False
+            raise
 
 def delClient(client: str, token: str, realm: str) -> bool:
     """
     DELETEs a client
+
+    Returns nothing, or raises an exception for the caller to catch
     """
-    try:
+    
+    try: # to GET the id of the existing client that we need to DELETE it
         r_a = requests.get(kcBaseURL + '/admin/realms/'+ realm +'/clients', params={"clientId": client}, headers={'Authorization': 'Bearer ' + token})
         r_a.raise_for_status()
     except requests.HTTPError as e:
-        logging.warning(formatCloudEvent(str(e), f"secCon couldn't GET ID for client {client} in realm {realm}"))
-        return False
-    if len(r_a.json()) == 0:
+        logging.error(formatCloudEvent(str(e), f"secCon couldn't GET ID for client {client} in realm {realm}"))
+        raise
+
+    if len(r_a.json()) > 0: # we found a client with a matching name
+        targetClient = r_a.json()[0]['id']
+
+        try: # to delete the client matching the id we found
+            r_b = requests.delete(kcBaseURL + '/admin/realms/'+ realm +'/clients/' + targetClient, headers={'Authorization': 'Bearer ' + token})
+            r_b.raise_for_status()
+        except requests.HTTPError as e:
+            logging.error(formatCloudEvent(str(e), f"secCon couldn't DELETE client {client} in realm {realm}"))
+            raise
+
+    else: # we didn't find a client with a matching name
         # ! This might hide actual errors
         # ! if the client doesn't exist the API call returns an empty JSON array
         # ! But why did we call delClient for a client that didn't exist?
-        return True # because the client doesn't exist, which is what we want
-    else:
-        targetClient = r_a.json()[0]['id']
-    try:
-        r_b = requests.delete(kcBaseURL + '/admin/realms/'+ realm +'/clients/' + targetClient, headers={'Authorization': 'Bearer ' + token})
-        r_b.raise_for_status()
-        return True
-    except requests.HTTPError as e:
-        logging.warning(formatCloudEvent(str(e), f"secCon couldn't DELETE client {client} in realm {realm}"))
-        return False
+        pass # because the client doesn't exist, which is what we want
+        
 
 def formatCloudEvent(message: str, subject: str) -> str:
     """
@@ -116,9 +127,9 @@ username = os.environ.get('KEYCLOAK_USER')
 password = os.environ.get('KEYCLOAK_PASSWORD')
 kcBaseURL = os.environ.get('KEYCLOAK_BASE')
 kcRealm = os.environ.get('KEYCLOAK_REALM')
-print('Logging set to ',logging_level)  
 logger = logging.getLogger()
 logger.setLevel(int(logging_level)) #Logging level default = INFO
+logging.info(f'Logging set to {logging_level}')
 
 
 # Kopf handlers -------------
@@ -130,37 +141,32 @@ def securityClientAdd(meta, spec, status, body, namespace, labels, name, old, ne
     """
     Handler for component create/update
     """
-    logging.info(f'status.deployment_status = {old} -> {new}')
-    logging.info(f'status is type {type(status)}')
-    logging.info(f"status[\'securityAPIs\']: {status['securityAPIs']}")
-    token = getToken(username, password)
 
-    # ! This commented section is for the old version of status.securityAPIs based on lists
-    #if len(status['securityAPIs']) > 0:
-    #    for i in status['securityAPIs']:
-    #        if i['url'].find("partyRoleManagement"):
-    #            rooturl = processUrl(i['url'])
-    #else:
-    #    raise kopf.TemporaryError("status.SecurityAPIs not populated. Will retry.", delay=10)
+    rooturl = 'http://' + spec['security']['partyrole']['implementation'] + namespace + '.svc.cluster.local:' + str(spec['security']['partyrole']['port']) + spec['security']['partyrole']['path']
+    logging.debug(f"using component root url: {rooturl}")
+    logging.debug(f'status.deployment_status = {old} -> {new}')
 
-    # ! This uncommented section is for the new version of status.securityAPIs based on dicts
-    if 'securityAPIs' in status:
-        #rooturl = status['securityAPIs']['partyrole']['url']
-        rooturl = 'http://' + spec['security']['partyrole']['implementation'] + '.components.svc.cluster.local:' + str(spec['security']['partyrole']['port']) + spec['security']['partyrole']['path']
-        logging.info(f"using component root url: {rooturl}")
+    try: # to authenticate and get a token
+        token = getToken(username, password)
+    except requests.HTTPError as e:
+        logging.error(formatCloudEvent(str(e), "secCon couldn't GET Keycloak token"))
 
-    else:
-        raise kopf.TemporaryError("status.SecurityAPIs not populated. Will retry.", delay=10)
-
-    if not createClient(name, rooturl, token, kcRealm):
-        logging.info(formatCloudEvent(f"Could not add oda.tmforum.org component {name}. Will rety.", f"secCon: component create/update"))
+    try: # to create the client in Keycloak
+        createClient(name, rooturl, token, kcRealm)
+    except requests.HTTPError as e:
+        logging.error(formatCloudEvent(str(e), f"secCon couldn't POST new client {name} in realm {kcRealm}"))
         raise kopf.TemporaryError("Could not add component to Keycloak. Will retry.", delay=10)
     else:
-        logging.info(formatCloudEvent(f"oda.tmforum.org component {name} created/updated", f"secCon: component create/update"))
-    if registerListener(rooturl + "/hub"):
-        statusValue = {'identityProvider': 'Keycloak', 'listenerRegistered': True}
-    else:
+        logging.info(formatCloudEvent(f"oda.tmforum.org component {name} created", f"secCon: component created"))
+    
+    try: # to register with the partyRoleManagement API
+        registerListener(rooturl + "/hub")
+    except requests.HTTPError as e:
+        logging.warning(formatCloudEvent(str(e), "secCon couldn't register partyRoleManagement listener"))
         statusValue = {'identityProvider': 'Keycloak', 'listenerRegistered': False}
+    else:
+        statusValue = {'identityProvider': 'Keycloak', 'listenerRegistered': True}
+    
     return statusValue # the return value is added to the status field of the k8s object under securityRoles parameter (corresponds to function name)
     
 
@@ -169,9 +175,14 @@ def securityClientDelete(meta, spec, status, body, namespace, labels, name, **kw
     """
     Handler to delete component from Keycloak
     """
-    token = getToken(username, password)
-    if not delClient(name, token, kcRealm):
-        logging.info(formatCloudEvent(f"Could not delete oda.tmforum.org component {name}. Will rety.", f"secCon: component delete"))
-        raise kopf.TemporaryError("Could not delete component from Keycloak. Will rety.", delay=10)
-    else:
-        logging.info(formatCloudEvent(f"oda.tmforum.org component {name} deleted", f"secCon: component delete"))
+
+    try: # to authenticate and get a token
+        token = getToken(username, password)
+    except requests.HTTPError as e:
+        logging.error(formatCloudEvent(str(e), "secCon couldn't GET Keycloak token"))
+
+    try: # to delete the client from Keycloak
+        delClient(name, token, kcRealm)
+    except requests.HTTPError as e:
+        logging.error(formatCloudEvent(str(e), f"secCon couldn't DELETE client {name} in realm {kcRealm}"))
+        raise kopf.TemporaryError("Could not delete component from Keycloak. Will retry.", delay=10)

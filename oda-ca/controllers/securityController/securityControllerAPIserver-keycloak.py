@@ -17,13 +17,16 @@ from cloudevents.http import CloudEvent, to_structured
 def getToken(user: str, pwd: str) -> str:
     """
     Takes the admin username and password and returns a session token for future Bearer authentication
+
+    Returns the token, or raises an exception for the caller to catch
     """
-    try:
+
+    try: # to get the token from Keycloak
         r = requests.post(kcBaseURL + '/realms/master/protocol/openid-connect/token', data = {"username": user, "password": pwd, "grant_type": "password", "client_id": "admin-cli"})
         r.raise_for_status()
         return r.json()["access_token"]
     except requests.HTTPError as e:
-        logging.warning(formatCloudEvent(str(e), "secCon couldn't GET Keycloak token"))
+        raise
 
 def formatCloudEvent(message: str, subject: str) -> str:
     """
@@ -49,47 +52,48 @@ def formatCloudEvent(message: str, subject: str) -> str:
 def getClientList(token: str, realm: str) -> dict:
     """
     GETs a list of clients in the realm to ensure there is a client to match the componentName
+
+    Returns a dictonary of clients and ids or raises an exception for the caller to catch
     """
     try:
         r = requests.get(kcBaseURL + '/admin/realms/'+ realm +'/clients', headers={'Authorization': 'Bearer ' + token})
         r.raise_for_status()
         clientList = dict((d['clientId'], d['id']) for d in r.json())
-        logging.debug(clientList)
         return clientList
     except requests.HTTPError as e:
-        logging.warning(formatCloudEvent(str(e), f"secCon couldn't GET clients for {realm}"))
+        raise
 
-def addRole(role: str, clientId: str, token: str, realm: str) -> bool:
+def addRole(role: str, clientId: str, token: str, realm: str) -> None:
     """
     POST new roles to the right client in the right realm in Keycloak
+
+    Returns nothing or raises an exception for the caller to catch
     """
 
     try: # to add new role to Keycloak
         r = requests.post(kcBaseURL + '/admin/realms/'+ realm +'/clients/' + clientId + '/roles', json = {"name": role}, headers={'Authorization': 'Bearer ' + token})
         r.raise_for_status()
-        return True # because the role was successfully created
     except requests.HTTPError as e:
         if r.status_code == 409:
-            return True # because the role already exists, which is acceptable but suspicious
+            pass # because the role already exists, which is acceptable but suspicious
         else:
-            logging.warning(formatCloudEvent(str(e), f"secCon couldn't POST new role for {clientId}"))
-            return False # because we failed to add the role
+            raise # because we failed to add the role
 
 def delRole(role: str, client: str, token: str, realm: str) -> bool:
     """
     DELETE removed roles from the right client in the right realm in Keycloak
+
+    Returns nothing or raises an exception for the caller to catch
     """
 
     try: # to to remove role from Keycloak
         r = requests.delete(kcBaseURL + '/admin/realms/'+ realm +'/clients/' + client + '/roles/' + role, headers={'Authorization': 'Bearer ' + token})
         r.raise_for_status()
-        return True # because we deleted the role
     except requests.HTTPError as e:
         if r.status_code == 404:
-            return True # because the role does not exist which is acceptable but suspicious
+            pass # because the role does not exist which is acceptable but suspicious
         else:
-            logging.warning(formatCloudEvent(str(e), f"secCon couldn't POST new role for {client}"))
-            return False # because we failed to delete the role
+            raise # because we failed to delete the role
 
 # Initial setup ----------------------------------------------------------
 
@@ -106,46 +110,57 @@ PARTY_ROLE_CREATION = 'PartyRoleCreationNotification'
 PARTY_ROLE_UPDATE = 'PartyRoleAttributeValueChangeNotification'
 PARTY_ROLE_DELETION = 'PartyRoleRemoveNotification'
 
+# Flask app --------------------------------------------------------------
+
 app = Flask(__name__)
 @app.route('/listener', methods=['POST'])
 def partyRoleListener():
-    try: # to process incoming POSTs
-        doc = request.json
-        logging.info(f"security-APIListener received {doc}")
-        partyRole = doc['event']['partyRole']
-        logging.debug(f"partyRole = {partyRole}")
-        if partyRole['@baseType'] != 'PartyRole':
-            raise Exception("Event Resource is not of baseType PartyRole")
+    client = ''
+    doc = request.json
+    logging.debug(f"security-APIListener received {doc}")
+    partyRole = doc['event']['partyRole']
+    logging.debug(f"partyRole = {partyRole}")
+    if partyRole['@baseType'] == 'PartyRole':
         eventType = doc['eventType']
-        logging.info(f"security-APIListener called with eventType {eventType}")
-
-        token = getToken(username, password)
-        clientList = getClientList(token, kcRealm)
-        componentName = partyRole['href'].split('/tmf-api/')[0]
-        componentName = componentName.split('://')[1]
-        componentName = componentName.split('/')[1]
+        logging.debug(f"security-APIListener called with eventType {eventType}")
+        componentName = partyRole['href'].split('/')[3]
         
-        client = clientList[componentName]
+        try: # to authenticate and get a token
+            token = getToken(username, password)
+        except requests.HTTPError as e:
+            logging.error(formatCloudEvent(str(e), "security-APIListener couldn't GET Keycloak token"))
+            raise
 
-        if eventType==PARTY_ROLE_CREATION:
-            if addRole(partyRole['name'], client, token, kcRealm):
-                logging.debug(formatCloudEvent(f"Keycloak role {partyRole} added to {client}", "secCon event listener success"))
-            else:
-                logging.debug(formatCloudEvent(f"Keycloak role create failed for {partyRole} in {client}", "secCon event listener error"))
-        elif eventType==PARTY_ROLE_UPDATE:
-            pass
-            #logging.debug(f"Update Keycloak for UPDATE")
-        elif eventType==PARTY_ROLE_DELETION:
-            if delRole(partyRole['name'], client, token, kcRealm):
-                logging.debug(formatCloudEvent(f"Keycloak role {partyRole} deleted from {client}", "secCon event listener success"))
-            else:
-                logging.debug(formatCloudEvent(f"Keycloak role delete failed for {partyRole} in {client}", "secCon event listener error"))
+        try: # to get the list of existing clients
+            clientList = getClientList(token, kcRealm)
+        except requests.HTTPError as e:
+            logging.error(formatCloudEvent(str(e), f"security-APIListener couldn't GET clients for {kcRealm}"))
         else:
-            raise Exception(f"Unknown event {eventType}")
+            client = clientList[componentName]
 
-
-    except Exception as e:
-        logging.error(f"security-APIListener error {e}")
-        return e
+        if client != "":
+            if eventType==PARTY_ROLE_CREATION:
+                try: # to add the role to the client in Keycloak
+                    addRole(partyRole["name"], client, token, kcRealm)
+                except requests.HTTPError as e:
+                    logging.error(formatCloudEvent(f'Keycloak role create failed for {partyRole["name"]} in {client}', "security-APIListener event listener error"))
+                else:
+                    logging.info(formatCloudEvent(f'Keycloak role {partyRole["name"]} added to {client}', "security-APIListener event listener success"))
+            elif eventType==PARTY_ROLE_DELETION:
+                try: # to add the role to the client in Keycloak
+                    delRole(partyRole["name"], client, token, kcRealm)
+                except requests.HTTPError as e:
+                    logging.error(formatCloudEvent(f'Keycloak role delete failed for {partyRole["name"]} in {client}', "security-APIListener event listener error"))
+                else:
+                    logging.info(formatCloudEvent(f'Keycloak role {partyRole["name"]} removed from {client}', "security-APIListener event listener success"))
+            elif eventType==PARTY_ROLE_UPDATE:
+                pass # because we don't need to do anything for updates
+                logging.debug(f"Update Keycloak for UPDATE")
+            else:
+                logging.warning(formatCloudEvent(f'eventType was {eventType} - not processed'), 'security-APIListener called with invalid eventType')
+        else:
+            logging.error(formatCloudEvent(f'No client found in Keycloak for {partyRole["name"]}'), 'security-APIListener called for non-existent client')
+    else:
+        logging.warning(formatCloudEvent(f'@baseType was {partyRole["@baseType"]} - not processed'), 'security-APIListener called with invalid @baseType')
 
     return ''
