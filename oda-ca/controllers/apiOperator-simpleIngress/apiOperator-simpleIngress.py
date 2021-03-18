@@ -11,6 +11,16 @@ print('Ingress set to ',ingress_class)
 
 HTTP_SCHEME = "http://"
 
+
+# structure
+#
+# create/update spec of this resource - compare desired state (spec) with actual state (status) and initiate changes
+#
+# register for changes to status of child resources - update the status to reflect those changes. (includes deletion). 
+# again, compare desired state and actual state and initiate changes.
+
+
+
 @kopf.on.create('oda.tmforum.org', 'v1alpha2', 'apis')
 def ingress(meta, spec, status, body, namespace, labels, name, **kwargs):
 
@@ -67,12 +77,25 @@ def ingress(meta, spec, status, body, namespace, labels, name, **kwargs):
     )
     logging.debug(f"ingressResource created: {ingressResource}")
     logging.info(f"[{namespace}/{name}] ingress resource created with name {meta['name']}")
-
     mydict = ingressResource.to_dict()
-
+    updateImplementationStatus(namespace, spec['implementation'])
     # Update the parent's status.
     return {"name": meta['name'], "uid": mydict['metadata']['uid']}
 
+# in case api is updated, manually update the api implementation status from endpointslice
+def updateImplementationStatus(namespace, name):
+    # Create an instance of the API class
+    logging.info(f"updateImplementationStatus namespace={namespace} name={name}")
+
+    discovery_api_instance = kubernetes.client.DiscoveryV1beta1Api()
+    try:
+        api_response = discovery_api_instance.list_namespaced_endpoint_slice(namespace, label_selector='kubernetes.io/service-name=' + name)
+        if len(api_response.items) > 0:
+            createAPIImplementationStatus(name, api_response.items[0].endpoints, namespace)
+    except ValueError as e: # if there are no endpoints it will create a ValueError
+        logging.info(f"[{namespace}/{name}]ValueError when calling DiscoveryV1beta1Api->list_namespaced_endpoint_slice: {e}\n")   
+    except ApiException as e:
+        logging.error(f"[{namespace}/{name}]ApiException when calling DiscoveryV1beta1Api->list_namespaced_endpoint_slice: {e}\n")           
 
 # When ingress adds IP address/dns of load balancer, update parent API object
 @kopf.on.field('networking.k8s.io', 'v1beta1', 'ingresses', field='status.loadBalancer')
@@ -164,14 +187,22 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
 # When service where implementation is ready, update parent API object
 @kopf.on.create('discovery.k8s.io', 'v1beta1', 'endpointslice')
 @kopf.on.update('discovery.k8s.io', 'v1beta1', 'endpointslice')
-def implementation_status(meta, spec, status, body, namespace, labels, name, **kwargs): 
-    logging.info(f"endpointslice body: {body}")
-    serviceName = meta['ownerReferences'][0]['name']
+def implementation_status(meta, spec, status, body, namespace, labels, name, **kwargs):
+    logging.debug(f"[{namespace}][{name}] endpointslice body: {body}")
+    createAPIImplementationStatus(meta['ownerReferences'][0]['name'], body['endpoints'], namespace)
+
+def createAPIImplementationStatus(serviceName, endpointsArray, namespace):
     anyEndpointReady = False
-    if body['endpoints'] != None:
-        for endpoint in body['endpoints']:
+    if endpointsArray != None:
+        for endpoint in endpointsArray:
             logging.debug(f"endpoint: {endpoint}")
-            if endpoint['conditions']['ready'] == True:
+            # endpoint could be an object or a dictionary
+            ready = False
+            if isinstance(endpoint, dict):
+                ready = endpoint['conditions']['ready']
+            else:
+                ready = endpoint.conditions.ready
+            if ready == True:
                 anyEndpointReady = True 
                 # find the corresponding API resource and update status
                 # query for api with spec.implementation equal to service name
@@ -182,13 +213,17 @@ def implementation_status(meta, spec, status, body, namespace, labels, name, **k
                 plural = 'apis' # str | the custom resource's plural name
                 api_response = api_instance.list_namespaced_custom_object(group, version, namespace, plural)
                 found = False
-                logging.info(f"[endpointslice/{serviceName}] api list has ={ len(api_response['items'])} items")
-                for api in api_response['items']:       
+                logging.debug(f"[endpointslice/{serviceName}] api list has ={ len(api_response['items'])} items")
+                for api in api_response['items']:  
                     if api['spec']['implementation'] == serviceName:
                         found = True
                         # logging.info(f"[endpointslice/{serviceName}] api={api}")
+                        if not('status' in api.keys()):
+                            api['status'] = {}
                         api['status']['implementation'] = {"ready": True}
                         api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, api['metadata']['name'], api)
+                        logging.info(f"[{namespace}][{serviceName}] added implementation ready status to api resource")
+
                 if found == False:
                     logging.info("[endpointslice/" + serviceName + "] Can't find API resource.")                  
     logging.info(f"[endpointslice/{serviceName}] is ready={anyEndpointReady}")
