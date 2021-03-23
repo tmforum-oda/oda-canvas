@@ -1,0 +1,21 @@
+{
+  "name": "@lesterthomas/cv",
+  "version": "1.0.4",
+  "description": "ODA Component Viewer Javascript client.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js",
+    "start": "node index.js"
+  },
+  "author": "Lester Thomas",
+  "license": "Apache-2.0",
+  "bin": {
+    "cv": "./index.js"
+  },
+  "repository": "https://github.com/tmforum-oda/oda-ca/tree/master/utilities/component-viewer",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.14.0",
+    "colors": "^1.4.0",
+    "console-table-printer": "^2.8.1"
+  }
+}
