@@ -143,16 +143,16 @@ def partyRoleListener():
                 try: # to add the role to the client in Keycloak
                     addRole(partyRole["name"], client, token, kcRealm)
                 except requests.HTTPError as e:
-                    logging.error(formatCloudEvent(f'Keycloak role create failed for {partyRole["name"]} in {client}', "security-APIListener event listener error"))
+                    logging.error(formatCloudEvent(f'Keycloak role create failed for {partyRole["name"]} in {componentName}', "security-APIListener event listener error"))
                 else:
-                    logging.info(formatCloudEvent(f'Keycloak role {partyRole["name"]} added to {client}', "security-APIListener event listener success"))
+                    logging.info(formatCloudEvent(f'Keycloak role {partyRole["name"]} added to {componentName}', "security-APIListener event listener success"))
             elif eventType==PARTY_ROLE_DELETION:
                 try: # to add the role to the client in Keycloak
                     delRole(partyRole["name"], client, token, kcRealm)
                 except requests.HTTPError as e:
-                    logging.error(formatCloudEvent(f'Keycloak role delete failed for {partyRole["name"]} in {client}', "security-APIListener event listener error"))
+                    logging.error(formatCloudEvent(f'Keycloak role delete failed for {partyRole["name"]} in {componentName}', "security-APIListener event listener error"))
                 else:
-                    logging.info(formatCloudEvent(f'Keycloak role {partyRole["name"]} removed from {client}', "security-APIListener event listener success"))
+                    logging.info(formatCloudEvent(f'Keycloak role {partyRole["name"]} removed from {componentName}', "security-APIListener event listener success"))
             elif eventType==PARTY_ROLE_UPDATE:
                 pass # because we don't need to do anything for updates
                 logging.debug(f"Update Keycloak for UPDATE")

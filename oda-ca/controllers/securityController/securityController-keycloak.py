@@ -131,7 +131,7 @@ def securityClientAdd(meta, spec, status, body, namespace, labels, name, old, ne
     Handler for component create/update
     """
 
-    rooturl = 'http://' + spec['security']['partyrole']['implementation'] + namespace + '.svc.cluster.local:' + str(spec['security']['partyrole']['port']) + spec['security']['partyrole']['path']
+    rooturl = 'http://' + spec['security']['partyrole']['implementation'] + '.' + namespace + '.svc.cluster.local:' + str(spec['security']['partyrole']['port']) + spec['security']['partyrole']['path']
     logging.debug(f"using component root url: {rooturl}")
     logging.debug(f'status.deployment_status = {old} -> {new}')
 
