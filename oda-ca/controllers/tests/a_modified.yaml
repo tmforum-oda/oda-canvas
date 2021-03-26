@@ -1,0 +1,18 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: oda.tmforum.org/v1alpha2
+kind: api
+metadata:
+  labels:
+    oda.tmforum.org/componentName: r1-productcatalog
+  name: r1-productcatalog-partyrole
+  namespace: components
+spec:
+  developerUI: /r1-productcatalog/tmf-api/partyRoleManagement/v4/catalog/docs
+  implementation: r1-partyroleapi
+  name: partyrole
+  path: /r1-productcatalog/tmf-api/partyRoleManagement/v4/partyrole
+  port: 8080
+  specification: https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
