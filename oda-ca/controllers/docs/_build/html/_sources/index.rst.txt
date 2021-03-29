@@ -20,6 +20,7 @@ The Custom Operators extend Kubernetes to understand ODA Component resources. Th
    README.md
    componentOperator/modules.rst
    apiOperatorSimpleIngress/modules.rst
+   securityController/modules.rst
 
 Indices and tables
 ==================
