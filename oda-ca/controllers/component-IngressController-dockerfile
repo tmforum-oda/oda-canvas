@@ -1,6 +1,6 @@
 FROM python:3.7
 RUN pip install kopf
-RUN pip install kubernetes
+RUN pip install kubernetes==17.14.0a1
 RUN pip install cloudevents
 ADD . /
 ADD securityController/secconkeycloak.py /
