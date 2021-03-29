@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>componentOperator module &mdash; ODA-Component Accelerator v1alpha2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Operator: SimpleIngress" href="../apiOperatorSimpleIngress/modules.html" />
+    <link rel="prev" title="Component Operator" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ODA-Component Accelerator
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Component Operator</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html#python-modules">Python modules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">componentOperator module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apiOperatorSimpleIngress/modules.html">API Operator: SimpleIngress</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ODA-Component Accelerator</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">Component Operator</a> &raquo;</li>
+        
+      <li>componentOperator module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/componentOperator/componentOperator.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-componentOperator.componentOperator">
+<span id="componentoperator-module"></span><h1>componentOperator module<a class="headerlink" href="#module-componentOperator.componentOperator" title="Permalink to this headline">¶</a></h1>
+<p>Kubernetes operator for ODA Component custom resources.</p>
+<p>Normally this module is deployed as part of an ODA Canvas. It uses the kopf kubernetes operator framework (<a class="reference external" href="https://kopf.readthedocs.io/">https://kopf.readthedocs.io/</a>).
+It registers handler functions for:</p>
+<ol class="arabic simple">
+<li><p>New ODA Components - to create, update or delete child API custom resources. see <a class="reference external" href="#componentOperator.componentOperator.exposedAPIs">exposedAPIs</a> and <a class="reference external" href="#componentOperator.componentOperator.securityAPIs">securityAPIs</a></p></li>
+<li><p>For status updates in the child API Custom resources, so that the Component status reflects a summary of all the childrens status. see <a class="reference external" href="#componentOperator.componentOperator.updateAPIStatus">updateAPIStatus</a> and <a class="reference external" href="#componentOperator.componentOperator.updateAPIReady">updateAPIReady</a></p></li>
+<li><p>For new Services, Deployments, PersistentVolumeClaims that have a oda.tmforum.org/componentName label. These resources are updated to become children of the ODA Component resource. see <a class="reference external" href="#componentOperator.componentOperator.adopt_deployment">adopt_deployment</a> , <a class="reference external" href="#componentOperator.componentOperator.adopt_persistentvolumeclaim">adopt_persistentvolumeclaim</a> and <a class="reference external" href="#componentOperator.componentOperator.adopt_service">adopt_service</a></p></li>
+</ol>
+<dl class="py function">
+<dt id="componentOperator.componentOperator.adopt_deployment">
+<em class="property"><span class="pre">async</span> </em><code class="sig-prename descclassname"><span class="pre">componentOperator.componentOperator.</span></code><code class="sig-name descname"><span class="pre">adopt_deployment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#componentOperator.componentOperator.adopt_deployment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler function for new deployments</p>
+<p>If the deployment has an oda.tmforum.org/componentName label, it makes the deployment a child of the named component.
+This can help with navigating around the different resources that belong to the component. It also ensures that the kubernetes garbage collection
+will delete these resources automatically if the component is deleted.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><ul class="simple">
+<li><p>meta (Dict): The metadata from the yaml deployment definition</p></li>
+<li><p>spec (Dict): The spec from the yaml deployment definition showing the intent (or desired state)</p></li>
+<li><p>status (Dict): The status from the yaml deployment definition showing the actual state.</p></li>
+<li><p>body (Dict): The entire yaml deployment definition</p></li>
+<li><p>namespace (String): The namespace for the deployment</p></li>
+<li><p>labels (Dict): The labels attached to the deployment. All ODA Components (and their children) should have a oda.tmforum.org/componentName label</p></li>
+<li><p>name (String): The name of the deployment</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>No return value.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="componentOperator.componentOperator.adopt_persistentvolumeclaim">
+<em class="property"><span class="pre">async</span> </em><code class="sig-prename descclassname"><span class="pre">componentOperator.componentOperator.</span></code><code class="sig-name descname"><span class="pre">adopt_persistentvolumeclaim</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#componentOperator.componentOperator.adopt_persistentvolumeclaim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler function for new persistentvolumeclaims</p>
+<p>If the persistentvolumeclaim has an oda.tmforum.org/componentName label, it makes the persistentvolumeclaim a child of the named component.
+This can help with navigating around the different resources that belong to the component. It also ensures that the kubernetes garbage collection
+will delete these resources automatically if the component is deleted.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><ul class="simple">
+<li><p>meta (Dict): The metadata from the yaml persistentvolumeclaim definition</p></li>
+<li><p>spec (Dict): The spec from the yaml persistentvolumeclaim definition showing the intent (or desired state)</p></li>
+<li><p>status (Dict): The status from the yaml persistentvolumeclaim definition showing the actual state.</p></li>
+<li><p>body (Dict): The entire yaml persistentvolumeclaim definition</p></li>
+<li><p>namespace (String): The namespace for the persistentvolumeclaim</p></li>
+<li><p>labels (Dict): The labels attached to the persistentvolumeclaim. All ODA Components (and their children) should have a oda.tmforum.org/componentName label</p></li>
+<li><p>name (String): The name of the persistentvolumeclaim</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>No return value.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="componentOperator.componentOperator.adopt_service">
+<em class="property"><span class="pre">async</span> </em><code class="sig-prename descclassname"><span class="pre">componentOperator.componentOperator.</span></code><code class="sig-name descname"><span class="pre">adopt_service</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#componentOperator.componentOperator.adopt_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler function for new services</p>
+<p>If the service has an oda.tmforum.org/componentName label, it makes the service a child of the named component.
+This can help with navigating around the different resources that belong to the component. It also ensures that the kubernetes garbage collection
+will delete these resources automatically if the component is deleted.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><ul class="simple">
+<li><p>meta (Dict): The metadata from the yaml service definition</p></li>
+<li><p>spec (Dict): The spec from the yaml service definition showing the intent (or desired state)</p></li>
+<li><p>status (Dict): The status from the yaml service definition showing the actual state.</p></li>
+<li><p>body (Dict): The entire yaml service definition</p></li>
+<li><p>namespace (String): The namespace for the service</p></li>
+<li><p>labels (Dict): The labels attached to the service. All ODA Components (and their children) should have a oda.tmforum.org/componentName label</p></li>
+<li><p>name (String): The name of the service</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>No return value.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="componentOperator.componentOperator.exposedAPIs">
+<em class="property"><span class="pre">async</span> </em><code class="sig-prename descclassname"><span class="pre">componentOperator.componentOperator.</span></code><code class="sig-name descname"><span class="pre">exposedAPIs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#componentOperator.componentOperator.exposedAPIs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler function for <strong>core function</strong> part new or updated components.</p>
+<p>Processes the <strong>core function</strong> part of the component envelope and creates the child API resources.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><ul class="simple">
+<li><p>meta (Dict): The metadata from the yaml component envelope</p></li>
+<li><p>spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)</p></li>
+<li><p>status (Dict): The status from the yaml component envelope showing the actual state.</p></li>
+<li><p>body (Dict): The entire yaml component envelope</p></li>
+<li><p>namespace (String): The namespace for the component</p></li>
+<li><p>labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label</p></li>
+<li><p>name (String): The name of the component</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>Dict: The exposedAPIs status that is put into the component envelope status field.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="componentOperator.componentOperator.securityAPIs">
+<em class="property"><span class="pre">async</span> </em><code class="sig-prename descclassname"><span class="pre">componentOperator.componentOperator.</span></code><code class="sig-name descname"><span class="pre">securityAPIs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#componentOperator.componentOperator.securityAPIs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler function for <strong>security</strong> part of new or updated components.</p>
+<p>Processes the <strong>security</strong> part of the component envelope and creates the child API resources.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><ul class="simple">
+<li><p>meta (Dict): The metadata from the yaml component envelope</p></li>
+<li><p>spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)</p></li>
+<li><p>status (Dict): The status from the yaml component envelope showing the actual state.</p></li>
+<li><p>body (Dict): The entire yaml component envelope</p></li>
+<li><p>namespace (String): The namespace for the component</p></li>
+<li><p>labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label</p></li>
+<li><p>name (String): The name of the component</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>Dict: The securityAPIs status that is put into the component envelope status field.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="componentOperator.componentOperator.updateAPIReady">
+<em class="property"><span class="pre">async</span> </em><code class="sig-prename descclassname"><span class="pre">componentOperator.componentOperator.</span></code><code class="sig-name descname"><span class="pre">updateAPIReady</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#componentOperator.componentOperator.updateAPIReady" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler function to register for status changes in child API resources.</p>
+<p>Processes status updates to the <em>implementation</em> status in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><ul class="simple">
+<li><p>meta (Dict): The metadata from the API resource</p></li>
+<li><p>spec (Dict): The spec from the yaml API resource showing the intent (or desired state)</p></li>
+<li><p>status (Dict): The status from the API resource showing the actual state.</p></li>
+<li><p>body (Dict): The entire API resource definition</p></li>
+<li><p>namespace (String): The namespace for the API resource</p></li>
+<li><p>labels (Dict): The labels attached to the API resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label</p></li>
+<li><p>name (String): The name of the API resource</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>No return value.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="componentOperator.componentOperator.updateAPIStatus">
+<em class="property"><span class="pre">async</span> </em><code class="sig-prename descclassname"><span class="pre">componentOperator.componentOperator.</span></code><code class="sig-name descname"><span class="pre">updateAPIStatus</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#componentOperator.componentOperator.updateAPIStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler function to register for status changes in child API resources.</p>
+<p>Processes status updates to the <em>apiStatus</em> in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><ul class="simple">
+<li><p>meta (Dict): The metadata from the API resource</p></li>
+<li><p>spec (Dict): The spec from the yaml API resource showing the intent (or desired state)</p></li>
+<li><p>status (Dict): The status from the API resource showing the actual state.</p></li>
+<li><p>body (Dict): The entire API resource definition</p></li>
+<li><p>namespace (String): The namespace for the API resource</p></li>
+<li><p>labels (Dict): The labels attached to the API resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label</p></li>
+<li><p>name (String): The name of the API resource</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>No return value.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../apiOperatorSimpleIngress/modules.html" class="btn btn-neutral float-right" title="API Operator: SimpleIngress" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modules.html" class="btn btn-neutral float-left" title="Component Operator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, TM Forum ODA-Component Accelerator project.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

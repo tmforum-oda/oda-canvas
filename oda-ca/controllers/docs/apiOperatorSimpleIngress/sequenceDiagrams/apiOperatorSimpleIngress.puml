@@ -1,0 +1,17 @@
+@startuml
+
+entity API
+participant "apiOperator-simpleIngress"
+entity Ingress
+participant "Ingress Controller"
+participant "Load Balancer (of cloud service)"
+
+API-> "apiOperator-simpleIngress": Create API
+"apiOperator-simpleIngress" -> Ingress: Create Ingress resource
+Ingress-> "Ingress Controller": Create Ingress
+"Ingress Controller" -> "Load Balancer (of cloud service)": Configure ingress in load balancer 
+"Ingress Controller" -> Ingress: Update URL/IP Address of ingress
+
+Ingress-> "apiOperator-simpleIngress": Update ingress 
+"apiOperator-simpleIngress" -> API: Update status of API with URL/IP Address
+@enduml

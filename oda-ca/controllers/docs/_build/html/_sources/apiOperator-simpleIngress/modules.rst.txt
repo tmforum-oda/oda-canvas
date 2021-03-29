@@ -1,0 +1,7 @@
+apiOperator-simpleIngress
+=========================
+
+.. toctree::
+   :maxdepth: 4
+
+   apiOperator-simpleIngress
