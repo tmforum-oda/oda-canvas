@@ -55,7 +55,7 @@ spec:
     - name: API_endpoint
       type: string
       description: API endpoint Url
-      jsonPath: .status.ingress.url    
+      jsonPath: .status.apiStatus.url    
     - name: Implementation_ready
       type: string
       description: API implementation is ready - has passed startup probe checks
