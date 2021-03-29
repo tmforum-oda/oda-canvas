@@ -1,3 +1,17 @@
+"""Kubernetes operator for ODA API custom resources.
+
+Normally this module is deployed as part of an ODA Canvas. It uses the kopf kubernetes operator framework (https://kopf.readthedocs.io/) to build an
+operator that takes API custom resources and implements them using Kubernetes Ingress resources. 
+
+This is the simplest API operator and is not suitable for a production environment. It is possible to create alternative API operators
+that would configure an API gateway instead of an Ingress.
+
+It registers handler functions for:
+
+1. New ODA APIs - to create, update or delete child Ingress resources to expose the API using a kubernetes Ingress. see `apiStatus <#apiOperatorSimpleIngress.apiOperatorSimpleIngress.apiStatus>`_ 
+2. For status updates in the child Ingress resources and EndPointSlice resources, so that the API status reflects a summary the Ingress and Implementation for the API. see `ingress_status <#apiOperatorSimpleIngress.apiOperatorSimpleIngress.ingress_status>`_ and `implementation_status <#apiOperatorSimpleIngress.apiOperatorSimpleIngress.implementation_status>`_
+"""
+
 import kopf
 import kubernetes.client
 import yaml
@@ -20,26 +34,47 @@ print('Ingress set to ',ingress_class)
 HTTP_SCHEME = "http://"
 
 
-# structure
-#
-# create/update spec of this resource - compare desired state (spec) with actual state (status) and initiate changes
-#
-# register for changes to status of child resources - update the status to reflect those changes. (includes deletion). 
-# again, compare desired state and actual state and initiate changes.
-#
-# Status should have a copy of the spec it has set-out to create with any updates from downstream systems or resources
-
 
 
 @kopf.on.create('oda.tmforum.org', 'v1alpha2', 'apis')
 @kopf.on.update('oda.tmforum.org', 'v1alpha2', 'apis')
 def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
+    """Handler function for new or updated APIs.
+    
+    Processes the spec of the API and create child Kubernetes Ingress resources. The Kubernetes Ingress will expose the API to the outside.
 
+    Args:
+        * meta (Dict): The metadata from the API Custom Resource 
+        * spec (Dict): The spec from the  showing the intent (or desired state) 
+        * status (Dict): The status from the  showing the actual state.
+        * body (Dict): The entire 
+        * namespace (String): The namespace for the API Custom Resource
+        * labels (Dict): The labels attached to the API Custom Resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the API Custom Resource
+
+    Returns:
+        Dict: The apiStatus status that is put into the API Custom Resource status field.
+
+    :meta public:
+    """
     logger.debug(f"[apiStatus/{namespace}/{name}] apiOperator-simpleIngress/apiStatus called with name:{name}, spec: {spec}")
     return actualToDesiredState(spec, status, namespace, name)
 
 
-def actualToDesiredState(spec, status, namespace, name): # compare desired state (spec) with actual state (status) and initiate changes
+def actualToDesiredState(spec, status, namespace, name): 
+    """Helper function to compare desired state (spec) with actual state (status) and initiate changes.
+    
+    Args:
+        * spec (Dict): The spec from the  showing the intent (or desired state) 
+        * status (Dict): The status from the  showing the actual state.
+        * namespace (String): The namespace for the API Custom Resource
+        * name (String): The name of the API Custom Resource
+
+    Returns:
+        Dict: The updated apiStatus that will be put into the status field of the API resource.
+
+    :meta private:
+    """
     outputStatus = {}
     if status: # there is a status object
         if 'apiStatus' in status.keys(): # there is an actual state to compare against
@@ -54,7 +89,20 @@ def actualToDesiredState(spec, status, namespace, name): # compare desired state
     return createOrPatchIngress(False, spec, namespace, name)
 
 def createOrPatchIngress(patch, spec, namespace, name):            
-    # get API details and create ingress
+    """Helper function to get API details and create or patch ingress.
+    
+    Args:
+        * patch (Boolean): True to patch an existing Ingress; False to create a new Ingress. 
+        * spec (Dict): The spec from the API Resource showing the intent (or desired state) 
+        * namespace (String): The namespace for the API Custom Resource
+        * name (String): The name of the API Custom Resource
+
+    Returns:
+        Dict: The updated apiStatus that will be put into the status field of the API resource.
+
+    :meta private:
+    """
+    
     client = kubernetes.client
     try:
         networking_v1_beta1_api = client.NetworkingV1beta1Api()
@@ -137,9 +185,18 @@ def createOrPatchIngress(patch, spec, namespace, name):
 
 
 
-# in case api is updated, manually update the api implementation status from endpointslice
 def updateImplementationStatus(namespace, name):
-    # Create an instance of the API class
+    """Helper function to get EndPointSice and find the Resdy status.
+    
+    Args:
+        * namespace (String): The namespace for the Kubernetes Service that implements the API
+        * name (String): The name of the Kubernetes Service that implements the API
+
+    Returns:
+        No return value.
+
+    :meta private:
+    """
     logger.debug(f"[updateImplementationStatus/{namespace}/{name}] updateImplementationStatus namespace={namespace} name={name}")
 
     discovery_api_instance = kubernetes.client.DiscoveryV1beta1Api()
@@ -152,9 +209,27 @@ def updateImplementationStatus(namespace, name):
     except ApiException as e:
         logger.error(f"[updateImplementationStatus/{namespace}/{name}] ApiException when calling DiscoveryV1beta1Api->list_namespaced_endpoint_slice: {e}\n")           
 
-# When ingress adds IP address/dns of load balancer, update parent API object
+
 @kopf.on.field('networking.k8s.io', 'v1beta1', 'ingresses', field='status.loadBalancer')
 def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs): 
+    """Handler function to register for status changes in child Ingress resources.
+    
+    When Ingress adds IP address/dns of load balancer, update parent API object.
+
+    Args:
+        * meta (Dict): The metadata from the Ingress Resource 
+        * spec (Dict): The spec from the Ingress Resource showing the intent (or desired state) 
+        * status (Dict): The status from the Ingress Resource showing the actual state.
+        * body (Dict): The entire Ingress Resource
+        * namespace (String): The namespace for the Ingress Resource
+        * labels (Dict): The labels attached to the Ingress Resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the Ingress Resource
+
+    Returns:
+        No return value.
+
+    :meta public:
+    """
     logger.debug(f"[ingress_status/{namespace}/{name}] Status: {status}")
     namespace = meta.get('namespace')
 
@@ -209,6 +284,18 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                 logger.debug('Load Balancer doesnt have an ingress resource')
 
 def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget):
+    """Helper function to build the API Status Dict for the API custom resource.
+    
+    Args:
+        * parent_api_spec (Dict): The spec (target state or intent) for the API Resource
+        * parent_api_status (Dict): The status (actual state) for the API Resource
+        * ingressTarget (Dict): The status (actual state) for the Ingress Resource
+
+    Returns:
+        Updated API status as Dict.
+
+    :meta private:
+    """
     if 'hostname' in parent_api_spec.keys(): #if api specifies hostname then use hostname
         parent_api_status['apiStatus']['url'] = HTTP_SCHEME + parent_api_spec['hostname'] + parent_api_spec['path']
         if 'developerUI' in parent_api_spec:
@@ -238,10 +325,41 @@ def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget):
 @kopf.on.create('discovery.k8s.io', 'v1beta1', 'endpointslice')
 @kopf.on.update('discovery.k8s.io', 'v1beta1', 'endpointslice')
 def implementation_status(meta, spec, status, body, namespace, labels, name, **kwargs):
+    """Handler function to register for status changes in EndPointSlide resources.
+    
+    The EndPointSlide resources show the implementation of an API linked the the API implementations Service Resource. 
+    When EndPointSlide updates the ready-status of the implementation, update parent API object.
+
+    Args:
+        * meta (Dict): The metadata from the EndPointSlide Resource 
+        * spec (Dict): The spec from the EndPointSlide Resource showing the intent (or desired state) 
+        * status (Dict): The status from the EndPointSlide Resource showing the actual state.
+        * body (Dict): The entire EndPointSlide Resource
+        * namespace (String): The namespace for the EndPointSlide Resource
+        * labels (Dict): The labels attached to the EndPointSlide Resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the EndPointSlide Resource
+
+    Returns:
+        No return value.
+
+    :meta public:
+    """
     logger.debug(f"[{namespace}][{name}] endpointslice body: {body}")
     createAPIImplementationStatus(meta['ownerReferences'][0]['name'], body['endpoints'], namespace)
 
 def createAPIImplementationStatus(serviceName, endpointsArray, namespace):
+    """Helper function to update the implementation Ready status on the API custom resource.
+    
+    Args:
+        * serviceName (String): The name of Kubernetes Service that implements the API
+        * endpointsArray (Array): The array of EndPointSlice resources that show the implementation Ready state for the Service.
+        * namespace (String): The namespace for the Kubernetes Service that implements the API
+
+    Returns:
+        No return value.
+
+    :meta private:
+    """
     anyEndpointReady = False
     if endpointsArray != None:
         for endpoint in endpointsArray:
