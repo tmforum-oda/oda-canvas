@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Security Controller &mdash; ODA-Component Accelerator v1alpha2 documentation</title>
+  <title>Security Operator - Introduction &mdash; ODA-Component Accelerator v1alpha2 documentation</title>
   
 
   
@@ -38,7 +38,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Component Operator" href="modules.html" /> 
+    <link rel="next" title="securityOperator module" href="securityControllerKeycloak.html" />
+    <link rel="prev" title="Security Operator" href="modules.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -88,11 +89,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../README.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../componentOperator/modules.html">Component Operator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../apiOperatorSimpleIngress/modules.html">API Operator: SimpleIngress</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Component Operator</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Security Controller</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tasks-to-set-up-development-environment-tested-on-docker-for-windows">Tasks to set up development environment (tested on Docker for Windows)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#testing-kopf-module">Testing KOPF module</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Security Operator</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Security Operator - Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules.html#python-modules">Python modules</a></li>
 </ul>
 </li>
@@ -144,9 +142,9 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="modules.html">Component Operator</a> &raquo;</li>
+          <li><a href="modules.html">Security Operator</a> &raquo;</li>
         
-      <li>Security Controller</li>
+      <li>Security Operator - Introduction</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -165,23 +163,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="security-controller">
-<h1>Security Controller<a class="headerlink" href="#security-controller" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="security-operator-introduction">
+<h1>Security Operator - Introduction<a class="headerlink" href="#security-operator-introduction" title="Permalink to this headline">¶</a></h1>
 <p>This is the reference implementaiton of a security controller that takes metadata from ODA Component and uses it to automatically configure the Identity service (using Keycloak in the reference implementation). The security controller expects the component to expose a TMF669 PartyRole API detailing all the roles to be added to the identity service. The sequence diagram shows the overall flow:</p>
-<p><img alt="Sequence diagram" src="securityController/documentation/securitySequence-keycloak.png" /></p>
+<p><img alt="Sequence diagram" src="../_images/securitySequenceKeycloak.png" /></p>
 <p>The security controller consists of two modules, both written in Python. The first module uses the KOPF (https://kopf.readthedocs.io/) framework to listen for components being deployed in the ODA Canvas. It set’s up the base <code class="docutils literal notranslate"><span class="pre">Client</span></code> registration in Keycloak and then registers for call-back events from the components PartyRole API. The second module provides the API server where these PartyRole callback events are handled. It receives create/update/delete events and creates/updates/deletes the corresponding  roles in Keycloak. See the more detailed sequence diagram below:</p>
-<p><img alt="Sequence diagram" src="securityController/documentation/securitySequence-keycloak-detailed.png" /></p>
-</div>
-<div class="section" id="notes">
-<h1>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h1>
+<p><img alt="Sequence diagram" src="../_images/securitySequenceKeycloakDetailed.png" /></p>
+<p><strong>Notes</strong></p>
 <p>Keycloak setup</p>
 <p>Relm = whole organisation
 Client (within Relm) = 1 App or component</p>
 <p>Roles can be scoped at relm or client level
 Users can be scoped at relm or client level</p>
-</div>
-<div class="section" id="tasks-to-set-up-development-environment-tested-on-docker-for-windows">
-<h1>Tasks to set up development environment (tested on Docker for Windows)<a class="headerlink" href="#tasks-to-set-up-development-environment-tested-on-docker-for-windows" title="Permalink to this headline">¶</a></h1>
+<p><strong>Tasks to set up development environment (tested on Docker for Windows)</strong></p>
 <p>Install keycloak and set Environmnet variables for username and password (from https://www.keycloak.org/getting-started/getting-started-kube)</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kubectl</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">raw</span><span class="o">.</span><span class="n">githubusercontent</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">keycloak</span><span class="o">/</span><span class="n">keycloak</span><span class="o">-</span><span class="n">quickstarts</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">kubernetes</span><span class="o">-</span><span class="n">examples</span><span class="o">/</span><span class="n">keycloak</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
@@ -202,10 +196,8 @@ $env:KEYCLOAK_PASSWORD = &quot;admin&quot;
 <li><p>Configure a new relm <code class="docutils literal notranslate"><span class="pre">myrealm</span></code> in keycloak.</p></li>
 <li><p>Configure a new client <code class="docutils literal notranslate"><span class="pre">r1-productcatalog</span></code> in the <code class="docutils literal notranslate"><span class="pre">myrealm</span></code> relm.</p></li>
 </ol>
-</div>
-<div class="section" id="testing-kopf-module">
-<h1>Testing KOPF module<a class="headerlink" href="#testing-kopf-module" title="Permalink to this headline">¶</a></h1>
-<p>Run: <code class="docutils literal notranslate"><span class="pre">kopf</span> <span class="pre">run</span> <span class="pre">--namespace=components</span> <span class="pre">--standalone</span> <span class="pre">.\securityController-keycloak.py</span></code></p>
+<p><strong>Testing KOPF module</strong></p>
+<p>Run: <code class="docutils literal notranslate"><span class="pre">kopf</span> <span class="pre">run</span> <span class="pre">--namespace=components</span> <span class="pre">--standalone</span> <span class="pre">.\securityControllerKeycloak.py</span></code></p>
 </div>
 
 
@@ -214,7 +206,8 @@ $env:KEYCLOAK_PASSWORD = &quot;admin&quot;
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="modules.html" class="btn btn-neutral float-left" title="Component Operator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="securityControllerKeycloak.html" class="btn btn-neutral float-right" title="securityOperator module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modules.html" class="btn btn-neutral float-left" title="Security Operator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

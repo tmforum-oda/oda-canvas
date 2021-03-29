@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Component Operator &mdash; ODA-Component Accelerator v1alpha2 documentation</title>
+  <title>Security Operator &mdash; ODA-Component Accelerator v1alpha2 documentation</title>
   
 
   
@@ -38,7 +38,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Security Controller" href="README.html" />
+    <link rel="next" title="Security Operator - Introduction" href="README.html" />
     <link rel="prev" title="apiOperatorSimpleIngress module" href="../apiOperatorSimpleIngress/apiOperatorSimpleIngress.html" /> 
 </head>
 
@@ -89,12 +89,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../README.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../componentOperator/modules.html">Component Operator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../apiOperatorSimpleIngress/modules.html">API Operator: SimpleIngress</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Component Operator</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="README.html">Security Controller</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#notes">Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#tasks-to-set-up-development-environment-tested-on-docker-for-windows">Tasks to set up development environment (tested on Docker for Windows)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#testing-kopf-module">Testing KOPF module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#python-modules">Python modules</a><ul class="simple">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Security Operator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="README.html">Security Operator - Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-modules">Python modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="securityControllerKeycloak.html">securityOperator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="securityControllerAPIserverKeycloak.html">securityOperator API Listener module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="secconkeycloak.html">Keycloak integration Class</a></li>
 </ul>
 </li>
 </ul>
@@ -147,7 +147,7 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Component Operator</li>
+      <li>Security Operator</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -166,20 +166,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="component-operator">
-<h1>Component Operator<a class="headerlink" href="#component-operator" title="Permalink to this headline">¶</a></h1>
-<p>This is the reference implementaiton of a component operator that takes metadata from ODA Component CRD’s and uses it to automatically configure the exposedAPIs, securityAPIs (and in the future other services).</p>
+  <div class="section" id="security-operator">
+<h1>Security Operator<a class="headerlink" href="#security-operator" title="Permalink to this headline">¶</a></h1>
+<p>This is the reference implementaiton of a security operator that takes metadata from ODA Component CRD’s and uses it to automatically configure the security roles for Keycloak (and in the future other services).</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="README.html">Security Controller</a></li>
-<li class="toctree-l1"><a class="reference internal" href="README.html#notes">Notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="README.html#tasks-to-set-up-development-environment-tested-on-docker-for-windows">Tasks to set up development environment (tested on Docker for Windows)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="README.html#testing-kopf-module">Testing KOPF module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README.html">Security Operator - Introduction</a></li>
 </ul>
 </div>
 <div class="section" id="python-modules">
 <h2>Python modules<a class="headerlink" href="#python-modules" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="securityControllerKeycloak.html">securityOperator module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="securityControllerAPIserverKeycloak.html">securityOperator API Listener module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="secconkeycloak.html">Keycloak integration Class</a></li>
+</ul>
 </div>
 </div>
 </div>
@@ -190,7 +192,7 @@
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="README.html" class="btn btn-neutral float-right" title="Security Controller" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="README.html" class="btn btn-neutral float-right" title="Security Operator - Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="../apiOperatorSimpleIngress/apiOperatorSimpleIngress.html" class="btn btn-neutral float-left" title="apiOperatorSimpleIngress module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

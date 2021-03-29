@@ -1,6 +1,0 @@
-componentOperator
-=================
-
-.. toctree::
-   :maxdepth: 4
-

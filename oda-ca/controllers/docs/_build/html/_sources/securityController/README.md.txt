@@ -1,19 +1,19 @@
-# Security Controller
+# Security Operator - Introduction 
 
 This is the reference implementaiton of a security controller that takes metadata from ODA Component and uses it to automatically configure the Identity service (using Keycloak in the reference implementation). The security controller expects the component to expose a TMF669 PartyRole API detailing all the roles to be added to the identity service. The sequence diagram shows the overall flow:
 
 
-![Sequence diagram](documentation/securitySequence-keycloak.png)
+![Sequence diagram](sequenceDiagrams/securitySequenceKeycloak.png)
 
 
 
 The security controller consists of two modules, both written in Python. The first module uses the KOPF (https://kopf.readthedocs.io/) framework to listen for components being deployed in the ODA Canvas. It set's up the base `Client` registration in Keycloak and then registers for call-back events from the components PartyRole API. The second module provides the API server where these PartyRole callback events are handled. It receives create/update/delete events and creates/updates/deletes the corresponding  roles in Keycloak. See the more detailed sequence diagram below:
 
 
-![Sequence diagram](documentation/securitySequence-keycloak-detailed.png)
+![Sequence diagram](sequenceDiagrams/securitySequenceKeycloakDetailed.png)
 
 
-# Notes
+**Notes**
 
 Keycloak setup
 
@@ -25,7 +25,7 @@ Users can be scoped at relm or client level
 
 
 
-# Tasks to set up development environment (tested on Docker for Windows)
+**Tasks to set up development environment (tested on Docker for Windows)**
 
 Install keycloak and set Environmnet variables for username and password (from https://www.keycloak.org/getting-started/getting-started-kube)
 
@@ -52,6 +52,6 @@ $env:KEYCLOAK_PASSWORD = "admin"
 6. Configure a new client `r1-productcatalog` in the `myrealm` relm.
 
 
-# Testing KOPF module
+**Testing KOPF module**
 
-Run: `kopf run --namespace=components --standalone .\securityController-keycloak.py`
+Run: `kopf run --namespace=components --standalone .\securityControllerKeycloak.py`

@@ -2,4 +2,4 @@ FROM python:3.7
 RUN pip install kopf
 RUN pip install kubernetes
 ADD . /
-CMD kopf run --standalone componentOperator/componentOperator.py apiOperator-wso2/apiOperator-wso2.py  securityController/securityController-keycloak.py
+CMD kopf run --standalone componentOperator/componentOperator.py apiOperator-wso2/apiOperator-wso2.py  securityController/securityControllerKeycloak.py

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>README &mdash; ODA-Component Accelerator v1alpha2 documentation</title>
+  <title>securityOperator API Listener module &mdash; ODA-Component Accelerator v1alpha2 documentation</title>
   
 
   
@@ -38,8 +38,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="componentOperator module" href="componentOperator.html" />
-    <link rel="prev" title="Component Operator" href="modules.html" /> 
+    <link rel="next" title="Keycloak integration Class" href="secconkeycloak.html" />
+    <link rel="prev" title="securityOperator module" href="securityControllerKeycloak.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -86,16 +86,19 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../README_link.html">README</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Component Operator</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="modules.html#python-modules">Python modules</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">README</a></li>
-<li class="toctree-l3"><a class="reference internal" href="componentOperator.html">componentOperator module</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../componentOperator/modules.html">Component Operator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../apiOperatorSimpleIngress/modules.html">API Operator: SimpleIngress</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Security Operator</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="README.html">Security Operator - Introduction</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html#python-modules">Python modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="securityControllerKeycloak.html">securityOperator module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">securityOperator API Listener module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="secconkeycloak.html">Keycloak integration Class</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             
@@ -144,15 +147,15 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="modules.html">Component Operator</a> &raquo;</li>
+          <li><a href="modules.html">Security Operator</a> &raquo;</li>
         
-      <li>README</li>
+      <li>securityOperator API Listener module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../_sources/componentOperator/README_link.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/securityController/securityControllerAPIserverKeycloak.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -165,14 +168,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="readme">
-<h1>README<a class="headerlink" href="#readme" title="Permalink to this headline">¶</a></h1>
-<p># Component Controller</p>
-<p>This is the reference implementaiton of a component controller that takes metadata from ODA Component and uses it to automatically configure the exposedAPIs, securityAPIs (and in the future other services). The diagram below shows how the component controller interacts with the different Kubernetes entities (via the Kubernetes API).</p>
-<p>![Sequence diagram](documentation/componentSequence.png)</p>
-<p>The component controller written in Python, using the KOPF (<a class="reference external" href="https://kopf.readthedocs.io/">https://kopf.readthedocs.io/</a>) framework to listen for components being deployed in the ODA Canvas.</p>
-<p># Testing KOPF module</p>
-<p>Run: <cite>kopf run –namespace=components –standalone .componentOperator.py</cite></p>
+  <div class="section" id="module-securityController.securityControllerAPIserverKeycloak">
+<span id="securityoperator-api-listener-module"></span><h1>securityOperator API Listener module<a class="headerlink" href="#module-securityController.securityControllerAPIserverKeycloak" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="securityController.securityControllerAPIserverKeycloak.formatCloudEvent">
+<code class="sig-prename descclassname"><span class="pre">securityController.securityControllerAPIserverKeycloak.</span></code><code class="sig-name descname"><span class="pre">formatCloudEvent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#securityController.securityControllerAPIserverKeycloak.formatCloudEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a correctly formatted CloudEvents compliant event</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="securityController.securityControllerAPIserverKeycloak.partyRoleListener">
+<code class="sig-prename descclassname"><span class="pre">securityController.securityControllerAPIserverKeycloak.</span></code><code class="sig-name descname"><span class="pre">partyRoleListener</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#securityController.securityControllerAPIserverKeycloak.partyRoleListener" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -181,8 +189,8 @@
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="componentOperator.html" class="btn btn-neutral float-right" title="componentOperator module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="modules.html" class="btn btn-neutral float-left" title="Component Operator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="secconkeycloak.html" class="btn btn-neutral float-right" title="Keycloak integration Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="securityControllerKeycloak.html" class="btn btn-neutral float-left" title="securityOperator module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
