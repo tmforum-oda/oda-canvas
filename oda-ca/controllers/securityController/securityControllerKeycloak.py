@@ -55,7 +55,7 @@ from cloudevents.http import CloudEvent, to_structured
 #        r_a = requests.get(kcBaseURL + '/admin/realms/'+ realm +'/clients', params={"clientId": client}, headers={'Authorization': 'Bearer ' + token})
 #        r_a.raise_for_status()
 #    except requests.HTTPError as e:
-#        logging.error(formatCloudEvent(str(e), f"secCon couldn't GET ID for client {client} in realm {realm}"))
+#        logger.error(formatCloudEvent(str(e), f"secCon couldn't GET ID for client {client} in realm {realm}"))
 #        raise
 #
 #    if len(r_a.json()) > 0: # we found a client with a matching name
@@ -65,7 +65,7 @@ from cloudevents.http import CloudEvent, to_structured
 #            r_b = requests.delete(kcBaseURL + '/admin/realms/'+ realm +'/clients/' + targetClient, headers={'Authorization': 'Bearer ' + token})
 #            r_b.raise_for_status()
 #        except requests.HTTPError as e:
-#            logging.error(formatCloudEvent(str(e), f"secCon couldn't DELETE client {client} in realm {realm}"))
+#            logger.error(formatCloudEvent(str(e), f"secCon couldn't DELETE client {client} in realm {realm}"))
 #            raise
 #
 #    else: # we didn't find a client with a matching name
@@ -109,15 +109,15 @@ def formatCloudEvent(message: str, subject: str) -> str:
     return body
 
 # Script setup --------------
+logging_level = os.environ.get('LOGGING', logging.INFO)
+print('Logging set to ', logging_level)
+logger = logging.getLogger('SecurityOperator')
+logger.setLevel(int(logging_level))
 
-logging_level = os.environ.get('LOGGING',20)
 username = os.environ.get('KEYCLOAK_USER')
 password = os.environ.get('KEYCLOAK_PASSWORD')
 kcBaseURL = os.environ.get('KEYCLOAK_BASE')
 kcRealm = os.environ.get('KEYCLOAK_REALM')
-logger = logging.getLogger()
-logger.setLevel(int(logging_level)) #Logging level default = INFO
-logging.info(f'Logging set to {logging_level}')
 
 kc = secconkeycloak.Keycloak(kcBaseURL)
 
@@ -133,31 +133,31 @@ def securityClientAdd(meta, spec, status, body, namespace, labels, name, old, ne
     """
 
     rooturl = 'http://' + spec['security']['partyrole']['implementation'] + '.' + namespace + '.svc.cluster.local:' + str(spec['security']['partyrole']['port']) + spec['security']['partyrole']['path']
-    logging.debug(f"using component root url: {rooturl}")
-    logging.debug(f'status.deployment_status = {old} -> {new}')
+    logger.debug(f"using component root url: {rooturl}")
+    logger.debug(f'status.deployment_status = {old} -> {new}')
 
     try: # to authenticate and get a token
         token = kc.getToken(username, password)
     except requests.HTTPError as e:
-        logging.error(formatCloudEvent(str(e), "secCon couldn't GET Keycloak token"))
+        logger.error(formatCloudEvent(str(e), "secCon couldn't GET Keycloak token"))
     except requests.URLRequired as e:
-        logging.error(formatCloudEvent(str(e), "secCon couldn't determine Keycloak URL"))
+        logger.error(formatCloudEvent(str(e), "secCon couldn't determine Keycloak URL"))
         raise kopf.PermanentError("Could not determine Keycloak URL. Will NOT retry.")
 
     try: # to create the client in Keycloak
         kc.createClient(name, rooturl, token, kcRealm)
     except requests.HTTPError as e:
-        logging.error(formatCloudEvent(str(e), f"secCon couldn't POST new client {name} in realm {kcRealm}"))
+        logger.error(formatCloudEvent(str(e), f"secCon couldn't POST new client {name} in realm {kcRealm}"))
         raise kopf.TemporaryError("Could not add component to Keycloak. Will retry.", delay=10)
     except requests.URLRequired as e:
-        logging.error(formatCloudEvent(str(e), "secCon couldn't determine Keycloak URL"))
+        logger.error(formatCloudEvent(str(e), "secCon couldn't determine Keycloak URL"))
         raise kopf.PermanentError("Could not determine Keycloak URL. Will NOT retry.")
     else:
-        logging.info(formatCloudEvent(f"oda.tmforum.org component {name} created", f"secCon: component created"))
+        logger.info(formatCloudEvent(f"oda.tmforum.org component {name} created", f"secCon: component created"))
         try: # to register with the partyRoleManagement API
             registerListener(rooturl + "/hub")
         except requests.HTTPError as e:
-            logging.warning(formatCloudEvent(str(e), "secCon couldn't register partyRoleManagement listener"))
+            logger.warning(formatCloudEvent(str(e), "secCon couldn't register partyRoleManagement listener"))
             statusValue = {'identityProvider': 'Keycloak', 'listenerRegistered': False}
             raise kopf.TemporaryError("Could not register listener. Will retry.", delay=10)
         else:
@@ -175,16 +175,16 @@ def securityClientDelete(meta, spec, status, body, namespace, labels, name, **kw
     try: # to authenticate and get a token
         token = kc.getToken(username, password)
     except requests.HTTPError as e:
-        logging.error(formatCloudEvent(str(e), "secCon couldn't GET Keycloak token"))
+        logger.error(formatCloudEvent(str(e), "secCon couldn't GET Keycloak token"))
     except requests.URLRequired as e:
-        logging.error(formatCloudEvent(str(e), "secCon couldn't determine Keycloak URL"))
+        logger.error(formatCloudEvent(str(e), "secCon couldn't determine Keycloak URL"))
         raise kopf.PermanentError("Could not determine Keycloak URL. Will NOT retry.")
 
     try: # to delete the client from Keycloak
         kc.delClient(name, token, kcRealm)
     except requests.HTTPError as e:
-        logging.error(formatCloudEvent(str(e), f"secCon couldn't DELETE client {name} in realm {kcRealm}"))
+        logger.error(formatCloudEvent(str(e), f"secCon couldn't DELETE client {name} in realm {kcRealm}"))
         raise kopf.TemporaryError("Could not delete component from Keycloak. Will retry.", delay=10)
     except requests.URLRequired as e:
-        logging.error(formatCloudEvent(str(e), "secCon couldn't determine Keycloak URL"))
+        logger.error(formatCloudEvent(str(e), "secCon couldn't determine Keycloak URL"))
         raise kopf.PermanentError("Could not determine Keycloak URL. Will NOT retry.")

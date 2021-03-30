@@ -26,7 +26,9 @@ logger.setLevel(int(logging_level))
 # Constants
 CONST_HTTP_CONFLICT = 409
 CONST_HTTP_NOT_FOUND = 404
-
+CONST_GROUP = "oda.tmforum.org"
+CONST_VERSION = "v1alpha2"
+CONST_PLURAL = "apis"
 
 @kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
 @kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
@@ -205,40 +207,58 @@ def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
     if 'developerUI' in inAPI.keys():
         my_resource['spec']['developerUI'] = inAPI['developerUI']
     apiReadyStatus = False
+    returnAPIObject = {}
     # create the resource
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
         #apiObj = {"metadata":{"uid": "test"}}
         if inCreate:
             apiObj = custom_objects_api.create_namespaced_custom_object(
-                group="oda.tmforum.org",
-                version="v1alpha2",
+                group=CONST_GROUP,
+                version=CONST_VERSION,
                 namespace=namespace,
-                plural="apis",
+                plural=CONST_PLURAL,
                 body=my_resource,
             )
             logger.debug(f"Resource created: {apiObj}")
             logger.info(
                 f"[createOrPatchAPIResource/{namespace}/{name}] creating api resource {my_resource['metadata']['name']}")
+            returnAPIObject = {"name": my_resource['metadata']['name'], "uid": apiObj['metadata']['uid'], "ready": apiReadyStatus}
         else:
-            apiObj = custom_objects_api.patch_namespaced_custom_object(
-                group="oda.tmforum.org",
-                version="v1alpha2",
+            # only patch if the API resource spec has changed
+
+            #get current api resource and compare it to my_resource
+            apiObj = custom_objects_api.get_namespaced_custom_object(
+                group=CONST_GROUP,                 
+                version=CONST_VERSION,
                 namespace=namespace,
-                plural="apis",
-                name=newName,
-                body=my_resource,
-            )
-            apiReadyStatus = apiObj['status']['implementation']['ready']
-            logger.debug(f"Resource patched: {apiObj}")
+                plural=CONST_PLURAL,
+                name=newName)
+
             logger.info(
-                f"[createOrPatchAPIResource/{namespace}/{name}] patching api resource {my_resource['metadata']['name']}")
+                f"[createOrPatchAPIResource/{namespace}/{name}] comparing {my_resource['spec']} to {apiObj['spec']}")
+            if not(my_resource['spec'] == apiObj['spec']):
+                apiObj = custom_objects_api.patch_namespaced_custom_object(
+                    group=CONST_GROUP,
+                    version=CONST_VERSION,
+                    namespace=namespace,
+                    plural=CONST_PLURAL,
+                    name=newName,
+                    body=my_resource,
+                )
+                apiReadyStatus = apiObj['status']['implementation']['ready']
+                logger.debug(f"Resource patched: {apiObj}")
+                logger.info(
+                    f"[createOrPatchAPIResource/{namespace}/{name}] patching api resource {my_resource['metadata']['name']}")
+            returnAPIObject = apiObj['status']['apiStatus']
+            returnAPIObject['ready'] =  apiObj['status']['implementation']['ready']
+
 
     except ApiException as e:
         logger.warning(
             f"Exception when calling api.create_namespaced_custom_object: error: {e} API resource: {my_resource}")
         raise kopf.TemporaryError("Exception creating API custom resource.")
-    return {"name": my_resource['metadata']['name'], "uid": apiObj['metadata']['uid'], "ready": apiReadyStatus}
+    return returnAPIObject
 
 
 # When api adds url address of where api is exposed, update parent Component object

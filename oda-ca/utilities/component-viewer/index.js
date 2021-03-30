@@ -37,9 +37,9 @@ function displayComponent() {
 
     try {
         const customk8sApi = kc.makeApiClient(k8s.CustomObjectsApi);
-        console.clear()
 
         customk8sApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha2', namespace, 'components').then((res) => {
+            console.clear()
             for (var key in res.body.items) {
                 var item = res.body.items[key]
                 console.log('')
