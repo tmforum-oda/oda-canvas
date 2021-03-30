@@ -1,6 +1,7 @@
 FROM python:3.7
 RUN pip install kopf
-RUN pip install kubernetes
+RUN pip install kubernetes==17.14.0a1
 RUN pip install cloudevents
 ADD . /
-CMD kopf run --namespace=components --standalone componentOperator/componentOperator.py apiOperator-simpleIngress/apiOperator-simpleIngress.py securityController/securityController-keycloak.py
+ADD securityController/secconkeycloak.py /
+CMD kopf run --namespace=components --standalone componentOperator/componentOperator.py apiOperatorSimpleIngress/apiOperatorSimpleIngress.py securityController/securityControllerKeycloak.py

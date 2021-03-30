@@ -3,6 +3,6 @@ RUN pip install flask
 RUN pip install requests
 RUN pip install cloudevents
 ADD securityController /
-ENV FLASK_APP="securityControllerAPIserver-keycloak.py"
+ENV FLASK_APP="securityControllerAPIserverKeycloak.py"
 EXPOSE 5000
 CMD flask run --host=0.0.0.0

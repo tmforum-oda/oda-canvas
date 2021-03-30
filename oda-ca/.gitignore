@@ -1,7 +1,12 @@
 # ----- Python -----
 
 # Byte-compiled / optimized / DLL files
+*.pyc
 __pycache__/
+controllers/securityController/__pycache__/
+controllers/securityController/__pycache__/securityControllerAPIserver-keycloak.cpython-37.pyc
+controllers/securityController/__pycache__/securityController-keycloak.cpython-38.pyc
+=======
 *.py[cod]
 *$py.class
 

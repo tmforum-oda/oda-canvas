@@ -37,9 +37,9 @@ function displayComponent() {
 
     try {
         const customk8sApi = kc.makeApiClient(k8s.CustomObjectsApi);
-        console.clear()
 
         customk8sApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha2', namespace, 'components').then((res) => {
+            console.clear()
             for (var key in res.body.items) {
                 var item = res.body.items[key]
                 console.log('')
@@ -64,16 +64,18 @@ function displayComponent() {
                 }
                 //console.log('APIs: ')
                 var apiList = []
-                if (item.status.hasOwnProperty('exposedAPIs')) {
-                    for (var apiKey in item.status.exposedAPIs) {
-                        var api = item.status.exposedAPIs[apiKey]
-                        apiList.push({type: 'core-function', name: api.name, url: api.url, ready: api.ready})
+                if (item.hasOwnProperty('status')) {
+                    if (item.status.hasOwnProperty('exposedAPIs')) {
+                        for (var apiKey in item.status.exposedAPIs) {
+                            var api = item.status.exposedAPIs[apiKey]
+                            apiList.push({type: 'core-function', name: api.name, url: api.url, ready: api.ready})
+                        }
                     }
-                }
-                if (item.status.hasOwnProperty('securityAPIs')) {
-                    for (var apiKey in item.status.securityAPIs) {
-                        var api = item.status.securityAPIs[apiKey]
-                        apiList.push({type: 'security', name: api.name, url: api.url, ready: api.ready})
+                    if (item.status.hasOwnProperty('securityAPIs')) {
+                        for (var apiKey in item.status.securityAPIs) {
+                            var api = item.status.securityAPIs[apiKey]
+                            apiList.push({type: 'security', name: api.name, url: api.url, ready: api.ready})
+                        }
                     }
                 }
                 // fix formatting
@@ -91,12 +93,15 @@ function displayComponent() {
                         api.ready = 'false'.yellow
                     }
                 }
-                const table = new Table({
-                    title: "APIs"
-                  });
-                  
-                table.addRows(apiList)
-                table.printTable();
+
+                if (apiList.length>0) {
+                    const table = new Table({
+                        title: "APIs"
+                    });
+                    
+                    table.addRows(apiList)
+                    table.printTable();
+                }
                 console.log('')
             }
             if (res.body.items.length == 0) {
