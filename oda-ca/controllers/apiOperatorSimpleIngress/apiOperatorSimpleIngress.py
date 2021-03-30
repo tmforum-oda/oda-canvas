@@ -14,7 +14,6 @@ It registers handler functions for:
 
 import kopf
 import kubernetes.client
-import yaml
 import logging
 from kubernetes.client.rest import ApiException
 import os
@@ -32,7 +31,9 @@ ingress_class = os.environ.get('INGRESS_CLASS','nginx')
 print('Ingress set to ',ingress_class)
 
 HTTP_SCHEME = "http://"
-
+GROUP = "oda.tmforum.org"
+VERSION = "v1alpha2"
+APIS_PLURAL = "apis"
 
 
 
@@ -239,14 +240,10 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
         if 'ownerReferences' in meta.keys():
 
             api_instance = kubernetes.client.CustomObjectsApi()
-            group = 'oda.tmforum.org' # str | the custom resource's group
-            version = 'v1alpha2' # str | the custom resource's version
-            namespace = namespace # str | The custom resource's namespace
-            plural = 'apis' # str | the custom resource's plural name
             name = meta['ownerReferences'][0]['name'] # str | the custom object's name
 
             try:
-                parent_api = api_instance.get_namespaced_custom_object(group, version, namespace, plural, name)
+                parent_api = api_instance.get_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL, name)
 
             except ApiException as e:
                 logger.warning("Exception when calling CustomObjectsApi->get_namespaced_custom_object: %s\n" % e)
@@ -268,7 +265,7 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                         parent_api['status'] = buildAPIStatus(parent_api['spec'],parent_api['status'], ingressTarget)
                         
                         try:
-                            api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, name, parent_api)
+                            api_response = api_instance.patch_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL, name, parent_api)
                         except ApiException as e:
                             logger.warning("Exception when calling api_instance.patch_namespaced_custom_object: %s\n" % e)
 
@@ -375,11 +372,7 @@ def createAPIImplementationStatus(serviceName, endpointsArray, namespace):
                 # find the corresponding API resource and update status
                 # query for api with spec.implementation equal to service name
                 api_instance = kubernetes.client.CustomObjectsApi()
-                group = 'oda.tmforum.org' # str | the custom resource's group
-                version = 'v1alpha2' # str | the custom resource's version
-                namespace = namespace # str | The custom resource's namespace
-                plural = 'apis' # str | the custom resource's plural name
-                api_response = api_instance.list_namespaced_custom_object(group, version, namespace, plural)
+                api_response = api_instance.list_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL)
                 found = False
                 logger.debug(f"[endpointslice/{serviceName}] api list has ={ len(api_response['items'])} items")
                 for api in api_response['items']:  
@@ -389,7 +382,7 @@ def createAPIImplementationStatus(serviceName, endpointsArray, namespace):
                         if not('status' in api.keys()):
                             api['status'] = {}
                         api['status']['implementation'] = {"ready": True}
-                        api_response = api_instance.patch_namespaced_custom_object(group, version, namespace, plural, api['metadata']['name'], api)
+                        api_response = api_instance.patch_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL, api['metadata']['name'], api)
                         logger.info(f"[createAPIImplementationStatus/{namespace}/{serviceName}] added implementation ready status {anyEndpointReady} to api resource")
 
                 if found == False:

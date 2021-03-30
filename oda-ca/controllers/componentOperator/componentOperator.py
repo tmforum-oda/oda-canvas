@@ -10,7 +10,6 @@ It registers handler functions for:
 
 import kopf
 import kubernetes.client
-import yaml
 import logging
 from kubernetes.client.rest import ApiException
 import os
@@ -24,11 +23,12 @@ logger = logging.getLogger('ComponentOperator')
 logger.setLevel(int(logging_level))
 
 # Constants
-CONST_HTTP_CONFLICT = 409
-CONST_HTTP_NOT_FOUND = 404
-CONST_GROUP = "oda.tmforum.org"
-CONST_VERSION = "v1alpha2"
-CONST_PLURAL = "apis"
+HTTP_CONFLICT = 409
+HTTP_NOT_FOUND = 404
+GROUP = "oda.tmforum.org"
+VERSION = "v1alpha2"
+APIS_PLURAL = "apis"
+COMPONENTS_PLURAL = "components"
 
 @kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
 @kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
@@ -117,7 +117,11 @@ def deleteAPI(deleteAPIName, componentName, status, namespace):
             custom_objects_api = kubernetes.client.CustomObjectsApi()
             try:
                 api_response = custom_objects_api.delete_namespaced_custom_object(
-                    group='oda.tmforum.org', version='v1alpha2', namespace=namespace, plural='apis', name=api['name'])
+                    group = GROUP, 
+                    version = VERSION, 
+                    namespace=namespace, 
+                    plural = APIS_PLURAL, 
+                    name=api['name'])
                 logger.debug(f"[deleteAPI/{namespace}/{api['name']}] api_response = {api_response}")
             except ApiException as e:
                 logger.error(f"[deleteAPI/{namespace}/{api['name']}] Exception when calling CustomObjectsApi->delete_namespaced_custom_object: {e}")
@@ -214,12 +218,11 @@ def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
         #apiObj = {"metadata":{"uid": "test"}}
         if inCreate:
             apiObj = custom_objects_api.create_namespaced_custom_object(
-                group=CONST_GROUP,
-                version=CONST_VERSION,
-                namespace=namespace,
-                plural=CONST_PLURAL,
-                body=my_resource,
-            )
+                group = GROUP,
+                version = VERSION,
+                namespace = namespace,
+                plural = APIS_PLURAL,
+                body = my_resource)
             logger.debug(f"Resource created: {apiObj}")
             logger.info(
                 f"[createOrPatchAPIResource/{namespace}/{name}] creating api resource {my_resource['metadata']['name']}")
@@ -229,29 +232,30 @@ def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
 
             #get current api resource and compare it to my_resource
             apiObj = custom_objects_api.get_namespaced_custom_object(
-                group=CONST_GROUP,                 
-                version=CONST_VERSION,
-                namespace=namespace,
-                plural=CONST_PLURAL,
-                name=newName)
+                group = GROUP,                 
+                version = VERSION,
+                namespace = namespace,
+                plural = APIS_PLURAL,
+                name = newName)
 
-            logger.info(
+            logger.debug(
                 f"[createOrPatchAPIResource/{namespace}/{name}] comparing {my_resource['spec']} to {apiObj['spec']}")
             if not(my_resource['spec'] == apiObj['spec']):
                 apiObj = custom_objects_api.patch_namespaced_custom_object(
-                    group=CONST_GROUP,
-                    version=CONST_VERSION,
-                    namespace=namespace,
-                    plural=CONST_PLURAL,
-                    name=newName,
-                    body=my_resource,
-                )
+                    group = GROUP,
+                    version = VERSION,
+                    namespace = namespace,
+                    plural = APIS_PLURAL,
+                    name = newName,
+                    body = my_resource)
                 apiReadyStatus = apiObj['status']['implementation']['ready']
                 logger.debug(f"Resource patched: {apiObj}")
                 logger.info(
                     f"[createOrPatchAPIResource/{namespace}/{name}] patching api resource {my_resource['metadata']['name']}")
             returnAPIObject = apiObj['status']['apiStatus']
-            returnAPIObject['ready'] =  apiObj['status']['implementation']['ready']
+            returnAPIObject["uid"] = apiObj['metadata']['uid']
+            if 'implementation' in apiObj['status'].keys():
+                returnAPIObject['ready'] =  apiObj['status']['implementation']['ready']
 
 
     except ApiException as e:
@@ -287,19 +291,20 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
     if 'apiStatus' in status.keys():
         if 'url' in status['apiStatus'].keys():
             if 'ownerReferences' in meta.keys():
-                group = 'oda.tmforum.org'  # str | the custom resource's group
-                version = 'v1alpha2'  # str | the custom resource's version
-                plural = 'components'  # str | the custom resource's plural name
                 # str | the custom object's name
                 name = meta['ownerReferences'][0]['name']
 
                 try:
                     custom_objects_api = kubernetes.client.CustomObjectsApi()
                     parent_component = custom_objects_api.get_namespaced_custom_object(
-                        group, version, namespace, plural, name)
+                        group = GROUP, 
+                        version = VERSION, 
+                        namespace = namespace, 
+                        plural = COMPONENTS_PLURAL, 
+                        name = name)
                 except ApiException as e:
                     # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    if e.status == CONST_HTTP_NOT_FOUND:
+                    if e.status == HTTP_NOT_FOUND:
                         raise kopf.TemporaryError(
                             "Cannot find parent component " + name)
                     else:
@@ -307,18 +312,24 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
                             "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
 
                 # find the correct array entry to update either in exposedAPIs or securityAPIs
+
+                logger.debug(f'Updating parent component APIs')
                 for key in range(len(parent_component['status']['exposedAPIs'])):
+                    logger.debug(f"COMPARING {parent_component['status']['exposedAPIs'][key]['uid']} TO {meta['uid']} FOR KEY {key}")
+
                     if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
                         parent_component['status']['exposedAPIs'][key]['url'] = status['apiStatus']['url']
+                        logger.info(f"Updating parent component exposedAPIs APIs with url {status['apiStatus']['url']}")
+
                         if 'developerUI' in status['apiStatus'].keys():
                             parent_component['status']['exposedAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
                 for key in (parent_component['status']['securityAPIs']):
                     if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
                         parent_component['status']['securityAPIs'][key]['url'] = status['apiStatus']['url']
+                        logger.info(f"Updating parent component securityAPIs APIs with url {status['apiStatus']['url']}")
                         if 'developerUI' in status['apiStatus'].keys():
                             parent_component['status']['securityAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
-                summaryAndUpdate(status, namespace, name,
-                                 parent_component, plural, group, version)
+                summaryAndUpdate(status, namespace, name, parent_component)
 
 # When api confirms implementation is ready, update parent Component object
 
@@ -347,19 +358,16 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
     if 'ready' in status['implementation'].keys():
         if status['implementation']['ready'] == True:
             if 'ownerReferences' in meta.keys():
-                group = 'oda.tmforum.org'  # str | the custom resource's group
-                version = 'v1alpha2'  # str | the custom resource's version
-                plural = 'components'  # str | the custom resource's plural name
                 # str | the custom object's name
                 name = meta['ownerReferences'][0]['name']
 
                 try:
                     custom_objects_api = kubernetes.client.CustomObjectsApi()
                     parent_component = custom_objects_api.get_namespaced_custom_object(
-                        group, version, namespace, plural, name)
+                        GROUP, VERSION, namespace, COMPONENTS_PLURAL, name)
                 except ApiException as e:
                     # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    if e.status == CONST_HTTP_NOT_FOUND:
+                    if e.status == HTTP_NOT_FOUND:
                         raise kopf.TemporaryError(
                             "Cannot find parent component " + name)
                     else:
@@ -373,11 +381,10 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
                 for key in (parent_component['status']['securityAPIs']):
                     if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
                         parent_component['status']['securityAPIs'][key]['ready'] = True
-                summaryAndUpdate(status, namespace, name,
-                                 parent_component, plural, group, version)
+                summaryAndUpdate(status, namespace, name, parent_component)
 
 
-def summaryAndUpdate(status, namespace, name, parent_component, plural, group, version):
+def summaryAndUpdate(status, namespace, name, parent_component):
     """Helper function to get all the exposed APIs in the status, create a summary string and then patch the component custom definition.
     
     Args:
@@ -419,7 +426,7 @@ def summaryAndUpdate(status, namespace, name, parent_component, plural, group, v
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
         api_response = custom_objects_api.patch_namespaced_custom_object(
-            group, version, namespace, plural, name, parent_component)
+            GROUP, VERSION, namespace, COMPONENTS_PLURAL, name, parent_component)
         logger.info(
             f"[summaryAndUpdate/{namespace}/{name}] updated status to parent component: {name}")
         logger.debug(f"api_response {api_response}")
@@ -463,18 +470,15 @@ async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
     if 'oda.tmforum.org/componentName' in labels.keys():
 
         # get the parent component object
-        group = 'oda.tmforum.org'  # str | the custom resource's group
-        version = 'v1alpha2'  # str | the custom resource's version
-        plural = 'components'  # str | the custom resource's plural name
         # str | the custom object's name
         component_name = labels['oda.tmforum.org/componentName']
         try:
             custom_objects_api = kubernetes.client.CustomObjectsApi()
             parent_component = custom_objects_api.get_namespaced_custom_object(
-                group, version, namespace, plural, component_name)
+                GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
         except ApiException as e:
             # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-            if e.status == CONST_HTTP_NOT_FOUND:
+            if e.status == HTTP_NOT_FOUND:
                 raise kopf.TemporaryError(
                     "Cannot find parent component " + component_name)
             else:
@@ -493,7 +497,7 @@ async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
             logger.info(
                 f'[adopt_service/{namespace}/{name}] Adding component {component_name} as parent of service')
         except ApiException as e:
-            if e.status == CONST_HTTP_CONFLICT:  # Conflict = try again
+            if e.status == HTTP_CONFLICT:  # Conflict = try again
                 raise kopf.TemporaryError("Conflict updating service.")
             else:
                 logger.error(
@@ -529,18 +533,15 @@ async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 
     if 'oda.tmforum.org/componentName' in labels.keys():
         # get the parent component object
-        group = 'oda.tmforum.org'  # str | the custom resource's group
-        version = 'v1alpha2'  # str | the custom resource's version
-        plural = 'components'  # str | the custom resource's plural name
         # str | the custom object's name
         component_name = labels['oda.tmforum.org/componentName']
         try:
             custom_objects_api = kubernetes.client.CustomObjectsApi()
             parent_component = custom_objects_api.get_namespaced_custom_object(
-                group, version, namespace, plural, component_name)
+                GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
         except ApiException as e:
             # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-            if e.status == CONST_HTTP_NOT_FOUND:
+            if e.status == HTTP_NOT_FOUND:
                 raise kopf.TemporaryError(
                     "Cannot find parent component " + component_name)
             else:
@@ -558,7 +559,7 @@ async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
             logger.info(
                 f'[adopt_deployment/{namespace}/{name}] Adding component {component_name} as parent of deployment')
         except ApiException as e:
-            if e.status == CONST_HTTP_CONFLICT:  # Conflict = try again
+            if e.status == HTTP_CONFLICT:  # Conflict = try again
                 raise kopf.TemporaryError("Conflict updating deployment.")
             else:
                 logger.error(
@@ -595,18 +596,15 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
 
     if 'oda.tmforum.org/componentName' in labels.keys():
         # get the parent component object
-        group = 'oda.tmforum.org'  # str | the custom resource's group
-        version = 'v1alpha2'  # str | the custom resource's version
-        plural = 'components'  # str | the custom resource's plural name
         # str | the custom object's name
         component_name = labels['oda.tmforum.org/componentName']
         try:
             custom_objects_api = kubernetes.client.CustomObjectsApi()
             parent_component = custom_objects_api.get_namespaced_custom_object(
-                group, version, namespace, plural, component_name)
+                GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
         except ApiException as e:
             # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-            if e.status == CONST_HTTP_NOT_FOUND:
+            if e.status == HTTP_NOT_FOUND:
                 raise kopf.TemporaryError(
                     "Cannot find parent component " + component_name)
             else:
@@ -626,7 +624,7 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
             logger.info(
                 f'[adopt_persistentvolumeclaim/{namespace}/{name}] Adding {component_name} as parent of persistentvolumeclaim')
         except ApiException as e:
-            if e.status == CONST_HTTP_CONFLICT:  # Conflict = try again
+            if e.status == HTTP_CONFLICT:  # Conflict = try again
                 raise kopf.TemporaryError(
                     "Conflict updating persistentvolumeclaim.")
             else:
