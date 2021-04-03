@@ -82,7 +82,7 @@ def apigUnBind(meta, spec, status, body, namespace, labels, name, **kwargs):
     logging.debug(f"api has status: {status}")
     logging.debug(f"api is called with body: {spec}")
     
-    apigEndpoint = os.getenv('APIG_ENDPOINT', "10.45.80.26:8080")
+    apigEndpoint = os.getenv('APIG_ENDPOINT', "apig-operator-uportal:8080")
     apigUnBindPath = "/operator/AutoCreation/removeAPIFromSwagger"
     
     apiSpec = {
