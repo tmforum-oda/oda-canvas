@@ -22,6 +22,10 @@ kopf_logger.setLevel(logging.WARNING)
 logger = logging.getLogger('ComponentOperator')
 logger.setLevel(int(logging_level))
 
+#get namespace to monitor
+component_namespace = os.environ.get('COMPONENT_NAMESPACE', 'components')
+logger.info(f'Monitoring namespace %s', component_namespace)
+
 # Constants
 HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
