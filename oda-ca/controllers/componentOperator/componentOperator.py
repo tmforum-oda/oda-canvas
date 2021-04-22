@@ -30,13 +30,13 @@ logger.info(f'Monitoring namespace %s', component_namespace)
 HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
-VERSION = "v1alpha2"
+VERSION = "v1alpha3"
 APIS_PLURAL = "apis"
 COMPONENTS_PLURAL = "components"
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.update('oda.tmforum.org', 'v1alpha2', 'components')
+@kopf.on.resume('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'components')
 async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **core function** part new or updated components.
     
@@ -131,9 +131,9 @@ def deleteAPI(deleteAPIName, componentName, status, namespace):
                 logger.error(f"[deleteAPI/{namespace}/{api['name']}] Exception when calling CustomObjectsApi->delete_namespaced_custom_object: {e}")
 
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.update('oda.tmforum.org', 'v1alpha2', 'components')
+@kopf.on.resume('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'components')
 async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **security** part of new or updated components.
     
@@ -199,7 +199,7 @@ def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
     logger.debug(f"[createOrPatchAPIResource/{namespace}/{name}] API resource : {inAPI}")
 
     my_resource = {
-        "apiVersion": "oda.tmforum.org/v1alpha2",
+        "apiVersion": "oda.tmforum.org/v1alpha3",
         "kind": "api",
         "metadata": {},
         "spec": {
@@ -270,7 +270,7 @@ def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
 
 
 # When api adds url address of where api is exposed, update parent Component object
-@kopf.on.field('oda.tmforum.org', 'v1alpha2', 'apis', field='status.apiStatus')
+@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'apis', field='status.apiStatus')
 async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     
@@ -338,7 +338,7 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
 # When api confirms implementation is ready, update parent Component object
 
 
-@kopf.on.field('oda.tmforum.org', 'v1alpha2', 'apis', field='status.implementation')
+@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'apis', field='status.implementation')
 async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     
@@ -398,7 +398,7 @@ def summaryAndUpdate(status, namespace, name, parent_component):
         * parent_component (Dict): The parent component object.
         * plural (String): The custom resource's plural name e.g. *components*
         * group (String): The custom resource's group e.g. *oda.tmforum.org*
-        * version (String): The custom resource's version e.g. *v1alpha2*
+        * version (String): The custom resource's version e.g. *v1alpha3*
 
     Returns:
         Dict with updated API definition including uuid of the API resource and ready status.

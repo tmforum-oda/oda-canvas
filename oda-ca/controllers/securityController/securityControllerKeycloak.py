@@ -125,8 +125,8 @@ kc = secconkeycloak.Keycloak(kcBaseURL)
 # Kopf handlers -------------
 
 
-# @kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.update('oda.tmforum.org', 'v1alpha2', 'components', field='status.deployment_status', value='Complete') # called by kopf framework when a component's status is updated
+# @kopf.on.resume('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'components', field='status.deployment_status', value='Complete') # called by kopf framework when a component's status is updated
 def securityClientAdd(meta, spec, status, body, namespace, labels, name, old, new, **kwargs):
     """
     Handler for component create/update
@@ -166,7 +166,7 @@ def securityClientAdd(meta, spec, status, body, namespace, labels, name, old, ne
     return statusValue # the return value is added to the status field of the k8s object under securityRoles parameter (corresponds to function name)
     
 
-@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'components', retries=5) # called by kopf framework when a component is deleted
+@kopf.on.delete('oda.tmforum.org', 'v1alpha3', 'components', retries=5) # called by kopf framework when a component is deleted
 def securityClientDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
     """
     Handler to delete component from Keycloak
