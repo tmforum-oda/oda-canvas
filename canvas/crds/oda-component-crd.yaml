@@ -9,6 +9,18 @@ spec:
     plural: "components"
     singular: "component"
     kind: "component"
+  conversion:
+    strategy: Webhook
+    # webhookClientConfig is required when strategy is `Webhook` and it configures the webhook endpoint to be called by API server.
+    webhook:
+      conversionReviewVersions: ["v1alpha1", "v1alpha2", "v1alpha3", "v1beta1"]
+      clientConfig:
+        caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EUXlNakE0TkRBeE9Gb1hEVE14TURReU1EQTROREF4T0Zvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBS2FHCkp1QVRsZTUrTzJoNGdORWpROGhjQmRRR0hnQ0Exay9COXBkbmxzOHh0eVJ2TWFHWHR6VXdiRExDNmpiSUNsVWQKN0FLL0RkOVVBWTdLTnI4ZCtGM09WWHphaFhsSENQSllHRGtsOVZiVWNzL0JRbGZKY0FvYmxBUnhLWUdXdHh3QQoyNUZaMjRmeW0rcnpCb3d2YjdOVjdmZG04ZGR4Ny9ONVlodXZwVnhJbU9wTnFnR3hOdnFQV1ZTbkZoZXJPSEJvClFSTks0VFdVZnFmTytLdUhYM1U1UlNvNXZVbGdtaFNydFNKOVY3TUtTQnczR2x2d2xXSzdqRmRCQVpXNVBFQmQKRzlNN3E0M3dQaUcxOUd3cHhiNVlTSnVlck5ZdFlNcmlSVTI2MlNtemZHRUpVRnN3VTl5QnFoQjBJWXAwaTBJQQptb2lrdGNtSE5VSlQ0SUt2UEYwQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZEVnpoc0xPTUtTME5kYzlGS2NrRzU2MTg4WUFNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFCNE9aY2haWUlHc2MyWWdGRWFtTDdLdlV6cjVQUnMvdDFsdUtjdmFqNDdDR0pxY3VtVwo4UjF1NVdPaU56WXp4M0pyUkdyM2N0RmpxVngyU1ZtZTBOTGdCZWZNYmVhaFFObkVjWUs0TGMyL1ZFSitDZlJICktOSzhzTGpHbFlncGQxQlE1cTd6VmlpWUN6UldxR3A4djRzM2lSZ21OR1QvOXRmNGU1UVBQaG5ib2VKL0JjVVYKVlYyV2pucDdlWHJUN3pYNTd4WEZZZm1zQmZBZVAxZzM4RjJLVVFaTElPUmprR1JJMDBhVS9zc1BhcVhRQnUxbQpOcllOMDlkR1VlRlhyQzFvMHAxRjRBTFpxcFZ5ZFI5YTZheXVSMkY2QmpuZDkxbThhQ0E0OVdacDkweGRJQXlXCkZFc1RpbmJ4c0NOM3BrNndTM0dWczU2UDNXUGt6Rkh0M3lVWgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+        service:
+          namespace: canvas
+          name: compcrdwebhook
+          path: /
+          port: 443
   versions: 
   - name: "v1alpha1"
     # Each version can be enabled/disabled by Served flag.
@@ -138,8 +150,8 @@ spec:
     served: true
     # One and only one version must be marked as the storage version.
     storage: false
-#    deprecated: false
-#    deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
+    # deprecated: false
+    # deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
     schema:
       openAPIV3Schema:
         type: object
@@ -274,8 +286,8 @@ spec:
     served: true
     # One and only one version must be marked as the storage version.
     storage: true
-#    deprecated: false
-#    deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
+    # deprecated: false
+    # deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
     schema:
       openAPIV3Schema:
         type: object

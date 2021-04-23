@@ -1,5 +1,5 @@
 deployment:
-  compconimage: tmforumodacanvas/component-controller:master
+  compconimage: lesterthomas/component-controller:latest
   secconimage: tmforumodacanvas/security-listener:master
   monitorednamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
