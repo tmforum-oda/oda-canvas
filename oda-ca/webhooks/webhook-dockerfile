@@ -1,0 +1,7 @@
+FROM node:10.19
+COPY implementation/package*.json /src/
+WORKDIR /src
+RUN npm install
+COPY implementation ./
+EXPOSE 8080
+CMD ["node", "app.js"]
