@@ -71,7 +71,7 @@ kc = secconkeycloak.Keycloak(kcBaseURL)
 
 @kopf.on.update(
     'oda.tmforum.org',
-    'v1alpha2',
+    'v1alpha3',
     'components',
     field='status.deployment_status',
     value='Complete'
@@ -155,7 +155,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
     # under securityRoles parameter (corresponds to function name)
     return status_value
 
-@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'components', retries=5)
+@kopf.on.delete('oda.tmforum.org', 'v1alpha3', 'components', retries=5)
 def security_client_delete(meta, spec, status, body, namespace, labels, name, **kwargs):
     """
     Handler to delete component from Keycloak

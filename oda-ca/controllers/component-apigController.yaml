@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oda-controller-apig
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oda-controller-apig
+  template:
+    metadata:
+      labels:
+        app: oda-controller-apig
+    spec:
+      serviceAccountName: odacomponent-account
+      containers:
+      - name: oda-controller-apig
+        image: wctdevops/apigcontroller:0.1
+        env:
+        - name: LOGGING
+          value: '20'    
+        - name: COMPONENT_NAMESPACE
+          value: 'components'
