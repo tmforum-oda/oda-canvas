@@ -74,11 +74,11 @@ class Keycloak:
                                 f'{r_a.status_code}: {e}') from None
 
         if len(r_a.json()) > 0: # we found a client with a matching name
-            target_client = r_a.json()[0]['id']
+            target_client_id = r_a.json()[0]['id']
 
             try: # to delete the client matching the id we found
                 r_b = requests.delete(
-                    self._url + '/admin/realms/'+ realm +'/clients/' + target_client,
+                    self._url + '/admin/realms/'+ realm +'/clients/' + target_client_id,
                     headers={'Authorization': 'Bearer ' + token}
                 )
                 r_b.raise_for_status()
@@ -143,7 +143,7 @@ class Keycloak:
         Returns nothing or raises an exception for the caller to catch
         """
 
-        try: # to to remove role from Keycloak
+        try: # to remove role from Keycloak
             r = requests.delete(
                 self._url + '/admin/realms/'+ realm +'/clients/' + client + '/roles/' + role,
                 headers={'Authorization': 'Bearer ' + token}
@@ -155,3 +155,76 @@ class Keycloak:
             else:
                 raise RuntimeError('del_role failed with HTTP status '
                                     f'{r.status_code}: {e}') from None
+
+    def add_role_to_user(self,
+                        username: str,
+                        role: str,
+                        client: str,
+                        token: str,
+                        realm: str) -> None:
+        """
+        POST client role assignment to user in realm in Keycloak
+
+        Returns nothing or raises an exception for the caller to catch
+        """
+
+        try: # to get the id for username
+            r_a = requests.get(
+                self._url + '/admin/realms/'+ realm +'/users',
+                params = {'username': username},
+                headers={'Authorization': 'Bearer ' + token}
+            )
+            r_a.raise_for_status()
+        except requests.HTTPError as e:
+            raise RuntimeError('add_role_to_user failed to get user ID with HTTP status '
+                                f'{r_a.status_code}: {e}') from None
+        else:
+            user_id = r_a.json()[0]['id']
+
+        try: # to GET the id of the existing client that we need
+            r_b = requests.get(
+                self._url + '/admin/realms/'+ realm +'/clients',
+                params={'clientId': client},
+                headers={'Authorization': 'Bearer ' + token}
+            )
+            r_b.raise_for_status()
+        except requests.HTTPError as e:
+            raise RuntimeError('add_role_to_user failed to get client ID with HTTP status '
+                                f'{r_b.status_code}: {e}') from None
+        else:
+            target_client_id = r_b.json()[0]['id']
+
+        try: # to GET the id of the role
+            r_c = requests.get(
+                self._url
+                + '/admin/realms/'
+                + realm
+                +'/clients/'
+                + target_client_id
+                + '/roles/'
+                + role,
+                headers={'Authorization': 'Bearer ' + token}
+            )
+            r_c.raise_for_status()
+        except requests.HTTPError as e:
+            raise RuntimeError('add_role_to_user failed to get role ID with HTTP status '
+                                f'{r_c.status_code}: {e}') from None
+        else:
+            target_role_id = r_c.json()[0]['id']
+
+
+        try: # to add role to user
+            r_d = requests.post(
+                self._url
+                + '/admin/realms/'
+                + realm
+                + '/users/'
+                + user_id
+                + '/role_mapping/clients/'
+                + target_client_id,
+                json = {'name': role, 'id': target_role_id},
+                headers={'Authorization': 'Bearer ' + token}
+            )
+            r_d.raise_for_status()
+        except requests.HTTPError as e:
+            pass

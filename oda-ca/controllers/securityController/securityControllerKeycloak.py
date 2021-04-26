@@ -62,6 +62,8 @@ password = os.environ.get('KEYCLOAK_PASSWORD')
 kcBaseURL = os.environ.get('KEYCLOAK_BASE')
 kcRealm = os.environ.get('KEYCLOAK_REALM')
 
+seccon_user = 'seccon'
+
 kc = secconkeycloak.Keycloak(kcBaseURL)
 
 
@@ -115,6 +117,24 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             f'oda.tmforum.org component {name} created',
             'secCon: component created'
         ))
+
+    try: # to create the bootstrap role
+        # TODO find security.controllerRole and add_role in {name}
+        # 1) GET security.controllerRole from the component
+        # 2) add_role for security.controllerRole against component
+        # 3) write new function for add_role_to_user
+        # 4) create user for seccon
+        # 5) add_role_to_user for secCon user
+
+        seccon_role = spec['security']['controllerRole']
+        kc.add_role(seccon_role, name, token, kcRealm)
+        kc.add_role_to_user(seccon_user, seccon_role, name, token, kcRealm)
+    except RuntimeError as e:
+        logging.error(format_cloud_event(
+            f'Keycloak assign role failed for {seccon_role} in {name}',
+            'secCon: bootstrap failed'
+        ))
+    else:
         try: # to register with the partyRoleManagement API
             register_listener(rooturl + '/hub')
         except RuntimeError as e:
