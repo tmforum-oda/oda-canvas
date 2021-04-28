@@ -210,7 +210,7 @@ class Keycloak:
             raise RuntimeError('add_role_to_user failed to get role ID with HTTP status '
                                 f'{r_c.status_code}: {e}') from None
         else:
-            target_role_id = r_c.json()[0]['id']
+            target_role_id = r_c.json()['id']
 
 
         try: # to add role to user
@@ -220,11 +220,12 @@ class Keycloak:
                 + realm
                 + '/users/'
                 + user_id
-                + '/role_mapping/clients/'
+                + '/role-mappings/clients/'
                 + target_client_id,
-                json = {'name': role, 'id': target_role_id},
+                json = [{'name': role, 'id': target_role_id}],
                 headers={'Authorization': 'Bearer ' + token}
             )
             r_d.raise_for_status()
         except requests.HTTPError as e:
-            pass
+            raise RuntimeError(f'add_role_to_user failed to assign {role} (ID {target_role_id}) '
+                                f'with HTTP status {r_d.status_code}: {e}') from None

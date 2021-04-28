@@ -74,7 +74,7 @@ kc = secconkeycloak.Keycloak(kcBaseURL)
     'v1alpha3',
     'components',
     field='status.deployment_status',
-    value='Complete'
+    value='In-Progress-SecCon'
 )
 def security_client_add(meta, spec, status, body, namespace, labels,name, old, new, **kwargs):
     """
@@ -118,6 +118,16 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             'secCon: component created'
         ))
 
+        try: # to get the list of existing clients
+            client_list = kc.get_client_list(token, kcRealm)
+        except RuntimeError as e:
+            logging.error(format_cloud_event(
+                str(e),
+                f'security-APIListener could not GET clients for {kcRealm}'
+            ))
+        else:
+            client = client_list[name]
+
     try: # to create the bootstrap role
         # TODO find security.controllerRole and add_role in {name}
         # 1) GET security.controllerRole from the component
@@ -127,11 +137,18 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         # 5) add_role_to_user for secCon user
 
         seccon_role = spec['security']['controllerRole']
-        kc.add_role(seccon_role, name, token, kcRealm)
+        kc.add_role(seccon_role, client, token, kcRealm)
+    except RuntimeError as e:
+        logging.error(format_cloud_event(
+            f'Keycloak add_role failed for {seccon_role} in {name}: {e}',
+            'secCon: bootstrap add_role failed'
+        ))
+
+    try: # to assign the role to the seccon user
         kc.add_role_to_user(seccon_user, seccon_role, name, token, kcRealm)
     except RuntimeError as e:
         logging.error(format_cloud_event(
-            f'Keycloak assign role failed for {seccon_role} in {name}',
+            f'Keycloak assign role failed for {seccon_role} in {name}: {e}',
             'secCon: bootstrap failed'
         ))
     else:
