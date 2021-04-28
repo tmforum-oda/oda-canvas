@@ -7,7 +7,7 @@ const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
 // get namespace from Environment variable or command-line
-var namespace = 'default'
+var namespace = 'components'
 if (process.env.NAMESPACE) {
     namespace = process.env.NAMESPACE
 }
