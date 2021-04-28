@@ -423,10 +423,12 @@ def summaryAndUpdate(status, namespace, name, parent_component):
                 countOfCompleteAPIs = countOfCompleteAPIs + 1
     parent_component['status']['exposedAPIsummary'] = exposedAPIsummary
     parent_component['status']['developerUIsummary'] = developerUIsummary
-    if countOfCompleteAPIs == (len(parent_component['status']['exposedAPIs']) + len(parent_component['status']['securityAPIs'])):
+    if (('securityClientAdd/status.deployment_status' in parent_component['status'].keys()) and (parent_component['status']['securityClientAdd/status.deployment_status']['listenerRegistered'] == True)):
         parent_component['status']['deployment_status'] = 'Complete'
+    elif countOfCompleteAPIs == (len(parent_component['status']['exposedAPIs']) + len(parent_component['status']['securityAPIs'])):
+        parent_component['status']['deployment_status'] = 'In-Progress-SecCon'
     else:
-        parent_component['status']['deployment_status'] = 'In-Progress'
+        parent_component['status']['deployment_status'] = 'In-Progress-CompCon'
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
         api_response = custom_objects_api.patch_namespaced_custom_object(
