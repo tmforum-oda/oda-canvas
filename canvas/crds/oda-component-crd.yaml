@@ -136,15 +136,15 @@ spec:
     - name: exposed_APIs
       type: string
       description: list the endpoints for exposed APIs
-      jsonPath: .status.exposedAPIsummary
+      jsonPath: .status.summary/status.exposedAPIsummary
     - name: developer_UI
       type: string
       description: list the Developer User Interface(s)
-      jsonPath: .status.developerUIsummary
+      jsonPath: .status.summary/status.developerUIsummary
     - name: deployment_status
       type: string
       description: Deployment status [in progress, complete, failed]
-      jsonPath: .status.deployment_status
+      jsonPath: .status.summary/status.deployment_status
   - name: "v1alpha2"
     # Each version can be enabled/disabled by Served flag.
     served: true
@@ -272,15 +272,15 @@ spec:
     - name: exposed_APIs
       type: string
       description: list the endpoints for exposed APIs
-      jsonPath: .status.exposedAPIsummary
+      jsonPath: .status.summary/status.exposedAPIsummary
     - name: developer_UI
       type: string
       description: list the Developer User Interface(s)
-      jsonPath: .status.developerUIsummary
+      jsonPath: .status.summary/status.developerUIsummary
     - name: deployment_status
       type: string
       description: Deployment status [in progress, complete, failed]
-      jsonPath: .status.deployment_status
+      jsonPath: .status.summary/status.deployment_status
   - name: "v1alpha3"
     # Each version can be enabled/disabled by Served flag.
     served: true
@@ -410,12 +410,12 @@ spec:
     - name: exposed_APIs
       type: string
       description: list the endpoints for exposed APIs
-      jsonPath: .status.exposedAPIsummary
+      jsonPath: .status.summary/status.exposedAPIsummary
     - name: developer_UI
       type: string
       description: list the Developer User Interface(s)
-      jsonPath: .status.developerUIsummary
+      jsonPath: .status.summary/status.developerUIsummary
     - name: deployment_status
       type: string
       description: Deployment status [in progress, complete, failed]
-      jsonPath: .status.deployment_status
+      jsonPath: .status.summary/status.deployment_status
