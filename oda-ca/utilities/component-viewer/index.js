@@ -49,8 +49,8 @@ function displayComponent() {
 
                 var deployment_status = 'Starting'
                 if (item.hasOwnProperty('status')) {
-                    if (item.status.hasOwnProperty('deployment_status')) {
-                        deployment_status = item.status.deployment_status
+                    if (item.status.hasOwnProperty('summary/status')) {
+                        deployment_status = item.status['summary/status'].deployment_status
                     } 
                 }
                 if (deployment_status == "Complete") {

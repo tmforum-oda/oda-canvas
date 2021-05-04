@@ -73,7 +73,7 @@ kc = secconkeycloak.Keycloak(kcBaseURL)
     'oda.tmforum.org',
     'v1alpha3',
     'components',
-    field='status.deployment_status',
+    field='status.summary/status.deployment_status',
     value='In-Progress-SecCon'
 )
 def security_client_add(meta, spec, status, body, namespace, labels,name, old, new, **kwargs):
