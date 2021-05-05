@@ -1,7 +1,7 @@
 var fs = require('fs');
 var https = require('https');
-var privateKey  = fs.readFileSync('./self-signed.key', 'utf8');
-var certificate = fs.readFileSync('./self-signed.crt', 'utf8');
+var privateKey  = fs.readFileSync('./compcrdwebhook.key', 'utf8');
+var certificate = fs.readFileSync('./compcrdwebhook.pem', 'utf8');
 
 var credentials = {key: privateKey, cert: certificate};
 var express = require('express');
@@ -102,6 +102,14 @@ app.post("/", (req, res, next) => {
     res.json(response);
    });
 
+app.get("/", (req, res, next) => {
+  var response = {
+      "test": "success"
+  }
+  res.json(response);
+  });
+
+     
 httpsServer.listen(8443, () => {
   console.log("Server running on port 8443");
  });
