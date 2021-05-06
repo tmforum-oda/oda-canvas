@@ -2,4 +2,4 @@ FROM python:3.7
 RUN pip install kopf
 RUN pip install kubernetes
 ADD . /
-CMD kopf run --namespace=$COMPONENT_NAMESPACE --standalone apiOperator-apig/apiOperator-apig.py
+CMD kopf run --namespace=$COMPONENT_NAMESPACE --standalone componentOperator/componentOperator.py apiOperatorApig/apiOperatorApig.py
