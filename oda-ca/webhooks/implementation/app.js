@@ -15,7 +15,7 @@ var httpsServer = https.createServer(credentials, app);
 
 app.post("/", (req, res, next) => {
 
-  // console.log({requestBody: req.body})
+  console.log(JSON.stringify(req.body, null, 2))
   var uid = req.body.request.uid;
   var desiredAPIVersion = req.body.request.desiredAPIVersion;
   var objectsArray = req.body.request.objects
@@ -42,8 +42,9 @@ app.post("/", (req, res, next) => {
 
     objectsArray[key].apiVersion = desiredAPIVersion;
   }
+
     var response = {
-        "apiVersion": "apiextensions.k8s.io/v1",
+        "apiVersion": "apiextensions.k8s.io/v1beta1",
         "kind": "ConversionReview",
         "response": {
           "uid": uid, // must match <request.uid>
@@ -53,6 +54,8 @@ app.post("/", (req, res, next) => {
         "convertedObjects": objectsArray 
         }  
     }
+    console.log(JSON.stringify(response, null, 2))
+
 
 /* 
     {

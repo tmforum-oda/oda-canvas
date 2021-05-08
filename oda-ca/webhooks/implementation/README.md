@@ -4,7 +4,7 @@ The webhook requires a TLS certificate. To create the certificate accepted by Ku
 
 
 ```
-/bin/bash ssl.sh compcrdwebhook canvas
+/bin/bash ssl.sh
 ```
 
 This will generate 3 files: compcrdwebhook.csr (certificate request), compcrdwebhook.key (private key), compcrdwebhook.pem (certificate)
@@ -17,7 +17,16 @@ var certificate = fs.readFileSync('./compcrdwebhook.pem', 'utf8');
 var credentials = {key: privateKey, cert: certificate};
 ```
 
-You then update the `oda-component-crd.yaml` file to reference the webhook, including the 
+You need to create the dockerfile for this webhook after the certificate has been signed by your kubernetes cluster.
+
+
+You then update the `oda-component-crd.yaml` file to reference the webhook, including the caBundle CA bundle retrieved from the k8s API; You can get your cluster’s CA bundle with:
+
+```
+kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}'
+```
+
+The `oda-component-crd.yaml` file should look like this:
 
 ```
   conversion:
@@ -35,8 +44,4 @@ You then update the `oda-component-crd.yaml` file to reference the webhook, incl
 ```
 
 
-The `caBundle:` above refers to the actual CA bundle retrieved from the k8s API, replace it with your own; you can get your cluster’s CA bundle with:
 
-```
-kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}'
-```
