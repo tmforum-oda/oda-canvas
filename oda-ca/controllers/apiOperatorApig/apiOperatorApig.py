@@ -25,7 +25,7 @@ def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
     
     apiSpec = {
         "path":spec['path'],
-        "name":spec['name'],
+        "name":meta['name'],
         "specification":spec['specification'],
         "implementation": spec['implementation'],
         "port": spec['port']
@@ -79,7 +79,7 @@ def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
     return
 
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
-@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'apis')
+@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'apis', retries=5)
 def apigUnBind(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"api has name: {meta['name']}")
@@ -89,13 +89,14 @@ def apigUnBind(meta, spec, status, body, namespace, labels, name, **kwargs):
     MOCK_ALL = os.getenv('MOCK_ALL', "")
     if MOCK_ALL != "":
         return {"response": "success", "spec": MOCK_ALL }
- 
-    apigEndpoint = os.getenv('APIG_ENDPOINT', "apig-operator-uportal:8080")
+    
+    namespace = meta.get('namespace')
+    apigEndpoint = os.getenv('APIG_ENDPOINT', "apig-operator-uportal.%s:8080"%namespace) 
     apigUnBindPath = "/operator/AutoCreation/removeAPIFromSwagger"
     
     apiSpec = {
         "path":spec['path'],
-        "name":spec['name'],
+        "name":meta['name'],
         "specification":spec['specification'],
         "implementation": spec['implementation'],
         "port": spec['port']
