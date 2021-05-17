@@ -63,7 +63,10 @@ async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwarg
     # compare desired state (spec) with actual state (status) and initiate changes
     if status:  # if status exists (i.e. this is not a new component)
         # update a component - look in old and new to see if we need to delete any API resources
-        oldExposedAPIs = status['exposedAPIs']
+        if 'exposedAPIs' in status.keys():
+            oldExposedAPIs = status['exposedAPIs']
+        else:
+            oldExposedAPIs = {}
         newExposedAPIs = spec['coreFunction']['exposedAPIs']
         # find apis in old that are missing in new
         deletedAPIs = []
@@ -115,6 +118,8 @@ def deleteAPI(deleteAPIName, componentName, status, namespace):
     :meta private:
     """
     logger.debug(f'[deleteAPI/{namespace}/{componentName}] Delete API {deleteAPIName} if it appears in new status (i.e. it had been created)')
+    if not 'exposedAPIs' in status.keys():
+        return
     for api in status['exposedAPIs']:
         if api['name'] == deleteAPIName:
             logger.info(f"[deleteAPI/{namespace}/{componentName}] delete api {api['name']}")
@@ -318,21 +323,23 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
                 # find the correct array entry to update either in exposedAPIs or securityAPIs
 
                 logger.debug(f'Updating parent component APIs')
-                for key in range(len(parent_component['status']['exposedAPIs'])):
-                    logger.debug(f"COMPARING {parent_component['status']['exposedAPIs'][key]['uid']} TO {meta['uid']} FOR KEY {key}")
+                if 'exposedAPIs' in parent_component['status'].keys():
+                    for key in range(len(parent_component['status']['exposedAPIs'])):
+                        logger.debug(f"COMPARING {parent_component['status']['exposedAPIs'][key]['uid']} TO {meta['uid']} FOR KEY {key}")
 
-                    if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
-                        parent_component['status']['exposedAPIs'][key]['url'] = status['apiStatus']['url']
-                        logger.info(f"Updating parent component exposedAPIs APIs with url {status['apiStatus']['url']}")
+                        if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
+                            parent_component['status']['exposedAPIs'][key]['url'] = status['apiStatus']['url']
+                            logger.info(f"Updating parent component exposedAPIs APIs with url {status['apiStatus']['url']}")
 
-                        if 'developerUI' in status['apiStatus'].keys():
-                            parent_component['status']['exposedAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
-                for key in (parent_component['status']['securityAPIs']):
-                    if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
-                        parent_component['status']['securityAPIs'][key]['url'] = status['apiStatus']['url']
-                        logger.info(f"Updating parent component securityAPIs APIs with url {status['apiStatus']['url']}")
-                        if 'developerUI' in status['apiStatus'].keys():
-                            parent_component['status']['securityAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
+                            if 'developerUI' in status['apiStatus'].keys():
+                                parent_component['status']['exposedAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
+                if 'securityAPIs' in parent_component['status'].keys():
+                    for key in (parent_component['status']['securityAPIs']):
+                        if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
+                            parent_component['status']['securityAPIs'][key]['url'] = status['apiStatus']['url']
+                            logger.info(f"Updating parent component securityAPIs APIs with url {status['apiStatus']['url']}")
+                            if 'developerUI' in status['apiStatus'].keys():
+                                parent_component['status']['securityAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
                 summaryAndUpdate(status, namespace, name, parent_component)
 
 # When api confirms implementation is ready, update parent Component object
@@ -379,14 +386,15 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
                             "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
 
                 # find the correct array entry to update either in exposedAPIs or securityAPIs
-                for key in range(len(parent_component['status']['exposedAPIs'])):
-                    if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
-                        parent_component['status']['exposedAPIs'][key]['ready'] = True
-                for key in (parent_component['status']['securityAPIs']):
-                    if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
-                        parent_component['status']['securityAPIs'][key]['ready'] = True
+                if 'exposedAPIs' in parent_component['status'].keys():
+                    for key in range(len(parent_component['status']['exposedAPIs'])):
+                        if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
+                            parent_component['status']['exposedAPIs'][key]['ready'] = True
+                if 'securityAPIs' in parent_component['status'].keys():
+                    for key in (parent_component['status']['securityAPIs']):
+                        if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
+                            parent_component['status']['securityAPIs'][key]['ready'] = True
                 summaryAndUpdate(status, namespace, name, parent_component)
-
 
 def summaryAndUpdate(status, namespace, name, parent_component):
     """Helper function to get all the exposed APIs in the status, create a summary string and then patch the component custom definition.
@@ -409,21 +417,26 @@ def summaryAndUpdate(status, namespace, name, parent_component):
     exposedAPIsummary = ''
     developerUIsummary = ''
     countOfCompleteAPIs = 0
-    for api in parent_component['status']['exposedAPIs']:
-        if 'url' in api.keys():
-            exposedAPIsummary = exposedAPIsummary + api['url'] + ' '
-            if 'developerUI' in api.keys():
-                developerUIsummary = developerUIsummary + \
-                    api['developerUI'] + ' '
-            if api['ready'] == True:
-                countOfCompleteAPIs = countOfCompleteAPIs + 1
-    for api in parent_component['status']['securityAPIs']:
-        if 'url' in parent_component['status']['securityAPIs'][api].keys():
-            if parent_component['status']['securityAPIs'][api]['ready'] == True:
-                countOfCompleteAPIs = countOfCompleteAPIs + 1
+    countOfAllAPIS = 0
+    if 'exposedAPIs' in parent_component['status'].keys():
+        countOfAllAPIS = countOfAllAPIS + len(parent_component['status']['exposedAPIs'])
+        for api in parent_component['status']['exposedAPIs']:
+            if 'url' in api.keys():
+                exposedAPIsummary = exposedAPIsummary + api['url'] + ' '
+                if 'developerUI' in api.keys():
+                    developerUIsummary = developerUIsummary + \
+                        api['developerUI'] + ' '
+                if api['ready'] == True:
+                    countOfCompleteAPIs = countOfCompleteAPIs + 1
+    if 'securityAPIs' in parent_component['status'].keys():
+        countOfAllAPIS = countOfAllAPIS + len(parent_component['status']['securityAPIs'])
+        for api in parent_component['status']['securityAPIs']:
+            if 'url' in parent_component['status']['securityAPIs'][api].keys():
+                if parent_component['status']['securityAPIs'][api]['ready'] == True:
+                    countOfCompleteAPIs = countOfCompleteAPIs + 1
     parent_component['status']['exposedAPIsummary'] = exposedAPIsummary
     parent_component['status']['developerUIsummary'] = developerUIsummary
-    if countOfCompleteAPIs == (len(parent_component['status']['exposedAPIs']) + len(parent_component['status']['securityAPIs'])):
+    if countOfCompleteAPIs == countOfAllAPIS:
         parent_component['status']['deployment_status'] = 'Complete'
     else:
         parent_component['status']['deployment_status'] = 'In-Progress'
