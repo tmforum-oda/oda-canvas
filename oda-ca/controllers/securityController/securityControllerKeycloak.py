@@ -4,8 +4,8 @@ import os
 import requests
 import uuid
 import datetime
-import secconkeycloak
-
+# import secconkeycloak
+from .secconkeycloak import Keycloak
 from cloudevents.http import CloudEvent, to_structured
 
 # Helper functions ----------
@@ -64,7 +64,7 @@ kcRealm = os.environ.get('KEYCLOAK_REALM')
 
 seccon_user = 'seccon'
 
-kc = secconkeycloak.Keycloak(kcBaseURL)
+kc = Keycloak(kcBaseURL)
 
 
 # Kopf handlers -------------

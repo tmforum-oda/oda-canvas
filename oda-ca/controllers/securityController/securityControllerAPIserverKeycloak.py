@@ -9,7 +9,8 @@ import logging
 import os
 import uuid
 import datetime
-import secconkeycloak
+# import secconkeycloak
+from .secconkeycloak import Keycloak
 
 from cloudevents.http import CloudEvent, to_structured
 
@@ -51,7 +52,7 @@ PARTY_ROLE_CREATION = 'PartyRoleCreationNotification'
 PARTY_ROLE_UPDATE = 'PartyRoleAttributeValueChangeNotification'
 PARTY_ROLE_DELETION = 'PartyRoleRemoveNotification'
 
-kc = secconkeycloak.Keycloak(kcBaseURL)
+kc = Keycloak(kcBaseURL)
 
 # Flask app --------------------------------------------------------------
 
