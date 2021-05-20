@@ -2,5 +2,5 @@ global:
   namespaceCanvas:
     create: false
   namespaceDefault:
-    create: true
+    create: false
     name: components
