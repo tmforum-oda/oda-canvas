@@ -33,7 +33,22 @@ echo "kubectl delete csr ${CSR_NAME} || :"
 kubectl delete csr ${CSR_NAME} || :
 	
 echo "... creating kubernetes CSR object"
-echo "kubectl create -f -"
+echo "kubectl create -f -<<EOF
+apiVersion: certificates.k8s.io/v1beta1
+kind: CertificateSigningRequest
+metadata:
+  name: ${CSR_NAME}
+spec:
+  groups:
+  - system:authenticated
+  request: $(cat ${APP}.csr | base64 | tr -d '\n')
+  usages:
+  - digital signature
+  - key encipherment
+  - server auth
+  signerName: kubernetes.io/kube-apiserver-client-kubelet
+EOF"
+
 kubectl create -f - <<EOF
 apiVersion: certificates.k8s.io/v1beta1
 kind: CertificateSigningRequest
@@ -47,7 +62,10 @@ spec:
   - digital signature
   - key encipherment
   - server auth
+  signerName: kubernetes.io/kubelet-serving
 EOF
+echo "CSR object created"
+sleep 2
 
 SECONDS=0
 while true; do

@@ -5,7 +5,7 @@ import requests
 import uuid
 import datetime
 # import secconkeycloak
-from .secconkeycloak import Keycloak
+from secconkeycloak import Keycloak
 from cloudevents.http import CloudEvent, to_structured
 
 # Helper functions ----------
