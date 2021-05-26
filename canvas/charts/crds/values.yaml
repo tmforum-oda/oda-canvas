@@ -1,6 +1,6 @@
 deployment:
-  compconimage: tmforumodacanvas/component-controller:0.14.0
-  secconimage: tmforumodacanvas/security-listener:0.5.0
+  compconimage: lesterthomas/component-controller:latest
+  secconimage: tmforumodacanvas/security-listener:master
   monitorednamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false
