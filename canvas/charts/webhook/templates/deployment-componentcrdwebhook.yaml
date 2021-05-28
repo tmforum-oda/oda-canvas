@@ -18,4 +18,11 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8443
+        volumeMounts:
+          - name: secret-volume
+            mountPath: /etc/secret-volume
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: compcrdwebhook-secret        
 

@@ -12,11 +12,21 @@ helm repo add incubator https://charts.helm.sh/incubator
 
 echo ""
 echo "*********************************************************************"
+echo "Creating tls certificates"
+echo "*********************************************************************"
+echo ""
+
+bash ./create_tls_certificates.sh
+
+echo ""
+echo "*********************************************************************"
 echo "Installing base canvas"
 echo "*********************************************************************"
 echo ""
 
-helm install canvas canvas/
+CABUNDLE=$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}')
+
+helm install --namespace canvas canvas canvas/ --set global.clusterCABundle=$CABUNDLE
 retVal=$?
 
 if [ $retVal -ne 0 ]; then
