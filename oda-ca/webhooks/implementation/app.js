@@ -1,7 +1,7 @@
 var fs = require('fs');
 var https = require('https');
-var privateKey  = fs.readFileSync('./compcrdwebhook.key', 'utf8');
-var certificate = fs.readFileSync('./compcrdwebhook.pem', 'utf8');
+var privateKey  = fs.readFileSync('/etc/secret-volume/tls.key', 'utf8');
+var certificate = fs.readFileSync('/etc/secret-volume/tls.crt', 'utf8');
 
 var credentials = {key: privateKey, cert: certificate};
 var express = require('express');

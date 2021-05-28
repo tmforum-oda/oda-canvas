@@ -1,32 +1,32 @@
 # Implementation
 
-The webhook requires a TLS certificate. To create the certificate accepted by Kubernetes follow the commands below (based on the script at https://github.com/alex-leonhardt/k8s-mutate-webhook/blob/master/ssl/ssl.sh).
+The webhook requires a TLS certificate. The certificate is created and signed as part of the Canvas Install script. The script puts the tls certificate and key in a secret called `compcrdwebhook-secret`.
 
 
-```
-/bin/bash ssl.sh
-```
+## Accessing certificate in NodeJS implementation
 
-This will generate 3 files: compcrdwebhook.csr (certificate request), compcrdwebhook.key (private key), compcrdwebhook.pem (certificate)
 
 The key and certificate are used by the `app.js` implementation 
 
 ```
-var privateKey  = fs.readFileSync('./compcrdwebhook.key', 'utf8');
-var certificate = fs.readFileSync('./compcrdwebhook.pem', 'utf8');
+var privateKey  = fs.readFileSync('/etc/secret-volume/tls.key', 'utf8');
+var certificate = fs.readFileSync('/etc/secret-volume/tls.crt', 'utf8');
 var credentials = {key: privateKey, cert: certificate};
 ```
 
-You need to create the dockerfile for this webhook after the certificate has been signed by your kubernetes cluster.
 
 
-You then update the `oda-component-crd.yaml` file to reference the webhook, including the caBundle CA bundle retrieved from the k8s API; You can get your cluster’s CA bundle with:
+
+## Component Custom Resource reference to webhook
+
+The `oda-component-crd.yaml` file references the webhook, including the caBundle CA bundle retrieved from the k8s API; You can get your cluster’s CA bundle with:
 
 ```
 kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}'
 ```
 
-The `oda-component-crd.yaml` file should look like this:
+
+The `oda-component-crd.yaml` file has an section that refers to the webhook strategy :
 
 ```
   conversion:
@@ -35,7 +35,7 @@ The `oda-component-crd.yaml` file should look like this:
     webhook:
       conversionReviewVersions: ["v1alpha1", "v1alpha2", "v1alpha3", "v1beta1"]
       clientConfig:
-        caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0F---Insert Real CA Bundle here---JUSUZJQ0FURS0tLS0tCg==
+        caBundle: {{ .Values.global.clusterCABundle }}
         service:
           namespace: canvas
           name: compcrdwebhook
@@ -43,5 +43,5 @@ The `oda-component-crd.yaml` file should look like this:
           port: 443
 ```
 
-
+The actual caBundle is added as a Helm value in the `oda-canvas-charts\canvas\values.yaml` file.
 
