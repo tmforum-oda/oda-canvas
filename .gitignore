@@ -1,2 +1,3 @@
 *.tgz
 canvas/charts/controller/values.yaml
+cabundle.pem.b64

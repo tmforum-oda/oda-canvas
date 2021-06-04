@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: compcrdwebhook
+  labels:
+    {{- include "webhook.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -11,10 +13,11 @@ spec:
     metadata:
       labels:
         app: compcrdwebhook
+        {{- include "webhook.labels" . | nindent 8 }}
     spec:
       containers:
       - name: compcrdwebhook
-        image: lesterthomas/compcrdwebhook:latest
+        image: {{ .Values.image }}
         imagePullPolicy: Always
         ports:
         - containerPort: 8443
