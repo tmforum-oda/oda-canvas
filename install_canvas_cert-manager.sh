@@ -17,14 +17,15 @@ echo "Creating tls certificates"
 echo "*********************************************************************"
 echo ""
 
-bash ./create_tls_certificates_cert-manager.sh
+bash ./create_tls_certificates_cert-manager_v1.sh
 
 echo ""
 echo "*********************************************************************"
-echo "Preparing helm chart dependencies"
+echo "Preparing helm chart external dependencies"
 echo "*********************************************************************"
 echo ""
 
+# Keycloak relies on the Bitnami PostgreSQL chart
 pushd canvas/charts/keycloak/
 helm dependency update
 popd
@@ -35,7 +36,8 @@ echo "Installing base canvas"
 echo "*********************************************************************"
 echo ""
 
-
+# Example command line install if you ened to change ingress controller
+#helm install --create-namespace --namespace canvas canvas canvas/ --set controller.deployment.ingressClass.name=traefik,controller.deployment.ingressClass.enabled=true,global.clusterCABundle=`cat cabundle.pem.b64`
 helm install --create-namespace --namespace canvas canvas canvas/ --set global.clusterCABundle=`cat cabundle.pem.b64`
 retVal=$?
 

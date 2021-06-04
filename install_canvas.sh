@@ -21,6 +21,17 @@ bash ./create_tls_certificates.sh
 
 echo ""
 echo "*********************************************************************"
+echo "Preparing helm chart external dependencies"
+echo "*********************************************************************"
+echo ""
+
+# Keycloak relies on the Bitnami PostgreSQL chart
+pushd canvas/charts/keycloak/
+helm dependency update
+popd
+
+echo ""
+echo "*********************************************************************"
 echo "Installing base canvas"
 echo "*********************************************************************"
 echo ""
