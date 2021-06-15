@@ -1,6 +1,6 @@
 apiVersion: v2
-name: controller
-description: The component controller
+name: crds
+description: Canvas CRDs
 
 # A chart can be either an 'application' or a 'library' chart.
 #
