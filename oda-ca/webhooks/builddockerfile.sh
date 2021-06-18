@@ -1,2 +1,3 @@
-docker build -t lesterthomas/compcrdwebhook:0.3 -t lesterthomas/compcrdwebhook:latest -f webhook-dockerfile . 
-docker push lesterthomas/compcrdwebhook --all-tags
+docker build -t tmforumodacanvas/compcrdwebhook:0.3 -f webhook-dockerfile . 
+#docker build -t tmforumodacanvas/compcrdwebhook:0.3 -t tmforumodacanvas/compcrdwebhook:latest -f webhook-dockerfile . 
+docker push tmforumodacanvas/compcrdwebhook --all-tags
