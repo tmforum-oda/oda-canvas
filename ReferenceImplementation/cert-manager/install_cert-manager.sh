@@ -42,5 +42,5 @@ echo ""
 # "https://cert-manager-webhook.cert-manager.svc:443/mutate?timeout=10s":
 # x509: certificate signed by unknown authority
 
-sleep 2
+sleep 4
 sed "s/<namespace>/${CERTNS}/g" issuers.yaml | kubectl apply -f -
