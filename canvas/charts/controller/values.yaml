@@ -1,6 +1,6 @@
 deployment:
-  compconimage: tmforumodacanvas/component-controller:master
-  secconimage: tmforumodacanvas/security-listener:master
+  compconimage: tmforumodacanvas/component-controller:0.14.1
+  secconimage: tmforumodacanvas/security-listener:0.5.1
   monitorednamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false
@@ -13,3 +13,4 @@ configmap:
   #kcbase: http://canvas-keycloak:8088/auth # trying to parameterise this in the configmap
   kcrealm: myrealm
   loglevel: '20'
+  

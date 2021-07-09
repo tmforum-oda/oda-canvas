@@ -17,7 +17,7 @@ echo "Creating tls certificates"
 echo "*********************************************************************"
 echo ""
 
-bash ./create_tls_certificates.sh
+bash ./create_tls_certificates_cert-manager_v1alpha2.sh
 
 echo ""
 echo "*********************************************************************"
@@ -36,9 +36,9 @@ echo "Installing base canvas"
 echo "*********************************************************************"
 echo ""
 
-CABUNDLE=$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}')
-
-helm install --namespace canvas canvas canvas/ --set global.clusterCABundle=$CABUNDLE
+# Example command line install if you ened to change ingress controller
+#helm install --create-namespace --namespace canvas canvas canvas/ --set controller.deployment.ingressClass.name=traefik,controller.deployment.ingressClass.enabled=true,global.clusterCABundle=`cat cabundle.pem.b64`
+helm install --create-namespace --namespace canvas canvas canvas/ --set global.clusterCABundle=`cat cabundle.pem.b64`
 retVal=$?
 
 if [ $retVal -ne 0 ]; then
