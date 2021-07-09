@@ -30,13 +30,13 @@ logger.info(f'Monitoring namespace %s', component_namespace)
 HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
-VERSION = "v1alpha2"
+VERSION = "v1alpha3"
 APIS_PLURAL = "apis"
 COMPONENTS_PLURAL = "components"
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.update('oda.tmforum.org', 'v1alpha2', 'components')
+@kopf.on.resume('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'components')
 async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **core function** part new or updated components.
     
@@ -136,9 +136,9 @@ def deleteAPI(deleteAPIName, componentName, status, namespace):
                 logger.error(f"[deleteAPI/{namespace}/{api['name']}] Exception when calling CustomObjectsApi->delete_namespaced_custom_object: {e}")
 
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'components')
-@kopf.on.update('oda.tmforum.org', 'v1alpha2', 'components')
+@kopf.on.resume('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'components')
 async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **security** part of new or updated components.
     
@@ -204,7 +204,7 @@ def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
     logger.debug(f"[createOrPatchAPIResource/{namespace}/{name}] API resource : {inAPI}")
 
     my_resource = {
-        "apiVersion": "oda.tmforum.org/v1alpha2",
+        "apiVersion": "oda.tmforum.org/v1alpha3",
         "kind": "api",
         "metadata": {},
         "spec": {
@@ -275,7 +275,7 @@ def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
 
 
 # When api adds url address of where api is exposed, update parent Component object
-@kopf.on.field('oda.tmforum.org', 'v1alpha2', 'apis', field='status.apiStatus')
+@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'apis', field='status.apiStatus')
 async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     
@@ -323,29 +323,24 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
                 # find the correct array entry to update either in exposedAPIs or securityAPIs
 
                 logger.debug(f'Updating parent component APIs')
-                if 'exposedAPIs' in parent_component['status'].keys():
-                    for key in range(len(parent_component['status']['exposedAPIs'])):
-                        logger.debug(f"COMPARING {parent_component['status']['exposedAPIs'][key]['uid']} TO {meta['uid']} FOR KEY {key}")
+                for key in range(len(parent_component['status']['exposedAPIs'])):
+                    logger.debug(f"COMPARING {parent_component['status']['exposedAPIs'][key]['uid']} TO {meta['uid']} FOR KEY {key}")
 
-                        if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
-                            parent_component['status']['exposedAPIs'][key]['url'] = status['apiStatus']['url']
-                            logger.info(f"Updating parent component exposedAPIs APIs with url {status['apiStatus']['url']}")
+                    if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['exposedAPIs'][key]['url'] = status['apiStatus']['url']
+                        logger.info(f"Updating parent component exposedAPIs APIs with url {status['apiStatus']['url']}")
 
-                            if 'developerUI' in status['apiStatus'].keys():
-                                parent_component['status']['exposedAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
-                if 'securityAPIs' in parent_component['status'].keys():
-                    for key in (parent_component['status']['securityAPIs']):
-                        if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
-                            parent_component['status']['securityAPIs'][key]['url'] = status['apiStatus']['url']
-                            logger.info(f"Updating parent component securityAPIs APIs with url {status['apiStatus']['url']}")
-                            if 'developerUI' in status['apiStatus'].keys():
-                                parent_component['status']['securityAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
-                summaryAndUpdate(status, namespace, name, parent_component)
+                        if 'developerUI' in status['apiStatus'].keys():
+                            parent_component['status']['exposedAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
+                for key in (parent_component['status']['securityAPIs']):
+                    if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['securityAPIs'][key]['url'] = status['apiStatus']['url']
+                        logger.info(f"Updating parent component securityAPIs APIs with url {status['apiStatus']['url']}")
+                        if 'developerUI' in status['apiStatus'].keys():
+                            parent_component['status']['securityAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
+                patchComponent(namespace, name, parent_component)
 
-# When api confirms implementation is ready, update parent Component object
-
-
-@kopf.on.field('oda.tmforum.org', 'v1alpha2', 'apis', field='status.implementation')
+@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'apis', field='status.implementation')
 async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     
@@ -366,92 +361,67 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
     :meta public:
     """
     logger.debug(f"status: {status}")
+
     if 'ready' in status['implementation'].keys():
         if status['implementation']['ready'] == True:
             if 'ownerReferences' in meta.keys():
                 # str | the custom object's name
-                name = meta['ownerReferences'][0]['name']
+                parent_component_name = meta['ownerReferences'][0]['name']
+                logger.info(f"[updateAPIReady/{namespace}/{name}] implementation ready = 'True'")
 
                 try:
                     custom_objects_api = kubernetes.client.CustomObjectsApi()
                     parent_component = custom_objects_api.get_namespaced_custom_object(
-                        GROUP, VERSION, namespace, COMPONENTS_PLURAL, name)
+                        GROUP, VERSION, namespace, COMPONENTS_PLURAL, parent_component_name)
                 except ApiException as e:
                     # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
                     if e.status == HTTP_NOT_FOUND:
                         raise kopf.TemporaryError(
-                            "Cannot find parent component " + name)
+                            "Cannot find parent component " + parent_component_name)
                     else:
                         logger.error(
                             "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
 
                 # find the correct array entry to update either in exposedAPIs or securityAPIs
-                if 'exposedAPIs' in parent_component['status'].keys():
-                    for key in range(len(parent_component['status']['exposedAPIs'])):
-                        if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
-                            parent_component['status']['exposedAPIs'][key]['ready'] = True
-                if 'securityAPIs' in parent_component['status'].keys():
-                    for key in (parent_component['status']['securityAPIs']):
-                        if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
-                            parent_component['status']['securityAPIs'][key]['ready'] = True
-                summaryAndUpdate(status, namespace, name, parent_component)
+                for key in range(len(parent_component['status']['exposedAPIs'])):
+                    if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['exposedAPIs'][key]['ready'] = True
+                        logger.info(f"[summaryAndUpdate/{namespace}/{name}] updated exposedAPIs status to parent component: {name}")
+                        patchComponent(namespace, parent_component_name, parent_component)
+                        return
+                for key in (parent_component['status']['securityAPIs']):
+                    if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['securityAPIs'][key]['ready'] = True
+                        logger.info(f"[summaryAndUpdate/{namespace}/{name}] updated securityAPIs status to parent component: {name}")
+                        patchComponent(namespace, parent_component_name, parent_component)
+                        return
 
-def summaryAndUpdate(status, namespace, name, parent_component):
-    """Helper function to get all the exposed APIs in the status, create a summary string and then patch the component custom definition.
+def patchComponent(namespace, name, component):
+    """Helper function to patch a component.
+
     
     Args:
-        * status (Dict): The status from the API resource showing the actual state.
-        * namespace (String): The namespace for the API resource
-        * name (String): The name of the API resource
-        * parent_component (Dict): The parent component object.
-        * plural (String): The custom resource's plural name e.g. *components*
-        * group (String): The custom resource's group e.g. *oda.tmforum.org*
-        * version (String): The custom resource's version e.g. *v1alpha2*
+        * namespace (String): The namespace for the Component resource
+        * name (String): The name of the Component resource
+        * component (Dict): The component object.
 
     Returns:
-        Dict with updated API definition including uuid of the API resource and ready status.
+        No return value.
 
     :meta private:
     """
-    
-    exposedAPIsummary = ''
-    developerUIsummary = ''
-    countOfCompleteAPIs = 0
-    countOfAllAPIS = 0
-    if 'exposedAPIs' in parent_component['status'].keys():
-        countOfAllAPIS = countOfAllAPIS + len(parent_component['status']['exposedAPIs'])
-        for api in parent_component['status']['exposedAPIs']:
-            if 'url' in api.keys():
-                exposedAPIsummary = exposedAPIsummary + api['url'] + ' '
-                if 'developerUI' in api.keys():
-                    developerUIsummary = developerUIsummary + \
-                        api['developerUI'] + ' '
-                if api['ready'] == True:
-                    countOfCompleteAPIs = countOfCompleteAPIs + 1
-    if 'securityAPIs' in parent_component['status'].keys():
-        countOfAllAPIS = countOfAllAPIS + len(parent_component['status']['securityAPIs'])
-        for api in parent_component['status']['securityAPIs']:
-            if 'url' in parent_component['status']['securityAPIs'][api].keys():
-                if parent_component['status']['securityAPIs'][api]['ready'] == True:
-                    countOfCompleteAPIs = countOfCompleteAPIs + 1
-    parent_component['status']['exposedAPIsummary'] = exposedAPIsummary
-    parent_component['status']['developerUIsummary'] = developerUIsummary
-    if countOfCompleteAPIs == countOfAllAPIS:
-        parent_component['status']['deployment_status'] = 'Complete'
-    else:
-        parent_component['status']['deployment_status'] = 'In-Progress'
+
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
         api_response = custom_objects_api.patch_namespaced_custom_object(
-            GROUP, VERSION, namespace, COMPONENTS_PLURAL, name, parent_component)
-        logger.info(
-            f"[summaryAndUpdate/{namespace}/{name}] updated status to parent component: {name}")
+            GROUP, VERSION, namespace, COMPONENTS_PLURAL, name, component)
         logger.debug(f"api_response {api_response}")
     except ApiException as e:
         logger.warning(
             "Exception when calling api_instance.patch_namespaced_custom_object: %s", e)
         raise kopf.TemporaryError(
             "Exception when calling api_instance.patch_namespaced_custom_object for component " + name)
+
 
 
 # -------------------------------------------------------------------------------
@@ -647,3 +617,37 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
             else:
                 logger.error(
                     "Exception when calling apps_api_instance.patch_namespaced_persistent_volume_claim: %s", e)
+
+
+# When Component status changes, update status summary
+@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'components', field='status')
+async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
+    
+    exposedAPIsummary = ''
+    developerUIsummary = ''
+    countOfCompleteAPIs = 0
+    for api in status['exposedAPIs']:
+        if 'url' in api.keys():
+            exposedAPIsummary = exposedAPIsummary + api['url'] + ' '
+            if 'developerUI' in api.keys():
+                developerUIsummary = developerUIsummary + \
+                    api['developerUI'] + ' '
+            if api['ready'] == True:
+                countOfCompleteAPIs = countOfCompleteAPIs + 1
+    for api in status['securityAPIs']:
+        if 'url' in status['securityAPIs'][api].keys():
+            if status['securityAPIs'][api]['ready'] == True:
+                countOfCompleteAPIs = countOfCompleteAPIs + 1
+    status_summary = {}
+    status_summary['exposedAPIsummary'] = exposedAPIsummary
+    status_summary['developerUIsummary'] = developerUIsummary
+    logger.info(f"[summary/{namespace}/{name}] Creating summary - CompleteAPI count =  {countOfCompleteAPIs}")
+
+    status_summary['deployment_status'] = 'In-Progress-CompCon'
+    if countOfCompleteAPIs == (len(status['exposedAPIs']) + len(status['securityAPIs'])):
+        status_summary['deployment_status'] = 'In-Progress-SecCon'
+        if (('security_client_add/status.summary/status.deployment_status' in status.keys()) and (status['security_client_add/status.summary/status.deployment_status']['listenerRegistered'] == True)):
+            status_summary['deployment_status'] = 'Complete'
+    logger.info(f"[summary/{namespace}/{name}] Creating summary - deployment status is {status_summary['deployment_status']}")
+
+    return status_summary

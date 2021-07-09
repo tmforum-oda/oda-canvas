@@ -21,3 +21,13 @@ The utility will use the current kubeconfig to connect to the Kubernetes cluster
 ![Screenshot](Screenshot.jpg)
 
 To exit the utility, type `CTRL-C`
+
+
+
+## Publishing
+
+To publish a new version, update the version number in the package.json file and use the command
+
+```
+npm publish --access public
+```

@@ -32,13 +32,13 @@ print('Ingress set to ',ingress_class)
 
 HTTP_SCHEME = "http://"
 GROUP = "oda.tmforum.org"
-VERSION = "v1alpha2"
+VERSION = "v1alpha3"
 APIS_PLURAL = "apis"
 
 
 
-@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'apis')
-@kopf.on.update('oda.tmforum.org', 'v1alpha2', 'apis')
+@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'apis')
+@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'apis')
 def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for new or updated APIs.
     

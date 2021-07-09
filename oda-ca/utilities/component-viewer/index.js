@@ -7,7 +7,7 @@ const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
 // get namespace from Environment variable or command-line
-var namespace = 'default'
+var namespace = 'components'
 if (process.env.NAMESPACE) {
     namespace = process.env.NAMESPACE
 }
@@ -38,7 +38,7 @@ function displayComponent() {
     try {
         const customk8sApi = kc.makeApiClient(k8s.CustomObjectsApi);
 
-        customk8sApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha2', namespace, 'components').then((res) => {
+        customk8sApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha3', namespace, 'components').then((res) => {
             console.clear()
             for (var key in res.body.items) {
                 var item = res.body.items[key]
@@ -49,8 +49,8 @@ function displayComponent() {
 
                 var deployment_status = 'Starting'
                 if (item.hasOwnProperty('status')) {
-                    if (item.status.hasOwnProperty('deployment_status')) {
-                        deployment_status = item.status.deployment_status
+                    if (item.status.hasOwnProperty('summary/status')) {
+                        deployment_status = item.status['summary/status'].deployment_status
                     } 
                 }
                 if (deployment_status == "Complete") {
