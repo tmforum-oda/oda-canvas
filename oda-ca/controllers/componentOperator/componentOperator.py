@@ -5,7 +5,7 @@ It registers handler functions for:
 
 1. New ODA Components - to create, update or delete child API custom resources. see `exposedAPIs <#componentOperator.componentOperator.exposedAPIs>`_ and `securityAPIs <#componentOperator.componentOperator.securityAPIs>`_
 2. For status updates in the child API Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateAPIStatus <#componentOperator.componentOperator.updateAPIStatus>`_ and `updateAPIReady <#componentOperator.componentOperator.updateAPIReady>`_
-3. For new Services, Deployments, PersistentVolumeClaims that have a oda.tmforum.org/componentName label. These resources are updated to become children of the ODA Component resource. see `adopt_deployment <#componentOperator.componentOperator.adopt_deployment>`_ , `adopt_persistentvolumeclaim <#componentOperator.componentOperator.adopt_persistentvolumeclaim>`_ and `adopt_service <#componentOperator.componentOperator.adopt_service>`_
+3. For new Services, Deployments, PersistentVolumeClaims and Jobs that have a oda.tmforum.org/componentName label. These resources are updated to become children of the ODA Component resource. see `adopt_deployment <#componentOperator.componentOperator.adopt_deployment>`_ , `adopt_persistentvolumeclaim <#componentOperator.componentOperator.adopt_persistentvolumeclaim>`_ , `adopt_job <#componentOperator.componentOperator.adopt_job>`_ and `adopt_service <#componentOperator.componentOperator.adopt_service>`_
 """
 
 import kopf
@@ -418,7 +418,7 @@ def patchComponent(namespace, name, component):
 
 
 # -------------------------------------------------------------------------------
-# Make services, deployments and persistentvolumeclaims children of the component
+# Make services, deployments, persistentvolumeclaims and Jobs children of the component
 
 @kopf.on.resume('', 'v1', 'services')
 @kopf.on.create('', 'v1', 'services')
@@ -465,7 +465,7 @@ async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
                 logger.error(
                     "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
 
-        # append oener reference to parent component
+        # append owner reference to parent component
         newBody = dict(body)  # cast the service body to a dict
         kopf.append_owner_reference(newBody, owner=parent_component)
         core_api_instance = kubernetes.client.CoreV1Api()
@@ -600,7 +600,7 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
             api_response = core_api_instance.patch_namespaced_persistent_volume_claim(
                 newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
             logger.debug(
-                'Patch deployment with owner. api_response = %s', api_response)
+                'Patch persistentvolumeclaim with owner. api_response = %s', api_response)
             logger.info(
                 f'[adopt_persistentvolumeclaim/{namespace}/{name}] Adding {component_name} as parent of persistentvolumeclaim')
         except ApiException as e:
@@ -610,6 +610,72 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
             else:
                 logger.error(
                     "Exception when calling apps_api_instance.patch_namespaced_persistent_volume_claim: %s", e)
+
+
+@kopf.on.resume('batch', 'v1', 'jobs')
+@kopf.on.create('batch', 'v1', 'jobs')
+async def adopt_job(meta, spec, body, namespace, labels, name, **kwargs):
+    """ Handler function for new jobs
+    
+    If the job has an oda.tmforum.org/componentName label, it makes the job a child of the named component.
+    This can help with navigating around the different resources that belong to the component. It also ensures that the kubernetes garbage collection
+    will delete these resources automatically if the component is deleted.
+
+    Args:
+        * meta (Dict): The metadata from the yaml job definition 
+        * spec (Dict): The spec from the yaml job definition showing the intent (or desired state) 
+        * status (Dict): The status from the yaml job definition showing the actual state.
+        * body (Dict): The entire yaml job definition
+        * namespace (String): The namespace for the job
+        * labels (Dict): The labels attached to the job. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the job
+
+    Returns:
+        No return value.
+
+    :meta public:
+    """
+
+    logger.debug(
+        f"[adopt_job/{namespace}/{name}] handler called with spec: {spec}")
+    logger.debug("adopt_job called for job - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")
+
+    if 'oda.tmforum.org/componentName' in labels.keys():
+        # get the parent component object
+        # str | the custom object's name
+        component_name = labels['oda.tmforum.org/componentName']
+        try:
+            custom_objects_api = kubernetes.client.CustomObjectsApi()
+            parent_component = custom_objects_api.get_namespaced_custom_object(
+                GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
+        except ApiException as e:
+            # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+            if e.status == HTTP_NOT_FOUND:
+                raise kopf.TemporaryError(
+                    "Cannot find parent component " + component_name)
+            else:
+                logger.error(
+                    "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
+
+        newBody = dict(body)  # cast the service body to a dict
+        kopf.append_owner_reference(newBody, owner=parent_component)
+        batch_api_instance = kubernetes.client.BatchV1Api()
+        try:
+            logger.debug(
+                f"[{namespace}/{name}] batch_api_instance.patch_namespaced_job")
+            api_response = batch_api_instance.patch_namespaced_job(
+                newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            logger.debug(
+                'Patch job with owner. api_response = %s', api_response)
+            logger.info(
+                f'[adopt_job/{namespace}/{name}] Adding {component_name} as parent of job')
+        except ApiException as e:
+            if e.status == HTTP_CONFLICT:  # Conflict = try again
+                raise kopf.TemporaryError(
+                    "Conflict updating job.")
+            else:
+                logger.error(
+                    "Exception when calling batch_api_instance.patch_namespaced_job: %s", e)
 
 
 # When Component status changes, update status summary
