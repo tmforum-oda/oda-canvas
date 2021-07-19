@@ -691,8 +691,9 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
             if 'developerUI' in api.keys():
                 developerUIsummary = developerUIsummary + \
                     api['developerUI'] + ' '
-            if api['ready'] == True:
-                countOfCompleteAPIs = countOfCompleteAPIs + 1
+            if 'ready' in api.keys():
+                if api['ready'] == True:
+                    countOfCompleteAPIs = countOfCompleteAPIs + 1
     for api in status['securityAPIs']:
         if 'url' in status['securityAPIs'][api].keys():
             if status['securityAPIs'][api]['ready'] == True:
