@@ -15,15 +15,41 @@ helm repo update
 
 echo "#####"
 echo "#"
-echo "# Installing cert-manager in namespace ${CMNS}"
+echo "# Creating namespace ${CMNS}"
 echo "#"
 echo "#####"
 echo ""
 
 kubectl create namespace ${CMNS}
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.crds.yaml
+
+echo "#####"
+echo "#"
+echo "# Installing cert-manager CRDs"
+echo "#"
+echo "#####"
+echo ""
+
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.crds.yaml
+
+# TODO: these four lines are a hacky fix for a bug - watch the issue then remove the hack
+# There is a bug in kubectl (https://github.com/kubernetes/kubernetes/issues/44165)
+# to avoid kubectl apply failing, I'll just wait and apply it again.
 sleep 1
-helm install --wait cert-manager jetstack/cert-manager --namespace ${CMNS} --create-namespace --version v1.3.1
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.crds.yaml
+
+# ...then wait for them to be applied correctly. We'll quit here if it still fails.
+set -e
+kubectl wait --for=condition=established -f  https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.crds.yaml
+set +e
+
+echo "#####"
+echo "#"
+echo "# Installing cert-manager in namespace ${CMNS}"
+echo "#"
+echo "#####"
+echo ""
+
+helm install --wait cert-manager jetstack/cert-manager --namespace ${CMNS} --create-namespace --version v1.4.0
 
 
 echo "#####"

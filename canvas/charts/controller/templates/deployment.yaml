@@ -21,7 +21,7 @@ spec:
       containers:
       - name: oda-controller-ingress
         image: {{.Values.deployment.compconimage}}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-configmap
@@ -29,7 +29,7 @@ spec:
               name: {{ .Release.Name }}-secret
       - name: seccon
         image: {{.Values.deployment.secconimage}}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-configmap

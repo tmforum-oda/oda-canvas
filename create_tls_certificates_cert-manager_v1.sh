@@ -41,6 +41,11 @@ spec:
     name: selfsigned-issuer
 ")
 
+while [[ -z $(kubectl -n ${NAMESPACE} get secret ${CSR_NAME}-tls --ignore-not-found) ]]
+do
+  echo "Waiting for TLS secret to be created"
+  sleep 1
+done
 
 
 echo "... creating ${APP}.pem cert file, key and cabundle"
