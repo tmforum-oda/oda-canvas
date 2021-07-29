@@ -18,7 +18,7 @@ spec:
       containers:
       - name: compcrdwebhook
         image: {{ .Values.image }}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8443
         volumeMounts:

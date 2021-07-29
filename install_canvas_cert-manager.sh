@@ -37,8 +37,8 @@ echo "*********************************************************************"
 echo ""
 
 # Example command line install if you ened to change ingress controller
-#helm install --create-namespace --namespace canvas canvas canvas/ --set controller.deployment.ingressClass.name=traefik,controller.deployment.ingressClass.enabled=true,global.clusterCABundle=`cat cabundle.pem.b64`
-helm install --create-namespace --namespace canvas canvas canvas/ --set global.clusterCABundle=`cat cabundle.pem.b64`
+#helm install --create-namespace --namespace canvas canvas canvas/ --set controller.deployment.ingressClass.name=traefik,controller.deployment.ingressClass.enabled=true,global.clusterCABundle=`cat cabundle.pem.b64`,keycloak.postgresql.volumePermissions.enabled=true
+helm install --create-namespace --namespace canvas canvas canvas/ --set global.clusterCABundle=`cat cabundle.pem.b64`,keycloak.postgresql.volumePermissions.enabled=true
 retVal=$?
 
 if [ $retVal -ne 0 ]; then
