@@ -9,10 +9,10 @@ The component controller written in Python, using the KOPF (https://kopf.readthe
 2. When API CRDs created, API operator configures  API custom resources in API Gateway automatically. API operator is another K8S controller which watches the API objects and reacting to the objects’ events (such as the install update and delete).
 3. When API registed in API Gateway successfual, it will feeback to Component, and also update status of API resources.
 
-![Sequence diagram](sequenceDiagrams/apiOperator-apig.png)
+![Sequence diagram](sequenceDiagrams/apiOperatorApig.png)
 
 
 
 **Testing KOPF module**
 
-Run: `kopf run --namespace=components --standalone .\apiOperator-apig.py`
+Run: `kopf run --namespace=components --standalone .\apiOperatorApig.py`

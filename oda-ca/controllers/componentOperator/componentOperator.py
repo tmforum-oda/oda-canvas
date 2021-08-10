@@ -63,7 +63,10 @@ async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwarg
     # compare desired state (spec) with actual state (status) and initiate changes
     if status:  # if status exists (i.e. this is not a new component)
         # update a component - look in old and new to see if we need to delete any API resources
-        oldExposedAPIs = status['exposedAPIs']
+        if 'exposedAPIs' in status.keys():
+            oldExposedAPIs = status['exposedAPIs']
+        else:
+            oldExposedAPIs = {}
         newExposedAPIs = spec['coreFunction']['exposedAPIs']
         # find apis in old that are missing in new
         deletedAPIs = []
@@ -115,6 +118,8 @@ def deleteAPI(deleteAPIName, componentName, status, namespace):
     :meta private:
     """
     logger.debug(f'[deleteAPI/{namespace}/{componentName}] Delete API {deleteAPIName} if it appears in new status (i.e. it had been created)')
+    if not 'exposedAPIs' in status.keys():
+        return
     for api in status['exposedAPIs']:
         if api['name'] == deleteAPIName:
             logger.info(f"[deleteAPI/{namespace}/{componentName}] delete api {api['name']}")
@@ -393,6 +398,7 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
 
 def patchComponent(namespace, name, component):
     """Helper function to patch a component.
+
     
     Args:
         * namespace (String): The namespace for the Component resource
@@ -612,72 +618,6 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
                     "Exception when calling apps_api_instance.patch_namespaced_persistent_volume_claim: %s", e)
 
 
-@kopf.on.resume('batch', 'v1', 'jobs')
-@kopf.on.create('batch', 'v1', 'jobs')
-async def adopt_job(meta, spec, body, namespace, labels, name, **kwargs):
-    """ Handler function for new jobs
-    
-    If the job has an oda.tmforum.org/componentName label, it makes the job a child of the named component.
-    This can help with navigating around the different resources that belong to the component. It also ensures that the kubernetes garbage collection
-    will delete these resources automatically if the component is deleted.
-
-    Args:
-        * meta (Dict): The metadata from the yaml job definition 
-        * spec (Dict): The spec from the yaml job definition showing the intent (or desired state) 
-        * status (Dict): The status from the yaml job definition showing the actual state.
-        * body (Dict): The entire yaml job definition
-        * namespace (String): The namespace for the job
-        * labels (Dict): The labels attached to the job. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
-        * name (String): The name of the job
-
-    Returns:
-        No return value.
-
-    :meta public:
-    """
-
-    logger.debug(
-        f"[adopt_job/{namespace}/{name}] handler called with spec: {spec}")
-    logger.debug("adopt_job called for job - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")
-
-    if 'oda.tmforum.org/componentName' in labels.keys():
-        # get the parent component object
-        # str | the custom object's name
-        component_name = labels['oda.tmforum.org/componentName']
-        try:
-            custom_objects_api = kubernetes.client.CustomObjectsApi()
-            parent_component = custom_objects_api.get_namespaced_custom_object(
-                GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
-        except ApiException as e:
-            # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-            if e.status == HTTP_NOT_FOUND:
-                raise kopf.TemporaryError(
-                    "Cannot find parent component " + component_name)
-            else:
-                logger.error(
-                    "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
-
-        newBody = dict(body)  # cast the service body to a dict
-        kopf.append_owner_reference(newBody, owner=parent_component)
-        batch_api_instance = kubernetes.client.BatchV1Api()
-        try:
-            logger.debug(
-                f"[{namespace}/{name}] batch_api_instance.patch_namespaced_job")
-            api_response = batch_api_instance.patch_namespaced_job(
-                newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
-            logger.debug(
-                'Patch job with owner. api_response = %s', api_response)
-            logger.info(
-                f'[adopt_job/{namespace}/{name}] Adding {component_name} as parent of job')
-        except ApiException as e:
-            if e.status == HTTP_CONFLICT:  # Conflict = try again
-                raise kopf.TemporaryError(
-                    "Conflict updating job.")
-            else:
-                logger.error(
-                    "Exception when calling batch_api_instance.patch_namespaced_job: %s", e)
-
-
 # When Component status changes, update status summary
 @kopf.on.field('oda.tmforum.org', 'v1alpha3', 'components', field='status')
 async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
@@ -691,9 +631,8 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
             if 'developerUI' in api.keys():
                 developerUIsummary = developerUIsummary + \
                     api['developerUI'] + ' '
-            if 'ready' in api.keys():
-                if api['ready'] == True:
-                    countOfCompleteAPIs = countOfCompleteAPIs + 1
+            if api['ready'] == True:
+                countOfCompleteAPIs = countOfCompleteAPIs + 1
     for api in status['securityAPIs']:
         if 'url' in status['securityAPIs'][api].keys():
             if status['securityAPIs'][api]['ready'] == True:

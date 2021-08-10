@@ -19,18 +19,22 @@ def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
     logging.debug(f"api has status: {status}")
     logging.debug(f"api is called with body: {spec}")
     namespace = meta.get('namespace')
-    apigEndpoint = os.getenv('APIG_ENDPOINT', "apig-operator-uportal:8080")
+    apigEndpoint = os.getenv('APIG_ENDPOINT', "apig-operator-uportal.%s:8080"%namespace)
     apigIngressName = os.getenv('APIG_INGRESS', "apig-operator-uportal")
     apigBindPath = "/operator/AutoCreation/createAPIFromSwagger"
     
     apiSpec = {
         "path":spec['path'],
-        "name":spec['name'],
+        "name":meta['name'],
         "specification":spec['specification'],
         "implementation": spec['implementation'],
         "port": spec['port']
     }
     
+    MOCK_ALL = os.getenv('MOCK_ALL', "")
+    if MOCK_ALL != "":
+        return {"response": "success", "spec": MOCK_ALL}
+
     if not ( status and ('apigBind' in status.keys()) and status['apigBind']['spec'] == apiSpec ):
         resp = restCall(apigEndpoint, apigBindPath, apiSpec)
         if not resp or resp['res_code'] != "00000":
@@ -43,7 +47,7 @@ def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
             plural = 'apis' # str | the custom resource's plural name
             apiObj = customObjectsApi.get_namespaced_custom_object(group, version, namespace, plural, meta['name'] )
             
-            ingressApi = kubernetes.client.ExtensionsV1beta1Api()
+            ingressApi = kubernetes.client.NetworkingV1beta1Api()
             listIngressResp = ingressApi.read_namespaced_ingress( apigIngressName, namespace )
             logging.info("List ingress response: %s\n" % listIngressResp)
             apigIngress = listIngressResp.to_dict()
@@ -58,13 +62,13 @@ def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
             if ingressTarget:
                 if not('status' in apiObj.keys()):
                     apiObj['status'] = {}
-                if not('ingress' in apiObj['status'].keys()):
-                    apiObj['status']['ingress'] = {}
-                apiObj['status']['ingress']
-                apiObj['status']['ingress']['developerUI'] = "http://" + ingressTarget + spec['path'] + "/docs/"
-                apiObj['status']['ingress']['ip'] = ingressTarget
-                apiObj['status']['ingress']['name'] = meta['name']
-                apiObj['status']['ingress']['url'] = "http://" + ingressTarget + spec['path']
+                if not('apiStatus' in apiObj['status'].keys()):
+                    apiObj['status']['apiStatus'] = {}
+                apiObj['status']['apiStatus']
+                apiObj['status']['apiStatus']['developerUI'] = "http://" + ingressTarget + spec['path'] + "/docs/"
+                apiObj['status']['apiStatus']['ip'] = ingressTarget
+                apiObj['status']['apiStatus']['name'] = meta['name']
+                apiObj['status']['apiStatus']['url'] = "http://" + ingressTarget + spec['path']
                 apiObj['status']['implementation'] = {"ready": True}
                 patchRslt = customObjectsApi.patch_namespaced_custom_object(group, version, namespace, plural, meta['name'] , apiObj)
                 logging.debug("Patch apis response: %s\n" % patchRslt)
@@ -75,19 +79,24 @@ def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
     return
 
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
-@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'apis')
+@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'apis', retries=5)
 def apigUnBind(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"api has name: {meta['name']}")
     logging.debug(f"api has status: {status}")
     logging.debug(f"api is called with body: {spec}")
     
-    apigEndpoint = os.getenv('APIG_ENDPOINT', "apig-operator-uportal:8080")
+    MOCK_ALL = os.getenv('MOCK_ALL', "")
+    if MOCK_ALL != "":
+        return {"response": "success", "spec": MOCK_ALL }
+    
+    namespace = meta.get('namespace')
+    apigEndpoint = os.getenv('APIG_ENDPOINT', "apig-operator-uportal.%s:8080"%namespace) 
     apigUnBindPath = "/operator/AutoCreation/removeAPIFromSwagger"
     
     apiSpec = {
         "path":spec['path'],
-        "name":spec['name'],
+        "name":meta['name'],
         "specification":spec['specification'],
         "implementation": spec['implementation'],
         "port": spec['port']
@@ -100,6 +109,10 @@ def apigUnBind(meta, spec, status, body, namespace, labels, name, **kwargs):
 
 # a simple Restful API caller
 def restCall( host, path, spec ):
+    APIG_MOCK = os.getenv('APIG_MOCK', "")
+    if APIG_MOCK != "":
+        return {"res_code": "00000", "res_message": APIG_MOCK }
+        
     hConn=HTTPConnection(host)
     respBody = None
     try:
