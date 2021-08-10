@@ -5,7 +5,7 @@ It registers handler functions for:
 
 1. New ODA Components - to create, update or delete child API custom resources. see `exposedAPIs <#componentOperator.componentOperator.exposedAPIs>`_ and `securityAPIs <#componentOperator.componentOperator.securityAPIs>`_
 2. For status updates in the child API Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateAPIStatus <#componentOperator.componentOperator.updateAPIStatus>`_ and `updateAPIReady <#componentOperator.componentOperator.updateAPIReady>`_
-3. For new Services, Deployments, PersistentVolumeClaims that have a oda.tmforum.org/componentName label. These resources are updated to become children of the ODA Component resource. see `adopt_deployment <#componentOperator.componentOperator.adopt_deployment>`_ , `adopt_persistentvolumeclaim <#componentOperator.componentOperator.adopt_persistentvolumeclaim>`_ and `adopt_service <#componentOperator.componentOperator.adopt_service>`_
+3. For new Services, Deployments, PersistentVolumeClaims and Jobs that have a oda.tmforum.org/componentName label. These resources are updated to become children of the ODA Component resource. see `adopt_deployment <#componentOperator.componentOperator.adopt_deployment>`_ , `adopt_persistentvolumeclaim <#componentOperator.componentOperator.adopt_persistentvolumeclaim>`_ , `adopt_job <#componentOperator.componentOperator.adopt_job>`_ and `adopt_service <#componentOperator.componentOperator.adopt_service>`_
 """
 
 import kopf
@@ -410,7 +410,6 @@ def patchComponent(namespace, name, component):
 
     :meta private:
     """
-
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
         api_response = custom_objects_api.patch_namespaced_custom_object(
@@ -425,7 +424,7 @@ def patchComponent(namespace, name, component):
 
 
 # -------------------------------------------------------------------------------
-# Make services, deployments and persistentvolumeclaims children of the component
+# Make services, deployments, persistentvolumeclaims and Jobs children of the component
 
 @kopf.on.resume('', 'v1', 'services')
 @kopf.on.create('', 'v1', 'services')
@@ -472,7 +471,7 @@ async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
                 logger.error(
                     "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
 
-        # append oener reference to parent component
+        # append owner reference to parent component
         newBody = dict(body)  # cast the service body to a dict
         kopf.append_owner_reference(newBody, owner=parent_component)
         core_api_instance = kubernetes.client.CoreV1Api()
@@ -607,7 +606,7 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
             api_response = core_api_instance.patch_namespaced_persistent_volume_claim(
                 newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
             logger.debug(
-                'Patch deployment with owner. api_response = %s', api_response)
+                'Patch persistentvolumeclaim with owner. api_response = %s', api_response)
             logger.info(
                 f'[adopt_persistentvolumeclaim/{namespace}/{name}] Adding {component_name} as parent of persistentvolumeclaim')
         except ApiException as e:

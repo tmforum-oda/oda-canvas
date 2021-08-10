@@ -1,0 +1,12 @@
+    @startuml
+
+entity API
+participant "apiOperator-Istio"
+entity "Virtual Service"
+participant Istio
+
+API-> "apiOperator-Istio": Create API
+"apiOperator-Istio" -> "Virtual Service": Create Virtual Service resource
+"Virtual Service"-> Istio: Configure Istio traffic policy
+"apiOperator-Istio" -> API: Update status of API with external URL/IP Address (from Istio ingress)
+@enduml
