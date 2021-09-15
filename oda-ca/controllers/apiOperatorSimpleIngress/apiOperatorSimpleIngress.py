@@ -11,7 +11,7 @@ It registers handler functions for:
 1. New ODA APIs - to create, update or delete child Ingress resources to expose the API using a kubernetes Ingress. see `apiStatus <#apiOperatorSimpleIngress.apiOperatorSimpleIngress.apiStatus>`_ 
 2. For status updates in the child Ingress resources and EndPointSlice resources, so that the API status reflects a summary the Ingress and Implementation for the API. see `ingress_status <#apiOperatorSimpleIngress.apiOperatorSimpleIngress.ingress_status>`_ and `implementation_status <#apiOperatorSimpleIngress.apiOperatorSimpleIngress.implementation_status>`_
 """
-
+import time
 import kopf
 import kubernetes.client
 import logging
@@ -38,8 +38,8 @@ APIS_PLURAL = "apis"
 
 
 @kopf.on.create('oda.tmforum.org', 'v1alpha3', 'apis')
-@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'apis')
-def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
+# @kopf.on.update('oda.tmforum.org', 'v1alpha3', 'apis')
+async def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for new or updated APIs.
     
     Processes the spec of the API and create child Kubernetes Ingress resources. The Kubernetes Ingress will expose the API to the outside.
@@ -58,11 +58,11 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     :meta public:
     """
-    logger.debug(f"[apiStatus/{namespace}/{name}] apiOperator-simpleIngress/apiStatus called with name:{name}, spec: {spec}")
-    return actualToDesiredState(spec, status, namespace, name)
+    logger.info(f"[apiStatus/{namespace}/{name}] handler called ")
+    return await actualToDesiredState(spec, status, namespace, name)
 
 
-def actualToDesiredState(spec, status, namespace, name): 
+async def actualToDesiredState(spec, status, namespace, name): 
     """Helper function to compare desired state (spec) with actual state (status) and initiate changes.
     
     Args:
@@ -86,10 +86,10 @@ def actualToDesiredState(spec, status, namespace, name):
                 # unchanged, so just return previous status
                 return apiStatus
             else:
-                return createOrPatchIngress(True, spec, namespace, name)
-    return createOrPatchIngress(False, spec, namespace, name)
+                return await createOrPatchIngress(True, spec, namespace, name)
+    return await createOrPatchIngress(False, spec, namespace, name)
 
-def createOrPatchIngress(patch, spec, namespace, name):            
+async def createOrPatchIngress(patch, spec, namespace, name):            
     """Helper function to get API details and create or patch ingress.
     
     Args:
@@ -147,7 +147,7 @@ def createOrPatchIngress(patch, spec, namespace, name):
             )
             logger.debug(f"[createOrPatchIngress/{namespace}/{name}] ingressResource patched: {ingressResource}")
             logger.info(f"[createOrPatchIngress/{namespace}/{name}] ingress resource patched with name {name}")
-            updateImplementationStatus(namespace, spec['implementation'])
+            await updateImplementationStatus(namespace, spec['implementation'])
 
             # update ingress status
             mydict = ingressResource.to_dict()
@@ -162,7 +162,7 @@ def createOrPatchIngress(patch, spec, namespace, name):
                         if isinstance(ingress, list):
                             if len(ingress)>0:
                                 ingressTarget = ingress[0]
-                                apistatus = buildAPIStatus(spec, apistatus, ingressTarget)
+                                apistatus = await buildAPIStatus(spec, apistatus, ingressTarget)
                                 logger.debug(f"[createOrPatchIngress/{namespace}/{name}] apistatus = {apistatus}")
 
             return apistatus['apiStatus']
@@ -175,7 +175,7 @@ def createOrPatchIngress(patch, spec, namespace, name):
             )
             logger.debug(f"[createOrPatchIngress/{namespace}/{name}] ingressResource created: {ingressResource}")
             logger.info(f"[createOrPatchIngress/{namespace}/{name}] ingress resource created with name {name}")
-            updateImplementationStatus(namespace, spec['implementation'])
+            await updateImplementationStatus(namespace, spec['implementation'])
             # Update the parent's status.
             mydict = ingressResource.to_dict()
             apistatus = {'apiStatus': {"name": name, "uid": mydict['metadata']['uid'], "path": spec['path'], "port": spec['port'], "implementation": spec['implementation']}}
@@ -186,7 +186,7 @@ def createOrPatchIngress(patch, spec, namespace, name):
 
 
 
-def updateImplementationStatus(namespace, name):
+async def updateImplementationStatus(namespace, name):
     """Helper function to get EndPointSice and find the Resdy status.
     
     Args:
@@ -204,7 +204,7 @@ def updateImplementationStatus(namespace, name):
     try:
         api_response = discovery_api_instance.list_namespaced_endpoint_slice(namespace, label_selector='kubernetes.io/service-name=' + name)
         if len(api_response.items) > 0:
-            createAPIImplementationStatus(name, api_response.items[0].endpoints, namespace)
+            await createAPIImplementationStatus(name, api_response.items[0].endpoints, namespace)
     except ValueError as e: # if there are no endpoints it will create a ValueError
         logger.info(f"[updateImplementationStatus/{namespace}/{name}] ValueError when calling DiscoveryV1beta1Api->list_namespaced_endpoint_slice: {e}\n")   
     except ApiException as e:
@@ -212,7 +212,7 @@ def updateImplementationStatus(namespace, name):
 
 
 @kopf.on.field('networking.k8s.io', 'v1beta1', 'ingresses', field='status.loadBalancer')
-def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs): 
+async def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs): 
     """Handler function to register for status changes in child Ingress resources.
     
     When Ingress adds IP address/dns of load balancer, update parent API object.
@@ -231,7 +231,7 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     :meta public:
     """
-    logger.debug(f"[ingress_status/{namespace}/{name}] Status: {status}")
+    logger.info(f"[ingress_status/{namespace}/{name}] handler called ")
     namespace = meta.get('namespace')
 
     labels = meta.get('labels')
@@ -262,7 +262,7 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
                         ingressTarget = ingress[0]
 
                         # build api status
-                        parent_api['status'] = buildAPIStatus(parent_api['spec'],parent_api['status'], ingressTarget)
+                        parent_api['status'] = await buildAPIStatus(parent_api['spec'],parent_api['status'], ingressTarget)
                         
                         try:
                             api_response = api_instance.patch_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL, name, parent_api)
@@ -280,7 +280,7 @@ def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs):
             else:
                 logger.debug('Load Balancer doesnt have an ingress resource')
 
-def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget):
+async def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget):
     """Helper function to build the API Status Dict for the API custom resource.
     
     Args:
@@ -320,8 +320,8 @@ def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget):
 
 # When service where implementation is ready, update parent API object
 @kopf.on.create('discovery.k8s.io', 'v1beta1', 'endpointslice')
-@kopf.on.update('discovery.k8s.io', 'v1beta1', 'endpointslice')
-def implementation_status(meta, spec, status, body, namespace, labels, name, **kwargs):
+# @kopf.on.update('discovery.k8s.io', 'v1beta1', 'endpointslice')
+async def implementation_status(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in EndPointSlide resources.
     
     The EndPointSlide resources show the implementation of an API linked the the API implementations Service Resource. 
@@ -341,10 +341,11 @@ def implementation_status(meta, spec, status, body, namespace, labels, name, **k
 
     :meta public:
     """
+    logger.info(f"[implementation_status/{namespace}/{name}] handler called ")
     logger.debug(f"[{namespace}][{name}] endpointslice body: {body}")
-    createAPIImplementationStatus(meta['ownerReferences'][0]['name'], body['endpoints'], namespace)
+    await createAPIImplementationStatus(meta['ownerReferences'][0]['name'], body['endpoints'], namespace)
 
-def createAPIImplementationStatus(serviceName, endpointsArray, namespace):
+async def createAPIImplementationStatus(serviceName, endpointsArray, namespace):
     """Helper function to update the implementation Ready status on the API custom resource.
     
     Args:
