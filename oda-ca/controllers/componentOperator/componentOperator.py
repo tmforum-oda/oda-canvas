@@ -7,7 +7,7 @@ It registers handler functions for:
 2. For status updates in the child API Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateAPIStatus <#componentOperator.componentOperator.updateAPIStatus>`_ and `updateAPIReady <#componentOperator.componentOperator.updateAPIReady>`_
 3. For new Services, Deployments, PersistentVolumeClaims and Jobs that have a oda.tmforum.org/componentName label. These resources are updated to become children of the ODA Component resource. see `adopt_deployment <#componentOperator.componentOperator.adopt_deployment>`_ , `adopt_persistentvolumeclaim <#componentOperator.componentOperator.adopt_persistentvolumeclaim>`_ , `adopt_job <#componentOperator.componentOperator.adopt_job>`_ and `adopt_service <#componentOperator.componentOperator.adopt_service>`_
 """
-
+import time
 import kopf
 import kubernetes.client
 import logging
@@ -56,8 +56,9 @@ async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwarg
 
     :meta public:
     """
-    logger.debug(
-        f"[exposedAPIs/{namespace}/{name}] handler called with spec: {spec}")
+    logger.info(
+        f"[exposedAPIs/{namespace}/{name}] handler called ")
+
     apiChildren = []
 
     # compare desired state (spec) with actual state (status) and initiate changes
@@ -73,13 +74,16 @@ async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwarg
         for oldAPI in oldExposedAPIs:
             found = False
             for newAPI in newExposedAPIs:
-                if oldAPI['name'] == name + '-' + newAPI['name']:
+
+                # NEED TO FIX COMPARISON SO THAT IT ONLY COMPARES NAME OF API RESOURCE AS LOWERCASE (AND NOT ENTIRE OBJECT)
+                logger.debug(f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
+                if oldAPI['name'] == name + '-' + newAPI['name'].lower():
                     found = True
-                    resultStatus = createOrPatchAPIResource(
+                    resultStatus = await createOrPatchAPIResource(
                         False, newAPI, namespace, name)
                     apiChildren.append(resultStatus)
             if not found:
-                deleteAPI(oldAPI['name'], name, status, namespace)
+                await deleteAPI(oldAPI['name'], name, status, namespace)
 
     # get exposed APIS
     exposedAPIs = spec['coreFunction']['exposedAPIs']
@@ -89,13 +93,13 @@ async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwarg
         # check if we have already patched this API
         alreadyProcessed = False
         for processedAPI in apiChildren:
-            logger.info(
-                f"Comparing {processedAPI['name']} to {name + '-' + exposedAPI['name']}")
-            if processedAPI['name'] == name + '-' + exposedAPI['name']:
+            logger.debug(
+                f"Comparing {processedAPI['name']} to {name + '-' + exposedAPI['name'].lower()}")
+            if processedAPI['name'] == name + '-' + exposedAPI['name'].lower():
                 alreadyProcessed = True
             # logger.info(exposedAPI)
         if alreadyProcessed == False:
-            resultStatus = createOrPatchAPIResource(
+            resultStatus = await createOrPatchAPIResource(
                 True, exposedAPI, namespace, name)
             apiChildren.append(resultStatus)
 
@@ -103,7 +107,7 @@ async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwarg
     return apiChildren
 
 
-def deleteAPI(deleteAPIName, componentName, status, namespace):
+async def deleteAPI(deleteAPIName, componentName, status, namespace):
     """Helper function to delete API Custom objects.
     
     Args:
@@ -159,7 +163,7 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
     :meta public:
     """
 
-    logger.debug(f"[securityAPIs/{namespace}/{name}] handler called with spec: {spec}")
+    logger.info(f"[securityAPIs/{namespace}/{name}] handler called ")
 
     apiChildren = {}
 
@@ -176,10 +180,10 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
                     logger.debug('Existing partyrole api')
                     componentDeployedPreviously = True
         if componentDeployedPreviously:
-            apiChildren['partyrole'] = createOrPatchAPIResource(
+            apiChildren['partyrole'] = await createOrPatchAPIResource(
                 False, partyRole, namespace, name)
         else:
-            apiChildren['partyrole'] = createOrPatchAPIResource(
+            apiChildren['partyrole'] = await createOrPatchAPIResource(
                 True, partyRole, namespace, name)
     except KeyError:
         logger.warning(f"[securityAPIs/{namespace}/{name}] component {name} has no partyrole property")
@@ -187,7 +191,7 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
     return apiChildren
 
 
-def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
+async def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
     """Helper function to create or update API Custom objects.
     
     Args:
@@ -250,6 +254,11 @@ def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
             logger.debug(
                 f"[createOrPatchAPIResource/{namespace}/{name}] comparing {my_resource['spec']} to {apiObj['spec']}")
             if not(my_resource['spec'] == apiObj['spec']):
+                logger.info('----------------------------------------myresource from component----------------')
+                logger.info(f"myresource from component {my_resource['spec']}")
+                logger.info('----------------------------------------apiObj from k8s----------------')
+                logger.info(f"apiObj from k8s {apiObj['spec']}")
+                logger.info('--------------------------------------------------------')
                 apiObj = custom_objects_api.patch_namespaced_custom_object(
                     group = GROUP,
                     version = VERSION,
@@ -295,6 +304,8 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
 
     :meta public:
     """
+    logger.info(
+        f"[updateAPIStatus/{namespace}/{name}] handler called with spec: {spec}")
 
     logger.debug(f"status: {status}")
     if 'apiStatus' in status.keys():
@@ -338,7 +349,7 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
                         logger.info(f"Updating parent component securityAPIs APIs with url {status['apiStatus']['url']}")
                         if 'developerUI' in status['apiStatus'].keys():
                             parent_component['status']['securityAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
-                patchComponent(namespace, name, parent_component)
+                await patchComponent(namespace, name, parent_component)
 
 @kopf.on.field('oda.tmforum.org', 'v1alpha3', 'apis', field='status.implementation')
 async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
@@ -360,6 +371,8 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
 
     :meta public:
     """
+    logger.info(
+        f"[updateAPIReady/{namespace}/{name}] handler called ")
     logger.debug(f"status: {status}")
 
     if 'ready' in status['implementation'].keys():
@@ -387,16 +400,16 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
                     if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
                         parent_component['status']['exposedAPIs'][key]['ready'] = True
                         logger.info(f"[summaryAndUpdate/{namespace}/{name}] updated exposedAPIs status to parent component: {name}")
-                        patchComponent(namespace, parent_component_name, parent_component)
+                        await patchComponent(namespace, parent_component_name, parent_component)
                         return
                 for key in (parent_component['status']['securityAPIs']):
                     if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
                         parent_component['status']['securityAPIs'][key]['ready'] = True
                         logger.info(f"[summaryAndUpdate/{namespace}/{name}] updated securityAPIs status to parent component: {name}")
-                        patchComponent(namespace, parent_component_name, parent_component)
+                        await patchComponent(namespace, parent_component_name, parent_component)
                         return
 
-def patchComponent(namespace, name, component):
+async def patchComponent(namespace, name, component):
     """Helper function to patch a component.
 
     
@@ -449,8 +462,8 @@ async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
 
     :meta public:
     """
-    logger.debug(
-        f"[adopt_service/{namespace}/{name}] handler called with spec: {spec}")
+    logger.info(
+        f"[adopt_service/{namespace}/{name}] handler called ")
     logger.debug("adopt_service called for service - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")
 
     if 'oda.tmforum.org/componentName' in labels.keys():
@@ -513,8 +526,8 @@ async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 
     :meta public:
     """
-    logger.debug(
-        f"[adopt_deployment/{namespace}/{name}] handler called with spec: {spec}")
+    logger.info(
+        f"[adopt_deployment/{namespace}/{name}] handler ")
     logger.debug("adopt_deployment called for deployment - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")
 
     if 'oda.tmforum.org/componentName' in labels.keys():
@@ -576,8 +589,8 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
     :meta public:
     """
 
-    logger.debug(
-        f"[adopt_persistentvolumeclaim/{namespace}/{name}] handler called with spec: {spec}")
+    logger.info(
+        f"[adopt_persistentvolumeclaim/{namespace}/{name}] handler called ")
     logger.debug("adopt_persistentvolumeclaim called for persistentvolumeclaim - if it is part of a component (oda.tmforum.org/componentName as a label) then make it a child ")
 
     if 'oda.tmforum.org/componentName' in labels.keys():
@@ -621,7 +634,10 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
 # When Component status changes, update status summary
 @kopf.on.field('oda.tmforum.org', 'v1alpha3', 'components', field='status')
 async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
-    
+
+    logger.info(
+        f"[summary/{namespace}/{name}] handler called ")
+
     exposedAPIsummary = ''
     developerUIsummary = ''
     countOfCompleteAPIs = 0
