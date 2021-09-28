@@ -128,7 +128,7 @@ def createOrPatchVirtualService(patch, spec, namespace, name):
                 },
             "spec": {
                 "hosts": ["*"],  
-                "gateways": ["prodcat-gateway"],
+                "gateways": ["component-gateway"],
                 "http": [
                     {
                         "match": [

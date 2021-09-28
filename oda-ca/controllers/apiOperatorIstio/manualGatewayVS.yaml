@@ -1,3 +1,4 @@
+# This is a sample YAML file to manually create VirtualService resources - these are created automatically by the controller.
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -6,7 +7,7 @@ spec:
   hosts:
   - "*"
   gateways:
-  - prodcat-gateway
+  - component-gateway
   http:
   - match:
     - uri:
@@ -25,7 +26,7 @@ spec:
   hosts:
   - "*"
   gateways:
-  - prodcat-gateway
+  - component-gateway
   http:
   - match:
     - uri:
