@@ -25,10 +25,30 @@ mv sonobuoy /usr/local/bin
 
 # Make sure you have a valid KUBECONFIG file in place and are using the correct context
 sonobuoy run --wait     # Just remove the --wait for async operation
+# or, for a quicker result (full tests can take a loooong time)
+sonobuoy run --mode quick   # Again, remove --wait for async
 
 # Once finished, get the results and view the summary
 results=$(sonobuoy retrieve)
 sonobuoy results $results
+# Example output:
+Plugin: systemd-logs
+Status: passed
+Total: 1
+Passed: 1
+Failed: 0
+Skipped: 0
+
+Plugin: e2e
+Status: failed
+Total: 6432
+Passed: 342
+Failed: 2
+Skipped: 6088
+
+Failed tests:
+[sig-apps] Daemon set [Serial] should rollback without unnecessary restarts [Conformance]
+[sig-network] HostPort validates that there is no conflict between pods with same hostPort but different hostIP and protocol [LinuxOnly] [Conformance]
 
 # Clean up
 sonobuoy delete --wait
