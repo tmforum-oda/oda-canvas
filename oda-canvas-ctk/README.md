@@ -47,6 +47,16 @@ This script is called from the [package.json](package.json) file using the `moch
   },
 ```
 
+This means to execute this, we simply use `npm test`.
+Similarly, if we were to add another script in that block, as per below, we could execute using `npm test2`:
+
+```json
+  "scripts": {
+    "test": "mocha tests.js",
+    "test2": "mocha tests2.js"
+  },
+```
+
 A simple example of an assertion test is found below.
 For each section of testing there is a `describe` method where you set-up the data required for the test, and then an `it` method for each test.
 A test will contain one or more assertions using the Chai library `expect` method (or `should`, depending on the requirement).
