@@ -7,6 +7,7 @@ Following the same approach as the [ODA Component CTK](https://github.com/tmforu
 
 ```
 git clone https://github.com/tmforum-oda/oda-canvas-ctk.git
+cd oda-canvas-ctk
 npm install
 npm test
 ```
