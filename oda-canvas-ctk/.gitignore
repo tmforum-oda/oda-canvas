@@ -4,3 +4,4 @@ api-ctk/*/jsonResults.json
 api-ctk/*/*.html
 *DS_Store*
 *tar.gz
+*package-lock.json
