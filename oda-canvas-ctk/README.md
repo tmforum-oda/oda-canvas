@@ -1,7 +1,8 @@
 # ODA Canvas - CTK
 
 Following the same approach as the [ODA Component CTK](https://github.com/tmforum-oda/oda-component-ctk), this repository contains the tests that can be executed to check compliance with the Canvas design guidelines. 
-<!-- TODO #1 add link to canvas design guidelines -->
+
+Temporarily, these design guidelines can be found here: https://github.com/tomkivlin/oda-ca-docs/blob/patch-1/ODACanvasDesignGuidelines.md
 
 ## Executing the CTK tests
 
@@ -25,8 +26,10 @@ mv sonobuoy /usr/local/bin
 
 # Make sure you have a valid KUBECONFIG file in place and are using the correct context
 sonobuoy run --wait     # Just remove the --wait for async operation
-# or, for a quicker result (full tests can take a loooong time)
+# or, for a quicker result (full tests can take a loooong time - over an hour is not unusual)
 sonobuoy run --mode quick   # Again, remove --wait for async
+# If you didn't use --wait, you can check the status 
+sonobuoy status
 
 # Once finished, get the results and view the summary
 results=$(sonobuoy retrieve)
@@ -51,7 +54,7 @@ Failed tests:
 [sig-network] HostPort validates that there is no conflict between pods with same hostPort but different hostIP and protocol [LinuxOnly] [Conformance]
 
 # Clean up
-sonobuoy delete --wait
+sonobuoy delete --all --wait
 ```
 
 ## Developing and extending the tests
