@@ -35,7 +35,7 @@ describe("Basic Kubernetes checks", function () {
 
     it("Cluster is running 3 control plane nodes", function (done) {
         k8sCoreApi.listNode().then((res) => {
-            let validNodeLabels = ['node-role.kubernetes.io/master', 'node-role.kubernetes.io/control-plane']
+            let validNodeLabels = ['node-role.kubernetes.io/master', 'node-role.kubernetes.io/control-plane', 'node-role.kubernetes.io/controlplane']
             let controlPlaneNodes = res.body.items.filter(element => {
                 let nodeLabels = JSON.stringify(element.metadata.labels, null, 2)
                 return validNodeLabels.some(element => nodeLabels.includes(element))
