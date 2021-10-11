@@ -37,8 +37,8 @@ APIS_PLURAL = "apis"
 
 
 
-@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'apis')
-# @kopf.on.update('oda.tmforum.org', 'v1alpha3', 'apis')
+@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'apis', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'apis', retries=5)
 async def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for new or updated APIs.
     
@@ -211,7 +211,7 @@ async def updateImplementationStatus(namespace, name):
         logger.error(f"[updateImplementationStatus/{namespace}/{name}] ApiException when calling DiscoveryV1beta1Api->list_namespaced_endpoint_slice: {e}\n")           
 
 
-@kopf.on.field('networking.k8s.io', 'v1beta1', 'ingresses', field='status.loadBalancer')
+@kopf.on.field('networking.k8s.io', 'v1beta1', 'ingresses', field='status.loadBalancer', retries=5)
 async def ingress_status(meta, spec, status, body, namespace, labels, name, **kwargs): 
     """Handler function to register for status changes in child Ingress resources.
     
@@ -319,8 +319,8 @@ async def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget):
     return parent_api_status
 
 # When service where implementation is ready, update parent API object
-@kopf.on.create('discovery.k8s.io', 'v1beta1', 'endpointslice')
-# @kopf.on.update('discovery.k8s.io', 'v1beta1', 'endpointslice')
+@kopf.on.create('discovery.k8s.io', 'v1beta1', 'endpointslice', retries=5)
+@kopf.on.update('discovery.k8s.io', 'v1beta1', 'endpointslice', retries=5)
 async def implementation_status(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in EndPointSlide resources.
     
