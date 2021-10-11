@@ -1,3 +1,4 @@
+{{ if .Values.deployment.istioGateway }}
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
@@ -13,3 +14,4 @@ spec:
       protocol: HTTP
     hosts:
     - "*"
+{{ end }}
