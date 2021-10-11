@@ -1,6 +1,6 @@
 deployment:
   compconimage: lesterthomas/component-istio-controller:0.1.0
-  secconimage: tmforumodacanvas/security-listener:0.5.1
+  secconimage: tmforumodacanvas/security-listener:0.6.0
   monitorednamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false
