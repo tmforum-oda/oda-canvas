@@ -34,9 +34,9 @@ VERSION = "v1alpha3"
 APIS_PLURAL = "apis"
 COMPONENTS_PLURAL = "components"
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha3', 'components')
-@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'components')
-@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.resume('oda.tmforum.org', 'v1alpha3', 'components', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'components', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'components', retries=5)
 async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **core function** part new or updated components.
     
@@ -140,9 +140,9 @@ async def deleteAPI(deleteAPIName, componentName, status, namespace):
                 logger.error(f"[deleteAPI/{namespace}/{api['name']}] Exception when calling CustomObjectsApi->delete_namespaced_custom_object: {e}")
 
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha3', 'components')
-@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'components')
-@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'components')
+@kopf.on.resume('oda.tmforum.org', 'v1alpha3', 'components', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'components', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'components', retries=5)
 async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **security** part of new or updated components.
     
@@ -284,7 +284,7 @@ async def createOrPatchAPIResource(inCreate, inAPI, namespace, name):
 
 
 # When api adds url address of where api is exposed, update parent Component object
-@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'apis', field='status.apiStatus')
+@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'apis', field='status.apiStatus', retries=5)
 async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     
@@ -351,7 +351,7 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
                             parent_component['status']['securityAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
                 await patchComponent(namespace, name, parent_component)
 
-@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'apis', field='status.implementation')
+@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'apis', field='status.implementation', retries=5)
 async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     
@@ -439,8 +439,8 @@ async def patchComponent(namespace, name, component):
 # -------------------------------------------------------------------------------
 # Make services, deployments, persistentvolumeclaims and Jobs children of the component
 
-@kopf.on.resume('', 'v1', 'services')
-@kopf.on.create('', 'v1', 'services')
+@kopf.on.resume('', 'v1', 'services', retries=5)
+@kopf.on.create('', 'v1', 'services', retries=5)
 async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
     """Handler function for new services
     
@@ -479,7 +479,7 @@ async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
             # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
             if e.status == HTTP_NOT_FOUND:
                 raise kopf.TemporaryError(
-                    "Cannot find parent component " + component_name)
+                    "Cannot find parent component " + component_name + "/" + VERSION + " in namespace " + namespace + " , error " + e.reason)
             else:
                 logger.error(
                     "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
@@ -503,8 +503,8 @@ async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
                     "Exception when calling core_api_instance.patch_namespaced_service: %s", e)
 
 
-@kopf.on.resume('apps', 'v1', 'deployments')
-@kopf.on.create('apps', 'v1', 'deployments')
+@kopf.on.resume('apps', 'v1', 'deployments', retries=5)
+@kopf.on.create('apps', 'v1', 'deployments', retries=5)
 async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
     """ Handler function for new deployments
     
@@ -565,8 +565,8 @@ async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
                     "Exception when calling apps_api_instance.patch_namespaced_deployment: %s", e)
 
 
-@kopf.on.resume('', 'v1', 'persistentvolumeclaims')
-@kopf.on.create('', 'v1', 'persistentvolumeclaims')
+@kopf.on.resume('', 'v1', 'persistentvolumeclaims', retries=5)
+@kopf.on.create('', 'v1', 'persistentvolumeclaims', retries=5)
 async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwargs):
     """ Handler function for new persistentvolumeclaims
     
@@ -632,7 +632,7 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
 
 
 # When Component status changes, update status summary
-@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'components', field='status')
+@kopf.on.field('oda.tmforum.org', 'v1alpha3', 'components', field='status', retries=5)
 async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logger.info(
@@ -647,8 +647,9 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
             if 'developerUI' in api.keys():
                 developerUIsummary = developerUIsummary + \
                     api['developerUI'] + ' '
-            if api['ready'] == True:
-                countOfCompleteAPIs = countOfCompleteAPIs + 1
+            if 'ready' in api.keys():
+                if api['ready'] == True:
+                    countOfCompleteAPIs = countOfCompleteAPIs + 1
     for api in status['securityAPIs']:
         if 'url' in status['securityAPIs'][api].keys():
             if status['securityAPIs'][api]['ready'] == True:
