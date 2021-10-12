@@ -1,0 +1,17 @@
+{{ if .Values.deployment.istioGateway }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: component-gateway
+  namespace: {{ .Values.deployment.monitorednamespaces }}
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+{{ end }}
