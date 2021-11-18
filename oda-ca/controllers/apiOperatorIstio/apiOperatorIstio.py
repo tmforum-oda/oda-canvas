@@ -32,13 +32,13 @@ print('Ingress set to ',ingress_class)
 
 HTTP_SCHEME = "http://"
 GROUP = "oda.tmforum.org"
-VERSION = "v1alpha3"
+VERSION = "v1alpha4"
 APIS_PLURAL = "apis"
 
 
 
-@kopf.on.create('oda.tmforum.org', 'v1alpha3', 'apis', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1alpha3', 'apis', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1alpha4', 'apis', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1alpha4', 'apis', retries=5)
 def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for new or updated APIs.
     
@@ -81,16 +81,44 @@ def actualToDesiredState(spec, status, namespace, name):
         if 'apiStatus' in status.keys(): # there is an actual state to compare against
             # work out delta between desired and actual state
             apiStatus = status['apiStatus'] # starting point for return status is the previous status
-            # check if there is a difference in the ingress we created previously
+            # check if there is a difference in the api we created previously
             if name == apiStatus['name'] and spec['path'] == apiStatus['path'] and spec['port'] == apiStatus['port'] and spec['implementation'] == apiStatus['implementation']:
                 # unchanged, so just return previous status
                 logger.info(f"[actualToDesiredState/{namespace}/{name}] returning previous status")
                 return apiStatus
             else:
                 logger.info(f"[actualToDesiredState/{namespace}/{name}] status has changed so patching Virtual Service")
+                # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+                if 'apitype' in spec.keys():
+                    if spec['apitype'] == 'prometheus':
+                        # create a ServiceMonitor resource
+                        logger.info(f"[actualToDesiredState/{namespace}/{name}] patching ServiceMonitor")
+                        createOrPatchServiceMonitor(True, spec, namespace, name)
                 return createOrPatchVirtualService(True, spec, namespace, name)
     logger.info(f"[actualToDesiredState/{namespace}/{name}] status doesnt exist so creating Virtual Service")
+    # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+    if 'apitype' in spec.keys():
+        if spec['apitype'] == 'prometheus':
+            # create a ServiceMonitor resource
+            logger.info(f"[actualToDesiredState/{namespace}/{name}] creating ServiceMonitor")
+            createOrPatchServiceMonitor(False, spec, namespace, name)
     return createOrPatchVirtualService(False, spec, namespace, name)
+
+def createOrPatchServiceMonitor(patch, spec, namespace, name):            
+    """Helper function to get API details for a prometheus metrics API and create or patch ServiceMonitor resource.
+    
+    Args:
+        * patch (Boolean): True to patch an existing ServiceMonitor; False to create a new ServiceMonitor. 
+        * spec (Dict): The spec from the API Resource showing the intent (or desired state) 
+        * namespace (String): The namespace for the API Custom Resource
+        * name (String): The name of the API Custom Resource
+
+    Returns:
+        nothing
+
+    :meta private:
+    """
+    logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] createOrPatchServiceMonitor **********************NOT IMPLEMENTED YET********************* with name {name}")
 
 def createOrPatchVirtualService(patch, spec, namespace, name):            
     """Helper function to get API details and create or patch VirtualService.
