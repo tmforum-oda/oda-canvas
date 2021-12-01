@@ -157,7 +157,9 @@ def createOrPatchServiceMonitor(patch, spec, namespace, name):
                 ]
             }
         }
-        # TODO Add basicAuth to endpoints section above **************************************************
+        if 'basicAuth' in spec.keys():
+            body['spec']['endpoints'][0]['basicAuth'] = spec['basicAuth']
+
         logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] body : {body}")
 
 

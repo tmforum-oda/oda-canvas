@@ -23,7 +23,7 @@ app.post("/", (req, res, next) => {
   for (var key in objectsArray) {
     objectsArray[key].metadata.annotations.webhookconverted = "Webhook converted From " + objectsArray[key].apiVersion + " to " + desiredAPIVersion;
     console.log('Comparing old version ' + objectsArray[key].apiVersion + ' and desired version ' + desiredAPIVersion);
-    if ((["oda.tmforum.org/v1alpha3"].includes(objectsArray[key].apiVersion)) && (["oda.tmforum.org/v1alpha2", "oda.tmforum.org/v1alpha1"].includes(desiredAPIVersion))) {
+    if ((["oda.tmforum.org/v1alpha3", "oda.tmforum.org/v1alpha4"].includes(objectsArray[key].apiVersion)) && (["oda.tmforum.org/v1alpha2", "oda.tmforum.org/v1alpha1"].includes(desiredAPIVersion))) {
       console.log("convert dependentAPIs to dependantAPIs")
       if (objectsArray[key].spec.coreFunction.dependentAPIs) {
         console.log("converting ")
@@ -31,7 +31,7 @@ app.post("/", (req, res, next) => {
         delete objectsArray[key].spec.coreFunction.dependentAPIs
       }
     }
-    if ((["oda.tmforum.org/v1alpha2", "oda.tmforum.org/v1alpha1"].includes(objectsArray[key].apiVersion)) && (["oda.tmforum.org/v1alpha3"].includes(desiredAPIVersion))) {
+    if ((["oda.tmforum.org/v1alpha2", "oda.tmforum.org/v1alpha1"].includes(objectsArray[key].apiVersion)) && (["oda.tmforum.org/v1alpha3", "oda.tmforum.org/v1alpha4"].includes(desiredAPIVersion))) {
       console.log("convert depandantAPIs to dependentAPIs")
       if (objectsArray[key].spec.coreFunction.dependantAPIs) {
         console.log("converting ")
