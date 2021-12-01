@@ -508,6 +508,23 @@ spec:
                       type: string
                     port:
                       type: integer
+                    basicAuth:
+                      properties:
+                        password:
+                          properties:
+                            key:
+                              type: string
+                            name:
+                              type: string
+                          type: object
+                        username:
+                          properties:
+                            key:
+                              type: string
+                            name:
+                              type: string
+                          type: object
+                      type: object                      
               security:
                 type: object  
                 properties:  
