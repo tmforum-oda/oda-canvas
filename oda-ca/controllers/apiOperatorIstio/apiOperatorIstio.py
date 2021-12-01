@@ -118,7 +118,70 @@ def createOrPatchServiceMonitor(patch, spec, namespace, name):
 
     :meta private:
     """
-    logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] createOrPatchServiceMonitor **********************NOT IMPLEMENTED YET********************* with name {name}")
+    logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] createOrPatchServiceMonitor with name {name}")
+
+    client = kubernetes.client
+    try:
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+
+        hostname = None
+        if 'hostname' in spec.keys():
+            hostname=spec['hostname']
+
+        SERVICE_MONITOR_GROUP = "monitoring.coreos.com"
+        SERVICE_MONITOR_VERSION = "v1"
+        SERVICE_MONITOR_PLURAL = "servicemonitors"
+        SERVICE_MONITOR_KIND = "ServiceMonitor"
+
+        # FIX required to optionally add hostname instead of ["*"]
+        body = {
+            "apiVersion": SERVICE_MONITOR_GROUP + "/" + SERVICE_MONITOR_VERSION,
+            "kind": SERVICE_MONITOR_KIND,
+            "metadata": {
+                "name": name,
+                "namespace": namespace
+                },
+            "spec": {
+                "selector": {
+                    "matchLabels": {
+                       "name": spec['implementation']  
+                    }
+                },
+                "endpoints": [
+                    {
+                        "path": spec['path'],
+                        "interval": "15s",
+                        "scheme": "http",
+                        "targetPort": spec['port']
+                    }
+                ]
+            }
+        }
+        # TODO Add basicAuth to endpoints section above **************************************************
+        logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] body : {body}")
+
+
+        # Make it our child: assign the namespace, name, labels, owner references, etc.
+        kopf.adopt(body)
+        logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] body (adopted): {body}")
+        if patch == True:
+            # patch the resource
+            logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] Patching ServiceMonitor with: {body}")
+            serviceMonitorResource = custom_objects_api.patch_namespaced_custom_object(SERVICE_MONITOR_GROUP, SERVICE_MONITOR_VERSION, namespace, SERVICE_MONITOR_PLURAL, name, body)
+            logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] serviceMonitorResource patched: {serviceMonitorResource}")
+            logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] serviceMonitorResource patched with name {name}")
+            return 
+        else:
+            # create the resource
+            logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] Creating ingress with: {body}")
+            serviceMonitorResource = custom_objects_api.create_namespaced_custom_object(SERVICE_MONITOR_GROUP, SERVICE_MONITOR_VERSION, namespace, SERVICE_MONITOR_PLURAL, body)
+            logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] serviceMonitorResource created: {serviceMonitorResource}")
+            logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] serviceMonitorResource created with name {name}")
+            return 
+    except ApiException as e:
+        logger.warning("Exception when calling CustomObjectsApi: %s\n" % e)
+        raise kopf.TemporaryError("Exception creating ServiceMonitor.")   
+
 
 def createOrPatchVirtualService(patch, spec, namespace, name):            
     """Helper function to get API details and create or patch VirtualService.
@@ -203,7 +266,7 @@ def createOrPatchVirtualService(patch, spec, namespace, name):
             return apistatus['apiStatus']
         else:
             # create the resource
-            logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] Creating ingress with: {body}")
+            logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] Creating VirtualService with: {body}")
             virtualServiceResource = custom_objects_api.create_namespaced_custom_object(VIRTUAL_SERVICE_GROUP, VIRTUAL_SERVICE_VERSION, namespace, VIRTUAL_SERVICE_PLURAL, body)
             logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] virtualServiceResource created: {virtualServiceResource}")
             logger.info(f"[createOrPatchVirtualService/{namespace}/{name}] virtualServiceResource created with name {name}")
