@@ -1,13 +1,14 @@
 # ODA Reference Implementation and Environment Specification
-The ODA Reference Implementation (ODA-RI) is the proving ground for building a common environment for TM Forum ODA Components. The four levels of specifications in this process are:
-- The set of _core component specifications_, which define the core functiones exposed by each individual component
+The ODA Reference Implementation (ODA-RI) is the proving ground for building a common environment for TM Forum ODA Components. The five levels of specifications and implementation details in this process are:
+- The set of _core component specifications_, which define the core functions exposed by each individual component
 - The component _generic specification_, which defines the common characteristics shared by every ODA component
 - The _environment specification_, which defines the underlying platform required to support the components
-- The _ODA Reference Implementation_, which is a practical implementation of the environment specification, supplemented with extra services required to emulate those services available in a service provider that lie outside the ODA scope.
+- The _ODA Reference Implementation_, which is a practical implementation of the environment specification
+- The _supplemental services_ required to emulate capabilities that are normally available in a service provider outside the ODA scope.
 
-This page documents the environment specification as we discover it through building and testing the ODA-RI.
+This page documents the environment specification, reference implementation and supplemental services as we discover them through building and testing the ODA-RI.
 
-# Baseline build
+# ODA Environment Specification
 ## Kubernetes
 [Kubernetes](https://kubernetes.io) is the base platform technology.
 - Version 1.19 or higher (1.21 has been shown to work at the time of writing) is required
@@ -16,7 +17,7 @@ This page documents the environment specification as we discover it through buil
 
 ## Custom Resource Definitions
 
-There are custome resource definitions for:
+There are custom resource definitions for:
 - api.oda.tmforum.org
 - components.oda.tmforum.org
 
@@ -50,11 +51,16 @@ Service mesh is required to provide the following functions:
 - The ODA expects exchange of identity information using SCIM, with TM-Forum APIs as fallback.
 - Bootstrapping identity between components and the underlying environment relies on the identity and access integration being provided and components supporting TMF669 Party role Management being exposed into the canvas environment (i.e. within the cluster).
 
+## Observability
+- The ODA implements a collection service for events and metrics. Custom controllers may be required to collect from components that expect different collectors.
+
 # ODA-RI environment implementation
 - [Rancher](https://rancher.com/) is being used to manage the Kubernetes clusters.
 - [Istio](https://istio.io/) has been implemented as the service mesh as it is provided with Rancher.
+- [Prometheus] is the default metric collector.
+- No default log/event collector has been implemented yet.
 - For minimal (non-service-mesh) implementations, [cert-manager](https://cert-manager.io/) is also an available option for providing certifiactes for securing the CRD webhook.
 - A full suite of example controllers is provided.
 
 # ODA-RI specific supplementary services
-- [Keycloak](https://www.keycloak.org/) has been implemented to provide identity and access services that would normally be provided by the organisation outside the ODA architecture.
+- [Keycloak](https://www.keycloak.org/) has been implemented to provide identity and access services that would normally be provided by the organisation outside the ODA architecture. So far, the ODA-RI has the capability to synchronise roles with components, but user account management, authorisation and authentication journeys are backlogged.
