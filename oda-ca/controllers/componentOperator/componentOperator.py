@@ -75,7 +75,6 @@ async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwarg
             found = False
             for newAPI in newExposedAPIs:
 
-                # NEED TO FIX COMPARISON SO THAT IT ONLY COMPARES NAME OF API RESOURCE AS LOWERCASE (AND NOT ENTIRE OBJECT)
                 logger.debug(f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
                 if oldAPI['name'] == name + '-' + newAPI['name'].lower():
                     found = True
@@ -180,7 +179,6 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
             found = False
             for newAPI in newManagementAPIs:
 
-                # NEED TO FIX COMPARISON SO THAT IT ONLY COMPARES NAME OF API RESOURCE AS LOWERCASE (AND NOT ENTIRE OBJECT)
                 logger.debug(f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
                 if oldAPI['name'] == name + '-' + newAPI['name'].lower():
                     found = True
