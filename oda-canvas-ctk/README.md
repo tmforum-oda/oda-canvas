@@ -17,9 +17,6 @@ npm install
 To run **all** the tests:
 
 ```
-git clone https://github.com/tmforum-oda/oda-canvas-ctk.git
-cd oda-canvas-ctk
-npm install
 npm test
 ```
 
