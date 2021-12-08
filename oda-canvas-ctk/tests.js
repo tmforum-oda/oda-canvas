@@ -167,9 +167,6 @@ describe("Mandatory non-functional capabilities", function () {
 
 if (canvas_ctk_tests == "mandatory" ) {
     // do nothing - these are optional
-    describe("Optional non-functional capabilities", function () {
-        
-    })
 }
 else {
     describe("Optional non-functional capabilities", function () {
