@@ -6,11 +6,22 @@ Temporarily, these design guidelines can be found here: https://github.com/tomki
 
 ## Executing the CTK tests
 
+To run **all** the tests:
+
 ```
 git clone https://github.com/tmforum-oda/oda-canvas-ctk.git
 cd oda-canvas-ctk
 npm install
-npm test
+npm run ctk-tests
+```
+
+To run only the **mandatory** tests:
+
+```
+git clone https://github.com/tmforum-oda/oda-canvas-ctk.git
+cd oda-canvas-ctk
+npm install
+npm run mandatory-ctk-tests
 ```
 
 ## Kubernetes Conformance
@@ -62,23 +73,17 @@ sonobuoy delete --all --wait
 The CTK tests are written in NodeJS using the [Mocha](https://mochajs.org/) test framework and the [Chai](https://www.chaijs.com/) test assertion library.
 
 At present, there is just one [test.js](tests.js) script with all the tests in - we may choose to split this at a later date.
-This script is called from the [package.json](package.json) file using the `mocha` command:
+This script is called from the [package.json](package.json) file using the `mocha` command.
+The second script simply adds an environment variable to stop the optional tests being run.
 
 ```json
   "scripts": {
-    "test": "mocha tests.js"
+    "ctk-tests": "mocha tests.js",
+    "mandatory-ctk-tests": "CANVAS_CTK_TESTS=mandatory mocha tests.js"
   },
 ```
 
-This means to execute this, we simply use `npm test`.
-Similarly, if we were to add another script in that block, as per below, we could execute using `npm test2`:
-
-```json
-  "scripts": {
-    "test": "mocha tests.js",
-    "test2": "mocha tests2.js"
-  },
-```
+This means to execute the tests, we simply use `npm run ctk-tests` or `npm run mandatory-ctk-tests`.
 
 A simple example of an assertion test is found below.
 For each section of testing there is a `describe` method where you set-up the data required for the test, and then an `it` method for each test.

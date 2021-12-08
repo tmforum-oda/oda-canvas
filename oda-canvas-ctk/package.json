@@ -4,7 +4,8 @@
   "description": "ODA Canvas Compliance Test Kit",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests.js"
+    "ctk-tests": "mocha tests.js",
+    "mandatory-ctk-tests": "CANVAS_CTK_TESTS=mandatory mocha tests.js"
   },
   "repository": {
     "type": "git",
