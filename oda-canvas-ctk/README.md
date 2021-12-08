@@ -44,37 +44,7 @@ CANVAS_CTK_OPTIONAL_ISTIO=true CANVAS_CTK_OPTIONAL_KEYCLOAK=true npm test
 
 Example output:
 
-```
-********************************************************
-Open Digital Architecture - Canvas Test Kit CTK v1alpha1
-********************************************************
-
-
-
-  Basic Kubernetes checks
-    ✔ Can connect to the cluster (286ms)
-    ✔ Cluster is running a supported version: v1.18,v1.19,v1.20,v1.21,v1.22,v1.22+ (291ms)
-
-  Mandatory non-functional capabilities
-    ✔ Canvas namespace exists (269ms)
-    ✔ Components namespace exists (300ms)
-    ✔ oda.tmforum.org/v1alpha3 APIs CRD exists (407ms)
-    ✔ oda.tmforum.org/v1alpha3 Components CRD exists (329ms)
-    ✔ zalando.org/v1 Kopfpeerings CRD exists (514ms)
-    ✔ zalando.org/v1 Clusterkopfpeerings CRD exists (442ms)
-    ✔ oda-controller-ingress deployment is running (417ms)
-    ✔ compcrdwebhook deployment is running (323ms)
-
-  Optional non-functional capabilities
-    ✔ canvas-keycloak deployment is running (246ms)
-    ✔ istio-system namespace exists (269ms)
-    ✔ istiod deployment is running (326ms)
-    ✔ istio-ingressgateway deployment is running (433ms)
-    ✔ istio-egressgateway deployment is running (338ms)
-
-
-  15 passing (5s)
-```
+![gif showing the ctk in action and results](canvas-ctk.gif)
 
 ## Kubernetes Conformance
 
