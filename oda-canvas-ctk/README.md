@@ -6,22 +6,43 @@ Temporarily, these design guidelines can be found here: https://github.com/tomki
 
 ## Executing the CTK tests
 
+To prepare for running the tests:
+
+```
+git clone https://github.com/tmforum-oda/oda-canvas-ctk.git
+cd oda-canvas-ctk
+npm install
+```
+
 To run **all** the tests:
 
 ```
 git clone https://github.com/tmforum-oda/oda-canvas-ctk.git
 cd oda-canvas-ctk
 npm install
-npm run ctk-tests
+npm test
 ```
 
 To run only the **mandatory** tests:
 
 ```
-git clone https://github.com/tmforum-oda/oda-canvas-ctk.git
-cd oda-canvas-ctk
-npm install
-npm run mandatory-ctk-tests
+CANVAS_CTK_MANDATORY_ONLY=true npm test
+```
+
+To control which optional tests are run, set one of the following environment variables to `true`
+- CANVAS_CTK_OPTIONAL_KEYCLOAK=true
+- CANVAS_CTK_OPTIONAL_ISTIO=true
+
+e.g. the following will include the optional keycloak test, but not Istio:
+
+```
+CANVAS_CTK_OPTIONAL_KEYCLOAK=true npm test
+```
+
+e.g. the following will include both the keycloak and istio optional tests (today, this is the same as running all tests, but as more optional tests are added it may be useful):
+
+```
+CANVAS_CTK_OPTIONAL_ISTIO=true CANVAS_CTK_OPTIONAL_KEYCLOAK=true npm test
 ```
 
 ## Kubernetes Conformance
@@ -78,12 +99,11 @@ The second script simply adds an environment variable to stop the optional tests
 
 ```json
   "scripts": {
-    "ctk-tests": "mocha tests.js",
-    "mandatory-ctk-tests": "CANVAS_CTK_TESTS=mandatory mocha tests.js"
+    "test": "mocha tests.js"
   },
 ```
 
-This means to execute the tests, we simply use `npm run ctk-tests` or `npm run mandatory-ctk-tests`.
+This means to execute the tests, we simply use `npm test`.
 
 A simple example of an assertion test is found below.
 For each section of testing there is a `describe` method where you set-up the data required for the test, and then an `it` method for each test.

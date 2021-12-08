@@ -2,7 +2,9 @@ const k8s = require('@kubernetes/client-node')
 const chai = require('chai')
 var expect = chai.expect
 const request = require('request')
-var canvas_ctk_tests = process.env.CANVAS_CTK_TESTS;
+var mandatory_only = process.env.CANVAS_CTK_MANDATORY_ONLY;
+var optional_keycloak = process.env.CANVAS_CTK_OPTIONAL_KEYCLOAK;
+var optional_istio = process.env.CANVAS_CTK_OPTIONAL_ISTIO;
 
 console.log('********************************************************')
 console.log('Open Digital Architecture - Canvas Test Kit CTK v1alpha1')
@@ -30,7 +32,6 @@ describe("Basic Kubernetes checks", function () {
     const supportedVersions = ['v1.18', 'v1.19', 'v1.20', 'v1.21', 'v1.22', 'v1.22+']
     it("Cluster is running a supported version: " + supportedVersions, function (done) {
         k8sVersionAPI.getCode().then((res) => {
-            // console.log(res.body)
             let clusterVersion = "v" + res.body.major + "." + res.body.minor
             expect(clusterVersion).to.be.oneOf(supportedVersions, clusterVersion + " must be within supported versions " + supportedVersions)
             done()
@@ -82,13 +83,6 @@ describe("Mandatory non-functional capabilities", function () {
     it("oda.tmforum.org/v1alpha3 APIs CRD exists", function (done) {
         request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1alpha3/namespaces/*/apis`, opts,
             (error, response, body) => {
-                if (error) {
-                    // console.log(`error: ${error}`)
-                }
-                if (response) {
-                    // console.log(`statusCode: ${response.statusCode}`)
-                }
-                // console.log(`body: ${body}`)
                 expect(response.statusCode, "API response code").to.equal(200)
                 done()
             })
@@ -96,13 +90,6 @@ describe("Mandatory non-functional capabilities", function () {
     it("oda.tmforum.org/v1alpha3 Components CRD exists", function (done) {
         request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1alpha3/namespaces/*/components`, opts,
             (error, response, body) => {
-                if (error) {
-                    // console.log(`error: ${error}`)
-                }
-                if (response) {
-                    // console.log(`statusCode: ${response.statusCode}`)
-                }
-                // console.log(`body: ${body}`)
                 expect(response.statusCode, "API response code").to.equal(200)
                 done()
             })
@@ -110,13 +97,6 @@ describe("Mandatory non-functional capabilities", function () {
     it("zalando.org/v1 Kopfpeerings CRD exists", function (done) {
         request.get(`${kc.getCurrentCluster().server}/apis/zalando.org/v1/namespaces/*/kopfpeerings`, opts,
             (error, response, body) => {
-                if (error) {
-                    // console.log(`error: ${error}`)
-                }
-                if (response) {
-                    // console.log(`statusCode: ${response.statusCode}`)
-                }
-                // console.log(`body: ${body}`)
                 expect(response.statusCode, "API response code").to.equal(200)
                 done()
             })
@@ -124,13 +104,6 @@ describe("Mandatory non-functional capabilities", function () {
     it("zalando.org/v1 Clusterkopfpeerings CRD exists", function (done) {
         request.get(`${kc.getCurrentCluster().server}/apis/zalando.org/v1/clusterkopfpeerings`, opts,
             (error, response, body) => {
-                if (error) {
-                    // console.log(`error: ${error}`)
-                }
-                if (response) {
-                    // console.log(`statusCode: ${response.statusCode}`)
-                }
-                // console.log(`body: ${body}`)
                 expect(response.statusCode, "API response code").to.equal(200)
                 done()
             })
@@ -164,26 +137,85 @@ describe("Mandatory non-functional capabilities", function () {
         }).catch(done)
     })
 })
-
-if (canvas_ctk_tests == "mandatory" ) {
-    // do nothing - these are optional
+if ((typeof optional_keycloak === 'undefined') && (typeof optional_istio === 'undefined')) {
+    // force all the optional tests to run, as none have been specified
+    var run_all_optional = true
 }
-else {
+
+if ( mandatory_only == 'true' ) {
+    // do nothing - these are optional
+    console.log(mandatory_only)
+} else {
     describe("Optional non-functional capabilities", function () {
-        it("canvas-keycloak deployment is running", function (done) {
-            k8sAppsAPI.readNamespacedDeploymentStatus('canvas-keycloak', ReleaseNamespace).then((res) => {
-                let unavailableReplicas = res.body.status.unavailableReplicas
-                let readyReplicas = res.body.status.readyReplicas
-                let replicas = res.body.status.replicas
-                let availableReplicas = res.body.status.availableReplicas
-                let updatedReplicas = res.body.status.updatedReplicas
-                expect(unavailableReplicas, "Number of unavailable replicas").to.be.undefined &&
-                    expect(readyReplicas, "Number of ready replicas").to.deep.equal(replicas) &&
-                    expect(availableReplicas, "Number of available replicas").to.deep.equal(replicas) &&
-                    expect(updatedReplicas, "Number of up-to-date replicas").to.deep.equal(replicas)
-                done()
-            }).catch(done)
-        })
+        if ((optional_keycloak == 'true') || (run_all_optional)) {
+            it("canvas-keycloak deployment is running", function (done) {
+                k8sAppsAPI.readNamespacedDeploymentStatus('canvas-keycloak', ReleaseNamespace).then((res) => {
+                    let unavailableReplicas = res.body.status.unavailableReplicas
+                    let readyReplicas = res.body.status.readyReplicas
+                    let replicas = res.body.status.replicas
+                    let availableReplicas = res.body.status.availableReplicas
+                    let updatedReplicas = res.body.status.updatedReplicas
+                    expect(unavailableReplicas, "Number of unavailable replicas").to.be.undefined &&
+                        expect(readyReplicas, "Number of ready replicas").to.deep.equal(replicas) &&
+                        expect(availableReplicas, "Number of available replicas").to.deep.equal(replicas) &&
+                        expect(updatedReplicas, "Number of up-to-date replicas").to.deep.equal(replicas)
+                    done()
+                }).catch(done)
+            })
+        }
+        if ((optional_istio == 'true') || (run_all_optional)) {
+            it("istio-system namespace exists", function (done) {
+                k8sCoreApi.listNamespace().then((res) => {
+                    let namespaceArray = []
+                    res.body.items.forEach(element => namespaceArray.push(element.metadata.name))
+                    expect(namespaceArray, "istio-system namespace to be in list of namespaces").to.include('istio-system')
+                    done()
+                }).catch(done)
+            })
+            it("istiod deployment is running", function (done) {
+                k8sAppsAPI.readNamespacedDeploymentStatus('istiod', 'istio-system').then((res) => {
+                    let unavailableReplicas = res.body.status.unavailableReplicas
+                    let readyReplicas = res.body.status.readyReplicas
+                    let replicas = res.body.status.replicas
+                    let availableReplicas = res.body.status.availableReplicas
+                    let updatedReplicas = res.body.status.updatedReplicas
+                    expect(unavailableReplicas, "Number of unavailable replicas").to.be.undefined &&
+                        expect(readyReplicas, "Number of ready replicas").to.deep.equal(replicas) &&
+                        expect(availableReplicas, "Number of available replicas").to.deep.equal(replicas) &&
+                        expect(updatedReplicas, "Number of up-to-date replicas").to.deep.equal(replicas)
+                    done()
+                }).catch(done)
+            })
+            it("istio-ingressgateway deployment is running", function (done) {
+                k8sAppsAPI.readNamespacedDeploymentStatus('istio-ingressgateway', 'istio-system').then((res) => {
+                    let unavailableReplicas = res.body.status.unavailableReplicas
+                    let readyReplicas = res.body.status.readyReplicas
+                    let replicas = res.body.status.replicas
+                    let availableReplicas = res.body.status.availableReplicas
+                    let updatedReplicas = res.body.status.updatedReplicas
+                    expect(unavailableReplicas, "Number of unavailable replicas").to.be.undefined &&
+                        expect(readyReplicas, "Number of ready replicas").to.deep.equal(replicas) &&
+                        expect(availableReplicas, "Number of available replicas").to.deep.equal(replicas) &&
+                        expect(updatedReplicas, "Number of up-to-date replicas").to.deep.equal(replicas)
+                    done()
+                }).catch(done)
+            })
+            it("istio-egressgateway deployment is running", function (done) {
+                k8sAppsAPI.readNamespacedDeploymentStatus('istio-egressgateway', 'istio-system').then((res) => {
+                    let unavailableReplicas = res.body.status.unavailableReplicas
+                    let readyReplicas = res.body.status.readyReplicas
+                    let replicas = res.body.status.replicas
+                    let availableReplicas = res.body.status.availableReplicas
+                    let updatedReplicas = res.body.status.updatedReplicas
+                    expect(unavailableReplicas, "Number of unavailable replicas").to.be.undefined &&
+                        expect(readyReplicas, "Number of ready replicas").to.deep.equal(replicas) &&
+                        expect(availableReplicas, "Number of available replicas").to.deep.equal(replicas) &&
+                        expect(updatedReplicas, "Number of up-to-date replicas").to.deep.equal(replicas)
+                    done()
+                }).catch(done)
+            })
+        }
+        
     })
 }
 
