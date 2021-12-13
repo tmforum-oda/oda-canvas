@@ -31,7 +31,7 @@ bash install_canvas_cert-manager.sh
 ## Step 4: Configuring Keycloak
 
 Finally, you will also need to configure Keycloak as follows:
-- Log in to the admin console. Unless you changed it manually, the default credentials we've set are in the [Keycloak values.yaml file](canvas/charts/keycloak/values.yaml)
+- Log in to the admin console. Unless you changed it manually, the default credentials we've set are in the [Keycloak values.yaml file](https://github.com/tmforum-oda/oda-canvas-charts/blob/master/canvas/charts/keycloak/values.yaml)
 - [Create a new realm](https://www.keycloak.org/docs/latest/server_admin/#_create-realm) called ```myrealm```
 - [Create a user in myrealm](https://www.keycloak.org/docs/latest/server_admin/#_create-new-user) called ```seccon```
 ### Notes
