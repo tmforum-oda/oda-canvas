@@ -66,4 +66,4 @@ COPY canvas_demo.sh /root/canvas_demo.sh
 
 ENV PATH="${PATH}:/root"
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/bash", "/root/canvas_demo.sh"]
