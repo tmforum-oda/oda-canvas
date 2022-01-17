@@ -74,6 +74,7 @@ bash -c '/usr/local/bin/kind create cluster'
 echo Modifying Kubernetes config to point to Kind master node
 MASTER_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' kind-control-plane)
 sed -i "s/^    server:.*/    server: https:\/\/$MASTER_IP:6443/" $HOME/.kube/config
+docker network connect tmf-canvas-in-a-bottle kind
 cd
 
 echo -e ${BLUE}
