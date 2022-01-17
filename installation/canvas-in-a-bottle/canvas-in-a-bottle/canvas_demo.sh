@@ -66,7 +66,7 @@ echo "
 @@@@@@@@@@@@@####@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@####&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 "
 
-export PS1="\[\e]0;\u@secretless-k8s-demo: \w\a\]${debian_chroot:+($debian_chroot)}\u@secretless-k8s-demo:\w\$ "
+export PS1="\[\e]0;\u@tmf-canvas-in-a-bottle: \w\a\]${debian_chroot:+($debian_chroot)}\u@tmf-canvas-in-a-bottle:\w\$ "
 
 echo Bringing up a cluster
 bash -c '/usr/local/bin/kind create cluster'
@@ -74,7 +74,7 @@ bash -c '/usr/local/bin/kind create cluster'
 echo Modifying Kubernetes config to point to Kind master node
 MASTER_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' kind-control-plane)
 sed -i "s/^    server:.*/    server: https:\/\/$MASTER_IP:6443/" $HOME/.kube/config
-docker network connect tmf-canvas-in-a-bottle kind
+docker network connect kind tmf-canvas-in-a-bottle
 cd
 
 echo -e ${BLUE}
