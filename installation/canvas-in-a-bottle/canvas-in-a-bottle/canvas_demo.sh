@@ -100,6 +100,13 @@ helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm install --namespace grafana my-release stable/grafana
 
 echo -e ${BLUE}
+echo ===========================
+echo Deploying Istio
+echo ===========================
+echo -e ${NOCOLOR}
+istioctl install --set profile=demo -y
+
+echo -e ${BLUE}
 echo ====================================================
 echo Deploying TMF Canvas
 echo ====================================================
