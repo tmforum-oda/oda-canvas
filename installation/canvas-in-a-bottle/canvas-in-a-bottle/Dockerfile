@@ -63,6 +63,8 @@ RUN dockerd &
 
 
 COPY canvas_demo.sh /root/canvas_demo.sh
+COPY scripts/get_dashboard_token /root/get_dashboard_token
+COPY scripts/get_grafana_credentials /root/get_grafana_credentials
 
 ENV PATH="${PATH}:/root"
 

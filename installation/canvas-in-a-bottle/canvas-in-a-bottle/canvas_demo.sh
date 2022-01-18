@@ -69,10 +69,11 @@ echo "
 export PS1="\[\e]0;\u@tmf-canvas-in-a-bottle: \w\a\]${debian_chroot:+($debian_chroot)}\u@tmf-canvas-in-a-bottle:\w\$ "
 
 echo Bringing up a cluster
+bash -c '/usr/local/bin/kind delete cluster'
 bash -c '/usr/local/bin/kind create cluster'
 
 echo Modifying Kubernetes config to point to Kind master node
-MASTER_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' kind-control-plane)
+MASTER_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' kind-control-plane)
 sed -i "s/^    server:.*/    server: https:\/\/$MASTER_IP:6443/" $HOME/.kube/config
 docker network connect kind tmf-canvas-in-a-bottle
 cd
@@ -82,12 +83,12 @@ echo =====================================================================
 echo Deploying Kubernetes dashboard and create a dashboard service account
 echo =====================================================================
 echo -e ${NOCOLOR}
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc3/aio/deploy/recommended.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
 kubectl create serviceaccount dashboard-admin-sa
 kubectl create clusterrolebinding dashboard-admin-sa --clusterrole=cluster-admin --serviceaccount=default:dashboard-admin-sa
 
 echo Setting up Kubectl Proxy
-CLIENT_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' secretless-demo-client)
+CLIENT_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' tmf-canvas-in-a-bottle)
 kubectl proxy --address=$CLIENT_IP --accept-hosts=^localhost$,^127\.0\.0\.1$,^\[::1\]$ &
 
 echo -e ${BLUE}
@@ -96,8 +97,35 @@ echo Deploying Grafana Dashboard
 echo ===========================
 echo -e ${NOCOLOR}
 kubectl create namespace grafana
-helm repo add stable https://kubernetes-charts.storage.googleapis.com
-helm install --namespace grafana my-release stable/grafana
+helm repo add stable https://charts.helm.sh/stable
+helm repo add grafana https://grafana.github.io/helm-charts
+helm install --namespace grafana grafana grafana/grafana
+
+sleep 10
+export POD_NAME=$(kubectl get pods --namespace grafana -o jsonpath="{.items[0].metadata.name}")
+for ((tsecs = 1; tsecs <= 300; tsecs++)); do
+    if [[ $(kubectl get pods --namespace grafana $POD_NAME -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') == "True" ]]; then
+        echo OK
+        echo Set up port forwarding for Grafana
+        kubectl --namespace grafana port-forward --address $CLIENT_IP $POD_NAME 3000:3000 &
+        echo -e ${BLUE}
+        echo ===============================================================
+        echo You can access the Grafana dashboard at the following location:
+        echo -e ${GREEN}
+        echo http://127.0.0.1:3000
+        echo -e ${BLUE}
+        echo You will be prompted for a login username/password. To get the
+        echo username/password credentials, run the following script:
+        echo -e ${GREEN}
+        echo -e "    get_grafana_credentials"
+        echo -e ${BLUE}
+        echo ==================================================================
+        echo -e ${NOCOLOR}
+        break
+    fi
+    echo -n ". " && sleep 1;
+done
+
 
 echo -e ${BLUE}
 echo ===========================
@@ -134,5 +162,5 @@ cd
 /bin/bash
 
 # Clean up cluster after exit from shell
-kind delete cluster --name secretless-kube
+kind delete cluster
 
