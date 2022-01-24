@@ -51,7 +51,7 @@ RUN cd /root && \
     wget -O downloadIstio.sh https://raw.githubusercontent.com/istio/istio/master/release/downloadIstioCandidate.sh && \
     chmod 700 downloadIstio.sh && \
     ./downloadIstio.sh && \
-    mv /root/istio-1.12.1/bin/istioctl /usr/local/bin/istioctl
+    mv /root/istio-1.12.2/bin/istioctl /usr/local/bin/istioctl
 
 # Clone Canvas Repository
 # TODO: clone just the necessary scripts
