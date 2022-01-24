@@ -88,8 +88,18 @@ kubectl create serviceaccount dashboard-admin-sa
 kubectl create clusterrolebinding dashboard-admin-sa --clusterrole=cluster-admin --serviceaccount=default:dashboard-admin-sa
 
 echo Setting up Kubectl Proxy
-CLIENT_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' tmf-canvas-in-a-bottle)
+CLIENT_IP=$(docker inspect --format '{{ .NetworkSettings.Networks.kind.IPAddress }}' tmf-canvas-in-a-bottle)
 kubectl proxy --address=$CLIENT_IP --accept-hosts=^localhost$,^127\.0\.0\.1$,^\[::1\]$ &
+secret=$(kubectl get secrets | awk '/dashboard-admin-sa/{print $1}') &
+
+
+echo -e ${BLUE}
+echo ===========================
+echo You can access the Kuberbetes Dashboard at:
+echo http://127.0.0.1:30303/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+kubectl describe secret $secret &
+echo ===========================
+echo -e ${NOCOLOR}
 
 echo -e ${BLUE}
 echo ===========================

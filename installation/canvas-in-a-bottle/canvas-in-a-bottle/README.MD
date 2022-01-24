@@ -13,7 +13,7 @@ If you just need to copy the command
 ## Mac and Linux
 
 ```sh
-git clone https://github.com/tmforum-oda/canvas-in-a-bottle && cd canvas-in-a-bottle && docker run --rm --name tmf-canvas-in-a-bottle -p 30303:8001 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -it tmforumodacanvas:canvas-in-a-bottle
+git clone https://github.com/tmforum-oda/canvas-in-a-bottle && cd canvas-in-a-bottle && docker run --rm --name tmf-canvas-in-a-bottle -p 30303:8001 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -it tmforumodacanvas/canvas-in-a-bottle:latest
 ```
 
 ## Windows
@@ -21,11 +21,26 @@ git clone https://github.com/tmforum-oda/canvas-in-a-bottle && cd canvas-in-a-bo
 It is necessary to prevent path Expansion on windows with // on the volume, the command becomes:
 
 ```sh
-git clone https://github.com/tmforum-oda/canvas-in-a-bottle && cd canvas-in-a-bottle && docker run --rm --name tmf-canvas-in-a-bottle -p 30303:8001 -p 3000:3000 -v //var/run/docker.sock:/var/run/docker.sock -it tmforumodacanvas:canvas-in-a-bottle
+git clone https://github.com/tmforum-oda/canvas-in-a-bottle && cd canvas-in-a-bottle && docker run --rm --name tmf-canvas-in-a-bottle -p 30303:8001 -p 3000:3000 -v //var/run/docker.sock:/var/run/docker.sock -it tmforumodacanvas/canvas-in-a-bottle:latest
 ```
 
-# 
- 
+## Windows - Powershell before v5
+
+```sh
+git clone https://github.com/tmforum-oda/canvas-in-a-bottle
+```
+
+```sh
+cd canvas-in-a-bottle
+```
+
+```sh
+docker run --rm --name tmf-canvas-in-a-bottle -p 30303:8001 -p 3000:3000 -v //var/run/docker.sock:/var/run/docker.sock -it tmforumodacanvas/canvas-in-a-bottle:latest
+```
+
+
 # FAQ
 
 The name of the container matters, keep --name tmf-canvas-in-a-bottle
+
+When you close the terminal attached to the image, issuing "exit" command for example, the cluster will be deleted and data will be lost, this is by design as we wanted a cluster that cleared after itself.
