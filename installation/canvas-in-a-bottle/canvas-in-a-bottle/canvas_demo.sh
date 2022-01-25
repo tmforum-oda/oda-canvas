@@ -89,7 +89,7 @@ kubectl create clusterrolebinding dashboard-admin-sa --clusterrole=cluster-admin
 
 echo Setting up Kubectl Proxy
 CLIENT_IP=$(docker inspect --format '{{ .NetworkSettings.Networks.kind.IPAddress }}' tmf-canvas-in-a-bottle)
-kubectl proxy --address=$CLIENT_IP --accept-hosts=^localhost$,^127\.0\.0\.1$,^\[::1\]$ &
+kubectl proxy --address=$CLIENT_IP --accept-hosts=^localhost$,^127\.0\.0\.1$,^\[::1\]$ 2> /dev/null &
 secret=$(kubectl get secrets | awk '/dashboard-admin-sa/{print $1}') &
 
 
