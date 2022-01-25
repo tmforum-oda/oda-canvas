@@ -116,7 +116,7 @@ helm install --namespace grafana grafana grafana/grafana > /root/logs/grafana.lo
 
 
 for ((tsecs = 1; tsecs <= 300; tsecs++)); do
-    export POD_NAME=$(kubectl get pods --namespace grafana -o jsonpath="{.items[0].metadata.name}")
+    export POD_NAME=$(kubectl get pods --namespace grafana -o jsonpath="{.items[0].metadata.name}") 2> /dev/null
     if [[ $(kubectl get pods --namespace grafana $POD_NAME -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') == "True" ]]; then
         echo OK
         echo Set up port forwarding for Grafana
