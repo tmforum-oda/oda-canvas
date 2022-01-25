@@ -71,6 +71,7 @@ export PS1="\[\e]0;\u@tmf-canvas-in-a-bottle: \w\a\]${debian_chroot:+($debian_ch
 echo Bringing up a cluster
 bash -c '/usr/local/bin/kind delete cluster'
 bash -c '/usr/local/bin/kind create cluster'
+mkdir /root/logs
 
 echo Modifying Kubernetes config to point to Kind master node
 MASTER_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' kind-control-plane)
@@ -83,9 +84,9 @@ echo =====================================================================
 echo Deploying Kubernetes dashboard and create a dashboard service account
 echo =====================================================================
 echo -e ${NOCOLOR}
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
-kubectl create serviceaccount dashboard-admin-sa
-kubectl create clusterrolebinding dashboard-admin-sa --clusterrole=cluster-admin --serviceaccount=default:dashboard-admin-sa
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml > /root/logs/dashboard.log
+kubectl create serviceaccount dashboard-admin-sa > /root/logs/dashboard.log
+kubectl create clusterrolebinding dashboard-admin-sa --clusterrole=cluster-admin --serviceaccount=default:dashboard-admin-sa > /root/logs/dashboard.log
 
 echo Setting up Kubectl Proxy
 CLIENT_IP=$(docker inspect --format '{{ .NetworkSettings.Networks.kind.IPAddress }}' tmf-canvas-in-a-bottle)
@@ -97,12 +98,9 @@ echo -e ${BLUE}
 echo ===========================
 echo You can access the Kuberbetes Dashboard at:
 echo http://127.0.0.1:30303/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
-echo The Secret for accessing Kubernetes Dashboard is:
-kubectl describe secret $secret &
-echo ===========================
-echo ===========================
-echo ===========================
-echo ===========================
+echo -e ${GREEN}
+echo -e The Secret for accessing Kubernetes Dashboard can be found by issuing the following command:
+echo -e "     get_dashboard_token "
 echo ===========================
 echo -e ${NOCOLOR}
 
@@ -111,10 +109,10 @@ echo ===========================
 echo Deploying Grafana Dashboard
 echo ===========================
 echo -e ${NOCOLOR}
-kubectl create namespace grafana
-helm repo add stable https://charts.helm.sh/stable
-helm repo add grafana https://grafana.github.io/helm-charts
-helm install --namespace grafana grafana grafana/grafana
+kubectl create namespace grafana > /root/logs/grafana.log
+helm repo add stable https://charts.helm.sh/stable > /root/logs/grafana.log
+helm repo add grafana https://grafana.github.io/helm-charts > /root/logs/grafana.log
+helm install --namespace grafana grafana grafana/grafana > /root/logs/grafana.log
 
 
 
@@ -152,7 +150,7 @@ echo ===========================
 echo Deploying Istio
 echo ===========================
 echo -e ${NOCOLOR}
-istioctl install --set profile=demo -y
+istioctl install --set profile=demo -y > /root/logs/istio.log
 
 echo -e ${BLUE}
 echo ====================================================
@@ -170,13 +168,13 @@ EOF
 echo ----------------------------------------------------
 echo -e ${NOCOLOR}
 cd /root/oda-canvas-charts
-helm install oda-ri-enablers clusterenablers/ 
+helm install oda-ri-enablers clusterenablers/ > /root/logs/canvasInstall.log
 cd ReferenceImplementation/cert-manager
-chmod 700 install_cert-manager.sh
-./install_cert-manager.sh
+chmod 700 install_cert-manager.sh 
+./install_cert-manager.sh  > /root/logs/canvasInstall.log
 cd /root/oda-canvas-charts
-chmod 700 install_canvas_cert-manager.sh
-./install_canvas_cert-manager.sh
+chmod 700 install_canvas_cert-manager.sh 
+./install_canvas_cert-manager.sh  > /root/logs/canvasInstall.log
 
 cd
 /bin/bash
