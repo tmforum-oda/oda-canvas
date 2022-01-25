@@ -97,7 +97,12 @@ echo -e ${BLUE}
 echo ===========================
 echo You can access the Kuberbetes Dashboard at:
 echo http://127.0.0.1:30303/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+echo The Secret for accessing Kubernetes Dashboard is:
 kubectl describe secret $secret &
+echo ===========================
+echo ===========================
+echo ===========================
+echo ===========================
 echo ===========================
 echo -e ${NOCOLOR}
 
@@ -111,29 +116,34 @@ helm repo add stable https://charts.helm.sh/stable
 helm repo add grafana https://grafana.github.io/helm-charts
 helm install --namespace grafana grafana grafana/grafana
 
-sleep 10
-export POD_NAME=$(kubectl get pods --namespace grafana -o jsonpath="{.items[0].metadata.name}")
+
+
 for ((tsecs = 1; tsecs <= 300; tsecs++)); do
-    if [[ $(kubectl get pods --namespace grafana $POD_NAME -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') == "True" ]]; then
-        echo OK
-        echo Set up port forwarding for Grafana
-        kubectl --namespace grafana port-forward --address $CLIENT_IP $POD_NAME 3000:3000 &
-        echo -e ${BLUE}
-        echo ===============================================================
-        echo You can access the Grafana dashboard at the following location:
-        echo -e ${GREEN}
-        echo http://127.0.0.1:3000
-        echo -e ${BLUE}
-        echo You will be prompted for a login username/password. To get the
-        echo username/password credentials, run the following script:
-        echo -e ${GREEN}
-        echo -e "    get_grafana_credentials"
-        echo -e ${BLUE}
-        echo ==================================================================
-        echo -e ${NOCOLOR}
-        break
-    fi
-    echo -n ". " && sleep 1;
+    if kubectl get pods --namespace grafana -o jsonpath="{.items[0].metadata.name}"; then
+        export POD_NAME=$(kubectl get pods --namespace grafana -o jsonpath="{.items[0].metadata.name}")
+        if [[ $(kubectl get pods --namespace grafana $POD_NAME -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') == "True" ]]; then
+            echo OK
+            echo Set up port forwarding for Grafana
+            kubectl --namespace grafana port-forward --address $CLIENT_IP $POD_NAME 3000:3000 &
+            echo -e ${BLUE}
+            echo ===============================================================
+            echo You can access the Grafana dashboard at the following location:
+            echo -e ${GREEN}
+            echo http://127.0.0.1:3000
+            echo -e ${BLUE}
+            echo You will be prompted for a login username/password. To get the
+            echo username/password credentials, run the following script:
+            echo -e ${GREEN}
+            echo -e "    get_grafana_credentials"
+            echo -e ${BLUE}
+            echo ==================================================================
+            echo -e ${NOCOLOR}
+            break
+        fi
+        echo -n ". " && sleep 1;
+    else
+        echo "Waiting for Grafana" && sleep 1;
+        
 done
 
 
