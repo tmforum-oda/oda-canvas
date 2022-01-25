@@ -44,3 +44,5 @@ docker run --rm --name tmf-canvas-in-a-bottle -p 30303:8001 -p 3000:3000 -v //va
 The name of the container matters, keep --name tmf-canvas-in-a-bottle
 
 When you close the terminal attached to the image, issuing "exit" command for example, the cluster will be deleted and data will be lost, this is by design as we wanted a cluster that cleared after itself.
+
+If a proxy is needed follow the Client proxy here: https://docs.docker.com/network/proxy/
