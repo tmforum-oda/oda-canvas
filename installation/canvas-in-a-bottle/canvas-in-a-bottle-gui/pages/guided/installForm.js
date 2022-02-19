@@ -66,7 +66,7 @@ export default function Form() {
 
   const sendData = async () => {
 
-    const response = await fetch('/api/kubectl', {
+    const response = await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify(data)
     })

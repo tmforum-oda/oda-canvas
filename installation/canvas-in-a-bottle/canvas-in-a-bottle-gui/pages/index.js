@@ -20,7 +20,7 @@ export default function Home() {
 
         <div className="grid">
           
-          <Link href="/guided/1">
+          <Link href="/guided/installForm">
             <a className="card tmfRadiusRed">
               <h3>Quick Start &rarr;</h3>
               <p>Guided install</p>
