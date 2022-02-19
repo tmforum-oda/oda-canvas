@@ -1,0 +1,74 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/kind",
+      "label": "Install disposable Cluster",
+      "options": {
+        "toggle": true
+      }
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/dashboard",
+          "label": "Install Kubernetes Dashboard",
+          "options": {
+            "toggle": true
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/dashboardPort",
+          "label": "Dashboard port",
+          "rule": {
+            "effect": "HIDE",
+            "condition": {
+              "scope": "#/properties/dashboard",
+              "schema": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/grafana",
+          "options": {
+            "toggle": true
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/grafanaPort",
+          "label": "Grafana port",
+          "rule": {
+            "effect": "HIDE",
+            "condition": {
+              "scope": "#/properties/grafana",
+              "schema": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Control",
+      "label": "Install Reference TMF APIs",
+      "scope": "#/properties/installReferenceAPIs",
+      "options": {
+        "toggle": true
+      }
+    }
+  ]
+}
