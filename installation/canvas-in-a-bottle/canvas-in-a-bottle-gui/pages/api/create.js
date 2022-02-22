@@ -31,25 +31,6 @@ export default function handler(req, res) {
                 res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
                 return;
             }
-
-
-            var kubeConfig;
-            try {
-                let kubeConfigFile = fs.readFileSync('/root/.kube/config', 'utf8');
-                kubeConfig = yaml.load(kubeConfigFile);
-                //console.log(JSON.stringify(kubeConfig, null, 4))
-                kubeConfig.clusters.forEach(cluster => {
-                    //console.log(JSON.stringify(cluster['cluster']['server'], null, 4))
-                    cluster['cluster']['server'] = "https://172.19.0.2:6443"
-
-                });
-                //console.log(JSON.stringify(kubeConfig, null, 4))
-                fs.writeFileSync('/root/.kube/config', yaml.dump(kubeConfig))
-            } catch (e) {
-                console.log('ERROR while loading Kube config' + e)
-                res.status(500).json({ "data": null, "error": JSON.stringify(e), "logs": logs })
-                return;
-            }
             try {
                 masterIP = execSync("docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' kind-control-plane")
             }
@@ -60,6 +41,25 @@ export default function handler(req, res) {
                 console.log("MASTER IP: " + stdout)
                 return;
             }
+
+            var kubeConfig;
+            try {
+                let kubeConfigFile = fs.readFileSync('/root/.kube/config', 'utf8');
+                kubeConfig = yaml.load(kubeConfigFile);
+                //console.log(JSON.stringify(kubeConfig, null, 4))
+                kubeConfig.clusters.forEach(cluster => {
+                    //console.log(JSON.stringify(cluster['cluster']['server'], null, 4))
+                    cluster['cluster']['server'] = `https://${masterIP.replace('\n','')}:6443`
+
+                });
+                //console.log(JSON.stringify(kubeConfig, null, 4))
+                fs.writeFileSync('/root/.kube/config', yaml.dump(kubeConfig))
+            } catch (e) {
+                console.log('ERROR while loading Kube config' + e)
+                res.status(500).json({ "data": null, "error": JSON.stringify(e), "logs": logs })
+                return;
+            }
+
 
 
             // try {
