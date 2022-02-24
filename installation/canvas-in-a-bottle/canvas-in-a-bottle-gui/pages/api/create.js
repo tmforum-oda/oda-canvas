@@ -41,7 +41,6 @@ export default function handler(req, res) {
             catch (error) {
                 console.error(`execSync error: ${error}`);
                 res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
-                console.log("MASTER IP: " + stdout)
                 return;
             }
 
@@ -50,6 +49,7 @@ export default function handler(req, res) {
                 let kubeConfigFile = fs.readFileSync('/root/.kube/config', 'utf8');
                 kubeConfig = yaml.load(kubeConfigFile);
                 //console.log(JSON.stringify(kubeConfig, null, 4))
+                console.log(masterIP.toString())
                 kubeConfig.clusters.forEach(cluster => {
                     //console.log(JSON.stringify(cluster['cluster']['server'], null, 4))
                     cluster['cluster']['server'] = `https://${masterIP.toString().replace('\n','')}:6443`
@@ -65,21 +65,21 @@ export default function handler(req, res) {
 
 
 
-            // try {
-            //     execSync('docker network connect kind tmf-canvas-in-a-bottle', (error, stdout, stderr) => {
-            //         if (error) {
-            //             console.error(`execSync error: ${error}`);
-            //             //res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
-            //             //return;
-            //         }
-            //         else {
-            //             logs += stdout
-            //         }
+            try {
+                execSync('docker network connect kind tmf-canvas-in-a-bottle', (error, stdout, stderr) => {
+                    if (error) {
+                        console.error(`execSync error: ${error}`);
+                        //res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
+                        //return;
+                    }
+                    else {
+                        logs += stdout
+                    }
 
-            //     });
-            // } catch (e) {
-            //     console.log(e)
-            // }
+                });
+            } catch (e) {
+                console.log(e)
+            }
 
 
         }
