@@ -7,12 +7,7 @@ export default function handler(req, res) {
 
 
         var body = JSON.parse(req.body)
-
-        if (body['kind']) {
-            console.log(body)
-            var masterIP = ""
-            var clientIP = ""
-            var logs = ""
+        if (body['cleanUp']) { 
             try {
                 logs += execSync("/usr/local/bin/kind delete cluster")
             }
@@ -22,6 +17,14 @@ export default function handler(req, res) {
                 res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
                 return;
             }
+        }
+
+        if (body['kind']) {
+            console.log(body)
+            var masterIP = ""
+            var clientIP = ""
+            var logs = ""
+            
             try {
                 logs += execSync("/usr/local/bin/kind create cluster")
             }
@@ -49,7 +52,7 @@ export default function handler(req, res) {
                 //console.log(JSON.stringify(kubeConfig, null, 4))
                 kubeConfig.clusters.forEach(cluster => {
                     //console.log(JSON.stringify(cluster['cluster']['server'], null, 4))
-                    cluster['cluster']['server'] = `https://${masterIP.replace('\n','')}:6443`
+                    cluster['cluster']['server'] = `https://${masterIP.toString().replace('\n','')}:6443`
 
                 });
                 //console.log(JSON.stringify(kubeConfig, null, 4))
@@ -120,7 +123,11 @@ export default function handler(req, res) {
                 return;
             }
             try {
-                var child = spawn('/usr/local/bin/kubectl', ['port-forward', 'service/kubernetes-dashboard', '-n', 'kubernetes-dashboard', '8000:443'], { detached: true, stdio: 'ignore' });
+                var child = spawn('/usr/local/bin/kubectl', ['port-forward', 'service/kubernetes-dashboard', '-n', 'kubernetes-dashboard', '8443:443'], {
+                    slient:true,
+                    detached:true,
+                    stdio: [null, null, null, 'ipc']
+                  });
                 child.unref();
             }
 

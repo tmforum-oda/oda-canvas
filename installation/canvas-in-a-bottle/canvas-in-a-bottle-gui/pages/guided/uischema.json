@@ -3,8 +3,16 @@
   "elements": [
     {
       "type": "Control",
+      "scope": "#/properties/cleanUp",
+      "label": "Delete disposable Cluster if it exists?",
+      "options": {
+        "toggle": true
+      }
+    },
+    {
+      "type": "Control",
       "scope": "#/properties/kind",
-      "label": "Install disposable Cluster",
+      "label": "Install disposable Cluster?",
       "options": {
         "toggle": true
       }
@@ -15,7 +23,7 @@
         {
           "type": "Control",
           "scope": "#/properties/dashboard",
-          "label": "Install Kubernetes Dashboard",
+          "label": "Install Kubernetes Dashboard?",
           "options": {
             "toggle": true
           }
@@ -23,7 +31,7 @@
         {
           "type": "Control",
           "scope": "#/properties/dashboardPort",
-          "label": "Dashboard port",
+          "label": "Dashboard port (default 8443)",
           "rule": {
             "effect": "HIDE",
             "condition": {
@@ -49,7 +57,7 @@
         {
           "type": "Control",
           "scope": "#/properties/grafanaPort",
-          "label": "Grafana port",
+          "label": "Grafana port (default 3001)",
           "rule": {
             "effect": "HIDE",
             "condition": {
@@ -68,6 +76,23 @@
       "scope": "#/properties/installReferenceAPIs",
       "options": {
         "toggle": true
+      }
+    },
+    {
+      "type": "Control",
+      "label": "Install Reference TMF APIs",
+      "scope": "#/properties/individualAPIs",
+      "options": {
+        "toggle": true
+      },          
+      "rule": {
+        "effect": "HIDE",
+        "condition": {
+          "scope": "#/properties/installReferenceAPIs",
+          "schema": {
+            "const": false
+          }
+        }
       }
     }
   ]

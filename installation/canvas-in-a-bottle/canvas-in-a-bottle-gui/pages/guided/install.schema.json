@@ -1,6 +1,9 @@
 {
   "type": "object",
   "properties": {
+    "cleanUp": {
+      "type": "boolean"
+    },
     "kind": {
       "type": "boolean"
     },
@@ -21,6 +24,15 @@
       "maximum": 65535
     },
     "installReferenceAPIs": {
+      "type": "boolean"
+    },
+    "canvas": {
+      "type": "boolean"
+    },
+    "istioKiali": {
+      "type": "boolean"
+    },
+    "kubeMonitoring": {
       "type": "boolean"
     },
     "useCase": {

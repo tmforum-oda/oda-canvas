@@ -46,7 +46,8 @@ const useStyles = makeStyles({
 const initialData = {
   kind: true,
   dashboard: true,
-  grafana: true
+  grafana: true,
+  installReferenceAPIs: true
 };
 
 const renderers = [
