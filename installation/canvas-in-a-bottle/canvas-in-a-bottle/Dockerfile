@@ -67,8 +67,12 @@ COPY scripts/get_dashboard_token /root/get_dashboard_token
 COPY scripts/get_grafana_credentials /root/get_grafana_credentials
 
 #Add Graphical user interface
-#COPY ../ciab-gui /root/ciab-gui
+COPY ciab-gui /root/ciab-gui
+WORKDIR /root/ciab-gui/
+
+RUN apk add --update npm
+RUN npm install
 
 ENV PATH="${PATH}:/root"
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["npm", "run", "dev"]
