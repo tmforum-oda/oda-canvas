@@ -72,6 +72,30 @@
     },
     {
       "type": "Control",
+      "scope": "#/properties/canvas",
+      "label": "Install TMF Canvas?",
+      "options": {
+        "toggle": true
+      }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/istioKiali",
+      "label": "Install Kiali?",
+      "options": {
+        "toggle": true
+      }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/kubeMonitoring",
+      "label": "Install Kube Monitoring scripts? (Heavy workload)",
+      "options": {
+        "toggle": true
+      }
+    },
+    {
+      "type": "Control",
       "label": "Install Reference TMF APIs",
       "scope": "#/properties/installReferenceAPIs",
       "options": {

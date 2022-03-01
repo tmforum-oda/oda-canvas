@@ -137,6 +137,55 @@ export default function handler(req, res) {
                 return;
             }
         }
+        if (body['canvas']) {
+            try {
+                logs += execSync("istioctl install --set profile=demo -y")
+            }
+
+            catch (error) {
+                console.error(`execSync error: ${error}`);
+                res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
+                return;
+            }
+            try {
+                logs += execSync("helm install oda-ri-enablers clusterenablers/", {cwd: '/root/oda-canvas-charts'})
+            }
+
+            catch (error) {
+                console.error(`execSync error: ${error}`);
+                res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
+                return;
+            }
+            try {
+                logs += execSync("./install_cert-manager.sh", {cwd: '/root/oda-canvas-charts/ReferenceImplementation/cert-manager'})
+            }
+
+            catch (error) {
+                console.error(`execSync error: ${error}`);
+                res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
+                return;
+            }
+            try {
+                logs += execSync("./install_canvas_cert-manager.sh ", {cwd: '/root/oda-canvas-charts'})
+            }
+
+            catch (error) {
+                console.error(`execSync error: ${error}`);
+                res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
+                return;
+            }
+        }
+        if (body['installReferenceAPIs'] && body['individualAPIs']) { 
+            try {
+                logs += execSync("")
+            }
+
+            catch (error) {
+                console.error(`execSync error: ${error}`);
+                res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
+                return;
+            }
+        }
         console.log(logs)
         res.status(200).json({ "data": "", "logs": logs, "error": null })
 

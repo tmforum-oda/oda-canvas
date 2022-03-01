@@ -44,9 +44,13 @@ const useStyles = makeStyles({
 });
 
 const initialData = {
+  cleanUp: true,
   kind: true,
   dashboard: true,
   grafana: true,
+  canvas: true,
+  istioKiali: true,
+  kubeMonitoring: false,
   installReferenceAPIs: true
 };
 
@@ -66,13 +70,15 @@ export default function Form() {
   const stringifiedData = useMemo(() => JSON.stringify(data, null, 2), [data]);
 
   const sendData = async () => {
+    alert("Installing requested parts of the canvas, this will take a couple of minutes, you will be redirected when the installation finishes")
 
     const response = await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify(data)
     })
     const rData = await response.json()
-    alert(JSON.stringify(rData))
+    console.log(rData["logs"])
+    window.location.href = '/guided/finishInstall?status='+response.status+'&logs='+encodeURIComponent(JSON.stringify(rData["logs"]));
   };
 
 
@@ -113,7 +119,7 @@ export default function Form() {
         </Grid>
 
       </Grid>
-      
+
 
     </Fragment>
     
