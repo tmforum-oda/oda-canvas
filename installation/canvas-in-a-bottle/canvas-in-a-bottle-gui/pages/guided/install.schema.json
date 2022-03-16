@@ -35,11 +35,8 @@
     "kubeMonitoring": {
       "type": "boolean"
     },
-    "useCase": {
-      "type": "string",
-      "enum": [
-        "Use Case 3"
-      ]
+    "dockerHubToken": {
+      "type": "string"
     },
     "individualAPIs": {
       "type": "array",
@@ -93,7 +90,7 @@
           "TMF691 - Federated Id - v4.0",
           "TMF696 - Risk Management - v4.0.0",
           "TMF699 - Sales - v4.0.0",
-          "TMF701 - Prepay Balance Management - v4.0.0",
+          "TMF701 - Processflow Management - v4.0.0",
           "TMF704 - Test Case Management - v4.0.0",
           "TMF705 - Test Environment Management - v4.0.0",
           "TMF706 - Test Data - v4.0.0",
@@ -104,6 +101,19 @@
           "TMF720 - Digital Identity Management - v4.0.0",
           "TMF915 - Ai Management - v4.0.0"
         ]
+      }
+    },
+    "useCaseToggle": {
+      "type": "boolean"
+    },
+    "useCaseController": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "UC003: Order Capture – Fiber contract v7.00, Approach A (BFF)"
+        ]
+
       }
     }
   },

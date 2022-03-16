@@ -104,15 +104,51 @@
     },
     {
       "type": "Control",
-      "label": "Install Reference TMF APIs",
-      "scope": "#/properties/individualAPIs",
+      "label": "DockerHub Token",
+      "scope": "#/properties/dockerHubToken",     
+      "rule": {
+        "effect": "HIDE",
+        "condition": {
+          "scope": "#/properties/installReferenceAPIs",
+          "schema": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "type": "Control",
+      "label": "Select APIs to Install",
+      "scope": "#/properties/individualAPIs",     
+      "rule": {
+        "effect": "HIDE",
+        "condition": {
+          "scope": "#/properties/installReferenceAPIs",
+          "schema": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "type": "Control",
+      "label": "Install Use Case Controllers",
+      "scope": "#/properties/useCaseToggle",
+      "options": {
+        "toggle": true
+      }     
+    },
+    {
+      "type": "Control",
+      "label": "Which Use Case Controller to Install",
+      "scope": "#/properties/useCaseController",
       "options": {
         "toggle": true
       },          
       "rule": {
         "effect": "HIDE",
         "condition": {
-          "scope": "#/properties/installReferenceAPIs",
+          "scope": "#/properties/useCaseToggle",
           "schema": {
             "const": false
           }

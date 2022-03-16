@@ -1,6 +1,10 @@
 const { execSync, spawn, spawnSync } = require('child_process');
 const fs = require('fs');
 const yaml = require('js-yaml')
+const apiMapping = require('../utils/apiMapping.json')
+const k8s = require('@kubernetes/client-node');
+
+
 
 export default function handler(req, res) {
     if (req.method === 'POST') {
@@ -83,6 +87,9 @@ export default function handler(req, res) {
 
 
         }
+        const kc = new k8s.KubeConfig();
+        kc.loadFromDefault();
+        const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
         if (body['dashboard']) {
             try {
                 logs += execSync("kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml")
@@ -176,8 +183,31 @@ export default function handler(req, res) {
             }
         }
         if (body['installReferenceAPIs'] && body['individualAPIs']) { 
+            console.log(JSON.stringify(body['individualAPIs']))
+            body['individualAPIs'].forEach(api => {
+                apiMapping[api]
+            });
             try {
-                logs += execSync("")
+                k8sApi.listNamespacedPod('default').then((res) => {
+                    console.log(res.body);
+                });
+            }
+
+            catch (error) {
+                console.error(`execSync error: ${error}`);
+                res.status(500).json({ "data": null, "error": JSON.stringify(error), "logs": logs })
+                return;
+            }
+        }
+        if (body['useCaseToggle'] && body['useCaseController']) { 
+            console.log(JSON.stringify(body['useCaseController']))
+            body['useCaseController'].forEach(uc => {
+                console.log(uc)
+            });
+            try {
+                k8sApi.listNamespacedPod('default').then((res) => {
+                    console.log(res.body);
+                });
             }
 
             catch (error) {
