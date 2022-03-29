@@ -1,4 +1,4 @@
-const { execSync, spawn, spawnSync } = require('child_process');
+const { execSync, spawn, spawnSync, exec } = require('child_process');
 const fs = require('fs');
 const yaml = require('js-yaml')
 const apiMapping = require('../utils/apiMapping.json')
@@ -30,7 +30,30 @@ export default function handler(req, res) {
             var logs = ""
             
             try {
-                logs += execSync("/usr/local/bin/kind create cluster")
+                logs += execSync(`cat <<EOF | kind create cluster --config=-
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+containerdConfigPatches:
+- |-
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:5000"]
+    endpoint = ["http://kind-registry:5000"]
+EOF`)
+                logs += execSync(`if [ "$(docker inspect -f='{{json .NetworkSettings.Networks.kind}}' "kind-registry")" = 'null' ]; then
+docker network connect "kind" "kind-registry"
+fi`)
+                logs += execSync(`
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: local-registry-hosting
+    namespace: kube-public
+data:
+    localRegistryHosting.v1: |
+    host: "localhost:${reg_port}"
+    help: "https://kind.sigs.k8s.io/docs/user/local-registry/"
+EOF
+                `)
             }
 
             catch (error) {
