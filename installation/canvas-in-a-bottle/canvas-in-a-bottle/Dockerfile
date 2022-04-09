@@ -66,12 +66,23 @@ COPY canvas_demo.sh /root/canvas_demo.sh
 COPY scripts/get_dashboard_token /root/get_dashboard_token
 COPY scripts/get_grafana_credentials /root/get_grafana_credentials
 
+
+
 #Add Graphical user interface
 COPY ciab-gui /root/ciab-gui
+
+
+
 WORKDIR /root/ciab-gui/
 
 RUN apk add --update npm
 RUN npm install
+
+WORKDIR /root/
+RUN dos2unix get_dashboard_token
+RUN dos2unix get_grafana_credentials 
+
+WORKDIR /root/ciab-gui/
 
 ENV PATH="${PATH}:/root"
 
