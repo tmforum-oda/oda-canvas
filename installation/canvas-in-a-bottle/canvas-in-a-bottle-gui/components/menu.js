@@ -133,7 +133,7 @@ export default function PersistentDrawerLeft() {
         <Divider />
         <List>
           {MENU_ENTRIES.map((text, index) => (
-            <Link href={MENU_LINKS[index]}>
+            
             <ListItem button key={text}>
               
                 <ListItemIcon>
@@ -143,10 +143,11 @@ export default function PersistentDrawerLeft() {
                   {MENU_ICONS[index]}
                   
                 </ListItemIcon>
+                <Link href={MENU_LINKS[index]}>
                 <ListItemText primary={text} />
-              
+                </Link>
             </ListItem>
-            </Link>
+            
           ))}
         </List>
       </Drawer>
