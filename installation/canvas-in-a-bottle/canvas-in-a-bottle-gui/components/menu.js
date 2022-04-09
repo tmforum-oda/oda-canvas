@@ -23,6 +23,8 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import HelpIcon from '@mui/icons-material/Help';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import Link from '@mui/material/Link';
+import { Paper } from '@mui/material';
+import { Logo } from "./Logo"
 
 const drawerWidth = 240;
 
@@ -30,18 +32,6 @@ const MENU_ENTRIES = ['Install', 'Connect', 'Diagnose', 'Help', "Report Bug"];
 const MENU_ICONS = [<InstallDesktopIcon />, <CableIcon />, <AnalyticsIcon />, <HelpIcon />, <BugReportIcon />];
 const MENU_LINKS = ["/guided/installForm", "/guided/connect", '/guided/analytics', 'https://tmforum-oda.github.io/oda-ca-docs/', "https://github.com/tmforum-oda/canvas-in-a-bottle/issues"]
 
-function createMenu() {
-
-  for (let i; i < MENU_ENTRIES.length; i++) {
-
-  }
-  <ListItem button key={text}>
-    <ListItemIcon>
-      {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-    </ListItemIcon>
-    <ListItemText primary={text} />
-  </ListItem>
-}
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -101,8 +91,10 @@ export default function PersistentDrawerLeft() {
   };
 
   return (
+    
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+      
       <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
@@ -133,6 +125,9 @@ export default function PersistentDrawerLeft() {
         open={open}
       >
         <DrawerHeader>
+          <Paper elevation={1}>
+            <img src='TMForum_logo_2021.svg'></img>
+          </Paper>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
@@ -161,6 +156,8 @@ export default function PersistentDrawerLeft() {
         <DrawerHeader />
 
       </Main>
+      
     </Box>
+
   );
 }

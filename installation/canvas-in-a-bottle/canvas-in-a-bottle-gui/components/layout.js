@@ -1,5 +1,6 @@
 import { Button } from '@mui/material';
 import PropTypes from 'prop-types';
+import Footer from './Footer';
 import PersistentDrawerLeft from './menu'
 
 
@@ -8,8 +9,9 @@ import PersistentDrawerLeft from './menu'
 
 const MinimalLayout = ({ children }) => (
     <>
-    <PersistentDrawerLeft></PersistentDrawerLeft>
+    <PersistentDrawerLeft />
     {children}
+    <Footer />
   </>
 );
 
