@@ -14,7 +14,7 @@ import {
 
 import { makeStyles } from '@mui/styles';
 
-import Footer from '../Footer';
+import Footer from '../../components/Footer';
 
 
 const useStyles = makeStyles({

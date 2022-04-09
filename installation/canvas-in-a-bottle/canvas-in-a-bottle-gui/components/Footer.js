@@ -1,10 +1,11 @@
-import { Paper } from "@mui/material";
+import { Divider, Paper } from "@mui/material";
 import React, { Component, Fragment } from "react";
 
 class Footer extends Component {
   render() {
     return (
-      <Paper elevation={5}>
+      <Fragment>
+      <Divider></Divider>
         <footer style={{ display: "block", marginLeft: "auto", marginRight: "auto", width: "20%" }}>
           <a
             href="https://www.tmforum.org"
@@ -15,7 +16,7 @@ class Footer extends Component {
             <img src="/TMForum_logo_2021.svg" alt="Vercel" className="logo" />
           </a>
         </footer>
-      </Paper>
+        </Fragment>
 
 
     )

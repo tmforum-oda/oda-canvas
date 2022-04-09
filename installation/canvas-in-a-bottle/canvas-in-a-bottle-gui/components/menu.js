@@ -24,7 +24,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import Link from '@mui/material/Link';
 import { Paper } from '@mui/material';
-import { Logo } from "./Logo"
+import Logo from "./Logo"
 
 const drawerWidth = 240;
 
@@ -124,10 +124,8 @@ export default function PersistentDrawerLeft() {
         anchor="left"
         open={open}
       >
-        <DrawerHeader>
-          <Paper elevation={1}>
-            <img src='TMForum_logo_2021.svg'></img>
-          </Paper>
+        <DrawerHeader>          
+            <Logo></Logo>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
