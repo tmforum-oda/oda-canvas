@@ -41,19 +41,7 @@ EOF`)
                 logs += execSync(`if [ "$(docker inspect -f='{{json .NetworkSettings.Networks.kind}}' "kind-registry")" = 'null' ]; then
 docker network connect "kind" "kind-registry"
 fi`)
-                logs += execSync(`
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: ConfigMap
-metadata:
-    name: local-registry-hosting
-    namespace: kube-public
-data:
-    localRegistryHosting.v1: |
-    host: "localhost:5000"
-    help: "https://kind.sigs.k8s.io/docs/user/local-registry/"
-EOF
-                `)
+
             }
 
             catch (error) {
@@ -93,6 +81,7 @@ EOF
 
 
             try {
+
                 execSync('docker network connect kind tmf-canvas-in-a-bottle', (error, stdout, stderr) => {
                     if (error) {
                         console.error(`execSync error: ${error}`);
@@ -104,6 +93,19 @@ EOF
                     }
 
                 });
+                logs += execSync(`
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: local-registry-hosting
+    namespace: kube-public
+data:
+    localRegistryHosting.v1: |
+    host: "localhost:5000"
+    help: "https://kind.sigs.k8s.io/docs/user/local-registry/"
+EOF
+                `)
             } catch (e) {
                 console.log(e)
             }

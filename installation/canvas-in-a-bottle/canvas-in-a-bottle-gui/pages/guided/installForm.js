@@ -81,7 +81,7 @@ export default function Form() {
     })
     const rData = await response.json()
     console.log(rData["logs"])
-    window.location.href = '/guided/finishInstall?status='+response.status+'&logs='+encodeURIComponent(JSON.stringify(rData["logs"]));
+    window.location.href = '/guided/finishInstall?status=' + response.status + '&logs=' + encodeURIComponent(JSON.stringify(rData["logs"]));
   };
 
 
@@ -100,6 +100,98 @@ export default function Form() {
           <Typography variant={'h4'} className={classes.title}>
             Install Canvas
           </Typography>
+          <Grid
+            container
+            spacing={0}
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Button
+              onClick={() => setData({
+                cleanUp: true,
+                kind: true,
+                dashboard: true,
+                grafana: true,
+                canvas: true,
+                istioKiali: true,
+                kubeMonitoring: false,
+                installReferenceAPIs: true,
+                individualAPIs: [
+                  "TMF620 - Product Catalog Management - v4.1.0",
+                  "TMF622 - Product Ordering - v4.0.0",
+                  "TMF632 - Party - v4.0.0",
+                  "TMF645 - Service Qualification Management - v4.0.0",
+                  "TMF666 - Account Management - v4.0.0",
+                  "TMF670 - Payment Method - v4.0.0",
+                  "TMF673 - Place Geographicaddress - v4.0.1",
+                  "TMF676 - Payment - v4.0.0",
+                  "TMF679 - Product Offering Qualification - v4.0.0",
+                  "TMF680 - Recommendation - v4.0.0",
+                  "TMF691 - Federated Id - v4.0",
+                ],
+                useCaseToggle: true,
+                useCaseController: [
+                  "UC003: Order Capture – Fiber contract v7.00, Approach A (BFF)"
+                ]
+              })}
+              color='warning'
+              variant='contained'
+            >
+              Load Use Case 3
+            </Button>{" "}
+            <Button
+              onClick={() => setData({
+                cleanUp: true,
+                kind: true,
+                dashboard: true,
+                grafana: true,
+                canvas: true,
+                istioKiali: true,
+                kubeMonitoring: false,
+                installReferenceAPIs: true,
+                individualAPIs: [
+                  "TMF620 - Product Catalog Management - v4.1.0",
+                  "TMF622 - Product Ordering - v4.0.0",
+                  "TMF632 - Party - v4.0.0",
+                  "TMF645 - Service Qualification Management - v4.0.0",
+                  "TMF666 - Account Management - v4.0.0",
+                  "TMF670 - Payment Method - v4.0.0",
+                  "TMF673 - Place Geographicaddress - v4.0.1",
+                  "TMF676 - Payment - v4.0.0",
+                  "TMF679 - Product Offering Qualification - v4.0.0",
+                  "TMF680 - Recommendation - v4.0.0",
+                  "TMF691 - Federated Id - v4.0",
+                ],
+                useCaseToggle: true,
+                useCaseController: [
+                  "UC003: Order Capture – Fiber contract v7.00, Approach A (BFF)"
+                ]
+              })}
+              color='warning'
+              variant='contained'
+            >
+              Load Use Case 3
+            </Button>
+            <Button
+              onClick={() => setData({
+                cleanUp: true,
+                kind: true,
+                dashboard: true,
+                grafana: true,
+                canvas: true,
+                istioKiali: true,
+                kubeMonitoring: false,
+                installReferenceAPIs: true
+              })}
+              color='error'
+              variant='contained'
+            >
+              Clear Form
+            </Button>
+          </Grid>
+          <Grid item sm={3}>
+
+          </Grid>
           <div className={classes.demoform}>
             <JsonForms
               schema={schema}
@@ -110,55 +202,7 @@ export default function Form() {
               onChange={({ errors, data }) => setData(data)}
             />
           </div>
-          <Button
-            onClick={() => setData({
-              cleanUp: true,
-              kind: true,
-              dashboard: true,
-              grafana: true,
-              canvas: true,
-              istioKiali: true,
-              kubeMonitoring: false,
-              installReferenceAPIs: true,
-              individualAPIs: [
-                "TMF620 - Product Catalog Management - v4.1.0",
-                "TMF622 - Product Ordering - v4.0.0",
-                "TMF632 - Party - v4.0.0",
-                "TMF645 - Service Qualification Management - v4.0.0",
-                "TMF666 - Account Management - v4.0.0",
-                "TMF670 - Payment Method - v4.0.0",
-                "TMF673 - Place Geographicaddress - v4.0.1",
-                "TMF676 - Payment - v4.0.0",
-                "TMF679 - Product Offering Qualification - v4.0.0",
-                "TMF680 - Recommendation - v4.0.0",
-                "TMF691 - Federated Id - v4.0",
-              ],
-              useCaseToggle: true,
-              useCaseController: [
-                "UC003: Order Capture – Fiber contract v7.00, Approach A (BFF)"
-              ]
-            })}
-            color='warning'
-            variant='contained'
-          >
-            Load Use Case 3
-        </Button>
-        <Button
-            onClick={() => setData({
-              cleanUp: true,
-              kind: true,
-              dashboard: true,
-              grafana: true,
-              canvas: true,
-              istioKiali: true,
-              kubeMonitoring: false,
-              installReferenceAPIs: true
-            })}
-            color='error'
-            variant='contained'
-          >
-            Clear Form
-        </Button>
+
           <Button
             className={classes.resetButton}
             onClick={sendData}
@@ -166,17 +210,17 @@ export default function Form() {
             variant='contained'
           >
             Submit
-        </Button>
+          </Button>
 
 
-        
+
         </Grid>
 
       </Grid>
 
 
     </Fragment>
-    
+
 
   );
 };
