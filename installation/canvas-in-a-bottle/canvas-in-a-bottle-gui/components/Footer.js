@@ -1,20 +1,35 @@
+import { Divider, Paper, Typography } from "@mui/material";
 import React, { Component, Fragment } from "react";
+import { makeStyles } from '@mui/styles';
 
-class Footer extends Component {
-    render() {
-        return (
-            <footer style={{display: "block", marginLeft: "auto", marginRight: "auto", width: "20%"}}>
-            <a
-              href="https://www.tmforum.org"
-              target="_blank"
-            >
-              Powered by{' '}
-              <img src="/TMForum_logo_2021.svg" alt="TM Forum" className="logo" />
-            </a>
-          </footer>
+const useStyles = makeStyles({
+  LogoFooter: {
+    paddingTop: '3em',
+    margiBottom: '2em'
+  }
 
-        )
-    }
+});
+
+
+export default function Logo() {
+
+  const classes = useStyles();
+    return (
+      
+      <Fragment>
+      <Divider></Divider>
+        <footer style={{ display: "block", marginLeft: "auto", marginRight: "auto", width: "20%" }}>
+          <a
+            href="https://www.tmforum.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Typography>Powered by { }</Typography>
+            <Logo className={classes.LogoFooter}></Logo>
+            
+          </a>
+        </footer>
+        </Fragment>
+
+    )
 }
-
-export default Footer;

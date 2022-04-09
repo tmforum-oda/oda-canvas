@@ -3,6 +3,7 @@ import { JsonForms } from '@jsonforms/react';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
 import { Component } from 'react';
 
 import schema from './install.schema.json';
@@ -14,7 +15,7 @@ import {
 
 import { makeStyles } from '@mui/styles';
 
-import Footer from '../Footer';
+import Footer from '../../components/Footer';
 
 
 const useStyles = makeStyles({
@@ -41,6 +42,10 @@ const useStyles = makeStyles({
     margin: 'auto',
     padding: '1rem',
   },
+  topDiv: {
+    marginTop: '1.5em',
+    marginBottom: '0.5em',
+  }
 });
 
 const initialData = {
@@ -137,8 +142,8 @@ export default function Form() {
               color='warning'
               variant='contained'
             >
-              Load Use Case 3
-            </Button>{" "}
+              Load Use Case 1
+            </Button>&nbsp;&nbsp;&nbsp;
             <Button
               onClick={() => setData({
                 cleanUp: true,
@@ -171,7 +176,7 @@ export default function Form() {
               variant='contained'
             >
               Load Use Case 3
-            </Button>
+            </Button>&nbsp;&nbsp;&nbsp;
             <Button
               onClick={() => setData({
                 cleanUp: true,
@@ -189,6 +194,7 @@ export default function Form() {
               Clear Form
             </Button>
           </Grid>
+          <Divider className={classes.topDiv}></Divider>
           <Grid item sm={3}>
 
           </Grid>
@@ -217,7 +223,6 @@ export default function Form() {
         </Grid>
 
       </Grid>
-
 
     </Fragment>
 
