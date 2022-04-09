@@ -36,7 +36,7 @@ const MENU_LINKS = ["/guided/installForm", "/guided/connect", '/guided/analytics
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     flexGrow: 1,
-    padding: theme.spacing(3),
+    padding: theme.spacing(0),
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -106,8 +106,8 @@ export default function PersistentDrawerLeft() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            TMF - Canvas in a Bottle
+          <Typography variant="h5" noWrap component="div">
+            Canvas in a Bottle
           </Typography>
         </Toolbar>
       </AppBar>
@@ -133,20 +133,14 @@ export default function PersistentDrawerLeft() {
         <Divider />
         <List>
           {MENU_ENTRIES.map((text, index) => (
-            
-            <ListItem button key={text}>
-              
-                <ListItemIcon>
-
-
-                
-                  {MENU_ICONS[index]}
-                  
-                </ListItemIcon>
-                <Link href={MENU_LINKS[index]}>
-                <ListItemText primary={text} />
-                </Link>
+            <Link href={MENU_LINKS[index]} key={text}>
+            <ListItem button>              
+                <ListItemIcon>                
+                  {MENU_ICONS[index]}                  
+                </ListItemIcon>                
+                <ListItemText primary={text} />                
             </ListItem>
+            </Link>
             
           ))}
         </List>

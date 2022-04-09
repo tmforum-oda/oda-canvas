@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import Logo from "../components/Logo"
 
 export default function Home() {
   return (
@@ -15,7 +16,7 @@ export default function Home() {
         </h1>
 
         <p className="description">
-          A guided installation for TMForum Kubernetes based Canvas
+          A guided installation for <Logo/>`s Kubernetes-based Open Digital Architecture Canvas
         </p>
 
         <div className="grid">
@@ -32,21 +33,24 @@ export default function Home() {
             href="https://github.com/vercel/next.js/tree/master/examples"
             className="card tmfRadiusLabsInverted"
           >
-            <h3>Connect</h3>
+            <h3>Connect &rarr;</h3>
             <p>Connect to existing Canvas</p>
           </a>
 
           <a href="https://nextjs.org/docs" className="card tmfRadiusBlue">
             <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
+            <p>Find more information TM Forum`s Open Digital Architecture Canvas</p>
           </a>
         </div>
       </main>
 
-
       <style jsx>{`
+
+        a:hover {
+          color: #CCC !important;
+        }
         .container {
-          min-height: 100vh;
+          min-height: 85vh;
           padding: 0 0.5rem;
           display: flex;
           flex-direction: column;
@@ -55,11 +59,10 @@ export default function Home() {
         }
 
         main {
-          padding: 5rem 0;
+          padding: 5em 0 0 0!important;
           flex: 1;
           display: flex;
           flex-direction: column;
-          justify-content: center;
           align-items: center;
         }
 
@@ -96,6 +99,7 @@ export default function Home() {
         .title a:focus,
         .title a:active {
           text-decoration: underline;
+          color: blue !important;
         }
 
         .title {
@@ -212,6 +216,7 @@ export default function Home() {
           border-radius: 58px 0px 58px 0px;
           padding: 25px 30px 25px 30px;
           font-size: 1em;
+          width: 86%;
           background-color: #0D2548;
           transition-timing-function: cubic-bezier(0.400,0.000,0.200,1.000);
           color: white;
