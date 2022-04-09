@@ -27,49 +27,10 @@
           "options": {
             "toggle": true
           }
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/dashboardPort",
-          "label": "Dashboard port (default 8443)",
-          "rule": {
-            "effect": "HIDE",
-            "condition": {
-              "scope": "#/properties/dashboard",
-              "schema": {
-                "const": false
-              }
-            }
-          }
         }
       ]
     },
-    {
-      "type": "HorizontalLayout",
-      "elements": [
-        {
-          "type": "Control",
-          "scope": "#/properties/grafana",
-          "options": {
-            "toggle": true
-          }
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/grafanaPort",
-          "label": "Grafana port (default 3001)",
-          "rule": {
-            "effect": "HIDE",
-            "condition": {
-              "scope": "#/properties/grafana",
-              "schema": {
-                "const": false
-              }
-            }
-          }
-        }
-      ]
-    },
+
     {
       "type": "Control",
       "scope": "#/properties/canvas",
@@ -100,20 +61,6 @@
       "scope": "#/properties/installReferenceAPIs",
       "options": {
         "toggle": true
-      }
-    },
-    {
-      "type": "Control",
-      "label": "DockerHub Token",
-      "scope": "#/properties/dockerHubToken",     
-      "rule": {
-        "effect": "HIDE",
-        "condition": {
-          "scope": "#/properties/installReferenceAPIs",
-          "schema": {
-            "const": false
-          }
-        }
       }
     },
     {

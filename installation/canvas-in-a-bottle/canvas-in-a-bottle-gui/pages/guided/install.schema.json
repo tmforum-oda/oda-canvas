@@ -10,19 +10,6 @@
     "dashboard": {
       "type": "boolean"
     },
-    "grafana": {
-      "type": "boolean"
-    },
-    "dashboardPort": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 65535
-    },
-    "grafanaPort": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 65535
-    },
     "installReferenceAPIs": {
       "type": "boolean"
     },
@@ -34,9 +21,6 @@
     },
     "kubeMonitoring": {
       "type": "boolean"
-    },
-    "dockerHubToken": {
-      "type": "string"
     },
     "individualAPIs": {
       "type": "array",
