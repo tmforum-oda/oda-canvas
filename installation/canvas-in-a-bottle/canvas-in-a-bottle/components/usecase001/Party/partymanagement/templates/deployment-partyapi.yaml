@@ -30,7 +30,7 @@ spec:
           containerPort: 8080
         startupProbe:
           httpGet:
-            path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/party/v4/individual
+            path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/party/v4/api-docs
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5          

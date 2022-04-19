@@ -13,11 +13,11 @@ spec:
     metadata:
       labels:
         app: {{.Release.Name}}-{{.Values.component.name}}
-        impl: {{.Release.Name}}-digitalidentityapi
+        impl: {{.Release.Name}}-diapi
         version: reference-digitalidentityapi-latest
     spec:
       containers:
-      - name: {{.Release.Name}}-digitalidentityapi
+      - name: {{.Release.Name}}-diapi
         image: localhost:5000/tmf720_digital-identity-management_v4.0.0:batch
         env:
         - name: RELEASE_NAME
@@ -30,7 +30,7 @@ spec:
           containerPort: 8080
         startupProbe:
           httpGet:
-            path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/digitalIdentityManagement/v4/digitalIdentity
+            path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/digitalIdentityManagement/v4/api-docs
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5          

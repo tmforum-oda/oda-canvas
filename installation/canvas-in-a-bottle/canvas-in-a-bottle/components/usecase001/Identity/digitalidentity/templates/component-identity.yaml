@@ -26,9 +26,9 @@ spec:
       email: hrodrigues@tmforum.org  
   coreFunction:
     exposedAPIs: 
-    - name: identitymanagement
+    - name: diapi
       specification: https://raw.githubusercontent.com/tmforum-rand/Open_API_And_Data_Model/v4.0-Sprint-2020-03/apis/TMF720_Digital_Identity/swaggers/TMF720-DigitalIdentity-v4.0.0.swagger.json
-      implementation: {{.Release.Name}}-digitalidentity
+      implementation: {{.Release.Name}}-diapi
       apitype: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/digitalIdentityManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/digitalIdentityManagement/v4/api-docs

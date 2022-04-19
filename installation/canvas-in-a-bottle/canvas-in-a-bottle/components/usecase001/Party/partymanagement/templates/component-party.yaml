@@ -30,16 +30,9 @@ spec:
       specification: https://raw.githubusercontent.com/tmforum-apis/Open_Api_And_Data_Model/master/apis/TMF632_Party/swaggers/TMF632-Party-v4.0.0.swagger.json
       implementation: {{.Release.Name}}-partyapi
       apitype: openapi
-      path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
+      path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/party/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/party/v4/api-docs
       port: 8080
-    - name: identitymanagement
-      specification: https://raw.githubusercontent.com/tmforum-rand/Open_API_And_Data_Model/v4.0-Sprint-2020-03/apis/TMF720_Digital_Identity/swaggers/TMF720-DigitalIdentity-v4.0.0.swagger.json
-      implementation: {{.Release.Name}}-digitalidentity
-      apitype: openapi
-      path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/digitalIdentityManagement/v4
-      developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/digitalIdentityManagement/v4/api-docs
-      port: 8080 
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
