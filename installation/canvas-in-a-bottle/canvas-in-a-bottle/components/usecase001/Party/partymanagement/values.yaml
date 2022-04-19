@@ -1,0 +1,14 @@
+# Default values for productcatalog.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+component:
+  # Specifies whether a service account should be created
+  type: partymanagement
+  name: partymanagement
+  version: "0.0.1"
+  storageClassName: default
+  
+security:
+  controllerRole: Admin

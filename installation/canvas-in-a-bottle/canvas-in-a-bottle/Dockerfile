@@ -71,6 +71,8 @@ COPY scripts/get_grafana_credentials /root/get_grafana_credentials
 #Add Graphical user interface
 COPY ciab-gui /root/ciab-gui
 
+COPY components /root/components
+
 
 
 WORKDIR /root/ciab-gui/
