@@ -30,14 +30,14 @@ export default function Home() {
 
 
           <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
+            href="/connect"
             className="card tmfRadiusLabsInverted"
           >
             <h3>Connect &rarr;</h3>
             <p>Connect to existing Canvas</p>
           </a>
 
-          <a href="https://nextjs.org/docs" className="card tmfRadiusBlue">
+          <a href="https://tmforum-oda.github.io/oda-ca-docs/" className="card tmfRadiusBlue">
             <h3>Documentation &rarr;</h3>
             <p>Find more information TM Forum`s Open Digital Architecture Canvas</p>
           </a>
