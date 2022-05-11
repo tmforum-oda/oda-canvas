@@ -122,21 +122,12 @@ export default function Form() {
                 kubeMonitoring: false,
                 installReferenceAPIs: true,
                 individualAPIs: [
-                  "TMF620 - Product Catalog Management - v4.1.0",
-                  "TMF622 - Product Ordering - v4.0.0",
                   "TMF632 - Party - v4.0.0",
-                  "TMF645 - Service Qualification Management - v4.0.0",
-                  "TMF666 - Account Management - v4.0.0",
-                  "TMF670 - Payment Method - v4.0.0",
-                  "TMF673 - Place Geographicaddress - v4.0.1",
-                  "TMF676 - Payment - v4.0.0",
-                  "TMF679 - Product Offering Qualification - v4.0.0",
-                  "TMF680 - Recommendation - v4.0.0",
-                  "TMF691 - Federated Id - v4.0",
+                  "TMF720 - Digital Identity Management - v4.0.0"
                 ],
                 useCaseToggle: true,
                 useCaseController: [
-                  "UC003: Order Capture – Fiber contract v7.00, Approach A (BFF)"
+                  "UC001: New Party – Create your « account » v2"
                 ]
               })}
               color='warning'
@@ -144,39 +135,7 @@ export default function Form() {
             >
               Load Use Case 1
             </Button>&nbsp;&nbsp;&nbsp;
-            <Button
-              onClick={() => setData({
-                cleanUp: true,
-                kind: true,
-                dashboard: true,
-                grafana: true,
-                canvas: true,
-                istioKiali: true,
-                kubeMonitoring: false,
-                installReferenceAPIs: true,
-                individualAPIs: [
-                  "TMF620 - Product Catalog Management - v4.1.0",
-                  "TMF622 - Product Ordering - v4.0.0",
-                  "TMF632 - Party - v4.0.0",
-                  "TMF645 - Service Qualification Management - v4.0.0",
-                  "TMF666 - Account Management - v4.0.0",
-                  "TMF670 - Payment Method - v4.0.0",
-                  "TMF673 - Place Geographicaddress - v4.0.1",
-                  "TMF676 - Payment - v4.0.0",
-                  "TMF679 - Product Offering Qualification - v4.0.0",
-                  "TMF680 - Recommendation - v4.0.0",
-                  "TMF691 - Federated Id - v4.0",
-                ],
-                useCaseToggle: true,
-                useCaseController: [
-                  "UC003: Order Capture – Fiber contract v7.00, Approach A (BFF)"
-                ]
-              })}
-              color='warning'
-              variant='contained'
-            >
-              Load Use Case 3
-            </Button>&nbsp;&nbsp;&nbsp;
+
             <Button
               onClick={() => setData({
                 cleanUp: true,

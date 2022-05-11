@@ -95,6 +95,7 @@
       "items": {
         "type": "string",
         "enum": [
+          "UC001: New Party – Create your « account » v2",
           "UC003: Order Capture – Fiber contract v7.00, Approach A (BFF)"
         ]
 
