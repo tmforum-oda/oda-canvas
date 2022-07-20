@@ -1,3 +1,16 @@
+# ODA Canvas Use-Case library, BDD and TDD
+
+This repository contains:
+* The use-case library that defines the component - canvas interactions.
+* BDD (Behaviour-Driven Development) features and scenarios that describe each interaction in each use-case using examples.
+* TDD (Test-Driven Development) that defines tests for each BDD scenario.
+
+This is *WORK IN PROGRESS* and will eventually form the compliance test kit for an ODA Canvas implementation. The original MVP canvas CTK is referenced below.
+
+
+
+
+
 # ODA Canvas - CTK
 
 Following the same approach as the [ODA Component CTK](https://github.com/tmforum-oda/oda-component-ctk), this repository contains the tests that can be executed to check compliance with the Canvas design guidelines. 
