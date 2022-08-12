@@ -1,0 +1,25 @@
+@startuml
+autonumber
+title
+ <u>ODA CANVAS BASELINE OBSERVABILITY</u>
+ 
+ <i>Precondition: ODA Component and the Service Mesh (Istio, Kiali) are deployed.</i>
+end title
+actor "SRE" #red
+actor "Customer" #blue
+
+
+
+|||
+EngagementManagementUI <- "Customer" : Retrieve Catalog
+EngagementManagementUI -> "ProductCatalogComponent" : GET /catalog \n(*multiple requests)
+ProductCatalogComponent -> "Prometheus-<monitoring> \n (DB)": on.get \n(scrapes metrics) 
+"Prometheus-<monitoring> \n (DB)" -> "Prometheus-<monitoring> \n (DB)": store metrics \nin DB
+EngagementManagementUI <- "ProductCatalogComponent" : GET /catalog Response
+EngagementManagementUI -> "Customer" : Catalog List
+"Prometheus-<monitoring> \n (DB)" -> "ServiceMesh \n (Istio / Kiali)": dispense scraped metrics: \n HTTP Request/min \n Response Time (ms) etc
+"SRE" -> "ServiceMesh \n (Istio / Kiali)": Observe Component Traffic Pattern
+"SRE" <- "ServiceMesh \n (Istio / Kiali)": Show Traffic Pattern Dashboard \n (HTTP Requests per second , HTTP Request Traffic  min/max, HTTP Request Response Time ms etc)
+|||
+
+@enduml

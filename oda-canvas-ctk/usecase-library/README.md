@@ -26,4 +26,5 @@ This is a list of the Canvas operators (including status of whether this has bee
 | [Bootstrap role for component](Bootstrap-role-for-component.md) | When a new instance of a component is deployed or deleted, integrate with the Canvas Identity service and bootstrap the initial role and clean-up the bootstraped role. |
 | [Configure APIs for Component](Configure-APIs-for-Component.md) | When a component is deployed, updated or deleted, integrate with the Service Mesh & API Gateway to configure the API Endpoints |
 | [Configure Observability](Configure-Observability.md) | When a component is deployed, updated or deleted, configure the observability service. || Authentication | When an external consumer calls an exposed API for a component, manage the authenticate the consumer and pass the authenticated request (including authentication token) to the component. |
+| [View Baseline Observability](View-Baseline-Observability.md) | When a component is deployed, view the baseline metrics such as HTTP Requests per second etc using the observability management dashboard.|
 
