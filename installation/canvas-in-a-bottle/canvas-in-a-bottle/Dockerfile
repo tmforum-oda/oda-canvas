@@ -51,7 +51,7 @@ RUN cd /root && \
     wget -O downloadIstio.sh https://raw.githubusercontent.com/istio/istio/master/release/downloadIstioCandidate.sh && \
     chmod 700 downloadIstio.sh && \
     ./downloadIstio.sh && \
-    mv /root/istio-1.12.2/bin/istioctl /usr/local/bin/istioctl
+    mv /root/istio-1.13.2/bin/istioctl /usr/local/bin/istioctl
 
 # Clone Canvas Repository
 # TODO: clone just the necessary scripts
@@ -66,6 +66,26 @@ COPY canvas_demo.sh /root/canvas_demo.sh
 COPY scripts/get_dashboard_token /root/get_dashboard_token
 COPY scripts/get_grafana_credentials /root/get_grafana_credentials
 
+
+
+#Add Graphical user interface
+COPY ciab-gui /root/ciab-gui
+
+COPY components /root/components
+
+
+
+WORKDIR /root/ciab-gui/
+
+RUN apk add --update npm
+RUN npm install
+
+WORKDIR /root/
+RUN dos2unix get_dashboard_token
+RUN dos2unix get_grafana_credentials 
+
+WORKDIR /root/ciab-gui/
+
 ENV PATH="${PATH}:/root"
 
-ENTRYPOINT ["/bin/bash", "/root/canvas_demo.sh"]
+ENTRYPOINT ["npm", "run", "dev"]
