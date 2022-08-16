@@ -26,6 +26,6 @@ appVersion: "12.0.3"
 # Postgres is a dependency
 dependencies:
   - name: "postgresql"
-    version: "~10.8.0"
+    version: "^10.8.0"
     repository: "https://charts.bitnami.com/bitnami"
     condition: "postgresql.enabled"
