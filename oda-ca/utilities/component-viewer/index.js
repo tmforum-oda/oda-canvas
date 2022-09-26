@@ -38,7 +38,7 @@ function displayComponentTree() {
     try {
         const customk8sApi = kc.makeApiClient(k8s.CustomObjectsApi);
 
-        customk8sApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha3', namespace, 'components').then((res) => {
+        customk8sApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha4', namespace, 'components').then((res) => {
             console.clear()
             for (var key in res.body.items) {
                 var item = res.body.items[key]
