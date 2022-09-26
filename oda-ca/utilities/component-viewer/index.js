@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const k8s = require('@kubernetes/client-node');
-const { printTable, Table  } = require('console-table-printer');
+var treeify = require('treeify');
 const colors = require('colors');
 
 const kc = new k8s.KubeConfig();
@@ -31,9 +31,9 @@ process.argv.forEach(function (val, index, array) {
     }
   });
 
-var intervalTimer = setInterval(displayComponent, 2000)
+displayComponentTree()
 
-function displayComponent() {
+function displayComponentTree() {
 
     try {
         const customk8sApi = kc.makeApiClient(k8s.CustomObjectsApi);
@@ -44,8 +44,8 @@ function displayComponent() {
                 var item = res.body.items[key]
                 console.log('')
                 console.log('')
-                console.log('Component: %s', item.metadata.name)
-                console.log('Namespace: %s', namespace)
+                console.log('Component: %s'.gray, item.metadata.name.white)
+                console.log('Namespace: %s'.gray, namespace.white)
 
                 var deployment_status = 'Starting'
                 if (item.hasOwnProperty('status')) {
@@ -54,53 +54,37 @@ function displayComponent() {
                     } 
                 }
                 if (deployment_status == "Complete") {
-                    console.log('Deployment Status: %s', deployment_status.green)
+                    console.log('Deployment Status: %s'.gray, deployment_status.green)
                 }
                 else if (deployment_status == "Starting") {
-                    console.log('Deployment Status: %s', deployment_status.red)
+                    console.log('Deployment Status: %s'.gray, deployment_status.red)
                 }
                 else {
-                    console.log('Deployment Status: %s', deployment_status.yellow)
+                    console.log('Deployment Status: %s'.gray, deployment_status.yellow)
                 }
-                //console.log('APIs: ')
-                var apiList = []
+                var apiObj = {}
                 if (item.hasOwnProperty('status')) {
+                    // console.log(item.status)
                     if (item.status.hasOwnProperty('exposedAPIs')) {
-                        for (var apiKey in item.status.exposedAPIs) {
-                            var api = item.status.exposedAPIs[apiKey]
-                            apiList.push({type: 'core-function', name: api.name, url: api.url, ready: api.ready})
+                        if (item.status.exposedAPIs.length > 0) {
+                            apiObj['core-function'.gray] = formatTreeObject(item.status.exposedAPIs)
+                        }
+                    }
+                    if (item.status.hasOwnProperty('managementAPIs')) {
+                        if (item.status.managementAPIs.length > 0) {
+                            apiObj['management'.gray] = formatTreeObject(item.status.managementAPIs)
                         }
                     }
                     if (item.status.hasOwnProperty('securityAPIs')) {
-                        for (var apiKey in item.status.securityAPIs) {
-                            var api = item.status.securityAPIs[apiKey]
-                            apiList.push({type: 'security', name: api.name, url: api.url, ready: api.ready})
+                        if (Object.keys(item.status.securityAPIs).length > 0) {
+                            apiObj['security'.gray] = formatTreeObject(item.status.securityAPIs)
                         }
                     }
                 }
-                // fix formatting
-                for (var key in apiList){
-                    var api = apiList[key]
-                    if (!api.url) {
-                        api.url = 'Not created yet'.yellow
-                    } else {
-                        api.url = api.url.green
-                    }
 
-                    if (api.ready == true) {
-                        api.ready = 'true'.green
-                    } else {
-                        api.ready = 'false'.yellow
-                    }
-                }
-
-                if (apiList.length>0) {
-                    const table = new Table({
-                        title: "APIs"
-                    });
-                    
-                    table.addRows(apiList)
-                    table.printTable();
+                treeJSON = {}
+                if (Object.keys(apiObj).length>0) {
+                    console.log( treeify.asTree(apiObj, true) )
                 }
                 console.log('')
             }
@@ -113,4 +97,27 @@ function displayComponent() {
         clearInterval(intervalTimer);
         console.error(err)
     }
+}
+
+function formatTreeObject(inputStatusObject) {
+    var outputStatusObject = {}
+    for (var key in inputStatusObject) {
+        var status = inputStatusObject[key]
+        // fix formatting
+        if (!status.url) {
+            status.url = 'Not created yet'.yellow
+        } else {
+            status.url = status.url.blue
+        }
+        if (status.ready == true) {
+            status.ready = 'true'.green
+        } else {
+            status.ready = 'false'.yellow
+        }
+        outputStatusObject[status.name] = {url: status.url, ready: status.ready}
+        if (status.developerUI) {
+            outputStatusObject[status.name].developerUI = status.developerUI.blue
+        }
+    }
+    return outputStatusObject
 }

@@ -1,6 +1,6 @@
 {
-  "name": "@lesterthomas/cv",
-  "version": "1.0.6",
+  "name": "@lesterthomas/kubectl-component_info",
+  "version": "1.1.1",
   "description": "ODA Component Viewer Javascript client.",
   "main": "index.js",
   "scripts": {
@@ -10,12 +10,12 @@
   "author": "Lester Thomas",
   "license": "Apache-2.0",
   "bin": {
-    "cv": "./index.js"
+    "kubectl-component_info": "./index.js"
   },
   "repository": "https://github.com/tmforum-oda/oda-ca/tree/master/utilities/component-viewer",
   "dependencies": {
     "@kubernetes/client-node": "^0.14.0",
     "colors": "^1.4.0",
-    "console-table-printer": "^2.8.1"
+    "treeify": "^1.1.0"
   }
 }
