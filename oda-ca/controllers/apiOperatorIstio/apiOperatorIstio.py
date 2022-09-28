@@ -27,9 +27,6 @@ kopf_logger.setLevel(logging.WARNING)
 logger = logging.getLogger('APIOperator')
 logger.setLevel(int(logging_level))
 
-ingress_class = os.environ.get('INGRESS_CLASS','nginx') 
-print('Ingress set to ',ingress_class)
-
 HTTP_SCHEME = "http://"
 GROUP = "oda.tmforum.org"
 VERSION = "v1alpha4"
@@ -58,53 +55,40 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     :meta public:
     """
-    logger.debug(f"[apiStatus/{namespace}/{name}] apiOperator-simpleIngress/apiStatus called with name:{name}, spec: {spec}")
-    return actualToDesiredState(spec, status, namespace, name)
+    componentName = labels['oda.tmforum.org/componentName']
 
+    logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Handler called", "")
+    logWrapper(logging.DEBUG, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "apiStatus called with ", spec)
 
-def actualToDesiredState(spec, status, namespace, name): 
-    """Helper function to compare desired state (spec) with actual state (status) and initiate changes.
-    
-    Args:
-        * spec (Dict): The spec from the  showing the intent (or desired state) 
-        * status (Dict): The status from the  showing the actual state.
-        * namespace (String): The namespace for the API Custom Resource
-        * name (String): The name of the API Custom Resource
-
-    Returns:
-        Dict: The updated apiStatus that will be put into the status field of the API resource.
-
-    :meta private:
-    """
     outputStatus = {}
     if status: # there is a status object
-        if 'apiStatus' in status.keys(): # there is an actual state to compare against
+        if 'apiStatus' in status.keys(): # there is an existing apiStatus to compare against
             # work out delta between desired and actual state
             apiStatus = status['apiStatus'] # starting point for return status is the previous status
             # check if there is a difference in the api we created previously
             if name == apiStatus['name'] and spec['path'] == apiStatus['path'] and spec['port'] == apiStatus['port'] and spec['implementation'] == apiStatus['implementation']:
                 # unchanged, so just return previous status
-                logger.info(f"[actualToDesiredState/{namespace}/{name}] returning previous status")
+                logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Unchanged", "Returning previous status")
                 return apiStatus
             else:
-                logger.info(f"[actualToDesiredState/{namespace}/{name}] status has changed so patching Virtual Service")
+                logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Patching", "Istio Virtual Service")
                 # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
                 if 'apitype' in spec.keys():
                     if spec['apitype'] == 'prometheus':
                         # create a ServiceMonitor resource
-                        logger.info(f"[actualToDesiredState/{namespace}/{name}] patching ServiceMonitor")
-                        createOrPatchServiceMonitor(True, spec, namespace, name)
-                return createOrPatchVirtualService(True, spec, namespace, name)
-    logger.info(f"[actualToDesiredState/{namespace}/{name}] status doesnt exist so creating Virtual Service")
+                        logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Patching", "Prometheus Service Monitor")
+                        createOrPatchServiceMonitor(True, spec, namespace, name, 'apiStatus', componentName)
+                return createOrPatchVirtualService(True, spec, namespace, name, 'apiStatus', componentName)
+    logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Creating", "Istio Virtual Service")    
     # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
     if 'apitype' in spec.keys():
         if spec['apitype'] == 'prometheus':
             # create a ServiceMonitor resource
-            logger.info(f"[actualToDesiredState/{namespace}/{name}] creating ServiceMonitor")
-            createOrPatchServiceMonitor(False, spec, namespace, name)
-    return createOrPatchVirtualService(False, spec, namespace, name)
+            logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Creating", "Prometheus Service Monitor")    
+            createOrPatchServiceMonitor(False, spec, namespace, name, 'apiStatus', componentName)
+    return createOrPatchVirtualService(False, spec, namespace, name, 'apiStatus', componentName)
 
-def createOrPatchServiceMonitor(patch, spec, namespace, name):            
+def createOrPatchServiceMonitor(patch, spec, namespace, name, inHandler, componentName):            
     """Helper function to get API details for a prometheus metrics API and create or patch ServiceMonitor resource.
     
     Args:
@@ -112,13 +96,14 @@ def createOrPatchServiceMonitor(patch, spec, namespace, name):
         * spec (Dict): The spec from the API Resource showing the intent (or desired state) 
         * namespace (String): The namespace for the API Custom Resource
         * name (String): The name of the API Custom Resource
+        * inHandler (String): The name of the handler function calling this function
+        * componentName (String): The name of the ODA Component that the API is part of
 
     Returns:
         nothing
 
     :meta private:
     """
-    logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] createOrPatchServiceMonitor with name {name}")
 
     client = kubernetes.client
     try:
@@ -160,39 +145,38 @@ def createOrPatchServiceMonitor(patch, spec, namespace, name):
         if 'basicAuth' in spec.keys():
             body['spec']['endpoints'][0]['basicAuth'] = spec['basicAuth']
 
-        logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] body : {body}")
-
-
         # Make it our child: assign the namespace, name, labels, owner references, etc.
         kopf.adopt(body)
-        logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] body (adopted): {body}")
+
+        logWrapper(logging.DEBUG, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Service Monitor", body)    
+
         if patch == True:
             # patch the resource
-            logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] Patching ServiceMonitor with: {body}")
             serviceMonitorResource = custom_objects_api.patch_namespaced_custom_object(SERVICE_MONITOR_GROUP, SERVICE_MONITOR_VERSION, namespace, SERVICE_MONITOR_PLURAL, name, body)
-            logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] serviceMonitorResource patched: {serviceMonitorResource}")
-            logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] serviceMonitorResource patched with name {name}")
+            logWrapper(logging.DEBUG, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Service Monitor patched", serviceMonitorResource)
+            logWrapper(logging.INFO, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Service Monitor patched", name)
             return 
         else:
             # create the resource
-            logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] Creating ingress with: {body}")
             serviceMonitorResource = custom_objects_api.create_namespaced_custom_object(SERVICE_MONITOR_GROUP, SERVICE_MONITOR_VERSION, namespace, SERVICE_MONITOR_PLURAL, body)
-            logger.debug(f"[createOrPatchServiceMonitor/{namespace}/{name}] serviceMonitorResource created: {serviceMonitorResource}")
-            logger.info(f"[createOrPatchServiceMonitor/{namespace}/{name}] serviceMonitorResource created with name {name}")
+            logWrapper(logging.DEBUG, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Service Monitor created", serviceMonitorResource)
+            logWrapper(logging.INFO, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Service Monitor created", name)
             return 
     except ApiException as e:
-        logger.warning("Exception when calling CustomObjectsApi: %s\n" % e)
+        logWrapper(logging.WARNING, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Exception when calling CustomObjectsApi", e)
         raise kopf.TemporaryError("Exception creating ServiceMonitor.")   
 
 
-def createOrPatchVirtualService(patch, spec, namespace, name):            
+def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, componentName):            
     """Helper function to get API details and create or patch VirtualService.
     
     Args:
         * patch (Boolean): True to patch an existing VirtualService; False to create a new VirtualService. 
         * spec (Dict): The spec from the API Resource showing the intent (or desired state) 
         * namespace (String): The namespace for the API Custom Resource
-        * name (String): The name of the API Custom Resource
+        * inAPIName (String): The name of the API Custom Resource
+        * inHandler (String): The name of the handler calling this function
+        * componentName (String): The name of the component that owns the API resource
 
     Returns:
         Dict: The updated apiStatus that will be put into the status field of the API resource.
@@ -217,7 +201,7 @@ def createOrPatchVirtualService(patch, spec, namespace, name):
             "apiVersion": "networking.istio.io/v1alpha3",
             "kind": "VirtualService",
             "metadata": {
-                "name": name
+                "name": inAPIName
                 },
             "spec": {
                 "hosts": ["*"],  
@@ -246,76 +230,78 @@ def createOrPatchVirtualService(patch, spec, namespace, name):
 
         # Make it our child: assign the namespace, name, labels, owner references, etc.
         kopf.adopt(body)
-        logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] body (adopted): {body}")
+        
+        logWrapper(logging.DEBUG, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Virtual Service", body)    
+
         if patch == True:
             # patch the resource
-            logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] Patching ingress with: {body}")
             virtualServiceResource = custom_objects_api.patch_namespaced_custom_object(VIRTUAL_SERVICE_GROUP, VIRTUAL_SERVICE_VERSION, namespace, VIRTUAL_SERVICE_PLURAL, name, body)
-            logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] virtualServiceResource patched: {virtualServiceResource}")
-            logger.info(f"[createOrPatchVirtualService/{namespace}/{name}] virtualServiceResource patched with name {name}")
-            updateImplementationStatus(namespace, spec['implementation'])
+            logWrapper(logging.DEBUG, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Virtual Service patched", virtualServiceResource)
+            logWrapper(logging.INFO, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Virtual Service patched", inAPIName)
+            updateImplementationStatus(namespace, spec['implementation'], inHandler, componentName)
             # update parent apiStatus
-            loadBalancer = getIstioIngressStatus()
-            apistatus = {'apiStatus': {"name": name, "uid": virtualServiceResource['metadata']['uid'], "path": spec['path'], "port": spec['port'], "implementation": spec['implementation']}}
+            loadBalancer = getIstioIngressStatus(inHandler, 'api/' + inAPIName, componentName)
+            apistatus = {'apiStatus': {"name": inAPIName, "uid": virtualServiceResource['metadata']['uid'], "path": spec['path'], "port": spec['port'], "implementation": spec['implementation']}}
             if 'ingress' in loadBalancer.keys():
                 ingress = loadBalancer['ingress']
                 if isinstance(ingress, list):
                     if len(ingress)>0:
                         ingressTarget = ingress[0]
-                        apistatus = buildAPIStatus(spec, apistatus, ingressTarget)
-                        logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] apistatus = {apistatus}")
+                        apistatus = buildAPIStatus(spec, apistatus, ingressTarget, inAPIName, inHandler, componentName)
+                        logWrapper(logging.DEBUG, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "apiStatus", apistatus)
 
             return apistatus['apiStatus']
         else:
             # create the resource
-            logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] Creating VirtualService with: {body}")
             virtualServiceResource = custom_objects_api.create_namespaced_custom_object(VIRTUAL_SERVICE_GROUP, VIRTUAL_SERVICE_VERSION, namespace, VIRTUAL_SERVICE_PLURAL, body)
-            logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] virtualServiceResource created: {virtualServiceResource}")
-            logger.info(f"[createOrPatchVirtualService/{namespace}/{name}] virtualServiceResource created with name {name}")
-            updateImplementationStatus(namespace, spec['implementation'])
+            logWrapper(logging.DEBUG, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Virtual Service created", virtualServiceResource)
+            logWrapper(logging.INFO, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Virtual Service created", inAPIName)
+            updateImplementationStatus(namespace, spec['implementation'], inHandler, componentName)
             # update parent apiStatus
-            loadBalancer = getIstioIngressStatus()
-            apistatus = {'apiStatus': {"name": name, "uid": virtualServiceResource['metadata']['uid'], "path": spec['path'], "port": spec['port'], "implementation": spec['implementation']}}
+            loadBalancer = getIstioIngressStatus(inHandler, 'api/' + inAPIName, componentName)
+            apistatus = {'apiStatus': {"name": inAPIName, "uid": virtualServiceResource['metadata']['uid'], "path": spec['path'], "port": spec['port'], "implementation": spec['implementation']}}
             if 'ingress' in loadBalancer.keys():
                 ingress = loadBalancer['ingress']
                 if isinstance(ingress, list):
                     if len(ingress)>0:
                         ingressTarget = ingress[0]
-                        apistatus = buildAPIStatus(spec, apistatus, ingressTarget)
-                        logger.debug(f"[createOrPatchVirtualService/{namespace}/{name}] apistatus = {apistatus}")
+                        apistatus = buildAPIStatus(spec, apistatus, ingressTarget, inAPIName, inHandler, componentName)
+                        logWrapper(logging.DEBUG, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "apiStatus", apistatus)
             return apistatus['apiStatus']
     except ApiException as e:
-        logger.warning("Exception when calling CustomObjectsApi: %s\n" % e)
+        logWrapper(logging.WARNING, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Exception when calling CustomObjectsApi", e)
         raise kopf.TemporaryError("Exception creating virtualService.")                  
 
 
-def updateImplementationStatus(namespace, name):
+def updateImplementationStatus(namespace, name, inHandler, componentName):
     """Helper function to get EndPointSice and find the Ready status.
     
     Args:
         * namespace (String): The namespace for the Kubernetes Service that implements the API
         * name (String): The name of the Kubernetes Service that implements the API
+        * inHandler (String): The name of the handler that is calling this function
+        * componentName (String): The name of the component that owns the API resource
 
     Returns:
         No return value.
 
     :meta private:
     """
-    logger.debug(f"[updateImplementationStatus/{namespace}/{name}] updateImplementationStatus namespace={namespace} name={name}")
+    logWrapper(logging.DEBUG, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "Update implementation status", name)
 
     discovery_api_instance = kubernetes.client.DiscoveryV1beta1Api()
     try:
         api_response = discovery_api_instance.list_namespaced_endpoint_slice(namespace, label_selector='kubernetes.io/service-name=' + name)
         if len(api_response.items) > 0:
-            createAPIImplementationStatus(name, api_response.items[0].endpoints, namespace)
+            createAPIImplementationStatus(name, api_response.items[0].endpoints, namespace, inHandler, componentName)
     except ValueError as e: # if there are no endpoints it will create a ValueError
-        logger.info(f"[updateImplementationStatus/{namespace}/{name}] ValueError when calling DiscoveryV1beta1Api->list_namespaced_endpoint_slice: {e}\n")   
+        logWrapper(logging.INFO, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "Can not find", "Endpoint Slice")
     except ApiException as e:
-        logger.error(f"[updateImplementationStatus/{namespace}/{name}] ApiException when calling DiscoveryV1beta1Api->list_namespaced_endpoint_slice: {e}\n")           
+        logWrapper(logging.WARNING, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "ApiException calling list_namespaced_endpoint_slice", e)
 
 
 # helper function to get Istio Ingress status
-def getIstioIngressStatus():
+def getIstioIngressStatus(inHandler, name, componentName):
     # get ip or hostname where ingress is exposed from the istio-ingressgateway service
     core_api_instance = kubernetes.client.CoreV1Api()
     ISTIO_NAMESPACE = "istio-system"
@@ -324,19 +310,22 @@ def getIstioIngressStatus():
         api_response = core_api_instance.read_namespaced_service(ISTIO_INGRESSGATEWAY, ISTIO_NAMESPACE)
         serviceStatus = api_response.status
         loadBalancer = serviceStatus.load_balancer.to_dict()
-        logger.info(f"[getIstioIngressStatus] Istio Ingress Gateway is {loadBalancer}")
+        logWrapper(logging.INFO, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Istio Ingress Gateway", loadBalancer)
     except Exception as e:
-        logger.warning("Exception when calling CoreApi->read_namespaced_service: %s\n" % e)
+        logWrapper(logging.WARNING, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Exception when calling read_namespaced_service", e)
         raise kopf.TemporaryError("Exception getting IstioIngressStatus.")
     return loadBalancer
 
-def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget):
+def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, inAPIName, inHandler, componentName):
     """Helper function to build the API Status Dict for the API custom resource.
     
     Args:
         * parent_api_spec (Dict): The spec (target state or intent) for the API Resource
         * parent_api_status (Dict): The status (actual state) for the API Resource
         * ingressTarget (Dict): The status (actual state) for the Ingress Resource
+        * inAPIName (String): The name of the API Resource
+        * inHandler (String): The name of the handler that is processing the API Resource
+        * componentName (String): The name of the component that owns the API Resource
 
     Returns:
         Updated API status as Dict.
@@ -352,7 +341,7 @@ def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget):
         elif 'hostname' in ingressTarget.keys():
             parent_api_status['apiStatus']['ip'] = ingressTarget['hostname'] 
         else:
-            logger.warning('Ingress target does not contain ip or hostname')
+            logWrapper(logging.WARNING, 'buildAPIStatus', inHandler, 'api/' + inAPIName, componentName, "Ingress target does not contain ip or hostname", "")
     else:    #if api doesn't specify hostname then use ip
         if 'hostname' in ingressTarget.keys():
             parent_api_status['apiStatus']['url'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api_spec['path']
@@ -391,16 +380,19 @@ def implementation_status(meta, spec, status, body, namespace, labels, name, **k
 
     :meta public:
     """
-    logger.debug(f"[{namespace}][{name}] endpointslice body: {body}")
-    createAPIImplementationStatus(meta['ownerReferences'][0]['name'], body['endpoints'], namespace)
 
-def createAPIImplementationStatus(serviceName, endpointsArray, namespace):
+    componentName = labels['oda.tmforum.org/componentName']
+    createAPIImplementationStatus(meta['ownerReferences'][0]['name'], body['endpoints'], namespace, 'implementation_status', componentName)
+
+def createAPIImplementationStatus(serviceName, endpointsArray, namespace, inHandler, componentName):
     """Helper function to update the implementation Ready status on the API custom resource.
     
     Args:
         * serviceName (String): The name of Kubernetes Service that implements the API
         * endpointsArray (Array): The array of EndPointSlice resources that show the implementation Ready state for the Service.
         * namespace (String): The namespace for the Kubernetes Service that implements the API
+        * inHandler (String): The name of the handler function calling this helper function
+        * componentName (String): The name of the ODA Component that the API resource is owned by
 
     Returns:
         No return value.
@@ -410,7 +402,6 @@ def createAPIImplementationStatus(serviceName, endpointsArray, namespace):
     anyEndpointReady = False
     if endpointsArray != None:
         for endpoint in endpointsArray:
-            logger.debug(f"endpoint: {endpoint}")
             # endpoint could be an object or a dictionary
             ready = False
             if isinstance(endpoint, dict):
@@ -424,18 +415,32 @@ def createAPIImplementationStatus(serviceName, endpointsArray, namespace):
                 api_instance = kubernetes.client.CustomObjectsApi()
                 api_response = api_instance.list_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL)
                 found = False
-                logger.debug(f"[endpointslice/{serviceName}] api list has ={ len(api_response['items'])} items")
                 for api in api_response['items']:  
                     if api['spec']['implementation'] == serviceName:
                         found = True
-                        # logger.info(f"[endpointslice/{serviceName}] api={api}")
                         if not('status' in api.keys()):
                             api['status'] = {}
                         api['status']['implementation'] = {"ready": True}
                         api_response = api_instance.patch_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL, api['metadata']['name'], api)
-                        logger.info(f"[createAPIImplementationStatus/{namespace}/{serviceName}] added implementation ready status {anyEndpointReady} to api resource")
+                        logWrapper(logging.INFO, 'createAPIImplementationStatus', inHandler, 'endpointslice/' + api['metadata']['name'], componentName, "Added implementation ready status", anyEndpointReady)
 
                 if found == False:
-                    logger.info("[endpointslice/" + serviceName + "] Can't find API resource.")                  
-    logger.debug(f"[createAPIImplementationStatus/{namespace}][{serviceName}] is ready={anyEndpointReady}")
+                    logWrapper(logging.INFO, 'createAPIImplementationStatus', inHandler, 'endpointslice/' + api['metadata']['name'], componentName, "Can't find API resource", serviceName)
 
+
+def logWrapper(logLevel, functionName, handlerName, resourceName, componentName, subject, message):
+    """Helper function to standardise logging output.
+    
+    Args:
+        * logLevel (Number): The level to log e.g. logging.INFO
+        * functionName (String): The name of the function calling the logWrapper
+        * resourceName (String): The name of the resource being logged
+        * componentName (String): The name of the component being logged
+        * subject (String): The subject of the log message
+        * message (String): The message to be logged - can contain relavant data
+    
+    Returns:
+        No return value.
+    """
+    logger.log(logLevel, f"[{componentName}|{resourceName}|{handlerName}|{functionName}] {subject}: {message}")
+    return
