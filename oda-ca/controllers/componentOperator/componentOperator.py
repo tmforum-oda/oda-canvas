@@ -334,7 +334,7 @@ async def patchAPIResource(inAPI, namespace, name, inHandler):
             logWrapper(logging.DEBUG, 'patchAPIResource', inHandler, 'component/' + name, name, "API Resource patched", apiObj)
             logWrapper(logging.INFO, 'patchAPIResource', inHandler, 'component/' + name, name, "API patched", APIResource['metadata']['name'])
 
-        if 'status' in apiObj.keys():       
+        if 'status' in apiObj.keys() and 'apiStatus' in apiObj['status'].keys():       
             returnAPIObject = apiObj['status']['apiStatus']
             returnAPIObject["uid"] = apiObj['metadata']['uid']
             if 'implementation' in apiObj['status'].keys():
@@ -543,143 +543,85 @@ async def patchComponent(namespace, name, component, inHandler):
 
 
 # -------------------------------------------------------------------------------
-# Make services, deployments, persistentvolumeclaims and Jobs children of the component
+# Make services, deployments, persistentvolumeclaims, jobs, cronjobs, statefulsets, configmap, secret, serviceaccount, role, rolebinding children of the component
+# These are resources that we support in a component. There are resources that we don't support (that will generate a warning in the Level 1 CTK:
+# ingress - A developer should express a components intent via APIs and not via ingress. The canvas should create any required ingress
+# pod, replicaset - a developer should use deployments (for stateless microservices) or statefulsets (for stateful microservices)
+# demonset - a component developer should have no need for creating a demonset
+# clusterrole, clusterrolebinding - a component developer should have no need for creating a clusterrole, clusterrolebinding they should be using role, rolebinding
+
 
 @kopf.on.resume('', 'v1', 'services', retries=5)
 @kopf.on.create('', 'v1', 'services', retries=5)
 async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
-    """Handler function for new services
-    
-    If the service has an oda.tmforum.org/componentName label, it makes the service a child of the named component.
-    This can help with navigating around the different resources that belong to the component. It also ensures that the kubernetes garbage collection
-    will delete these resources automatically if the component is deleted.
-
-    Args:
-        * meta (Dict): The metadata from the yaml service definition 
-        * spec (Dict): The spec from the yaml service definition showing the intent (or desired state) 
-        * status (Dict): The status from the yaml service definition showing the actual state.
-        * body (Dict): The entire yaml service definition
-        * namespace (String): The namespace for the service
-        * labels (Dict): The labels attached to the service. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
-        * name (String): The name of the service
-
-    Returns:
-        No return value.
-
-    :meta public:
-    """
-
-    if 'oda.tmforum.org/componentName' in labels.keys():
-
-        # get the parent component object
-        # str | the custom object's name
-        component_name = labels['oda.tmforum.org/componentName']
-        logWrapper(logging.INFO, 'adopt_service', 'adopt_service', 'service/' + name, component_name, "Handler called", "")
-
-        try:
-            custom_objects_api = kubernetes.client.CustomObjectsApi()
-            parent_component = custom_objects_api.get_namespaced_custom_object(
-                GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
-        except ApiException as e:
-            # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-            if e.status == HTTP_NOT_FOUND:
-                raise kopf.TemporaryError(
-                    "Cannot find parent component " + component_name + "/" + VERSION + " in namespace " + namespace + " , error " + e.reason)
-            else:
-                logWrapper(logging.WARNING, 'adopt_service', 'adopt_service', 'service/' + name, component_name, "Exception when calling custom_objects_api.get_namespaced_custom_object", e)
-
-        # append owner reference to parent component
-        newBody = dict(body)  # cast the service body to a dict
-        kopf.append_owner_reference(newBody, owner=parent_component)
-        core_api_instance = kubernetes.client.CoreV1Api()
-        try:
-            api_response = core_api_instance.patch_namespaced_service(
-                newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
-            logWrapper(logging.DEBUG, 'adopt_service', 'adopt_service', 'service/' + name, component_name, "Patch service response", api_response)
-            logWrapper(logging.INFO, 'adopt_service', 'adopt_service', 'service/' + name, component_name, "Adding component as parent of service", component_name)
-
-        except ApiException as e:
-            if e.status == HTTP_CONFLICT:  # Conflict = try again
-                raise kopf.TemporaryError("Conflict updating service.")
-            else:
-                logWrapper(logging.WARNING, 'adopt_service', 'adopt_service', 'service/' + name, component_name, "Exception when calling core_api_instance.patch_namespaced_service", e)
-
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'service')
 
 @kopf.on.resume('apps', 'v1', 'deployments', retries=5)
 @kopf.on.create('apps', 'v1', 'deployments', retries=5)
 async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
-    """ Handler function for new deployments
-    
-    If the deployment has an oda.tmforum.org/componentName label, it makes the deployment a child of the named component.
-    This can help with navigating around the different resources that belong to the component. It also ensures that the kubernetes garbage collection
-    will delete these resources automatically if the component is deleted.
-
-    Args:
-        * meta (Dict): The metadata from the yaml deployment definition 
-        * spec (Dict): The spec from the yaml deployment definition showing the intent (or desired state) 
-        * status (Dict): The status from the yaml deployment definition showing the actual state.
-        * body (Dict): The entire yaml deployment definition
-        * namespace (String): The namespace for the deployment
-        * labels (Dict): The labels attached to the deployment. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
-        * name (String): The name of the deployment
-
-    Returns:
-        No return value.
-
-    :meta public:
-    """
-
-    if 'oda.tmforum.org/componentName' in labels.keys():
-        # get the parent component object
-        # str | the custom object's name
-        component_name = labels['oda.tmforum.org/componentName']
-        logWrapper(logging.INFO, 'adopt_deployment', 'adopt_deployment', 'deployment/' + name, component_name, "Handler called", "")
-
-        try:
-            custom_objects_api = kubernetes.client.CustomObjectsApi()
-            parent_component = custom_objects_api.get_namespaced_custom_object(
-                GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
-        except ApiException as e:
-            # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-            if e.status == HTTP_NOT_FOUND:
-                raise kopf.TemporaryError(
-                    "Cannot find parent component " + component_name)
-            else:
-                logWrapper(logging.WARNING, 'adopt_deployment', 'adopt_deployment', 'deployment/' + name, component_name, "Exception when calling custom_objects_api.get_namespaced_custom_object", e)
-
-        newBody = dict(body)  # cast the service body to a dict
-        kopf.append_owner_reference(newBody, owner=parent_component)
-        apps_api_instance = kubernetes.client.AppsV1Api()
-        try:
-            api_response = apps_api_instance.patch_namespaced_deployment(
-                newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
-            logWrapper(logging.DEBUG, 'adopt_deployment', 'adopt_deployment', 'deployment/' + name, component_name, "Patch deployment response", api_response)
-            logWrapper(logging.INFO, 'adopt_deployment', 'adopt_deployment', 'deployment/' + name, component_name, "Adding component as parent of deployment", component_name)
-
-        except ApiException as e:
-            if e.status == HTTP_CONFLICT:  # Conflict = try again
-                raise kopf.TemporaryError("Conflict updating deployment.")
-            else:
-                logWrapper(logging.WARNING, 'adopt_service', 'adopt_service', 'deployment/' + name, component_name, "Exception when calling core_api_instance.patch_namespaced_deployment", e)
-
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'deployment')
 
 @kopf.on.resume('', 'v1', 'persistentvolumeclaims', retries=5)
 @kopf.on.create('', 'v1', 'persistentvolumeclaims', retries=5)
 async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwargs):
-    """ Handler function for new persistentvolumeclaims
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'persistentvolumeclaim')
+
+@kopf.on.resume('batch', 'v1', 'jobs', retries=5)
+@kopf.on.create('batch', 'v1', 'jobs', retries=5)
+async def adopt_job(meta, spec, body, namespace, labels, name, **kwargs):
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'job')
+
+@kopf.on.resume('batch', 'v1beta1', 'cronjobs', retries=5)
+@kopf.on.create('batch', 'v1beta1', 'cronjobs', retries=5)
+async def adopt_cronjob(meta, spec, body, namespace, labels, name, **kwargs):
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'cronjob')
+
+@kopf.on.resume('apps', 'v1', 'statefulsets', retries=5)
+@kopf.on.create('apps', 'v1', 'statefulsets', retries=5)
+async def adopt_statefulset(meta, spec, body, namespace, labels, name, **kwargs):
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'statefulset')  
+
+@kopf.on.resume('apps', 'v1', 'configmap', retries=5)
+@kopf.on.create('apps', 'v1', 'configmap', retries=5)
+async def adopt_configmap(meta, spec, body, namespace, labels, name, **kwargs):
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'configmap')
+
+@kopf.on.resume('apps', 'v1', 'secret', retries=5)
+@kopf.on.create('apps', 'v1', 'secret', retries=5)
+async def adopt_secret(meta, spec, body, namespace, labels, name, **kwargs):
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'secret')
+
+@kopf.on.resume('apps', 'v1', 'serviceaccount', retries=5)
+@kopf.on.create('apps', 'v1', 'serviceaccount', retries=5)
+async def adopt_serviceaccount(meta, spec, body, namespace, labels, name, **kwargs):
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'serviceaccount')
+
+@kopf.on.resume('apps', 'v1', 'role', retries=5)
+@kopf.on.create('apps', 'v1', 'role', retries=5)
+async def adopt_role(meta, spec, body, namespace, labels, name, **kwargs):
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'role')
+
+@kopf.on.resume('apps', 'v1', 'rolebinding', retries=5)
+@kopf.on.create('apps', 'v1', 'rolebinding', retries=5)
+async def adopt_rolebinding(meta, spec, body, namespace, labels, name, **kwargs):
+    return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'rolebinding')
+
+def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resourceType):
+
+    """ Helper function for adopting any kubernetes resource
     
-    If the persistentvolumeclaim has an oda.tmforum.org/componentName label, it makes the persistentvolumeclaim a child of the named component.
+    If the resource has an oda.tmforum.org/componentName label, it makes the resource a child of the named component.
     This can help with navigating around the different resources that belong to the component. It also ensures that the kubernetes garbage collection
     will delete these resources automatically if the component is deleted.
 
     Args:
-        * meta (Dict): The metadata from the yaml persistentvolumeclaim definition 
-        * spec (Dict): The spec from the yaml persistentvolumeclaim definition showing the intent (or desired state) 
-        * status (Dict): The status from the yaml persistentvolumeclaim definition showing the actual state.
-        * body (Dict): The entire yaml persistentvolumeclaim definition
-        * namespace (String): The namespace for the persistentvolumeclaim
-        * labels (Dict): The labels attached to the persistentvolumeclaim. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
-        * name (String): The name of the persistentvolumeclaim
+        * meta (Dict): The metadata from the yaml resource definition 
+        * spec (Dict): The spec from the yaml resource definition showing the intent (or desired state) 
+        * status (Dict): The status from the yaml resource definition showing the actual state.
+        * body (Dict): The entire yaml resource definition
+        * namespace (String): The namespace for the resource
+        * labels (Dict): The labels attached to the resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the resource
 
     Returns:
         No return value.
@@ -688,37 +630,55 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
     """
 
     if 'oda.tmforum.org/componentName' in labels.keys():
-        # get the parent component object
-        # str | the custom object's name
+
         component_name = labels['oda.tmforum.org/componentName']
-        logWrapper(logging.INFO, 'adopt_persistentvolumeclaim', 'adopt_persistentvolumeclaim', 'persistentvolumeclaim/' + name, component_name, "Handler called", "")
+        logWrapper(logging.INFO, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Handler called", "")
         try:
-            custom_objects_api = kubernetes.client.CustomObjectsApi()
-            parent_component = custom_objects_api.get_namespaced_custom_object(
-                GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
+            parent_component = kubernetes.client.CustomObjectsApi().get_namespaced_custom_object(GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
         except ApiException as e:
             # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
             if e.status == HTTP_NOT_FOUND:
-                raise kopf.TemporaryError(
-                    "Cannot find parent component " + component_name)
+                raise kopf.TemporaryError("Cannot find parent component " + component_name)
             else:
-                logWrapper(logging.WARNING, 'adopt_persistentvolumeclaim', 'adopt_persistentvolumeclaim', 'persistentvolumeclaim/' + name, component_name, "Exception when calling custom_objects_api.get_namespaced_custom_object", e)
+                logWrapper(logging.WARNING, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Exception when calling custom_objects_api.get_namespaced_custom_object", e)
 
         newBody = dict(body)  # cast the service body to a dict
         kopf.append_owner_reference(newBody, owner=parent_component)
-        core_api_instance = kubernetes.client.CoreV1Api()
         try:
-            api_response = core_api_instance.patch_namespaced_persistent_volume_claim(
-                newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
-            logWrapper(logging.DEBUG, 'adopt_persistentvolumeclaim', 'adopt_persistentvolumeclaim', 'persistentvolumeclaim/' + name, component_name, "Patch persistentvolumeclaim response", api_response)
-            logWrapper(logging.INFO, 'adopt_persistentvolumeclaim', 'adopt_persistentvolumeclaim', 'persistentvolumeclaim/' + name, component_name, "Adding component as parent of persistentvolumeclaim", component_name)
+            if resourceType == 'service':
+                api_response = kubernetes.client.CoreV1Api().patch_namespaced_service(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            elif resourceType == 'persistentvolumeclaim':
+                api_response = kubernetes.client.CoreV1Api().patch_namespaced_persistent_volume_claim(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            elif resourceType == 'deployment':
+                api_response = kubernetes.client.AppsV1Api().patch_namespaced_deployment(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            elif resourceType == 'configmap':
+                api_response = kubernetes.client.CoreV1Api().patch_namespaced_config_map(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            elif resourceType == 'secret':
+                api_response = kubernetes.client.CoreV1Api().patch_namespaced_secret(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            elif resourceType == 'job':
+                api_response = kubernetes.client.BatchV1Api().patch_namespaced_job(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)  
+            elif resourceType == 'cronjob':
+                api_response = kubernetes.client.BatchV1beta1Api().patch_namespaced_cron_job(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            elif resourceType == 'statefulset':
+                api_response = kubernetes.client.AppsV1Api().patch_namespaced_stateful_set(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody) 
+            elif resourceType == 'role':
+                api_response = kubernetes.client.RbacAuthorizationV1Api().patch_namespaced_role(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            elif resourceType == 'rolebinding':
+                api_response = kubernetes.client.RbacAuthorizationV1Api().patch_namespaced_role_binding(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+            elif resourceType == 'serviceaccount':
+                api_response = kubernetes.client.CoreV1Api().patch_namespaced_service_account(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)                
+            else:
+                logWrapper(logging.ERROR, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Unsupported resource type", resourceType)
+                raise kopf.PermanentError("Error adopting - unsupported resource type " + resourceType)
+
+            logWrapper(logging.DEBUG, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Patch " + resourceType + " response", api_response)
+            logWrapper(logging.INFO, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Adding component as parent of " + resourceType, component_name)
         except ApiException as e:
             if e.status == HTTP_CONFLICT:  # Conflict = try again
                 raise kopf.TemporaryError(
-                    "Conflict updating persistentvolumeclaim.")
+                    "Conflict updating " + resourceType + ".")
             else:
-                logWrapper(logging.WARNING, 'adopt_persistentvolumeclaim', 'adopt_persistentvolumeclaim', 'persistentvolumeclaim/' + name, component_name, "Exception when calling core_api_instance.patch_namespaced_persistent_volume_claim", e)
-
+                logWrapper(logging.WARNING, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Exception when calling patch " + resourceType, e)
 
 # When Component status changes, update status summary
 @kopf.on.field('oda.tmforum.org', 'v1alpha4', 'components', field='status', retries=5)
