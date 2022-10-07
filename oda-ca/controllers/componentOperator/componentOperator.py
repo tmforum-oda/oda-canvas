@@ -617,11 +617,11 @@ def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resource
     Args:
         * meta (Dict): The metadata from the yaml resource definition 
         * spec (Dict): The spec from the yaml resource definition showing the intent (or desired state) 
-        * status (Dict): The status from the yaml resource definition showing the actual state.
         * body (Dict): The entire yaml resource definition
         * namespace (String): The namespace for the resource
         * labels (Dict): The labels attached to the resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
         * name (String): The name of the resource
+        * resourceType (String): The type of resource (e.g. service, deployment, persistentvolumeclaim, job, cronjob, statefulset, configmap, secret, serviceaccount, role, rolebinding)
 
     Returns:
         No return value.
