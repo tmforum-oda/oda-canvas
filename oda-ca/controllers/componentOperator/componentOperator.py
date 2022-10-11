@@ -581,28 +581,28 @@ async def adopt_cronjob(meta, spec, body, namespace, labels, name, **kwargs):
 async def adopt_statefulset(meta, spec, body, namespace, labels, name, **kwargs):
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'statefulset')  
 
-@kopf.on.resume('apps', 'v1', 'configmap', retries=5)
-@kopf.on.create('apps', 'v1', 'configmap', retries=5)
+@kopf.on.resume('', 'v1', 'configmap', retries=5)
+@kopf.on.create('', 'v1', 'configmap', retries=5)
 async def adopt_configmap(meta, spec, body, namespace, labels, name, **kwargs):
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'configmap')
 
-@kopf.on.resume('apps', 'v1', 'secret', retries=5)
-@kopf.on.create('apps', 'v1', 'secret', retries=5)
+@kopf.on.resume('', 'v1', 'secret', retries=5)
+@kopf.on.create('', 'v1', 'secret', retries=5)
 async def adopt_secret(meta, spec, body, namespace, labels, name, **kwargs):
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'secret')
 
-@kopf.on.resume('apps', 'v1', 'serviceaccount', retries=5)
-@kopf.on.create('apps', 'v1', 'serviceaccount', retries=5)
+@kopf.on.resume('', 'v1', 'serviceaccount', retries=5)
+@kopf.on.create('', 'v1', 'serviceaccount', retries=5)
 async def adopt_serviceaccount(meta, spec, body, namespace, labels, name, **kwargs):
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'serviceaccount')
 
-@kopf.on.resume('apps', 'v1', 'role', retries=5)
-@kopf.on.create('apps', 'v1', 'role', retries=5)
+@kopf.on.resume('rbac.authorization.k8s.io', 'v1', 'role', retries=5)
+@kopf.on.create('rbac.authorization.k8s.io', 'v1', 'role', retries=5)
 async def adopt_role(meta, spec, body, namespace, labels, name, **kwargs):
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'role')
 
-@kopf.on.resume('apps', 'v1', 'rolebinding', retries=5)
-@kopf.on.create('apps', 'v1', 'rolebinding', retries=5)
+@kopf.on.resume('rbac.authorization.k8s.io', 'v1', 'rolebinding', retries=5)
+@kopf.on.create('rbac.authorization.k8s.io', 'v1', 'rolebinding', retries=5)
 async def adopt_rolebinding(meta, spec, body, namespace, labels, name, **kwargs):
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'rolebinding')
 
