@@ -1,0 +1,21 @@
+{
+  "name": "@lesterthomas/kubectl-canvas_logs",
+  "version": "1.0.2",
+  "description": "ODA Canvas log viewer.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js",
+    "start": "node index.js"
+  },
+  "author": "Lester Thomas",
+  "license": "Apache-2.0",
+  "bin": {
+    "kubectl-canvas_logs": "./index.js"
+  },
+  "repository": "https://github.com/tmforum-oda/oda-ca/tree/master/utilities/canvas-logs",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.14.0",
+    "colors": "^1.4.0",
+    "treeify": "^1.1.0"
+  }
+}

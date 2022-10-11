@@ -74,12 +74,19 @@ kc = Keycloak(kcBaseURL)
     'v1alpha4',
     'components',
     field='status.summary/status.deployment_status',
-    value='In-Progress-SecCon'
+    value='In-Progress-SecCon',
+    retries=5
 )
 def security_client_add(meta, spec, status, body, namespace, labels,name, old, new, **kwargs):
     """
     Handler for component create/update
     """
+
+    if not('security' in spec and 'partyrole' in spec['security'] and 'path' in spec['security']['partyrole']):
+        raise kopf.TemporaryError(
+            'Could not get partyrole path from component. Will retry.',
+            delay=10
+        )
     # del unused-arguments for linting
     del meta, status, body, labels, kwargs
 

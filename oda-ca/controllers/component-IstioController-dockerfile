@@ -5,3 +5,4 @@ RUN pip install cloudevents
 ADD . /
 ADD securityController/secconkeycloak.py /
 CMD kopf run --namespace=$COMPONENT_NAMESPACE --standalone componentOperator/componentOperator.py apiOperatorIstio/apiOperatorIstio.py securityController/securityControllerKeycloak.py
+# CMD kopf run --namespace=$COMPONENT_NAMESPACE --standalone componentOperator/componentOperator.py 
