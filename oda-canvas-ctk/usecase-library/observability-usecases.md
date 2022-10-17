@@ -78,7 +78,7 @@ The following use cases have been derived based on a Vodafone NFR Assessment and
 |  |- **and** the response time in milliseconds is visible|
 
 ### 2.3.1 Canvas to Component Conversation Flow
-![Baseline observability](images/baseline-observability.png)
+![Baseline observability](../images/baseline-observability.png)
 
 ## 2.4 Type: Logging
 
