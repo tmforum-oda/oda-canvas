@@ -27,4 +27,4 @@ This is a list of the Canvas operators (including status of whether this has bee
 | [Configure APIs for Component](Configure-APIs-for-Component.md) | When a component is deployed, updated or deleted, integrate with the Service Mesh & API Gateway to configure the API Endpoints |
 | [Configure Observability](Configure-Observability.md) | When a component is deployed, updated or deleted, configure the observability service. || Authentication | When an external consumer calls an exposed API for a component, manage the authenticate the consumer and pass the authenticated request (including authentication token) to the component. |
 | [View Baseline Observability](View-Baseline-Observability.md) | When a component is deployed, view the baseline metrics such as HTTP Requests per second etc using the observability service management dashboard.|
-
+| [View Custom Observability](View-Custom-Observability.md) | When a component is deployed, view the custom business metrics such creation,status events etc using the observability service management dashboard.|
