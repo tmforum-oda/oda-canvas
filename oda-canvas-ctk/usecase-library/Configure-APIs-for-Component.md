@@ -1,1 +1,0 @@
-# Configure APIs for Component use-case

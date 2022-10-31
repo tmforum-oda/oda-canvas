@@ -1,0 +1,19 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity ExposedAPI
+participant APIExposureOperator
+participant "APIGateway/Service Mesh"
+
+Component <- Operations : Install
+Component -> ComponentOperator: on.create 
+ComponentOperator -> ExposedAPI: create
+ExposedAPI -> APIExposureOperator: on.create 
+APIExposureOperator -> "APIGateway/Service Mesh" : configure API Gateway and/or Service Mesh
+ExposedAPI <- APIExposureOperator: update
+ComponentOperator <- ExposedAPI: on.update
+Component <- ComponentOperator: update 
+
+@enduml
