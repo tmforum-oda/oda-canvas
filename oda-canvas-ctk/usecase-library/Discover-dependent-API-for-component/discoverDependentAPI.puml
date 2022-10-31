@@ -12,14 +12,20 @@ participant APIDiscoveryOperator
 Component <- Operations : Install
 Component -> ComponentOperator: on.create 
 ComponentOperator -> DependentAPI: create
-DependentAPI -> APIDiscoveryOperator: on.create 
-APIDiscoveryOperator -> APIDiscoveryOperator : search for API matching dependency
-APIDiscoveryOperator -> APIDiscoveryOperator : (optional) approval flow to approve access to API
-DependentAPI <- APIDiscoveryOperator: update
-ComponentOperator <- DependentAPI: on.update
-Component <- ComponentOperator: update 
-ComponentImplementation <- APIDiscoveryOperator: call ServiceActivationConfiguration
-
+note right
+    A separate DependentAPI resource is created
+    for each dependent API in the core function,
+    security and management sections
+end note
+group For each dependent API
+    DependentAPI -> APIDiscoveryOperator: on.create 
+    APIDiscoveryOperator -> APIDiscoveryOperator : search for API matching dependency
+    APIDiscoveryOperator -> APIDiscoveryOperator : (optional) approval flow to approve access to API
+    DependentAPI <- APIDiscoveryOperator: update
+    ComponentOperator <- DependentAPI: on.update
+    Component <- ComponentOperator: update 
+    ComponentImplementation <- APIDiscoveryOperator: call ServiceActivationConfiguration
+end
 
 
 @enduml
