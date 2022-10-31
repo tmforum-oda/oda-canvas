@@ -10,10 +10,9 @@ This is a list of the Canvas operators (including status of whether this has bee
 
 | Operator            | Description                     |
 | ------------------- | ------------------------------- |
-| API Gateway | Provides security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers |
-| Load Balancing | Load balances traffic onto component micro-services |
+| API Exposure | Provides security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers |
+| API Discovery | Provides discovery for APIs where a component has declared a dependency. The component us updated via a ServiceActivationConfiguration Open-API call |
 | License Manager | Audits compliance of component usage against licensing agreements |
-| Service Mesh | Manages control-plane for service to service communications. Also provides data for observability. |
 | Identity | Provides identity management to grant system and user access to components. |
 | Observability | Captures observability data and allows alarming, tracing and root-cause analysis of issues. |
 | Event Hub | Enables components to publish and subscribe to asynchronous events |
@@ -25,6 +24,7 @@ This is a list of the Canvas operators (including status of whether this has bee
 | ------------------ | --------------------- |
 | [Bootstrap role for component](Bootstrap-role-for-component.md) | When a new instance of a component is deployed or deleted, integrate with the Canvas Identity service and bootstrap the initial role and clean-up the bootstraped role. |
 | [Configure APIs for Component](Configure-APIs-for-Component.md) | When a component is deployed, updated or deleted, integrate with the Service Mesh & API Gateway to configure the API Endpoints |
+| [Discover dependent APIs for Component](Discover-dependent-APIs-for-Component.md) | When a component is deployed, updated or deleted, search for any declared dependent APIs and update the component via a ServiceActivationConfiguration Open-API call |
 | [Configure Observability](Configure-Observability.md) | When a component is deployed, updated or deleted, configure the observability service. || Authentication | When an external consumer calls an exposed API for a component, manage the authenticate the consumer and pass the authenticated request (including authentication token) to the component. |
 | [View Baseline Observability](View-Baseline-Observability.md) | When a component is deployed, view the baseline metrics such as HTTP Requests per second etc using the observability service management dashboard.|
 | [View Custom Observability](View-Custom-Observability.md) | When a component is deployed, view the custom business metrics such creation,status events etc using the observability service management dashboard.|
