@@ -10,34 +10,34 @@ Component <- Operations : Install
 Component -> ComponentImplementation : Install
 ComponentImplementation -> ComponentImplementation: Create Admin role
 
-Component -> "securityController-keycloak": on.create 
-"securityController-keycloak" -> Component: Register securityListener to PartyRole events
-"securityController-keycloak" -> Keycloak: Register client
+Component -> identityOperator: on.create 
+identityOperator -> Component: Register identityOperator to PartyRole events
+identityOperator -> "Identity Management System": Register client
 
-"securityController-keycloak" -> ComponentImplementation : Query bootstrap Admin role
-"securityController-keycloak" -> Keycloak: create role
-"securityController-keycloak" -> Keycloak: create seccon user for Admin role
+identityOperator -> ComponentImplementation : Query bootstrap Admin role
+identityOperator -> "Identity Management System": create role
+identityOperator -> "Identity Management System": create seccon user for Admin role
 
 end 
 group Normal business operations
 
 BusinessAdmin -> Component: Create Role
-Component-> "securityController-keycloak": PartyRoleCreationNotification event
-"securityController-keycloak" -> Keycloak: create role
-Operations->Keycloak  : Maintain user identities
+Component-> identityOperator: PartyRoleCreationNotification event
+identityOperator -> "Identity Management System": create role
+Operations->"Identity Management System"  : Maintain user identities
 BusinessAdmin -> Component: Update Role
-Component-> "securityController-keycloak": PartyRoleAttributeValueChangeNotification event
-"securityController-keycloak" -> Keycloak: Update role
-Operations->Keycloak  : Maintain user identities
+Component-> identityOperator: PartyRoleAttributeValueChangeNotification event
+identityOperator -> "Identity Management System": Update role
+Operations->"Identity Management System"  : Maintain user identities
 BusinessAdmin -> Component: Delete Role
-Component-> "securityController-keycloak": PartyRoleDeletionNotification event
-"securityController-keycloak" -> Keycloak: Delete role
+Component-> identityOperator: PartyRoleDeletionNotification event
+identityOperator -> "Identity Management System": Delete role
 
 end
 group Uninstall
 Operations -> Component  : Uninstall
-Component -> "securityController-keycloak": on.delete 
-"securityController-keycloak" -> Keycloak: Delete client and all roles for component
+Component -> identityOperator: on.delete 
+identityOperator -> "Identity Management System": Delete client and all roles for component
 end
 
 @enduml
