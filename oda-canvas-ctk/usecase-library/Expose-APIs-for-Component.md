@@ -7,5 +7,5 @@ This use-case describes how a component exposes its APIs for other components an
 * Whilst the reference implementation will provide a reference `API Exposure Operator`, in typical implementations this will be specific to the Operations team that is running their Canvas, and will link to their own standards and policies. It is also possible that API Gateway vendors (or open-source communities) develop standard `API Exposure Operators` for their own API Gateway.
 
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/expose-API-for-component/exposeAPI.puml)
+![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/Expose-API-for-component/exposeAPI.puml)
 [plantUML code](Expose-API-for-component/exposeAPI.puml)
