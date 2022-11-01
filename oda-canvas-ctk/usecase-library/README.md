@@ -4,7 +4,7 @@ This folder contains a complete use-case library that defines the interactions b
 
 For each operator in the ODA canvas, we identify a set of use-cases that cover all the interactions with an ODA Component.
 
-## ODA Operators
+## ODA Software Operators
 
 This is a list of the Canvas operators (including status of whether this has been tested in the Canvas referernce implementation).
 

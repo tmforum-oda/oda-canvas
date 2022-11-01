@@ -11,12 +11,12 @@ Component -> ComponentImplementation : Install
 ComponentImplementation -> ComponentImplementation: Create Admin role
 
 Component -> identityOperator: on.create 
-identityOperator -> Component: Register identityOperator to PartyRole events
-identityOperator -> "Identity Management System": Register client
+identityOperator -> ComponentImplementation: Register identityOperator to PartyRole events
+identityOperator -> "Identity Management System": Register component
 
 identityOperator -> ComponentImplementation : Query bootstrap Admin role
 identityOperator -> "Identity Management System": create role
-identityOperator -> "Identity Management System": create seccon user for Admin role
+identityOperator -> "Identity Management System": Assign seccon user to Admin role
 
 end 
 group Normal business operations
@@ -37,7 +37,7 @@ end
 group Uninstall
 Operations -> Component  : Uninstall
 Component -> identityOperator: on.delete 
-identityOperator -> "Identity Management System": Delete client and all roles for component
+identityOperator -> "Identity Management System": Delete component and all roles
 end
 
 @enduml
