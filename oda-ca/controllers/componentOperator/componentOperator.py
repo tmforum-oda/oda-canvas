@@ -230,8 +230,7 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
         * body (Dict): The entire yaml component envelope
         * namespace (String): The namespace for the component
         * labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
-        * name (String): The na
-        me of the component
+        * name (String): The name of the component
 
     Returns:
         Dict: The securityAPIs status that is put into the component envelope status field.
@@ -270,10 +269,13 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
 
 def constructAPIResourcePayload(inAPI):
     """Helper function to create payloads for API Custom objects.
+
     Args:
         * inAPI (Dict): The API spec 
+
     Returns:
         API Custom object (Dict)
+
     :meta private:
     """
     APIResource = {
@@ -293,13 +295,16 @@ def constructAPIResourcePayload(inAPI):
 
 async def patchAPIResource(inAPI, namespace, name, inHandler):
     """Helper function to patch API Custom objects.
+
     Args:
         * inAPI (Dict): The API definition 
         * namespace (String): The namespace for the Component and API
         * name (String): The name of the API resource
         * inHandler (String): The name of the handler that called this function
+
     Returns:
         Dict with updated API definition including uuid of the API resource and ready status.
+
     :meta private:
     """
     logWrapper(logging.DEBUG, 'patchAPIResource', inHandler, 'component/' + name, name, "Patch API", inAPI)
@@ -350,13 +355,16 @@ async def patchAPIResource(inAPI, namespace, name, inHandler):
 
 async def createAPIResource(inAPI, namespace, name, inHandler):
     """Helper function to create or update API Custom objects.
+
     Args:
         * inAPI (Dict): The API definition 
         * namespace (String): The namespace for the Component and API
         * name (String): The name of the API resource
         * inHandler (String): The name of the handler calling this function
+
     Returns:
         Dict with API definition including uuid of the API resource and ready status.
+
     :meta private:
     """
     logWrapper(logging.DEBUG, 'createAPIResource', inHandler, 'component/' + name, name, "Create API", inAPI)
@@ -390,6 +398,7 @@ async def createAPIResource(inAPI, namespace, name, inHandler):
 async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     Processes status updates to the *apiStatus* in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
+
     Args:
         * meta (Dict): The metadata from the API resource 
         * spec (Dict): The spec from the yaml API resource showing the intent (or desired state) 
@@ -398,8 +407,10 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
         * namespace (String): The namespace for the API resource
         * labels (Dict): The labels attached to the API resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
         * name (String): The name of the API resource
+
     Returns:
         No return value.
+
     :meta public:
     """
 
