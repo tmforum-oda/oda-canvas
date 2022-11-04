@@ -31,3 +31,4 @@ This is a list of the Canvas operators (including status of whether this has bee
 | [Authentication](Authentication.md) | When an external client wants to call an API exposed by a Component, how they Authenticate and get a token. |
 | [Authorization](Authorization.md) | After a client has been authenticated, verify their authorization for the specific API and data.|
 | [Token Refresh](Token-Refresh.md) | After a client token expires, refresh the token and resubmit API request.|
+| [License Metrics Observability](License-Metrics-Observability.md) | Capture a tamper-proof stream of metrics that can drive the commercial license agreements with Component Vendors.|
