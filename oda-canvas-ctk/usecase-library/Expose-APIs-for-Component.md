@@ -15,19 +15,19 @@ This use-case describes how a component exposes its APIs for other components an
 
 The use-case above is for the install of a new component. If you upgrade a component and change an API, the configuration of the Service Mesh and/or API Gateway should change.
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade with modify.puml)
-[plantUML code](pumlFiles/exposeAPI-upgrade with modify.puml)
+![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade-with-modify.puml)
+[plantUML code](pumlFiles/exposeAPI-upgrade-with-modify.puml)
 
 ## Upgrade component - with additional API
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade with add.puml)
-[plantUML code](pumlFiles/exposeAPI-upgrade with add.puml)
+![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade-with-add.puml)
+[plantUML code](pumlFiles/exposeAPI-upgrade-with-add.puml)
 
 ## Upgrade component - with deleted API
 
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade with delete.puml)
-[plantUML code](pumlFiles/exposeAPI-upgrade with delete.puml)
+![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade-with-delete.puml)
+[plantUML code](pumlFiles/exposeAPI-upgrade-with-delete.puml)
 
 ## Delete component 
 
