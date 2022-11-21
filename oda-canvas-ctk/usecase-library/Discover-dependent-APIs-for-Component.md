@@ -7,5 +7,5 @@ This use-case describes how a component discovers the url and credentials for a 
 * Whilst the reference implementation will provide a reference `API Discovery Operator`, in typical implementations this will be custom to the Operations team that is running their Canvas, and will link to their internal process for authorizing access to APIs.
 
 
-![discoverDependentAPI](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/Discover-dependent-API-for-component/discoverDependentAPI.puml)
-[plantUML code](Discover-dependent-API-for-component/discoverDependentAPI.puml)
+![discoverDependentAPI](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/discoverDependentAPI.puml)
+[plantUML code](pumlFiles/discoverDependentAPI.puml)

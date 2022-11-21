@@ -6,6 +6,31 @@ This use-case describes how a component exposes its APIs for other components an
 * The ODA Components are **not** given raised privelages to expose their APIs directly; Instead, software operators in the Canvas read the Component definition and configure the Service Mesh and/or API Gateway on behalf of the component. This model allows the component vendor to express their requirement for exposing APIs in the component definition, and allows the SRE (Site Reliability Team) for the operator to determine how the APIs are exposed. 
 * Whilst the reference implementation will provide a reference `API Exposure Operator`, in typical implementations this will be specific to the Operations team that is running their Canvas, and will link to their own standards and policies. It is also possible that API Gateway vendors (or open-source communities) develop standard `API Exposure Operators` for their own API Gateway.
 
+## Install component
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/Expose-API-for-component/exposeAPI.puml)
-[plantUML code](Expose-API-for-component/exposeAPI.puml)
+![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI.puml)
+[plantUML code](pumlFiles/exposeAPI.puml)
+
+## Upgrade component - with changed API
+
+The use-case above is for the install of a new component. If you upgrade a component and change an API, the configuration of the Service Mesh and/or API Gateway should change.
+
+![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade with modify.puml)
+[plantUML code](pumlFiles/exposeAPI-upgrade with modify.puml)
+
+## Upgrade component - with additional API
+
+![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade with add.puml)
+[plantUML code](pumlFiles/exposeAPI-upgrade with add.puml)
+
+## Upgrade component - with deleted API
+
+
+![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade with delete.puml)
+[plantUML code](pumlFiles/exposeAPI-upgrade with delete.puml)
+
+## Delete component 
+
+![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-delete.puml)
+[plantUML code](pumlFiles/exposeAPI-delete.puml)
+

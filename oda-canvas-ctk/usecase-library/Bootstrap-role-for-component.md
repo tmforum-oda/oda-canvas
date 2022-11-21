@@ -8,5 +8,5 @@ It uses the following assumptions:
 * The Bootstrap process will also assign a `seccon` user to the Admin role. This user can be used for all subsequent API calls from the Canvas. The `seccon` user was created as part of the Canvas setup.
 * Once the bootstrap process is complete, when clients of the component call the components exposed Open-APIs, the Canvas will perform the initial authorization and include the Role information in the API call (using HTTP headders and following open standards like SAML or OAuth2). The component can use this to perform access control on the data it masters.
 
-![securitySequenceKeycloak](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/Bootstrap-role-for-component/securitySequenceKeycloak.puml)
-[plantUML code](Bootstrap-role-for-component/securitySequenceKeycloak.puml)
+![securitySequenceKeycloak](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/securitySequenceKeycloak.puml)
+[plantUML code](pumlFiles/securitySequenceKeycloak.puml)
