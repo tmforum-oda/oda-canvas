@@ -1,6 +1,9 @@
 const k8s = require('@kubernetes/client-node')
 const fs = require('fs')
 const axios = require('axios')
+const execSync = require('child_process').execSync;
+const YAML = require('yaml')
+const assert = require('assert');
 
 const kc = new k8s.KubeConfig()
 kc.loadFromDefault()
@@ -8,6 +11,8 @@ kc.loadFromDefault()
 const HTTP_CREATED = 201
 const HTTP_OK = 200
 const HTTP_DELETE_SUCCESS = 204
+const testDataFolder = './testData/'
+let testComponentName
 
 /**
 * Helper function to replace a reference (like "href": "/category?name=Internet line of product") with the object details
@@ -54,11 +59,11 @@ const componentUtils = {
   * @param    {String} inComponentInstance    Name of the component instance
   * @param    {String} inAPIName              Name of the API that is requested
   * @param    {String} inNamespace            Namespace where the component instance is running
-  * @return   {String}         String containing the base URL for the API, or null if the API is not found
+  * @return   {Object}         The API resource object, or null if the API is not found
   */
-  getAPIResource: async function (inComponentInstance, inAPIName, inNamespace) {
+  getAPIResource: async function (inAPIName, inNamespace) {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
-    const APIResourceName = inComponentInstance + '-' + inAPIName
+    const APIResourceName = testComponentName + '-' + inAPIName
     const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha4', inNamespace, 'apis', undefined, undefined, 'metadata.name=' + APIResourceName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
@@ -67,6 +72,22 @@ const componentUtils = {
     return namespacedCustomObject.body.items[0]
   },
 
+  /**
+  * Function that returns the custom Component resource given Component Name
+  * @param    {String} inComponentName        Name of the API that is requested
+  * @param    {String} inNamespace            Namespace where the component instance is running
+  * @return   {String}         String containing the base URL for the API, or null if the API is not found
+  */
+    getComponentResource: async function (inComponentName, inNamespace) {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha4', inNamespace, 'components', undefined, undefined, 'metadata.name=' + inComponentName)
+    if (namespacedCustomObject.body.items.length === 0) {
+      return null // API not found
+    } 
+      
+    return namespacedCustomObject.body.items[0]
+  },
+  
   /**
   * Function that returns the base URL for a given API instance
   * @param    {String} inComponentInstance    Name of the component instance
@@ -219,6 +240,84 @@ const componentUtils = {
       }
     }
     return validatedSuccessfully
-  }
+  },
+
+  /**
+  * Function that gets the exposedAPIs from the given segment of a helm chart.
+  * @param    {String} componentHelmChart    Helm chart folder name
+  * @param    {String} releaseName           Helm release name
+  * @param    {String} componentSegmentName  segment of the component (coreFunction, management, security)
+  * @return   {Array}          The array of 0 or more exposed APIs
+  */  
+  getExposedAPIsFromHelm: function(componentHelmChart, releaseName, componentSegmentName) {
+
+    // run the helm template command to generate the component envelope
+    const output = execSync('helm template ' + releaseName + ' ' + testDataFolder + componentHelmChart, { encoding: 'utf-8' });  
+      
+    // parse the template
+    documentArray = YAML.parseAllDocuments(output)
+
+    // assert that the documentArray is an array
+    assert.equal(Array.isArray(documentArray), true, "The file should contain at least one YAML document")
+
+    // assert that the file contains at least one YAML document
+    assert.ok(documentArray.length > 0, "File should contain at least one YAML document")
+
+    // get the document with kind: component
+    const componentDocument = documentArray.find(document => document.get('kind') === 'component')
+    testComponentName = componentDocument.get('metadata').get('name')
+
+    // get the spec of the component
+    const componentSpec = componentDocument.get('spec')
+
+    // Find the componentSegment with the name componentSegmentName
+    let componentSegment
+    componentSpec.items.forEach(item => {
+      if (item.key == componentSegmentName) {
+        componentSegment = item.value
+      }
+    })
+
+    let exposedAPIs = []
+
+    if (componentSegmentName == 'coreFunction') {
+      exposedAPIs = componentSegment.items.filter(item => item.key == 'exposedAPIs')[0].value.items
+    } else if (componentSegmentName == 'management') {
+      exposedAPIs = componentSegment.items
+    } else if (componentSegmentName == 'security') {
+      exposedAPIs = [componentSegment.get('partyrole')]
+      exposedAPIs[0].set('name', 'partyrole')
+    } else {
+      assert.ok(false, "componentSegmentName should be one of 'coreFunction', 'management' or 'security'")
+    }
+
+    return exposedAPIs
+  },
+
+  /**
+  * Function that checks if a helm chart is already installed, and installs it if not.
+  * @param    {String} componentHelmChart    Helm chart folder name
+  * @param    {String} releaseName           Helm release name
+  */  
+  installHelmChart: function(componentHelmChart, releaseName, namespace) {
+
+    // only install the helm chart if it is not already installed
+    const helmList = execSync('helm list -o json  -n ' + namespace, { encoding: 'utf-8' });    
+    var found = false
+    // look through the helm list and see if there is a chart with name releaseName
+    JSON.parse(helmList).forEach(chart => {
+      if (chart.name == releaseName) {
+        found = true
+      }
+    })
+
+    if (found) {
+      const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentHelmChart + ' -n ' + namespace, { encoding: 'utf-8' });   
+    }
+    else {
+      // install the helm template command to generate the component envelope
+      const output = execSync('helm install ' + releaseName + ' ' + testDataFolder + componentHelmChart + ' -n ' + namespace, { encoding: 'utf-8' });   
+    } 
+  } 
 }
 module.exports = componentUtils

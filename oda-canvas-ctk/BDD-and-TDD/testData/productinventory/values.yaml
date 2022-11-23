@@ -1,0 +1,14 @@
+# Default values for productcatalog.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+component:
+  type: productinventory
+  
+service:
+  type: ClusterIP
+  port: 80
+
+security:
+  controllerRole: Admin

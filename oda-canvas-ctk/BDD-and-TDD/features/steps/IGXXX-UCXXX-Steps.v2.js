@@ -12,124 +12,110 @@ const execSync = require('child_process').execSync;
 chai.use(chaiHttp)
 const NAMESPACE = 'components'
 const HTTP_OK = 200
-
+const releaseName = 'ctk'
 const testDataFolder = './testData/'
-let componentInstanceName = ''
+
 let documentArray = []
-let testAPI
-let testComponentName
 
 // verify that the file exists, contains a YAML document, The document includes an ODA Component with at least 1 API in the componentSegment 
-Given('An example component helm chart {string} with at least one API in its {string} segment', function (componentHelmChart, componentSegmentName) {
-
-  // run the helm template command to generate the component envelope
-  const output = execSync('helm template ctk ' + testDataFolder + componentHelmChart, { encoding: 'utf-8' });  
-  
-  // parse the template
-  documentArray = YAML.parseAllDocuments(output)
-
-  // assert that the documentArray is an array
-  assert.equal(Array.isArray(documentArray), true, "The file should contain at least one YAML document")
-
-  // assert that the file contains at least one YAML document
-  assert.ok(documentArray.length > 0, "File should contain at least one YAML document")
-
-  // get the document with kind: component
-  const componentDocument = documentArray.find(document => document.get('kind') === 'component')
-  testComponentName = componentDocument.get('metadata').get('name')
-
-  // get the spec of the component
-  const componentSpec = componentDocument.get('spec')
-  
-  // Find the componentSegment with the name componentSegmentName
-  let componentSegment
-  componentSpec.items.forEach(item => {
-    if (item.key == componentSegmentName) {
-      componentSegment = item.value
-    }
-  })
-
-  let exposedAPIs = []
-
-  if (componentSegmentName == 'coreFunction') {
-    exposedAPIs = componentSegment.items.filter(item => item.key == 'exposedAPIs')[0].value.items
-  } else if (componentSegmentName == 'management') {
-    exposedAPIs = componentSegment.items
-  } else if (componentSegmentName == 'security') {
-    exposedAPIs = [componentSegment.get('partyrole')]
-    exposedAPIs[0].set('name', 'partyrole')
-  } else {
-    assert.ok(false, "componentSegmentName should be one of 'coreFunction', 'management' or 'security'")
-  }
-  // assert that there is at least 1 API in the componentSegment
-  assert.ok(exposedAPIs.length > 0, "The componentSegment should contain at least one API")
-
-  // we will test the first API in the componentSegment
-  testAPI = exposedAPIs[0]
+Given('An example component helm chart {string} with {string} API in its {string} segment', function (componentHelmChart, numberOfAPIs, componentSegmentName) {
+  exposedAPIs = componentUtils.getExposedAPIsFromHelm(componentHelmChart, 'ctk', componentSegmentName)
+  // assert that there are the correct number of APIs in the componentSegment
+  assert.ok(exposedAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " API")
 });
 
 When('I install the {string} component helm chart', function (componentHelmChart) {
+  componentUtils.installHelmChart(componentHelmChart, releaseName, NAMESPACE)
+});
 
-  // only install the helm chart if it is not already installed
-  const helmList = execSync('helm list -o json  -n ' + NAMESPACE, { encoding: 'utf-8' });    
-  var found = false
-  // look through the helm list and see if there is a chart with name 'ctk'
-  JSON.parse(helmList).forEach(chart => {
-    if (chart.name == 'ctk') {
-      found = true
+Given('An example component helm chart {string} has been installed', function (componentHelmChart) {
+  componentUtils.installHelmChart(componentHelmChart, releaseName, NAMESPACE)
+});
+
+Given('the {string} component has a deployment status of {string}', {timeout : 120 * 1000}, async function (componentName, deploymentStatus) {
+  let componentResource = null
+  var startTime = performance.now()
+  var endTime
+  while (componentResource == null) {
+    componentResource = await componentUtils.getComponentResource(releaseName + '-' + componentName, NAMESPACE)
+    endTime = performance.now()
+    // assert that the Component resource was found within 100 seconds
+    assert.ok(endTime - startTime < 100 * 1000, "The Component resource should be found within 100 seconds")
+
+    //check if the component deployment status is deploymentStatus
+    if ((!componentResource) || (!componentResource.hasOwnProperty('status')) || (!componentResource.status.hasOwnProperty('summary/status')) || (!componentResource.status['summary/status'].hasOwnProperty('deployment_status'))) {
+      componentResource = null // reset the componentResource to null so that we can try again
+    } else {
+        // console.log("The component deployment status is ")
+        // console.log(componentResource.status['summary/status']['deployment_status'])
+        if (!(componentResource.status['summary/status']['deployment_status'] == deploymentStatus)) {
+          componentResource = null // reset the componentResource to null so that we can try again
+      }
     }
-  })
-
-  if (!found) {
-    // install the helm template command to generate the component envelope
-    const output = execSync('helm install ctk ' + testDataFolder + componentHelmChart + ' -n ' + NAMESPACE, { encoding: 'utf-8' });   
   }
 });
 
-Then('I should see the {string} API resource in the Kubernetes cluster', {timeout : 10 * 1000}, async function (APIName) {
+When('I upgrade the {string} component helm chart', function (componentHelmChart) {
+    // install the helm template command to generate the component envelope
+    const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentHelmChart + ' -n ' + NAMESPACE, { encoding: 'utf-8' });   
+});
+
+Then('I should see the {string} API resource', {timeout : 10 * 1000}, async function (APIName) {
   // get the API resource
   let apiResource = null
   var startTime = performance.now()
   var endTime
   while (apiResource == null) {
-    apiResource = await componentUtils.getAPIResource(testComponentName, APIName, NAMESPACE)
+    apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
     endTime = performance.now()
     // assert that the API resource was found within 3 seconds
     assert.ok(endTime - startTime < 5000, "The API resource should be found within 3 seconds")
   }
 });
 
-Then('I should see the {string} API resource with a public url in the Kubernetes cluster', {timeout : 60 * 1000}, async function (APIName) {
+Then('I should not see the {string} API resource', {timeout : 10 * 1000}, async function (APIName) {
+  // get the API resource
+  let apiResource = 'not null'
+  var startTime = performance.now()
+  var endTime
+  while (apiResource != null) {
+    apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
+    endTime = performance.now()
+    // assert that the API resource was removed within 3 seconds
+    assert.ok(endTime - startTime < 5000, "The API resource should be removed within 3 seconds")
+  }
+});
+
+Then('I should see the {string} API resource with a url on the Service Mesh or Gateway', {timeout : 60 * 1000}, async function (APIName) {
   // get the API resource
   let apiResource = null
   var startTime = performance.now()
   var endTime
   while (apiResource == null) {
-    apiResource = await componentUtils.getAPIResource(testComponentName, APIName, NAMESPACE)
+    apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
     endTime = performance.now()
     // assert that the API resource was found within 3 seconds
-    assert.ok(endTime - startTime < 50 * 1000, "The public url should be found within 50 seconds")
+    assert.ok(endTime - startTime < 50 * 1000, "The url should be found within 50 seconds")
 
-    //check if there is a public url on the API resource status
+    //check if there is a url on the API resource status
     if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('apiStatus')) || (!apiResource.status.apiStatus.hasOwnProperty('url'))) {
       apiResource = null // reset the apiResource to null so that we can try again
     }
   }
 });
 
-Then('I should see the {string} API resource with an implementation ready status in the Kubernetes cluster', {timeout : 120 * 1000}, async function (APIName) {
+Then('I should see the {string} API resource with an implementation ready status on the Service Mesh or Gateway', {timeout : 120 * 1000}, async function (APIName) {
   // get the API resource
   let apiResource = null
   var startTime = performance.now()
   var endTime
   while (apiResource == null) {
-    apiResource = await componentUtils.getAPIResource(testComponentName, APIName, NAMESPACE)
+    apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
     endTime = performance.now()
     // assert that the API resource was found within 3 seconds
     assert.ok(endTime - startTime < 100 * 1000, "The ready status should be found within 100 seconds")
 
-    //check if there is a public url on the API resource status
-
+    //check if there is a url on the API resource status
     if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('implementation')) || (!apiResource.status.implementation.hasOwnProperty('ready'))) {
       apiResource = null // reset the apiResource to null so that we can try again
     } else if (!(apiResource.status.implementation.ready == true)) {
@@ -140,5 +126,5 @@ Then('I should see the {string} API resource with an implementation ready status
 
 AfterAll(function () {
   // uninstall the helm template command to generate the component envelope
-  const output = execSync('helm uninstall ctk -n ' + NAMESPACE, { encoding: 'utf-8' });    
+  // const output = execSync('helm uninstall ctk -n ' + NAMESPACE, { encoding: 'utf-8' });    
 });

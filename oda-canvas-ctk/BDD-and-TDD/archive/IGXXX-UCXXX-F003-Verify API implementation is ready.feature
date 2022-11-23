@@ -1,0 +1,18 @@
+Feature: IGXXX-UCXXX-F003-Verify API implementation is ready
+
+    Scenario: Verify API Resource is ready for Core API
+        Given An example component helm chart 'productcatalog' with at least one API in its 'coreFunction' segment
+        When I install the 'productcatalog' component helm chart
+        Then I should see the 'productcatalogmanagement' API resource with an implementation ready status on the Service Mesh or Gateway
+
+    Scenario: Verify API Resource is ready for Management API
+        Given An example component helm chart 'productcatalog' with at least one API in its 'management' segment
+        When I install the 'productcatalog' component helm chart
+        Then I should see the 'metrics' API resource with an implementation ready status on the Service Mesh or Gateway
+
+    Scenario: Verify API Resource is ready for Security API
+        Given An example component helm chart 'productcatalog' with at least one API in its 'security' segment
+        When I install the 'productcatalog' component helm chart
+        Then I should see the 'partyrole' API resource with an implementation ready status on the Service Mesh or Gateway
+
+
