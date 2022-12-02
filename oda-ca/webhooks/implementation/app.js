@@ -1,15 +1,32 @@
 var fs = require('fs');
 var https = require('https');
-var privateKey  = fs.readFileSync('/etc/secret-volume/tls.key', 'utf8');
-var certificate = fs.readFileSync('/etc/secret-volume/tls.crt', 'utf8');
-
-var credentials = {key: privateKey, cert: certificate};
+var http = require('http');
 var express = require('express');
 var app = express();
 app.use(express.json())    // <==== parse request body as JSON
+var httpsServer, httpServer;
+// get command line arguments
+var args = process.argv.slice(2);
 
-// your express configuration here
-var httpsServer = https.createServer(credentials, app);
+// the first argument shows if we are in test mode or not
+var testMode = args[0] === 'test';
+
+if (testMode) {
+    console.log('Running in test mode');
+    var httpServer = http.createServer(app);
+
+} else {
+    console.log('Running in production mode');
+    var privateKey  = fs.readFileSync('/etc/secret-volume/tls.key', 'utf8');
+    var certificate = fs.readFileSync('/etc/secret-volume/tls.crt', 'utf8');
+    var credentials = {key: privateKey, cert: certificate};
+    var httpsServer = https.createServer(credentials, app);
+}
+
+
+
+
+
 
 
 
@@ -23,6 +40,8 @@ app.post("/", (req, res, next) => {
   for (var key in objectsArray) {
     objectsArray[key].metadata.annotations.webhookconverted = "Webhook converted From " + objectsArray[key].apiVersion + " to " + desiredAPIVersion;
     console.log('Comparing old version ' + objectsArray[key].apiVersion + ' and desired version ' + desiredAPIVersion);
+
+    // if the oldAPIVersion is v1alpha3 or v1alpha4 and newVersion is v1alpha2 or v1alpha1 then convert dependentAPIs dependantAPIs
     if ((["oda.tmforum.org/v1alpha3", "oda.tmforum.org/v1alpha4"].includes(objectsArray[key].apiVersion)) && (["oda.tmforum.org/v1alpha2", "oda.tmforum.org/v1alpha1"].includes(desiredAPIVersion))) {
       console.log("convert dependentAPIs to dependantAPIs")
       if (objectsArray[key].spec.coreFunction.dependentAPIs) {
@@ -31,6 +50,8 @@ app.post("/", (req, res, next) => {
         delete objectsArray[key].spec.coreFunction.dependentAPIs
       }
     }
+
+    // if the oldAPIVersion is v1alpha2 or v1alpha1 and newVersion is v1alpha3 or v1alpha4 then convert dependantAPIs dependentAPIs
     if ((["oda.tmforum.org/v1alpha2", "oda.tmforum.org/v1alpha1"].includes(objectsArray[key].apiVersion)) && (["oda.tmforum.org/v1alpha3", "oda.tmforum.org/v1alpha4"].includes(desiredAPIVersion))) {
       console.log("convert depandantAPIs to dependentAPIs")
       if (objectsArray[key].spec.coreFunction.dependantAPIs) {
@@ -39,6 +60,55 @@ app.post("/", (req, res, next) => {
         delete objectsArray[key].spec.coreFunction.dependantAPIs
       }
     }
+
+    // if the oldAPIVersion is v1alpha1, v1alpha2, v1alpha3 or v1alpha4 and newVersion is v1beta1 then remove the componentKinds
+    // and add dependentAPIs to the management and security segments
+    if ((["oda.tmforum.org/v1alpha1", "oda.tmforum.org/v1alpha2", "oda.tmforum.org/v1alpha3", "oda.tmforum.org/v1alpha4"].includes(objectsArray[key].apiVersion)) && (["oda.tmforum.org/v1beta1"].includes(desiredAPIVersion))) {
+      console.log("remove componentKinds")
+      if (objectsArray[key].spec.componentKinds) {
+        delete objectsArray[key].spec.componentKinds
+      }
+
+      console.log("add dependentAPIs to management segment")
+      managementArray = objectsArray[key].spec.management
+      delete objectsArray[key].spec.management
+      objectsArray[key].spec.management = {dependentAPIs: []}
+      objectsArray[key].spec.management.exposedAPIs = managementArray
+
+      console.log("add dependentAPIs to security segment")
+      objectsArray[key].spec.security.dependentAPIs = []
+      objectsArray[key].spec.security.exposedAPIs = []
+      
+      if (objectsArray[key].spec.security.partyrole) {
+        // add the partyrole to the exposedAPIs
+        objectsArray[key].spec.security.partyrole.name = "partyrole"
+        objectsArray[key].spec.security.exposedAPIs.push(objectsArray[key].spec.security.partyrole)
+        delete objectsArray[key].spec.security.partyrole
+      }
+    }
+    // if the oldAPIVersion is v1beta1 and newVersion is v1alpha1, v1alpha2, v1alpha3 or v1alpha4 then add the componentKinds
+    // and remove dependentAPIs from the management and security segments
+    if ((["oda.tmforum.org/v1beta1"].includes(objectsArray[key].apiVersion)) && (["oda.tmforum.org/v1alpha1", "oda.tmforum.org/v1alpha2", "oda.tmforum.org/v1alpha3", "oda.tmforum.org/v1alpha4"].includes(desiredAPIVersion))) {
+      console.log("add componentKinds")
+      objectsArray[key].spec.componentKinds = []
+
+      console.log("remove dependentAPIs from management segment")
+      managementArray = objectsArray[key].spec.management.exposedAPIs
+      delete objectsArray[key].spec.management
+      objectsArray[key].spec.management = managementArray
+
+      console.log("remove dependentAPIs from security segment")
+      // find the partyrole in the exposedAPIs and add it to the security
+      for (var i = 0; i < objectsArray[key].spec.security.exposedAPIs.length; i++) {
+        if (objectsArray[key].spec.security.exposedAPIs[i].name === "partyrole") {
+          objectsArray[key].spec.security.partyrole = objectsArray[key].spec.security.exposedAPIs[i]
+        }
+      }
+      delete objectsArray[key].spec.security.exposedAPIs
+      delete objectsArray[key].spec.security.dependentAPIs
+    }
+
+   
 
     objectsArray[key].apiVersion = desiredAPIVersion;
   }
@@ -112,7 +182,14 @@ app.get("/", (req, res, next) => {
   res.json(response);
   });
 
+if (testMode) {
+  httpServer.listen(8002, () => {
+    console.log("Server running on port 8002");
+   });
+  } else {
+  httpsServer.listen(8443, () => {
+    console.log("Server running on port 8443");
+    });
+  }
+
      
-httpsServer.listen(8443, () => {
-  console.log("Server running on port 8443");
- });
