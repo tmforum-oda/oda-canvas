@@ -24,11 +24,11 @@ spec:
   versions: 
   - name: "v1alpha1"
     # Each version can be enabled/disabled by Served flag.
-    served: true
+    served: false
     # One and only one version must be marked as the storage version.
     storage: false
     deprecated: true
-    deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha3 see https://github.com/tmforum-oda/oda-canvas-charts/issues/19"
+    deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1beta1 see https://github.com/tmforum-oda/oda-canvas-charts/issues/19"
     schema:
       openAPIV3Schema:
         type: object
@@ -150,8 +150,8 @@ spec:
     served: true
     # One and only one version must be marked as the storage version.
     storage: false
-    # deprecated: false
-    # deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
+    deprecated: true
+    deprecationWarning: "oda.tmforum.org/v1alpha2 Component is deprecated; Please upgrade to oda.tmforum.org/v1beta1"
     schema:
       openAPIV3Schema:
         type: object
@@ -424,8 +424,6 @@ spec:
     served: true
     # One and only one version must be marked as the storage version.
     storage: true
-    # deprecated: false
-    # deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
     schema:
       openAPIV3Schema:
         type: object
@@ -584,6 +582,256 @@ spec:
       type: string
       description: list the Developer User Interface(s)
       jsonPath: .status.summary/status.developerUIsummary
+    - name: deployment_status
+      type: string
+      description: Deployment status [in progress, complete, failed]
+      jsonPath: .status.summary/status.deployment_status
+  - name: "v1beta1"
+    # Each version can be enabled/disabled by Served flag.
+    served: true
+    # One and only one version must be marked as the storage version.
+    storage: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              type:
+                type: string
+                description: This is the type of functional component and must refer to a TM Forum published type.
+                example: TMFC001-productcatalogmanagement
+              version:
+                type: string
+                description: This is the version of the component (it is specific to the vendor of this component and not the type).
+              description:
+                type: string
+                description: This is a short description of the component's purpose.
+              maintainers:
+                type: array  
+                description: Maintainers is an optional list of maintainers of
+                  the component. The maintainers in this list maintain the the
+                  source code, images, and package for the component.
+                items:
+                  description: ContactData contains information about an individual or organization.
+                  type: object
+                  properties:
+                    email:
+                      description: Email is the email address.
+                      type: string
+                    name:
+                      description: Name is the descriptive name.
+                      type: string
+                    url:
+                      description: Url could typically be a website address.
+                      type: string
+              owners:
+                type: array
+                description: Owners is an optional list of the owners of the installed
+                  component. The owners of the component should be contacted
+                  in the event of a planned or unplanned disruption affecting
+                  the component.
+                items:
+                  type: object
+                  description: ContactData contains information about an individual or organization.
+                  properties:
+                    email:
+                      description: Email is the email address.
+                      type: string
+                    name:
+                      description: Name is the descriptive name.
+                      type: string
+                    url:
+                      description: Url could typically be a website address.
+                      type: string                 
+              coreFunction:
+                type: object  
+                properties:  
+                  exposedAPIs:   
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the API
+                        specification:
+                          type: string
+                          format: url
+                          description: url to the specification of the API. e.g. url to the swagger file
+                        apitype:
+                          type: string
+                          enum: [openapi, prometheus]
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                        implementation:
+                          type: string
+                          description: The name of the service where the implementation of the API is found
+                        path:
+                          type: string
+                          description: The path to the root of the API
+                        developerUI:
+                          type: string
+                          description: (optional) The path to the developer User Interface for the API
+                        port:
+                          type: integer
+                          description: The port where the API is exposed 
+                  dependentAPIs:   
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          required: true
+                          description: Name of the API that this component is dependent on
+                        specification:
+                          type: string
+                          format: url
+                          description: url to the specification of the API. e.g. url to the swagger file
+                        apitype:
+                          type: string
+                          required: true
+                          enum: [openapi, prometheus]
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+              eventNotification:
+                type: object  
+                properties:  
+                  publishedEvents: 
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        href:
+                          type: string
+                  subscribedEvents: 
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        href:
+                          type: string
+              management:
+                type: object  
+                properties:  
+                  exposedAPIs:   
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          required: true
+                          description: Name of the API
+                        specification:
+                          type: string
+                          format: url
+                          description: url to the specification of the API. e.g. url to the swagger file
+                        apitype:
+                          type: string
+                          required: true
+                          enum: [openapi, prometheus]
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                        implementation:
+                          type: string
+                          required: true
+                          description: The name of the service where the implementation of the API is found
+                        path:
+                          type: string
+                          required: true
+                          description: The path to the root of the API
+                        developerUI:
+                          type: string
+                          description: (optional) The path to the developer User Interface for the API
+                        port:
+                          type: integer
+                          required: true
+                          description: The port where the API is exposed 
+                  dependentAPIs:   
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          required: true
+                          description: Name of the API that this component is dependent on
+                        specification:
+                          type: string
+                          format: url
+                          description: url to the specification of the API. e.g. url to the swagger file
+                        apitype:
+                          type: string
+                          required: true
+                          enum: [openapi, prometheus]
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+              security:
+                type: object  
+                properties:  
+                  exposedAPIs:   
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          required: true
+                          description: Name of the API
+                        specification:
+                          type: string
+                          format: url
+                          description: url to the specification of the API. e.g. url to the swagger file
+                        apitype:
+                          type: string
+                          required: true
+                          enum: [openapi, prometheus]
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                        implementation:
+                          type: string
+                          required: true
+                          description: The name of the service where the implementation of the API is found
+                        path:
+                          type: string
+                          required: true
+                          description: The path to the root of the API
+                        developerUI:
+                          type: string
+                          description: (optional) The path to the developer User Interface for the API
+                        port:
+                          type: integer
+                          required: true
+                          description: The port where the API is exposed 
+                  dependentAPIs:   
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          required: true
+                          description: Name of the API that this component is dependent on
+                        specification:
+                          type: string
+                          format: url
+                          description: url to the specification of the API. e.g. url to the swagger file
+                        apitype:
+                          type: string
+                          required: true
+                          enum: [openapi, prometheus]
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                  controllerRole:
+                    description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
+                      It must exist in the roles exposed by the partyRole API.
+                    type: string             
+
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true    
+    additionalPrinterColumns:
     - name: deployment_status
       type: string
       description: Deployment status [in progress, complete, failed]
