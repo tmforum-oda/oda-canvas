@@ -624,14 +624,11 @@ spec:
                       description: Name is the descriptive name.
                       type: string
                     url:
-                      description: Url could typically be a website address.
+                      description: Website address of maintaining organization.
                       type: string
               owners:
                 type: array
-                description: Owners is an optional list of the owners of the installed
-                  component. The owners of the component should be contacted
-                  in the event of a planned or unplanned disruption affecting
-                  the component.
+                description: Owners is an optional list of the owners of the installed component. 
                 items:
                   type: object
                   description: ContactData contains information about an individual or organization.
@@ -643,7 +640,7 @@ spec:
                       description: Name is the descriptive name.
                       type: string
                     url:
-                      description: Url could typically be a website address.
+                      description: Website address of owning organization.
                       type: string                 
               coreFunction:
                 type: object  
@@ -659,11 +656,11 @@ spec:
                         specification:
                           type: string
                           format: url
-                          description: url to the specification of the API. e.g. url to the swagger file
+                          description: url to the specification of the API, if required. e.g. url to the swagger file for Open API.
                         apitype:
                           type: string
                           enum: [openapi, prometheus]
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -676,6 +673,12 @@ spec:
                         port:
                           type: integer
                           description: The port where the API is exposed 
+                      required:
+                      - name
+                      - apitype
+                      - implementation
+                      - path
+                      - port
                   dependentAPIs:   
                     type: array
                     items:
@@ -693,7 +696,7 @@ spec:
                           type: string
                           required: true
                           enum: [openapi, prometheus]
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
               eventNotification:
                 type: object  
                 properties:  
@@ -735,7 +738,7 @@ spec:
                           type: string
                           required: true
                           enum: [openapi, prometheus]
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
                         implementation:
                           type: string
                           required: true
@@ -751,6 +754,12 @@ spec:
                           type: integer
                           required: true
                           description: The port where the API is exposed 
+                      required:
+                      - name
+                      - apitype
+                      - implementation
+                      - path
+                      - port
                   dependentAPIs:   
                     type: array
                     items:
@@ -805,6 +814,12 @@ spec:
                           type: integer
                           required: true
                           description: The port where the API is exposed 
+                      required:
+                      - name
+                      - apitype
+                      - implementation
+                      - path
+                      - port
                   dependentAPIs:   
                     type: array
                     items:
