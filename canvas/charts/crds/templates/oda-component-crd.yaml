@@ -659,8 +659,9 @@ spec:
                           description: url to the specification of the API, if required. e.g. url to the swagger file for Open API.
                         apitype:
                           type: string
-                          enum: [openapi, prometheus]
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          enum:
+                          - openapi
+                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -686,7 +687,6 @@ spec:
                       properties:
                         name:
                           type: string
-                          required: true
                           description: Name of the API that this component is dependent on
                         specification:
                           type: string
@@ -694,9 +694,12 @@ spec:
                           description: url to the specification of the API. e.g. url to the swagger file
                         apitype:
                           type: string
-                          required: true
-                          enum: [openapi, prometheus]
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          enum:
+                          - openapi
+                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                      required:
+                      - name
+                      - apitype
               eventNotification:
                 type: object  
                 properties:  
@@ -728,7 +731,6 @@ spec:
                       properties:
                         name:
                           type: string
-                          required: true
                           description: Name of the API
                         specification:
                           type: string
@@ -736,23 +738,21 @@ spec:
                           description: url to the specification of the API. e.g. url to the swagger file
                         apitype:
                           type: string
-                          required: true
-                          enum: [openapi, prometheus]
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          enum:
+                          - openapi
+                          - prometheus
+                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
                         implementation:
                           type: string
-                          required: true
                           description: The name of the service where the implementation of the API is found
                         path:
                           type: string
-                          required: true
                           description: The path to the root of the API
                         developerUI:
                           type: string
                           description: (optional) The path to the developer User Interface for the API
                         port:
                           type: integer
-                          required: true
                           description: The port where the API is exposed 
                       required:
                       - name
@@ -767,7 +767,6 @@ spec:
                       properties:
                         name:
                           type: string
-                          required: true
                           description: Name of the API that this component is dependent on
                         specification:
                           type: string
@@ -775,9 +774,13 @@ spec:
                           description: url to the specification of the API. e.g. url to the swagger file
                         apitype:
                           type: string
-                          required: true
-                          enum: [openapi, prometheus]
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          enum:
+                          - openapi
+                          - prometheus
+                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                      required:
+                      - name
+                      - apitype
               security:
                 type: object  
                 properties:  
@@ -788,7 +791,6 @@ spec:
                       properties:
                         name:
                           type: string
-                          required: true
                           description: Name of the API
                         specification:
                           type: string
@@ -796,23 +798,20 @@ spec:
                           description: url to the specification of the API. e.g. url to the swagger file
                         apitype:
                           type: string
-                          required: true
-                          enum: [openapi, prometheus]
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          enum:
+                          - openapi
+                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
                         implementation:
                           type: string
-                          required: true
                           description: The name of the service where the implementation of the API is found
                         path:
                           type: string
-                          required: true
                           description: The path to the root of the API
                         developerUI:
                           type: string
                           description: (optional) The path to the developer User Interface for the API
                         port:
                           type: integer
-                          required: true
                           description: The port where the API is exposed 
                       required:
                       - name
@@ -827,7 +826,6 @@ spec:
                       properties:
                         name:
                           type: string
-                          required: true
                           description: Name of the API that this component is dependent on
                         specification:
                           type: string
@@ -835,9 +833,12 @@ spec:
                           description: url to the specification of the API. e.g. url to the swagger file
                         apitype:
                           type: string
-                          required: true
-                          enum: [openapi, prometheus]
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          enum:
+                          - openapi
+                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                      required:
+                      - name
+                      - apitype
                   controllerRole:
                     description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
                       It must exist in the roles exposed by the partyRole API.
