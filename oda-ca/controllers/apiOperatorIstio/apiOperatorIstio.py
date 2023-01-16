@@ -304,11 +304,19 @@ def updateImplementationStatus(namespace, name, inHandler, componentName):
 def getIstioIngressStatus(inHandler, name, componentName):
     # get ip or hostname where ingress is exposed from the istio-ingressgateway service
     core_api_instance = kubernetes.client.CoreV1Api()
-    ISTIO_NAMESPACE = "istio-system"
-    ISTIO_INGRESSGATEWAY = "istio-ingressgateway"
+    ISTIO_INGRESSGATEWAY_LABEL = "istio=ingressgateway" 
+
+    ## should get this by label (as this is what the gareway defines)
     try:
-        api_response = core_api_instance.read_namespaced_service(ISTIO_INGRESSGATEWAY, ISTIO_NAMESPACE)
-        serviceStatus = api_response.status
+        # get the istio-ingressgateway service by label 'istio: ingressgateway'
+        api_response = core_api_instance.list_service_for_all_namespaces(label_selector=ISTIO_INGRESSGATEWAY_LABEL)
+        
+        # api_response = core_api_instance.read_namespaced_service(ISTIO_INGRESSGATEWAY, ISTIO_NAMESPACE)
+        if len(api_response.items) == 0:
+            logWrapper(logging.WARNING, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Can not find", "Istio Ingress Gateway")
+            raise kopf.TemporaryError("Can not find Istio Ingress Gateway.")
+
+        serviceStatus = api_response.items[0].status
         loadBalancer = serviceStatus.load_balancer.to_dict()
         logWrapper(logging.INFO, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Istio Ingress Gateway", loadBalancer)
     except Exception as e:
