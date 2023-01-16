@@ -77,9 +77,10 @@ if (testMode) {
 
 app.post("/", (req, res, next) => {
 
-  console.log(JSON.stringify(req.body, null, 2))
+  // console.log(JSON.stringify(req.body, null, 2))
   var uid = req.body.request.uid;
   var desiredAPIVersion = req.body.request.desiredAPIVersion;
+  var conversionReviewAPIVersion = req.body.apiVersion;
   var objectsArray = req.body.request.objects
 
   for (var key in objectsArray) {
@@ -163,7 +164,7 @@ app.post("/", (req, res, next) => {
   }
 
     var response = {
-        "apiVersion": "apiextensions.k8s.io/v1beta1",
+        "apiVersion": conversionReviewAPIVersion,
         "kind": "ConversionReview",
         "response": {
           "uid": uid, // must match <request.uid>
@@ -173,7 +174,7 @@ app.post("/", (req, res, next) => {
         "convertedObjects": objectsArray 
         }  
     }
-    console.log(JSON.stringify(response, null, 2))
+    // console.log(JSON.stringify(response, null, 2))
 
     res.json(response);
    });

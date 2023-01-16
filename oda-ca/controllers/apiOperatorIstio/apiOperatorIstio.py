@@ -289,7 +289,7 @@ def updateImplementationStatus(namespace, name, inHandler, componentName):
     """
     logWrapper(logging.DEBUG, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "Update implementation status", name)
 
-    discovery_api_instance = kubernetes.client.DiscoveryV1beta1Api()
+    discovery_api_instance = kubernetes.client.DiscoveryV1Api()
     try:
         api_response = discovery_api_instance.list_namespaced_endpoint_slice(namespace, label_selector='kubernetes.io/service-name=' + name)
         if len(api_response.items) > 0:
@@ -358,8 +358,8 @@ def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, inAPIName,
     return parent_api_status
 
 # When service where implementation is ready, update parent API object
-@kopf.on.create('discovery.k8s.io', 'v1beta1', 'endpointslice', retries=5)
-@kopf.on.update('discovery.k8s.io', 'v1beta1', 'endpointslice', retries=5)
+@kopf.on.create('discovery.k8s.io', 'v1', 'endpointslice', retries=5)
+@kopf.on.update('discovery.k8s.io', 'v1', 'endpointslice', retries=5)
 def implementation_status(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in EndPointSlide resources.
     

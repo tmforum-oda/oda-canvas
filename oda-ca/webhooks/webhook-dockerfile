@@ -1,4 +1,4 @@
-FROM node:10.19
+FROM node:16.14
 COPY implementation/package*.json /src/
 WORKDIR /src
 RUN npm install

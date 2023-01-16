@@ -582,8 +582,8 @@ async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name,
 async def adopt_job(meta, spec, body, namespace, labels, name, **kwargs):
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'job')
 
-@kopf.on.resume('batch', 'v1beta1', 'cronjobs', retries=5)
-@kopf.on.create('batch', 'v1beta1', 'cronjobs', retries=5)
+@kopf.on.resume('batch', 'v1', 'cronjobs', retries=5)
+@kopf.on.create('batch', 'v1', 'cronjobs', retries=5)
 async def adopt_cronjob(meta, spec, body, namespace, labels, name, **kwargs):
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, 'cronjob')
 
@@ -669,7 +669,7 @@ def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resource
             elif resourceType == 'job':
                 api_response = kubernetes.client.BatchV1Api().patch_namespaced_job(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)  
             elif resourceType == 'cronjob':
-                api_response = kubernetes.client.BatchV1beta1Api().patch_namespaced_cron_job(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
+                api_response = kubernetes.client.BatchV1Api().patch_namespaced_cron_job(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody)
             elif resourceType == 'statefulset':
                 api_response = kubernetes.client.AppsV1Api().patch_namespaced_stateful_set(newBody['metadata']['name'], newBody['metadata']['namespace'], newBody) 
             elif resourceType == 'role':
