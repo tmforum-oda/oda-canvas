@@ -13,7 +13,7 @@ spec:
     strategy: Webhook
     # webhookClientConfig is required when strategy is `Webhook` and it configures the webhook endpoint to be called by API server.
     webhook:
-      conversionReviewVersions: ["v1alpha1", "v1alpha2", "v1alpha3", "v1beta1"]
+      conversionReviewVersions: ["v1beta1", "v1alpha4", "v1alpha3", "v1alpha2", "v1alpha1"]
       clientConfig:
         caBundle: {{ .Values.global.clusterCABundle }}
         service:
@@ -661,7 +661,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -696,7 +696,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
                       required:
                       - name
                       - apitype
@@ -741,7 +741,7 @@ spec:
                           enum:
                           - openapi
                           - prometheus
-                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -777,7 +777,7 @@ spec:
                           enum:
                           - openapi
                           - prometheus
-                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
                       required:
                       - name
                       - apitype
@@ -800,7 +800,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -835,7 +835,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                        description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
                       required:
                       - name
                       - apitype
@@ -843,7 +843,6 @@ spec:
                     description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
                       It must exist in the roles exposed by the partyRole API.
                     type: string             
-
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true    

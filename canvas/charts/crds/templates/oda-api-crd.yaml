@@ -111,4 +111,30 @@ spec:
     - name: Implementation_ready
       type: string
       description: API implementation is ready - has passed startup probe checks
-      jsonPath: .status.implementation.ready      
+      jsonPath: .status.implementation.ready
+  - name: "v1beta1"
+    # Each version can be enabled/disabled by Served flag.
+    served: true
+    # One and only one version must be marked as the storage version.
+    storage: false
+    deprecated: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object                
+            x-kubernetes-preserve-unknown-fields: true    
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true    
+    additionalPrinterColumns:
+    - name: API_endpoint
+      type: string
+      description: API endpoint Url
+      jsonPath: .status.apiStatus.url    
+    - name: Implementation_ready
+      type: string
+      description: API implementation is ready - has passed startup probe checks
+      jsonPath: .status.implementation.ready            
