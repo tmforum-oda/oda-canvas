@@ -1,4 +1,4 @@
-Feature: IGXXX-UCXXX-F003-Verify API implementation is ready
+Feature: IGXXX-UC002-F003-Verify API implementation is ready
 
     Scenario: Verify API Resource is ready for Core API
         Given An example component 'productcatalog' with '1' API in its 'coreFunction' segment

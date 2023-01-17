@@ -1,4 +1,4 @@
-Feature: IGXXX-UCXXX-F003-Upgrade component with removed API
+Feature: IGXXX-UC002-F003-Upgrade component with removed API
     Background:
         Given An example component 'productcatalogadd' with '2' API in its 'coreFunction' segment
         And An example component 'productcatalogadd' has been installed
