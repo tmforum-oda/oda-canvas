@@ -17,6 +17,8 @@ group Invalid API Key
 end
 
 APIGateway -> IdentityManagementSystem : Query user for API Key and corresponding roles
+APIGateway <- IdentityManagementSystem : response
+
 APIGateway -> APIGateway: Validate user has at least 1 role for component
 
 group No role for component
