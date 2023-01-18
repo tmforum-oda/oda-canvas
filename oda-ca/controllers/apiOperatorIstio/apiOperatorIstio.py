@@ -350,6 +350,7 @@ def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, ports, inA
     :meta private:
     """
 
+
     # choose which port to expose - default is http2 or http. If the port is 80 then don't need to add
     portsString = ''
     for port in ports:
@@ -365,20 +366,20 @@ def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, ports, inA
         if 'ip' in ingressTarget.keys():
             parent_api_status['apiStatus']['ip'] = ingressTarget['ip']
         elif 'hostname' in ingressTarget.keys():
-            parent_api_status['apiStatus']['ip'] = ingressTarget['hostname'] 
+            parent_api_status['apiStatus']['ip'] = ingressTarget['hostname']
         else:
             logWrapper(logging.WARNING, 'buildAPIStatus', inHandler, 'api/' + inAPIName, componentName, "Ingress target does not contain ip or hostname", "")
     else:    #if api doesn't specify hostname then use ip
-        if 'hostname' in ingressTarget.keys():
-            parent_api_status['apiStatus']['url'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api_spec['path']
-            if 'developerUI' in parent_api_spec:
-                parent_api_status['apiStatus']['developerUI'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api_spec['developerUI']
-            parent_api_status['apiStatus']['ip'] = ingressTarget['hostname']
-        elif 'ip' in ingressTarget.keys():
+        if 'ip' in ingressTarget.keys():
             parent_api_status['apiStatus']['url'] = HTTP_SCHEME + ingressTarget['ip'] + parent_api_spec['path']
             if 'developerUI' in parent_api_spec:
                 parent_api_status['apiStatus']['developerUI'] = HTTP_SCHEME + ingressTarget['ip'] + parent_api_spec['developerUI']
             parent_api_status['apiStatus']['ip'] = ingressTarget['ip']
+        elif 'hostname' in ingressTarget.keys():
+            parent_api_status['apiStatus']['url'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api_spec['path']
+            if 'developerUI' in parent_api_spec:
+                parent_api_status['apiStatus']['developerUI'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api_spec['developerUI']
+            parent_api_status['apiStatus']['ip'] = ingressTarget['hostname']
         else:
             raise kopf.TemporaryError("Ingress target does not contain ip or hostname")
     return parent_api_status
@@ -470,3 +471,4 @@ def logWrapper(logLevel, functionName, handlerName, resourceName, componentName,
     """
     logger.log(logLevel, f"[{componentName}|{resourceName}|{handlerName}|{functionName}] {subject}: {message}")
     return
+
