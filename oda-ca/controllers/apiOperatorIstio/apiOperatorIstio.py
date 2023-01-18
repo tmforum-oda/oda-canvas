@@ -29,6 +29,7 @@ logger.setLevel(int(logging_level))
 
 HTTP_SCHEME = "http://"
 HTTP_K8s_LABELS = ['http', 'http2']
+HTTP_STANDARD_PORTS = [80, 443]
 GROUP = "oda.tmforum.org"
 VERSION = "v1alpha4"
 APIS_PLURAL = "apis"
@@ -323,12 +324,14 @@ def getIstioIngressStatus(inHandler, name, componentName):
 
         serviceStatus = api_response.items[0].status
         serviceSpec = api_response.items[0].spec
-        loadBalancer = serviceStatus.load_balancer.to_dict()
-        ports = serviceSpec.ports.to_dict()
-        response = {loadBalancer: loadBalancer, ports: ports}
-        logWrapper(logging.INFO, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Istio Ingress Gateway", response)
+        loadBalancer = None
+        if serviceStatus.load_balancer is not None:
+            loadBalancer = serviceStatus.load_balancer.to_dict()
+        ports = serviceSpec.ports
+        response = {'loadBalancer': loadBalancer, 'ports': ports}
+        logWrapper(logging.INFO, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Istio Ingress Gateway", "Received ingress status.")
     except Exception as e:
-        logWrapper(logging.WARNING, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Exception when calling read_namespaced_service", e)
+        logWrapper(logging.WARNING, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Exception in getIstioIngressStatus", str(e))
         raise kopf.TemporaryError("Exception getting IstioIngressStatus.")
     return response
 
@@ -354,31 +357,32 @@ def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, ports, inA
     # choose which port to expose - default is http2 or http. If the port is 80 then don't need to add
     portsString = ''
     for port in ports:
-        if port['name'] in HTTP_K8s_LABELS:
-            if port['port'] != 80:
-                portsString = ':' + str(port['port'])
+        portDict = port.to_dict()
+        if portDict['name'] in HTTP_K8s_LABELS:
+            if not (portDict['port'] in HTTP_STANDARD_PORTS):
+                portsString = ':' + str(portDict['port'])
             break
-        
+ 
     if 'hostname' in parent_api_spec.keys(): #if api specifies hostname then use hostname
-        parent_api_status['apiStatus']['url'] = HTTP_SCHEME + parent_api_spec['hostname'] + parent_api_spec['path']
+        parent_api_status['apiStatus']['url'] = HTTP_SCHEME + parent_api_spec['hostname'] + portsString + parent_api_spec['path']
         if 'developerUI' in parent_api_spec:
-            parent_api_status['apiStatus']['developerUI'] = HTTP_SCHEME + parent_api_spec['hostname'] + parent_api_spec['developerUI']
-        if 'ip' in ingressTarget.keys():
+            parent_api_status['apiStatus']['developerUI'] = HTTP_SCHEME + parent_api_spec['hostname'] + portsString + parent_api_spec['developerUI']
+        if 'ip' in ingressTarget.keys() and ingressTarget['ip'] is not None:
             parent_api_status['apiStatus']['ip'] = ingressTarget['ip']
-        elif 'hostname' in ingressTarget.keys():
+        elif 'hostname' in ingressTarget.keys() and ingressTarget['hostname'] is not None:
             parent_api_status['apiStatus']['ip'] = ingressTarget['hostname']
         else:
             logWrapper(logging.WARNING, 'buildAPIStatus', inHandler, 'api/' + inAPIName, componentName, "Ingress target does not contain ip or hostname", "")
     else:    #if api doesn't specify hostname then use ip
-        if 'ip' in ingressTarget.keys():
-            parent_api_status['apiStatus']['url'] = HTTP_SCHEME + ingressTarget['ip'] + parent_api_spec['path']
+        if 'ip' in ingressTarget.keys() and ingressTarget['ip'] is not None:
+            parent_api_status['apiStatus']['url'] = HTTP_SCHEME + ingressTarget['ip'] + portsString + parent_api_spec['path']
             if 'developerUI' in parent_api_spec:
-                parent_api_status['apiStatus']['developerUI'] = HTTP_SCHEME + ingressTarget['ip'] + parent_api_spec['developerUI']
+                parent_api_status['apiStatus']['developerUI'] = HTTP_SCHEME + ingressTarget['ip'] + portsString + parent_api_spec['developerUI']
             parent_api_status['apiStatus']['ip'] = ingressTarget['ip']
-        elif 'hostname' in ingressTarget.keys():
-            parent_api_status['apiStatus']['url'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api_spec['path']
+        elif 'hostname' in ingressTarget.keys() and ingressTarget['hostname'] is not None:
+            parent_api_status['apiStatus']['url'] = HTTP_SCHEME + ingressTarget['hostname'] + portsString + parent_api_spec['path']
             if 'developerUI' in parent_api_spec:
-                parent_api_status['apiStatus']['developerUI'] = HTTP_SCHEME + ingressTarget['hostname'] + parent_api_spec['developerUI']
+                parent_api_status['apiStatus']['developerUI'] = HTTP_SCHEME + ingressTarget['hostname'] + portsString + parent_api_spec['developerUI']
             parent_api_status['apiStatus']['ip'] = ingressTarget['hostname']
         else:
             raise kopf.TemporaryError("Ingress target does not contain ip or hostname")

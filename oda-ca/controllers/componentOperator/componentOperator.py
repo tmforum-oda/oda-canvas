@@ -3,7 +3,7 @@
 Normally this module is deployed as part of an ODA Canvas. It uses the kopf kubernetes operator framework (https://kopf.readthedocs.io/).
 It registers handler functions for:
 
-1. New ODA Components - to create, update or delete child API custom resources. see `exposedAPIs <#componentOperator.componentOperator.exposedAPIs>`_ and `securityAPIs <#componentOperator.componentOperator.securityAPIs>`_
+1. New ODA Components - to create, update or delete child API custom resources. see `coreAPIs <#componentOperator.componentOperator.coreAPIs>`_ and `securityAPIs <#componentOperator.componentOperator.securityAPIs>`_
 2. For status updates in the child API Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateAPIStatus <#componentOperator.componentOperator.updateAPIStatus>`_ and `updateAPIReady <#componentOperator.componentOperator.updateAPIReady>`_
 3. For new Services, Deployments, PersistentVolumeClaims and Jobs that have a oda.tmforum.org/componentName label. These resources are updated to become children of the ODA Component resource. see `adopt_deployment <#componentOperator.componentOperator.adopt_deployment>`_ , `adopt_persistentvolumeclaim <#componentOperator.componentOperator.adopt_persistentvolumeclaim>`_ , `adopt_job <#componentOperator.componentOperator.adopt_job>`_ and `adopt_service <#componentOperator.componentOperator.adopt_service>`_
 """
@@ -38,7 +38,7 @@ COMPONENTS_PLURAL = "components"
 @kopf.on.resume('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
 @kopf.on.create('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
 @kopf.on.update('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
+async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **core function** part new or updated components.
     
     Processes the **core function** part of the component envelope and creates the child API resources.
@@ -53,57 +53,57 @@ async def exposedAPIs(meta, spec, status, body, namespace, labels, name, **kwarg
         * name (String): The name of the component
 
     Returns:
-        Dict: The exposedAPIs status that is put into the component envelope status field.
+        Dict: The coreAPIs status that is put into the component envelope status field.
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'exposedAPIs', 'exposedAPIs', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Handler called", "")
     apiChildren = []
     try:
             
         # compare desired state (spec) with actual state (status) and initiate changes
         if status:  # if status exists (i.e. this is not a new component)
             # update a component - look in old and new to see if we need to delete any API resources
-            if 'exposedAPIs' in status.keys():
-                oldExposedAPIs = status['exposedAPIs']
+            if 'coreAPIs' in status.keys():
+                oldCoreAPIs = status['coreAPIs']
             else:
-                oldExposedAPIs = {}
-            newExposedAPIs = spec['coreFunction']['exposedAPIs']
+                oldCoreAPIs = {}
+            newCoreAPIs = spec['coreFunction']['exposedAPIs']
             # find apis in old that are missing in new
             deletedAPIs = []
-            for oldAPI in oldExposedAPIs:
+            for oldAPI in oldCoreAPIs:
                 found = False
-                for newAPI in newExposedAPIs:
-                    logWrapper(logging.DEBUG, 'exposedAPIs', 'exposedAPIs', 'component/' + name, name, "Comparing old and new APIs", f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
+                for newAPI in newCoreAPIs:
+                    logWrapper(logging.DEBUG, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Comparing old and new APIs", f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
                     if oldAPI['name'] == name + '-' + newAPI['name'].lower():
                         found = True
-                        logWrapper(logging.INFO, 'exposedAPIs', 'exposedAPIs', 'component/' + name, name, "Patching API", newAPI['name'])
-                        resultStatus = await patchAPIResource(newAPI, namespace, name, 'exposedAPIs')
+                        logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Patching API", newAPI['name'])
+                        resultStatus = await patchAPIResource(newAPI, namespace, name, 'coreAPIs')
                         apiChildren.append(resultStatus)
                 if not found:
-                    logWrapper(logging.INFO, 'exposedAPIs', 'exposedAPIs', 'component/' + name, name, "Deleting API", oldAPI['name'])
-                    await deleteAPI(oldAPI['name'], name, status, namespace, 'exposedAPIs')
+                    logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Deleting API", oldAPI['name'])
+                    await deleteAPI(oldAPI['name'], name, status, namespace, 'coreAPIs')
 
-        # get exposed APIS
-        exposedAPIs = spec['coreFunction']['exposedAPIs']
-        logWrapper(logging.DEBUG, 'exposedAPIs', 'exposedAPIs', 'component/' + name, name, "Exposed API list", f"{exposedAPIs}")
+        # get core APIS
+        coreAPIs = spec['coreFunction']['exposedAPIs']
+        logWrapper(logging.DEBUG, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Exposed API list", f"{coreAPIs}")
 
-        for exposedAPI in exposedAPIs:
+        for coreAPI in coreAPIs:
             # check if we have already patched this API
             alreadyProcessed = False
             for processedAPI in apiChildren:
-                logWrapper(logging.DEBUG, 'exposedAPIs', 'exposedAPIs', 'component/' + name, name, "Comparing new APIs with status", f"Comparing {processedAPI['name']} to {name + '-' + exposedAPI['name'].lower()}")
-                if processedAPI['name'] == name + '-' + exposedAPI['name'].lower():
+                logWrapper(logging.DEBUG, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Comparing new APIs with status", f"Comparing {processedAPI['name']} to {name + '-' + coreAPI['name'].lower()}")
+                if processedAPI['name'] == name + '-' + coreAPI['name'].lower():
                     alreadyProcessed = True
             if alreadyProcessed == False:
-                logWrapper(logging.INFO, 'exposedAPIs', 'exposedAPIs', 'component/' + name, name, "Creating API", exposedAPI['name'])
-                resultStatus = await createAPIResource(exposedAPI, namespace, name, 'exposedAPIs')
+                logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Creating API", coreAPI['name'])
+                resultStatus = await createAPIResource(coreAPI, namespace, name, 'coreAPIs')
                 apiChildren.append(resultStatus)
 
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e) # allow the operator to retry
     except Exception as e:
-        logWrapper(logging.ERROR, 'exposedAPIs', 'exposedAPIs', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+        logWrapper(logging.ERROR, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
 
     # Update the parent's status.
     return apiChildren
@@ -439,14 +439,14 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
 
                 logWrapper(logging.INFO, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
 
-                # find the correct array entry to update either in exposedAPIs, managementAPIs or securityAPIs
-                if 'exposedAPIs' in parent_component['status'].keys():
-                    for key in range(len(parent_component['status']['exposedAPIs'])):
-                        if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
-                            parent_component['status']['exposedAPIs'][key]['url'] = status['apiStatus']['url']
-                            logWrapper(logging.INFO, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Updating parent component exposedAPIs APIs with url", status['apiStatus']['url'])
+                # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
+                if 'coreAPIs' in parent_component['status'].keys():
+                    for key in range(len(parent_component['status']['coreAPIs'])):
+                        if parent_component['status']['coreAPIs'][key]['uid'] == meta['uid']:
+                            parent_component['status']['coreAPIs'][key]['url'] = status['apiStatus']['url']
+                            logWrapper(logging.INFO, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Updating parent component coreAPIs APIs with url", status['apiStatus']['url'])
                             if 'developerUI' in status['apiStatus'].keys():
-                                parent_component['status']['exposedAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
+                                parent_component['status']['coreAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
                 if 'managementAPIs' in parent_component['status'].keys():
                     for key in range(len(parent_component['status']['managementAPIs'])):
                         if parent_component['status']['managementAPIs'][key]['uid'] == meta['uid']:
@@ -507,11 +507,11 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
 
                 logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
 
-                # find the correct array entry to update either in exposedAPIs, managementAPIs or securityAPIs
-                for key in range(len(parent_component['status']['exposedAPIs'])):
-                    if parent_component['status']['exposedAPIs'][key]['uid'] == meta['uid']:
-                        parent_component['status']['exposedAPIs'][key]['ready'] = True
-                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component exposedAPIs status", status['implementation']['ready'])
+                # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
+                for key in range(len(parent_component['status']['coreAPIs'])):
+                    if parent_component['status']['coreAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['coreAPIs'][key]['ready'] = True
+                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component coreAPIs status", status['implementation']['ready'])
                         await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
                         return
                 for key in range(len(parent_component['status']['managementAPIs'])):
@@ -697,13 +697,13 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Handler called", "")
 
-    exposedAPIsummary = ''
+    coreAPIsummary = ''
     managementAPIsummary = ''
     developerUIsummary = ''
     countOfCompleteAPIs = 0
-    for api in status['exposedAPIs']:
+    for api in status['coreAPIs']:
         if 'url' in api.keys():
-            exposedAPIsummary = exposedAPIsummary + api['url'] + ' '
+            coreAPIsummary = coreAPIsummary + api['url'] + ' '
             if 'developerUI' in api.keys():
                 developerUIsummary = developerUIsummary + \
                     api['developerUI'] + ' '
@@ -724,13 +724,13 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
             if status['securityAPIs'][api]['ready'] == True:
                 countOfCompleteAPIs = countOfCompleteAPIs + 1
     status_summary = {}
-    status_summary['exposedAPIsummary'] = exposedAPIsummary
+    status_summary['coreAPIsummary'] = coreAPIsummary
     status_summary['managementAPIsummary'] = managementAPIsummary
     status_summary['developerUIsummary'] = developerUIsummary
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Creating summary - complete API count", countOfCompleteAPIs)
 
     status_summary['deployment_status'] = 'In-Progress-CompCon'
-    if countOfCompleteAPIs == (len(status['exposedAPIs']) + len(status['managementAPIs']) + len(status['securityAPIs'])):
+    if countOfCompleteAPIs == (len(status['coreAPIs']) + len(status['managementAPIs']) + len(status['securityAPIs'])):
         status_summary['deployment_status'] = 'In-Progress-SecCon'
         if (('security_client_add/status.summary/status.deployment_status' in status.keys()) and (status['security_client_add/status.summary/status.deployment_status']['listenerRegistered'] == True)):
             status_summary['deployment_status'] = 'Complete'
