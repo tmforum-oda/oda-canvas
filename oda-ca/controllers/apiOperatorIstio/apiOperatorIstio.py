@@ -28,6 +28,7 @@ logger = logging.getLogger('APIOperator')
 logger.setLevel(int(logging_level))
 
 HTTP_SCHEME = "http://"
+HTTP_K8s_LABELS = ['http', 'http2']
 GROUP = "oda.tmforum.org"
 VERSION = "v1alpha4"
 APIS_PLURAL = "apis"
@@ -240,14 +241,16 @@ def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, co
             logWrapper(logging.INFO, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Virtual Service patched", inAPIName)
             updateImplementationStatus(namespace, spec['implementation'], inHandler, componentName)
             # update parent apiStatus
-            loadBalancer = getIstioIngressStatus(inHandler, 'api/' + inAPIName, componentName)
+            istioStatus = getIstioIngressStatus(inHandler, 'api/' + inAPIName, componentName)
+            loadBalancer = istioStatus['loadBalancer']
+            ports = istioStatus['ports']
             apistatus = {'apiStatus': {"name": inAPIName, "uid": virtualServiceResource['metadata']['uid'], "path": spec['path'], "port": spec['port'], "implementation": spec['implementation']}}
             if 'ingress' in loadBalancer.keys():
                 ingress = loadBalancer['ingress']
                 if isinstance(ingress, list):
                     if len(ingress)>0:
                         ingressTarget = ingress[0]
-                        apistatus = buildAPIStatus(spec, apistatus, ingressTarget, inAPIName, inHandler, componentName)
+                        apistatus = buildAPIStatus(spec, apistatus, ingressTarget, ports, inAPIName, inHandler, componentName)
                         logWrapper(logging.DEBUG, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "apiStatus", apistatus)
 
             return apistatus['apiStatus']
@@ -258,14 +261,16 @@ def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, co
             logWrapper(logging.INFO, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Virtual Service created", inAPIName)
             updateImplementationStatus(namespace, spec['implementation'], inHandler, componentName)
             # update parent apiStatus
-            loadBalancer = getIstioIngressStatus(inHandler, 'api/' + inAPIName, componentName)
+            istioStatus = getIstioIngressStatus(inHandler, 'api/' + inAPIName, componentName)
+            loadBalancer = istioStatus['loadBalancer']
+            ports = istioStatus['ports']
             apistatus = {'apiStatus': {"name": inAPIName, "uid": virtualServiceResource['metadata']['uid'], "path": spec['path'], "port": spec['port'], "implementation": spec['implementation']}}
             if 'ingress' in loadBalancer.keys():
                 ingress = loadBalancer['ingress']
                 if isinstance(ingress, list):
                     if len(ingress)>0:
                         ingressTarget = ingress[0]
-                        apistatus = buildAPIStatus(spec, apistatus, ingressTarget, inAPIName, inHandler, componentName)
+                        apistatus = buildAPIStatus(spec, apistatus, ingressTarget, ports, inAPIName, inHandler, componentName)
                         logWrapper(logging.DEBUG, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "apiStatus", apistatus)
             return apistatus['apiStatus']
     except ApiException as e:
@@ -289,7 +294,7 @@ def updateImplementationStatus(namespace, name, inHandler, componentName):
     """
     logWrapper(logging.DEBUG, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "Update implementation status", name)
 
-    discovery_api_instance = kubernetes.client.DiscoveryV1beta1Api()
+    discovery_api_instance = kubernetes.client.DiscoveryV1Api()
     try:
         api_response = discovery_api_instance.list_namespaced_endpoint_slice(namespace, label_selector='kubernetes.io/service-name=' + name)
         if len(api_response.items) > 0:
@@ -304,25 +309,37 @@ def updateImplementationStatus(namespace, name, inHandler, componentName):
 def getIstioIngressStatus(inHandler, name, componentName):
     # get ip or hostname where ingress is exposed from the istio-ingressgateway service
     core_api_instance = kubernetes.client.CoreV1Api()
-    ISTIO_NAMESPACE = "istio-system"
-    ISTIO_INGRESSGATEWAY = "istio-ingressgateway"
+    ISTIO_INGRESSGATEWAY_LABEL = "istio=ingressgateway" 
+
+    ## should get this by label (as this is what the gareway defines)
     try:
-        api_response = core_api_instance.read_namespaced_service(ISTIO_INGRESSGATEWAY, ISTIO_NAMESPACE)
-        serviceStatus = api_response.status
+        # get the istio-ingressgateway service by label 'istio: ingressgateway'
+        api_response = core_api_instance.list_service_for_all_namespaces(label_selector=ISTIO_INGRESSGATEWAY_LABEL)
+        
+        # api_response = core_api_instance.read_namespaced_service(ISTIO_INGRESSGATEWAY, ISTIO_NAMESPACE)
+        if len(api_response.items) == 0:
+            logWrapper(logging.WARNING, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Can not find", "Istio Ingress Gateway")
+            raise kopf.TemporaryError("Can not find Istio Ingress Gateway.")
+
+        serviceStatus = api_response.items[0].status
+        serviceSpec = api_response.items[0].spec
         loadBalancer = serviceStatus.load_balancer.to_dict()
-        logWrapper(logging.INFO, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Istio Ingress Gateway", loadBalancer)
+        ports = serviceSpec.ports.to_dict()
+        response = {loadBalancer: loadBalancer, ports: ports}
+        logWrapper(logging.INFO, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Istio Ingress Gateway", response)
     except Exception as e:
         logWrapper(logging.WARNING, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Exception when calling read_namespaced_service", e)
         raise kopf.TemporaryError("Exception getting IstioIngressStatus.")
-    return loadBalancer
+    return response
 
-def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, inAPIName, inHandler, componentName):
+def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, ports, inAPIName, inHandler, componentName):
     """Helper function to build the API Status Dict for the API custom resource.
     
     Args:
         * parent_api_spec (Dict): The spec (target state or intent) for the API Resource
         * parent_api_status (Dict): The status (actual state) for the API Resource
         * ingressTarget (Dict): The status (actual state) for the Ingress Resource
+        * ports (Dict): The ports for the Ingress Resource
         * inAPIName (String): The name of the API Resource
         * inHandler (String): The name of the handler that is processing the API Resource
         * componentName (String): The name of the component that owns the API Resource
@@ -333,6 +350,15 @@ def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, inAPIName,
     :meta private:
     """
 
+
+    # choose which port to expose - default is http2 or http. If the port is 80 then don't need to add
+    portsString = ''
+    for port in ports:
+        if port['name'] in HTTP_K8s_LABELS:
+            if port['port'] != 80:
+                portsString = ':' + str(port['port'])
+            break
+        
     if 'hostname' in parent_api_spec.keys(): #if api specifies hostname then use hostname
         parent_api_status['apiStatus']['url'] = HTTP_SCHEME + parent_api_spec['hostname'] + parent_api_spec['path']
         if 'developerUI' in parent_api_spec:
@@ -359,8 +385,8 @@ def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, inAPIName,
     return parent_api_status
 
 # When service where implementation is ready, update parent API object
-@kopf.on.create('discovery.k8s.io', 'v1beta1', 'endpointslice', retries=5)
-@kopf.on.update('discovery.k8s.io', 'v1beta1', 'endpointslice', retries=5)
+@kopf.on.create('discovery.k8s.io', 'v1', 'endpointslice', retries=5)
+@kopf.on.update('discovery.k8s.io', 'v1', 'endpointslice', retries=5)
 def implementation_status(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in EndPointSlide resources.
     

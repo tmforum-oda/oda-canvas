@@ -5,7 +5,7 @@ metadata:
   namespace: default
   name: odacomponent-account
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: odacomponent-role-cluster
@@ -40,7 +40,7 @@ rules:
     verbs: [list, watch, patch, get, create, update, delete]
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: default
@@ -89,7 +89,7 @@ rules:
     resources: [pods, persistentvolumeclaims]
     verbs: [create]
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: odacomponent-rolebinding-cluster
@@ -102,7 +102,7 @@ subjects:
     name: odacomponent-account
     namespace: default
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   namespace: default
