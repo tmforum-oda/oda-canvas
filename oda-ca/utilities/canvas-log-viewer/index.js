@@ -7,50 +7,70 @@ const { exit } = require('process');
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
+console.log('=================================================')
+console.log('===           ODA Canvas Log Viewer           ===')
+console.log('=================================================')
+
 const argv = process.argv
 const targetComponent = argv[2]
 const canvasOperator = argv[3]
+
+console.log('targetComponent:', targetComponent)
+console.log('canvasOperator:', canvasOperator)
+
+if (!targetComponent || !canvasOperator) {
+    console.log('Usage: node index.js <targetComponent> <canvasOperatorPod>')
+    exit(1)
+}
+
 const log = new k8s.Log(kc);
 
 const logStream = new stream.PassThrough();
 var logTreeObject = {}
 
-var myListener = newLineStream( function (message) {
+var myListener = newLineStream( function (inMessage) {
     // console.log(message)
-    var matches = message.match(/(?<=\[)[^\][]*(?=])/g);
+    var matches = inMessage.match(/(?<=\[)[^\][]*(?=])/g);
     if (!matches) {
         return
     }
     dateStamp = matches[0]
-    type = matches[1].trim()
-    var messageList = message.split(']')
-    message = messageList[messageList.length-1].trim()
-    var controller = messageList[1].split('[')[0].trim()
-    if (matches.length == 3) {
-        labelsList = matches[2].split('|')
-        if (controller == 'kopf.objects') {
-            resourceName = labelsList[1]
+    try {  // try to parse the message
+
+        type = matches[1].trim()
+        var messageList = inMessage.split(']')
+        message = messageList[messageList.length-1].trim()
+        var controller = messageList[1].split('[')[0].trim()
+        if (matches.length == 3) {
+            labelsList = matches[2].split('|')
+            if (controller == 'kopf.objects') {
+                resourceName = labelsList[1]
+                componentName = 'Unknown'
+                handlerName = 'Unknown'
+                functionName = 'Unknown'
+                } else {
+                componentName = labelsList[0]
+                resourceName = labelsList[1]
+                handlerName = labelsList[2]
+                functionName = labelsList[3]    
+            }
+        } else {
             componentName = 'Unknown'
+            resourceName = 'Unknown'
             handlerName = 'Unknown'
             functionName = 'Unknown'
-            } else {
-            componentName = labelsList[0]
-            resourceName = labelsList[1]
-            handlerName = labelsList[2]
-            functionName = labelsList[3]    
         }
-    } else {
+    } catch (error) {
+        console.log('dateStamp:', dateStamp)
+        console.log('type:', matches[1])
+        console.log('message:', inMessage)
         componentName = 'Unknown'
         resourceName = 'Unknown'
         handlerName = 'Unknown'
-        functionName = 'Unknown'
-    }
-    // console.log('controller:', controller);
-    // console.log('dateStamp:', dateStamp);
-    // console.log('type:', type);
-    // console.log('resourceName:', resourceName);
-    // console.log('namespace:', namespace);
-    // console.log('functionName:', functionName);
+        functionName = 'Unknown'  
+        type == 'ERROR'
+        message = inMessage
+    }  
     
     if (type == 'INFO') {
         message = message.green

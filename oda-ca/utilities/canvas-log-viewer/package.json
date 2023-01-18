@@ -14,7 +14,7 @@
   },
   "repository": "https://github.com/tmforum-oda/oda-ca/tree/master/utilities/canvas-logs",
   "dependencies": {
-    "@kubernetes/client-node": "^0.14.0",
+    "@kubernetes/client-node": "^0.18.0",
     "colors": "^1.4.0",
     "treeify": "^1.1.0"
   }
