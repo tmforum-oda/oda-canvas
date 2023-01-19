@@ -7,7 +7,7 @@ metadata:
   labels:
     {{- include "controller.labels" . | nindent 4 }}
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: odacomponent-role-cluster
@@ -42,7 +42,7 @@ rules:
     resources: [apis]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: [""] # "" indicates the core API group
-    resources: ["services", "services/status", "pods", "persistentvolumeclaims", "persistentvolumeclaims/status", "namespaces", "configmaps", "configmaps/status", "secret", "secret/status", "serviceaccounts", "serviceaccounts/status"]
+    resources: ["services", "services/status", "pods", "persistentvolumeclaims", "persistentvolumeclaims/status", "namespaces", "configmaps", "configmaps/status", "secrets", "secrets/status", "serviceaccounts", "serviceaccounts/status"]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: ["networking.k8s.io"]
     resources: ["ingresses", "ingresses/status"]
@@ -80,7 +80,7 @@ rules:
     verbs: [list, watch, patch, get, create, update, delete]
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{.Values.global.namespaceDefault.name}}
@@ -141,7 +141,7 @@ rules:
 #    verbs: [create, watch, list]
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: odacomponent-rolebinding-cluster
@@ -156,7 +156,7 @@ subjects:
     name: odacomponent-account
     namespace: {{ .Release.Namespace }}
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   namespace: {{.Values.global.namespaceDefault.name}}

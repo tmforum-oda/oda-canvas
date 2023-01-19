@@ -37,3 +37,13 @@ Finally, you will also need to configure Keycloak as follows:
 ### Notes
 - It is possible to enable or disable creation of namespaces in the ```values.yaml``` file.
 - Names of namespaces are set to ```canvas``` and ```components``` unless overridden.
+
+## Step 5 (only if using Istio Service Mesh)
+
+If you are deploying on Istio Service Mesh, you have to enable Istio injection in the namespaces where the canvas and components will be deployed. This can be done by running the following commands:
+
+
+```bash
+kubectl label namespace canvas istio-injection=enabled
+kubectl label namespace components istio-injection=enabled
+```

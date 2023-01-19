@@ -1,5 +1,5 @@
 deployment:
-  compconimage: tmforumodacanvas/component-istio-controller:0.1.5
+  compconimage: tmforumodacanvas/component-istio-controller:0.2.6
   istioGateway: true
   secconimage: tmforumodacanvas/security-listener:0.6.0
   monitorednamespaces: 'components'           # comma separated list of namespaces
