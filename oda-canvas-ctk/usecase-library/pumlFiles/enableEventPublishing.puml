@@ -1,0 +1,41 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity PublishedNotifications
+participant EventPublishingEnablementOperator
+participant "Event Manager" as TMFC019
+
+Component <- Operations : Install
+Component -> ComponentOperator: on.create 
+ComponentOperator -> PublishedNotifications: create
+note right
+    A separate publishedNotification resource is created
+    for each published notification in the core function,
+    security and management sections
+end note
+group For each publishedNotification
+    PublishedNotifications -> EventPublishingEnablementOperator: on.create     
+    EventPublishingEnablementOperator -> TMFC019: search for matching topic
+    note right
+    	A topic can exist if another component
+    	is already publishing these notifications
+    	or if an operator pre-created topics
+    end note
+    alt Topic exist
+    	EventPublishingEnablementOperator <-- TMFC019: 200 OK
+    else Topic does not exist
+     	EventPublishingEnablementOperator <-- TMFC019: 404 Not Found
+    	EventPublishingEnablementOperator -> TMFC019 : configure Topic Event Hub
+    	TMFC019 -> TMFC019: (optional) approval flow to approve creation of topic
+    	EventPublishingEnablementOperator <- TMFC019 : on.update
+    end alt
+    EventPublishingEnablementOperator -> Component : configure event publishing URL
+    EventPublishingEnablementOperator <-- Component
+    PublishedNotifications <- EventPublishingEnablementOperator: update
+    ComponentOperator <- PublishedNotifications: on.update
+    Component <- ComponentOperator: update 
+end
+
+@enduml
