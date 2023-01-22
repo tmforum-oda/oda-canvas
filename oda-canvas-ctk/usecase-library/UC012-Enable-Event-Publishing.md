@@ -8,7 +8,7 @@ This use-case describes how a component is configured for publishing its Notific
 
 ## Install component
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/enableEventPublishing.puml)
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/enableEventPublishing.puml)
 [plantUML code](pumlFiles/enableEventPublishing.puml)
 
 ## Upgrade component - with changed API
