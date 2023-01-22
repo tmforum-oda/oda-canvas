@@ -8,7 +8,7 @@ This use-case describes how a component is configured for subscribing to Notific
 
 ## Install component
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI.puml)
+![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/enableEventSubscription.puml)
 [plantUML code](pumlFiles/exposeAPI.puml)
 
 ## Upgrade component - with changed API
