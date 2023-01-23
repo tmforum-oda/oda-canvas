@@ -4,16 +4,23 @@ entity Component
 entity "Service/Deployment/PVC"
 participant componentController
 entity API
+entity publishedNotification
+entity subscribedNotification
 
 Component-> componentController: Create Component
 componentController -> API: Create exposedAPIs API resources
 componentController -> API: Create securityAPIs API resources
+componentController -> publishedNotification: Create publishedNotification resources
+componentController -> subscribedNotification: Create subscribedNotification resources
+
 
 "Service/Deployment/PVC"-> componentController: Create Service/Deployment/PVC
 componentController-> componentController: Make child of Component
 componentController-> "Service/Deployment/PVC": Update Service/Deployment/PVC
 
 API-> componentController: API resource updated 
+publishedNotification-> componentController: publishedNotification resource updated 
+subscribedNotification-> componentController: subscribedNotification resource updated 
 componentController -> Component: Update status of Component
 
 @enduml
