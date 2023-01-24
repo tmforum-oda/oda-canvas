@@ -3,20 +3,20 @@
 actor Operations
 entity Component
 participant ComponentOperator
-entity PublishedNotification
+entity PublishedNotifications
 participant EventPublishingEnablementOperator
 participant "Event Manager" as TMFC019
 
 Component <- Operations : Install
 Component -> ComponentOperator: on.create 
-ComponentOperator -> PublishedNotification: create
+ComponentOperator -> PublishedNotifications: create
 note right
     A separate publishedNotification resource is created
     for each published notification in the core function,
     security and management sections
 end note
 group For each publishedNotification
-    PublishedNotification -> EventPublishingEnablementOperator: on.create     
+    PublishedNotifications -> EventPublishingEnablementOperator: on.create     
     EventPublishingEnablementOperator -> TMFC019: search for matching topic
     note right
     	A topic can exist if another component
@@ -33,8 +33,8 @@ group For each publishedNotification
     end alt
     EventPublishingEnablementOperator -> Component : configure event publishing URL
     EventPublishingEnablementOperator <-- Component
-    PublishedNotification <- EventPublishingEnablementOperator: update
-    ComponentOperator <- PublishedNotification: on.update
+    PublishedNotifications <- EventPublishingEnablementOperator: update
+    ComponentOperator <- PublishedNotifications: on.update
     Component <- ComponentOperator: update 
 end
 

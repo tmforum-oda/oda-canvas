@@ -8,29 +8,35 @@ This use-case describes how a component is configured for publishing its Notific
 
 ## Install component
 
-![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/enableEventPublishing.puml)
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing.puml)
 [plantUML code](pumlFiles/enableEventPublishing.puml)
 
-## Upgrade component - with changed API
+## Upgrade component - with changed publishedNotifications
 
-The use-case above is for the install of a new component. If you upgrade a component and change an API, the configuration of the Service Mesh and/or API Gateway should change.
+The use-case above is for the install of a new component. If you upgrade a component and change the schema of a publishedNotification, the configuration of the Topic on the Event Management system should change.
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade-with-modify.puml)
-[plantUML code](pumlFiles/exposeAPI-upgrade-with-modify.puml)
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing-with-modify.puml)
+[plantUML code](pumlFiles/enableEventPublishing-with-modify.puml)
 
-## Upgrade component - with additional API
+## Upgrade component - with additional publishedNotifications
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade-with-add.puml)
-[plantUML code](pumlFiles/exposeAPI-upgrade-with-add.puml)
+If you upgrade a component and the new component has a new publishedNotification, the Event Management system should be reconfigured.
 
-## Upgrade component - with deleted API
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing-with-add.puml)
+[plantUML code](pumlFiles/enableEventPublishing-with-add.puml)
+
+## Upgrade component - with deleted publishedNotifications
+
+If you upgrade a component and the new component has a new publishedNotification, the Event Management system should be reconfigured.
 
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-upgrade-with-delete.puml)
-[plantUML code](pumlFiles/exposeAPI-upgrade-with-delete.puml)
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing-with-delete.puml)
+[plantUML code](pumlFiles/enableEventPublishing-with-delete.puml)
 
 ## Delete component 
 
-![exposeAPIs](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/exposeAPI-delete.puml)
-[plantUML code](pumlFiles/exposeAPI-delete.puml)
+If you delete a component a cleanup of the used resources is required.
+
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing-delete.puml)
+[plantUML code](pumlFiles/enableEventPublishing-delete.puml)
 

@@ -1,0 +1,31 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity PublishedNotification
+participant EventPublishingEnablementOperator
+participant "Event Manager" as TMFC019
+
+
+Component <- Operations : Delete
+Component ->  PublishedNotification: delete
+note right
+    All the publishedNotifications are deleted from the component (based on the parent/child relationship)
+end note
+group For each deleted PublishedNotification
+    PublishedNotification -> EventPublishingEnablementOperator: on.delete 
+    EventPublishingEnablementOperator -> Component : remove event publishing URL
+    EventPublishingEnablementOperator <-- Component
+    note right
+        Depending on how the EventPublishingEnablementOperator is implemented, this could
+        also do cascading delete based on the parent/child relationship
+    end note
+
+    EventPublishingEnablementOperator -> EventPublishingEnablementOperator: Success allows the PublishedNotification resource to be deleted
+    PublishedNotification <- EventPublishingEnablementOperator : allow delete
+    Component <- PublishedNotification: allow delete
+end
+
+
+@enduml

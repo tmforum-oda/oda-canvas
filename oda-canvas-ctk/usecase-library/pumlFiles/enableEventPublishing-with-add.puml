@@ -1,0 +1,33 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity PublishedNotification
+participant EventPublishingEnablementOperator
+participant "Event Manager" as TMFC019
+
+
+Component <- Operations : Upgrade
+Component -> ComponentOperator: on.update 
+note right
+    One or more APIs are added to the component
+end note
+ComponentOperator -> EventPublishingEnablementOperator: create
+note right
+    A separate EventPublishingEnablementOperator resource is created
+    for each new exposed API in the core function,
+    security and management sections
+end note
+group For each new PublishedNotification
+    EventPublishingEnablementOperator -> EventPublishingEnablementOperator: on.create 
+    EventPublishingEnablementOperator -> TMFC019 : configure Event Manager
+    TMFC019 -> TMFC019: Update status including external URL for the API
+    EventPublishingEnablementOperator <- TMFC019 : on.update
+    EventPublishingEnablementOperator <- EventPublishingEnablementOperator: update
+    ComponentOperator <- EventPublishingEnablementOperator: on.update
+    Component <- ComponentOperator: update 
+end
+
+
+@enduml
