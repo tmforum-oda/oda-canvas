@@ -8,24 +8,24 @@ participant EventPublishingEnablementOperator
 participant "Event Manager" as TMFC019
 
 
-Component <- Operations : Delete
-Component ->  PublishedNotification: delete
-note right
-    All the publishedNotifications are deleted from the component (based on the parent/child relationship)
-end note
-group For each deleted PublishedNotification
-    PublishedNotification -> EventPublishingEnablementOperator: on.delete 
-    EventPublishingEnablementOperator -> Component : remove event publishing URL
-    EventPublishingEnablementOperator <-- Component
-    note right
-        Depending on how the EventPublishingEnablementOperator is implemented, this could
-        also do cascading delete based on the parent/child relationship
-    end note
-
-    EventPublishingEnablementOperator -> EventPublishingEnablementOperator: Success allows the PublishedNotification resource to be deleted
+Component <- Operations : Uninstall
+Component ->  ComponentOperator: on.delete
+group For each removed PublishedNotification
+	ComponentOperator -> PublishedNotification: delete
+	note right
+	    A separate PublishedNotification resource is created
+	    for each new PublishedNotification in the core function,
+	    security and management sections
+	end note
+	PublishedNotification -> EventPublishingEnablementOperator: on.delete
+	note right
+	    Since morethan one component may be publishing events
+	    on the topic, the topic is not deleted
+	    Since the component will no longer publish no need to clean up hub?
+	end note
     PublishedNotification <- EventPublishingEnablementOperator : allow delete
-    Component <- PublishedNotification: allow delete
+    ComponentOperator <- PublishedNotification: on.update
 end
-
+Component <- ComponentOperator: update (allow removal)
 
 @enduml

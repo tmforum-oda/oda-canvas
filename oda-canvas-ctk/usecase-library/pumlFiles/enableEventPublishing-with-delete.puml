@@ -3,39 +3,31 @@
 actor Operations
 entity Component
 participant ComponentOperator
-entity PublishedNotifications
+entity PublishedNotification
 participant EventPublishingEnablementOperator
 participant "Event Manager" as TMFC019
 
-Component <- Operations : Install
-Component -> ComponentOperator: on.create 
-ComponentOperator -> PublishedNotifications: create
-note right
-    A separate publishedNotification resource is created
-    for each published notification in the core function,
-    security and management sections
-end note
-group For each publishedNotification
-    PublishedNotifications -> EventPublishingEnablementOperator: on.create     
-    EventPublishingEnablementOperator -> TMFC019: search for matching topic
-    note right
-    	A topic can exist if another component
-    	is already publishing these notifications
-    	or if an operator pre-created topics
-    end note
-    alt Topic exist
-    	EventPublishingEnablementOperator <-- TMFC019: 200 OK
-    else Topic does not exist
-     	EventPublishingEnablementOperator <-- TMFC019: 404 Not Found
-    	EventPublishingEnablementOperator -> TMFC019 : configure Topic Event Hub
-    	TMFC019 -> TMFC019: (optional) approval flow to approve creation of topic
-    	EventPublishingEnablementOperator <- TMFC019 : on.update
-    end alt
-    EventPublishingEnablementOperator -> Component : configure event publishing URL
-    EventPublishingEnablementOperator <-- Component
-    PublishedNotifications <- EventPublishingEnablementOperator: update
-    ComponentOperator <- PublishedNotifications: on.update
-    Component <- ComponentOperator: update 
-end
 
+Component <- Operations : Upgrade
+Component -> ComponentOperator: on.update 
+note right
+    One or more PublishedNotification are added to the component
+end note
+group For each removed PublishedNotification
+	ComponentOperator -> PublishedNotification: delete
+	note right
+	    A separate PublishedNotification resource is created
+	    for each new PublishedNotification in the core function,
+	    security and management sections
+	end note
+	PublishedNotification -> EventPublishingEnablementOperator: on.delete
+	note right
+	    Since more than one component may be publishing events
+	    on the topic, the topic is not deleted
+	    Since the component will no longer publish no need to clean up hub?
+	end note
+    PublishedNotification <- EventPublishingEnablementOperator : allow delete
+    ComponentOperator <- PublishedNotification: on.update
+end
+Component <- ComponentOperator: update 
 @enduml

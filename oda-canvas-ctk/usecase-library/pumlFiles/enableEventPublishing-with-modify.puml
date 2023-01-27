@@ -3,39 +3,28 @@
 actor Operations
 entity Component
 participant ComponentOperator
-entity PublishedNotifications
+entity PublishedNotification
 participant EventPublishingEnablementOperator
 participant "Event Manager" as TMFC019
 
-Component <- Operations : Install
-Component -> ComponentOperator: on.create 
-ComponentOperator -> PublishedNotifications: create
+Component <- Operations : Upgrade
+Component -> ComponentOperator: on.update 
 note right
-    A separate publishedNotification resource is created
-    for each published notification in the core function,
-    security and management sections
+    One or more PublishedNotification are modified on the component
 end note
-group For each publishedNotification
-    PublishedNotifications -> EventPublishingEnablementOperator: on.create     
-    EventPublishingEnablementOperator -> TMFC019: search for matching topic
+group For each modified PublishedNotification
+	ComponentOperator -> PublishedNotification: update
+	note right
+	    A separate PublishedNotification resource is modified
+	    for each new PublishedNotification 
+	end note
+    PublishedNotification -> EventPublishingEnablementOperator: on.update     
     note right
-    	A topic can exist if another component
-    	is already publishing these notifications
-    	or if an operator pre-created topics
+    	It is not very clear yet what changes could occur
     end note
-    alt Topic exist
-    	EventPublishingEnablementOperator <-- TMFC019: 200 OK
-    else Topic does not exist
-     	EventPublishingEnablementOperator <-- TMFC019: 404 Not Found
-    	EventPublishingEnablementOperator -> TMFC019 : configure Topic Event Hub
-    	TMFC019 -> TMFC019: (optional) approval flow to approve creation of topic
-    	EventPublishingEnablementOperator <- TMFC019 : on.update
-    end alt
-    EventPublishingEnablementOperator -> Component : configure event publishing URL
-    EventPublishingEnablementOperator <-- Component
-    PublishedNotifications <- EventPublishingEnablementOperator: update
-    ComponentOperator <- PublishedNotifications: on.update
-    Component <- ComponentOperator: update 
+    PublishedNotification <- EventPublishingEnablementOperator: update
+    ComponentOperator <- PublishedNotification: on.update
 end
+Component <- ComponentOperator: update 
 
 @enduml
