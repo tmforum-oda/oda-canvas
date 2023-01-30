@@ -9,13 +9,13 @@ participant "Event Manager" as TMFC019
 
 Component <- Operations : Install
 Component -> ComponentOperator: on.create 
-ComponentOperator -> SubscribedNotifications: create
 note right
     A separate subscribedNotification resource is created
     for each published notification in the core function,
     security and management sections
 end note
 group For each subscribedNotification
+	ComponentOperator -> SubscribedNotifications: create
     SubscribedNotifications -> EventSubscriptionEnablementOperator: on.create     
     EventSubscriptionEnablementOperator -> TMFC019: search for matching topic
     note right
@@ -33,7 +33,7 @@ group For each subscribedNotification
     end alt
     SubscribedNotifications <- EventSubscriptionEnablementOperator: update
     ComponentOperator <- SubscribedNotifications: on.update
-    Component <- ComponentOperator: update 
 end
+Component <- ComponentOperator: update 
 
 @enduml
