@@ -40,3 +40,5 @@ If you delete a component a cleanup of the used resources is required.
 ![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing-delete.puml)
 [plantUML code](pumlFiles/enableEventPublishing-delete.puml)
 
+## TODO What if no event manager exists
+
