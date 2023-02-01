@@ -1,0 +1,43 @@
+@startuml
+
+actor BusinessAdmin
+actor Operations
+entity Component
+participant ComponentImplementation
+
+group Bootstrap
+Component <- Operations : Install
+Component -> ComponentImplementation : Install
+ComponentImplementation -> ComponentImplementation: Create Admin role
+
+Component -> identityOperator: on.create 
+identityOperator -> ComponentImplementation: Register identityOperator to PartyRole events
+identityOperator -> "Identity Management System": Register component
+
+identityOperator -> ComponentImplementation : Query bootstrap Admin role
+identityOperator -> "Identity Management System": create role
+identityOperator -> "Identity Management System": Assign seccon user to Admin role
+
+end 
+group Normal business operations
+
+BusinessAdmin -> Component: Create Role
+Component-> identityOperator: PartyRoleCreationNotification event
+identityOperator -> "Identity Management System": create role
+Operations->"Identity Management System"  : Maintain user identities
+BusinessAdmin -> Component: Update Role
+Component-> identityOperator: PartyRoleAttributeValueChangeNotification event
+identityOperator -> "Identity Management System": Update role
+Operations->"Identity Management System"  : Maintain user identities
+BusinessAdmin -> Component: Delete Role
+Component-> identityOperator: PartyRoleDeletionNotification event
+identityOperator -> "Identity Management System": Delete role
+
+end
+group Uninstall
+Operations -> Component  : Uninstall
+Component -> identityOperator: on.delete 
+identityOperator -> "Identity Management System": Delete component and all roles
+end
+
+@enduml

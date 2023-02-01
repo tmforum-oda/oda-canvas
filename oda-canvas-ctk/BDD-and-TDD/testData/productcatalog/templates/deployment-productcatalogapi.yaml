@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-prodcatapi
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      impl: {{.Release.Name}}-prodcatapi
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-{{.Values.component.name}}
+        impl: {{.Release.Name}}-prodcatapi
+        version: lesterthomas-productcatalogapi-latest
+    spec:
+      containers:
+      - name: {{.Release.Name}}-prodcatapi
+        image: lesterthomas/productcatalogapi:latest
+        env:
+        - name: RELEASE_NAME
+          value: {{.Release.Name}}           
+        - name: COMPONENT_NAME
+          value: {{.Release.Name}}-{{.Values.component.name}}           
+        imagePullPolicy: Always
+        ports:
+        - name: {{.Release.Name}}-pcapi
+          containerPort: 8080
+        startupProbe:
+          httpGet:
+            path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4/catalog 
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5          
+          failureThreshold: 30 
+         

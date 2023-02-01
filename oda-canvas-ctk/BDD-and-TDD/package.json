@@ -1,0 +1,16 @@
+{
+  "name": "TMFC001-ProductCatalog component BDD tests",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "cucumber-js  --publish"
+  },
+  "license": "Apache-2.0",
+  "author": "Lester Thomas",
+  "dependencies": {
+    "@cucumber/cucumber": "^7.3.2",
+    "chai": "^4.3.6",
+    "chai-http": "^4.3.0",
+    "component-utils": "file:component-utils",
+    "yaml": "^2.1.3"
+  }
+}
