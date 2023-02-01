@@ -34,3 +34,6 @@ This is a list of the Canvas operators (including status of whether this has bee
 | UC009 | [Authorization](UC009-Authorization.md) | After a client has been authenticated, verify their authorization for the specific API and data.|
 | UC010 | [Token Refresh](UC010-Token-Refresh.md) | After a client token expires, refresh the token and resubmit API request.|
 | UC011 | [License Metrics Observability](UC011-License-Metrics-Observability.md) | Capture a tamper-proof stream of metrics that can drive the commercial license agreements with Component Vendors.|
+
+
+The corresponding Behavour Driven Design (BDD) features and scenarious can be found here: [BDD Features and Scenarios](../BDD-and-TDD/README.md)
