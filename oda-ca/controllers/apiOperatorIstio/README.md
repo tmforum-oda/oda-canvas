@@ -12,9 +12,7 @@ This makes the logic required to create an API Operator relatively simple. The A
 
 
 
-
-
-![Sequence diagram](sequenceDiagrams/apiOperatorIstio.png)
+https://github.com/tmforum-oda/oda-ca/blob/cdbd3b13d3e66f299c5958c484083aac37e385ac/controllers/apiOperatorIstio/sequenceDiagrams/apiOperatorIstio.puml#L1-L33
 
 
 
