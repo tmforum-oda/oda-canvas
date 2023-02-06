@@ -9,14 +9,14 @@ participant "Event Manager" as TMFC019
 
 Component <- Operations : Install
 Component -> ComponentOperator: on.create 
+group For each additional subscribedNotification
 ComponentOperator -> SubscribedNotifications: create
 note right
     A separate subscribedNotification resource is created
     for each published notification in the core function,
     security and management sections
 end note
-group For each subscribedNotification
-    SubscribedNotifications -> EventSubscriptionEnablementOperator: on.create     
+    SubscribedNotifications -> EventSubscriptionEnablementOperator: on.create
     EventSubscriptionEnablementOperator -> TMFC019: search for matching topic
     note right
     	A topic can exist if another component
@@ -24,16 +24,20 @@ group For each subscribedNotification
     	or if an operator pre-created topics
     end note
     alt Topic exist
-    	EventSubscriptionEnablementOperator <-- TMFC019: 200 OK
+    	EventSubscriptionEnablementOperator <-- TMFC019: Found
     	EventSubscriptionEnablementOperator -> TMFC019 : configure Hub
     	TMFC019 -> TMFC019: (optional) approval flow to approve creation of hub
-    	EventSubscriptionEnablementOperator <- TMFC019 : on.update
+    	EventSubscriptionEnablementOperator <- TMFC019 : created
     else Topic does not exist
-     	EventSubscriptionEnablementOperator <-- TMFC019: 404 Not Found
+     	EventSubscriptionEnablementOperator <-- TMFC019: Not Found
+        note right
+            if a topic doesn't exist,
+            this should not block activation of the component
+        end note
     end alt
     SubscribedNotifications <- EventSubscriptionEnablementOperator: update
     ComponentOperator <- SubscribedNotifications: on.update
-    Component <- ComponentOperator: update 
 end
+Component <- ComponentOperator: update
 
 @enduml
