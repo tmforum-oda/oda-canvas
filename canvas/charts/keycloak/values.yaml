@@ -26,6 +26,7 @@ service:
 
 postgresql:
   enabled: true
-  postgresqlUsername: "keycloak"
-  postgresqlPassword: "keycloakdbuser"
-  postgresqlDatabase: "keycloak"
+  auth:
+    database: "keycloak"
+    username: "keycloak"
+    password: "keycloakdbuser"
