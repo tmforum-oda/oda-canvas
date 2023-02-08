@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oda-controller-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "controller.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.deployment.controllerName}}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: {{.Values.deployment.controllerName}}
+        {{- include "controller.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: odacomponent-account
+      containers:
+      - name: {{.Values.deployment.controllerName}}
+        image: {{.Values.deployment.compconImage}}
+        imagePullPolicy: IfNotPresent
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-controller-configmap
+          - secretRef:
+              name: {{ .Release.Name }}-controller-secret
+      - name: seccon
+        image: {{.Values.deployment.secconImage}}
+        imagePullPolicy: IfNotPresent
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-controller-configmap
+          - secretRef:
+              name: {{ .Release.Name }}-controller-secret
+        ports:
+        - name: seccon
+          containerPort: 5000

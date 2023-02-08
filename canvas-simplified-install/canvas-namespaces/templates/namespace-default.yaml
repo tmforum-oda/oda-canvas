@@ -1,0 +1,11 @@
+{{ if eq (len (lookup "v1" "Namespace" "" .Values.componentNamespace )) 0 }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.componentNamespace }}
+  labels:
+    {{- include "canvas-namespaces.labels" . | nindent 4 }}
+    {{- if and .Values.istio.labelEnabledComponent }}
+    istio-injection: enabled
+    {{- end }}
+{{- end }}

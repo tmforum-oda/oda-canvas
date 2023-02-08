@@ -1,0 +1,27 @@
+{{- $initial_delay := ( .Values.leaseWaitTimeonStartup) | float64 -}}
+{{- $delay := $initial_delay -}}
+{{- if (lookup "coordination.k8s.io/v1" "Lease" "kube-system" "cert-manager-cainjector-leader-election") }}
+{{- $delay := add $initial_delay 60}}
+{{- end }}
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-hook-postinstall
+  annotations:
+    "helm.sh/hook-weight": "-10"  
+    "helm.sh/hook": "post-install"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+spec:
+  template:
+    spec:
+      containers:
+        - name: post-install
+          image: busybox:1.35
+          imagePullPolicy: IfNotPresent
+          command: ['sleep', '{{- $delay}}']
+      restartPolicy: OnFailure
+      terminationGracePeriodSeconds: 0
+
+  backoffLimit: 1
+  completions: 1
