@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compcrdwebhook
+  namespace: {{ .Release.Namespace }}  
+  labels:
+    {{- include "oda-webhook.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: compcrdwebhook
+  template:
+    metadata:
+      labels:
+        app: compcrdwebhook
+        {{- include "oda-webhook.labels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: compcrdwebhook
+        image: {{ .Values.image }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8443
+        volumeMounts:
+          - name: secret-volume
+            mountPath: /etc/secret-volume
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: compcrdwebhook-secret
+
