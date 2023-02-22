@@ -30,15 +30,14 @@ For the Istio Virtual service, the URL/IP address is determined form the Istio `
 For the readiness status of the API, the API Operator listens for update to `EndPointSlice` resources. The `EndPointSlice` resource is created by kubernetes when a service is deployed. The `EndPointSlice` resource tracks the readiness of all the pods that are part of the service. The API Operator listens for updates to the `EndPointSlice` resource and updates the status of the API resource accordingly.
 
 
-### Implementation
-
 ## optional configuration for DataDog using pod annotations
 
-The API operator for Istio can be configured to use DataDog to monitor the API. The API Operator can take an environment variable PROMETHEUS_PATTERN which defaults to ServiceMonitor (for prometheus operator). If you set PROMETHEUS_PATTERN to DataDogAnnotations, the API Operator will add the DataDog annotations to the pod running the metrics API (which DataDog uses to scrape custom metrics).
+The API operator for Istio can be configured to use DataDog to monitor the API. The API Operator can take an environment variable `PROMETHEUS_PATTERN` which defaults to `ServiceMonitor` (for prometheus operator). If you set `PROMETHEUS_PATTERN` to `DataDogAnnotations`, the API Operator will add the DataDog annotations to the pod running the metrics API (which DataDog uses to scrape custom metrics) instead of creating the `ServiceMonitor` resource.
 
-```yaml
+### Implementation
 
-The component controller written in Python, using the KOPF (https://kopf.readthedocs.io/) framework to listen for API resources being deployed in the ODA Canvas. 
+
+This operator is written in Python, using the KOPF (https://kopf.readthedocs.io/) framework to listen for API resources being deployed in the ODA Canvas. 
 
 
 ### Testing KOPF module
