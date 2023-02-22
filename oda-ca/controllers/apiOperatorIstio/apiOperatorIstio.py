@@ -45,13 +45,13 @@ print('Prometheus pattern set to ',PROMETHEUS_PATTERN)
 def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for new or updated APIs.
     
-    Processes the spec of the API and create child Kubernetes Ingress resources. The Kubernetes Ingress will expose the API to the outside.
+    Processes the spec of the API and create child Kubernetes VirtualService resources (for open-api type) or ServiceMonitor resources (for prometheus metrics type).
 
     Args:
         * meta (Dict): The metadata from the API Custom Resource 
-        * spec (Dict): The spec from the  showing the intent (or desired state) 
-        * status (Dict): The status from the  showing the actual state.
-        * body (Dict): The entire 
+        * spec (Dict): The spec from the API Custom Resource showing the intent (or desired state) 
+        * status (Dict): The status from the API Custom Resource showing the actual state.
+        * body (Dict): The entire API Custom Resource
         * namespace (String): The namespace for the API Custom Resource
         * labels (Dict): The labels attached to the API Custom Resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
         * name (String): The name of the API Custom Resource
@@ -59,7 +59,6 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     Returns:
         Dict: The apiStatus status that is put into the API Custom Resource status field.
 
-    :meta public:
     """
     componentName = labels['oda.tmforum.org/componentName']
 
@@ -85,6 +84,8 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
                         logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Patching", "Prometheus Service Monitor")
                         createOrPatchObservability(True, spec, namespace, name, 'apiStatus', componentName)
                 return createOrPatchVirtualService(True, spec, namespace, name, 'apiStatus', componentName)
+
+    # if we get here then we are creating a new API            
     logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Creating", "Istio Virtual Service")    
     # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
     if 'apitype' in spec.keys():
@@ -343,8 +344,6 @@ def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, co
 
     Returns:
         Dict: The updated apiStatus that will be put into the status field of the API resource.
-
-    :meta private:
     """
     
     client = kubernetes.client

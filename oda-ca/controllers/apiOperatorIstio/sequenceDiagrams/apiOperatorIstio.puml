@@ -1,12 +1,33 @@
-    @startuml
+@startuml
 
+participant "Component Operator" as componentOperator
 entity API
 participant "apiOperator-Istio"
 entity "Virtual Service"
 participant Istio
+entity "Service Monitor"
+participant Prometheus
 
-API-> "apiOperator-Istio": Create API
-"apiOperator-Istio" -> "Virtual Service": Create Virtual Service resource
+componentOperator -> API: Create API
+API-> "apiOperator-Istio": onCreate/Update
+"apiOperator-Istio" -> "Virtual Service": Create or update Virtual Service resource
 "Virtual Service"-> Istio: Configure Istio traffic policy
-"apiOperator-Istio" -> API: Update status of API with external URL/IP Address (from Istio ingress)
+"apiOperator-Istio" -> "apiOperator-Istio": Listen for updates to the external URL/IP Address (from Istio ingress)
+"apiOperator-Istio" -> API: Update status of API 
+group api type is metrics, also create Service Monitor resource
+    "apiOperator-Istio" -> "Service Monitor": Create or update Service Monitor resource
+    "Service Monitor"-> Prometheus: Configure Prometheus scraping of metrics API
+    "apiOperator-Istio" -> API: Update status of API 
+end
+
+componentOperator -> API: Delete API
+API-> "apiOperator-Istio": onDelete
+"apiOperator-Istio" -> "Virtual Service": Delete Virtual Service resource
+"Virtual Service"-> Istio: Remove Configuration of Istio traffic policy
+"apiOperator-Istio" -> API: Update status of API 
+group api type is metrics
+    "apiOperator-Istio" -> "Service Monitor": Delete Service Monitor resource
+    "Service Monitor"-> Prometheus: Remove Configuration from Prometheus
+    "apiOperator-Istio" -> API: Update status of API 
+end
 @enduml
