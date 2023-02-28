@@ -30,10 +30,10 @@ This is a list of the Canvas operators (including status of whether this has bee
 | UC005 | [View Baseline Observability](UC005-View-Baseline-Observability.md) | When a component is deployed, view the baseline metrics such as HTTP Requests per second etc using the observability service management dashboard.|
 | UC006 | [View Custom Observability](UC006-View-Custom-Observability.md) | When a component is deployed, view the custom business metrics such creation,status events etc using the observability service management dashboard.|
 | UC007 | [Authentication - external](UC007-Authentication-external.md) | When an external client wants to call an API exposed by a Component, how they Authenticate and get a token. |
-| UC008 | [Authentication - internal](UC008-Authentication-internal.md) | When an internal client wants to call an API exposed by a Component, how they Authenticate and get a token. |
-| UC009 | [Authorization](UC009-Authorization.md) | After a client has been authenticated, verify their authorization for the specific API and data.|
-| UC010 | [Token Refresh](UC010-Token-Refresh.md) | After a client token expires, refresh the token and resubmit API request.|
-| UC011 | [License Metrics Observability](UC011-License-Metrics-Observability.md) | Capture a tamper-proof stream of metrics that can drive the commercial license agreements with Component Vendors.|
+| UC008 | [TBD] [Authentication - internal](UC008-Authentication-internal.md) | When an internal client wants to call an API exposed by a Component, how they Authenticate and get a token. |
+| UC009 | [TBD] [Authorization](UC009-Authorization.md) | After a client has been authenticated, verify their authorization for the specific API and data.|
+| UC010 | [TBD] [Token Refresh](UC010-Token-Refresh.md) | After a client token expires, refresh the token and resubmit API request.|
+| UC011 | [TBD] [License Metrics Observability](UC011-License-Metrics-Observability.md) | Capture a tamper-proof stream of metrics that can drive the commercial license agreements with Component Vendors.|
 
 
 The corresponding Behavour Driven Design (BDD) features and scenarious can be found here: [BDD Features and Scenarios](../BDD-and-TDD/README.md)

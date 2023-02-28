@@ -1,0 +1,13 @@
+@startuml
+
+participant SystemUser as "System User"
+participant ServiceMesh as "Service Mesh"
+participant ComponentOneImplementation as "Component One Implementation"
+participant ComponentTwoImplementation as "Component Two Implementation"
+participant IdentityManagementSystem as "Identity Management System"
+actor Operations
+
+ComponentOneImplementation -> ComponentTwoImplementation : [TBD]
+
+
+@enduml
