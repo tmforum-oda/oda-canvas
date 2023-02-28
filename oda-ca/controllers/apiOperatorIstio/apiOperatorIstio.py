@@ -120,66 +120,11 @@ def createOrPatchObservability(patch, spec, namespace, name, inHandler, componen
 
 
 def createOrPatchPrometheusAnnotation(patch, spec, namespace, name, inHandler, componentName):   
-    logWrapper(logging.INFO, 'createOrPatchPrometheusAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchDataDogAnnotation", "DataDog Annotation")
+    logWrapper(logging.WARNING, 'createOrPatchPrometheusAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchPrometheusAnnotation", "Prometheus Annotation NOT IMPLEMENTED YET")
 
-    # To get the pod name for the implementation, follow these steps:
-    # 1. The API has an 'implementation' field which is the name of the service that exposes the API.
-    # 2. The service will include a spec.selector which allows you to find the pod that implements the API.
-    # 3. Get the pod and amend the annotation
+    # This implementation not creted yet. Suggestion: copy the createOrPatchDataDogAnnotation - mopst of the logic is the same
 
-    client = kubernetes.client
-    try:
-        # get the service
-        core_api = client.CoreV1Api()
-        service = core_api.read_namespaced_service(spec['implementation'], namespace)
-        selector = service.spec.selector
-        serviceName = service.metadata.name
-
-        logWrapper(logging.INFO, 'createOrPatchPrometheusAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchPrometheusAnnotation selector=", selector)
-        # get the pod using the selector
-        key, value = next(iter(selector.items())) # get the first key/value pair - we don't have a way to handle multiple selectors
-        selectorQuery = key + '=' + value
-        logWrapper(logging.INFO, 'createOrPatchPrometheusAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchPrometheusAnnotation selectorQuery=", selectorQuery)
-
-        pod_list = core_api.list_namespaced_pod(namespace, label_selector=selectorQuery)
-        # get the first pod
-        pod = pod_list.items[0]
-        podName = pod.metadata.name
-        logWrapper(logging.INFO, 'createOrPatchPrometheusAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchPrometheusAnnotation podName=", podName)
-
-        # prepare the annotation
-        path = None
-        if 'path' in spec.keys():
-            path=spec['path']
-        port = None
-        if 'port' in spec.keys():
-            port=spec['port']
-
-        annotationDict = {"openmetrics": 
-                { "instances": 
-                    [
-                        { "openmetrics_endpoint": "http://" + serviceName + "." + namespace + ".svc.cluster.local:" + str(port) + path,
-                            "namespace": "components","metrics": [".*"] 
-                        }    
-                    ]
-                }
-            }
-        
-        annotation = json.dumps(annotationDict)
-
-        # WARNING because annotation is not correct
-        logWrapper(logging.WARNING, 'createOrPatchPrometheusAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchPrometheusAnnotation patching pod with annotation=", annotation)
-
-
-        pod.metadata.annotations['ad.datadoghq.com/r1-registerallevents.checks'] = annotation
-        # patch the pod
-        core_api.patch_namespaced_pod(podName, namespace, pod)
-
-        logWrapper(logging.WARNING, 'createOrPatchPrometheusAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchPrometheusAnnotation pod patched with annotation=", annotation)
-
-    except ApiException as e:
-        logWrapper(logging.WARNING, 'createOrPatchPrometheusAnnotation', inHandler, 'api/' + name, componentName, "Exception", e)
-        raise kopf.TemporaryError("Exception in createOrPatchPrometheusAnnotation.")   
+    raise kopf.TemporaryError("Exception in createOrPatchPrometheusAnnotation.")   
 
 def createOrPatchDataDogAnnotation(patch, spec, namespace, name, inHandler, componentName):      
     """Helper function to get API details for a prometheus metrics API and patch the corresponding kubernetes pod.
@@ -244,7 +189,7 @@ def createOrPatchDataDogAnnotation(patch, spec, namespace, name, inHandler, comp
         logWrapper(logging.INFO, 'createOrPatchDataDogAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchDataDogAnnotation patching pod with annotation=", annotation)
 
 
-        pod.metadata.annotations['ad.datadoghq.com/r1-registerallevents.checks'] = annotation
+        pod.metadata.annotations['ad.datadoghq.com/' + name + '.checks'] = annotation
         # patch the pod
         core_api.patch_namespaced_pod(podName, namespace, pod)
 
