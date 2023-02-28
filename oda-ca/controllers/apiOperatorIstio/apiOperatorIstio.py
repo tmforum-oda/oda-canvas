@@ -167,6 +167,12 @@ def createOrPatchDataDogAnnotation(patch, spec, namespace, name, inHandler, comp
         podName = pod.metadata.name
         logWrapper(logging.INFO, 'createOrPatchDataDogAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchDataDogAnnotation podName=", podName)
 
+        podContainers = pod.spec.containers
+        for container in podContainers:
+            logWrapper(logging.INFO, 'createOrPatchDataDogAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchDataDogAnnotation container=", container.name)
+        
+        targetContainerName = podContainers[0].name # default to the first container
+
         # prepare the annotation
         path = None
         if 'path' in spec.keys():
@@ -189,7 +195,7 @@ def createOrPatchDataDogAnnotation(patch, spec, namespace, name, inHandler, comp
         logWrapper(logging.INFO, 'createOrPatchDataDogAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchDataDogAnnotation patching pod with annotation=", annotation)
 
 
-        pod.metadata.annotations['ad.datadoghq.com/' + name + '.checks'] = annotation
+        pod.metadata.annotations['ad.datadoghq.com/' + targetContainerName + '.checks'] = annotation
         # patch the pod
         core_api.patch_namespaced_pod(podName, namespace, pod)
 
