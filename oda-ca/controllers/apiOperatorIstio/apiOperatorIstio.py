@@ -36,8 +36,8 @@ VERSION = "v1alpha4"
 APIS_PLURAL = "apis"
 
 # get environment variables
-PROMETHEUS_PATTERN = os.environ.get('PROMETHEUS_PATTERN', 'ServiceMonitor') # could be ServiceMonitor or PrometheusAnnotation or DataDogAnnotation
-print('Prometheus pattern set to ',PROMETHEUS_PATTERN)
+OPENMETRICS_IMPLEMENTATION = os.environ.get('OPENMETRICS_IMPLEMENTATION', 'ServiceMonitor') # could be ServiceMonitor or PrometheusAnnotation or DataDogAnnotation
+print('Prometheus pattern set to ',OPENMETRICS_IMPLEMENTATION)
 
 
 @kopf.on.create('oda.tmforum.org', 'v1alpha4', 'apis', retries=5)
@@ -109,14 +109,14 @@ def createOrPatchObservability(patch, spec, namespace, name, inHandler, componen
     Returns:
         nothing    
     """
-    if PROMETHEUS_PATTERN == 'ServiceMonitor':
+    if OPENMETRICS_IMPLEMENTATION == 'ServiceMonitor':
         createOrPatchServiceMonitor(patch, spec, namespace, name, inHandler, componentName)
-    elif PROMETHEUS_PATTERN == 'PrometheusAnnotation':
+    elif OPENMETRICS_IMPLEMENTATION == 'PrometheusAnnotation':
         createOrPatchPrometheusAnnotation(patch, spec, namespace, name, inHandler, componentName)
-    elif PROMETHEUS_PATTERN == 'DataDogAnnotation':
+    elif OPENMETRICS_IMPLEMENTATION == 'DataDogAnnotation':
         createOrPatchDataDogAnnotation(patch, spec, namespace, name, inHandler, componentName)
     else:
-        logWrapper(logging.WARNING, 'createOrPatchObservability', inHandler, 'api/' + name, componentName, "Unknown Prometheus Pattern", PROMETHEUS_PATTERN)
+        logWrapper(logging.WARNING, 'createOrPatchObservability', inHandler, 'api/' + name, componentName, "Unknown Prometheus Pattern", OPENMETRICS_IMPLEMENTATION)
 
 
 def createOrPatchPrometheusAnnotation(patch, spec, namespace, name, inHandler, componentName):   

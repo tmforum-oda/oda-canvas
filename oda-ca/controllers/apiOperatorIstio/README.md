@@ -32,7 +32,7 @@ For the readiness status of the API, the API Operator listens for update to `End
 
 ## optional configuration for DataDog using pod annotations
 
-The API operator for Istio can be configured to use DataDog to monitor the API. The API Operator can take an environment variable `PROMETHEUS_PATTERN` which defaults to `ServiceMonitor` (for prometheus operator). If you set `PROMETHEUS_PATTERN` to `DataDogAnnotations`, the API Operator will add the DataDog annotations to the pod running the metrics API (which DataDog uses to scrape custom metrics) instead of creating the `ServiceMonitor` resource.
+The API operator for Istio can be configured to use DataDog to monitor the API. The API Operator can take an environment variable `OPENMETRICS_IMPLEMENTATION` which defaults to `ServiceMonitor` (for prometheus operator). If you set `OPENMETRICS_IMPLEMENTATION` to `DataDogAnnotations`, the API Operator will add the DataDog annotations to the pod running the metrics API (which DataDog uses to scrape custom metrics) instead of creating the `ServiceMonitor` resource.
 
 ### Implementation
 
