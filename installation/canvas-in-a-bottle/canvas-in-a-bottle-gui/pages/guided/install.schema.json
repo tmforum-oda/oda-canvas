@@ -1,0 +1,107 @@
+{
+  "type": "object",
+  "properties": {
+    "cleanUp": {
+      "type": "boolean"
+    },
+    "kind": {
+      "type": "boolean"
+    },
+    "dashboard": {
+      "type": "boolean"
+    },
+    "installReferenceAPIs": {
+      "type": "boolean"
+    },
+    "canvas": {
+      "type": "boolean"
+    },
+    "istioKiali": {
+      "type": "boolean"
+    },
+    "kubeMonitoring": {
+      "type": "boolean"
+    },
+    "individualAPIs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "TMF620 - Product Catalog Management - v4.1.0",
+          "TMF621 - Trouble Ticket - v4.0.0",
+          "TMF622 - Product Ordering - v4.0.0",
+          "TMF629 - Customer Management - v4.0",
+          "TMF632 - Party - v4.0.0",
+          "TMF633 - Service Catalog Management - v4.0.0",
+          "TMF634 - Resource Catalog Management - v4.0.0",
+          "TMF635 - Usage Management - v4.0.0",
+          "TMF637 - Product Inventory - v4.0.0",
+          "TMF638 - Service Inventory Management - v4.0.0",
+          "TMF639 - Resource Inventory Management - v4.0.0",
+          "TMF640 - Service Activation And Configuration - v4.0.0",
+          "TMF641 - Serviceordering - v4.1.0",
+          "TMF642 - Alarm - v4.0.0",
+          "TMF645 - Service Qualification Management - v4.0.0",
+          "TMF646 - Appointment - v4.0.0",
+          "TMF648 - Quote - v4.0.0",
+          "TMF651 - Agreement Management - v4.0.0",
+          "TMF652 - Resource Ordering Management - v4.0.0",
+          "TMF653 - Service Test Management - v4.2.0",
+          "TMF654 - Prepay Balance Management - v4.0.0",
+          "TMF655 - Changemanagement - v4.0.0",
+          "TMF656 - Service Problem Management - v4.0.0",
+          "TMF657 - Service Quality Management - v4.0.0",
+          "TMF662 - Entity Catalog Management - v4.0.0",
+          "TMF663 - Shopping Cart - v4.0.0",
+          "TMF664 - Resource Function Activation And Configuration - v4.0.0",
+          "TMF666 - Account Management - v4.0.0",
+          "TMF668 - Partnership Management - v4.0",
+          "TMF669 - Party Role Management - v4.0",
+          "TMF670 - Payment Method - v4.0.0",
+          "TMF671 - Promotion Management - v4.1.0",
+          "TMF672 - User Roles And Permissions - v4.0.0",
+          "TMF673 - Place Geographicaddress - v4.0.1",
+          "TMF674 - Geographic Site - v4.0.0",
+          "TMF675 - Geographiclocation - v4.0.0",
+          "TMF676 - Payment - v4.0.0",
+          "TMF677 - Usageconsumption - v3.0.0",
+          "TMF678 - Customerbill - v4.0.0",
+          "TMF679 - Product Offering Qualification - v4.0.0",
+          "TMF680 - Recommendation - v4.0.0",
+          "TMF681 - Communication Management - v4.0.0",
+          "TMF683 - Party Interaction - v4.0.0",
+          "TMF687 - Stock Management - v4.0.0",
+          "TMF691 - Federated Id - v4.0",
+          "TMF696 - Risk Management - v4.0.0",
+          "TMF699 - Sales - v4.0.0",
+          "TMF701 - Processflow Management - v4.0.0",
+          "TMF704 - Test Case Management - v4.0.0",
+          "TMF705 - Test Environment Management - v4.0.0",
+          "TMF706 - Test Data - v4.0.0",
+          "TMF707 - Test Result - v4.0.0",
+          "TMF708 - Test Execution - v4.0.0",
+          "TMF709 - Test Scenario Management - v4.0.0",
+          "TMF710 - General Test Artifact Management - v4.0.0",
+          "TMF720 - Digital Identity Management - v4.0.0",
+          "TMF915 - Ai Management - v4.0.0"
+        ]
+      }
+    },
+    "useCaseToggle": {
+      "type": "boolean"
+    },
+    "useCaseController": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "UC001: New Party – Create your « account » v2",
+          "UC003: Order Capture – Fiber contract v7.00, Approach A (BFF)"
+        ]
+
+      }
+    }
+  },
+  "required": [
+  ]
+}
