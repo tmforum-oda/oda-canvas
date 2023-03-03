@@ -39,10 +39,9 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: controller
-    version: "1.0.0"
+    version: "1.0.1"
     repository: 'file://../controller'
   - name: oda-webhook
     version: "1.0.0"
     repository: 'file://../oda-webhook'
-
 

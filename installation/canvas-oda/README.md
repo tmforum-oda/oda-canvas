@@ -10,7 +10,7 @@ A Helm of helms to orchestrate the ODA instalation
 |------------|------|---------|
 | file://../canvas-namespaces | canvas-namespaces | 1.1.0 |
 | file://../cert-manager-init | cert-manager-init | 1.0.0 |
-| file://../controller | controller | 1.0.0 |
+| file://../controller | controller | 1.0.1 |
 | file://../oda-crds | oda-crds | 1.0.0 |
 | file://../oda-webhook | oda-webhook | 1.0.0 |
 | https://charts.bitnami.com/bitnami | keycloak | 13.0.2 |
@@ -21,7 +21,7 @@ A Helm of helms to orchestrate the ODA instalation
 |-----|------|---------|-------------|
 | canvas-namespaces.certManagerNamespace | string | `"cert-manager"` |  |
 | canvas-namespaces.componentNamespace | string | `"components"` |  |
-| canvas-namespaces.enabled | bool | `true` |   |
+| canvas-namespaces.enabled | bool | `true` |    |
 | canvas-namespaces.istio.labelEnabledComponent | bool | `true` | Add Istion instrumentation label to the components namespace |
 | cert-manager-init.cert-manager.enabled | bool | `true` |  |
 | cert-manager-init.cert-manager.installCRDs | bool | `true` |  |
