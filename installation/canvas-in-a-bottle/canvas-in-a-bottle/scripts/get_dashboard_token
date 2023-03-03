@@ -1,0 +1,4 @@
+#!/bin/bash
+
+secret=$(kubectl get secrets | awk '/dashboard-admin-sa/{print $1}')
+kubectl describe secret $secret

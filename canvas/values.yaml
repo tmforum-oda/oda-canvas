@@ -1,7 +1,0 @@
-global:
-  namespaceCanvas:
-    create: false
-  namespaceDefault:
-    create: true
-    name: components
-  clusterCABundle: "" # Need cluster CA here using kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}'
