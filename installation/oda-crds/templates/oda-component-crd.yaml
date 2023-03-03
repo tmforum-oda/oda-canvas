@@ -526,6 +526,7 @@ spec:
                       type: object
               security:
                 type: object
+                x-kubernetes-preserve-unknown-fields: true
                 properties:
                   securitySchemes:
                     type: object
@@ -784,6 +785,7 @@ spec:
                       - apitype
               security:
                 type: object
+                x-kubernetes-preserve-unknown-fields: true
                 properties:
                   exposedAPIs:
                     type: array

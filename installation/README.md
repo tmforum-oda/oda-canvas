@@ -1,19 +1,35 @@
 ﻿
-# ODA CA Lab installation
+# ODA Canvas installation
 
-## Motivation
-
-Improve develops work by simplifying, getting rid of manual steps using new ways of doing things not available when it was developed
-Most of the work can be done nowadays using just Helm
+The Reference Implementation of the ODA Canvas is a set of Helm charts that can be used to install and configure a fully working Canvas. The Reference Implementation is built on top of Kubernetes and Istio. 
 
 ## Software Versions
+
+For each release, we will support a min and max Kubernetes version. 
+
+| ODA Component version | Min Kubernetes version | Max Kubernetes version  |
+| --------------------- | ---------------------- | ----------------------- |
+| v1alpha4              | 1.20                   | 1.22                    |
+| v1beta1               | 1.22                   | 1.25                    |
+
+We will test the Reference Implementation Canvas against a range of kubernetes versions and on a number of different deployments.
+
+| Kubernetes deployment     | Tested | Notes             |
+| ------------------------- | ------ | ----------------- |
+| Rancher on AWS            |        | [Open Digital Lab environment]                   | 
+| Azure AKS                 |        |                   | 
+| Microk8s                  |        |                   | 
+| MiniKube                  |        |                   |
+| Docker Desktop            |        |                   |
+| Kind                      |        | Using [Canvas-in-a-bottle](canvas-in-a-bottle/README.md) |
+| K3s                       |        |                   |  
+| (other)                   |        | To suggest additional environments please add to this [issue](https://github.com/tmforum-oda/oda-canvas-charts/issues/52)                  |
 
 The environment where the chart has been tested has the following
 |Software|Version  |
 |--|--|
 |Istio  | 1.16.1  |
-|kubernetes | 1.25.6
-|Helm | 3.10
+|Helm | 3.10 |
 
 The helm chart installs the following updated versions of third party to
 
