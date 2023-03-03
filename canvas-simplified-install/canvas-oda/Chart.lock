@@ -13,9 +13,9 @@ dependencies:
   version: 13.0.2
 - name: controller
   repository: file://../controller
-  version: 1.0.0
+  version: 1.0.1
 - name: oda-webhook
   repository: file://../oda-webhook
   version: 1.0.0
-digest: sha256:96bfd6a6fd994af9121a06f073a843b2d8a0de04970591ba1802b028c24c1b7c
-generated: "2023-02-08T09:11:00.1327964+01:00"
+digest: sha256:0b944833881f390cc8c566a7eb423bcb61916442d515fe72197b1b9b4ab8bea0
+generated: "2023-03-03T11:51:42.8288335+01:00"

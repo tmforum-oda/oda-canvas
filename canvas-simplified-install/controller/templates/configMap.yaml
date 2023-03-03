@@ -7,9 +7,12 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   LOGGING: {{ .Values.configmap.loglevel | quote }}
-  KEYCLOAK_BASE: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}/auth"
+  KEYCLOAK_BASE: "http://{{ .Release.Name }}-keycloak-headless.{{ .Release.Namespace }}:{{ .Values.deployment.keycloak.http}}/auth"
   KEYCLOAK_REALM: {{ .Values.configmap.kcrealm }}
   COMPONENT_NAMESPACE: {{.Values.deployment.monitoredNamespaces}}
   {{- if .Values.deployment.ingressClass.enabled }}
   INGRESS_CLASS: {{ .Values.deployment.ingressClass.name }}
+  {{ end }}
+  {{- if .Values.deployment.dataDog.enabled }}
+  OPENMETRICS_IMPLEMENTATION: "DataDogAnnotation"
   {{ end }}

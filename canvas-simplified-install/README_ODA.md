@@ -180,7 +180,7 @@ oda-controller-ingress-d5c495bbb-crt4t      2/2     Running     0          4m43s
 Checking the logs of the failed Job
 
 ````bash
-2023-02-01 15:23:19.488  INFO 1 --- [           main] d.a.k.config.provider.KeycloakProvider   : Wait 120 seconds until http://canvas-keycloak-headless:8080/auth/ is available ...
+2023-02-01 15:23:19.488  INFO 1 --- [           main] d.a.k.config.provider.KeycloakProvider   : Wait 120 seconds until http://canvas-keycloak-headless:8083/auth/ is available ...
 2023-02-01 15:25:19.511 ERROR 1 --- [           main] d.a.k.config.KeycloakConfigRunner        : Could not connect to keycloak in 120 seconds: HTTP 403 Forbidden
 ````
 
