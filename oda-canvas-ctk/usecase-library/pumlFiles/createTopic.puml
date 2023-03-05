@@ -1,0 +1,34 @@
+@startuml
+
+actor Operations
+participant "Event Manager" as TMFC019
+entity Topic
+entity Component
+participant ComponentOperator
+entity PublishedNotification
+participant EventPublishingEnablementOperator
+entity SubscribedNotification
+participant EventSubscriptionEnablementOperator
+
+Operations -> TMFC019 : Create Topic
+TMFC019 -> Topic: create
+Topic -> EventPublishingEnablementOperator: on.create
+group For each publishedNotification
+    EventPublishingEnablementOperator -> Component : configure event publishing URL
+    EventPublishingEnablementOperator <-- Component
+    PublishedNotification <- EventPublishingEnablementOperator: update
+    ComponentOperator <- PublishedNotification: on.update
+end
+Component <- ComponentOperator: update
+EventPublishingEnablementOperator -> Topic: update
+Topic -> EventSubscriptionEnablementOperator: on.update
+group For each subscribedNotification
+    	EventSubscriptionEnablementOperator -> TMFC019 : configure Hub
+    	TMFC019 -> TMFC019: (optional) approval flow to approve creation of hub
+    	EventSubscriptionEnablementOperator <- TMFC019 : created
+    subscribedNotification <- EventPublishingEnablementOperator: update
+    ComponentOperator <- PublishedNotification: on.update
+end
+Component <- ComponentOperator: update
+
+@enduml
