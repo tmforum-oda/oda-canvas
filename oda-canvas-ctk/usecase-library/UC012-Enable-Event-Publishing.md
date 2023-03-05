@@ -8,21 +8,21 @@ This use-case describes how a component is configured for publishing its Notific
 
 ## Install component
 
-![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing.puml)
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventPublishing.puml)
 [plantUML code](pumlFiles/enableEventPublishing.puml)
 
 ## Upgrade component - with changed publishedNotifications
 
 The use-case above is for the install of a new component. If you upgrade a component and change the schema of a publishedNotification, the configuration of the Topic on the Event Management system should change.
 
-![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing-with-modify.puml)
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventPublishing-with-modify.puml)
 [plantUML code](pumlFiles/enableEventPublishing-with-modify.puml)
 
 ## Upgrade component - with additional publishedNotifications
 
 If you upgrade a component and the new component has a new publishedNotification, the Event Management system should be reconfigured.
 
-![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing-with-add.puml)
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventPublishing-with-add.puml)
 [plantUML code](pumlFiles/enableEventPublishing-with-add.puml)
 
 ## Upgrade component - with deleted publishedNotifications
@@ -30,14 +30,14 @@ If you upgrade a component and the new component has a new publishedNotification
 If you upgrade a component and the new component has a new publishedNotification, the Event Management system should be reconfigured.
 
 
-![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing-with-delete.puml)
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventPublishing-with-delete.puml)
 [plantUML code](pumlFiles/enableEventPublishing-with-delete.puml)
 
 ## Delete component 
 
 If you delete a component a cleanup of the used resources is required.
 
-![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventPublishing-delete.puml)
+![enableEventPublishing](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventPublishing-delete.puml)
 [plantUML code](pumlFiles/enableEventPublishing-delete.puml)
 
 ## TODO What if no event manager exists

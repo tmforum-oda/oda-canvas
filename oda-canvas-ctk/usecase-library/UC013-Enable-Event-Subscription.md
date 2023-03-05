@@ -8,28 +8,28 @@ This use-case describes how a component is configured for subscribing to Notific
 
 ## Install component
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventSubscription.puml)
+![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription.puml)
 [plantUML code](pumlFiles/enableEventSubscription.puml)
 
 ## Upgrade component - with changed API
 
 The use-case above is for the install of a new component. If you upgrade a component and change an API, the configuration of the Service Mesh and/or API Gateway should change.
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventSubscription-with-modify.puml)
+![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription-with-modify.puml)
 [plantUML code](pumlFiles/enableEventSubscription-with-modify.puml)
 
 ## Upgrade component - with additional API
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventSubscription-with-add.puml)
+![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription-with-add.puml)
 [plantUML code](pumlFiles/enableEventSubscription-with-add.puml)
 
 ## Upgrade component - with deleted API
 
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventSubscription-with-delete.puml)
+![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription-with-delete.puml)
 [plantUML code](pumlFiles/enableEventSubscription-with-delete.puml)
 
 ## Delete component 
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/6-event-publishing-subscription-use-cases/usecase-library/pumlFiles/enableEventSubscription-delete.puml)
+![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription-delete.puml)
 [plantUML code](pumlFiles/enableEventSubscription-delete.puml)
