@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oda-controller-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oda-controller-ingress
+  template:
+    metadata:
+      labels:
+        app: oda-controller-ingress
+    spec:
+      serviceAccountName: odacomponent-account
+      containers:
+      - name: oda-controller-ingress
+        image: lesterthomas/odacomponentcontroller-ingress:latest
+        env:
+        - name: LOGGING
+          value: '20'           
+        - name: COMPONENT_NAMESPACE
+          value: 'components'           # comma separated list of namespaces

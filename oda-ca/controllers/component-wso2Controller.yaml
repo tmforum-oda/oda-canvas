@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oda-controller-wso2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oda-controller-wso2
+  template:
+    metadata:
+      labels:
+        app: oda-controller-wso2
+    spec:
+      serviceAccountName: odacomponent-account
+      containers:
+      - name: oda-controller-wso2
+        image: lesterthomas/odacomponentcontroller-wso2:0.5
+        env:
+        - name: LOGGING
+          value: '20'    
+        - name: COMPONENT_NAMESPACE
+          value: 'components'           # comma separated list of namespaces                 
