@@ -7,12 +7,6 @@ participant ComponentImplementation as "Component Implementation"
 participant IdentityManagementSystem as "Identity Management System"
 actor Operations
 
-Operations -> ComponentImplementation: Deploy component
-ComponentImplementation -> IdentityManagementSystem: Create client (as part of deployment)
-ComponentImplementation -> IdentityManagementSystem: Create role 1 (as part of deployment)
-Operations -> IdentityManagementSystem : Create system user
-Operations -> IdentityManagementSystem : Grant Role 1 to system user
-Operations -> externalSystemOperations: Distribute clientId/secret
 SystemUser -> IdentityManagementSystem : Authenticate with clientId/secret
 SystemUser <- IdentityManagementSystem : JWT token
 
