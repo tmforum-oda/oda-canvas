@@ -1,0 +1,36 @@
+@startuml
+
+actor externalSystemOperations as "External System Operations"
+participant SystemUser as "System User"
+participant APIGateway as "API Gateway"
+participant ComponentImplementation as "Component Implementation"
+participant IdentityManagementSystem as "Identity Management System"
+actor Operations
+
+SystemUser -> IdentityManagementSystem : Authenticate with clientId/secret
+SystemUser <- IdentityManagementSystem : JWT token
+
+SystemUser -> APIGateway : Request to API with token
+APIGateway -> IdentityManagementSystem: Validate token
+
+group Valid token
+    APIGateway <- IdentityManagementSystem: Token is valid
+    APIGateway -> APIGateway: Test if audience exists against Component Implementation
+    group No role against component implementation
+        APIGateway -> SystemUser : Return Unauthorized (HTTP 401) response
+    end
+    group At least one role against component implementation
+        APIGateway -> ComponentImplementation: Request to component implementation
+        ComponentImplementation -> ComponentImplementation: Apply role-based access control
+        APIGateway <- ComponentImplementation: Response from component implementation
+        SystemUser <- APIGateway : Response from API
+    end
+end
+
+group Invalid token
+    APIGateway <- IdentityManagementSystem: Token not valid
+    APIGateway -> SystemUser : Return Unauthorized (HTTP 401) response
+end
+
+
+@enduml

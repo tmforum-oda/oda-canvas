@@ -1,0 +1,27 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity SubscribedNotifications
+participant EventSubscriptionEnablementOperator
+participant "Event Manager" as TMFC019
+
+Component <- Operations : Install
+Component -> ComponentOperator: on.update
+group For each subscribedNotification
+ComponentOperator -> SubscribedNotifications: delete
+note right
+    A separate subscribedNotification resource is created
+    for each published notification in the core function,
+    security and management sections
+end note
+    SubscribedNotifications -> EventSubscriptionEnablementOperator: on.delete
+    EventSubscriptionEnablementOperator -> TMFC019: delete Hub
+    EventSubscriptionEnablementOperator <-- TMFC019: removed
+    SubscribedNotifications <- EventSubscriptionEnablementOperator: update
+    ComponentOperator <- SubscribedNotifications: on.update
+end
+Component <- ComponentOperator: update
+
+@enduml

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-productinventoryapi
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Release.Name}}-productinventoryapi
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-productinventoryapi
+    spec:
+      containers:
+      - name: {{.Release.Name}}-productinventoryapi
+        env:
+        - name: RELEASE_NAME
+          value: {{.Release.Name}}           
+        - name: COMPONENT_NAME
+          value: {{.Release.Name}}-{{.Values.component.type}}           
+        image: dominico/productinventoryapi:latest
+        ports:
+        - name: {{.Release.Name}}-prodinvapi
+          containerPort: 8080

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-mongodb-prod
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
+    app: {{.Release.Name}}-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Release.Name}}-mongodb
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-mongodb
+    spec:
+      containers:
+      - name: {{.Release.Name}}-mongodb
+        image: mongo:latest
+        ports:
+        - name: {{.Release.Name}}-mongodb
+          containerPort: 27017
+        volumeMounts:
+        - name: {{.Release.Name}}-mongodb-pv-storage
+          mountPath: "/data/db"
+      volumes:
+      - name: {{.Release.Name}}-mongodb-pv-storage
+        persistentVolumeClaim:
+          claimName: {{.Release.Name}}-mongodb-pv-claim

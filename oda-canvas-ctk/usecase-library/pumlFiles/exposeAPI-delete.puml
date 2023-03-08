@@ -1,0 +1,28 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity ExposedAPI
+participant APIExposureOperator
+participant "APIGateway/Service Mesh"
+
+Component <- Operations : Delete
+Component ->  ExposedAPI: delete
+note right
+    All the exposed APIs are deleted from the component (based on the parent/child relationship)
+end note
+group For each deleted API
+    ExposedAPI -> APIExposureOperator: on.delete 
+    APIExposureOperator -> "APIGateway/Service Mesh" : Remove configuration in API Gateway and/or Service Mesh
+    note right
+        Depending on how the APIExposureOperator is implemented, this could
+        also do cascading delete based on the parent/child relationship
+    end note
+
+    "APIGateway/Service Mesh" -> "APIGateway/Service Mesh": Success allows the ExposedAPI resource to be deleted
+    ExposedAPI <- "APIGateway/Service Mesh" : allow delete
+    Component <- ExposedAPI: allow delete
+end
+
+@enduml

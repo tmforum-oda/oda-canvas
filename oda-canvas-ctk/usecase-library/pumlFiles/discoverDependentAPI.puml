@@ -1,0 +1,36 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+participant ComponentImplementation
+entity DependentAPI
+participant APIDiscoveryOperator
+
+
+
+Component <- Operations : Install
+Component -> ComponentOperator: on.create 
+ComponentOperator -> DependentAPI: create
+note right
+    A separate DependentAPI resource is created
+    for each dependent API in the core function,
+    security and management sections
+end note
+group For each dependent API
+    DependentAPI -> APIDiscoveryOperator: on.create 
+    APIDiscoveryOperator -> "Service Discovery" : search for API matching dependency
+    "Service Discovery" -> "Service Discovery" : (optional) approval flow to approve access to API
+    APIDiscoveryOperator <- "Service Discovery" : update
+    DependentAPI <- APIDiscoveryOperator: update
+    DependentAPI -> IdentityOperator: on.update (api identified)
+    IdentityOperator -> "Identity Management System" : Provision access
+    DependentAPI <- IdentityOperator: update
+    DependentAPI -> APIDiscoveryOperator: on.update (access provisioned)
+    ComponentImplementation <- APIDiscoveryOperator: call ServiceActivationConfiguration
+    ComponentOperator <- DependentAPI: on.update (access provisioned)
+    Component <- ComponentOperator: update 
+end
+
+
+@enduml

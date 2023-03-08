@@ -1,0 +1,26 @@
+@startuml
+autonumber
+title
+ <u>ODA CANVAS OBSERVABILITY - Custom Business Metrics</u>
+ 
+ <i>Precondition: ODA Component, custom metric service and Prometheus Operator are deployed.</i>
+end title
+actor "SRE" #red
+actor "CatalogAdmin" #blue
+
+
+
+|||
+EngagementManagementUI <- "CatalogAdmin" : Create Catalog 
+EngagementManagementUI -> "ProductCatalog\n<ODA Component>" : POST /catalog \n(*multiple requests)
+"ProductCatalog\n<ODA Component>" -> "Business\nMetric Service": on.create \n(publish subscribed\nevents) 
+"Business\nMetric Service" -> "Prometheus-<monitoring> \n (DB)": \n(scrapes metrics) 
+"Prometheus-<monitoring> \n (DB)" -> "Prometheus-<monitoring> \n (DB)": store metrics \nin DB
+EngagementManagementUI <- "ProductCatalog\n<ODA Component>" : POST /catalog Response
+EngagementManagementUI -> "CatalogAdmin" : Catalog Created 
+"Prometheus-<monitoring> \n (DB)" -> "Dashboard\n(Grafana)": dispense scraped metrics: \n Create and delete catalog events,\nProductOffering state change events etc
+"SRE" -> "Dashboard\n(Grafana)": Observe Component Business Metrics
+"SRE" <- "Dashboard\n(Grafana)": Show Business Metrics Dashboard \ne.g Number of product catalog items launched per quarter, etc)
+|||
+
+@enduml

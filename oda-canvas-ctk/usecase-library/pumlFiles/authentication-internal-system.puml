@@ -1,0 +1,42 @@
+@startuml
+
+participant Comp1Imp as "Component One Implementation"
+participant ServiceMesh as "Service Mesh"
+participant Comp2Imp as "Component Two Implementation"
+participant IDM as "Identity Management System"
+
+
+Comp1Imp -> IDM : Authenticate with clientId/secret
+note right
+    Using the system user created as part of the bootstrap usecase
+    where the clientId/secret is stored as a kubernetes secret
+end note
+Comp1Imp <- IDM : JWT token
+
+Comp1Imp -> ServiceMesh : Request to API with token
+ServiceMesh -> IDM: Validate token
+
+group Valid token
+    ServiceMesh <- IDM: Token is valid
+    ServiceMesh -> ServiceMesh: Test if audience exists against Component Implementation
+    group No role against component implementation
+        ServiceMesh -> Comp1Imp : Return Unauthorized (HTTP 401) response
+    end
+    group At least one role against component implementation
+        ServiceMesh -> Comp2Imp: Request to component implementation
+        Comp2Imp -> Comp2Imp: Apply role-based access control
+        ServiceMesh <- Comp2Imp: Response from component implementation
+        Comp1Imp <- ServiceMesh : Response from API
+    end
+end
+
+group Invalid token
+    ServiceMesh <- IDM: Token not valid
+    ServiceMesh -> Comp1Imp : Return Unauthorized (HTTP 401) response
+end
+
+
+@enduml
+
+
+@enduml
