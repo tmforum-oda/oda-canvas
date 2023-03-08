@@ -1,10 +1,10 @@
 # ODA Canvas - use-case library
 
-This use-case library defines the interactions between a generic ODA Component and the ODA Canvas. The ODA Canvas provides access to a range of common services (for identity management, authentication, observability etc) and has a set of Software Operators that automatically configure this access based on the requirements defined in the ODA Component YAML specification. 
+This use-case library defines the interactions between a generic **ODA Component** and the **ODA Canvas**. The ODA Canvas provides access to a range of common services (for identity management, authentication, observability etc) and has a set of **Software Operators** that automatically configure these services based on requirements defined in the ODA Component YAML specification. 
 
 Software Operators are a key concept in the ODA Canvas. For more information, see the 2016 CoreOS blog post that introduced the concept: [Introducing Operators: Putting Operational Knowledge into Software](https://web.archive.org/web/20170129131616/https://coreos.com/blog/introducing-operators.html). There is a good definition of software operators at: [operatorhub.io/what-is-an-operator](https://operatorhub.io/what-is-an-operator).
 
-The ODA canvas is itself a modular and extensible platform. The list below shows the current operators that appear in the Canvas use-case inventory. The ODA-Component Accelerator is building a reference implementation of an ODA Canvas with a range of operators that are open-source and freely available for organizations to re-use, extend or replace with their own implementations. We expect a typical production implementation will use a combination of standard operators and custom operators that can implement that organizations specific operational policies.
+The ODA canvas is itself a modular and extensible platform. The list below shows the operators that appear in the Canvas use-case inventory. The ODA-Component Accelerator is building a reference implementation of an ODA Canvas with a range of operators that are open-source and freely available for organizations to re-use, extend or replace with their own implementations. We expect a typical production implementation will use a combination of standard operators and custom operators that can implement that organizations specific operational policies.
 
 ## ODA Software Operators
 
