@@ -41,4 +41,4 @@ This is a list of the Canvas operators (including status of whether this has bee
 | UC014 | [Create Topic](UC014-Create-Topic.md)                            | When a Topic is created, configure security, Publishers and Subscribers|
 | UC015 | [Delete Topic](UC015-Delete-Topic.md)                            | When a Topic is deleted, unconfigure security, Publishers and Subscribers|
 
-The corresponding Behavour Driven Design (BDD) features and scenarious can be found here: [BDD Features and Scenarios](../BDD-and-TDD/README.md)
+The corresponding Behavour Driven Design (BDD) features and scenarious can be found here: [BDD Features and Scenarios](../compliance-test-kit/BDD-and-TDD/README.md)
