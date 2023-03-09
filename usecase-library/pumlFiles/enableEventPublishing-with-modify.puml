@@ -1,0 +1,30 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity PublishedNotification
+participant EventPublishingEnablementOperator
+participant "Event Manager" as TMFC019
+
+Component <- Operations : Upgrade
+Component -> ComponentOperator: on.update 
+note right
+    One or more PublishedNotification are modified on the component
+end note
+group For each modified PublishedNotification
+	ComponentOperator -> PublishedNotification: update
+	note right
+	    A separate PublishedNotification resource is modified
+	    for each new PublishedNotification 
+	end note
+    PublishedNotification -> EventPublishingEnablementOperator: on.update     
+    note right
+    	It is not very clear yet what changes could occur
+    end note
+    PublishedNotification <- EventPublishingEnablementOperator: update
+    ComponentOperator <- PublishedNotification: on.update
+end
+Component <- ComponentOperator: update 
+
+@enduml

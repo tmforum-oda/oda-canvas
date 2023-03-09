@@ -1,0 +1,28 @@
+@startuml
+
+actor "CatalogAdmin"
+actor "Operations"
+
+"Operations"-> ProductCatalogComponent: Install
+ProductCatalogComponent -> "securityController-azureAD": on.create 
+"securityController-azureAD" -> ProductCatalogComponent: Register securityListener to PartyRole events
+"securityController-azureAD" -> azureAD: Register domain
+"CatalogAdmin" -> ProductCatalogComponent: Create Role
+ProductCatalogComponent-> "securityController-azureAD": PartyRoleCreationNotification event
+"securityController-azureAD" -> azureAD: create role
+"Operations"->azureAD  : Maintain user identities
+"CatalogAdmin" -> ProductCatalogComponent: Update Role
+ProductCatalogComponent-> "securityController-azureAD": PartyRoleAttributeValueChangeNotification event
+"securityController-azureAD" -> azureAD: Update role
+"Operations"->azureAD  : Maintain user identities
+"CatalogAdmin" -> ProductCatalogComponent: Delete Role
+ProductCatalogComponent-> "securityController-azureAD": PartyRoleDeletionNotification event
+"securityController-azureAD" -> azureAD: Delete role
+"CatalogAdmin" -> ProductCatalogComponent: Create Role
+ProductCatalogComponent-> "securityController-azureAD": PartyRoleCreationNotification event
+"securityController-azureAD" -> azureAD: create role
+"Operations"-> ProductCatalogComponent: Uninstall
+ProductCatalogComponent -> "securityController-azureAD": on.delete 
+"securityController-azureAD" -> azureAD: Delete domain and all roles for component
+
+@enduml

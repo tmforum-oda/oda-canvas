@@ -1,0 +1,15 @@
+{
+  "name": "component-utils",
+  "version": "1.0.0",
+  "description": "Utilities for interacting with ODA Components and support BDD tests",
+  "main": "component-utils.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lester Thomas",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.12.3",
+    "axios": "^0.26.0"
+  }
+}

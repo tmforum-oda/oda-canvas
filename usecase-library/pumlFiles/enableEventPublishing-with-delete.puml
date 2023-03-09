@@ -1,0 +1,33 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity PublishedNotification
+participant EventPublishingEnablementOperator
+participant "Event Manager" as TMFC019
+
+
+Component <- Operations : Upgrade
+Component -> ComponentOperator: on.update 
+note right
+    One or more PublishedNotification are added to the component
+end note
+group For each removed PublishedNotification
+	ComponentOperator -> PublishedNotification: delete
+	note right
+	    A separate PublishedNotification resource is created
+	    for each new PublishedNotification in the core function,
+	    security and management sections
+	end note
+	PublishedNotification -> EventPublishingEnablementOperator: on.delete
+	note right
+	    Since more than one component may be publishing events
+	    on the topic, the topic is not deleted
+	    Since the component will no longer publish no need to clean up hub?
+	end note
+    PublishedNotification <- EventPublishingEnablementOperator : allow delete
+    ComponentOperator <- PublishedNotification: on.update
+end
+Component <- ComponentOperator: update 
+@enduml

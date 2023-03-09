@@ -1,0 +1,20 @@
+@startuml
+actor Operations
+entity "CPC Component"
+participant "Component Controller"
+entity API
+participant "API Operator"
+participant "API Gateway"
+
+
+Operations->"CPC Component": Deployment
+"CPC Component"->"Component Controller":Create Component
+"Component Controller"->API:Create exposedAPI API resources
+"Component Controller"->API:Create securityAPI API resources
+API->"API Operator":Create APIs
+"API Operator"->"API Gateway": Create APIs
+"API Gateway"->"API Operator": Response
+"API Operator"->API: Update URL/IP address
+API->"Component Controller": API resource updated
+"Component Controller"->"CPC Component": Updated status of component
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+participant "API Consumer" as apiConsumer
+participant prodCat as "Product Catalogue Component"
+participant oauthToken as "OAuth Token Endpoint"
+participant oauthIntrospection as "OAuth Introspection Endpoint"
+group client-credentials flow
+    apiConsumer -> oauthToken: Request Token
+    apiConsumer <- oauthToken: Issue Token
+end
+apiConsumer -> prodCat: Request resource
+alt trust token
+    prodCat -> prodCat: Read audience and role from token
+else Do not trust token
+    prodCat -> oauthIntrospection: check token audience and role
+    prodCat <- oauthIntrospection: provide token audience and role
+end
+alt valid token
+    alt Valid role for request
+        apiConsumer <- prodCat: provide requested resource
+    else Invalid role for request
+        apiConsumer <- prodCat: 401 Unauthorised
+    end
+else expired token
+    apiConsumer <- prodCat: 401 Unauthorised
+    apiConsumer -> apiConsumer: Check own token
+    apiConsumer -> oauthToken: Refresh token
+    apiConsumer <- oauthToken: Provide new token
+end
+@enduml

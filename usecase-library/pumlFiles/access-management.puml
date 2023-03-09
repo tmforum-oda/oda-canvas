@@ -1,0 +1,19 @@
+@startuml
+
+actor externalSystemOperations as "External System Operations"
+participant ComponentImplementation as "Component Implementation"
+participant IdentityManagementSystem as "Identity Management System"
+actor Operations
+
+group Prerequisite - component deployed
+    Operations -> ComponentImplementation: Deploy component
+    ComponentImplementation -> IdentityManagementSystem: Create client (as part of deployment)
+    ComponentImplementation -> IdentityManagementSystem: Create role 1 (as part of deployment)
+end group
+group Grant access
+    Operations -> IdentityManagementSystem : Create system user
+    Operations -> IdentityManagementSystem : Grant Role 1 to system user
+    Operations -> externalSystemOperations: Distribute clientId/secret
+end group
+
+@enduml

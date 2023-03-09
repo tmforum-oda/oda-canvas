@@ -1,0 +1,15 @@
+apiVersion: oda.tmforum.org/v1beta1
+kind: api
+metadata:
+  labels:
+    oda.tmforum.org/componentName: r1-productcatalog
+  name: r1-productcatalog-productcatalogmanagement
+  namespace: components
+spec:
+  apitype: openapi
+  developerUI: /r1-productcatalog/tmf-api/productCatalogManagement/v4/docs
+  implementation: r1-prodcatapi
+  name: productcatalogmanagement
+  path: /r1-productcatalog/tmf-api/productCatalogManagement/v4
+  port: 8080
+  specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json

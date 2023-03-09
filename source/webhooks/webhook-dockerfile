@@ -1,0 +1,7 @@
+FROM node:16.14
+COPY implementation/package*.json /src/
+WORKDIR /src
+RUN npm install
+COPY implementation ./
+EXPOSE 8443
+CMD ["node", "app.js"]

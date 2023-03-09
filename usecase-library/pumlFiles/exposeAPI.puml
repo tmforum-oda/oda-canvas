@@ -1,0 +1,28 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity ExposedAPI
+participant APIExposureOperator
+participant "APIGateway/Service Mesh"
+
+Component <- Operations : Install
+Component -> ComponentOperator: on.create 
+ComponentOperator -> ExposedAPI: create
+note right
+    A separate ExposedAPI resource is created
+    for each exposed API in the core function,
+    security and management sections
+end note
+group For each exposed API
+    ExposedAPI -> APIExposureOperator: on.create 
+    APIExposureOperator -> "APIGateway/Service Mesh" : configure API Gateway and/or Service Mesh
+    "APIGateway/Service Mesh" -> "APIGateway/Service Mesh": Update status including external URL for the API
+    APIExposureOperator <- "APIGateway/Service Mesh" : on.update
+    ExposedAPI <- APIExposureOperator: update
+    ComponentOperator <- ExposedAPI: on.update
+    Component <- ComponentOperator: update 
+end
+
+@enduml
