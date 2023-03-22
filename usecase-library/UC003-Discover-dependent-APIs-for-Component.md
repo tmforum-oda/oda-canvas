@@ -7,5 +7,5 @@ This use-case describes how a component discovers the url and credentials for a 
 * The ODA Components are **not** given raised privelages to query the Canvas to find their dependencies; Instead, the operations team read the requirement from the Component definition and provides details of the dependent APIs back to the component in the `values.yaml` file. For example, in a Kubernetes based Canvas, the Components are **not** given the permission to call the Kubernetes API. This is important from a security perspective as well as from the perspective of not building operational dependencies on management-plane APIs.
 
 
-![discoverDependentAPI](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/canvasUseCasesandBDD/usecase-library/pumlFiles/discoverDependentAPI.puml)
+![discoverDependentAPI](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/discoverDependentAPI.puml)
 [plantUML code](pumlFiles/discoverDependentAPI.puml)
