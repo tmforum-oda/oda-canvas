@@ -5,6 +5,7 @@ When one deployed component wants to call an API exposed by another component (i
 * The component 1 deployment bootstraps the system user that will be used to call the API ([UC001](UC001-Bootstrap-role-for-component.md)).
 * The componnet 2 deployment bootstraps the roles relating to the APIs that it exposes ([UC002](UC002-Expose-APIs-for-Component.md)).
 * The component 1 deployment declares its dependency for the API exposed by component 2, and the Operations team have configured access for this dependency ([UC003](UC003-Discover-dependent-APIs-for-Component.md)).
+* The authentication is performed using a Service Mesh or API Gateway: If an external API Gateway is used, the recommendation is to use a Service Mesh for this internal authentication. If the API Gateway is part of the Canvas cluster, then the API Gateway could be used for both internal and external authentication. Some API Gateways now use a micro-gateway pattern with the Gateway implemented as a sidecar container in the same pod as the component. In this case, the recommendation is to use the API Gateway for both internal and external authentication.
 
 
 

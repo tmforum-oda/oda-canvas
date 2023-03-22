@@ -1,7 +1,7 @@
 @startuml
 
 participant Comp1Imp as "Component One Implementation"
-participant ServiceMesh as "Service Mesh"
+participant ServiceMesh as "Service Mesh/API Gateway"
 participant Comp2Imp as "Component Two Implementation"
 participant IDM as "Identity Management System"
 
