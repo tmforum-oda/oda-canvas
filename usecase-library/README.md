@@ -14,7 +14,6 @@ This is a list of the Canvas operators (including status of whether this has bee
 | ------------------- | ------------------------------- |
 | Component Management | The Component operator manages the de-composition of an ODA component into APIs and Events (that are processed by their corresponding operators). |
 | API Exposure | Configures the Service Providers API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers |
-| API Discovery | Provides discovery for APIs where a component has declared a dependency. Internally it uses the Service Providers discovery capabilities to identify and give access to the appropriate API to fill a dependency. The component us updated via a ServiceActivationConfiguration Open-API call |
 | License Manager | Audits compliance of component usage against licensing agreements |
 | Identity | Provides identity management to grant system and user access to components. |
 | Observability | Captures observability data and allows alarming, tracing and root-cause analysis of issues. |
