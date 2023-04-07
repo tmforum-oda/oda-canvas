@@ -59,6 +59,9 @@ rules:
   - apiGroups: ["discovery.k8s.io"]
     resources: ["endpointslices"]
     verbs: [get, list, patch]
+  - apiGroups: [oda.tmforum.org]
+    resources: [publishednotifications, publishednotifications/status, subscribednotifications, subscribednotifications/status]
+    verbs: [list, watch, patch, get, create, update, delete]
 
   # Application: other resources it produces and manipulates.
   # Here, we create Jobs+PVCs+Pods, but we do not patch/update/delete them ever.

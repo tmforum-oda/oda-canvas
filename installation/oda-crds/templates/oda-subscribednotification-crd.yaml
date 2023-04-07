@@ -1,0 +1,66 @@
+apiVersion: "apiextensions.k8s.io/v1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "subscribednotifications.oda.tmforum.org"
+spec:
+  group: "oda.tmforum.org"
+  scope: "Namespaced"
+  names:
+    kind: "SubscribedNotification"
+    singular: "subscribednotification"
+    plural: "subscribednotifications"
+  versions:
+    - name: "v1beta1"
+      served: true
+      storage: true
+      deprecated: false
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: ["spec"]
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                name:
+                  type: string
+                  description: Name of SubscribedNotification that this component is dependent on
+                specification:
+                  type: string
+                  format: url
+                  description: url to the specification of the Notification. e.g. url to the swagger file
+                implementation:
+                  type: string
+                  description: The name of the service receiving the notifications
+                path:
+                  type: string
+                  description: the path to the callback for this subscription
+                port:
+                  type: integer
+                  description: The port where the callback is exposed 
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                uid:
+                  type: string
+                status:
+                  type: string
+                error:
+                  type: string
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: HREF
+          type: string
+          description: HREF
+          jsonPath: .spec.href
+        - name: UID
+          type: string
+          description: UID
+          jsonPath: .status.uid
+        - name: Status
+          type: string
+          description: Subscriber status
+          jsonPath: .status.status

@@ -14,6 +14,8 @@ import logging
 import traceback
 from kubernetes.client.rest import ApiException
 import os
+import asyncio
+from urllib.parse import urlparse
 
 # Setup logging
 logging_level = os.environ.get('LOGGING', logging.INFO)
@@ -34,6 +36,9 @@ GROUP = "oda.tmforum.org"
 VERSION = "v1alpha4"
 APIS_PLURAL = "apis"
 COMPONENTS_PLURAL = "components"
+
+PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
+SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
 
 @kopf.on.resume('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
 @kopf.on.create('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
@@ -266,6 +271,89 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
         logWrapper(logging.ERROR, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
 
     return apiChildren
+
+@kopf.on.resume('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+async def publishedEvents(meta, spec, status, body, namespace, labels, name, **kwargs):
+    """Handler function for **publishedEvents** part of new or updated components.
+    
+    Processes the **publishedEvents** part of the component envelope and creates the child API resources.
+
+    Args:
+        * meta (Dict): The metadata from the yaml component envelope 
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state) 
+        * status (Dict): The status from the yaml component envelope showing the actual state.
+        * body (Dict): The entire yaml component envelope
+        * namespace (String): The namespace for the component
+        * labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the component
+
+    Returns:
+        Dict: The publishedEvents status that is put into the component envelope status field.
+
+    :meta public:
+    """
+    logWrapper(logging.INFO, 'publishedEvents', 'publishedEvents', 'component/' + name, name, "Handler called", "")
+    pubChildren = []
+    try:
+
+        # get security exposed APIS
+        try:
+            publishedEvents = spec['eventNotification']['publishedEvents']
+            pubChildren = await asyncio.gather(*[createPublishedNotificationResource(publishedEvent, namespace, name, 'publishedEvents') for publishedEvent in publishedEvents])
+        except KeyError:
+            logWrapper(logging.WARNING, 'publishedEvents', 'publishedEvents', 'component/' + name, name, "No publishedEvents property", f"component {name} has no publishedEvents property")
+
+    except kopf.TemporaryError as e:
+        raise kopf.TemporaryError(e) # allow the operator to retry
+    except Exception as e:
+        logWrapper(logging.ERROR, 'publishedEvents', 'publishedEvents', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+
+    return pubChildren
+
+@kopf.on.resume('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+async def subscribedEvents(meta, spec, status, body, namespace, labels, name, **kwargs):
+    """Handler function for **subscribedEvents** part of new or updated components.
+    
+    Processes the **subscribedEvents** part of the component envelope and creates the child API resources.
+
+    Args:
+        * meta (Dict): The metadata from the yaml component envelope 
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state) 
+        * status (Dict): The status from the yaml component envelope showing the actual state.
+        * body (Dict): The entire yaml component envelope
+        * namespace (String): The namespace for the component
+        * labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the component
+
+    Returns:
+        Dict: The subscribedEvents status that is put into the component envelope status field.
+
+    :meta public:
+    """
+    logWrapper(logging.INFO, 'subscribedEvents', 'subscribedEvents', 'component/' + name, name, "Handler called", "")
+    subChildren = []
+    try:
+
+        # get security exposed APIS
+        try:
+            subscribedEvents = spec['eventNotification']['subscribedEvents']
+            subChildren = await asyncio.gather(*[createSubscribedNotificationResource(subscribedEvent, namespace, name, 'subscribedEvents') for subscribedEvent in subscribedEvents])
+        except KeyError:
+            logWrapper(logging.WARNING, 'subscribedEvents', 'subscribedEvents', 'component/' + name, name, "No subscribedEvents property", f"component {name} has no subscribedEvents property")
+
+    except kopf.TemporaryError as e:
+        raise kopf.TemporaryError(e) # allow the operator to retry
+    except Exception as e:
+        logWrapper(logging.ERROR, 'subscribedEvents', 'subscribedEvents', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+
+    return subChildren
+
+
+
 
 def constructAPIResourcePayload(inAPI):
     """Helper function to create payloads for API Custom objects.
@@ -737,6 +825,193 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Creating summary - deployment status", status_summary['deployment_status'])
 
     return status_summary
+
+async def createPublishedNotificationResource(definition, namespace, name, inHandler):
+    """Helper function to create or update PublishedNotification Custom objects.
+
+    Args:
+        * definition (Dict): The PublishedNotification definition 
+        * namespace (String): The namespace for the PublishedNotification
+        * name (String): The name of the PublishedNotification resource
+        * inHandler (String): The name of the handler calling this function
+
+    Returns:
+        Dict with PublishedNotification definition
+
+    :meta private:
+    """
+    logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "Create PublishedNotification", definition)
+
+    PublishedNotificationResource = {
+        "apiVersion": GROUP + "/v1beta1",
+        "kind": "PublishedNotification",
+        "metadata": {},
+        "spec": {}
+    }
+    
+    logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "1", PublishedNotificationResource)
+
+    # Make it our child: assign the namespace, name, labels, owner references, etc.
+    kopf.adopt(PublishedNotificationResource)
+
+    logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "2", PublishedNotificationResource)
+
+    newName = (PublishedNotificationResource['metadata']['ownerReferences'][0]['name'] + '-' + definition['name']).lower()
+
+    PublishedNotificationResource['metadata']['name'] = newName
+
+    urlparts = urlparse(definition['href'])
+    PublishedNotificationResource['spec'] = {
+        "name": definition['name'],
+        "specification": "",
+        "implementation": urlparts.hostname,
+        "path": urlparts.path,
+        "port": urlparts.port or 80
+    }
+
+    logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "3", PublishedNotificationResource)
+
+    returnPublishedNotificationObject = {}
+    
+    try:
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+
+        try:
+            custom_objects_api.get_namespaced_custom_object(
+                group = GROUP,
+                version = 'v1beta1',
+                namespace = namespace,
+                plural = PUBLISHEDNOTIFICATIONS_PLURAL,
+                name = newName
+            )
+        except ApiException as e:
+            if e.status == HTTP_NOT_FOUND:
+                apiObj = custom_objects_api.create_namespaced_custom_object(
+                    group = GROUP,
+                    version = 'v1beta1',
+                    namespace = namespace,
+                    plural = PUBLISHEDNOTIFICATIONS_PLURAL,
+                    body = PublishedNotificationResource
+                )
+
+                logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "PublishedNotification patch status", "")
+                custom_objects_api.patch_namespaced_custom_object_status(
+                    group = GROUP,
+                    version = 'v1beta1',
+                    namespace = namespace,
+                    plural = PUBLISHEDNOTIFICATIONS_PLURAL,
+                    name = newName,
+                    field_manager = "componentOperator",
+                    body = {
+                        "status": {
+                            "uid": "",
+                            "status": "initializing",
+                            "error": ""
+                        }
+                    }
+                )
+
+                logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "PublishedNotification created", PublishedNotificationResource['metadata']['name'])
+                returnPublishedNotificationObject = {"name": PublishedNotificationResource['metadata']['name'], "uid": apiObj['metadata']['uid']}
+            else:
+                logWrapper(logging.WARNING, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "PublishedNotification Exception checking for existing object ", e)
+                raise kopf.TemporaryError("Exception creating PublishedNotification custom resource.")
+    except ApiException as e:
+        logWrapper(logging.WARNING, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "PublishedNotification Exception creating", e)
+        raise kopf.TemporaryError("Exception creating PublishedNotification custom resource.")
+    return returnPublishedNotificationObject
+
+
+async def createSubscribedNotificationResource(definition, namespace, name, inHandler):
+    """Helper function to create or update SubscribedNotification Custom objects.
+
+    Args:
+        * definition (Dict): The SubscribedNotification definition 
+        * namespace (String): The namespace for the SubscribedNotification
+        * name (String): The name of the SubscribedNotification resource
+        * inHandler (String): The name of the handler calling this function
+
+    Returns:
+        Dict with SubscribedNotification definition
+
+    :meta private:
+    """
+    logWrapper(logging.INFO, 'createSubscribedNotificationResource', inHandler, 'component/' + name, name, "Create SubscribedNotification", definition)
+
+    SubscribedNotificationResource = {
+        "apiVersion": GROUP + "/v1beta1",
+        "kind": "SubscribedNotification",
+        "metadata": {},
+        "spec": {}
+    }
+    # Make it our child: assign the namespace, name, labels, owner references, etc.
+    kopf.adopt(SubscribedNotificationResource)
+
+    newName = (SubscribedNotificationResource['metadata']['ownerReferences'][0]['name'] + '-' + definition['name']).lower()
+
+    SubscribedNotificationResource['metadata']['name'] = newName
+
+    urlparts = urlparse(definition['href'])
+    SubscribedNotificationResource['spec'] = {
+        "name": definition['name'],
+        "specification": "",
+        "implementation": urlparts.hostname,
+        "path": urlparts.path,
+        "port": urlparts.port or 80
+    }
+
+    returnSubscribedNotificationObject = {}
+
+    try:
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+
+        try:
+            custom_objects_api.get_namespaced_custom_object(
+                group = GROUP,
+                version = 'v1beta1',
+                namespace = namespace,
+                plural = SUBSCRIBEDNOTIFICATIONS_PLURAL,
+                name = newName
+            )
+        except ApiException as e:
+            if e.status == HTTP_NOT_FOUND:
+                apiObj = custom_objects_api.create_namespaced_custom_object(
+                    group = GROUP,
+                    version = 'v1beta1',
+                    namespace = namespace,
+                    plural = SUBSCRIBEDNOTIFICATIONS_PLURAL,
+                    body = SubscribedNotificationResource
+                )
+
+                logWrapper(logging.INFO, 'createSubscribedNotificationResource', inHandler, 'component/' + name, name, "SubscribedNotification patch status", "")
+
+
+                custom_objects_api.patch_namespaced_custom_object_status(
+                    group = GROUP,
+                    version = 'v1beta1',
+                    namespace = namespace,
+                    plural = SUBSCRIBEDNOTIFICATIONS_PLURAL,
+                    name = newName,
+                    field_manager = "componentOperator",
+                    body = {
+                        "status": {
+                            "uid": "",
+                            "status": "initializing",
+                            "error": ""
+                        }
+                    }
+                )
+
+                logWrapper(logging.INFO, 'createSubscribedNotificationResource', inHandler, 'component/' + name, name, "SubscribedNotification created", SubscribedNotificationResource['metadata']['name'])
+                returnSubscribedNotificationObject = {"name": SubscribedNotificationResource['metadata']['name'], "uid": apiObj['metadata']['uid']}
+            else:
+                raise kopf.TemporaryError("Exception creating SubscribedNotification custom resource.")
+    except ApiException as e:
+        logWrapper(logging.WARNING, 'createSubscribedNotificationResource', inHandler, 'component/' + name, name, "SubscribedNotification Exception creating", e)
+        raise kopf.TemporaryError("Exception creating SubscribedNotification custom resource.")
+
+    return returnSubscribedNotificationObject
+
 
 def logWrapper(logLevel, functionName, handlerName, resourceName, componentName, subject, message):
     """Helper function to standardise logging output.
