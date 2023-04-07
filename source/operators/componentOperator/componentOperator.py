@@ -848,13 +848,9 @@ async def createPublishedNotificationResource(definition, namespace, name, inHan
         "metadata": {},
         "spec": {}
     }
-    
-    logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "1", PublishedNotificationResource)
 
     # Make it our child: assign the namespace, name, labels, owner references, etc.
     kopf.adopt(PublishedNotificationResource)
-
-    logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "2", PublishedNotificationResource)
 
     newName = (PublishedNotificationResource['metadata']['ownerReferences'][0]['name'] + '-' + definition['name']).lower()
 
@@ -868,8 +864,6 @@ async def createPublishedNotificationResource(definition, namespace, name, inHan
         "path": urlparts.path,
         "port": urlparts.port or 80
     }
-
-    logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "3", PublishedNotificationResource)
 
     returnPublishedNotificationObject = {}
     
