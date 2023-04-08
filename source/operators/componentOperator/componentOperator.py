@@ -33,16 +33,16 @@ logger.info(f'Monitoring namespace %s', component_namespace)
 HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
-VERSION = "v1alpha4"
+VERSION = "v1beta1"
 APIS_PLURAL = "apis"
 COMPONENTS_PLURAL = "components"
 
 PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
 async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **core function** part new or updated components.
     
@@ -142,9 +142,9 @@ async def deleteAPI(deleteAPIName, componentName, status, namespace, inHandler):
     except ApiException as e:
         logWrapper(logging.ERROR, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
 async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **management** part new or updated components.
     
@@ -193,7 +193,7 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
                     await deleteAPI(oldAPI['name'], name, status, namespace, 'managementAPIs')
 
         # get exposed APIS
-        managementAPIs = spec['management']
+        managementAPIs = spec['management']['exposedAPIs']
         logWrapper(logging.DEBUG, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Exposed API list", f"{managementAPIs}")
 
         for managementAPI in managementAPIs:
@@ -220,9 +220,9 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
     return apiChildren
 
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
 async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **security** part of new or updated components.
     
@@ -243,25 +243,49 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
     :meta public:
     """
     logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Handler called", "")
-    apiChildren = {}
+    apiChildren = []
     try:
-
-        # get security exposed APIS
         try:
-            partyRole = spec['security']['partyrole']
-            partyRole['name'] = 'partyrole'
+            if status:  # if status exists (i.e. this is not a new component)
+                # update a component - look in old and new to see if we need to delete any API resources
+                if ('securityAPIs' in status.keys()) and (type(status['securityAPIs']) is dict) and ('partyrole' in status['securityAPIs'].keys()):
+                    oldPartyRole = status['securityAPIs']['partyrole']
+                    oldPartyRole['name'] = 'partyrole'
+                    oldSecurityAPIs = [ oldPartyRole ]
+                else:
+                    oldSecurityAPIs = []
+                
+                newSecurityAPIs = spec['security']['exposedAPIs']
+                # find apis in old that are missing in new
+                for oldAPI in oldSecurityAPIs:
+                    found = False
+                    for newAPI in newSecurityAPIs:
+                        logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Comparing old and new APIs", f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
+                        if oldAPI['name'] == name + '-' + newAPI['name'].lower():
+                            found = True
+                            logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Patching API", newAPI['name'])
+                            resultStatus = await patchAPIResource(newAPI, namespace, name, 'securityAPIs')
+                            apiChildren.append(resultStatus)
+                    if not found:
+                        logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Deleting API", oldAPI['name'])
+                        await deleteAPI(oldAPI['name'], name, status, namespace, 'securityAPIs')
 
-            componentDeployedPreviously = False
-            if status:
-                if 'securityAPIs' in status.keys():
-                    if 'partyrole' in status['securityAPIs'].keys():
-                        componentDeployedPreviously = True
-            if componentDeployedPreviously:
-                logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Patching API", partyRole['name'])
-                apiChildren['partyrole'] = await patchAPIResource(partyRole, namespace, name, 'securityAPIs')
-            else:
-                logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Creating API", partyRole['name'])
-                apiChildren['partyrole'] = await createAPIResource(partyRole, namespace, name, 'securityAPIs')
+            # get exposed APIS
+            securityAPIs = spec['security']['exposedAPIs']
+            logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Exposed API list", f"{securityAPIs}")
+
+            for securityAPI in securityAPIs:
+                # check if we have already patched this API
+                alreadyProcessed = False
+                for processedAPI in apiChildren:
+                    logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Comparing new APIs with status", f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}")
+                    if processedAPI['name'] == name + '-' + securityAPI['name'].lower():
+                        alreadyProcessed = True
+                if alreadyProcessed == False:
+                    logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Creating API", securityAPI['name'])
+                    resultStatus = await createAPIResource(securityAPI, namespace, name, 'securityAPIs')
+                    apiChildren.append(resultStatus)
+
         except KeyError:
             logWrapper(logging.WARNING, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "No PartyRole property", f"component {name} has no partyrole property")
 
@@ -272,9 +296,9 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
 
     return apiChildren
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
 async def publishedEvents(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **publishedEvents** part of new or updated components.
     
@@ -312,9 +336,9 @@ async def publishedEvents(meta, spec, status, body, namespace, labels, name, **k
 
     return pubChildren
 
-@kopf.on.resume('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
 async def subscribedEvents(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **subscribedEvents** part of new or updated components.
     
@@ -367,7 +391,7 @@ def constructAPIResourcePayload(inAPI):
     :meta private:
     """
     APIResource = {
-        "apiVersion": "oda.tmforum.org/v1alpha4",
+        "apiVersion": "oda.tmforum.org/v1beta1",
         "kind": "api",
         "metadata": {},
         "spec": {}
@@ -482,7 +506,7 @@ async def createAPIResource(inAPI, namespace, name, inHandler):
 
 
 # When api adds url address of where api is exposed, update parent Component object
-@kopf.on.field('oda.tmforum.org', 'v1alpha4', 'apis', field='status.apiStatus', retries=5)
+@kopf.on.field('oda.tmforum.org', 'v1beta1', 'apis', field='status.apiStatus', retries=5)
 async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     Processes status updates to the *apiStatus* in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
@@ -544,7 +568,7 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
                                 parent_component['status']['managementAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
 
                 if 'securityAPIs' in parent_component['status'].keys():
-                    for key in (parent_component['status']['securityAPIs']):
+                    for key in range(len(parent_component['status']['securityAPIs'])):
                         if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
                             parent_component['status']['securityAPIs'][key]['url'] = status['apiStatus']['url']
                             logWrapper(logging.INFO, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Updating parent component securityAPIs APIs with url", status['apiStatus']['url'])
@@ -553,7 +577,7 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
 
                 await patchComponent(namespace, name, parent_component, 'updateAPIStatus')
 
-@kopf.on.field('oda.tmforum.org', 'v1alpha4', 'apis', field='status.implementation', retries=5)
+@kopf.on.field('oda.tmforum.org', 'v1beta1', 'apis', field='status.implementation', retries=5)
 async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     
@@ -608,7 +632,7 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
                         logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component managementAPIs status", status['implementation']['ready'])
                         await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
                         return
-                for key in (parent_component['status']['securityAPIs']):
+                for key in range(len(parent_component['status']['securityAPIs'])):
                     if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
                         parent_component['status']['securityAPIs'][key]['ready'] = True
                         logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component securityAPIs status", status['implementation']['ready'])
@@ -780,13 +804,14 @@ def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resource
                 logWrapper(logging.WARNING, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Exception when calling patch " + resourceType, e)
 
 # When Component status changes, update status summary
-@kopf.on.field('oda.tmforum.org', 'v1alpha4', 'components', field='status', retries=5)
+@kopf.on.field('oda.tmforum.org', 'v1beta1', 'components', field='status', retries=5)
 async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Handler called", "")
 
     coreAPIsummary = ''
     managementAPIsummary = ''
+    securityAPIsummary = ''
     developerUIsummary = ''
     countOfCompleteAPIs = 0
     for api in status['coreAPIs']:
@@ -808,12 +833,19 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
                 if api['ready'] == True:
                     countOfCompleteAPIs = countOfCompleteAPIs + 1
     for api in status['securityAPIs']:
-        if 'url' in status['securityAPIs'][api].keys():
-            if status['securityAPIs'][api]['ready'] == True:
-                countOfCompleteAPIs = countOfCompleteAPIs + 1
+        if 'url' in api.keys():
+            securityAPIsummary = securityAPIsummary + api['url'] + ' '
+            if 'developerUI' in api.keys():
+                developerUIsummary = developerUIsummary + \
+                    api['developerUI'] + ' '
+            if 'ready' in api.keys():
+                if api['ready'] == True:
+                    countOfCompleteAPIs = countOfCompleteAPIs + 1
+
     status_summary = {}
     status_summary['coreAPIsummary'] = coreAPIsummary
     status_summary['managementAPIsummary'] = managementAPIsummary
+    status_summary['securityAPIsummary'] = securityAPIsummary
     status_summary['developerUIsummary'] = developerUIsummary
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Creating summary - complete API count", countOfCompleteAPIs)
 
