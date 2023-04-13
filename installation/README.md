@@ -106,25 +106,8 @@ helm install istio-base istio/base -n istio-system
 helm install istiod istio/istiod -n istio-system --wait
 kubectl create namespace istio-ingress
 kubectl label namespace istio-ingress istio-injection=enabled
-helm install istio-ingress istio/gateway -n istio-ingress --wait
+helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway --wait
 ```
-
-This way of installing Istio sets a **istio=ingress** label in the istio-ingress service.
-The  apiOperatorIsito rely on this component to have a **istio=ingressgateway**
-Check if it's the case in your installation.
-
-````bash
-kubectl get svc istio-ingress -n istio-ingress --show-labels
-NAME            TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                      AGE     LABELS
-istio-ingress   LoadBalancer   10.43.218.202   172.28.58.9   15021:31154/TCP,80:31497/TCP,443:30230/TCP   3d22h   app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=istio-ingress,app.kubernetes.io/version=1.16.2,app=istio-ingress,helm.sh/chart=gateway-1.16.2,istio=ingress 
-````
-
-If so, execute this command to set the label to what it's expected.
-
-````
-kubectl label svc istio-ingress -n istio-ingress istio=ingressgateway --overwrite
-service/istio-ingress labeled
-````
 
 ### 4. Reference implementation
 
@@ -239,9 +222,29 @@ failed post-install: warning: Hook post-install canvas-oda/charts/cert-manager-i
 failed calling webhook "webhook.cert-manager.io": failed to call webhook: Post "https://canvas-cert-manager-webhook.cert-manager.svc:443/mutate?timeout=10s":
 x509: certificate signed by unknown authority
 ````
-
 That error arises when Cert-Manager is not ready to accept Issuers
+
+Try first to uninstall the chart
+````bash
+helm uninstall -n canvas canvas
+ ````
+Delete persistence volume claim used  for Keycloak
+````bash
+ kubectl delete pvc -n canvas data-canvas-postgresql-0
+ ````
+Then manually delete the Lease object that causes the problem (Cert Manager relies on this object to select a leader)
+````bash
+kubectl get lease -n kube-system
+ ````
+Force the release of the lease without waiting for a timeout
+````bash
+ kubectl delete lease cert-manager-cainjector-leader-election -n kube-system
+ ````
+
 The installation has a configurable wait time
 *cert-manager.leaseWaitTimeonStartup*
-Increase the time over 70s if it fails
-Uninstall the chart and reinstall it with the new time.
+Increase leaseWaitTimeonStartup value btw 80-100 in canvas-oda\values.yaml
+
+Reinstall it with the new time.
+
+

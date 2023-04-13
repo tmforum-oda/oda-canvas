@@ -12,8 +12,8 @@ certificate:
   appName: "compcrdwebhook"
 #Cert manager get a lease  object on kube-system namespace to elect leader.
 #The time to wait for a leader is 60s.
-#The lease can survive among instalations, so cainjectot can waits up to 60s to become leader
-#If cainjector is not fully initilizaded we can find the following error
+#The lease can survive among installations, so cainjectot can waits up to 60s to become leader
+#If cainjector is not fully initilizaded  we can find the following error
 #  cert-manager-init/templates/issuer.yaml failed: Internal error occurred:
 #  failed calling webhook "webhook.cert-manager.io": failed to call webhook:
 #  Post "https://cert-manager-webhook.cert-manager.svc:443/mutate?timeout=10s": x509: certificate signed by unknown authority
