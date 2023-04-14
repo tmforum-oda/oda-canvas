@@ -111,7 +111,7 @@ controller:
     keycloak: *portKeycloak
     dataDog:
       enabled: true
-  #We reuse the admin user created on keycloak instalation
+  #We reuse the admin user created on keycloak installation
   credentials:
     user: admin
     pass: adpass
