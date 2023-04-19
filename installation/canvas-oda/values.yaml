@@ -50,9 +50,10 @@ keycloak:
     adminPassword: "adpass"
   postgresql:
     enabled: true
-    postgresqlUsername: "keycloak"
-    postgresqlPassword: "keycloakdbuser"
-    postgresqlDatabase: "keycloak"
+    auth:
+      username: "keycloak"
+      password: "keycloakdbuser"
+      database: "keycloak"
   # -- Since keycloak 17+, default to / but the controllers work with older versions
   httpRelativePath: "/auth/"
   #proxy: edge

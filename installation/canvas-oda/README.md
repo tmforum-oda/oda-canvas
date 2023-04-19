@@ -57,9 +57,9 @@ A Helm of helm to orchestrate the ODA instalation
 | keycloak.ingress.ingressClassName | string | `"traefik"` |  |
 | keycloak.keycloakConfigCli | object | `{"backoffLimit":1,"command":["java","-jar","/opt/keycloak-config-cli.jar"],"configuration":{"myrealm.json":"{\n  \"enabled\": true,\n  \"realm\": \"myrealm\",\n  \"users\": [\n    {\n    \"username\": \"seccon\",\n    \"email\": \"seccon@oda.io\",\n    \"enabled\": true,\n    \"firstName\": \"Security\",\n    \"lastName\": \"User\"\n    }\n   ]\n}\n"},"enabled":true}` | Create a myrealm realm with a seccon user |
 | keycloak.postgresql.enabled | bool | `true` |  |
-| keycloak.postgresql.postgresqlDatabase | string | `"keycloak"` |  |
-| keycloak.postgresql.postgresqlPassword | string | `"keycloakdbuser"` |  |
-| keycloak.postgresql.postgresqlUsername | string | `"keycloak"` |  |
+| keycloak.postgresql.auth.database | string | `"keycloak"` |  |
+| keycloak.postgresql.auth.password | string | `"keycloakdbuser"` |  |
+| keycloak.postgresql.auth.username | string | `"keycloak"` |  |
 | keycloak.service.ports.http | int | `8083` |  |
 | oda-cdrs.enabled | bool | `true` |  |
 | webhooks.image | string | `"tmforumodacanvas/compcrdwebhook:0.5.1"` |  |
