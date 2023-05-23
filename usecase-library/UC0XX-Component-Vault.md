@@ -10,7 +10,7 @@ This leads to possible attack vectors.
 ## Solution Idea
 
 One of the stable features since Kubernetes 1.21 is to act as a JWT/OIDC provider if in the kube-api-server the `service-account-issuer` flag is set.
-This allows us to use the Kubernetes Cluster itself to act as an autority which proves the identity of PODs running in the cluster.
+This allows us to use the Kubernetes Cluster itself to act as an authority which proves the identity of PODs running in the cluster.
 
 ### Info
 
@@ -63,7 +63,7 @@ Maybe some steps are not 100% correct, but the general idea should get clear.
 ![componentVaultBootstrapAndUsage](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage.puml)
 [plantUML code](pumlFiles/componentVault-bootstrap-and-usage.puml)
 
-### alternative using SideCar for communication to Canvas-Vault
+### Alternative using SideCar for communication to Canvas-Vault
 
 ![componentVaultBootstrapAndUsageWithSideCar](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage-with-sidecar.puml)
 [plantUML code](pumlFiles/componentVault-bootstrap-and-usage-with-sidecar.puml)
