@@ -1,2 +1,3 @@
 *.tgz
 cabundle.pem.b64
+/.project
