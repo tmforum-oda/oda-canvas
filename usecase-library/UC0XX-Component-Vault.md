@@ -60,12 +60,12 @@ Maybe some steps are not 100% correct, but the general idea should get clear.
 
 ### Component Vault Bootstrap and usage
 
-![securitySequenceKeycloak](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage.puml)
+![componentVaultBootstrapAndUsage](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage.puml)
 [plantUML code](pumlFiles/componentVault-bootstrap-and-usage.puml)
 
 ### alternative using SideCar for communication to Canvas-Vault
 
-![securitySequenceKeycloak](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage-with-sidecar.puml)
+![componentVaultBootstrapAndUsageWithSideCar](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage-with-sidecar.puml)
 [plantUML code](pumlFiles/componentVault-bootstrap-and-usage-with-sidecar.puml)
 
 As stated above, the workflow is not 100% correct, but will be updated as soon as new insights were gained.
