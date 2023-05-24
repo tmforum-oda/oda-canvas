@@ -37,10 +37,10 @@ group Bootstrap - component deployment
     started together in one POD
     end note	
 	PrivateVaultSideCar -> CanvasVault : login to "privatevault-<CIID>" using JWT of "sa-<CIID>"
-	group optional - One-Time-Setup for local API access
-		ComponentImplementation -> PrivateVaultSideCar : init(challenge)
+	group Optional - one-time negotiation about a token securing the localhost communication 
+		ComponentImplementation -> PrivateVaultSideCar : init(seed)
 		skinparam responseMessageBelowArrow true
-		ComponentImplementation <-- PrivateVaultSideCar : response
+		ComponentImplementation <-- PrivateVaultSideCar : localhost-token
     end group
 end group
 

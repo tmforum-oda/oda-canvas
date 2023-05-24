@@ -12,14 +12,14 @@ So, every component can benefit from a solution provided on canvas level.
 ## Solution Idea
 
 One of the stable features since Kubernetes 1.21 is to act as a JWT/OIDC provider.
-This allows us to use the Kubernetes Cluster itself to act as an authority which proves 
+This allows us to use the Kubernetes cluster itself to act as an authority which proves 
 the identity of ServiceAccounts and PODs running in the cluster.
 
 ## Workflow
 
 Maybe some steps are not 100% correct, but the general idea should get clear. 
 
-* The Canvas manages a central vault (Canvas-Vault).
+* The canvas manages a central vault (Canvas-Vault).
 * When the Canvas-Vault is setup, a trust relation to the Kubernetes-Cluster CA is configured.
 * When a new component is deployed, the Component-Operator decides - based on the information 
   provided in the component.yaml (envelope/manifest) - whether a private vault is requested or not.
@@ -42,6 +42,11 @@ Maybe some steps are not 100% correct, but the general idea should get clear.
   the ServiceAccount, the URL to the Canvas-Vault and the private vault name.
 * The Component-Implementation communicates via localhost with the SideCar using a simple API.
   It needs no knowledge about JWT, &lt;CIID&gt; and Canvas-Vault-URL.
+* An optional token negotiation was added to secure the localhost communication.
+  Any other auth method might serve as well.
+  The purpose is to avoid grabbing the secret from a container shell by calling the localhost 
+  endpoint of the SideCar.
+
 
 ## Sequence Diagram
 
