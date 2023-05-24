@@ -1,36 +1,68 @@
-# Component Vault
+# Private Vault for Component
 
-This use-case describes how a component can manage its secrets in a private component vault, which is exclusively accessible from the own component.
+This use-case describes how a component can manage its secrets in a private vault, which is exclusively accessible from the component.
 
 ## Problem
 
-The biggest issue is where to store some kind of bootstrap credentials for authenticating against the Canvas Vault (and other systems).
-This leads to possible attack vectors. 
+The biggest issue is where to store bootstrap credentials for authenticating against 
+a Canvas-Vault (or other systems).
+This problem is hard to solve in a secure manner. 
+So, every component can benefit from a solution provided on canvas level.
 
 ## Solution Idea
 
-One of the stable features since Kubernetes 1.21 is to act as a JWT/OIDC provider if in the kube-api-server the `service-account-issuer` flag is set.
-This allows us to use the Kubernetes Cluster itself to act as an authority which proves the identity of PODs running in the cluster.
-
-### Info
-
-from https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/kubernetes
-
-> Kubernetes can function as an OIDC provider such that Vault can validate its service account tokens using JWT/OIDC auth.
-
-Even if this documentation is from Hashicorp Vault, it also applies to other Vaults, which support JWT/OIDC authentication, e.g. CyberArk Conjur.
+One of the stable features since Kubernetes 1.21 is to act as a JWT/OIDC provider.
+This allows us to use the Kubernetes Cluster itself to act as an authority which proves 
+the identity of ServiceAccounts and PODs running in the cluster.
 
 ## Workflow
 
 Maybe some steps are not 100% correct, but the general idea should get clear. 
 
-* The idea is, that the Kubernetes Cluster issues JWTs for ServiceAccounts which are signed by the Cluster CA.
-* The Canvas Vault has to be configured to trust the cluster CA.
-* When a component is created the Component Operator creates a role in the Canvas Vault which has full access to a path unique for this component.
-* The usage could be simplified by deploying a sidecar container, which handles the communication with the Canvas-Vault and is accessible using a localhost API.
-* Next to the service account also the namespace and POD name is part of the JWT. This information is really unique and can be used to further limit the authentication to exactly one instance.
+* The Canvas manages a central Vault (Canvas-Vault).
+* When the Canvas-Vault is setup, a trust relation to the Kubernetes-Cluster CA is configured.
+* When a new component is deployed, the Component-Operator decides - based on the information 
+  provided in the component.yaml (envelope/manifest) - whether a private vault is requested or not.
+* If no private vault is requested, the workflow comes to an end here.   :-)
+* For the next steps we need a unique string to identify the component. 
+  Therefore a step creating a Component-Instance-ID "<CIID>" was added in the 
+  sequence diagram. Maybe there exists already something like this, 
+  then this step can be skipped.
+* A dedicated Key-Value-Store named "privatevault-<CIID>" is created in the Canvas-Vault. 
+  This is the private vault for the component instance.
+* At the same time a dedicated Kubernetes ServiceAccount for this component, 
+  named "sa-<CIID>", is created.
+* The Canvas-Vault is configured to grant the newly created ServiceAccount full permissions 
+  to the newly created Key-Value-Store.
+* If a component POD is started, which requires access to the private vault, 
+  a Private-Vault-SideCar is injected. This is a container running in the same POD as the 
+  Component-Implementation.
+* The SideCar is provided and configured by the Component-Operator to have all necessary 
+  information to login to the private vault. The SideCar gets a JWT mount identifying 
+  the ServiceAccount, the URL to the Canvas-Vault and the private vault name.
+* The Component-Implementation communicates via localhost with the SideCar using a simple API.
+  It needs no knowledge about JWT, <CIID> and Canvas-Vault-URL.
 
-### Example JWT format
+## Sequence Diagram
+
+### Private Vault Initialization and Usage
+
+![componentVaultBootstrapAndUsage](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage.puml)
+[plantUML code](pumlFiles/componentVault-bootstrap-and-usage.puml)
+
+
+## Technical Details
+
+Detailed information, how the JWT Authentication works can be found here:
+
+https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/kubernetes
+
+Even if this documentation is from Hashicorp Vault, it also applies to other Vaults, which support JWT/OIDC authentication, e.g. CyberArk Conjur.
+
+## Possible Improvements
+
+The JWT payload contains not only the ServiceAccount information, it also contains information 
+about the POD and Namespace:
 
 ```
 {
@@ -55,17 +87,12 @@ Maybe some steps are not 100% correct, but the general idea should get clear.
 }
 ```
 
+It is possible to use athis information to sharpen the requirements for the JWT auth in Canvas Vault.
 
-## Sequence Diagram
 
-### Component Vault Bootstrap and usage
+# Disclaimer
 
-![componentVaultBootstrapAndUsage](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage.puml)
-[plantUML code](pumlFiles/componentVault-bootstrap-and-usage.puml)
+As stated above, the workflow is not 100% correct.
+It will be updated as soon as a reference implementation was made.
 
-### Alternative using SideCar for communication to Canvas-Vault
 
-![componentVaultBootstrapAndUsageWithSideCar](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage-with-sidecar.puml)
-[plantUML code](pumlFiles/componentVault-bootstrap-and-usage-with-sidecar.puml)
-
-As stated above, the workflow is not 100% correct, but will be updated as soon as new insights were gained.

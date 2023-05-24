@@ -4,7 +4,16 @@ participant Canvas as "Canvas"
 entity Component
 participant "Component Operator" as ComponentOperator
 participant "Kubernetes API" as KubernetesAPI
-participant "Component Implementation" as ComponentImplementation
+participant ComponentImplementation [
+	=Component POD
+	----
+	Component-Implementation
+]
+participant PrivateVaultSideCar [
+	=Component POD
+	----
+	Private-Vault-SideCar
+]
 participant CanvasVault as "Canvas Vault"
 
 
@@ -16,30 +25,34 @@ end group
 
 group Bootstrap - component deployment
 	Component -> ComponentOperator : on.create
-	ComponentOperator -> ComponentOperator : create unique Component-ID <CID>
-	ComponentOperator -> KubernetesAPI : create ServiceAccount <SA-CID> for Component
-	ComponentOperator -> CanvasVault : create Key-Value store /kv-<CID>
-	ComponentOperator -> CanvasVault : Setup JWT role for <SA-CID> with full access to path /kv-<CID>
-	...
-	ComponentOperator -> ComponentImplementation : inject ServiceAccountToken & <CID>
-	note right
-	  add volume .../secrets/kubernetes.io/serviceaccount/token
-	    ...
-	      sources:
-	      - serviceAccountToken:
-	          expirationSeconds: 3607
-	          path: token
-	    ...
-	  The token is a JWT signed by the cluster ca
-    end note
+	ComponentOperator -> ComponentOperator : create unique Component-Instance-ID <CIID>
+	ComponentOperator -> KubernetesAPI : create ServiceAccount "sa-<CIID>"
+	ComponentOperator -> CanvasVault : create Key-Value store "privatevault-<CIID>"
+	ComponentOperator -> CanvasVault : Setup JWT role for "sa-<CIID>" with full access to path "privatevault-<CIID>"
+	ComponentOperator -> PrivateVaultSideCar : create & inject SideCar container with JWT mount, Canvas-Vault-URL and <CIID>
+	ComponentImplementation <-[#ff0000]-> PrivateVaultSideCar
+	activate ComponentImplementation 
+	activate PrivateVaultSideCar 
+    note right of ComponentImplementation
+    started together in one POD
+    end note	
+	PrivateVaultSideCar -> CanvasVault : login to "privatevault-<CIID>" using JWT of "sa-<CIID>"
+	group optional - One-Time-Setup for local API access
+		ComponentImplementation -> PrivateVaultSideCar : init(challenge)
+		skinparam responseMessageBelowArrow true
+		ComponentImplementation <-- PrivateVaultSideCar : response
+    end group
 end group
 
+note over ComponentImplementation : some time later
+
 group Runtime - component running
-	ComponentImplementation -> CanvasVault : login using JWT of <SA-CID>
-	ComponentImplementation -> CanvasVault : create secret(key, value) in /kv-<CID>
-	...
-	ComponentImplementation -> CanvasVault : read secret(key) from /kv-<CID>
-	ComponentImplementation  <-- CanvasVault : return secret-value
+	ComponentImplementation -> PrivateVaultSideCar : create secret(key, value)
+	PrivateVaultSideCar -> CanvasVault : create secret("privatevault-<CIID>", key, value) in 
+	ComponentImplementation -> PrivateVaultSideCar : read secret(key)
+	PrivateVaultSideCar -> CanvasVault : read secret("privatevault-<CID>", key)
+	PrivateVaultSideCar  <-- CanvasVault : return secret-value
+	ComponentImplementation <-- PrivateVaultSideCar : return secret-value 
 end group
 
 @enduml
