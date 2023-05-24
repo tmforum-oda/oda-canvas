@@ -19,19 +19,19 @@ the identity of ServiceAccounts and PODs running in the cluster.
 
 Maybe some steps are not 100% correct, but the general idea should get clear. 
 
-* The Canvas manages a central Vault (Canvas-Vault).
+* The Canvas manages a central vault (Canvas-Vault).
 * When the Canvas-Vault is setup, a trust relation to the Kubernetes-Cluster CA is configured.
 * When a new component is deployed, the Component-Operator decides - based on the information 
   provided in the component.yaml (envelope/manifest) - whether a private vault is requested or not.
-* If no private vault is requested, the workflow comes to an end here.   :-)
-* For the next steps we need a unique string to identify the component. 
-  Therefore a step creating a Component-Instance-ID "<CIID>" was added in the 
+* If no private vault is requested, the workflow comes to an end here   :-)
+* For the next steps we need a unique string to identify the component instance.
+  Therefore a step creating a Component-Instance-ID "&lt;CIID&gt;" was added in the 
   sequence diagram. Maybe there exists already something like this, 
   then this step can be skipped.
-* A dedicated Key-Value-Store named "privatevault-<CIID>" is created in the Canvas-Vault. 
+* A dedicated Key-Value-Store named "privatevault-&lt;CIID&gt;" is created in the Canvas-Vault. 
   This is the private vault for the component instance.
 * At the same time a dedicated Kubernetes ServiceAccount for this component, 
-  named "sa-<CIID>", is created.
+  named "sa-&lt;CIID&gt;", is created.
 * The Canvas-Vault is configured to grant the newly created ServiceAccount full permissions 
   to the newly created Key-Value-Store.
 * If a component POD is started, which requires access to the private vault, 
@@ -41,7 +41,7 @@ Maybe some steps are not 100% correct, but the general idea should get clear.
   information to login to the private vault. The SideCar gets a JWT mount identifying 
   the ServiceAccount, the URL to the Canvas-Vault and the private vault name.
 * The Component-Implementation communicates via localhost with the SideCar using a simple API.
-  It needs no knowledge about JWT, <CIID> and Canvas-Vault-URL.
+  It needs no knowledge about JWT, &lt;CIID&gt; and Canvas-Vault-URL.
 
 ## Sequence Diagram
 
@@ -87,7 +87,7 @@ about the POD and Namespace:
 }
 ```
 
-It is possible to use athis information to sharpen the requirements for the JWT auth in Canvas Vault.
+It is possible to use this additional information to sharpen the requirements for the JWT auth in Canvas Vault.
 
 
 # Disclaimer
