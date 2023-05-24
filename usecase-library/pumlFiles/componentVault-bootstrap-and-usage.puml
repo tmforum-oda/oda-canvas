@@ -48,7 +48,7 @@ note over ComponentImplementation : some time later
 
 group Runtime - component running
 	ComponentImplementation -> PrivateVaultSideCar : create secret(key, value)
-	PrivateVaultSideCar -> CanvasVault : create secret("privatevault-<CIID>", key, value) in 
+	PrivateVaultSideCar -> CanvasVault : create secret("privatevault-<CIID>", key, value)
 	ComponentImplementation -> PrivateVaultSideCar : read secret(key)
 	PrivateVaultSideCar -> CanvasVault : read secret("privatevault-<CID>", key)
 	PrivateVaultSideCar  <-- CanvasVault : return secret-value
