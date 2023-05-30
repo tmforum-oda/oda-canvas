@@ -52,8 +52,8 @@ Maybe some steps are not 100% correct, but the general idea should get clear.
 
 ### Private Vault Initialization and Usage
 
-![componentVaultBootstrapAndUsage](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/componentVault-bootstrap-and-usage.puml)
-[plantUML code](pumlFiles/componentVault-bootstrap-and-usage.puml)
+![privateVaultBootstrapAndUsageA1](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/privateVault-bootstrap-and-usage-alternative-1.puml)
+[plantUML code](pumlFiles/privateVault-bootstrap-and-usage-alternative-1.puml)
 
 
 ## Technical Details
@@ -95,9 +95,17 @@ about the POD and Namespace:
 It is possible to use this additional information to sharpen the requirements for the JWT auth in Canvas Vault.
 
 
-# Disclaimer
+# Alternative Workflows
 
-As stated above, the workflow is not 100% correct.
-It will be updated as soon as a reference implementation was made.
+## With Private-Vault-Operator
+
+![privateVaultBootstrapAndUsageA2](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/privateVault-bootstrap-and-usage-alternative-2.puml)
+[plantUML code](pumlFiles/privateVault-bootstrap-and-usage-alternative-2.puml)
+
+
+## Without SideCar
+
+![privateVaultBootstrapAndUsageA3](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/privateVault-bootstrap-and-usage-alternative-3.puml)
+[plantUML code](pumlFiles/privateVault-bootstrap-and-usage-alternative-3.puml)
 
 
