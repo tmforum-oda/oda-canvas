@@ -134,4 +134,41 @@ security:
     canvasVaultURL: https://canvas-vault.canvas-system.svc.cluster.local
 ```
     
+# Feedback from the ODA Security & Privacy Meeting 31.05.2023
+
+## JWT have to be signed
+
+It is important to configure Canvas-Vault, that it rejects unsigned JWTs. 
+Seems to be a common issue, that JWT spec allows providing an empty signature and such tokens, of course, have to be rejected.
+
+
+# ServiceAccount-Signing-Key
+
+There is one secret, which was not explicitly mentioned above. The Kubernetes ServiceAccount-Signing-Key. 
+In the description above we accepted Kubernetes to be an Authority, which we trust.
+JWTs with a Kubernetes signature where accepted as truth. 
+That only holds true, if the ServiceAccount-Signing-Key is secured.
+
+For a kubeadm Kubernetes cluster the path of the key in the host-filesystem of the master-nodes can be 
+queried (see [here](https://stackoverflow.com/questions/61243223/kubernetes-service-account-signing-key) ) with
+
+```
+$ kubectl describe pod kube-controller-manager-kind-control-plane -n kube-system
+  ... 
+    Command:
+      kube-controller-manager
+      ...
+      --node-cidr-mask-size=24
+      --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+      --root-ca-file=/etc/kubernetes/pki/ca.crt
+      --service-account-private-key-file=/etc/kubernetes/pki/sa.key
+      --service-cluster-ip-range=10.96.0.0/12
+      --use-service-account-credentials=true
+```
+
+An Admin with access to the Host-Filesystem of the master node can get access to the file 
+"/etc/kubernetes/pki/sa.key" and "Social Engineering" is a possible attack vector.
+
+For AWS EKS cluster the Master-Nodes for the control-planes are not accessible, even not for AWS Accoun admins.
+But, of course, we have to trust Amazon. 
 
