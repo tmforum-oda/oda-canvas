@@ -99,13 +99,39 @@ It is possible to use this additional information to sharpen the requirements fo
 
 ## With Private-Vault-Operator
 
+Following the operator concept in the canvas, the Private-Vault-Operator is responsible for all communication with the Canvas-Vault.
+This decouples the Component-Operator from the Canvas-Vault implementation.
+
+
 ![privateVaultBootstrapAndUsageA2](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/privateVault-bootstrap-and-usage-alternative-2.puml)
 [plantUML code](pumlFiles/privateVault-bootstrap-and-usage-alternative-2.puml)
+
+```
+security:
+  ...
+  privateVault:
+  type: SideCar
+```
 
 
 ## Without SideCar
 
+Another option might be to only provide the Component-Instance access to the JWT, which can be used directly. No need for a SideCar.
+I am not aware of a standard API for Security-Vaults. Therefore the Canvas-Vault is an adapter Which forwards all requests to 
+the chosen standard implementation in the canvas.
+
 ![privateVaultBootstrapAndUsageA3](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ferenc-hechler/oda-canvas/master/usecase-library/pumlFiles/privateVault-bootstrap-and-usage-alternative-3.puml)
 [plantUML code](pumlFiles/privateVault-bootstrap-and-usage-alternative-3.puml)
 
+In the component.yaml there could be a section like this
+
+```
+security:
+  ...
+  privateVault:
+    type: JWTOnly
+    tokenPath: /var/run/secrets/kubernetes.io/serviceaccount/token
+    canvasVaultURL: https://canvas-vault.canvas-system.svc.cluster.local
+```
+    
 
