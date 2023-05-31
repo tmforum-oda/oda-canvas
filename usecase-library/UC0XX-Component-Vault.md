@@ -172,3 +172,7 @@ An Admin with access to the Host-Filesystem of the master node can get access to
 For AWS EKS cluster the Master-Nodes for the control-planes are not accessible, even not for AWS Accoun admins.
 But, of course, we have to trust Amazon. 
 
+### Pragmatic View
+
+This is a reference for how to implement a private vault. It is not perfect.
+But, as long as we have nothing better, it can be used.
