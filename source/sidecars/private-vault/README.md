@@ -65,7 +65,7 @@ create role
 ```
 export CIID=123
 vault policy write comp-$CIID-policy - <<EOF
-path "comp-secrets/data/component/$CIID" {
+path "comp-secrets/data/component/$CIID/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 EOF
