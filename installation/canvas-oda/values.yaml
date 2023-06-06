@@ -45,11 +45,15 @@ cert-manager-init:
 
 keycloak:
   enabled: true
+  image:
+    tag: 20.0.5-debian-11-r2
   auth:
     adminUser: "admin"
     adminPassword: "adpass"
   postgresql:
     enabled: true
+    image:
+      tag: 15.2.0-debian-11-r31
     auth:
       username: "keycloak"
       password: "keycloakdbuser"
@@ -74,6 +78,8 @@ keycloak:
   # -- Create a myrealm realm with a seccon user
   keycloakConfigCli:
     enabled: true
+    image:
+      tag: 5.5.0-debian-11-r35
     backoffLimit: 1
     command: [ "java", "-jar", "/opt/keycloak-config-cli.jar" ]
     configuration:
