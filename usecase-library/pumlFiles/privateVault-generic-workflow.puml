@@ -1,0 +1,64 @@
+@startuml
+
+participant Canvas as "Canvas"
+entity Component
+participant "Component Operator" as ComponentOperator
+entity "Private Vault" as PrivateVault
+participant "Private Vault Operator" as PrivateVaultOperator
+participant ComponentImplementation [
+	=Component POD
+	----
+	Component-Implementation
+]
+participant PrivateVaultSideCar [
+	=Component POD
+	----
+	Private-Vault-SideCar
+]
+participant CanvasVault as "Canvas Vault"
+
+
+group Canvas Vault Initial Configuration 
+    ...
+	Canvas -> CanvasVault : setup Kubernetes Authenticator
+	...
+end group
+
+group Bootstrap - component deployment
+	Component -> ComponentOperator : on.create
+	ComponentOperator -> ComponentOperator : create unique Component-Instance-ID <CIID>
+	create PrivateVault
+	ComponentOperator -> PrivateVault  : extract config from Component
+	PrivateVault -> PrivateVaultOperator : on.create
+	PrivateVaultOperator -> CanvasVault : Setup "role-<CIID>", which only accepts PODs from this Component-Instance 
+	PrivateVaultOperator -> CanvasVault : Create empty Secret Store "privatevault-<CIID>"
+	PrivateVaultOperator -> CanvasVault : Grant "role-<CIID>" full permissions to "privatevault-<CIID>" 
+	group Mutate PODs which request Private-Vault-Access
+		PrivateVaultOperator -> PrivateVaultSideCar : inject and configure SideCar with <CIID>, Canvas-Vault-URL, ... 
+		ComponentImplementation <-[#ff0000]-> PrivateVaultSideCar
+		activate ComponentImplementation 
+		activate PrivateVaultSideCar 
+	    note right of ComponentImplementation
+	    started together in one POD
+	    end note	
+		PrivateVaultSideCar -> CanvasVault : authenticate as "role-<CIID>" (maybe periodic)
+    end group
+	group Initialization - one-time negotiation about a token securing the localhost communication 
+		ComponentImplementation -> PrivateVaultSideCar : init(seed)
+		skinparam responseMessageBelowArrow true
+		ComponentImplementation <-- PrivateVaultSideCar : localhost-token
+    end group
+end group
+
+note over ComponentImplementation : some time later
+
+group Runtime - component running
+	ComponentImplementation -> PrivateVaultSideCar : create secret(key, value)
+	PrivateVaultSideCar -> CanvasVault : create secret("privatevault-<CIID>", key, value)
+	ComponentImplementation -> PrivateVaultSideCar : read secret(key)
+	PrivateVaultSideCar -> CanvasVault : read secret("privatevault-<CIID>", key)
+	PrivateVaultSideCar  <-- CanvasVault : return secret-value
+	ComponentImplementation <-- PrivateVaultSideCar : return secret-value 
+end group
+
+@enduml

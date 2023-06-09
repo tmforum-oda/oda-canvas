@@ -66,7 +66,7 @@ curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/
 # UpdateSecret
 curl -s -X PUT http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json" -H "Content-Type: application/json" -d "{\"key\":\"$KEY\",\"value\":\"update-value-$KEY\"}"
 # GetSecretByKey
-curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
+	curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
 # DeleteSecret
 curl -s -X DELETE http://localhost:5000/api/v3/secret/$KEY -H "accept: */*"
 ```
@@ -88,8 +88,8 @@ curl -H "X-Vault-Request: true" -H "X-Vault-Token: $TOKEN" http://demo-vault.dem
 ```
 cd git\oda-canvas-FORK\source\sidecars\private-vault
 helm uninstall -n demo-comp democomp
-kubectl delete ns demo-comp
 helm uninstall -n demo-vault demo-vault 
+kubectl delete ns demo-comp
 kubectl delete ns demo-vault
 ```
 
