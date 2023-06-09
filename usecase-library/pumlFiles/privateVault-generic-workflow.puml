@@ -17,12 +17,13 @@ participant PrivateVaultSideCar [
 ]
 participant CanvasVault as "Canvas Vault"
 
-
 group Canvas Vault Initial Configuration 
     ...
 	Canvas -> CanvasVault : setup Kubernetes Authenticator
 	...
 end group
+
+== COMPONENT DEPLOYMENT ==
 
 group Bootstrap - component deployment
 	Component -> ComponentOperator : on.create
@@ -32,7 +33,11 @@ group Bootstrap - component deployment
 	PrivateVault -> PrivateVaultOperator : on.create
 	PrivateVaultOperator -> CanvasVault : Setup "role-<CIID>", which only accepts PODs from this Component-Instance 
 	PrivateVaultOperator -> CanvasVault : Create empty Secret Store "privatevault-<CIID>"
-	PrivateVaultOperator -> CanvasVault : Grant "role-<CIID>" full permissions to "privatevault-<CIID>" 
+	PrivateVaultOperator -> CanvasVault : Grant "role-<CIID>" full permissions to "privatevault-<CIID>"
+
+== POD DEPLOYMENT ==
+
+	 
 	group Mutate PODs which request Private-Vault-Access
 		PrivateVaultOperator -> PrivateVaultSideCar : inject and configure SideCar with <CIID>, Canvas-Vault-URL, ... 
 		ComponentImplementation <-[#ff0000]-> PrivateVaultSideCar
@@ -43,6 +48,9 @@ group Bootstrap - component deployment
 	    end note	
 		PrivateVaultSideCar -> CanvasVault : authenticate as "role-<CIID>" (maybe periodic)
     end group
+
+== POD RUNTIME ==
+
 	group Initialization - one-time negotiation about a token securing the localhost communication 
 		ComponentImplementation -> PrivateVaultSideCar : init(seed)
 		skinparam responseMessageBelowArrow true
@@ -51,6 +59,7 @@ group Bootstrap - component deployment
 end group
 
 note over ComponentImplementation : some time later
+
 
 group Runtime - component running
 	ComponentImplementation -> PrivateVaultSideCar : create secret(key, value)
