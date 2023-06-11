@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: privatevault-operator
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      application: privatevault-operator
+  template:
+    metadata:
+      labels:
+        application: privatevault-operator
+    spec:
+      serviceAccountName: privatevault-account
+      containers:
+      - name: privatevault-operator
+        image: mtr.devops.telekom.de/magenta_canvas/private-vault-operator:0.1.0
+        imagePullPolicy: Always
