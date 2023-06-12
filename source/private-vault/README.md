@@ -41,6 +41,13 @@ kubectl apply -f test/privatevault.yaml
 kubectl get privatevaults
 ```
 
+### test sidecar
+
+```
+helm upgrade --install demo-comp-123 test/helm-charts/democomp -n demo-comp-123 --create-namespace
+```
+
+
 
 ### local tests with Windows
 
@@ -54,12 +61,12 @@ vault kv get -mount=secret -field=password demo
 # Cleanup
 
 ```
-helm uninstall -n demo-comp-123 demo-comp-123
-helm uninstall -n canvas-vault canvas-vault-hc
-kubectl delete -f installation/canvas-vault-hc/public-route-for-testing.yaml
-helm uninstall -n oda-pv oda-pv
 kubectl delete -f test/privatevault.yaml
-kubectl delete ns privatevault-system 
-kubectl delete ns canvas-vault 
+helm uninstall -n demo-comp-123 demo-comp-123
+kubectl delete -f installation/canvas-vault-hc/public-route-for-testing.yaml
+helm uninstall -n canvas-vault canvas-vault-hc
+helm uninstall -n oda-pv oda-pv
 kubectl delete ns demo-comp-123
+kubectl delete ns canvas-vault 
+kubectl delete ns privatevault-system 
 ```

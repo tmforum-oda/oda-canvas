@@ -20,9 +20,9 @@ logger.setLevel(int(os.getenv('LOGGING', 10)))
 
 vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
 auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-pv')
-login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'pv-%s-role')
+login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'pv-{0}-role')
 secrets_mount = os.getenv('SECRETS_MOUNT', 'private-vault')
-secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'component/%s')
+secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'component/{0}')
 
 
 def decrypt(encrypted_text):
