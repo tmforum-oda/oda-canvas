@@ -21,11 +21,8 @@ helm upgrade --install canvas-vault-hc hashicorp/vault --version 0.24.0 --namesp
 
 ```
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault secrets enable -version=2 -path=private-vault kv
-kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jwtk8s jwt
-kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwtk8s/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-
-# kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-pv jwt
-# kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-pv/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-pv jwt
+kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-pv/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 ```
 
 ## DEBUG: create public route to Canvas-Vault

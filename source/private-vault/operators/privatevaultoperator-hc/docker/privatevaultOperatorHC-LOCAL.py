@@ -17,13 +17,17 @@ import base64
 logger = logging.getLogger()
 logger.setLevel(int(os.getenv('LOGGING', 10)))
 
+#vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
+#auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-pv')
+#login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'pv-%s-role')
+#secrets_mount = os.getenv('SECRETS_MOUNT', 'private-vault')
+#secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'component/%s')
 
-vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
+vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.feri.ai')
 auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-pv')
-login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'pv-%s-role')
+login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'pv-{0}-role')
 secrets_mount = os.getenv('SECRETS_MOUNT', 'private-vault')
-secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'component/%s')
-
+secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'component/{0}')
 
 def decrypt(encrypted_text):
     return Fernet(base64.b64encode((auth_path*32)[:32].encode('ascii')).decode('ascii')).decrypt(encrypted_text.encode('ascii')).decode('ascii')
@@ -54,6 +58,7 @@ def setupPrivateVault(ciid:str, namespace:str, service_account:str):
       capabilities = ["create", "read", "update", "delete", "list", "patch"]
     }}
     '''
+    
     client.sys.create_or_update_policy(
         name=policy_name,
         policy=policy,
@@ -63,6 +68,7 @@ def setupPrivateVault(ciid:str, namespace:str, service_account:str):
     ### create role
     # https://hvac.readthedocs.io/en/stable/usage/auth_methods/jwt-oidc.html#create-role
     #
+    
     login_role = login_role_tpl.format(ciid)
     print(f'create role {login_role}')
     allowed_redirect_uris = [f'{vault_addr}/jwt-test/callback']
@@ -196,3 +202,21 @@ def set_proxy():
     os.environ["NO_PROXY"]="10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
 
 
+if __name__ == '__main__':
+    set_proxy()
+    dummy = {}
+    spec = {
+        'comopnentInstanceID': 'demo-comp-123',
+        'podSelector': {
+            'namespace': 'demo-comp-123',
+            'serviceAccount': 'default'
+        },
+        'sideCar': {
+            'port': 5000,
+            'token': 'negotiate'
+        },
+        'type': 'sideCar'        
+    }
+    # privatevaultCreate(dummy, spec, dummy, dummy, "dempo-comp-123", dummy, "privatevault-demo-comp-123")
+    privatevaultDelete(dummy, spec, dummy, dummy, "dempo-comp-123", dummy, "privatevault-demo-comp-123")
+    

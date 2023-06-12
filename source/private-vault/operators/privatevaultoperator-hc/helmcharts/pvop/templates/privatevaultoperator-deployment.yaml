@@ -19,3 +19,15 @@ spec:
       - name: privatevault-operator
         image: mtr.devops.telekom.de/magenta_canvas/private-vault-operator:0.1.0
         imagePullPolicy: Always
+        env:
+        - name: VAULT_ADDR
+          value: "{{ .Values.vault_addr }}"
+        - name: AUTH_PATH
+          value: "{{ .Values.auth_path }}"
+        - name: LOGIN_ROLE_TPL
+          value: "{{ .Values.login_role_tpl }}"
+        - name: SECRETS_MOUNT
+          value: "{{ .Values.secrets_mount }}"
+        - name: SECRETS_BASE_PATH_TPL
+          value: "{{ .Values.secrets_base_path_tpl }}"
+        
