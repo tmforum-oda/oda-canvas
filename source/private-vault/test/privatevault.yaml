@@ -6,8 +6,8 @@ spec:
   comopnentInstanceID: demo-comp-123
   type: sideCar
   sideCar:
-	  port: 5000
-	  token: negotiate
+    port: 5000
+    token: negotiate
   podSelector:
     namespace: demo-comp-123
     serviceAccount: default

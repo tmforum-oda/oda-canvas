@@ -3,7 +3,7 @@
 ## Install Private Vault Custom Resource Definition
 
 ```
-helm upgrade --install oda-pv installation/oda-pv-crds --namespace oda-pv --create-namespace
+helm upgrade --install oda-pv installation/oda-pv-crds --namespace privatevault-system --create-namespace
 ```
 
 ## Install HashiCorp Vault in DEV mode
@@ -62,7 +62,7 @@ helm uninstall -n canvas-vault canvas-vault-hc
 kubectl delete -f installation/canvas-vault-hc/public-route-for-testing.yaml
 helm uninstall -n oda-pv oda-pv
 kubectl delete -f test/privatevault.yaml
-kubectl delete ns oda-pv 
+kubectl delete ns privatevault-system 
 kubectl delete ns canvas-vault 
 kubectl delete ns demo-comp-123
 ```

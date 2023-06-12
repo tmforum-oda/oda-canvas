@@ -12,7 +12,7 @@ metadata:
 rules:
 
   # Framework: knowing which other operators are running (i.e. peering).
-  - apiGroups: [kopf.dev]
+  - apiGroups: [zalando.org]
     resources: [clusterkopfpeerings]
     verbs: [list, watch, patch, get]
 
@@ -30,7 +30,7 @@ rules:
     verbs: [create, patch]
 
   # Application: read-only access for watching cluster-wide.
-  - apiGroups: [kopf.dev]
+  - apiGroups: [oda.tmforum.org]
     resources: [privatevaults]
     verbs: [list, watch]
 ---
@@ -42,7 +42,7 @@ metadata:
 rules:
 
   # Framework: knowing which other operators are running (i.e. peering).
-  - apiGroups: [kopf.dev]
+  - apiGroups: [zalando.org]
     resources: [kopfpeerings]
     verbs: [list, watch, patch, get]
 
@@ -52,7 +52,7 @@ rules:
     verbs: [create]
 
   # Application: watching & handling for the custom resource we declare.
-  - apiGroups: [kopf.dev]
+  - apiGroups: [oda.tmforum.org]
     resources: [privatevaults]
     verbs: [list, watch, patch]
 
