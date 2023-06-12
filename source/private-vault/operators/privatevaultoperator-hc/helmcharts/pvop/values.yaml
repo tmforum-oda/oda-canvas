@@ -1,5 +1,10 @@
 vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
+
 auth_path: "jwt-k8s-pv"
+
+policy_name_tpl: "pv-{0}-policy"
 login_role_tpl: "pv-{0}-role"
-secrets_mount: "private-vault"
-secrets_base_path_tpl: "component/{0}"
+secrets_mount_tpl: "kv-{0}"
+secrets_base_path_tpl: "sidecar
+
+audience: "https://kubernetes.default.svc.cluster.local"
