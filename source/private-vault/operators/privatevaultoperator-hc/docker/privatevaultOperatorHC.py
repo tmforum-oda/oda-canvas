@@ -17,12 +17,15 @@ import base64
 logger = logging.getLogger()
 logger.setLevel(int(os.getenv('LOGGING', 10)))
 
-
-vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
+vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.feri.ai')
+#vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
 auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-pv')
 login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'pv-{0}-role')
-secrets_mount = os.getenv('SECRETS_MOUNT', 'private-vault')
-secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'component/{0}')
+policy_name_tpl = os.getenv('LOGIN_ROLE_TPL', 'pv-{0}-policy')
+secrets_mount_tpl = os.getenv('SECRETS_MOUNT_TPL', 'kv-{0}')
+secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'sidecar')
+
+audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 
 
 def decrypt(encrypted_text):
@@ -34,21 +37,29 @@ def encrypt(plain_text):
 
 def setupPrivateVault(ciid:str, namespace:str, service_account:str):
     logging.info(f"SETUP PRIVATEVAULT ciid={ciid}, ns={namespace}, sa={service_account}")
-    token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
     
+    login_role = login_role_tpl.format(ciid)
+    policy_name = policy_name_tpl.format(ciid)
+    secrets_mount = secrets_mount_tpl.format(ciid)
+    secrets_base_path = secrets_base_path_tpl.format(ciid)
+    
+    token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
     # Authentication
     client = hvac.Client(
         url=vault_addr,
         token=token,
     )
+
+    ### enable KV v2 engine 
+    # https://hvac.readthedocs.io/en/stable/source/hvac_api_system_backend.html?highlight=mount#hvac.api.system_backend.Mount.enable_secrets_engine
+    #
+    logging.info(f"enabling KV v2 engine at {secrets_mount}")
+    client.sys.enable_secrets_engine("kv", secrets_mount, options={"version":"2"})
     
     ### create policy
     # https://hvac.readthedocs.io/en/stable/usage/system_backend/policy.html#create-or-update-policy
     #
-    policy_name=f'pv-{ciid}-policy'
-    print(f'create policy {policy_name}')
-    
-    secrets_base_path = secrets_base_path_tpl.format(ciid)
+    logging.info(f'create policy {policy_name}')
     policy = f'''
     path "{secrets_mount}/data/{secrets_base_path}/*" {{
       capabilities = ["create", "read", "update", "delete", "list", "patch"]
@@ -59,46 +70,52 @@ def setupPrivateVault(ciid:str, namespace:str, service_account:str):
         policy=policy,
     )
     
-
     ### create role
     # https://hvac.readthedocs.io/en/stable/usage/auth_methods/jwt-oidc.html#create-role
     #
-    login_role = login_role_tpl.format(ciid)
-    print(f'create role {login_role}')
-    allowed_redirect_uris = [f'{vault_addr}/jwt-test/callback']
+    logging.info(f'create role {login_role}')
+    allowed_redirect_uris = [f'{vault_addr}/jwt-test/callback'] # ?
     sub = f"system:serviceaccount:{namespace}:{service_account}"
-    print(f"sub={sub}")
+    logging.info(f"sub={sub}")
     # JWT
     client.auth.jwt.create_role(
         name=login_role,
         role_type='jwt',
         user_claim='sub',
         bound_subject=sub,
-        bound_audiences=["https://kubernetes.default.svc.cluster.local"],
+        bound_audiences=[audience],
         token_policies=[policy_name],
         token_ttl=3600,
-        allowed_redirect_uris=allowed_redirect_uris,  # why?
+        allowed_redirect_uris=allowed_redirect_uris,  # why mandatory? 
         path = auth_path,
     )
     
 
 def deletePrivateVault(ciid:str):
     logging.info(f"DELETE PRIVATEVAULT ciid={ciid}")
-    token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
     
+    login_role = login_role_tpl.format(ciid)
+    policy_name = policy_name_tpl.format(ciid)
+    secrets_mount = secrets_mount_tpl.format(ciid)
+    secrets_base_path = secrets_base_path_tpl.format(ciid)
+    
+    token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
     # Authentication
     client = hvac.Client(
         url=vault_addr,
         token=token,
     )
     
+    ### disable KV secrets engine
+    # https://hvac.readthedocs.io/en/stable/usage/system_backend/mount.html?highlight=mount#disable-secrets-engine
+    #
+    logging.info(f"disabling KV engine {secrets_mount}")
+    client.sys.disable_secrets_engine(secrets_mount)
     
     ### delete role
     # https://hvac.readthedocs.io/en/stable/usage/auth_methods/jwt-oidc.html#delete-role
     #
-    login_role = login_role_tpl.format(ciid)
-    print(f'delete role {login_role}')
-    # JWT
+    logging.info(f'delete role {login_role}')
     client.auth.jwt.delete_role(
         name=login_role,
         path = auth_path,
@@ -107,11 +124,8 @@ def deletePrivateVault(ciid:str):
     ### delete policy
     # https://hvac.readthedocs.io/en/stable/usage/system_backend/policy.html#delete-policy
     #
-    policy_name=f'pv-{ciid}-policy'
-    print(f'delete policy {policy_name}')
+    logging.info(f'delete policy {policy_name}')
     client.sys.delete_policy(name=policy_name)
-    
-
 
 
 # when an oda.tmforum.org privatevault resource is created or updated, configure policy and role 
@@ -119,24 +133,17 @@ def deletePrivateVault(ciid:str):
 @kopf.on.update('oda.tmforum.org', 'v1alpha1', 'privatevaults')
 def privatevaultCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
 
-    logging.info(f"Create/Update  called with meta: {type(meta)} - {meta}")
-    logging.info(f"Create/Update  called with status: {type(status)} - {status}")
-    logging.info(f"Create/Update  called with body: {type(body)} - {body}")
-    logging.info(f"Create/Update  called with namespace: {type(namespace)} - {namespace}")
-    logging.info(f"Create/Update  called with labels: {type(labels)} - {labels}")
-    logging.info(f"Create/Update  called with name: {type(name)} - {name}")
-
+    logging.info(f"Create/Update  called with spec: {spec}")
     logging.debug(f"privatevault has name: {spec['comopnentInstanceID']}")
     logging.debug(f"privatevault has status: {status}")
-    logging.debug(f"privatevault is called with body: {spec}")
-    
+
     ciid = spec['comopnentInstanceID']
     namespace = spec['podSelector']['namespace']
+    #namespace = meta.get('namespace')   # only if privatevault CR is in target namespace
     service_account = spec['podSelector']['serviceAccount']
     
     setupPrivateVault(ciid, namespace, service_account)
     
-    #namespace = meta.get('namespace')
 
 
 
@@ -190,9 +197,28 @@ def restCall( host, path, spec ):
         time.sleep(2)
 
 
-def set_proxy():
-    os.environ["HTTP_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
-    os.environ["HTTPS_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
-    os.environ["NO_PROXY"]="10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
-
+# def set_proxy():
+#     os.environ["HTTP_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
+#     os.environ["HTTPS_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
+#     os.environ["NO_PROXY"]="10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
+#
+#
+# if __name__ == '__main__':
+#     #set_proxy()
+#     dummy = {}
+#     spec = {
+#         'comopnentInstanceID': 'demo-comp-123',
+#         'podSelector': {
+#             'namespace': 'demo-comp-123',
+#             'serviceAccount': 'default'
+#         },
+#         'sideCar': {
+#             'port': 5000,
+#             'token': 'negotiate'
+#         },
+#         'type': 'sideCar'        
+#     }
+#     privatevaultDelete(dummy, spec, dummy, dummy, "dempo-comp-123", dummy, "privatevault-demo-comp-123")
+#     privatevaultCreate(dummy, spec, dummy, dummy, "dempo-comp-123", dummy, "privatevault-demo-comp-123")
+#
 
