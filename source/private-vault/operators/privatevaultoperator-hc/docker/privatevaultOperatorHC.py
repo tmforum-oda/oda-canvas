@@ -36,75 +36,91 @@ def encrypt(plain_text):
 
 
 def setupPrivateVault(ciid:str, namespace:str, service_account:str):
-    logging.info(f"SETUP PRIVATEVAULT ciid={ciid}, ns={namespace}, sa={service_account}")
-    
-    login_role = login_role_tpl.format(ciid)
-    policy_name = policy_name_tpl.format(ciid)
-    secrets_mount = secrets_mount_tpl.format(ciid)
-    secrets_base_path = secrets_base_path_tpl.format(ciid)
-    
-    token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
-    # Authentication
-    client = hvac.Client(
-        url=vault_addr,
-        token=token,
-    )
+    try:
+        logging.info(f"SETUP PRIVATEVAULT ciid={ciid}, ns={namespace}, sa={service_account}")
+        
+        policy_name = policy_name_tpl.format(ciid)
+        login_role = login_role_tpl.format(ciid)
+        secrets_mount = secrets_mount_tpl.format(ciid)
+        secrets_base_path = secrets_base_path_tpl.format(ciid)
 
-    ### enable KV v2 engine 
-    # https://hvac.readthedocs.io/en/stable/source/hvac_api_system_backend.html?highlight=mount#hvac.api.system_backend.Mount.enable_secrets_engine
-    #
-    logging.info(f"enabling KV v2 engine at {secrets_mount}")
-    client.sys.enable_secrets_engine("kv", secrets_mount, options={"version":"2"})
+        logging.info(f"policy_name: {policy_name}")
+        logging.info(f"login_role: {login_role}")
+        logging.info(f"secrets_mount: {secrets_mount}")
+        logging.info(f"secrets_base_path: {secrets_base_path}")
+
+        
+        token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
+        # Authentication
+        client = hvac.Client(
+            url=vault_addr,
+            token=token,
+        )
     
-    ### create policy
-    # https://hvac.readthedocs.io/en/stable/usage/system_backend/policy.html#create-or-update-policy
-    #
-    logging.info(f'create policy {policy_name}')
-    policy = f'''
-    path "{secrets_mount}/data/{secrets_base_path}/*" {{
-      capabilities = ["create", "read", "update", "delete", "list", "patch"]
-    }}
-    '''
-    client.sys.create_or_update_policy(
-        name=policy_name,
-        policy=policy,
-    )
-    
-    ### create role
-    # https://hvac.readthedocs.io/en/stable/usage/auth_methods/jwt-oidc.html#create-role
-    #
-    logging.info(f'create role {login_role}')
-    allowed_redirect_uris = [f'{vault_addr}/jwt-test/callback'] # ?
-    sub = f"system:serviceaccount:{namespace}:{service_account}"
-    logging.info(f"sub={sub}")
-    # JWT
-    client.auth.jwt.create_role(
-        name=login_role,
-        role_type='jwt',
-        user_claim='sub',
-        bound_subject=sub,
-        bound_audiences=[audience],
-        token_policies=[policy_name],
-        token_ttl=3600,
-        allowed_redirect_uris=allowed_redirect_uris,  # why mandatory? 
-        path = auth_path,
-    )
+        ### enable KV v2 engine 
+        # https://hvac.readthedocs.io/en/stable/source/hvac_api_system_backend.html?highlight=mount#hvac.api.system_backend.Mount.enable_secrets_engine
+        #
+        logging.info(f"enabling KV v2 engine at {secrets_mount}")
+        client.sys.enable_secrets_engine("kv", secrets_mount, options={"version":"2"})
+        
+        ### create policy
+        # https://hvac.readthedocs.io/en/stable/usage/system_backend/policy.html#create-or-update-policy
+        #
+        logging.info(f'create policy {policy_name}')
+        policy = f'''
+        path "{secrets_mount}/data/{secrets_base_path}/*" {{
+          capabilities = ["create", "read", "update", "delete", "list", "patch"]
+        }}
+        '''
+        client.sys.create_or_update_policy(
+            name=policy_name,
+            policy=policy,
+        )
+        
+        ### create role
+        # https://hvac.readthedocs.io/en/stable/usage/auth_methods/jwt-oidc.html#create-role
+        #
+        logging.info(f'create role {login_role}')
+        allowed_redirect_uris = [f'{vault_addr}/jwt-test/callback'] # ?
+        sub = f"system:serviceaccount:{namespace}:{service_account}"
+        logging.info(f"sub={sub}")
+        # JWT
+        client.auth.jwt.create_role(
+            name=login_role,
+            role_type='jwt',
+            user_claim='sub',
+            bound_subject=sub,
+            bound_audiences=[audience],
+            token_policies=[policy_name],
+            token_ttl=3600,
+            allowed_redirect_uris=allowed_redirect_uris,  # why mandatory? 
+            path = auth_path,
+        )
+    except:
+        logging.exception(f"ERRPR setup vault {ciid} failed!")
     
 
 def deletePrivateVault(ciid:str):
-    logging.info(f"DELETE PRIVATEVAULT ciid={ciid}")
-    
-    login_role = login_role_tpl.format(ciid)
-    policy_name = policy_name_tpl.format(ciid)
-    secrets_mount = secrets_mount_tpl.format(ciid)
-    secrets_base_path = secrets_base_path_tpl.format(ciid)
-    
-    token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
-    # Authentication
-    client = hvac.Client(
-        url=vault_addr,
-        token=token,
-    )
+    try:
+        logging.info(f"DELETE PRIVATEVAULT ciid={ciid}")
+        
+        login_role = login_role_tpl.format(ciid)
+        policy_name = policy_name_tpl.format(ciid)
+        secrets_mount = secrets_mount_tpl.format(ciid)
+        
+        logging.info(f"policy_name: {policy_name}")
+        logging.info(f"login_role: {login_role}")
+        logging.info(f"secrets_mount: {secrets_mount}")
+        
+        token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
+        # Authentication
+        client = hvac.Client(
+            url=vault_addr,
+            token=token,
+        )
+    except:
+        logging.exception(f"ERRPR delete vault {ciid} failed!")
+        
     
     ### disable KV secrets engine
     # https://hvac.readthedocs.io/en/stable/usage/system_backend/mount.html?highlight=mount#disable-secrets-engine

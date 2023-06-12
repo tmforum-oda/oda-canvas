@@ -5,6 +5,6 @@ auth_path: "jwt-k8s-pv"
 policy_name_tpl: "pv-{0}-policy"
 login_role_tpl: "pv-{0}-role"
 secrets_mount_tpl: "kv-{0}"
-secrets_base_path_tpl: "sidecar
+secrets_base_path_tpl: "sidecar"
 
 audience: "https://kubernetes.default.svc.cluster.local"
