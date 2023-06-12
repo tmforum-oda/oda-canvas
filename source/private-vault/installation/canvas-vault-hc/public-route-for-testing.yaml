@@ -10,11 +10,11 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - secretName: canvas-vault-hc-ssl
+    - secretName: canvas-vault-ssl
       hosts:
-      - canvas-vault-hc.k8s.feri.ai          
+      - canvas-vault.k8s.feri.ai          
   rules:
-  - host: "canvas-vault-hc.k8s.feri.ai"
+  - host: "canvas-vault.k8s.feri.ai"
     http:
       paths:
         - pathType: Prefix

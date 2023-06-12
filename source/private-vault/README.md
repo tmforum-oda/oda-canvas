@@ -17,6 +17,12 @@ helm repo update
 helm upgrade --install canvas-vault-hc hashicorp/vault --version 0.24.0 --namespace canvas-vault --create-namespace --values installation/canvas-vault-hc/values.yaml
 ```
 
+## DEBUG: create public route to Canvas-Vault
+
+```
+kubectl apply -f installation/canvas-vault-hc/public-route-for-testing.yaml
+```
+
 ## Configure HashiCorp Vault to accept Kubernetes SerciceAccount Issuer
 
 ```
@@ -24,11 +30,12 @@ kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jw
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-pv/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 ```
 
-## DEBUG: create public route to Canvas-Vault
+## KOPF crds
 
 ```
-kubectl apply -f installation/canvas-vault-hc/public-route-for-testing.yaml
+helm upgrade --install kopf-framework operators/privatevaultoperator-hc/helmcharts/kopf-framework --namespace privatevault-system --create-namespace
 ```
+
 
 
 ## Private-Vault-Operator
@@ -54,14 +61,24 @@ kubectl get privatevaults
 helm upgrade --install demo-comp-123 test/helm-charts/democomp -n demo-comp-123 --create-namespace
 ```
 
+```
+kubectl exec -it -n demo-comp-123 deployment/demo-comp-123 -- /bin/sh
+```
 
-
-### local tests with Windows
+in curl pod:
 
 ```
-set VAULT_ADDR=https://canvas-vault-hc.k8s.feri.ai
-vault login
-vault kv get -mount=secret -field=password demo
+export KEY=testpw1
+# CreateSecret
+curl -s -X "POST" "http://localhost:5000/api/v3/secret" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"key\":\"$KEY\",\"value\":\"init-value-$KEY\"}"
+# GetSecretByKey
+curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
+# UpdateSecret
+curl -s -X PUT http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json" -H "Content-Type: application/json" -d "{\"key\":\"$KEY\",\"value\":\"update-value-$KEY\"}"
+# GetSecretByKey
+url -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
+# DeleteSecret
+curl -s -X DELETE http://localhost:5000/api/v3/secret/$KEY -H "accept: */*"
 ```
 
 
@@ -76,6 +93,6 @@ helm uninstall -n privatevault-system pvop
 helm uninstall -n privatevault-system oda-pv-crd
 helm uninstall -n privatevault-system kopf-framework 
 kubectl delete ns demo-comp-123
-kubectl delete ns canvas-vault 
+#kubectl delete ns canvas-vault  # keep letsencrypt certificate
 kubectl delete ns privatevault-system 
 ```
