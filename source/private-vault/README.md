@@ -72,8 +72,8 @@ kubectl delete -f test/privatevault.yaml
 helm uninstall -n demo-comp-123 demo-comp-123
 kubectl delete -f installation/canvas-vault-hc/public-route-for-testing.yaml
 helm uninstall -n canvas-vault canvas-vault-hc
-helm uninstall -n privatevault-system oda-pv-crd
 helm uninstall -n privatevault-system pvop 
+helm uninstall -n privatevault-system oda-pv-crd
 helm uninstall -n privatevault-system kopf-framework 
 kubectl delete ns demo-comp-123
 kubectl delete ns canvas-vault 

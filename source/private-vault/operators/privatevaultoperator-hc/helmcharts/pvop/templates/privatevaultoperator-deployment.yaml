@@ -29,7 +29,7 @@ spec:
         - name: POLICY_NAME_TPL
           value: "{{ .Values.policy_name_tpl }}"
         - name: SECRETS_MOUNT_TPL
-          value: "{{ .Values.secrets_mount }}"
+          value: "{{ .Values.secrets_mount_tpl }}"
         - name: SECRETS_BASE_PATH_TPL
           value: "{{ .Values.secrets_base_path_tpl }}"
         - name: AUDIENCE
