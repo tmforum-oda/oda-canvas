@@ -1,9 +1,10 @@
-FROM python:3.10
+FROM python:3.11
 
 WORKDIR /src
-ADD *.py /src
-ADD requirements.txt /src
 
+ADD requirements.txt /src/
 RUN pip install -r requirements.txt
+
+ADD *.py /src/
 
 CMD kopf run /src/privatevaultOperatorHC.py --verbose
