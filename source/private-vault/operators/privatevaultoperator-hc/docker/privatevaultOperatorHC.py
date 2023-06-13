@@ -148,9 +148,22 @@ def injectSidecar(body):
     logging.info(f"POD inject sidecar: {body}")
     
 
-@kopf.on.create('pods', labels={'privatevault': 'sidecar'})
-def podCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
+# @kopf.on.create('pods', labels={'privatevault': 'sidecar'})
+# def podCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
+#
+#     logging.debug(f"POD Create/Update  called with spec: {spec}")
+#     logging.debug(f"POD Create/Update  called with meta: {meta}")
+#     logging.debug(f"POD Create/Update  called with body: {body}")
+#     logging.debug(f"POD Create/Update  called with status: {status}")
+#     logging.debug(f"POD Create/Update  called with labels: {labels}")
+#     logging.debug(f"POD Create/Update  called with namespace: {namespace}")
+#     logging.debug(f"POD Create/Update  called with name: {name}")
 
+
+@kopf.on.mutate('pods', labels={'privatevault': 'sidecar'})
+def podMutate(patch, meta, spec, status, body, namespace, labels, name, **kwargs):
+
+    logging.debug(f"POD Create/Update  called with spec: {patch}")
     logging.debug(f"POD Create/Update  called with spec: {spec}")
     logging.debug(f"POD Create/Update  called with meta: {meta}")
     logging.debug(f"POD Create/Update  called with body: {body}")
@@ -159,7 +172,6 @@ def podCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
     logging.debug(f"POD Create/Update  called with namespace: {namespace}")
     logging.debug(f"POD Create/Update  called with name: {name}")
 
-    return
 
 
 # when an oda.tmforum.org privatevault resource is created or updated, configure policy and role 
@@ -184,9 +196,7 @@ def privatevaultCreate(meta, spec, status, body, namespace, labels, name, **kwar
     
     setupPrivateVault(ciid, namespace, service_account)
     
-
-
-
+ 
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
 @kopf.on.delete('oda.tmforum.org', 'v1alpha1', 'privatevaults', retries=5)
 def privatevaultDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
