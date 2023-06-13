@@ -30,26 +30,29 @@ audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 
 # Inheritance: https://github.com/nolar/kopf/blob/main/docs/admission.rst#custom-serverstunnels
 # https://github.com/nolar/kopf/issues/785#issuecomment-859931945
+
 from typing import AsyncIterator
-class MyWHServer(kopf.WebhookServer):
+
+class ServiceTunnel:
     async def __call__(
         self, fn: kopf.WebhookFn
     ) -> AsyncIterator[kopf.WebhookClientConfig]:
-        namespace = "privatevault-system" # get from env (pod)
-        name = "pvop-webhook-svc" 
+        namespace = "privatevault-system"
+        name = "pvop-webhook-svc"
         service_port = 443
-        path = "podmutate"
-        for client_config in super().__call__(fn):
+        container_port = 9443
+        server = kopf.WebhookServer(port=container_port, host=f"{name}.{namespace}.svc")
+        async for client_config in server(fn):
             client_config["url"] = None
             client_config["service"] = kopf.WebhookClientConfigService(
-                name=name, namespace=namespace, port=service_port, path=path
+                name=name, namespace=namespace, port=service_port
             )
             yield client_config
 
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
-    settings.admission.server = MyWHServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc")
+    settings.admission.server = ServiceTunnel()
     settings.admission.managed = 'pvop.kopf.dev'
     
     
