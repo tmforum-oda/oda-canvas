@@ -144,14 +144,38 @@ def deletePrivateVault(ciid:str):
     client.sys.delete_policy(name=policy_name)
 
 
+def injectSidecar(body):
+    logging.info(f"POD inject sidecar: {body}")
+    
+
+@kopf.on.create('', 'v1', 'pods')
+def podCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
+
+    logging.debug(f"POD Create/Update  called with spec: {spec}")
+    logging.debug(f"POD Create/Update  called with meta: {meta}")
+    logging.debug(f"POD Create/Update  called with body: {body}")
+    logging.debug(f"POD Create/Update  called with status: {status}")
+    logging.debug(f"POD Create/Update  called with labels: {labels}")
+    logging.debug(f"POD Create/Update  called with namespace: {namespace}")
+    logging.debug(f"POD Create/Update  called with name: {name}")
+
+    return
+
+
 # when an oda.tmforum.org privatevault resource is created or updated, configure policy and role 
 @kopf.on.create('oda.tmforum.org', 'v1alpha1', 'privatevaults')
 @kopf.on.update('oda.tmforum.org', 'v1alpha1', 'privatevaults')
 def privatevaultCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.info(f"Create/Update  called with spec: {spec}")
+    logging.info(f"Create/Update  called with meta: {meta}")
+    logging.info(f"Create/Update  called with body: {body}")
+    logging.debug(f"privatevault  called with status: {status}")
+    logging.debug(f"privatevault  called with labels: {labels}")
+    logging.debug(f"privatevault  called with namespace: {namespace}")
+    logging.debug(f"privatevault  called with name: {name}")
+
     logging.debug(f"privatevault has name: {spec['comopnentInstanceID']}")
-    logging.debug(f"privatevault has status: {status}")
 
     ciid = spec['comopnentInstanceID']
     namespace = spec['podSelector']['namespace']
@@ -213,28 +237,50 @@ def restCall( host, path, spec ):
         time.sleep(2)
 
 
-# def set_proxy():
-#     os.environ["HTTP_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
-#     os.environ["HTTPS_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
-#     os.environ["NO_PROXY"]="10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
-#
-#
-# if __name__ == '__main__':
-#     #set_proxy()
-#     dummy = {}
-#     spec = {
-#         'comopnentInstanceID': 'demo-comp-123',
-#         'podSelector': {
-#             'namespace': 'demo-comp-123',
-#             'serviceAccount': 'default'
-#         },
-#         'sideCar': {
-#             'port': 5000,
-#             'token': 'negotiate'
-#         },
-#         'type': 'sideCar'        
-#     }
-#     privatevaultDelete(dummy, spec, dummy, dummy, "dempo-comp-123", dummy, "privatevault-demo-comp-123")
-#     privatevaultCreate(dummy, spec, dummy, dummy, "dempo-comp-123", dummy, "privatevault-demo-comp-123")
-#
+def set_proxy():
+    os.environ["HTTP_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
+    os.environ["HTTPS_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
+    os.environ["NO_PROXY"]="10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
+
+def testCreatePV():
+    #set_proxy()
+    dummy = {}
+    spec = {
+        'comopnentInstanceID': 'demo-comp-123',
+        'podSelector': {
+            'namespace': 'demo-comp-123',
+            'serviceAccount': 'default'
+        },
+        'sideCar': {
+            'port': 5000,
+            'token': 'negotiate'
+        },
+        'type': 'sideCar'        
+    }
+    privatevaultCreate(dummy, spec, dummy, dummy, "dempo-comp-123", dummy, "privatevault-demo-comp-123")
+
+def testDeletePV():
+    #set_proxy()
+    dummy = {}
+    spec = {
+        'comopnentInstanceID': 'demo-comp-123',
+        'podSelector': {
+            'namespace': 'demo-comp-123',
+            'serviceAccount': 'default'
+        },
+        'sideCar': {
+            'port': 5000,
+            'token': 'negotiate'
+        },
+        'type': 'sideCar'        
+    }
+    privatevaultDelete(dummy, spec, dummy, dummy, "demo-comp-123", dummy, "privatevault-demo-comp-123")
+
+
+
+if __name__ == '__main__':
+    logging.info(f"main called")
+    #set_proxy()
+    #testDeletePV()
+    #testCreatePV()
 
