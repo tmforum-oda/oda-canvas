@@ -28,11 +28,33 @@ secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'sidecar')
 audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 
 
+# Inheritance: https://github.com/nolar/kopf/blob/main/docs/admission.rst#custom-serverstunnels
+# https://github.com/nolar/kopf/issues/785#issuecomment-859931945
+from typing import AsyncIterator
+class MyWHServer(kopf.WebhookServer):
+    async def __call__(
+        self, fn: kopf.WebhookFn
+    ) -> AsyncIterator[kopf.WebhookClientConfig]:
+        namespace = "privatevault-system" # get from env (pod)
+        name = "pvop-webhook-svc" 
+        service_port = 443
+        path = "podmutate"
+        for client_config in super().__call__(fn):
+            client_config["url"] = None
+            client_config["service"] = kopf.WebhookClientConfigService(
+                name=name, namespace=namespace, port=service_port, path=path
+            )
+            yield client_config
+
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
-    settings.admission.server = kopf.WebhookServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc")
+    settings.admission.server = MyWHServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc")
     settings.admission.managed = 'pvop.kopf.dev'
+    
+    
+    # try somehow to use WebhookClientConfigService, see https://github.com/nolar/kopf/issues/864
+    
     
 @kopf.on.mutate('pods', labels={'privatevault': 'sidecar'})
 def podmutate(patch: kopf.Patch, warnings: list[str], **_):
@@ -296,4 +318,8 @@ if __name__ == '__main__':
     #set_proxy()
     #testDeletePV()
     #testCreatePV()
+    
+    whs = kopf.WebhookServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc")
+    print(whs)
+
 
