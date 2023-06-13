@@ -58,6 +58,13 @@ kubectl get privatevaults
 ### test sidecar
 
 ```
+helm upgrade --install demo-comp-123 test/helm-charts/democomp-withsidecar -n demo-comp-123 --create-namespace
+```
+
+
+without injection, sidecar in deployment
+
+```
 helm upgrade --install demo-comp-123 test/helm-charts/democomp -n demo-comp-123 --create-namespace
 ```
 

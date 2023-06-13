@@ -11,10 +11,11 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        privatevault: sidecar
     spec:
       # https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
       # serviceAccountName: serviceaccount-{{ .Release.Name }}-{{ .Values.component_iid }}
-      automountServiceAccountToken: false
+      # automountServiceAccountToken: false
       securityContext:
         fsGroup: 1001
         runAsGroup: 1001
@@ -39,64 +40,3 @@ spec:
           capabilities:
             drop:
             - ALL
-      
-      - name: private-vault-sidecar
-        image: mtr.devops.telekom.de/magenta_canvas/private-vault-service:0.1.1
-        imagePullPolicy: Always
-        securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-            - ALL
-        env:
-        - name: COMPONENT_IID
-          value: "{{ .Values.component_iid }}"
-        - name: VAULT_ADDR
-          value: "{{ .Values.vault_addr }}"
-        - name: AUTH_PATH
-          value: "{{ .Values.auth_path }}"
-        - name: LOGIN_ROLE
-          value: "{{ .Values.login_role }}"
-        - name: SCRETS_MOUNT
-          value: "{{ .Values.screts_mount }}"
-        - name: SCRETS_BASE_PATH
-          value: "{{ .Values.screts_base_path }}"
-          
-        
-        ports:
-        - containerPort: 5000
-        volumeMounts:
-        - mountPath: /tmp
-          name: tmp
-        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
-          name: kube-api-access-manual
-          readOnly: true
-                  
-      volumes:
-      - name: tmp
-        emptyDir: {}
-      - name: kube-api-access-manual
-        projected:
-          defaultMode: 420
-          sources:
-          - serviceAccountToken:
-              expirationSeconds: 3607
-              path: token
-          - configMap:
-              items:
-              - key: ca.crt
-                path: ca.crt
-              name: kube-root-ca.crt
-          - downwardAPI:
-              items:
-              - fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
-                path: namespace      
-              - fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.name
-                path: name      
-              

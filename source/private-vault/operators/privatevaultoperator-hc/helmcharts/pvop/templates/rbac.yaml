@@ -37,7 +37,14 @@ rules:
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [""]
     resources: [pods]
-    verbs: [list, watch]
+    verbs: [list, watch, patch]
+    
+  # Application: create events
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create]
+    
+    
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

@@ -1,0 +1,6 @@
+component_iid: "demo-comp-123"
+vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
+auth_path: "jwt-k8s-pv"
+login_role: "pv-demo-comp-123-role"
+screts_mount: "kv-demo-comp-123"
+screts_base_path: "sidecar"
