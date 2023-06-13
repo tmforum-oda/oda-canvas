@@ -31,7 +31,7 @@ audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
-    settings.admission.server = kopf.WebhookServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc.cluster.local")
+    settings.admission.server = kopf.WebhookServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc")
     settings.admission.managed = 'pvop.kopf.dev'
     
 @kopf.on.mutate('pods', labels={'privatevault': 'sidecar'})

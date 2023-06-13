@@ -39,3 +39,5 @@ spec:
           value: "{{ .Values.secrets_base_path_tpl }}"
         - name: AUDIENCE
           value: "{{ .Values.audience }}"
+        ports:
+        - containerPort: 9443
