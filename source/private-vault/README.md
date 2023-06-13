@@ -95,7 +95,7 @@ curl -s -X DELETE http://localhost:5000/api/v3/secret/$KEY -H "accept: */*"
 kubectl delete -f test/privatevault.yaml
 helm uninstall -n demo-comp-123 demo-comp-123
 helm uninstall -n canvas-vault canvas-vault-hc
-helm uninstall -n privatevault-system pvop 
+helm uninstall -n privatevault-system privatevault-operator 
 helm uninstall -n privatevault-system oda-pv-crd
 helm uninstall -n privatevault-system kopf-framework 
 kubectl delete ns demo-comp-123
