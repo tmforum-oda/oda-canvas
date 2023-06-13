@@ -54,7 +54,7 @@ class ServiceTunnel:
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
     settings.admission.server = ServiceTunnel()
-    settings.admission.managed = 'privatevault-op-kopf'
+    settings.admission.managed = 'pv.sidecar.kopf'
     
     
     

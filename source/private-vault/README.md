@@ -41,7 +41,7 @@ helm upgrade --install kopf-framework operators/privatevaultoperator-hc/helmchar
 ## Private-Vault-Operator
 
 ```
-helm upgrade --install pvop operators/privatevaultoperator-hc/helmcharts/pvop --namespace privatevault-system --create-namespace
+helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/helmcharts/pvop --namespace privatevault-system --create-namespace
 ```
 
 
