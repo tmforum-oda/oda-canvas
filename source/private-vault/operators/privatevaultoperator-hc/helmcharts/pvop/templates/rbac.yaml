@@ -3,12 +3,12 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   namespace: "{{ .Release.Namespace }}"
-  name: privatevault-account
+  name: {{ .Release.Name }}-account
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: privatevault-role-cluster
+  name: {{ .Release.Name }}-role-cluster
 rules:
 
   # Framework: knowing which other operators are running (i.e. peering).
@@ -55,7 +55,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: "{{ .Release.Namespace }}"
-  name: privatevault-role-namespaced
+  name: {{ .Release.Name }}-role-namespaced
 rules:
 
   # Framework: knowing which other operators are running (i.e. peering).
@@ -96,25 +96,25 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: privatevault-rolebinding-cluster
+  name: {{ .Release.Name }}-rolebinding-cluster
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: privatevault-role-cluster
+  name: {{ .Release.Name }}-role-cluster
 subjects:
   - kind: ServiceAccount
-    name: privatevault-account
+    name: {{ .Release.Name }}-account
     namespace: "{{ .Release.Namespace }}"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   namespace: "{{ .Release.Namespace }}"
-  name: privatevault-rolebinding-namespaced
+  name: {{ .Release.Name }}-rolebinding-namespaced
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: privatevault-role-namespaced
+  name: {{ .Release.Name }}-role-namespaced
 subjects:
   - kind: ServiceAccount
-    name: privatevault-account
+    name: {{ .Release.Name }}-account

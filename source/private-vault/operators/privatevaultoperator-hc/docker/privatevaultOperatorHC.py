@@ -1,23 +1,24 @@
 import kopf
+import hvac
 import logging
 import os
 import time
 import json
-from http.client import HTTPConnection
-import kubernetes.client
-from kubernetes.client.rest import ApiException
-
-import hvac
 import sys
+from http.client import HTTPConnection
 from cryptography.fernet import Fernet
 import base64
+import kubernetes.client
+from kubernetes.client.rest import ApiException
+from typing import AsyncIterator
+
 
 # https://kopf.readthedocs.io/en/stable/install/
 
 logger = logging.getLogger()
 logger.setLevel(int(os.getenv('LOGGING', 10)))
 
-#vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.feri.ai')
+#vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault.k8s.feri.ai')
 vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
 auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-pv')
 policy_name_tpl = os.getenv('POLICY_NAME_TPL', 'pv-{0}-policy')
@@ -27,25 +28,25 @@ secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'sidecar')
 
 audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 
+webhook_service_name = os.getenv('WEBHOOK_SERVICE_NAME', 'dummyservicename') 
+webhook_service_namespace = os.getenv('WEBHOOK_SERVICE_NAMESPACE', 'dummyservicenamespace') 
+webhook_service_port = int(os.getenv('WEBHOOK_SERVICE_PORT', '443'))
+
 
 # Inheritance: https://github.com/nolar/kopf/blob/main/docs/admission.rst#custom-serverstunnels
 # https://github.com/nolar/kopf/issues/785#issuecomment-859931945
 
-from typing import AsyncIterator
 
 class ServiceTunnel:
     async def __call__(
         self, fn: kopf.WebhookFn
     ) -> AsyncIterator[kopf.WebhookClientConfig]:
-        namespace = "privatevault-system"
-        name = "pvop-webhook-svc"
-        service_port = 443
         container_port = 9443
-        server = kopf.WebhookServer(port=container_port, host=f"{name}.{namespace}.svc")
+        server = kopf.WebhookServer(port=container_port, host=f"{webhook_service_name}.{webhook_service_namespace}.svc")
         async for client_config in server(fn):
             client_config["url"] = None
             client_config["service"] = kopf.WebhookClientConfigService(
-                name=name, namespace=namespace, port=service_port
+                name=webhook_service_name, namespace=webhook_service_namespace, port=webhook_service_port
             )
             yield client_config
 
@@ -53,10 +54,8 @@ class ServiceTunnel:
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
     settings.admission.server = ServiceTunnel()
-    settings.admission.managed = 'pvop.kopf.dev'
+    settings.admission.managed = 'privatevault-op-kopf'
     
-    
-    # try somehow to use WebhookClientConfigService, see https://github.com/nolar/kopf/issues/864
     
     
 @kopf.on.mutate('pods', labels={'privatevault': 'sidecar'})
@@ -186,20 +185,6 @@ def deletePrivateVault(ciid:str):
 def injectSidecar(body):
     logging.info(f"POD inject sidecar: {body}")
     
-
-# @kopf.on.create('pods', labels={'privatevault': 'sidecar'})
-# def podCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
-#
-#     logging.debug(f"POD Create/Update  called with spec: {spec}")
-#     logging.debug(f"POD Create/Update  called with meta: {meta}")
-#     logging.debug(f"POD Create/Update  called with body: {body}")
-#     logging.debug(f"POD Create/Update  called with status: {status}")
-#     logging.debug(f"POD Create/Update  called with labels: {labels}")
-#     logging.debug(f"POD Create/Update  called with namespace: {namespace}")
-#     logging.debug(f"POD Create/Update  called with name: {name}")
-
-
-
 
 
 # when an oda.tmforum.org privatevault resource is created or updated, configure policy and role 
