@@ -56,13 +56,40 @@ def configure(settings: kopf.OperatorSettings, **_):
     settings.admission.server = ServiceTunnel()
     settings.admission.managed = 'pv.sidecar.kopf'
     
+
+def inject_sidecar(body, patch):
+    vols = []
+    if 'volumes' in body["spec"]:
+        vols = body["spec"]["volumes"]
+    found = False
+    changed = False
+    for vol in vols:
+        if vol["name"] == "pvsidecar-tmp":
+            found = True
+    if not found:
+        vols.append({"name": "pvsidecar-tmp", "emptyDir": {}})
+        changed = True
+        
+    if changed:
+        patch["spec"] = {}
+        patch.spec['volumes'] = vols
+
+    
+
+@kopf.on.mutate('pods', labels={'privatevault': 'sidecar'}, operation='CREATE', ignore_failures=True)
+def podmutate(meta, body, patch: kopf.Patch, warnings: list[str], **_):
+    try:
+    
+        logging.info(f"POD mutate called with meta: {type(meta)} -  {meta}")
+        logging.info(f"POD mutate called with body: {type(body)} -  {body}")
+        #warnings.append("podmutate was called")
+        inject_sidecar(body, patch)
+        logging.info(f"POD mutate returns patch: {type(patch)} -  {patch}")
+    
+    except:
+        logging.exception(f"ERRPR podmutate failed!")
     
     
-@kopf.on.mutate('pods', labels={'privatevault': 'sidecar'})
-def podmutate(patch: kopf.Patch, warnings: list[str], **_):
-    logging.info(f"POD mutate called with patch: {patch}")
-    warnings.append("podmutate was called")
-    patch.metadata.labels["newlabel"] = "setinmoothuk"
 
 
 
@@ -300,14 +327,23 @@ def testDeletePV():
     privatevaultDelete(dummy, spec, dummy, dummy, "demo-comp-123", dummy, "privatevault-demo-comp-123")
 
 
+def test_inject_sidecar():
+    with open ('test/pod/mutate/mutate-meta.json', 'r') as f:
+        meta = json.load(f)
+    with open ('test/pod/mutate/mutate-body.json', 'r') as f:
+        body = json.load(f)
+    patch = {}
+    warnings = []
+    podmutate(meta, body, kopf.Patch(patch), warnings)
+        
+    
+    
 
 if __name__ == '__main__':
     logging.info(f"main called")
     #set_proxy()
     #testDeletePV()
     #testCreatePV()
-    
-    whs = kopf.WebhookServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc")
-    print(whs)
+    test_inject_sidecar()
 
 
