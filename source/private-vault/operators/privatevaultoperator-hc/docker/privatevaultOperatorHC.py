@@ -160,17 +160,19 @@ def injectSidecar(body):
 #     logging.debug(f"POD Create/Update  called with name: {name}")
 
 
-@kopf.on.mutate('pods', labels={'privatevault': 'sidecar'})
-def podMutate(patch, meta, spec, status, body, namespace, labels, name, **kwargs):
+@kopf.on.startup()
+def configure(settings: kopf.OperatorSettings, **_):
+    settings.admission.server = kopf.WebhookServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc.cluster.local")
+    settings.admission.managed = 'pvop.kopf.dev'
+    
 
-    logging.debug(f"POD Create/Update  called with spec: {patch}")
-    logging.debug(f"POD Create/Update  called with spec: {spec}")
-    logging.debug(f"POD Create/Update  called with meta: {meta}")
-    logging.debug(f"POD Create/Update  called with body: {body}")
-    logging.debug(f"POD Create/Update  called with status: {status}")
-    logging.debug(f"POD Create/Update  called with labels: {labels}")
-    logging.debug(f"POD Create/Update  called with namespace: {namespace}")
-    logging.debug(f"POD Create/Update  called with name: {name}")
+    
+@kopf.on.mutate('pods', labels={'privatevault': 'sidecar'})
+def podmutate(patch: kopf.Patch, warnings: list[str], **_):
+    logging.info(f"POD mutate called with patch: {patch}")
+    warnings.append("podmutate was called")
+    patch.spec["terminationGracePeriodSeconds"] = 31
+
 
 
 

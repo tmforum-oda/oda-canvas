@@ -55,10 +55,10 @@ kubectl apply -f test/privatevault.yaml
 kubectl get privatevaults
 ```
 
-### test sidecar
+### test sidecar injection
 
 ```
-helm upgrade --install demo-comp-123 test/helm-charts/democomp-withsidecar -n demo-comp-123 --create-namespace
+helm upgrade --install demo-comp-123 test/helm-charts/democomp -n demo-comp-123 --create-namespace
 ```
 
 

@@ -19,6 +19,11 @@ spec:
       - name: privatevault-operator
         image: mtr.devops.telekom.de/magenta_canvas/private-vault-operator:0.1.0
         imagePullPolicy: Always
+        command: ["/bin/sh"]
+        args: ["-c", "echo waiting 2h;
+           date;
+           sleep 7200;
+           echo --- FINISHED ---"]
         env:
         - name: VAULT_ADDR
           value: "{{ .Values.vault_addr }}"

@@ -25,9 +25,10 @@ rules:
     verbs: [list, watch]
 
   # Framework: admission webhook configuration management.
-  - apiGroups: [admissionregistration.k8s.io/v1, admissionregistration.k8s.io/v1beta1]
-    resources: [validatingwebhookconfigurations, mutatingwebhookconfigurations]
+  - apiGroups: [admissionregistration.k8s.io]
+    resources: [mutatingwebhookconfigurations]
     verbs: [create, patch]
+
 
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [oda.tmforum.org]
@@ -44,7 +45,11 @@ rules:
     resources: [events]
     verbs: [create]
     
-    
+  # Application: create mutating webhooks 
+  - apiGroups: [admissionregistration.k8s.io]
+    resources: [validatingwebhookconfigurations, mutatingwebhookconfigurations]
+    verbs: [create, patch]
+        
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -81,6 +86,12 @@ rules:
   - apiGroups: [""]
     resources: [pods, persistentvolumeclaims]
     verbs: [create]
+    
+  ## Application: create mutating webhooks 
+  #- apiGroups: [admissionregistration.k8s.io/v1, admissionregistration.k8s.io/v1beta1]
+  #  resources: [validatingwebhookconfigurations, mutatingwebhookconfigurations]
+  #  verbs: [create, patch]
+    
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
