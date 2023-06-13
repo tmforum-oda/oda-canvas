@@ -148,7 +148,7 @@ def injectSidecar(body):
     logging.info(f"POD inject sidecar: {body}")
     
 
-@kopf.on.create('', 'v1', 'pods')
+@kopf.on.create('pods', labels={'privatevault': 'sidecar'})
 def podCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"POD Create/Update  called with spec: {spec}")
