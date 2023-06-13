@@ -17,8 +17,8 @@ import base64
 logger = logging.getLogger()
 logger.setLevel(int(os.getenv('LOGGING', 10)))
 
-vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.feri.ai')
-#vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
+#vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.feri.ai')
+vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
 auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-pv')
 policy_name_tpl = os.getenv('POLICY_NAME_TPL', 'pv-{0}-policy')
 login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'pv-{0}-role')
@@ -26,6 +26,20 @@ secrets_mount_tpl = os.getenv('SECRETS_MOUNT_TPL', 'kv-{0}')
 secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'sidecar')
 
 audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
+
+
+
+@kopf.on.startup()
+def configure(settings: kopf.OperatorSettings, **_):
+    settings.admission.server = kopf.WebhookServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc.cluster.local")
+    settings.admission.managed = 'pvop.kopf.dev'
+    
+@kopf.on.mutate('pods', labels={'privatevault': 'sidecar'})
+def podmutate(patch: kopf.Patch, warnings: list[str], **_):
+    logging.info(f"POD mutate called with patch: {patch}")
+    warnings.append("podmutate was called")
+    patch.metadata.labels["newlabel"] = "setinmoothuk"
+
 
 
 def decrypt(encrypted_text):
@@ -159,19 +173,6 @@ def injectSidecar(body):
 #     logging.debug(f"POD Create/Update  called with namespace: {namespace}")
 #     logging.debug(f"POD Create/Update  called with name: {name}")
 
-
-@kopf.on.startup()
-def configure(settings: kopf.OperatorSettings, **_):
-    settings.admission.server = kopf.WebhookServer(addr="0.0.0.0", port=9443, host="pvop-webhook-svc.privatevault-system.svc.cluster.local")
-    settings.admission.managed = 'pvop.kopf.dev'
-    
-
-    
-@kopf.on.mutate('pods', labels={'privatevault': 'sidecar'})
-def podmutate(patch: kopf.Patch, warnings: list[str], **_):
-    logging.info(f"POD mutate called with patch: {patch}")
-    warnings.append("podmutate was called")
-    patch.spec["terminationGracePeriodSeconds"] = 31
 
 
 

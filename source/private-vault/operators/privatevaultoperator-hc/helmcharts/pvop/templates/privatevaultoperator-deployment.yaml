@@ -8,11 +8,11 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      application: privatevault-operator
+      app: privatevault-operator
   template:
     metadata:
       labels:
-        application: privatevault-operator
+        app: privatevault-operator
     spec:
       serviceAccountName: privatevault-account
       containers:
