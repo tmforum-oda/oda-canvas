@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-zwei
+  name: {{ .Release.Name }}-two
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-zwei
+      app: {{ .Release.Name }}-two
   replicas: 1
   template:
     metadata:
       annotations:
         oda.tmforum.org/privatevault: demo-comp-124
       labels:
-        app: {{ .Release.Name }}-zwei
+        app: {{ .Release.Name }}-two
     spec:
       automountServiceAccountToken: false
       securityContext:

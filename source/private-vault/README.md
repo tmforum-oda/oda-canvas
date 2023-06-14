@@ -63,10 +63,20 @@ kubectl get privatevaults
 helm upgrade --install demo-comp test/helm-charts/democomp -n demo-comp --create-namespace
 ```
 
-### log into component
+to PODs get the sidecar injected, demo-comp-one and demo-comp-two.
+demo-comp-three fails the pattern check, because it is annotated with 
+"demo-comp-123" and "privatevault-demo-comp-123" defines the 
+podSelector name="demo-comp-one-*" which does not match the actual
+"demo-comp-three-fcn938l9"
+
+The pod-name selector is only validated inside the WebHook, while namespace and serviceaccount
+are validated in HashiCorp Vault auth.
+
+
+### log into component one
 
 ```
-kubectl exec -it -n demo-comp deployment/demo-comp-eins -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demo-comp-one -- /bin/sh
 ```
 
 access private vault using localhost
@@ -85,6 +95,25 @@ curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/
 curl -s -X DELETE http://localhost:5000/api/v3/secret/$KEY -H "accept: */*"
 ```
 
+now open a second shell in component two:
+
+```
+kubectl exec -it -n demo-comp deployment/demo-comp-two -- /bin/sh
+export KEY=testpw1
+# CreateSecret
+curl -s -X "POST" "http://localhost:5000/api/v3/secret" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"key\":\"$KEY\",\"value\":\"comp-two-value-$KEY\"}"
+# GetSecretByKey
+curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
+```
+
+short check in the other shell for component one:
+
+```
+# GetSecretByKey
+curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
+```
+
+The secret does not exist in component-one, because both sidecats have different secrets mounts.
 
 
 # Cleanup
