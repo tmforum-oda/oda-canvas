@@ -5,6 +5,7 @@ import os
 import time
 import json
 import sys
+import fnmatch
 from http.client import HTTPConnection
 from cryptography.fernet import Fernet
 import base64
@@ -34,6 +35,8 @@ webhook_service_namespace = os.getenv('WEBHOOK_SERVICE_NAMESPACE', 'dummyservice
 webhook_service_port = int(os.getenv('WEBHOOK_SERVICE_PORT', '443'))
 
 privatevaultname_annotation = os.getenv('PRIVATEVAULTNAME_ANNOTATION', 'oda.tmforum.org/privatevault')
+
+privatevault_cr_namespace = os.getenv('PRIVATEVAULT_CR_NAMESPACE', 'privatevault-system')
 
 
 
@@ -73,7 +76,7 @@ def entryExists(dictionary, key, value):
 def safe_get(default_value, dictionary, *paths):
     result = dictionary
     for path in paths:
-        if not path in result:
+        if path not in result:
             return default_value
         result = result[path]
     return result
@@ -85,9 +88,39 @@ def inject_sidecar(body, patch):
     if not pv_name:
         logging.info(f"Annotation {privatevaultname_annotation} not set, doing nothing")
         return
-        
-    sidecar_port = 5000
-    vault_addr = "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200" 
+
+    pod_name = safe_get([], body, "metadata", "name")
+    pod_namespace = safe_get([], body, "metadata", "namespace")
+    pod_serviceAccountName = safe_get([], body, "spec", "serviceAccountName")
+    logging.info(f"POD serviceaccount:{pod_namespace}:{pod_name}:{pod_serviceAccountName}")
+
+    logging.debug(f"loading k8s config")
+    k8s_load_config()
+    
+    pv_cr_name = f"privatevault-{pv_name}"
+    logging.debug(f"getting privatevault cr {pv_cr_name} from k8s")
+    pv_spec = get_pv_spec(pv_cr_name)
+    logging.debug(f"privatevault spec: {pv_spec}")
+    if not pv_spec:
+        raise kopf.AdmissionError(f"privatevault {pv_cr_name} has no spec.", code=400)
+    
+    pvname = safe_get("", pv_spec, "name")
+    type = safe_get("sideCar", pv_spec, "type")
+    sidecar_port = int(safe_get("5000", pv_spec, "sideCar", "port"))
+    podsel_name = safe_get("", pv_spec, "podSelector", "name")
+    podsel_namespace = safe_get("", pv_spec, "podSelector", "namespace")
+    podsel_serviceaccount = safe_get("", pv_spec, "podSelector", "serviceaccount")
+
+    if not pvname:
+        raise kopf.AdmissionError(f"privatevault {pv_cr_name}: missing name.", code=400)      
+    if type != "sideCar":
+        raise kopf.AdmissionError(f"privatevault {pv_cr_name}: unsupported type {type}.", code=400)
+    if podsel_name and not fnmatch.fnmatch(pod_name, podsel_name):
+        raise kopf.AdmissionError(f"privatevault {pv_cr_name}: pod name does not match selector.", code=400)      
+    if podsel_namespace and not fnmatch.fnmatch(pod_namespace, podsel_namespace):
+        raise kopf.AdmissionError(f"privatevault {pv_cr_name}: pod namespace does not match selector.", code=400)      
+    if podsel_serviceaccount and not fnmatch.fnmatch(pod_serviceAccountName, podsel_serviceaccount):
+        raise kopf.AdmissionError(f"privatevault {pv_cr_name}: pod serviceAccountName does not match selector.", code=400)      
 
     container_pvsidecar = {
             "name": "pvsidecar",
@@ -100,8 +133,8 @@ def inject_sidecar(body, patch):
             ],
             "env": [
                 {
-                    "name": "COMPONENT_IID",
-                    "value": f"{pv_name}"
+                    "name": "PRIVATEVAULT_NAME",
+                    "value": f"{pvname}"
                 },
                 {
                     "name": "VAULT_ADDR",
@@ -113,11 +146,11 @@ def inject_sidecar(body, patch):
                 },
                 {
                     "name": "LOGIN_ROLE",
-                    "value": f"pv-{pv_name}-role"
+                    "value": f"pv-{pvname}-role"
                 },
                 {
                     "name": "SCRETS_MOUNT",
-                    "value": f"kv-{pv_name}"
+                    "value": f"kv-{pvname}"
                 },
                 {
                     "name": "SCRETS_BASE_PATH",
@@ -455,9 +488,9 @@ def test_inject_sidecar():
     warnings = []
     podmutate(body, meta, spec, status, patch, warnings)
 
-def test_query_pv(pv_name):
-    
-    set_proxy()
+
+
+def k8s_load_config():
     try:
         kubernetes.config.load_incluster_config()
     except kubernetes.config.ConfigException:
@@ -465,22 +498,51 @@ def test_query_pv(pv_name):
             conf = kubernetes.client.Configuration()
             conf.http_proxy_url="http://specialinternetaccess-lb.telekom.de:8080"
             conf.https_proxy_url="http://specialinternetaccess-lb.telekom.de:8080"
-            
             kubernetes.config.load_kube_config(config_file = "C:\\Users\\a307131\\.kube\\config-k8s-feri-ai", client_configuration=conf)
         except kubernetes.config.ConfigException:
-            raise Exception("Could not configure kubernetes python client")
-        
-    v1 = kubernetes.client.CoreV1Api()
-    ret = v1.list_pod_for_all_namespaces(watch=False)
-    for i in ret.items:
-        print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))    
+            try:
+                kubernetes.config.load_kube_config()
+            except kubernetes.config.ConfigException:
+                raise Exception("Could not configure kubernetes python client")
+    
+
+
+
+def get_pv_spec(pv_name):
+    coa = kubernetes.client.CustomObjectsApi()
+    try:
+        pv_cr = coa.get_namespaced_custom_object("oda.tmforum.org", "v1alpha1", privatevault_cr_namespace, "privatevaults", pv_name)
+        return pv_cr["spec"]
+    except ApiException:
+        return None
+
+
+def test_get_pv_spec():
+    k8s_load_config()
+    pv_spec = get_pv_spec("privatevault-demo-comp-123")
+    print(pv_spec)
+    name = safe_get("", pv_spec, "name")
+    podsel_name = safe_get("", pv_spec, "podSelector", "name")
+    podsel_namespace = safe_get("", pv_spec, "podSelector", "namespace")
+    podsel_serviceaccount = safe_get("", pv_spec, "podSelector", "serviceaccount")
+    sidecar_port = int(safe_get("5000", pv_spec, "sideCar", "port"))
+    type = safe_get("sideCar", pv_spec, "type")
+    print(f"PV name: {name}")
+    print(f"PV podsel_name: {podsel_name}")
+    print(f"PV podsel_namespace: {podsel_namespace}")
+    print(f"PV podsel_serviceaccount: {podsel_serviceaccount}")
+    print(f"PV sidecar_port: {sidecar_port}")
+    print(f"PV type: {type}")
+
+    if not fnmatch.fnmatch("demo-comp-1234fedc-zyxw7756", podsel_name):
+        raise kopf.AdmissionError(f"pod name does not match selector.", code=400)
 
 if __name__ == '__main__':
     logging.info(f"main called")
     #set_proxy()
     #testDeletePV()
     #testCreatePV()
-    #test_inject_sidecar()
-    test_query_pv("Demo-Comp-123")
+    test_inject_sidecar()
+    #test_get_pv_spec()
     
 

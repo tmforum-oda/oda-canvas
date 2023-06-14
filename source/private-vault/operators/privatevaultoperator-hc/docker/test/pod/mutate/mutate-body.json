@@ -9,7 +9,7 @@
 		"resourceVersion": "41526754",
 		"creationTimestamp": "2023-06-13T21:05:46Z",
 		"annotations": {
-			"oda.tmforum.org/privatevault": "demo-comp-124"
+			"oda.tmforum.org/privatevault": "demo-comp-123"
 		},
 		"labels": {
 			"app": "demo-comp",
