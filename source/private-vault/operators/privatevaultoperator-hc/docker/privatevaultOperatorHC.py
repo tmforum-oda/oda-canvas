@@ -8,9 +8,10 @@ import sys
 from http.client import HTTPConnection
 from cryptography.fernet import Fernet
 import base64
-import kubernetes.client
+import kubernetes
 from kubernetes.client.rest import ApiException
 from typing import AsyncIterator
+from setuptools.command.setopt import config_file
 
 
 # https://kopf.readthedocs.io/en/stable/install/
@@ -31,6 +32,9 @@ audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 webhook_service_name = os.getenv('WEBHOOK_SERVICE_NAME', 'dummyservicename') 
 webhook_service_namespace = os.getenv('WEBHOOK_SERVICE_NAMESPACE', 'dummyservicenamespace') 
 webhook_service_port = int(os.getenv('WEBHOOK_SERVICE_PORT', '443'))
+
+privatevaultname_annotation = os.getenv('PRIVATEVAULTNAME_ANNOTATION', 'oda.tmforum.org/privatevault')
+
 
 
 # Inheritance: https://github.com/nolar/kopf/blob/main/docs/admission.rst#custom-serverstunnels
@@ -66,12 +70,25 @@ def entryExists(dictionary, key, value):
     return False
 
 
-def inject_sidecar(body, patch):
+def safe_get(default_value, dictionary, *paths):
+    result = dictionary
+    for path in paths:
+        if not path in result:
+            return default_value
+        result = result[path]
+    return result
 
-    ciid = "demo-comp-123"
+
+def inject_sidecar(body, patch):
+    
+    pv_name = safe_get(None, body, "metadata", "annotations", privatevaultname_annotation)
+    if not pv_name:
+        logging.info(f"Annotation {privatevaultname_annotation} not set, doing nothing")
+        return
+        
     sidecar_port = 5000
     vault_addr = "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200" 
-        
+
     container_pvsidecar = {
             "name": "pvsidecar",
             "image": "mtr.devops.telekom.de/magenta_canvas/private-vault-service:0.1.1",
@@ -84,7 +101,7 @@ def inject_sidecar(body, patch):
             "env": [
                 {
                     "name": "COMPONENT_IID",
-                    "value": f"{ciid}"
+                    "value": f"{pv_name}"
                 },
                 {
                     "name": "VAULT_ADDR",
@@ -96,11 +113,11 @@ def inject_sidecar(body, patch):
                 },
                 {
                     "name": "LOGIN_ROLE",
-                    "value": f"pv-{ciid}-role"
+                    "value": f"pv-{pv_name}-role"
                 },
                 {
                     "name": "SCRETS_MOUNT",
-                    "value": f"kv-{ciid}"
+                    "value": f"kv-{pv_name}"
                 },
                 {
                     "name": "SCRETS_BASE_PATH",
@@ -186,47 +203,37 @@ def inject_sidecar(body, patch):
             }
         }
 
-    containers = []
-    if 'containers' in body["spec"]:
-        containers = body["spec"]["containers"]
+    containers = safe_get([], body, "spec", "containers")
+    vols = safe_get([], body, "spec", "volumes")
 
-    vols = []
-    if 'volumes' in body["spec"]:
-        vols = body["spec"]["volumes"]
-
-    if entryExists("containers", "name", "pvsidecar"):
+    if entryExists(containers, "name", "pvsidecar"):
         logging.info("pvsidecar container already exists, doing nothing")
         return
 
     containers.append(container_pvsidecar)
     patch.spec["containers"] = containers
+    logging.debug(f"injecting pvsidecar container")
+    
 
     if not entryExists(vols, "name", "pvsidecar-tmp"):
         vols.append(volume_pvsidecar_tmp)
         patch.spec['volumes'] = vols
+        logging.debug(f"injecting pvsidecar-tmp volume")
 
     if not entryExists(vols, "name", "pvsidecar-kube-api-access"):
         vols.append(volume_pvsidecar_kube_api_access)
         patch.spec['volumes'] = vols
+        logging.debug(f"injecting pvsidecar-kube-api-access volume")
 
 
     
 
-@kopf.on.mutate('pods', labels={'privatevault': 'sidecar'}, operation='CREATE', ignore_failures=True)
+@kopf.on.mutate('pods', annotations={privatevaultname_annotation: kopf.PRESENT}, operation='CREATE', ignore_failures=True)
 def podmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
     try:
-        logging.info(f"POD mutate called with meta: {type(meta)} -  {meta}")
         logging.info(f"POD mutate called with body: {type(body)} -  {body}")
-        logging.info(f"POD mutate called with spec: {type(spec)} -  {spec}")
-        logging.info(f"POD mutate called with status: {type(status)} -  {status}")
-        logging.info(f"POD mutate called with patch: {type(patch)} -  {patch}")
-        logging.info(f"POD mutate called with patch.meta: {patch.meta}")
-        logging.info(f"POD mutate called with patch.spec: {patch.spec}")
-        logging.info(f"POD mutate called with patch.status: {patch.status}")
-        #warnings.append("podmutate was called")
         inject_sidecar(body, patch)
         logging.info(f"POD mutate returns patch: {type(patch)} -  {patch}")
-        logging.info(f"POD mutate returns jsonpatch: {type(patch)} -  {patch.as_json_patch()}")
     
     except:
         logging.exception(f"ERRPR podmutate failed!")
@@ -244,14 +251,14 @@ def encrypt(plain_text):
     return Fernet(base64.b64encode((auth_path*32)[:32].encode('ascii')).decode('ascii')).encrypt(plain_text.encode('ascii')).decode('ascii')
 
 
-def setupPrivateVault(ciid:str, namespace:str, service_account:str):
+def setupPrivateVault(pv_name:str, namespace:str, service_account:str):
     try:
-        logging.info(f"SETUP PRIVATEVAULT ciid={ciid}, ns={namespace}, sa={service_account}")
+        logging.info(f"SETUP PRIVATEVAULT pv_name={pv_name}, ns={namespace}, sa={service_account}")
         
-        policy_name = policy_name_tpl.format(ciid)
-        login_role = login_role_tpl.format(ciid)
-        secrets_mount = secrets_mount_tpl.format(ciid)
-        secrets_base_path = secrets_base_path_tpl.format(ciid)
+        policy_name = policy_name_tpl.format(pv_name)
+        login_role = login_role_tpl.format(pv_name)
+        secrets_mount = secrets_mount_tpl.format(pv_name)
+        secrets_base_path = secrets_base_path_tpl.format(pv_name)
 
         logging.info(f"policy_name: {policy_name}")
         logging.info(f"login_role: {login_role}")
@@ -306,16 +313,16 @@ def setupPrivateVault(ciid:str, namespace:str, service_account:str):
             path = auth_path,
         )
     except:
-        logging.exception(f"ERRPR setup vault {ciid} failed!")
+        logging.exception(f"ERRPR setup vault {pv_name} failed!")
     
 
-def deletePrivateVault(ciid:str):
+def deletePrivateVault(pv_name:str):
     try:
-        logging.info(f"DELETE PRIVATEVAULT ciid={ciid}")
+        logging.info(f"DELETE PRIVATEVAULT pv_name={pv_name}")
         
-        login_role = login_role_tpl.format(ciid)
-        policy_name = policy_name_tpl.format(ciid)
-        secrets_mount = secrets_mount_tpl.format(ciid)
+        login_role = login_role_tpl.format(pv_name)
+        policy_name = policy_name_tpl.format(pv_name)
+        secrets_mount = secrets_mount_tpl.format(pv_name)
         
         logging.info(f"policy_name: {policy_name}")
         logging.info(f"login_role: {login_role}")
@@ -328,7 +335,7 @@ def deletePrivateVault(ciid:str):
             token=token,
         )
     except:
-        logging.exception(f"ERRPR delete vault {ciid} failed!")
+        logging.exception(f"ERRPR delete vault {pv_name} failed!")
         
     
     ### disable KV secrets engine
@@ -351,11 +358,7 @@ def deletePrivateVault(ciid:str):
     #
     logging.info(f'delete policy {policy_name}')
     client.sys.delete_policy(name=policy_name)
-
-
-def injectSidecar(body):
-    logging.info(f"POD inject sidecar: {body}")
-    
+   
 
 
 # when an oda.tmforum.org privatevault resource is created or updated, configure policy and role 
@@ -373,12 +376,12 @@ def privatevaultCreate(meta, spec, status, body, namespace, labels, name, **kwar
 
     logging.debug(f"privatevault has name: {spec['comopnentInstanceID']}")
 
-    ciid = spec['comopnentInstanceID']
+    pv_name = spec['name']
     namespace = spec['podSelector']['namespace']
     #namespace = meta.get('namespace')   # only if privatevault CR is in target namespace
     service_account = spec['podSelector']['serviceAccount']
     
-    setupPrivateVault(ciid, namespace, service_account)
+    setupPrivateVault(pv_name, namespace, service_account)
     
  
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
@@ -396,39 +399,10 @@ def privatevaultDelete(meta, spec, status, body, namespace, labels, name, **kwar
     logging.debug(f"privatevault has status: {status}")
     logging.debug(f"privatevault is called with body: {spec}")
     
-    ciid = spec['comopnentInstanceID']
+    pv_name = spec['name']
 
-    deletePrivateVault(ciid)
+    deletePrivateVault(pv_name)
 
-
-
-# a simple Restful API caller
-def restCall( host, path, spec ):
-    APIG_MOCK = os.getenv('APIG_MOCK', "")
-    if APIG_MOCK != "":
-        return {"res_code": "00000", "res_message": APIG_MOCK }
-        
-    hConn=HTTPConnection(host)
-    respBody = None
-    try:
-        data = json.dumps(spec)
-        headers = {"Content-type": "application/json"}
-        hConn.request('POST', path, data.encode('utf-8'), headers)
-        logging.info(f"host: %s, path: %s, body: %s"%(host,path,data))
-        resp = hConn.getresponse()
-        data=resp.read()
-        if data:
-            respStr = data.decode('utf-8')
-            logging.info(f"Rest api response code: %s, body: %s"%(resp.status, respStr))
-            respBody = json.loads(respStr)
-        hConn.close()
-        if resp.status != 200:
-            raise kopf.TemporaryError("Exception when calling rest api, return code: %s\n" % resp.status)
-        return respBody
-    except Exception as StrError:
-        hConn.close()
-        logging.warn("Exception when calling restful api: %s\n" % StrError)
-        time.sleep(2)
 
 
 def set_proxy():
@@ -480,15 +454,33 @@ def test_inject_sidecar():
     patch = kopf.Patch({})
     warnings = []
     podmutate(body, meta, spec, status, patch, warnings)
+
+def test_query_pv(pv_name):
+    
+    set_proxy()
+    try:
+        kubernetes.config.load_incluster_config()
+    except kubernetes.config.ConfigException:
+        try:
+            conf = kubernetes.client.Configuration()
+            conf.http_proxy_url="http://specialinternetaccess-lb.telekom.de:8080"
+            conf.https_proxy_url="http://specialinternetaccess-lb.telekom.de:8080"
+            
+            kubernetes.config.load_kube_config(config_file = "C:\\Users\\a307131\\.kube\\config-k8s-feri-ai", client_configuration=conf)
+        except kubernetes.config.ConfigException:
+            raise Exception("Could not configure kubernetes python client")
         
-    
-    
+    v1 = kubernetes.client.CoreV1Api()
+    ret = v1.list_pod_for_all_namespaces(watch=False)
+    for i in ret.items:
+        print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))    
 
 if __name__ == '__main__':
     logging.info(f"main called")
     #set_proxy()
     #testDeletePV()
     #testCreatePV()
-    test_inject_sidecar()
-
+    #test_inject_sidecar()
+    test_query_pv("Demo-Comp-123")
+    
 

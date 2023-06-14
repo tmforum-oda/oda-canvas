@@ -2,16 +2,18 @@
 	"kind": "Pod",
 	"apiVersion": "v1",
 	"metadata": {
-		"name": "demo-comp-123-bdb5ffdc5-4hn45",
-		"generateName": "demo-comp-123-bdb5ffdc5-",
-		"namespace": "demo-comp-123",
+		"name": "demo-comp-bdb5ffdc5-4hn45",
+		"generateName": "demo-comp-bdb5ffdc5-",
+		"namespace": "demo-comp",
 		"uid": "ea44c43e-8ef6-41b8-acbe-a86c46e4e3cf",
 		"resourceVersion": "41526754",
 		"creationTimestamp": "2023-06-13T21:05:46Z",
+		"annotations": {
+			"oda.tmforum.org/privatevault": "demo-comp-124"
+		},
 		"labels": {
-			"app": "demo-comp-123",
-			"pod-template-hash": "bdb5ffdc5",
-			"privatevault": "sidecar"
+			"app": "demo-comp",
+			"pod-template-hash": "bdb5ffdc5"
 		},
 		"ownerReferences": [
 			{

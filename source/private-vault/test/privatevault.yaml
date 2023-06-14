@@ -4,12 +4,14 @@ metadata:
   name: privatevault-demo-comp-123
   namespace: privatevault-system
 spec:
-  comopnentInstanceID: demo-comp-123
+  name: demo-comp-123
   type: sideCar
   sideCar:
     port: 5000
-    token: negotiate
+    token: 
+      negotiate
   podSelector:
-    namespace: demo-comp-123
+    namespace: demo-comp
     serviceAccount: default
+    name: demo-comp-*
 

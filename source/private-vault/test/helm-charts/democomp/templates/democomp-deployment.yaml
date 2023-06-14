@@ -11,11 +11,9 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
-        privatevault: sidecar
+        oda.tmforum.org/privatevault: {{ .Values.privatevault_name }}
     spec:
-      # https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
-      # serviceAccountName: serviceaccount-{{ .Release.Name }}-{{ .Values.component_iid }}
-      # automountServiceAccountToken: false
+      automountServiceAccountToken: false
       securityContext:
         fsGroup: 1001
         runAsGroup: 1001
