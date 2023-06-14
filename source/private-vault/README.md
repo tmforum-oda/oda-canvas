@@ -140,7 +140,8 @@ components one-a and one-b both use "demo-comp-123".
 # Cleanup
 
 ```
-kubectl delete -f test/privatevault.yaml
+kubectl delete -f test/privatevault-dc123.yaml
+kubectl delete -f test/privatevault-dc124.yaml
 # if delete hangs, finalizer of privatevault cr have to be removed.
 helm uninstall -n demo-comp demo-comp
 helm uninstall -n canvas-vault canvas-vault-hc
