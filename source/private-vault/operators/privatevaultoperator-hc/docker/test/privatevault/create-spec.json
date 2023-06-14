@@ -1,5 +1,5 @@
 {
-	'comopnentInstanceID': 'demoomp-123',
+	'name': 'demoomp-123',
 	'podSelector': {
 		'namespace': 'demoomp-123',
 		'serviceAccount': 'default'

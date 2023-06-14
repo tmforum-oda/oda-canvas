@@ -32,9 +32,17 @@ spec:
     - name: PV_CIID
       type: string
       description: PrivateVault endpoint Url
-      jsonPath: .spec.comopnentInstanceID
-    - name: PV_endpoint
+      jsonPath: .spec.name
+    - name: NAMESEL
       type: string
-      description: PrivateVault endpoint Url
-      jsonPath: .status.privateVault.url
+      description: PrivateVault pod name selector
+      jsonPath: .spec.podSelector.name
+    - name: NAMESPACESEL
+      type: string
+      description: PrivateVault pod namespace selector
+      jsonPath: .spec.podSelector.namespace
+    - name: SVCACCSEL
+      type: string
+      description: PrivateVault pod serviceAccount selector
+      jsonPath: .spec.podSelector.serviceAccount
       

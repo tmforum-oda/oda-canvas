@@ -399,19 +399,14 @@ def deletePrivateVault(pv_name:str):
 @kopf.on.update('oda.tmforum.org', 'v1alpha1', 'privatevaults')
 def privatevaultCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
 
-    logging.info(f"Create/Update  called with spec: {spec}")
-    logging.info(f"Create/Update  called with meta: {meta}")
     logging.info(f"Create/Update  called with body: {body}")
-    logging.debug(f"privatevault  called with status: {status}")
-    logging.debug(f"privatevault  called with labels: {labels}")
     logging.debug(f"privatevault  called with namespace: {namespace}")
     logging.debug(f"privatevault  called with name: {name}")
+    logging.debug(f"privatevault  called with labels: {labels}")
 
-    logging.debug(f"privatevault has name: {spec['comopnentInstanceID']}")
-
+    # do not use safe_get for mandatory fields
     pv_name = spec['name']
     namespace = spec['podSelector']['namespace']
-    #namespace = meta.get('namespace')   # only if privatevault CR is in target namespace
     service_account = spec['podSelector']['serviceAccount']
     
     setupPrivateVault(pv_name, namespace, service_account)
@@ -421,16 +416,10 @@ def privatevaultCreate(meta, spec, status, body, namespace, labels, name, **kwar
 @kopf.on.delete('oda.tmforum.org', 'v1alpha1', 'privatevaults', retries=5)
 def privatevaultDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
 
-    logging.info(f"Create/Update  called with meta: {type(meta)} - {meta}")
-    logging.info(f"Create/Update  called with status: {type(status)} - {status}")
-    logging.info(f"Create/Update  called with body: {type(body)} - {body}")
-    logging.info(f"Create/Update  called with namespace: {type(namespace)} - {namespace}")
-    logging.info(f"Create/Update  called with labels: {type(labels)} - {labels}")
-    logging.info(f"Create/Update  called with name: {type(name)} - {name}")
-
-    logging.debug(f"privatevault has name: {spec['comopnentInstanceID']}")
-    logging.debug(f"privatevault has status: {status}")
-    logging.debug(f"privatevault is called with body: {spec}")
+    logging.info(f"Create/Update  called with body: {body}")
+    logging.info(f"Create/Update  called with namespace: {namespace}")
+    logging.info(f"Create/Update  called with name: {name}")
+    logging.info(f"Create/Update  called with labels: {labels}")
     
     pv_name = spec['name']
 
@@ -447,10 +436,11 @@ def testCreatePV():
     #set_proxy()
     dummy = {}
     spec = {
-        'comopnentInstanceID': 'demo-comp-123',
+        'name': 'demo-comp-123',
         'podSelector': {
             'namespace': 'demo-comp-123',
-            'serviceAccount': 'default'
+            'serviceAccount': 'default',
+            'namespace': 'demo-comp-eins-*'
         },
         'sideCar': {
             'port': 5000,
@@ -464,7 +454,7 @@ def testDeletePV():
     #set_proxy()
     dummy = {}
     spec = {
-        'comopnentInstanceID': 'demo-comp-123',
+        'name': 'demo-comp-123',
         'podSelector': {
             'namespace': 'demo-comp-123',
             'serviceAccount': 'default'

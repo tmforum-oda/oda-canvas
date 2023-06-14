@@ -3,8 +3,8 @@
 	"kind": "privatevault",
 	"metadata": {
 		"annotations": {
-			"kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"comopnentInstanceID\":\"demo-comp-123\",\"podSelector\":{\"namespace\":\"demo-comp-123\",\"serviceAccount\":\"default\"},\"sideCar\":{\"port\":5000,\"token\":\"negotiate\"},\"type\":\"sideCar\"}}\n",
-			"kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"oda.tmforum.org/v1alpha1\",\"kind\":\"privatevault\",\"metadata\":{\"annotations\":{},\"name\":\"privatevault-demo-comp-123\",\"namespace\":\"privatevault-system\"},\"spec\":{\"comopnentInstanceID\":\"demo-comp-123\",\"podSelector\":{\"namespace\":\"demo-comp-123\",\"serviceAccount\":\"default\"},\"sideCar\":{\"port\":5000,\"token\":\"negotiate\"},\"type\":\"sideCar\"}}\n"
+			"kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"name\":\"demo-comp-123\",\"podSelector\":{\"namespace\":\"demo-comp-123\",\"serviceAccount\":\"default\"},\"sideCar\":{\"port\":5000,\"token\":\"negotiate\"},\"type\":\"sideCar\"}}\n",
+			"kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"oda.tmforum.org/v1alpha1\",\"kind\":\"privatevault\",\"metadata\":{\"annotations\":{},\"name\":\"privatevault-demo-comp-123\",\"namespace\":\"privatevault-system\"},\"spec\":{\"name\":\"demo-comp-123\",\"podSelector\":{\"namespace\":\"demo-comp-123\",\"serviceAccount\":\"default\"},\"sideCar\":{\"port\":5000,\"token\":\"negotiate\"},\"type\":\"sideCar\"}}\n"
 		},
 		"creationTimestamp": "2023-06-14T09:54:06Z",
 		"finalizers": [
@@ -27,7 +27,7 @@
 					"f:spec": {
 						".": {
 						},
-						"f:comopnentInstanceID": {
+						"f:name": {
 						},
 						"f:podSelector": {
 							".": {
@@ -81,7 +81,7 @@
 		"uid": "f767b88c-1749-428f-a78f-070cc9ab86cd"
 	},
 	"spec": {
-		"comopnentInstanceID": "demo-comp-123",
+		"name": "demo-comp-123",
 		"podSelector": {
 			"namespace": "demo-comp-123",
 			"serviceAccount": "default"

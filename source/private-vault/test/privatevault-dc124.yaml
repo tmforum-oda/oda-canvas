@@ -1,17 +1,17 @@
 apiVersion: oda.tmforum.org/v1alpha1
 kind: privatevault
 metadata:
-  name: privatevault-demo-comp-123
+  name: privatevault-demo-comp-124
   namespace: privatevault-system
 spec:
-  name: demo-comp-123
+  name: demo-comp-124
   type: sideCar
   sideCar:
-    port: 5000
+    port: 5001
     token: 
       negotiate
   podSelector:
     namespace: demo-comp
+    name: demo-comp-zwei-*
     serviceAccount: default
-    name: demo-comp-*
 
