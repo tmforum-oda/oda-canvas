@@ -29,7 +29,7 @@ spec:
             type: object
             x-kubernetes-preserve-unknown-fields: true
     additionalPrinterColumns:
-    - name: PV_CIID
+    - name: PV_NAME
       type: string
       description: PrivateVault endpoint Url
       jsonPath: .spec.name

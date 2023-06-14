@@ -89,9 +89,11 @@ def inject_sidecar(body, patch):
         logging.info(f"Annotation {privatevaultname_annotation} not set, doing nothing")
         return
 
-    pod_name = safe_get([], body, "metadata", "name")
-    pod_namespace = safe_get([], body, "metadata", "namespace")
-    pod_serviceAccountName = safe_get([], body, "spec", "serviceAccountName")
+    pod_name = safe_get(None, body, "metadata", "name")
+    if not pod_name:
+        pod_name = safe_get(None, body, "metadata", "generateName")
+    pod_namespace = body["metadata"]["namespace"]
+    pod_serviceAccountName = safe_get("default", body, "spec", "serviceAccountName")
     logging.info(f"POD serviceaccount:{pod_namespace}:{pod_name}:{pod_serviceAccountName}")
 
     logging.debug(f"loading k8s config")
@@ -110,7 +112,7 @@ def inject_sidecar(body, patch):
     podsel_name = safe_get("", pv_spec, "podSelector", "name")
     podsel_namespace = safe_get("", pv_spec, "podSelector", "namespace")
     podsel_serviceaccount = safe_get("", pv_spec, "podSelector", "serviceaccount")
-
+    logger.debug(f"filter: name={podsel_name}, namespace={podsel_namespace}, serviceaccount={podsel_serviceaccount}")
     if not pvname:
         raise kopf.AdmissionError(f"privatevault {pv_cr_name}: missing name.", code=400)      
     if type != "sideCar":

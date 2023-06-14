@@ -27,6 +27,7 @@ kubectl apply -f installation/canvas-vault-hc/public-route-for-testing.yaml
 
 ```
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-pv jwt
+sleep 2
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-pv/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 ```
 
@@ -51,20 +52,21 @@ helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/h
 ### Example PrivateVault
 
 ```
-kubectl apply -f test/privatevault.yaml
+kubectl apply -f test/privatevault-dc123.yaml
+kubectl apply -f test/privatevault-dc124.yaml
 kubectl get privatevaults
 ```
 
-### deploy component with privatevault=sidecar annotation
+### deploy demo components with privatevault=sidecar annotation
 
 ```
-helm upgrade --install demo-comp-123 test/helm-charts/democomp -n demo-comp-123 --create-namespace
+helm upgrade --install demo-comp test/helm-charts/democomp -n demo-comp --create-namespace
 ```
 
 ### log into component
 
 ```
-kubectl exec -it -n demo-comp-123 deployment/demo-comp-123 -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demo-comp-eins -- /bin/sh
 ```
 
 access private vault using localhost
@@ -90,12 +92,12 @@ curl -s -X DELETE http://localhost:5000/api/v3/secret/$KEY -H "accept: */*"
 ```
 kubectl delete -f test/privatevault.yaml
 # if delete hangs, finalizer of privatevault cr have to be removed.
-helm uninstall -n demo-comp-123 demo-comp-123
+helm uninstall -n demo-comp demo-comp
 helm uninstall -n canvas-vault canvas-vault-hc
 helm uninstall -n privatevault-system privatevault-operator 
 helm uninstall -n privatevault-system oda-pv-crd
 helm uninstall -n privatevault-system kopf-framework 
-kubectl delete ns demo-comp-123
+kubectl delete ns demo-comp
 kubectl delete ns privatevault-system 
 
 ### keep letsencrypt cert

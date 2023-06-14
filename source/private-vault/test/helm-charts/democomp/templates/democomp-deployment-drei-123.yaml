@@ -9,9 +9,10 @@ spec:
   replicas: 1
   template:
     metadata:
+      annotations:
+        oda.tmforum.org/privatevault: demo-comp-123
       labels:
         app: {{ .Release.Name }}-drei
-        oda.tmforum.org/privatevault: demo-comp-123
     spec:
       automountServiceAccountToken: false
       securityContext:
