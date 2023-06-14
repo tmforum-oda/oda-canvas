@@ -33,7 +33,7 @@ rules:
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [oda.tmforum.org]
     resources: [privatevaults]
-    verbs: [list, watch]
+    verbs: [list, watch, get]
 
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [""]
@@ -71,7 +71,7 @@ rules:
   # Application: watching & handling for the custom resource we declare.
   - apiGroups: [oda.tmforum.org]
     resources: [privatevaults]
-    verbs: [list, watch, patch]
+    verbs: [list, watch, patch, get]
 
   # Application: watching & handling for the custom resource we declare.
   - apiGroups: [""]

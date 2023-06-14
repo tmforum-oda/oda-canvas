@@ -10,7 +10,7 @@
 				"namespace": "privatevault-system"
 			},
 			"spec": {
-				"comopnentInstanceID": "demo-comp-123",
+				"name": "demo-comp-123",
 				"podSelector": {
 					"namespace": "demo-comp-123",
 					"serviceAccount": "default"
@@ -61,7 +61,7 @@
 				'f: spec': {
 					'.': {
 					},
-					'f: comopnentInstanceID': {
+					'f: name': {
 					},
 					'f: podSelector': {
 						'.': {

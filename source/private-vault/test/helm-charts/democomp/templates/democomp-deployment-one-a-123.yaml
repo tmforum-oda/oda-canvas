@@ -1,21 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-one-a
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ .Release.Name }}-one-a
   replicas: 1
   template:
     metadata:
+      annotations:
+        oda.tmforum.org/privatevault: demo-comp-123
       labels:
-        app: {{ .Release.Name }}
-        privatevault: sidecar
+        app: {{ .Release.Name }}-one-a
     spec:
-      # https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
-      # serviceAccountName: serviceaccount-{{ .Release.Name }}-{{ .Values.component_iid }}
-      # automountServiceAccountToken: false
+      automountServiceAccountToken: false
       securityContext:
         fsGroup: 1001
         runAsGroup: 1001

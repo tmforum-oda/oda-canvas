@@ -27,6 +27,7 @@ kubectl apply -f installation/canvas-vault-hc/public-route-for-testing.yaml
 
 ```
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-pv jwt
+sleep 2
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-pv/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 ```
 
@@ -51,23 +52,34 @@ helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/h
 ### Example PrivateVault
 
 ```
-kubectl apply -f test/privatevault.yaml
+kubectl apply -f test/privatevault-dc123.yaml
+kubectl apply -f test/privatevault-dc124.yaml
 kubectl get privatevaults
 ```
 
-### deploy component with privatevault=sidecar annotation
+### deploy demo components with privatevault=sidecar annotation
 
 ```
-helm upgrade --install demo-comp-123 test/helm-charts/democomp -n demo-comp-123 --create-namespace
+helm upgrade --install demo-comp test/helm-charts/democomp -n demo-comp --create-namespace
 ```
 
-### log into component
+to PODs get the sidecar injected, demo-comp-one and demo-comp-two.
+demo-comp-three fails the pattern check, because it is annotated with 
+"demo-comp-123" and "privatevault-demo-comp-123" defines the 
+podSelector name="demo-comp-one-*" which does not match the actual
+"demo-comp-three-fcn938l9"
+
+The pod-name selector is only validated inside the WebHook, while namespace and serviceaccount
+are validated in HashiCorp Vault auth.
+
+
+### log into component one-a
 
 ```
-kubectl exec -it -n demo-comp-123 deployment/demo-comp-123 -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demo-comp-one-a -- /bin/sh
 ```
 
-access private vault using localhost
+access private vault using localhost with create/read/update/delete
 
 ```
 export KEY=testpw1
@@ -83,18 +95,59 @@ curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/
 curl -s -X DELETE http://localhost:5000/api/v3/secret/$KEY -H "accept: */*"
 ```
 
+To test shared access create a secret:
+
+```
+curl -s -X "POST" -d "{\"key\":\"comp-one-secret\",\"value\":\"63H31M\"}" "http://localhost:5000/api/v3/secret" -H "accept: application/json" -H "Content-Type: application/json" 
+curl -s -X GET http://localhost:5000/api/v3/secret/comp-one-secret -H "accept: application/json"
+```
+
+Now start a second shell in component one-b:
+
+```
+kubectl exec -it -n demo-comp deployment/demo-comp-one-b -- /bin/sh
+```
+
+and query for the secret created in component one-a:
+
+```
+curl -s -X GET http://localhost:5000/api/v3/secret/comp-one-secret -H "accept: application/json"
+
+  {"key":"comp-one-secret","value":"63H31M"}
+```
+
+The secret is visbile here.
+It can be set to another value and also is changed for component one-a.
+
+Now let´s start a third shell in component two:
+
+```
+kubectl exec -it -n demo-comp deployment/demo-comp-two -- /bin/sh
+```
+
+again we query for the same secret:
+
+```
+curl -s -X GET http://localhost:5000/api/v3/secret/comp-one-secret -H "accept: application/json"
+
+  ERROR 404: key not found
+```
+
+it is not there, because component two has another secret mount "demo-comp-124", while 
+components one-a and one-b both use "demo-comp-123".
 
 
 # Cleanup
 
 ```
 kubectl delete -f test/privatevault.yaml
-helm uninstall -n demo-comp-123 demo-comp-123
+# if delete hangs, finalizer of privatevault cr have to be removed.
+helm uninstall -n demo-comp demo-comp
 helm uninstall -n canvas-vault canvas-vault-hc
 helm uninstall -n privatevault-system privatevault-operator 
 helm uninstall -n privatevault-system oda-pv-crd
 helm uninstall -n privatevault-system kopf-framework 
-kubectl delete ns demo-comp-123
+kubectl delete ns demo-comp
 kubectl delete ns privatevault-system 
 
 ### keep letsencrypt cert

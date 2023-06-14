@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-three
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-three
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        oda.tmforum.org/privatevault: demo-comp-123
+      labels:
+        app: {{ .Release.Name }}-three
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1001
+        runAsGroup: 1001
+        runAsNonRoot: true
+        runAsUser: 1001
+        supplementalGroups:
+        - 1001
+      containers:
+          
+      - name: component-implementation
+        image: curlimages/curl:7.88.1
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "echo waiting 2h;
+           date;
+           sleep 7200;
+           echo --- FINISHED ---"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
