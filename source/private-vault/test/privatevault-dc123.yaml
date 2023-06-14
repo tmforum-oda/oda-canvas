@@ -12,6 +12,6 @@ spec:
       negotiate
   podSelector:
     namespace: demo-comp
-    name: demo-comp-eins-*
+    name: demo-comp-one-*
     serviceAccount: default
 

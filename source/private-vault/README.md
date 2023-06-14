@@ -73,13 +73,13 @@ The pod-name selector is only validated inside the WebHook, while namespace and 
 are validated in HashiCorp Vault auth.
 
 
-### log into component one
+### log into component one-a
 
 ```
-kubectl exec -it -n demo-comp deployment/demo-comp-one -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demo-comp-one-a -- /bin/sh
 ```
 
-access private vault using localhost
+access private vault using localhost with create/read/update/delete
 
 ```
 export KEY=testpw1
@@ -95,25 +95,46 @@ curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/
 curl -s -X DELETE http://localhost:5000/api/v3/secret/$KEY -H "accept: */*"
 ```
 
-now open a second shell in component two:
+To test shared access create a secret:
+
+```
+curl -s -X "POST" -d "{\"key\":\"comp-one-secret\",\"value\":\"63H31M\"}" "http://localhost:5000/api/v3/secret" -H "accept: application/json" -H "Content-Type: application/json" 
+curl -s -X GET http://localhost:5000/api/v3/secret/comp-one-secret -H "accept: application/json"
+```
+
+Now start a second shell in component one-b:
+
+```
+kubectl exec -it -n demo-comp deployment/demo-comp-one-b -- /bin/sh
+```
+
+and query for the secret created in component one-a:
+
+```
+curl -s -X GET http://localhost:5000/api/v3/secret/comp-one-secret -H "accept: application/json"
+
+  {"key":"comp-one-secret","value":"63H31M"}
+```
+
+The secret is visbile here.
+It can be set to another value and also is changed for component one-a.
+
+Now let´s start a third shell in component two:
 
 ```
 kubectl exec -it -n demo-comp deployment/demo-comp-two -- /bin/sh
-export KEY=testpw1
-# CreateSecret
-curl -s -X "POST" "http://localhost:5000/api/v3/secret" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"key\":\"$KEY\",\"value\":\"comp-two-value-$KEY\"}"
-# GetSecretByKey
-curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
 ```
 
-short check in the other shell for component one:
+again we query for the same secret:
 
 ```
-# GetSecretByKey
-curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
+curl -s -X GET http://localhost:5000/api/v3/secret/comp-one-secret -H "accept: application/json"
+
+  ERROR 404: key not found
 ```
 
-The secret does not exist in component-one, because both sidecats have different secrets mounts.
+it is not there, because component two has another secret mount "demo-comp-124", while 
+components one-a and one-b both use "demo-comp-123".
 
 
 # Cleanup
