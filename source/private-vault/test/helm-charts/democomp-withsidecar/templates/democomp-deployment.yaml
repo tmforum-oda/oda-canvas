@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        #privatevault: sidecar
     spec:
       # https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
       # serviceAccountName: serviceaccount-{{ .Release.Name }}-{{ .Values.component_iid }}
@@ -40,7 +41,7 @@ spec:
             drop:
             - ALL
       
-      - name: private-vault-sidecar
+      - name: pvsidecar
         image: mtr.devops.telekom.de/magenta_canvas/private-vault-service:0.1.1
         imagePullPolicy: Always
         securityContext:
@@ -69,34 +70,34 @@ spec:
         - containerPort: 5000
         volumeMounts:
         - mountPath: /tmp
-          name: tmp
+          name: pv-sidecar-tmp
         - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
-          name: kube-api-access-manual
+          name: pvsidecar-kube-api-access
           readOnly: true
                   
       volumes:
-      - name: tmp
+      - name: pv-sidecar-tmp
         emptyDir: {}
-      - name: kube-api-access-manual
+      - name: pvsidecar-kube-api-access
         projected:
           defaultMode: 420
           sources:
           - serviceAccountToken:
-              expirationSeconds: 3607
               path: token
+              expirationSeconds: 3607
           - configMap:
-              items:
-              - key: ca.crt
-                path: ca.crt
               name: kube-root-ca.crt
+              items:
+              - path: ca.crt
+                key: ca.crt
           - downwardAPI:
               items:
-              - fieldRef:
+              - path: namespace
+                fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
-                path: namespace      
-              - fieldRef:
+              - path: name
+                fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.name
-                path: name      
-              
+                      

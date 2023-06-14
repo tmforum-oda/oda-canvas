@@ -1,0 +1,444 @@
+{
+	"kind": "Pod",
+	"apiVersion": "v1",
+	"metadata": {
+		"generateName": "demo-comp-123-6549dc7994-",
+		"namespace": "demo-comp-123",
+		"creationTimestamp": "",
+		"labels": {
+			"app": "demo-comp-123",
+			"pod-template-hash": "6549dc7994",
+			"privatevault": "sidecar"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "apps/v1",
+				"kind": "ReplicaSet",
+				"name": "demo-comp-123-6549dc7994",
+				"uid": "8eb8bd20-57a9-42aa-8291-aa1ddec33a54",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		],
+		"managedFields": [
+			{
+				"manager": "kube-controller-manager",
+				"operation": "Update",
+				"apiVersion": "v1",
+				"time": "2023-06-14T07:50:03Z",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app": {
+							},
+							"f:pod-template-hash": {
+							},
+							"f:privatevault": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"8eb8bd20-57a9-42aa-8291-aa1ddec33a54\"}": {
+							}
+						}
+					},
+					"f:spec": {
+						"f:automountServiceAccountToken": {
+						},
+						"f:containers": {
+							"k:{\"name\":\"component-implementation\"}": {
+								".": {
+								},
+								"f:args": {
+								},
+								"f:command": {
+								},
+								"f:image": {
+								},
+								"f:imagePullPolicy": {
+								},
+								"f:name": {
+								},
+								"f:resources": {
+								},
+								"f:securityContext": {
+									".": {
+									},
+									"f:allowPrivilegeEscalation": {
+									},
+									"f:capabilities": {
+										".": {
+										},
+										"f:drop": {
+										}
+									},
+									"f:privileged": {
+									},
+									"f:readOnlyRootFilesystem": {
+									}
+								},
+								"f:terminationMessagePath": {
+								},
+								"f:terminationMessagePolicy": {
+								}
+							},
+							"k:{\"name\":\"pvsidecar\"}": {
+								".": {
+								},
+								"f:env": {
+									".": {
+									},
+									"k:{\"name\":\"AUTH_PATH\"}": {
+										".": {
+										},
+										"f:name": {
+										},
+										"f:value": {
+										}
+									},
+									"k:{\"name\":\"COMPONENT_IID\"}": {
+										".": {
+										},
+										"f:name": {
+										},
+										"f:value": {
+										}
+									},
+									"k:{\"name\":\"LOGIN_ROLE\"}": {
+										".": {
+										},
+										"f:name": {
+										},
+										"f:value": {
+										}
+									},
+									"k:{\"name\":\"SCRETS_BASE_PATH\"}": {
+										".": {
+										},
+										"f:name": {
+										},
+										"f:value": {
+										}
+									},
+									"k:{\"name\":\"SCRETS_MOUNT\"}": {
+										".": {
+										},
+										"f:name": {
+										},
+										"f:value": {
+										}
+									},
+									"k:{\"name\":\"VAULT_ADDR\"}": {
+										".": {
+										},
+										"f:name": {
+										},
+										"f:value": {
+										}
+									}
+								},
+								"f:image": {
+								},
+								"f:imagePullPolicy": {
+								},
+								"f:name": {
+								},
+								"f:ports": {
+									".": {
+									},
+									"k:{\"containerPort\":5000,\"protocol\":\"TCP\"}": {
+										".": {
+										},
+										"f:containerPort": {
+										},
+										"f:protocol": {
+										}
+									}
+								},
+								"f:resources": {
+								},
+								"f:securityContext": {
+									".": {
+									},
+									"f:allowPrivilegeEscalation": {
+									},
+									"f:capabilities": {
+										".": {
+										},
+										"f:drop": {
+										}
+									},
+									"f:privileged": {
+									},
+									"f:readOnlyRootFilesystem": {
+									}
+								},
+								"f:terminationMessagePath": {
+								},
+								"f:terminationMessagePolicy": {
+								},
+								"f:volumeMounts": {
+									".": {
+									},
+									"k:{\"mountPath\":\"/tmp\"}": {
+										".": {
+										},
+										"f:mountPath": {
+										},
+										"f:name": {
+										}
+									},
+									"k:{\"mountPath\":\"/var/run/secrets/kubernetes.io/serviceaccount\"}": {
+										".": {
+										},
+										"f:mountPath": {
+										},
+										"f:name": {
+										},
+										"f:readOnly": {
+										}
+									}
+								}
+							}
+						},
+						"f:dnsPolicy": {
+						},
+						"f:enableServiceLinks": {
+						},
+						"f:restartPolicy": {
+						},
+						"f:schedulerName": {
+						},
+						"f:securityContext": {
+							".": {
+							},
+							"f:fsGroup": {
+							},
+							"f:runAsGroup": {
+							},
+							"f:runAsNonRoot": {
+							},
+							"f:runAsUser": {
+							},
+							"f:supplementalGroups": {
+							}
+						},
+						"f:terminationGracePeriodSeconds": {
+						},
+						"f:volumes": {
+							".": {
+							},
+							"k:{\"name\":\"pv-sidecar-tmp\"}": {
+								".": {
+								},
+								"f:emptyDir": {
+								},
+								"f:name": {
+								}
+							},
+							"k:{\"name\":\"pvsidecar-kube-api-access\"}": {
+								".": {
+								},
+								"f:name": {
+								},
+								"f:projected": {
+									".": {
+									},
+									"f:defaultMode": {
+									},
+									"f:sources": {
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		]
+	},
+	"spec": {
+		"volumes": [
+			{
+				"name": "pv-sidecar-tmp",
+				"emptyDir": {
+				}
+			},
+			{
+				"name": "pvsidecar-kube-api-access",
+				"projected": {
+					"sources": [
+						{
+							"serviceAccountToken": {
+								"expirationSeconds": 3607,
+								"path": "token"
+							}
+						},
+						{
+							"configMap": {
+								"name": "kube-root-ca.crt",
+								"items": [
+									{
+										"key": "ca.crt",
+										"path": "ca.crt"
+									}
+								]
+							}
+						},
+						{
+							"downwardAPI": {
+								"items": [
+									{
+										"path": "namespace",
+										"fieldRef": {
+											"apiVersion": "v1",
+											"fieldPath": "metadata.namespace"
+										}
+									},
+									{
+										"path": "name",
+										"fieldRef": {
+											"apiVersion": "v1",
+											"fieldPath": "metadata.name"
+										}
+									}
+								]
+							}
+						}
+					],
+					"defaultMode": 420
+				}
+			}
+		],
+		"containers": [
+			{
+				"name": "component-implementation",
+				"image": "curlimages/curl:7.88.1",
+				"command": [
+					"/bin/sh"
+				],
+				"args": [
+					"-c",
+					"echo waiting 2h; date; sleep 7200; echo --- FINISHED ---"
+				],
+				"resources": {
+				},
+				"terminationMessagePath": "/dev/termination-log",
+				"terminationMessagePolicy": "File",
+				"imagePullPolicy": "IfNotPresent",
+				"securityContext": {
+					"capabilities": {
+						"drop": [
+							"ALL"
+						]
+					},
+					"privileged": false,
+					"readOnlyRootFilesystem": true,
+					"allowPrivilegeEscalation": false
+				}
+			},
+			{
+				"name": "pvsidecar",
+				"image": "mtr.devops.telekom.de/magenta_canvas/private-vault-service:0.1.1",
+				"ports": [
+					{
+						"containerPort": 5000,
+						"protocol": "TCP"
+					}
+				],
+				"env": [
+					{
+						"name": "COMPONENT_IID",
+						"value": "demo-comp-123"
+					},
+					{
+						"name": "VAULT_ADDR",
+						"value": "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
+					},
+					{
+						"name": "AUTH_PATH",
+						"value": "jwt-k8s-pv"
+					},
+					{
+						"name": "LOGIN_ROLE",
+						"value": "pv-demo-comp-123-role"
+					},
+					{
+						"name": "SCRETS_MOUNT",
+						"value": "kv-demo-comp-123"
+					},
+					{
+						"name": "SCRETS_BASE_PATH",
+						"value": "sidecar"
+					}
+				],
+				"resources": {
+				},
+				"volumeMounts": [
+					{
+						"name": "pv-sidecar-tmp",
+						"mountPath": "/tmp"
+					},
+					{
+						"name": "pvsidecar-kube-api-access",
+						"readOnly": true,
+						"mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+					}
+				],
+				"terminationMessagePath": "/dev/termination-log",
+				"terminationMessagePolicy": "File",
+				"imagePullPolicy": "Always",
+				"securityContext": {
+					"capabilities": {
+						"drop": [
+							"ALL"
+						]
+					},
+					"privileged": false,
+					"readOnlyRootFilesystem": true,
+					"allowPrivilegeEscalation": false
+				}
+			}
+		],
+		"restartPolicy": "Always",
+		"terminationGracePeriodSeconds": 30,
+		"dnsPolicy": "ClusterFirst",
+		"serviceAccountName": "default",
+		"serviceAccount": "default",
+		"automountServiceAccountToken": false,
+		"securityContext": {
+			"runAsUser": 1001,
+			"runAsGroup": 1001,
+			"runAsNonRoot": true,
+			"supplementalGroups": [
+				1001
+			],
+			"fsGroup": 1001
+		},
+		"schedulerName": "default-scheduler",
+		"tolerations": [
+			{
+				"key": "node.kubernetes.io/not-ready",
+				"operator": "Exists",
+				"effect": "NoExecute",
+				"tolerationSeconds": 300
+			},
+			{
+				"key": "node.kubernetes.io/unreachable",
+				"operator": "Exists",
+				"effect": "NoExecute",
+				"tolerationSeconds": 300
+			}
+		],
+		"priority": 0,
+		"enableServiceLinks": true,
+		"preemptionPolicy": "PreemptLowerPriority"
+	},
+	"status": {
+	}
+}

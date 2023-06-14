@@ -57,37 +57,181 @@ def configure(settings: kopf.OperatorSettings, **_):
     settings.admission.managed = 'pv.sidecar.kopf'
     
 
+
+def entryExists(dictionary, key, value):
+    for entry in dictionary:
+        if key in entry:
+            if entry[key] == value:
+                return True
+    return False
+
+
 def inject_sidecar(body, patch):
+
+    ciid = "demo-comp-123"
+    sidecar_port = 5000
+    vault_addr = "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200" 
+        
+    container_pvsidecar = {
+            "name": "pvsidecar",
+            "image": "mtr.devops.telekom.de/magenta_canvas/private-vault-service:0.1.1",
+            "ports": [
+                {
+                    "containerPort": sidecar_port,
+                    "protocol": "TCP"
+                }
+            ],
+            "env": [
+                {
+                    "name": "COMPONENT_IID",
+                    "value": f"{ciid}"
+                },
+                {
+                    "name": "VAULT_ADDR",
+                    "value": vault_addr
+                },
+                {
+                    "name": "AUTH_PATH",
+                    "value": "jwt-k8s-pv"
+                },
+                {
+                    "name": "LOGIN_ROLE",
+                    "value": f"pv-{ciid}-role"
+                },
+                {
+                    "name": "SCRETS_MOUNT",
+                    "value": f"kv-{ciid}"
+                },
+                {
+                    "name": "SCRETS_BASE_PATH",
+                    "value": "sidecar"
+                }
+            ],
+            "resources": {
+            },
+            "volumeMounts": [
+                {
+                    "name": "pvsidecar-tmp",
+                    "mountPath": "/tmp"
+                },
+                {
+                    "name": "pvsidecar-kube-api-access",
+                    "readOnly": True,
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always",
+            "securityContext": {
+                "capabilities": {
+                    "drop": [
+                        "ALL"
+                    ]
+                },
+                "privileged": False,
+                "readOnlyRootFilesystem": True,
+                "allowPrivilegeEscalation": False
+            }
+        }
+            
+    volume_pvsidecar_tmp = {
+            "name": "pvsidecar-tmp",
+            "emptyDir": {}
+        }
+
+    volume_pvsidecar_kube_api_access = {
+            "name": "pvsidecar-kube-api-access",
+            "projected": {
+                "sources": [
+                    {
+                        "serviceAccountToken": {
+                            "expirationSeconds": 3607,
+                            "path": "token"
+                        }
+                    },
+                    {
+                        "configMap": {
+                            "name": "kube-root-ca.crt",
+                            "items": [
+                                {
+                                    "key": "ca.crt",
+                                    "path": "ca.crt"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "downwardAPI": {
+                            "items": [
+                                {
+                                    "path": "namespace",
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.namespace"
+                                    }
+                                },
+                                {
+                                    "path": "name",
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "metadata.name"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "defaultMode": 420
+            }
+        }
+
+    containers = []
+    if 'containers' in body["spec"]:
+        containers = body["spec"]["containers"]
+
     vols = []
     if 'volumes' in body["spec"]:
         vols = body["spec"]["volumes"]
-    found = False
-    changed = False
-    for vol in vols:
-        if vol["name"] == "pvsidecar-tmp":
-            found = True
-    if not found:
-        vols.append({"name": "pvsidecar-tmp", "emptyDir": {}})
-        changed = True
-        
-    if changed:
-        patch["spec"] = {}
+
+    if entryExists("containers", "name", "pvsidecar"):
+        logging.info("pvsidecar container already exists, doing nothing")
+        return
+
+    containers.append(container_pvsidecar)
+    patch.spec["containers"] = containers
+
+    if not entryExists(vols, "name", "pvsidecar-tmp"):
+        vols.append(volume_pvsidecar_tmp)
         patch.spec['volumes'] = vols
+
+    if not entryExists(vols, "name", "pvsidecar-kube-api-access"):
+        vols.append(volume_pvsidecar_kube_api_access)
+        patch.spec['volumes'] = vols
+
 
     
 
 @kopf.on.mutate('pods', labels={'privatevault': 'sidecar'}, operation='CREATE', ignore_failures=True)
-def podmutate(meta, body, patch: kopf.Patch, warnings: list[str], **_):
+def podmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
     try:
-    
         logging.info(f"POD mutate called with meta: {type(meta)} -  {meta}")
         logging.info(f"POD mutate called with body: {type(body)} -  {body}")
+        logging.info(f"POD mutate called with spec: {type(spec)} -  {spec}")
+        logging.info(f"POD mutate called with status: {type(status)} -  {status}")
+        logging.info(f"POD mutate called with patch: {type(patch)} -  {patch}")
+        logging.info(f"POD mutate called with patch.meta: {patch.meta}")
+        logging.info(f"POD mutate called with patch.spec: {patch.spec}")
+        logging.info(f"POD mutate called with patch.status: {patch.status}")
         #warnings.append("podmutate was called")
         inject_sidecar(body, patch)
         logging.info(f"POD mutate returns patch: {type(patch)} -  {patch}")
+        logging.info(f"POD mutate returns jsonpatch: {type(patch)} -  {patch.as_json_patch()}")
     
     except:
         logging.exception(f"ERRPR podmutate failed!")
+        warnings.append("internal error, patch not applied")
+        patch.clear()
     
     
 
@@ -328,13 +472,14 @@ def testDeletePV():
 
 
 def test_inject_sidecar():
-    with open ('test/pod/mutate/mutate-meta.json', 'r') as f:
-        meta = json.load(f)
     with open ('test/pod/mutate/mutate-body.json', 'r') as f:
         body = json.load(f)
-    patch = {}
+    meta = body["metadata"]
+    spec = body["spec"]
+    status = body["status"]
+    patch = kopf.Patch({})
     warnings = []
-    podmutate(meta, body, kopf.Patch(patch), warnings)
+    podmutate(body, meta, spec, status, patch, warnings)
         
     
     
