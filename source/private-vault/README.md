@@ -55,24 +55,19 @@ kubectl apply -f test/privatevault.yaml
 kubectl get privatevaults
 ```
 
-### test sidecar injection
+### deploy component with privatevault=sidecar annotation
 
 ```
 helm upgrade --install demo-comp-123 test/helm-charts/democomp -n demo-comp-123 --create-namespace
 ```
 
-
-without injection, sidecar in deployment
-
-```
-helm upgrade --install demo-comp-123 test/helm-charts/democomp -n demo-comp-123 --create-namespace
-```
+### log into component
 
 ```
 kubectl exec -it -n demo-comp-123 deployment/demo-comp-123 -- /bin/sh
 ```
 
-in curl pod:
+access private vault using localhost
 
 ```
 export KEY=testpw1
@@ -83,10 +78,11 @@ curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/
 # UpdateSecret
 curl -s -X PUT http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json" -H "Content-Type: application/json" -d "{\"key\":\"$KEY\",\"value\":\"update-value-$KEY\"}"
 # GetSecretByKey
-url -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
+curl -s -X GET http://localhost:5000/api/v3/secret/$KEY -H "accept: application/json"
 # DeleteSecret
 curl -s -X DELETE http://localhost:5000/api/v3/secret/$KEY -H "accept: */*"
 ```
+
 
 
 # Cleanup
