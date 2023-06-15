@@ -15,11 +15,12 @@ kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-p
 helm upgrade --install kopf-framework operators/privatevaultoperator-hc/helmcharts/kopf-framework --namespace privatevault-system --create-namespace
 
 helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/helmcharts/pvop --namespace privatevault-system --create-namespace
+sleep 10
 
 kubectl apply -f test/privatevault-demoa-comp-one.yaml
 kubectl apply -f test/privatevault-demob-comp-two.yaml
 kubectl get privatevaults
 
-helm upgrade --install demoa test/helm-charts/demoa -n demo-comp --create-namespace
-helm upgrade --install demob test/helm-charts/demob -n demo-comp --create-namespace
-helm upgrade --install democ test/helm-charts/democ -n demo-comp --create-namespace
+helm upgrade --install demoa -n demo-comp --create-namespace test/helm-charts/demoa-comp-one
+helm upgrade --install demob -n demo-comp --create-namespace test/helm-charts/demob-comp-two
+helm upgrade --install democ -n demo-comp --create-namespace test/helm-charts/democ-comp-three
