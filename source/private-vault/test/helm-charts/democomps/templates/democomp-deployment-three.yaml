@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-two
+  name: {{ .Release.Name }}-three
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-two
+      app: {{ .Release.Name }}-three
   replicas: 1
   template:
     metadata:
       annotations:
-        oda.tmforum.org/privatevault: demo-comp-124
+        oda.tmforum.org/privatevault: vault-one
       labels:
-        app: {{ .Release.Name }}-two
+        app: {{ .Release.Name }}-three
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -28,9 +28,10 @@ spec:
         image: curlimages/curl:7.88.1
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
-        args: ["-c", "echo waiting 2h;
+        args: ["-c", "echo starting component THREE;
            date;
-           sleep 7200;
+           echo going to sleep;
+           sleep infinite;
            echo --- FINISHED ---"]
         securityContext:
           allowPrivilegeEscalation: false

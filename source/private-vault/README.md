@@ -17,7 +17,10 @@ helm repo update
 helm upgrade --install canvas-vault-hc hashicorp/vault --version 0.24.0 --namespace canvas-vault --create-namespace --values installation/canvas-vault-hc/values.yaml
 ```
 
-## DEBUG: create public route to Canvas-Vault
+## [Optional] create public route to Canvas-Vault
+
+for viewing the changes made by the privatevaultoperator a public route to the vault can be used 
+(assumes nginx-ingress-controller and cermanager configured with LetsEncrypt):
 
 ```
 kubectl apply -f installation/canvas-vault-hc/public-route-for-testing.yaml
@@ -39,7 +42,7 @@ helm upgrade --install kopf-framework operators/privatevaultoperator-hc/helmchar
 
 
 
-## Private-Vault-Operator
+## Deploy Private-Vault-Operator
 
 ```
 helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/helmcharts/pvop --namespace privatevault-system --create-namespace
@@ -49,28 +52,31 @@ helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/h
 ## Test
 
 
-### Example PrivateVault
+### Example PrivateVaults
+
+These privatevault crs would normally be deployed from the Component-Operator which extracts the corresponding section from the component.yaml.
 
 ```
-kubectl apply -f test/privatevault-dc123.yaml
-kubectl apply -f test/privatevault-dc124.yaml
+kubectl apply -f test/privatevault-vault-one.yaml
+kubectl apply -f test/privatevault-vault-two.yaml
 kubectl get privatevaults
 ```
 
-### deploy demo components with privatevault=sidecar annotation
+### deploy demo components with "oda.tmforum.org/privatevault" annotation
 
 ```
-helm upgrade --install demo-comp test/helm-charts/democomp -n demo-comp --create-namespace
+helm upgrade --install demo-comp test/helm-charts/democomps -n demo-comp --create-namespace
 ```
 
-to PODs get the sidecar injected, demo-comp-one and demo-comp-two.
-demo-comp-three fails the pattern check, because it is annotated with 
-"demo-comp-123" and "privatevault-demo-comp-123" defines the 
-podSelector name="demo-comp-one-*" which does not match the actual
-"demo-comp-three-fcn938l9"
+This deployment represents the deployments of three components "one", "two", "three".
+Where component "one" has two PODs which want to access the privatevault.
+Component "three" can be seen as an try to get illegal access to the privatevault of component "one".
 
-The pod-name selector is only validated inside the WebHook, while namespace and serviceaccount
-are validated in HashiCorp Vault auth.
+the PODs of components "one" and "two" get the sidecar injected, 
+while for component "three" the podSelector does not match and the sidecar is not injected.
+
+Currently the pod-name selector is currently only validated inside the WebHook, 
+while namespace and serviceaccount are validated in HashiCorp Vault auth.
 
 
 ### log into component one-a
@@ -140,9 +146,9 @@ components one-a and one-b both use "demo-comp-123".
 # Cleanup
 
 ```
-kubectl delete -f test/privatevault-dc123.yaml
-kubectl delete -f test/privatevault-dc124.yaml
-# if delete hangs, finalizer of privatevault cr have to be removed.
+kubectl delete -f test/privatevault-vault-one.yaml
+kubectl delete -f test/privatevault-vault-two.yaml
+# if delete hangs (caused by errors in WebHook with retry), finalizer can be removed.
 helm uninstall -n demo-comp demo-comp
 helm uninstall -n canvas-vault canvas-vault-hc
 helm uninstall -n privatevault-system privatevault-operator 
