@@ -8,12 +8,11 @@
 		"uid": "ea44c43e-8ef6-41b8-acbe-a86c46e4e3cf",
 		"resourceVersion": "41526754",
 		"creationTimestamp": "2023-06-13T21:05:46Z",
-		"annotations": {
-			"oda.tmforum.org/privatevault": "demo-comp-123"
-		},
 		"labels": {
 			"app": "demo-comp",
-			"pod-template-hash": "bdb5ffdc5"
+			"pod-template-hash": "bdb5ffdc5",
+			"oda.tmforum.org/componentName": "demo-comp-123",
+			"oda.tmforum.org/privatevault": "sidecar"
 		},
 		"ownerReferences": [
 			{

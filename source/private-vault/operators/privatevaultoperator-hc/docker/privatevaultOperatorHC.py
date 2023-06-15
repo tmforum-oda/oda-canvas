@@ -263,7 +263,7 @@ def inject_sidecar(body, patch):
 
     
 
-@kopf.on.mutate('pods', annotations={privatevaultname_annotation: kopf.PRESENT}, operation='CREATE', ignore_failures=True)
+@kopf.on.mutate('pods', labels={"oda.tmforum.org/privatevault": "sidecar"}, operation='CREATE', ignore_failures=True)
 def podmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
     try:
         logging.info(f"POD mutate called with body: {type(body)} -  {body}")
