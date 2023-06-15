@@ -36,7 +36,10 @@ kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-p
 
 ## KOPF crds
 
+if the crds or peering crs are already installed the corresponing helm chart will fail with "resource already exists", which is fine.
+
 ```
+helm upgrade --install kopf-framework-crds operators/privatevaultoperator-hc/helmcharts/kopf-framework-crds --namespace privatevault-system --create-namespace
 helm upgrade --install kopf-framework operators/privatevaultoperator-hc/helmcharts/kopf-framework --namespace privatevault-system --create-namespace
 ```
 
