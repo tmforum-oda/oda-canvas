@@ -84,7 +84,7 @@ while namespace and serviceaccount are validated in HashiCorp Vault auth.
 ### log into component demoa
 
 ```
-kubectl exec -it -n demo-comp deployment/demo-comp-one-a -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demoa-comp-one-sender -- /bin/sh
 ```
 
 access private vault using localhost with create/read/update/delete
@@ -113,7 +113,7 @@ curl -s -X GET http://localhost:5000/api/v3/secret/comp-one-secret -H "accept: a
 Now start a second shell in component one-b:
 
 ```
-kubectl exec -it -n demo-comp deployment/demo-comp-one-b -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demoa-comp-one-receiver -- /bin/sh
 ```
 
 and query for the secret created in component one-a:
@@ -130,7 +130,7 @@ It can be set to another value and also is changed for component one-a.
 Now let´s start a third shell in component two:
 
 ```
-kubectl exec -it -n demo-comp deployment/demo-comp-two -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demob-comp-two -- /bin/sh
 ```
 
 again we query for the same secret:
@@ -148,8 +148,8 @@ components one-a and one-b both use "demo-comp-123".
 # Cleanup
 
 ```
-kubectl apply -f test/privatevault-demoa-comp-one.yaml
-kubectl apply -f test/privatevault-demob-comp-two.yaml
+kubectl delete -f test/privatevault-demoa-comp-one.yaml
+kubectl delete -f test/privatevault-demob-comp-two.yaml
 # if delete hangs (caused by errors in WebHook with retry), finalizer can be removed.
 helm uninstall -n demo-comp demoa demob democ
 helm uninstall -n canvas-vault canvas-vault-hc

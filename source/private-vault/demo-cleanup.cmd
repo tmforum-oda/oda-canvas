@@ -1,5 +1,5 @@
-kubectl apply -f test/privatevault-demoa-comp-one.yaml
-kubectl apply -f test/privatevault-demob-comp-two.yaml
+kubectl delete -f test/privatevault-demoa-comp-one.yaml
+kubectl delete -f test/privatevault-demob-comp-two.yaml
 helm uninstall -n demo-comp demoa demob democ
 helm uninstall -n canvas-vault canvas-vault-hc
 helm uninstall -n privatevault-system privatevault-operator 

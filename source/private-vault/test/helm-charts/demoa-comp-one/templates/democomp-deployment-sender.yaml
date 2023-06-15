@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-sender
+  name: {{ .Release.Name }}-{{ .Values.component.name }}-sender
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-sender
+      app: {{ .Release.Name }}-{{ .Values.component.name }}-sender
   replicas: 1
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-sender
+        app: {{ .Release.Name }}-{{ .Values.component.name }}-sender
         oda.tmforum.org/componentName: {{ .Release.Name }}-{{ .Values.component.name }}        
         oda.tmforum.org/privatevault: sidecar
     spec:
