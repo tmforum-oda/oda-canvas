@@ -6,7 +6,7 @@ helm upgrade --install canvas-vault-hc hashicorp/vault --version 0.24.0 --namesp
 
 kubectl apply -f installation/canvas-vault-hc/public-route-for-testing.yaml
 
-timeout 5
+timeout 15
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-pv jwt
 timeout 1
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-pv/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
