@@ -15,8 +15,10 @@ helm upgrade --install kopf-framework operators/privatevaultoperator-hc/helmchar
 
 helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/helmcharts/pvop --namespace privatevault-system --create-namespace
 
-kubectl apply -f test/privatevault-vault-one.yaml
-kubectl apply -f test/privatevault-vault-two.yaml
+kubectl apply -f test/privatevault-demoa-comp-one.yaml
+kubectl apply -f test/privatevault-demob-comp-two.yaml
 kubectl get privatevaults
 
-helm upgrade --install demo-comp test/helm-charts/democomps -n demo-comp --create-namespace
+helm upgrade --install demoa test/helm-charts/demoa -n demo-comp --create-namespace
+helm upgrade --install demob test/helm-charts/demob -n demo-comp --create-namespace
+helm upgrade --install democ test/helm-charts/democ -n demo-comp --create-namespace

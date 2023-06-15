@@ -57,15 +57,17 @@ helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/h
 These privatevault crs would normally be deployed from the Component-Operator which extracts the corresponding section from the component.yaml.
 
 ```
-kubectl apply -f test/privatevault-vault-one.yaml
-kubectl apply -f test/privatevault-vault-two.yaml
+kubectl apply -f test/privatevault-demoa-comp-one.yaml
+kubectl apply -f test/privatevault-demob-comp-two.yaml
 kubectl get privatevaults
 ```
 
 ### deploy demo components with "oda.tmforum.org/privatevault" annotation
 
 ```
-helm upgrade --install demo-comp test/helm-charts/democomps -n demo-comp --create-namespace
+helm upgrade --install demoa -n demo-comp --create-namespace test/helm-charts/demoa-comp-one
+helm upgrade --install demob -n demo-comp --create-namespace test/helm-charts/demob-comp-two
+helm upgrade --install democ -n demo-comp --create-namespace test/helm-charts/democ-comp-three
 ```
 
 This deployment represents the deployments of three components "one", "two", "three".
@@ -79,7 +81,7 @@ Currently the pod-name selector is currently only validated inside the WebHook,
 while namespace and serviceaccount are validated in HashiCorp Vault auth.
 
 
-### log into component one-a
+### log into component demoa
 
 ```
 kubectl exec -it -n demo-comp deployment/demo-comp-one-a -- /bin/sh
@@ -146,10 +148,10 @@ components one-a and one-b both use "demo-comp-123".
 # Cleanup
 
 ```
-kubectl delete -f test/privatevault-vault-one.yaml
-kubectl delete -f test/privatevault-vault-two.yaml
+kubectl apply -f test/privatevault-demoa-comp-one.yaml
+kubectl apply -f test/privatevault-demob-comp-two.yaml
 # if delete hangs (caused by errors in WebHook with retry), finalizer can be removed.
-helm uninstall -n demo-comp demo-comp
+helm uninstall -n demo-comp demoa demob democ
 helm uninstall -n canvas-vault canvas-vault-hc
 helm uninstall -n privatevault-system privatevault-operator 
 helm uninstall -n privatevault-system oda-pv-crd

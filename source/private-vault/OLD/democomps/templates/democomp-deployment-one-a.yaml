@@ -9,10 +9,10 @@ spec:
   replicas: 1
   template:
     metadata:
-      annotations:
-        oda.tmforum.org/privatevault: vault-one
       labels:
         app: {{ .Release.Name }}-one-a
+        oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}        
+        oda.tmforum.org/privatevault: sidcar
     spec:
       automountServiceAccountToken: false
       securityContext:

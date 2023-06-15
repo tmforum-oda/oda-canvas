@@ -1,0 +1,3 @@
+component:
+  # Specifies whether a service account should be created
+  name: comp-one

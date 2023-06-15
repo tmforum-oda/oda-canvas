@@ -34,7 +34,7 @@ webhook_service_name = os.getenv('WEBHOOK_SERVICE_NAME', 'dummyservicename')
 webhook_service_namespace = os.getenv('WEBHOOK_SERVICE_NAMESPACE', 'dummyservicenamespace') 
 webhook_service_port = int(os.getenv('WEBHOOK_SERVICE_PORT', '443'))
 
-privatevaultname_annotation = os.getenv('PRIVATEVAULTNAME_ANNOTATION', 'oda.tmforum.org/privatevault')
+componentname_label = os.getenv('COMPONENTNAME_LABEL', 'oda.tmforum.org/componentName')
 
 privatevault_cr_namespace = os.getenv('PRIVATEVAULT_CR_NAMESPACE', 'privatevault-system')
 
@@ -84,9 +84,9 @@ def safe_get(default_value, dictionary, *paths):
 
 def inject_sidecar(body, patch):
     
-    pv_name = safe_get(None, body, "metadata", "annotations", privatevaultname_annotation)
+    pv_name = safe_get(None, body, "metadata", "labels", componentname_label)
     if not pv_name:
-        logging.info(f"Annotation {privatevaultname_annotation} not set, doing nothing")
+        logging.info(f"Component name in label {componentname_label} not set, doing nothing")
         return
 
     pod_name = safe_get(None, body, "metadata", "name")

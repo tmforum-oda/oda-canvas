@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-sender
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-sender
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-sender
+        oda.tmforum.org/componentName: {{ .Release.Name }}-{{ .Values.component.name }}        
+        oda.tmforum.org/privatevault: sidecar
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1001
+        runAsGroup: 1001
+        runAsNonRoot: true
+        runAsUser: 1001
+        supplementalGroups:
+        - 1001
+      containers:
+          
+      - name: component-implementation
+        image: curlimages/curl:7.88.1
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "echo starting component ONE-SENDER;
+           date;
+           echo going to sleep;
+           sleep infinite;
+           echo --- FINISHED ---"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
