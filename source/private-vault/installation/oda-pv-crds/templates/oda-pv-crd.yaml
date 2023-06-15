@@ -33,15 +33,15 @@ spec:
       type: string
       description: PrivateVault endpoint Url
       jsonPath: .spec.name
-    - name: NAMESEL
+    - name: NAME_SEL
       type: string
       description: PrivateVault pod name selector
       jsonPath: .spec.podSelector.name
-    - name: NAMESPACESEL
+    - name: NAMESPACE_SEL
       type: string
       description: PrivateVault pod namespace selector
       jsonPath: .spec.podSelector.namespace
-    - name: SVCACCSEL
+    - name: SVCACCT_SEL
       type: string
       description: PrivateVault pod serviceAccount selector
       jsonPath: .spec.podSelector.serviceAccount

@@ -1,6 +1,6 @@
 apiVersion: v2
-name: kopf framework peering crs
-description: need for kopd used in Private Vault Operator
+name: kopf framework crds
+description: need for kopf used in Private Vault Operator
 
 # A chart can be either an 'application' or a 'library' chart.
 #

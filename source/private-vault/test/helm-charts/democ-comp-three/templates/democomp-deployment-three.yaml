@@ -1,18 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-one-a
+  name: {{ .Release.Name }}-{{ .Values.component.name }}
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-one-a
+      app: {{ .Release.Name }}-{{ .Values.component.name }}
   replicas: 1
   template:
     metadata:
-      annotations:
-        oda.tmforum.org/privatevault: vault-one
       labels:
-        app: {{ .Release.Name }}-one-a
+        app: {{ .Release.Name }}-{{ .Values.component.name }}
+        ### try to hack demos-comp-one private vault...      
+        oda.tmforum.org/componentName: demoa-comp-one   # {{ .Release.Name }}-{{ .Values.component.name }}  
+        oda.tmforum.org/privatevault: sidecar
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -28,7 +29,7 @@ spec:
         image: curlimages/curl:7.88.1
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
-        args: ["-c", "echo starting component ONE-A;
+        args: ["-c", "echo starting component THREE;
            date;
            echo going to sleep;
            sleep infinite;

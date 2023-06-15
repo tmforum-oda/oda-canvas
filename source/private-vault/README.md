@@ -36,7 +36,10 @@ kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-p
 
 ## KOPF crds
 
+if the crds or peering crs are already installed the corresponing helm chart will fail with "resource already exists", which is fine.
+
 ```
+helm upgrade --install kopf-framework-crds operators/privatevaultoperator-hc/helmcharts/kopf-framework-crds --namespace privatevault-system --create-namespace
 helm upgrade --install kopf-framework operators/privatevaultoperator-hc/helmcharts/kopf-framework --namespace privatevault-system --create-namespace
 ```
 
@@ -57,15 +60,17 @@ helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/h
 These privatevault crs would normally be deployed from the Component-Operator which extracts the corresponding section from the component.yaml.
 
 ```
-kubectl apply -f test/privatevault-vault-one.yaml
-kubectl apply -f test/privatevault-vault-two.yaml
+kubectl apply -f test/privatevault-demoa-comp-one.yaml
+kubectl apply -f test/privatevault-demob-comp-two.yaml
 kubectl get privatevaults
 ```
 
 ### deploy demo components with "oda.tmforum.org/privatevault" annotation
 
 ```
-helm upgrade --install demo-comp test/helm-charts/democomps -n demo-comp --create-namespace
+helm upgrade --install demoa -n demo-comp --create-namespace test/helm-charts/demoa-comp-one
+helm upgrade --install demob -n demo-comp --create-namespace test/helm-charts/demob-comp-two
+helm upgrade --install democ -n demo-comp --create-namespace test/helm-charts/democ-comp-three
 ```
 
 This deployment represents the deployments of three components "one", "two", "three".
@@ -79,10 +84,10 @@ Currently the pod-name selector is currently only validated inside the WebHook,
 while namespace and serviceaccount are validated in HashiCorp Vault auth.
 
 
-### log into component one-a
+### log into component demoa
 
 ```
-kubectl exec -it -n demo-comp deployment/demo-comp-one-a -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demoa-comp-one-sender -- /bin/sh
 ```
 
 access private vault using localhost with create/read/update/delete
@@ -111,7 +116,7 @@ curl -s -X GET http://localhost:5000/api/v3/secret/comp-one-secret -H "accept: a
 Now start a second shell in component one-b:
 
 ```
-kubectl exec -it -n demo-comp deployment/demo-comp-one-b -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demoa-comp-one-receiver -- /bin/sh
 ```
 
 and query for the secret created in component one-a:
@@ -128,7 +133,7 @@ It can be set to another value and also is changed for component one-a.
 Now let´s start a third shell in component two:
 
 ```
-kubectl exec -it -n demo-comp deployment/demo-comp-two -- /bin/sh
+kubectl exec -it -n demo-comp deployment/demob-comp-two -- /bin/sh
 ```
 
 again we query for the same secret:
@@ -146,10 +151,10 @@ components one-a and one-b both use "demo-comp-123".
 # Cleanup
 
 ```
-kubectl delete -f test/privatevault-vault-one.yaml
-kubectl delete -f test/privatevault-vault-two.yaml
+kubectl delete -f test/privatevault-demoa-comp-one.yaml
+kubectl delete -f test/privatevault-demob-comp-two.yaml
 # if delete hangs (caused by errors in WebHook with retry), finalizer can be removed.
-helm uninstall -n demo-comp demo-comp
+helm uninstall -n demo-comp demoa demob democ
 helm uninstall -n canvas-vault canvas-vault-hc
 helm uninstall -n privatevault-system privatevault-operator 
 helm uninstall -n privatevault-system oda-pv-crd
