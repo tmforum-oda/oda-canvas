@@ -1,7 +1,5 @@
 # TODOs
 
-
-
 ## Configure Pod-Name-Selector in HC Vault
 
 use  "bound_claims_type": "glob"
@@ -44,6 +42,13 @@ the login is done only once at the startup but should be refreshed before it exp
 
 if the format is aligned, the Component-Operator is responsible for creation, updating and deletion of the private-vault custom resource.
 
+## remove default policy
+
+after JWT authenticating the default policy is autmatically added to the pv-(compid)-role policy.
+
+## remove tests methods from pv-operator 
+
+the tests should be extracted into a seperate test file.
 
 # WIP
 
