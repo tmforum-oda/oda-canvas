@@ -1,5 +1,16 @@
 # TODOs
 
+- TOC
+{:toc}
+
+{{TOC}}
+
+[TOC]
+
+[[_TOC_]]
+
+
+
 ## Configure Pod-Name-Selector in HC Vault
 
 use  "bound_claims_type": "glob"
@@ -83,4 +94,13 @@ Currently the DEV server root password is hard coded in the operator.
 Setup an intial JWT Auth for the PrivateVault-Operator ServiceAccount which allows
 creating new keystores, policies and jwt-roles.
 
+## refresh token periodically in sidecar
+
+the login is done only once at the startup but should be refreshed before it expires.
+
+## implement otheroptions than sidecar
+
+* env-vars
+* file
+* k8s-secrets
 
