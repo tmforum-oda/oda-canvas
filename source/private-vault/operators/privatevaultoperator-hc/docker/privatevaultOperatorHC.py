@@ -117,14 +117,12 @@ def inject_sidecar(body, patch):
         raise kopf.AdmissionError(f"privatevault {pv_cr_name}: missing name.", code=400)      
     if type != "sideCar":
         raise kopf.AdmissionError(f"privatevault {pv_cr_name}: unsupported type {type}.", code=400)
-    # TODO[FH] remove coments after testing!
-    # temporarily deactivate checks to test serverside checks!
-    #if podsel_name and not fnmatch.fnmatch(pod_name, podsel_name):
-    #    raise kopf.AdmissionError(f"privatevault {pv_cr_name}: pod name does not match selector.", code=400)      
-    #if podsel_namespace and not fnmatch.fnmatch(pod_namespace, podsel_namespace):
-    #    raise kopf.AdmissionError(f"privatevault {pv_cr_name}: pod namespace does not match selector.", code=400)      
-    #if podsel_serviceaccount and not fnmatch.fnmatch(pod_serviceAccountName, podsel_serviceaccount):
-    #    raise kopf.AdmissionError(f"privatevault {pv_cr_name}: pod serviceAccountName does not match selector.", code=400)      
+    if podsel_name and not fnmatch.fnmatch(pod_name, podsel_name):
+        raise kopf.AdmissionError(f"privatevault {pv_cr_name}: pod name does not match selector.", code=400)      
+    if podsel_namespace and not fnmatch.fnmatch(pod_namespace, podsel_namespace):
+        raise kopf.AdmissionError(f"privatevault {pv_cr_name}: pod namespace does not match selector.", code=400)      
+    if podsel_serviceaccount and not fnmatch.fnmatch(pod_serviceAccountName, podsel_serviceaccount):
+        raise kopf.AdmissionError(f"privatevault {pv_cr_name}: pod serviceAccountName does not match selector.", code=400)      
 
     container_pvsidecar = {
             "name": "pvsidecar",
