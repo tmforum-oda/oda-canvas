@@ -1,14 +1,5 @@
 # TODOs
 
-- TOC
-{:toc}
-
-{{TOC}}
-
-[TOC]
-
-[[_TOC_]]
-
 
 
 ## Configure Pod-Name-Selector in HC Vault
@@ -17,7 +8,50 @@ use  "bound_claims_type": "glob"
 
 https://mec-gitlab.liteon.com/gitlab/help/ci/examples/authenticating-with-hashicorp-vault/index.md#example
 
-### manual try
+see below [WIP](#wip)
+
+
+## localhost token negotiation
+
+Not yet implemented.
+
+
+## port configuration from privatevault
+
+does not work at the moment.
+
+## Change HC Vault DEV Server to standalone with persistence
+
+https://discuss.hashicorp.com/t/dev-mode-with-disk-storage/44805
+
+## Use JWT-AUTH for authenticating the PrivateVault-Operator
+
+Currently the DEV server root password is hard coded in the operator.
+Setup an intial JWT Auth for the PrivateVault-Operator ServiceAccount which allows
+creating new keystores, policies and jwt-roles.
+
+## refresh token periodically in sidecar
+
+the login is done only once at the startup but should be refreshed before it expires.
+
+## implement otheroptions than sidecar
+
+* env-vars
+* file
+* k8s-secrets
+
+## create PrivateVault CustomResource from in Component Operator
+
+if the format is aligned, the Component-Operator is responsible for creation, updating and deletion of the private-vault custom resource.
+
+
+# WIP
+
+about Configure Pod-Name-Selector in HC Vault:
+
+use  "bound_claims_type": "glob"
+
+https://mec-gitlab.liteon.com/gitlab/help/ci/examples/authenticating-with-hashicorp-vault/index.md#example
 
 
 ```
@@ -74,33 +108,4 @@ $ vault read -format json auth/jwt-k8s-pv/role/pv-demoa-comp-one-role
   "warnings": null
 }
 ```
-
-## localhost token negotiation
-
-Not yet implemented.
-
-
-## port configuration from privatevault
-
-does not work at the moment.
-
-## Change HC Vault DEV Server to standalone with persistence
-
-https://discuss.hashicorp.com/t/dev-mode-with-disk-storage/44805
-
-## Use JWT-AUTH for authenticating the PrivateVault-Operator
-
-Currently the DEV server root password is hard coded in the operator.
-Setup an intial JWT Auth for the PrivateVault-Operator ServiceAccount which allows
-creating new keystores, policies and jwt-roles.
-
-## refresh token periodically in sidecar
-
-the login is done only once at the startup but should be refreshed before it expires.
-
-## implement otheroptions than sidecar
-
-* env-vars
-* file
-* k8s-secrets
 
