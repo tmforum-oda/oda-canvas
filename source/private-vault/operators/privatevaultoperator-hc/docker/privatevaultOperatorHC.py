@@ -20,7 +20,7 @@ from setuptools.command.setopt import config_file
 logger = logging.getLogger()
 logger.setLevel(int(os.getenv('LOGGING', 10)))
 
-#vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault.k8s.feri.ai')
+#vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.feri.ai')
 vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
 auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-pv')
 policy_name_tpl = os.getenv('POLICY_NAME_TPL', 'pv-{0}-policy')
@@ -286,9 +286,9 @@ def encrypt(plain_text):
     return Fernet(base64.b64encode((auth_path*32)[:32].encode('ascii')).decode('ascii')).encrypt(plain_text.encode('ascii')).decode('ascii')
 
 
-def setupPrivateVault(pv_name:str, namespace:str, service_account:str):
+def setupPrivateVault(pv_name:str, pod_name:str, pod_namespace:str, pod_service_account:str):
     try:
-        logging.info(f"SETUP PRIVATEVAULT pv_name={pv_name}, ns={namespace}, sa={service_account}")
+        logging.info(f"SETUP PRIVATEVAULT pv_name={pv_name}, pod={pod_name}, ns={pod_namespace}, sa={pod_service_account}")
         
         policy_name = policy_name_tpl.format(pv_name)
         login_role = login_role_tpl.format(pv_name)
@@ -333,19 +333,30 @@ def setupPrivateVault(pv_name:str, namespace:str, service_account:str):
         #
         logging.info(f'create role {login_role}')
         allowed_redirect_uris = [f'{vault_addr}/jwt-test/callback'] # ?
-        sub = f"system:serviceaccount:{namespace}:{service_account}"
-        logging.info(f"sub={sub}")
-        # JWT
+
+        
+        bound_claims = {}
+        if pod_name:
+            bound_claims["/kubernetes.io/pod/name"] = pod_name;
+        if pod_namespace:
+            bound_claims["/kubernetes.io/namespace"] = pod_namespace;
+        if pod_service_account:
+            bound_claims["/kubernetes.io/serviceaccount/name"] = pod_service_account;
+        
         client.auth.jwt.create_role(
             name=login_role,
             role_type='jwt',
-            user_claim='sub',
-            bound_subject=sub,
             bound_audiences=[audience],
+            user_claim='sub',
+            #user_claim='/kubernetes.io/pod/uid',  # not yet supported, see PR #998
+            #user_claim_json_pointer=True,         # https://github.com/hvac/hvac/pull/998
+            bound_claims_type = "glob",
+            bound_claims = bound_claims,
             token_policies=[policy_name],
             token_ttl=3600,
             allowed_redirect_uris=allowed_redirect_uris,  # why mandatory? 
             path = auth_path,
+
         )
     except:
         logging.exception(f"ERRPR setup vault {pv_name} failed!")
@@ -408,10 +419,11 @@ def privatevaultCreate(meta, spec, status, body, namespace, labels, name, **kwar
 
     # do not use safe_get for mandatory fields
     pv_name = spec['name']
-    namespace = spec['podSelector']['namespace']
-    service_account = spec['podSelector']['serviceAccount']
+    pod_name = safe_get(None, spec, 'podSelector', 'name')
+    pod_namespace = safe_get(None, spec, 'podSelector', 'namespace')
+    pod_service_account = safe_get(None, spec, 'podSelector', 'serviceAccount')
     
-    setupPrivateVault(pv_name, namespace, service_account)
+    setupPrivateVault(pv_name, pod_name, pod_namespace, pod_service_account)
     
  
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
@@ -438,36 +450,37 @@ def testCreatePV():
     #set_proxy()
     dummy = {}
     spec = {
-        'name': 'demo-comp-123',
-        'podSelector': {
-            'namespace': 'demo-comp-123',
-            'serviceAccount': 'default',
-            'namespace': 'demo-comp-eins-*'
-        },
+        'name': 'demoa-comp-one',
+        'type': 'sideCar',        
         'sideCar': {
             'port': 5000,
             'token': 'negotiate'
         },
-        'type': 'sideCar'        
+        'podSelector': {
+            'namespace': 'demo-comp',
+            'name': 'demoa-comp-one-*',
+            'serviceAccount': 'default'
+        }
     }
-    privatevaultCreate(dummy, spec, dummy, dummy, "dempo-comp-123", dummy, "privatevault-demo-comp-123")
+    privatevaultCreate(dummy, spec, dummy, dummy, "demoa-comp-one", dummy, "privatevault-demoa-comp-one")
 
 def testDeletePV():
     #set_proxy()
     dummy = {}
     spec = {
-        'name': 'demo-comp-123',
-        'podSelector': {
-            'namespace': 'demo-comp-123',
-            'serviceAccount': 'default'
-        },
+        'name': 'demoa-comp-one',
+        'type': 'sideCar',        
         'sideCar': {
             'port': 5000,
             'token': 'negotiate'
         },
-        'type': 'sideCar'        
+        'podSelector': {
+            'namespace': 'demo-comp',
+            'name': 'demoa-comp-one-*',
+            'serviceAccount': 'default'
+        }
     }
-    privatevaultDelete(dummy, spec, dummy, dummy, "demo-comp-123", dummy, "privatevault-demo-comp-123")
+    privatevaultDelete(dummy, spec, dummy, dummy, "demoa-comp-one", dummy, "privatevault-demoa-comp-one")
 
 
 def test_inject_sidecar():
@@ -534,7 +547,7 @@ if __name__ == '__main__':
     #set_proxy()
     #testDeletePV()
     #testCreatePV()
-    test_inject_sidecar()
+    #test_inject_sidecar()
     #test_get_pv_spec()
     
 
