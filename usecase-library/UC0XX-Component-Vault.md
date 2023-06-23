@@ -103,3 +103,63 @@ security:
 # Reference Workflows
 
 * [UC0XX-Private-Vault-JWT-based.md](UC0XX-Private-Vault-JWT-based.md)
+
+
+# Feedback from ODA-Workshop 22.6.2023
+
+## Allow other kind of Secret access
+
+The current description only describes the access via an local API, which needs a sidecar `type: sidcar`.
+For some standard components it might not be possible to access the secrets in this way.
+Therefore other access methods should be possible:
+
+* `type: sidecar` the secrets are accessible via a local API as described above
+* `type: file` the secrets are injected into a memory filesystem by an init-container
+* `type: file-update` the secrets are injected and updated into a memory filesystem by a sidecar
+* `type: env` the secrets are injected and updated by the PrivateVault-Operator as Environment variables in the POD (POD manifest contains plain values)
+* `type: env-entrypoint` the POD gets an entrypoint injected, which sets the environment variables (maybe technically difficult)
+* `type: k8s-secret` the secrets are made available in the namespace as kubernetes secrets at POD starting time 
+* `type: k8s-secret-update` the secrets are made available in the namespace and updated regularly
+
+## Allow to define PODS with readonly access to PrivateVault
+
+In the current concept, only one role with Full-Access to the PrivateVault Keystore is created.
+It might be good to define more fine granular permissions, like PODs which are allowed to read, but not to write secrets.
+
+Thinking more about this, it could be solved by a generic definition of roles with own settings
+
+```
+security:
+  ...
+  privateVault:
+    - name: admin
+      permissions: ["create", "read", "update", "delete", "list", "patch"]
+      selector: 
+        podnames:
+        - db-mgmt
+    - name: read
+      permissions: ["read"]
+      selector: 
+        podnames:
+        - db-server
+        - db-client
+    - name: setup
+      permissions: ["create"]
+      selector: 
+        podnames:
+        - db-init
+````
+
+## Allow initial creation of Secrets
+
+It should be possible to generate secrets with an initial value.
+So, nowhere in the code the secret is visible, but on initial deploy time a value is generated and can be used on server and client side
+
+## Key Rotation
+
+Allow periodic key rotations. 
+
+
+## Conjur Support
+
+As DT is using CyberArk Conjur and not HashiCorp Vault, a reference Implementation for Conjur would also be appreciated.
