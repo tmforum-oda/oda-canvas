@@ -1,0 +1,9 @@
+# ODA Canvas Design
+
+This is an outline of how the Canvas design is documented, and a pointer to the different design artefacts:
+* The highest level documentation describing the services a canvas should provide to an ODA Component is in the [Canvas use case library](usecase-library/README.md). The use case library outlines the assumptions for each use case and sequence diagrams for the interactions between an example ODA Component and the ODA Canvas.
+* The next level of details of the features required to be a fully compliant ODA Canvas is in the [Compliance Test Kit](compliance-test-kit/README.md). These are documented as business-friendly pseudo-code in the form of BDD (Behaviour-Driven Development) features and scenarios. BDD Features should refer to use cases in the Canvas use case library (creating or amending them as required).
+* The use cases and features are Level 2 standards and should be implementation agnostic. For the Level 3 Reference Implementation, to turn the BDD features into executable compliance tests, there are a set of TDD (Test-Driven Development) tests that define tests for each BDD scenario (embedded within each BDD). These are in the [Compliance Test Kit](compliance-test-kit/README.md).
+* Specific design decisions where we assess options and make a decision are documented in the [Design Decision Log](../oda-ca-docs/Decision-Log/README.md).
+* To organise the backlog of work for the team, we use [GitHub issues](https://github.com/tmforum-oda/oda-canvas/issues). Issues may describe new features, bugs or refactoring of work. Contributors self-assign to issues to indicate who is working on what. 
+Finally, the [source code](../source/README.md) contains the source code, helm charts and configuration files that form the reference implementation for the Canvas. Source code should embed [docstrings](https://en.wikipedia.org/wiki/Docstring) so that it becomes part of the documentation of the system.
