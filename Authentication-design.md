@@ -14,6 +14,8 @@ The authentication use cases are documented in the [use case library](../usecase
 
 ## BDD Features
 
+For each use case, a set of BDD features describes the behaviour required of the Canvas, using scenarios. The goal is for a set of business-friendly pseudo-code that describes the behaviour of the Canvas, and that directly maps to compliance tests (TDD) that will test that feature. Some features are option - the compliance report will indicate which features have passed, but will not fail the compliance test for a canvas if an optional feature is not implemented.
+
 | Use case | BDD Feature | Mandatory / Optional | Description | Status |
 |----------|-------------|----------------------|-------------| ------ |
 | UC001 | [F001](/compliance-test-kit/BDD-and-TDD/features/UC001-F001-Secure-User-and-Role-Information-Communication.feature) | Mandatory | Secure User and Role Information Communication | Not started [Issue #79](https://github.com/tmforum-oda/oda-canvas/issues/79) |
