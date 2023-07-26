@@ -14,5 +14,9 @@ The Reference Implementation of the ODA Canvas will be used for ODA Component ce
 see [Installation Guide](installation/README.md) for installation instructions.
 
 
+## ODA Canvas Design
+
+The design (including ongoing work) of the ODA Canvas is documented in [ODA Canvas Design](Canvas-design.md).
+
 
 
