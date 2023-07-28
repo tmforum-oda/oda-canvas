@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echoservice-deployment
+  namespace: demo-comp
+spec:
+  selector:
+    matchLabels:
+      app: echoservice
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: echoservice
+        oda.tmforum.org/privatevault: sidecar
+    spec:
+      containers:
+      - name: echoservice
+        image: mtr.devops.telekom.de/magenta_canvas/public/tools/echoservice:v0.1.0 
+        imagePullPolicy: Always
+  

@@ -107,6 +107,8 @@ def inject_sidecar(body, patch):
     logging.debug(f"loading k8s config")
     k8s_load_config()
     
+    # HIERWEITER deployment = find_deployment(pod_namespace, pod_name, pod-template-hash)
+    
     pv_cr_name = f"privatevault-{pv_name}"
     logging.debug(f"getting privatevault cr {pv_cr_name} from k8s")
     pv_spec = get_pv_spec(pv_cr_name)
@@ -562,7 +564,7 @@ if __name__ == '__main__':
     #test_kubeconfig()
     #testDeletePV()
     #testCreatePV()
-    #test_inject_sidecar()
+    test_inject_sidecar()
     #test_get_pv_spec()
     
 
