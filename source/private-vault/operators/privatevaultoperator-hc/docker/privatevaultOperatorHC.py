@@ -82,6 +82,14 @@ def safe_get(default_value, dictionary, *paths):
     return result
 
 
+
+def test_kubeconfig():
+    v1 = kubernetes.client.CoreV1Api()
+    nameSpaceList = v1.list_namespace()
+    for nameSpace in nameSpaceList.items:
+        print(nameSpace.metadata.name)
+
+
 def inject_sidecar(body, patch):
     
     pv_name = safe_get(None, body, "metadata", "labels", componentname_label)
@@ -484,7 +492,9 @@ def testDeletePV():
 
 
 def test_inject_sidecar():
-    with open ('test/pod/mutate/mutate-body.json', 'r') as f:
+    # body_json_file = 'test/pod/mutate/mutate-body.json'
+    body_json_file = 'test/pod/mutate/create-demo-comp-one-pod-body.json'
+    with open (body_json_file, 'r') as f:
         body = json.load(f)
     meta = body["metadata"]
     spec = body["spec"]
@@ -498,15 +508,18 @@ def test_inject_sidecar():
 def k8s_load_config():
     try:
         kubernetes.config.load_incluster_config()
+        print("loaded incluster config")
     except kubernetes.config.ConfigException:
         try:
-            conf = kubernetes.client.Configuration()
-            conf.http_proxy_url="http://specialinternetaccess-lb.telekom.de:8080"
-            conf.https_proxy_url="http://specialinternetaccess-lb.telekom.de:8080"
-            kubernetes.config.load_kube_config(config_file = "C:\\Users\\a307131\\.kube\\config-k8s-feri-ai", client_configuration=conf)
+            kube_config_file = "~/.kube/config-vps5"
+            proxy = "http://specialinternetaccess-lb.telekom.de:8080"
+            kubernetes.config.load_kube_config(config_file = kube_config_file)
+            kubernetes.client.Configuration._default.proxy = proxy 
+            print("loaded config "+kube_config_file+" with proxy "+proxy)
         except kubernetes.config.ConfigException:
             try:
                 kubernetes.config.load_kube_config()
+                print("loaded default config")
             except kubernetes.config.ConfigException:
                 raise Exception("Could not configure kubernetes python client")
     
@@ -545,6 +558,8 @@ def test_get_pv_spec():
 if __name__ == '__main__':
     logging.info(f"main called")
     #set_proxy()
+    #k8s_load_config()
+    #test_kubeconfig()
     #testDeletePV()
     #testCreatePV()
     #test_inject_sidecar()

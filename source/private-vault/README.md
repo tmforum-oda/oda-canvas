@@ -23,7 +23,9 @@ for viewing the changes made by the privatevaultoperator a public route to the v
 (assumes nginx-ingress-controller and cermanager configured with LetsEncrypt):
 
 ```
-kubectl apply -f installation/canvas-vault-hc/public-route-for-testing.yaml
+# kubectl apply -f installation/canvas-vault-hc/public-route-for-testing.yaml
+kubectl apply -f installation/canvas-vault-hc/canvas-vault-hc-vs.yaml
+
 ```
 
 ## Configure HashiCorp Vault to accept Kubernetes SerciceAccount Issuer
@@ -31,6 +33,10 @@ kubectl apply -f installation/canvas-vault-hc/public-route-for-testing.yaml
 ```
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-pv jwt
 sleep 2
+
+# https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/kubernetes#using-service-account-issuer-discovery
+kubectl create clusterrolebinding oidc-reviewer  --clusterrole=system:service-account-issuer-discovery --group=system:unauthenticated
+
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-pv/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 ```
 
@@ -62,7 +68,7 @@ These privatevault crs would normally be deployed from the Component-Operator wh
 ```
 kubectl apply -f test/privatevault-demoa-comp-one.yaml
 kubectl apply -f test/privatevault-demob-comp-two.yaml
-kubectl get privatevaults
+kubectl get privatevaults -A
 ```
 
 ### deploy demo components with "oda.tmforum.org/privatevault" annotation
