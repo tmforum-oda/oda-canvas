@@ -78,6 +78,11 @@ rules:
     resources: [pods]
     verbs: [list, watch, patch]
 
+  # Application: watching & handling for deployments (transfer labels to pods).
+  - apiGroups: [apps]
+    resources: [deployment]
+    verbs: [list, watch, patch]
+
   # Application: other resources it produces and manipulates.
   # Here, we create Jobs+PVCs+Pods, but we do not patch/update/delete them ever.
   - apiGroups: [batch, extensions]
