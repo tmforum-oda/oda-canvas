@@ -13,6 +13,8 @@ import kubernetes
 from kubernetes.client.rest import ApiException
 from typing import AsyncIterator
 from setuptools.command.setopt import config_file
+from kubernetes.client.models.v1_replica_set import V1ReplicaSet
+from kubernetes.client.models.v1_deployment import V1Deployment
 
 
 # https://kopf.readthedocs.io/en/stable/install/
@@ -90,9 +92,48 @@ def test_kubeconfig():
         print(nameSpace.metadata.name)
 
 
-def inject_sidecar(body, patch):
+def get_comp_name(body):
     
     pv_name = safe_get(None, body, "metadata", "labels", componentname_label)
+    pv_name = None
+    if pv_name:
+        return pv_name
+    namespace = safe_get(None, body, "metadata", "namespace")
+    owners = safe_get(None, body, "metadata", "ownerReferences")
+    if not owners:
+        return
+    for owner in owners:
+        kind = safe_get(None, owner, "kind")
+        if kind and kind == "ReplicaSet":
+            rs_name = safe_get(None, owner, "name")
+            rs_uid = safe_get(None, owner, "uid")
+            aV1 = kubernetes.client.AppsV1Api()
+            replica_set:V1ReplicaSet = aV1.read_namespaced_replica_set(rs_name, namespace)
+            # print(replica_set)
+            if replica_set.metadata.uid == rs_uid:
+                rs_owners = replica_set.metadata.owner_references
+                if rs_owners:
+                    for rs_owner in rs_owners:
+                        kind = rs_owner.kind
+                        if kind and kind == "Deployment":
+                            dep_name = rs_owner.name
+                            dep_uid = rs_owner.uid
+                            deployment:V1Deployment = aV1.read_namespaced_deployment(dep_name, namespace)
+                            # print(deployment)
+                            if deployment.metadata.uid == dep_uid:
+                                labels = deployment.metadata.labels
+                                # print(labels)
+                                if labels and componentname_label in labels:
+                                    pv_name = labels[componentname_label]
+                                    return pv_name 
+            
+
+def inject_sidecar(body, patch):
+    
+    logging.debug(f"loading k8s config")
+    k8s_load_config()
+
+    pv_name = get_comp_name(body)
     if not pv_name:
         logging.info(f"Component name in label {componentname_label} not set, doing nothing")
         return
@@ -104,8 +145,6 @@ def inject_sidecar(body, patch):
     pod_serviceAccountName = safe_get("default", body, "spec", "serviceAccountName")
     logging.info(f"POD serviceaccount:{pod_namespace}:{pod_name}:{pod_serviceAccountName}")
 
-    logging.debug(f"loading k8s config")
-    k8s_load_config()
     
     # HIERWEITER deployment = find_deployment(pod_namespace, pod_name, pod-template-hash)
     
