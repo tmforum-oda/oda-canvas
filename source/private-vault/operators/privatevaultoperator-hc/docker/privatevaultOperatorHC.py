@@ -547,6 +547,8 @@ def test_inject_sidecar():
 
 
 def k8s_load_config():
+    if kubernetes.client.Configuration._default:
+        return
     try:
         kubernetes.config.load_incluster_config()
         print("loaded incluster config")
@@ -603,6 +605,7 @@ if __name__ == '__main__':
     #test_kubeconfig()
     #testDeletePV()
     #testCreatePV()
+    test_inject_sidecar()
     test_inject_sidecar()
     #test_get_pv_spec()
     
