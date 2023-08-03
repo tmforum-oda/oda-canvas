@@ -37,6 +37,7 @@ webhook_service_namespace = os.getenv('WEBHOOK_SERVICE_NAMESPACE', 'dummyservice
 webhook_service_port = int(os.getenv('WEBHOOK_SERVICE_PORT', '443'))
 
 componentname_label = os.getenv('COMPONENTNAME_LABEL', 'oda.tmforum.org/componentName')
+privatevaulttype_label = os.getenv('PRIVATEVAULTTYPE_LABEL', "oda.tmforum.org/privatevault")
 
 privatevault_cr_namespace = os.getenv('PRIVATEVAULT_CR_NAMESPACE', 'privatevault-system')
 
@@ -294,7 +295,7 @@ def inject_sidecar(body, patch):
         return
 
     containers.append(container_pvsidecar)
-    patch.spec["containers"] = containers
+    patch.spec["template"] = template
     logging.debug(f"injecting pvsidecar container")
     
 
@@ -313,8 +314,21 @@ def inject_sidecar(body, patch):
 
 def label_deployment_pods(body, patch):
     
-    j_body = json.dumps(body)
-    logging.info(f"DEPLOYMENT CREATE JSON: {j_body}")
+    labels = safe_get(None, body, 'metadata', 'labels')
+    if labels and componentname_label in labels:
+        component_name = labels[componentname_label]
+        pv_type = safe_get("sidecar", labels, privatevaulttype_label)
+        logger.info(f"COMPONENTNAME: {component_name}")
+
+        labels = safe_get({}, body, "spec", "template", "metadata", "labels")
+        if not componentname_label in labels:
+           labels[componentname_label] = component_name
+           
+        if not privatevaulttype_label in labels:
+           labels[privatevaulttype_label] = pv_type
+
+        patch.spec["template"] = {"metadata": {"labels": labels}}
+
 
 
     
@@ -565,6 +579,19 @@ def test_inject_sidecar():
     podmutate(body, meta, spec, status, patch, warnings)
 
 
+def test_label_deployment_pods():
+    # body_json_file = 'test/pod/mutate/mutate-body.json'
+    body_json_file = 'test/deployment/create/demoa-deployment-create.json'
+    with open (body_json_file, 'r') as f:
+        body = json.load(f)
+    meta = body["metadata"]
+    spec = body["spec"]
+    status = body["status"]
+    patch = kopf.Patch({})
+    warnings = []
+    deploymentmutate(body, meta, spec, status, patch, warnings)
+
+
 
 def k8s_load_config():
     if kubernetes.client.Configuration._default:
@@ -625,8 +652,8 @@ if __name__ == '__main__':
     #test_kubeconfig()
     #testDeletePV()
     #testCreatePV()
-    test_inject_sidecar()
-    test_inject_sidecar()
+    #test_inject_sidecar()
     #test_get_pv_spec()
+    test_label_deployment_pods()
     
 
