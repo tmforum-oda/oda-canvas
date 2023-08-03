@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.component.name }}-receiver
+  labels:
+    oda.tmforum.org/componentName: {{ .Release.Name }}-{{ .Values.component.name }}        
+    oda.tmforum.org/privatevault: sidecar
 spec:
   selector:
     matchLabels:
@@ -11,8 +14,6 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-{{ .Values.component.name }}-receiver
-        oda.tmforum.org/componentName: {{ .Release.Name }}-{{ .Values.component.name }}        
-        oda.tmforum.org/privatevault: sidecar
     spec:
       automountServiceAccountToken: false
       securityContext:
