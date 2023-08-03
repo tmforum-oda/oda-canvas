@@ -95,7 +95,6 @@ def test_kubeconfig():
 def get_comp_name(body):
     
     pv_name = safe_get(None, body, "metadata", "labels", componentname_label)
-    pv_name = None
     if pv_name:
         return pv_name
     namespace = safe_get(None, body, "metadata", "namespace")
@@ -310,6 +309,14 @@ def inject_sidecar(body, patch):
         logging.debug(f"injecting pvsidecar-kube-api-access volume")
 
 
+
+
+def label_deployment_pods(body, patch):
+    
+    j_body = json.dumps(body)
+    logging.info(f"DEPLOYMENT CREATE JSON: {j_body}")
+
+
     
 
 @kopf.on.mutate('pods', labels={"oda.tmforum.org/privatevault": "sidecar"}, operation='CREATE', ignore_failures=True)
@@ -321,6 +328,19 @@ def podmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], 
     
     except:
         logging.exception(f"ERRPR podmutate failed!")
+        warnings.append("internal error, patch not applied")
+        patch.clear()
+    
+    
+@kopf.on.mutate('deployments', labels={"oda.tmforum.org/privatevault": "sidecar"}, operation='CREATE', ignore_failures=True)
+def deploymentmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
+    try:
+        logging.info(f"DEPLOYMENT mutate called with body: {type(body)} -  {body}")
+        label_deployment_pods(body, patch)
+        logging.info(f"DEPLOYMENT mutate returns patch: {type(patch)} -  {patch}")
+    
+    except:
+        logging.exception(f"ERRPR deploymentmutate failed!")
         warnings.append("internal error, patch not applied")
         patch.clear()
     

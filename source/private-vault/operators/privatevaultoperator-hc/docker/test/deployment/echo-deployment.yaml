@@ -3,6 +3,9 @@ kind: Deployment
 metadata:
   name: echoservice-deployment
   namespace: demo-comp
+  labels:
+    app: echoservice
+    oda.tmforum.org/privatevault: sidecar
 spec:
   selector:
     matchLabels:
@@ -12,7 +15,6 @@ spec:
     metadata:
       labels:
         app: echoservice
-        oda.tmforum.org/privatevault: sidecar
     spec:
       containers:
       - name: echoservice
