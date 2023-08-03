@@ -1,0 +1,5 @@
+hvac == 1.1.0
+cryptography == 41.0.1
+kopf == 1.36.1
+kubernetes==25.3.0
+certbuilder==0.14.2

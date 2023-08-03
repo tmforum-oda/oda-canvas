@@ -1,0 +1,182 @@
+{
+	"name": "demo-comp-123-bdb5ffdc5-rvrg8",
+	"generateName": "demo-comp-123-bdb5ffdc5-",
+	"namespace": "demo-comp-123",
+	"uid": "b018df3f-9ece-4ab7-b044-6fba17a6e67f",
+	"resourceVersion": "41383657",
+	"creationTimestamp": "2023-06-13T08:34:46Z",
+	"labels": {
+		"app": "demo-comp-123",
+		"pod-template-hash": "bdb5ffdc5",
+		"privatevault": "sidecar"
+	},
+	"ownerReferences": [
+		{
+			"apiVersion": "apps/v1",
+			"kind": "ReplicaSet",
+			"name": "demo-comp-123-bdb5ffdc5",
+			"uid": "1b22ff37-6eb1-4f1d-8f22-629d77b8e22d",
+			"controller": True,
+			"blockOwnerDeletion": True
+		}
+	],
+	"managedFields": [
+		{
+			"manager": "kube-controller-manager",
+			"operation": "Update",
+			"apiVersion": "v1",
+			"time": "2023-06-13T08:34:46Z",
+			"fieldsType": "FieldsV1",
+			"fieldsV1": {
+				"f:metadata": {
+					"f:generateName": {
+					},
+					"f:labels": {
+						".": {
+						},
+						"f:app": {
+						},
+						"f:pod-template-hash": {
+						},
+						"f:privatevault": {
+						}
+					},
+					"f:ownerReferences": {
+						".": {
+						},
+						"k:{"uid":"1b22ff37-6eb1-4f1d-8f22-629d77b8e22d"}": {
+						}
+					}
+				},
+				"f:spec": {
+					"f:containers": {
+						"k:{"name":"componentmplementation"}": {
+							".": {
+							},
+							"f:args": {
+							},
+							"f:command": {
+							},
+							"f:image": {
+							},
+							"f:imagePullPolicy": {
+							},
+							"f:name": {
+							},
+							"f:resources": {
+							},
+							"f:securityContext": {
+								".": {
+								},
+								"f:allowPrivilegeEscalation": {
+								},
+								"f:capabilities": {
+									".": {
+									},
+									"f:drop": {
+									}
+								},
+								"f:privileged": {
+								},
+								"f:readOnlyRootFilesystem": {
+								}
+							},
+							"f:terminationMessagePath": {
+							},
+							"f:terminationMessagePolicy": {
+							}
+						}
+					},
+					"f:dnsPolicy": {
+					},
+					"f:enableServiceLinks": {
+					},
+					"f:restartPolicy": {
+					},
+					"f:schedulerName": {
+					},
+					"f:securityContext": {
+						".": {
+						},
+						"f:fsGroup": {
+						},
+						"f:runAsGroup": {
+						},
+						"f:runAsNonRoot": {
+						},
+						"f:runAsUser": {
+						},
+						"f:supplementalGroups": {
+						}
+					},
+					"f:terminationGracePeriodSeconds": {
+					}
+				}
+			}
+		},
+		{
+			"manager": "kubelet",
+			"operation": "Update",
+			"apiVersion": "v1",
+			"time": "2023-06-13T08:34:46Z",
+			"fieldsType": "FieldsV1",
+			"fieldsV1": {
+				"f:status": {
+					"f:conditions": {
+						"k:{"type":"ContainersReady"}": {
+							".": {
+							},
+							"f:lastProbeTime": {
+							},
+							"f:lastTransitionTime": {
+							},
+							"f:message": {
+							},
+							"f:reason": {
+							},
+							"f:status": {
+							},
+							"f:type": {
+							}
+						},
+						"k:{"type":"Initialized"}": {
+							".": {
+							},
+							"f:lastProbeTime": {
+							},
+							"f:lastTransitionTime": {
+							},
+							"f:status": {
+							},
+							"f:type": {
+							}
+						},
+						"k:{"type":"Ready"}": {
+							".": {
+							},
+							"f:lastProbeTime": {
+							},
+							"f:lastTransitionTime": {
+							},
+							"f:message": {
+							},
+							"f:reason": {
+							},
+							"f:status": {
+							},
+							"f:type": {
+							}
+						}
+					},
+					"f:containerStatuses": {
+					},
+					"f:hostIP": {
+					},
+					"f:startTime": {
+					}
+				}
+			},
+			"subresource": "status"
+		}
+	]
+}

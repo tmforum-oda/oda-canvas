@@ -1,0 +1,53 @@
+{
+	"phase": "Pending",
+	"conditions": [
+		{
+			"type": "Initialized",
+			"status": "True",
+			"lastProbeTime": None,
+			"lastTransitionTime": "2023-06-13T08:34:46Z"
+		},
+		{
+			"type": "Ready",
+			"status": "False",
+			"lastProbeTime": None,
+			"lastTransitionTime": "2023-06-13T08:34:46Z",
+			"reason": "ContainersNotReady",
+			"message": "containers with unready status: [component-implementation]"
+		},
+		{
+			"type": "ContainersReady",
+			"status": "False",
+			"lastProbeTime": None,
+			"lastTransitionTime": "2023-06-13T08:34:46Z",
+			"reason": "ContainersNotReady",
+			"message": "containers with unready status: [component-implementation]"
+		},
+		{
+			"type": "PodScheduled",
+			"status": "True",
+			"lastProbeTime": None,
+			"lastTransitionTime": "2023-06-13T08:34:46Z"
+		}
+	],
+	"hostIP": "89.117.56.30",
+	"startTime": "2023-06-13T08:34:46Z",
+	"containerStatuses": [
+		{
+			"name": "component-implementation",
+			"state": {
+				"waiting": {
+					"reason": "ContainerCreating"
+				}
+			},
+			"lastState": {
+			},
+			"ready": False,
+			"restartCount": 0,
+			"image": "curlimages/curl:7.88.1",
+			"imageID": "",
+			"started": False
+		}
+	],
+	"qosClass": "BestEffort"
+}

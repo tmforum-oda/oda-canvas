@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: canvas-vault-hc-ingress
+  namespace: canvas-vault
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production  
+  labels:
+    app: canvas-vault-hc
+spec:
+  ingressClassName: nginx
+  tls:
+    - secretName: canvas-vault-hc-ssl
+      hosts:
+      - canvas-vault-hc.k8s.feri.ai          
+  rules:
+  - host: "canvas-vault-hc.k8s.feri.ai"
+    http:
+      paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: canvas-vault-hc
+              port:
+                number: 8200
+

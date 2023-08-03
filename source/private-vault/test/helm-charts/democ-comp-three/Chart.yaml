@@ -1,0 +1,9 @@
+apiVersion: v2
+Name: demo-comp-three
+description: cURL Demo-Comp-THREE trying to access the private vault of demo-comp-ONE
+
+type: application
+
+Version: 0.1.0
+
+AppVersion: "0.1.0"

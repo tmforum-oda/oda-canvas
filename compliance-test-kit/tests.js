@@ -29,7 +29,7 @@ describe("Basic Kubernetes checks", function () {
         }).catch(done)
     })
     
-    const supportedVersions = ['v1.18', 'v1.19', 'v1.20', 'v1.21', 'v1.22', 'v1.22+']
+    const supportedVersions = ['v1.18', 'v1.19', 'v1.20', 'v1.21', 'v1.22', 'v1.22+', 'v1.25']
     it("Cluster is running a supported version: " + supportedVersions, function (done) {
         k8sVersionAPI.getCode().then((res) => {
             let clusterVersion = "v" + res.body.major + "." + res.body.minor
@@ -149,7 +149,7 @@ if ( mandatory_only == 'true' ) {
     describe("Optional non-functional capabilities", function () {
         if ((optional_keycloak == 'true') || (run_all_optional)) {
             it("canvas-keycloak deployment is running", function (done) {
-                k8sAppsAPI.readNamespacedDeploymentStatus('canvas-keycloak', ReleaseNamespace).then((res) => {
+                k8sAppsAPI.readNamespacedStatefulSetStatus('canvas-keycloak', ReleaseNamespace).then((res) => {
                     let unavailableReplicas = res.body.status.unavailableReplicas
                     let readyReplicas = res.body.status.readyReplicas
                     let replicas = res.body.status.replicas
@@ -187,7 +187,7 @@ if ( mandatory_only == 'true' ) {
                 }).catch(done)
             })
             it("istio-ingressgateway deployment is running", function (done) {
-                k8sAppsAPI.readNamespacedDeploymentStatus('istio-ingressgateway', 'istio-system').then((res) => {
+                k8sAppsAPI.readNamespacedDeploymentStatus('istio-ingress', 'istio-ingress').then((res) => {
                     let unavailableReplicas = res.body.status.unavailableReplicas
                     let readyReplicas = res.body.status.readyReplicas
                     let replicas = res.body.status.replicas

@@ -1,0 +1,4 @@
+/.swagger-codegen/
+/.swagger-codegen-ignore
+/*.exe
+/jwt-encrypted.txt
