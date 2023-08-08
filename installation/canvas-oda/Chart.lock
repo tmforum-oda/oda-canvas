@@ -18,4 +18,4 @@ dependencies:
   repository: file://../oda-webhook
   version: 1.0.0
 digest: sha256:0b944833881f390cc8c566a7eb423bcb61916442d515fe72197b1b9b4ab8bea0
-generated: "2023-03-03T11:51:42.8288335+01:00"
+generated: "2023-08-09T00:17:45.113067+02:00"
