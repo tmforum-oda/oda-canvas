@@ -5,6 +5,10 @@
     "main": "app.js",
     "author": "Lester Thomas",
     "license": "Apache 2.0",
+    "scripts": {
+        "test": "node app.js test",
+        "start": "node app.js"
+      },
     "dependencies": {
         "express": "^4.17.1"
     }
