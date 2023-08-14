@@ -64,7 +64,7 @@ const supportedAPIVersions = ["oda.tmforum.org/v1alpha3", "oda.tmforum.org/v1alp
 
 // reference data to support functional block mapping
 const PartyManagementComponents = ["TMFC020", "TMFC022", "TMFC023", "TMFC024", "TMFC025"]
-const CoreCommerceManagementComponents = ["TMFC001", "TMFC002", "TMFC003", "TMFC005", "TMFC027"]
+const CoreCommerceComponents = ["TMFC001", "TMFC002", "TMFC003", "TMFC005", "TMFC027"]
 const ProductionComponents = ["TMFC006", "TMFC007", "TMFC008", "TMFC009", "TMFC010", "TMFC010", "TMFC011", "TMFC012", "TMFC013", "TMFC014", "TMFC015"]
 
 
@@ -190,8 +190,8 @@ app.post("/", (req, res, next) => {
 
         console.log("add the metadata for functionalBlock")
         if (!objectsArray[key].spec.functionalBlock) {
-          if (CoreCommerceManagementComponents.includes(objectsArray[key].spec.id)) {
-            objectsArray[key].spec.functionalBlock = 'CoreCommerceManagement'
+          if (CoreCommerceComponents.includes(objectsArray[key].spec.id)) {
+            objectsArray[key].spec.functionalBlock = 'CoreCommerce'
           } else if (PartyManagementComponents.includes(objectsArray[key].spec.id)) {
             objectsArray[key].spec.functionalBlock = 'PartyManagement'
           } else if (ProductionComponents.includes(objectsArray[key].spec.id)) {
