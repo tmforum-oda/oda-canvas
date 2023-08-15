@@ -127,4 +127,4 @@ controller:
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
 webhooks:
-  image: tmforumodacanvas/compcrdwebhook:0.5.1
+  image: tmforumodacanvas/compcrdwebhook:0.6.1

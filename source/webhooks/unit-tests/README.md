@@ -1,6 +1,6 @@
-# Testing Webhooks
+# Unit tests for Webhook
 
-To test, run the webhook in test mode:
+In development mode, you can unit-test the webhook as a standalone Node application. To test, run the webhook in test mode:
 
 ```
 npm install
