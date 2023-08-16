@@ -84,12 +84,29 @@ const componentUtils = {
   * @param    {String} inNamespace            Namespace where the component instance is running
   * @return   {String}         String containing the base URL for the API, or null if the API is not found
   */
-    getComponentResource: async function (inComponentName, inNamespace) {
+  getComponentResource: async function (inComponentName, inNamespace) {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
 
     const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, COMPONENTS_PLURAL, undefined, undefined, 'metadata.name=' + inComponentName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
+    } 
+      
+    return namespacedCustomObject.body.items[0]
+  },
+
+  /**
+  * Function that returns the custom Component resource of a specific version, given Component Name
+  * @param    {String} inComponentName        Name of the API that is requested
+  * @param    {String} inComponentVersion     Version of the component spec that is requested
+  * @param    {String} inNamespace            Namespace where the component instance is running
+  * @return   {String}         String containing the base URL for the API, or null if the API is not found
+  */
+  getComponentResourceByVersion: async function (inComponentName, inComponentVersion, inNamespace) {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, inComponentVersion, inNamespace, COMPONENTS_PLURAL, undefined, undefined, 'metadata.name=' + inComponentName)
+    if (namespacedCustomObject.body.items.length === 0) {
+      return null // Component not found
     } 
       
     return namespacedCustomObject.body.items[0]

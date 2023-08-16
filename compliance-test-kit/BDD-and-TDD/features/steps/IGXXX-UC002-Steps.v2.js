@@ -124,6 +124,21 @@ Then('I should see the {string} API resource with an implementation ready status
   }
 });
 
+Then('I can query the {string} spec version of the {string} component', async function (ComponentSpecVersion, componentName) {
+  var startTime = performance.now()
+  var endTime
+  let componentResource = null
+  while (componentResource == null) {
+    componentResource = await componentUtils.getComponentResourceByVersion(releaseName + '-' + componentName, ComponentSpecVersion, NAMESPACE)
+    endTime = performance.now()
+    // assert that the Component resource was found within 100 seconds
+    assert.ok(endTime - startTime < 100 * 1000, "The component should be found within 100 seconds")
+  }
+  assert.ok(componentResource, "The component resource should be found")
+  assert.ok(componentResource.hasOwnProperty('spec'), "The component resource should be found with a spec property")
+  
+});
+
 AfterAll(function () {
   // uninstall the helm template command to generate the component envelope
   // const output = execSync('helm uninstall ctk -n ' + NAMESPACE, { encoding: 'utf-8' });    
