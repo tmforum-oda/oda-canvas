@@ -10,12 +10,12 @@ Feature: UC002-F001-Create API Resource
         Then I should see the 'productcatalogmanagement' API resource
 
     Scenario: Create API Resource for Management API
-        Given An example component 'productcatalog' with '1' API in its 'management' segment
+        Given An example component 'productcatalog' with '1' API in its 'managementFunction' segment
         When I install the 'productcatalog' component
         Then I should see the 'metrics' API resource
 
     Scenario: Create API Resource for Security API
-        Given An example component 'productcatalog' with '1' API in its 'security' segment
+        Given An example component 'productcatalog' with '1' API in its 'securityFunction' segment
         When I install the 'productcatalog' component
         Then I should see the 'partyrole' API resource
 

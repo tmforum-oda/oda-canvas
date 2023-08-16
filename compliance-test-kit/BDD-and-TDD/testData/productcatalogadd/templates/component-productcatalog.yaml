@@ -1,21 +1,14 @@
-apiVersion: oda.tmforum.org/v1alpha4
+apiVersion: oda.tmforum.org/v1beta2
 kind: component
 metadata:
   name: {{.Release.Name}}-{{.Values.component.name}}
   labels:
     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
 spec:
-  type: {{.Values.component.type}}
-  selector:
-    matchLabels:
-     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
-  componentKinds:
-  - group: core
-    kind: Service    
-  - group: core
-    kind: PersistentVolumeClaim
-  - group: apps
-    kind: Deployment  
+  id: {{.Values.component.id}}
+  name: {{.Values.component.typename}}
+  functionalBlock: {{.Values.component.functionalBlock}}
+  publicationDate: {{.Values.component.publicationDate}}
   version: {{.Values.component.version}}
   description: "Simple Product Catalog ODA-Component from Open-API reference implementation." 
   maintainers:
@@ -41,25 +34,23 @@ spec:
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4/docs
       port: 8080    
     dependentAPIs: 
-    - name: party      
+    - name: party  
+      apitype: openapi    
       specification: https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json  
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
-  management: 
+  managementFunction: 
+    exposedAPIs: 
     - name: metrics
       apitype: prometheus
       implementation: {{.Release.Name}}-{{.Values.component.name}}-sm
       path: /{{.Release.Name}}-{{.Values.component.name}}/metrics
       port: 4000    
-  security:
+  securityFunction:
     controllerRole: {{ .Values.security.controllerRole }}
-    securitySchemes:
-      bearerAuth:
-        type: http
-        scheme: bearer
-        bearerFormat: JWT
-    partyrole:
+    exposedAPIs: 
+    - name: partyrole
       specification: https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
       implementation: {{.Release.Name}}-partyroleapi
       apitype: openapi

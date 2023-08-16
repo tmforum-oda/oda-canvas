@@ -424,7 +424,7 @@ spec:
     # Each version can be enabled/disabled by Served flag.
     served: true
     # One and only one version must be marked as the storage version.
-    storage: true
+    storage: false
     schema:
       openAPIV3Schema:
         type: object
@@ -858,7 +858,7 @@ spec:
     # Each version can be enabled/disabled by Served flag.
     served: true
     # One and only one version must be marked as the storage version.
-    storage: false
+    storage: true
     schema:
       openAPIV3Schema:
         type: object

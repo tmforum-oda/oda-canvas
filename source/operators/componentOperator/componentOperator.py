@@ -19,13 +19,13 @@ from urllib.parse import urlparse
 
 # Setup logging
 logging_level = os.environ.get('LOGGING', logging.INFO)
-print('Logging set to ', logging_level)
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.WARNING)
 logger = logging.getLogger('ComponentOperator')
 logger.setLevel(int(logging_level))
+logger.info(f'Logging set to %s', logging_level)
 
-#get namespace to monitor
+# get namespace to monitor
 component_namespace = os.environ.get('COMPONENT_NAMESPACE', 'components')
 logger.info(f'Monitoring namespace %s', component_namespace)
 
@@ -33,16 +33,16 @@ logger.info(f'Monitoring namespace %s', component_namespace)
 HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta1"
+VERSION = "v1beta2"
 APIS_PLURAL = "apis"
 COMPONENTS_PLURAL = "components"
 
 PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
 
-@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **core function** part new or updated components.
     
@@ -63,7 +63,8 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     :meta public:
     """
     logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Handler called", "")
-    apiChildren = []
+    apiChildren = [] # any existing API children of this component that have been patched
+    oldCoreAPIs = [] # existing API children of this component (according to previous status)
     try:
             
         # compare desired state (spec) with actual state (status) and initiate changes
@@ -71,8 +72,7 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
             # update a component - look in old and new to see if we need to delete any API resources
             if 'coreAPIs' in status.keys():
                 oldCoreAPIs = status['coreAPIs']
-            else:
-                oldCoreAPIs = {}
+                
             newCoreAPIs = spec['coreFunction']['exposedAPIs']
             # find apis in old that are missing in new
             deletedAPIs = []
@@ -92,7 +92,7 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
         # get core APIS
         coreAPIs = spec['coreFunction']['exposedAPIs']
         logWrapper(logging.DEBUG, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Exposed API list", f"{coreAPIs}")
-
+        
         for coreAPI in coreAPIs:
             # check if we have already patched this API
             alreadyProcessed = False
@@ -140,15 +140,16 @@ async def deleteAPI(deleteAPIName, componentName, status, namespace, inHandler):
             name = deleteAPIName)
         logWrapper(logging.DEBUG, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "API response", api_response)
     except ApiException as e:
-        logWrapper(logging.ERROR, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
+        logWrapper(logging.DEBUG, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
+        logWrapper(logging.ERROR, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "Exception", " when calling CustomObjectsApi->delete_namespaced_custom_object")
 
-@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
-    """Handler function for **management** part new or updated components.
+    """Handler function for **managementFunction** part new or updated components.
     
-    Processes the **management** part of the component envelope and creates the child API resources.
+    Processes the **managementFunction** part of the component envelope and creates the child API resources.
 
     Args:
         * meta (Dict): The metadata from the yaml component envelope 
@@ -166,6 +167,7 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
     """
     logWrapper(logging.INFO, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Handler called", "")
     apiChildren = []
+    oldManagementAPIs = []
     try:
 
         # compare desired state (spec) with actual state (status) and initiate changes
@@ -173,9 +175,8 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
             # update a component - look in old and new to see if we need to delete any API resources
             if 'managementAPIs' in status.keys():
                 oldManagementAPIs = status['managementAPIs']
-            else:
-                oldManagementAPIs = {}
-            newManagementAPIs = spec['management']
+
+            newManagementAPIs = spec['managementFunction']['exposedAPIs']
             # find apis in old that are missing in new
             deletedAPIs = []
             for oldAPI in oldManagementAPIs:
@@ -193,7 +194,7 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
                     await deleteAPI(oldAPI['name'], name, status, namespace, 'managementAPIs')
 
         # get exposed APIS
-        managementAPIs = spec['management']['exposedAPIs']
+        managementAPIs = spec['managementFunction']['exposedAPIs']
         logWrapper(logging.DEBUG, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Exposed API list", f"{managementAPIs}")
 
         for managementAPI in managementAPIs:
@@ -205,7 +206,7 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
                 logWrapper(logging.DEBUG, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Comparing new APIs with status", f"Comparing {processedAPI['name']} to {name + '-' + managementAPI['name'].lower()}")
                 if processedAPI['name'] == name + '-' + managementAPI['name'].lower():
                     alreadyProcessed = True
-                # logger.info(managementAPI)
+
             if alreadyProcessed == False:
                 logWrapper(logging.INFO, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Creating API", managementAPI['name'])
                 resultStatus = await createAPIResource(managementAPI, namespace, name, 'managementAPIs')
@@ -219,14 +220,13 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
     # Update the parent's status.
     return apiChildren
 
-
-@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
-    """Handler function for **security** part of new or updated components.
+    """Handler function for **securityFunction** part new or updated components.
     
-    Processes the **security** part of the component envelope and creates the child API resources.
+    Processes the **securityFunction** part of the component envelope and creates the child API resources.
 
     Args:
         * meta (Dict): The metadata from the yaml component envelope 
@@ -244,61 +244,61 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
     """
     logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Handler called", "")
     apiChildren = []
+    oldSecurityAPIs = []
     try:
-        try:
-            if status:  # if status exists (i.e. this is not a new component)
-                # update a component - look in old and new to see if we need to delete any API resources
-                if ('securityAPIs' in status.keys()) and (type(status['securityAPIs']) is dict) and ('partyrole' in status['securityAPIs'].keys()):
-                    oldPartyRole = status['securityAPIs']['partyrole']
-                    oldPartyRole['name'] = 'partyrole'
-                    oldSecurityAPIs = [ oldPartyRole ]
-                else:
-                    oldSecurityAPIs = []
-                
-                newSecurityAPIs = spec['security']['exposedAPIs']
-                # find apis in old that are missing in new
-                for oldAPI in oldSecurityAPIs:
-                    found = False
-                    for newAPI in newSecurityAPIs:
-                        logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Comparing old and new APIs", f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
-                        if oldAPI['name'] == name + '-' + newAPI['name'].lower():
-                            found = True
-                            logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Patching API", newAPI['name'])
-                            resultStatus = await patchAPIResource(newAPI, namespace, name, 'securityAPIs')
-                            apiChildren.append(resultStatus)
-                    if not found:
-                        logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Deleting API", oldAPI['name'])
-                        await deleteAPI(oldAPI['name'], name, status, namespace, 'securityAPIs')
 
-            # get exposed APIS
-            securityAPIs = spec['security']['exposedAPIs']
-            logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Exposed API list", f"{securityAPIs}")
+        # compare desired state (spec) with actual state (status) and initiate changes
+        if status:  # if status exists (i.e. this is not a new component)
+            # update a component - look in old and new to see if we need to delete any API resources
+            if 'securityAPIs' in status.keys():
+                oldSecurityAPIs = status['securityAPIs']
+            newSecurityAPIs = spec['securityFunction']['exposedAPIs']
+            # find apis in old that are missing in new
+            deletedAPIs = []
+            for oldAPI in oldSecurityAPIs:
+                found = False
+                for newAPI in newSecurityAPIs:
 
-            for securityAPI in securityAPIs:
-                # check if we have already patched this API
-                alreadyProcessed = False
-                for processedAPI in apiChildren:
-                    logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Comparing new APIs with status", f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}")
-                    if processedAPI['name'] == name + '-' + securityAPI['name'].lower():
-                        alreadyProcessed = True
-                if alreadyProcessed == False:
-                    logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Creating API", securityAPI['name'])
-                    resultStatus = await createAPIResource(securityAPI, namespace, name, 'securityAPIs')
-                    apiChildren.append(resultStatus)
+                    logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Comparing old and new APIs", f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
+                    if oldAPI['name'] == name + '-' + newAPI['name'].lower():
+                        found = True
+                        logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Patching API", newAPI['name'])
+                        resultStatus = await patchAPIResource(newAPI, namespace, name, 'securityAPIs')
+                        apiChildren.append(resultStatus)
+                if not found:
+                    logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Deleting API", oldAPI['name'])
+                    await deleteAPI(oldAPI['name'], name, status, namespace, 'securityAPIs')
 
-        except KeyError:
-            logWrapper(logging.WARNING, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "No PartyRole property", f"component {name} has no partyrole property")
+        # get exposed APIS
+        securityAPIs = spec['securityFunction']['exposedAPIs']
+        logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Exposed API list", f"{securityAPIs}")
+
+        for securityAPI in securityAPIs:
+            # check if we have already patched this API
+            alreadyProcessed = False
+            for processedAPI in apiChildren:
+                logger.debug(
+                    f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}")
+                logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Comparing new APIs with status", f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}")
+                if processedAPI['name'] == name + '-' + securityAPI['name'].lower():
+                    alreadyProcessed = True
+
+            if alreadyProcessed == False:
+                logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Creating API", securityAPI['name'])
+                resultStatus = await createAPIResource(securityAPI, namespace, name, 'securityAPIs')
+                apiChildren.append(resultStatus)
 
     except kopf.TemporaryError as e:
-        raise kopf.TemporaryError(e) # allow the operator to retry
+        raise kopf.TemporaryError(e) # allow the operator to retry            
     except Exception as e:
         logWrapper(logging.ERROR, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
-
+        
+    # Update the parent's status.
     return apiChildren
 
-@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 async def publishedEvents(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **publishedEvents** part of new or updated components.
     
@@ -336,9 +336,9 @@ async def publishedEvents(meta, spec, status, body, namespace, labels, name, **k
 
     return pubChildren
 
-@kopf.on.resume('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.create('oda.tmforum.org', 'v1beta1', 'components', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1beta1', 'components', retries=5)
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 async def subscribedEvents(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **subscribedEvents** part of new or updated components.
     
@@ -391,7 +391,7 @@ def constructAPIResourcePayload(inAPI):
     :meta private:
     """
     APIResource = {
-        "apiVersion": "oda.tmforum.org/v1beta1",
+        "apiVersion": "oda.tmforum.org/v1beta2",
         "kind": "api",
         "metadata": {},
         "spec": {}
@@ -501,12 +501,13 @@ async def createAPIResource(inAPI, namespace, name, inHandler):
 
     except ApiException as e:
         logWrapper(logging.WARNING, 'createAPIResource', inHandler, 'component/' + name, name, "API Exception creating", APIResource)
+        
         raise kopf.TemporaryError("Exception creating API custom resource.")
     return returnAPIObject
 
 
 # When api adds url address of where api is exposed, update parent Component object
-@kopf.on.field('oda.tmforum.org', 'v1beta1', 'apis', field='status.apiStatus', retries=5)
+@kopf.on.field(GROUP, VERSION, 'apis', field='status.apiStatus', retries=5)
 async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     Processes status updates to the *apiStatus* in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
@@ -577,7 +578,7 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
 
                 await patchComponent(namespace, name, parent_component, 'updateAPIStatus')
 
-@kopf.on.field('oda.tmforum.org', 'v1beta1', 'apis', field='status.implementation', retries=5)
+@kopf.on.field(GROUP, VERSION, 'apis', field='status.implementation', retries=5)
 async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     
@@ -658,7 +659,8 @@ async def patchComponent(namespace, name, component, inHandler):
             GROUP, VERSION, namespace, COMPONENTS_PLURAL, name, component)
         logWrapper(logging.DEBUG, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "custom_objects_api.patch_namespaced_custom_object response", api_response)
     except ApiException as e:
-        logWrapper(logging.INFO, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "Exception when calling api_instance.patch_namespaced_custom_object", e)
+        logWrapper(logging.DEBUG, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "Exception when calling api_instance.patch_namespaced_custom_object", e)
+        logWrapper(logging.INFO, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "Exception" " when calling api_instance.patch_namespaced_custom_object - will retry")
 
         raise kopf.TemporaryError(
             "Exception when calling api_instance.patch_namespaced_custom_object for component " + name)
@@ -804,7 +806,7 @@ def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resource
                 logWrapper(logging.WARNING, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Exception when calling patch " + resourceType, e)
 
 # When Component status changes, update status summary
-@kopf.on.field('oda.tmforum.org', 'v1beta1', 'components', field='status', retries=5)
+@kopf.on.field(GROUP, VERSION, COMPONENTS_PLURAL, field='status', retries=5)
 async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Handler called", "")
@@ -814,43 +816,50 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     securityAPIsummary = ''
     developerUIsummary = ''
     countOfCompleteAPIs = 0
-    for api in status['coreAPIs']:
-        if 'url' in api.keys():
-            coreAPIsummary = coreAPIsummary + api['url'] + ' '
-            if 'developerUI' in api.keys():
-                developerUIsummary = developerUIsummary + \
-                    api['developerUI'] + ' '
-            if 'ready' in api.keys():
-                if api['ready'] == True:
-                    countOfCompleteAPIs = countOfCompleteAPIs + 1
-    for api in status['managementAPIs']:
-        if 'url' in api.keys():
-            managementAPIsummary = managementAPIsummary + api['url'] + ' '
-            if 'developerUI' in api.keys():
-                developerUIsummary = developerUIsummary + \
-                    api['developerUI'] + ' '
-            if 'ready' in api.keys():
-                if api['ready'] == True:
-                    countOfCompleteAPIs = countOfCompleteAPIs + 1
-    for api in status['securityAPIs']:
-        if 'url' in api.keys():
-            securityAPIsummary = securityAPIsummary + api['url'] + ' '
-            if 'developerUI' in api.keys():
-                developerUIsummary = developerUIsummary + \
-                    api['developerUI'] + ' '
-            if 'ready' in api.keys():
-                if api['ready'] == True:
-                    countOfCompleteAPIs = countOfCompleteAPIs + 1
+    countOfDesiredAPIs = 0
+    if 'coreAPIs' in status.keys():
+        countOfDesiredAPIs = countOfDesiredAPIs + len(status['coreAPIs'])
+        for api in status['coreAPIs']:
+            if 'url' in api.keys():
+                coreAPIsummary = coreAPIsummary + api['url'] + ' '
+                if 'developerUI' in api.keys():
+                    developerUIsummary = developerUIsummary + \
+                        api['developerUI'] + ' '
+                if 'ready' in api.keys():
+                    if api['ready'] == True:
+                        countOfCompleteAPIs = countOfCompleteAPIs + 1
+    if 'managementAPIs' in status.keys():  
+        countOfDesiredAPIs = countOfDesiredAPIs + len(status['managementAPIs'])                                    
+        for api in status['managementAPIs']:
+            if 'url' in api.keys():
+                managementAPIsummary = managementAPIsummary + api['url'] + ' '
+                if 'developerUI' in api.keys():
+                    developerUIsummary = developerUIsummary + \
+                        api['developerUI'] + ' '
+                if 'ready' in api.keys():
+                    if api['ready'] == True:
+                        countOfCompleteAPIs = countOfCompleteAPIs + 1
+    if 'securityAPIs' in status.keys():  
+        countOfDesiredAPIs = countOfDesiredAPIs + len(status['securityAPIs'])                  
+        for api in status['securityAPIs']:
+            if 'url' in api.keys():
+                securityAPIsummary = securityAPIsummary + api['url'] + ' '
+                if 'developerUI' in api.keys():
+                    developerUIsummary = developerUIsummary + \
+                        api['developerUI'] + ' '
+                if 'ready' in api.keys():
+                    if api['ready'] == True:
+                        countOfCompleteAPIs = countOfCompleteAPIs + 1
 
     status_summary = {}
     status_summary['coreAPIsummary'] = coreAPIsummary
     status_summary['managementAPIsummary'] = managementAPIsummary
     status_summary['securityAPIsummary'] = securityAPIsummary
     status_summary['developerUIsummary'] = developerUIsummary
-    logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Creating summary - complete API count", countOfCompleteAPIs)
+    logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Creating summary - completed API count", str(countOfCompleteAPIs) + "/" + str(countOfDesiredAPIs))
 
     status_summary['deployment_status'] = 'In-Progress-CompCon'
-    if countOfCompleteAPIs == (len(status['coreAPIs']) + len(status['managementAPIs']) + len(status['securityAPIs'])):
+    if countOfCompleteAPIs == countOfDesiredAPIs:
         status_summary['deployment_status'] = 'In-Progress-SecCon'
         if (('security_client_add/status.summary/status.deployment_status' in status.keys()) and (status['security_client_add/status.summary/status.deployment_status']['listenerRegistered'] == True)):
             status_summary['deployment_status'] = 'Complete'
@@ -905,7 +914,7 @@ async def createPublishedNotificationResource(definition, namespace, name, inHan
         try:
             custom_objects_api.get_namespaced_custom_object(
                 group = GROUP,
-                version = 'v1beta1',
+                version = VERSION,
                 namespace = namespace,
                 plural = PUBLISHEDNOTIFICATIONS_PLURAL,
                 name = newName
@@ -914,7 +923,7 @@ async def createPublishedNotificationResource(definition, namespace, name, inHan
             if e.status == HTTP_NOT_FOUND:
                 apiObj = custom_objects_api.create_namespaced_custom_object(
                     group = GROUP,
-                    version = 'v1beta1',
+                    version = VERSION,
                     namespace = namespace,
                     plural = PUBLISHEDNOTIFICATIONS_PLURAL,
                     body = PublishedNotificationResource
@@ -923,7 +932,7 @@ async def createPublishedNotificationResource(definition, namespace, name, inHan
                 logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "PublishedNotification patch status", "")
                 custom_objects_api.patch_namespaced_custom_object_status(
                     group = GROUP,
-                    version = 'v1beta1',
+                    version = VERSION,
                     namespace = namespace,
                     plural = PUBLISHEDNOTIFICATIONS_PLURAL,
                     name = newName,
@@ -943,7 +952,8 @@ async def createPublishedNotificationResource(definition, namespace, name, inHan
                 logWrapper(logging.WARNING, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "PublishedNotification Exception checking for existing object ", e)
                 raise kopf.TemporaryError("Exception creating PublishedNotification custom resource.")
     except ApiException as e:
-        logWrapper(logging.WARNING, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "PublishedNotification Exception creating", e)
+        logWrapper(logging.DEBUG, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "PublishedNotification Exception creating", e)
+        logWrapper(logging.WARNING, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "Exception", " creating PublishedNotification custom resource - will retry")
         raise kopf.TemporaryError("Exception creating PublishedNotification custom resource.")
     return returnPublishedNotificationObject
 
@@ -994,7 +1004,7 @@ async def createSubscribedNotificationResource(definition, namespace, name, inHa
         try:
             custom_objects_api.get_namespaced_custom_object(
                 group = GROUP,
-                version = 'v1beta1',
+                version = VERSION,
                 namespace = namespace,
                 plural = SUBSCRIBEDNOTIFICATIONS_PLURAL,
                 name = newName
@@ -1003,7 +1013,7 @@ async def createSubscribedNotificationResource(definition, namespace, name, inHa
             if e.status == HTTP_NOT_FOUND:
                 apiObj = custom_objects_api.create_namespaced_custom_object(
                     group = GROUP,
-                    version = 'v1beta1',
+                    version = VERSION,
                     namespace = namespace,
                     plural = SUBSCRIBEDNOTIFICATIONS_PLURAL,
                     body = SubscribedNotificationResource
@@ -1014,7 +1024,7 @@ async def createSubscribedNotificationResource(definition, namespace, name, inHa
 
                 custom_objects_api.patch_namespaced_custom_object_status(
                     group = GROUP,
-                    version = 'v1beta1',
+                    version = VERSION,
                     namespace = namespace,
                     plural = SUBSCRIBEDNOTIFICATIONS_PLURAL,
                     name = newName,
@@ -1033,7 +1043,8 @@ async def createSubscribedNotificationResource(definition, namespace, name, inHa
             else:
                 raise kopf.TemporaryError("Exception creating SubscribedNotification custom resource.")
     except ApiException as e:
-        logWrapper(logging.WARNING, 'createSubscribedNotificationResource', inHandler, 'component/' + name, name, "SubscribedNotification Exception creating", e)
+        logWrapper(logging.DEBUG, 'createSubscribedNotificationResource', inHandler, 'component/' + name, name, "SubscribedNotification Exception creating", e)
+        logWrapper(logging.WARNING, 'createSubscribedNotificationResource', inHandler, 'component/' + name, name, "Exception", " creating SubscribedNotification custom resource - will retry")
         raise kopf.TemporaryError("Exception creating SubscribedNotification custom resource.")
 
     return returnSubscribedNotificationObject

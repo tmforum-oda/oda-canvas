@@ -105,71 +105,12 @@ app.post("/", (req, res, next) => {
         throw new Error("The desired API version " + desiredAPIVersion + " is not supported")
       }
 
-
       // create APIVersion object based on objectsArray[key].apiVersion and desiredAPIVersion
       var apiVersion = new APIVersion(currentAPIVersion, desiredAPIVersion);
 
       objectsArray[key].metadata.annotations.webhookconverted = "Webhook converted From " + currentAPIVersion + " to " + desiredAPIVersion;
       console.log('Comparing old version ' + currentAPIVersion + ' and desired version ' + desiredAPIVersion);
 
-      // if the oldAPIVersion is v1alpha3 or v1alpha4 and newVersion is v1beta1 or v1beta2 then remove the componentKinds and selector
-      // and add dependentAPIs to the management and security segments
-      if (apiVersion.mapOldToNew(["v1alpha3", "v1alpha4"], ["v1beta1", "v1beta2"])) {
-        console.log("remove componentKinds")
-        if (objectsArray[key].spec.componentKinds) {
-          delete objectsArray[key].spec.componentKinds
-        }
-        console.log("remove selector")
-        if (objectsArray[key].spec.selector) {
-          delete objectsArray[key].spec.selector
-        }
-
-        console.log("add dependentAPIs to management segment")
-        managementArray = objectsArray[key].spec.management
-        delete objectsArray[key].spec.management
-        objectsArray[key].spec.management = {dependentAPIs: []}
-        objectsArray[key].spec.management.exposedAPIs = managementArray
-
-        console.log("add dependentAPIs to security segment")
-        objectsArray[key].spec.security.dependentAPIs = []
-        objectsArray[key].spec.security.exposedAPIs = []
-
-        if (objectsArray[key].spec.security.partyrole) {
-          console.log("move the partyrole to the exposedAPIs")
-          // add the partyrole to the exposedAPIs
-          objectsArray[key].spec.security.partyrole.name = "partyrole"
-          objectsArray[key].spec.security.exposedAPIs.push(objectsArray[key].spec.security.partyrole)
-          delete objectsArray[key].spec.security.partyrole
-        }
-      }
-    
-      
-      // if the oldAPIVersion is v1beta1 or v1beta2 and newVersion is v1alpha3 or v1alpha4 then add the componentKinds
-      // and remove dependentAPIs from the management and security segments
-      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2"], ["v1alpha3", "v1alpha4"])) {
-        console.log("add componentKinds")
-        objectsArray[key].spec.componentKinds = []
-
-        console.log("add selector")
-        objectsArray[key].spec.selector = {}
-
-        console.log("remove dependentAPIs from management segment")
-        managementArray = objectsArray[key].spec.management.exposedAPIs
-        delete objectsArray[key].spec.management
-        objectsArray[key].spec.management = managementArray
-
-        // find the partyrole in the exposedAPIs and add it to the security
-        for (var i = 0; i < objectsArray[key].spec.security.exposedAPIs.length; i++) {
-          if (objectsArray[key].spec.security.exposedAPIs[i].name === "partyrole") {
-            console.log("move the partyrole from the exposedAPIs")
-            objectsArray[key].spec.security.partyrole = objectsArray[key].spec.security.exposedAPIs[i]
-          }
-        }
-        delete objectsArray[key].spec.security.exposedAPIs
-
-        console.log("remove dependentAPIs from security segment")
-        delete objectsArray[key].spec.security.dependentAPIs
-      }
 
       // if the oldAPIVersion is v1alpha3, v1alph4a or v1beta1 and newVersion is v1beta2 then:
       // - add the metadata for functionalBlock
@@ -220,7 +161,87 @@ app.post("/", (req, res, next) => {
         
         console.log("remove the metadata for functionalBlock")
         delete objectsArray[key].spec.functionalBlock
-      }       
+      }   
+
+
+      // if the oldAPIVersion is v1alpha3 or v1alpha4 and newVersion is v1beta1 or v1beta2 then remove the componentKinds and selector
+      // and add dependentAPIs to the management and security segments
+      if (apiVersion.mapOldToNew(["v1alpha3", "v1alpha4"], ["v1beta1", "v1beta2"])) {
+        console.log("remove componentKinds")
+        if (objectsArray[key].spec.componentKinds) {
+          delete objectsArray[key].spec.componentKinds
+        }
+        console.log("remove selector")
+        if (objectsArray[key].spec.selector) {
+          delete objectsArray[key].spec.selector
+        }
+
+        console.log("add dependentAPIs to management (or managementFunction) segment")
+        if (objectsArray[key].spec.management) {
+          managementArray = objectsArray[key].spec.management
+          delete objectsArray[key].spec.management
+          objectsArray[key].spec.management = {dependentAPIs: []}
+          objectsArray[key].spec.management.exposedAPIs = managementArray
+        } else {
+          managementArray = objectsArray[key].spec.managementFunction
+          delete objectsArray[key].spec.managementFunction
+          objectsArray[key].spec.managementFunction = {dependentAPIs: []}
+          objectsArray[key].spec.managementFunction.exposedAPIs = managementArray
+        }
+
+        console.log("add exposedAPIs and dependentAPIs to security (or securityFunction) segment")
+        if (objectsArray[key].spec.security) {
+          objectsArray[key].spec.security.dependentAPIs = []
+          objectsArray[key].spec.security.exposedAPIs = []
+
+          if (objectsArray[key].spec.security.partyrole) {
+            console.log("move the partyrole to the exposedAPIs")
+            // add the partyrole to the exposedAPIs
+            objectsArray[key].spec.security.partyrole.name = "partyrole"
+            objectsArray[key].spec.security.exposedAPIs.push(objectsArray[key].spec.security.partyrole)
+            delete objectsArray[key].spec.security.partyrole
+          } 
+        } else {
+          objectsArray[key].spec.securityFunction.dependentAPIs = []
+          objectsArray[key].spec.securityFunction.exposedAPIs = []
+
+          if (objectsArray[key].spec.securityFunction.partyrole) {
+            console.log("move the partyrole to the exposedAPIs")
+            // add the partyrole to the exposedAPIs
+            objectsArray[key].spec.securityFunction.partyrole.name = "partyrole"
+            objectsArray[key].spec.securityFunction.exposedAPIs.push(objectsArray[key].spec.securityFunction.partyrole)
+            delete objectsArray[key].spec.securityFunction.partyrole
+          }
+        }
+      } 
+      
+      // if the oldAPIVersion is v1beta1 or v1beta2 and newVersion is v1alpha3 or v1alpha4 then add the componentKinds
+      // and remove dependentAPIs from the management and security segments
+      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2"], ["v1alpha3", "v1alpha4"])) {
+        console.log("add componentKinds")
+        objectsArray[key].spec.componentKinds = []
+
+        console.log("add selector")
+        objectsArray[key].spec.selector = {}
+
+        console.log("remove dependentAPIs from management segment")
+        managementArray = objectsArray[key].spec.management.exposedAPIs
+        delete objectsArray[key].spec.management
+        objectsArray[key].spec.management = managementArray
+
+        // find the partyrole in the exposedAPIs and add it to the security
+        for (var i = 0; i < objectsArray[key].spec.security.exposedAPIs.length; i++) {
+          if (objectsArray[key].spec.security.exposedAPIs[i].name === "partyrole") {
+            console.log("move the partyrole from the exposedAPIs")
+            objectsArray[key].spec.security.partyrole = objectsArray[key].spec.security.exposedAPIs[i]
+          }
+        }
+        delete objectsArray[key].spec.security.exposedAPIs
+
+        console.log("remove dependentAPIs from security segment")
+        delete objectsArray[key].spec.security.dependentAPIs
+      }
+    
 
       objectsArray[key].apiVersion = desiredAPIVersion;
     }
@@ -240,8 +261,16 @@ app.post("/", (req, res, next) => {
 
       res.json(response);
   } catch (error) {
-
+    console.log("");
+    console.log("--------------------------------------------------------------");
+    console.log("Error converting from ", currentAPIVersion, " to ",  desiredAPIVersion)
+    console.log("trying to convert object:");
+    console.log(objectsArray[key].spec)
+    console.log("");
+    console.log("Error message:");
     console.log(error);
+    console.log("--------------------------------------------------------------");
+    console.log("");
 
     var response = {
       "apiVersion": conversionReviewAPIVersion,

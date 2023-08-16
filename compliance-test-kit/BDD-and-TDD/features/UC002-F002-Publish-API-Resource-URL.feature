@@ -6,12 +6,12 @@ Feature: UC002-F002-Publish API Resource URL
         Then I should see the 'productcatalogmanagement' API resource with a url on the Service Mesh or Gateway
 
     Scenario: Test API Resource URL for Management API
-        Given An example component 'productcatalog' with '1' API in its 'management' segment
+        Given An example component 'productcatalog' with '1' API in its 'managementFunction' segment
         When I install the 'productcatalog' component
         Then I should see the 'metrics' API resource with a url on the Service Mesh or Gateway
 
     Scenario: Test API Resource URL for Security API
-        Given An example component 'productcatalog' with '1' API in its 'security' segment
+        Given An example component 'productcatalog' with '1' API in its 'securityFunction' segment
         When I install the 'productcatalog' component
         Then I should see the 'partyrole' API resource with a url on the Service Mesh or Gateway
 

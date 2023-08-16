@@ -10,3 +10,15 @@ This repository contains a list of BDD features and scenarios that describe each
 | [UC002 - Expose APIs for Component](UC002-Expose-APIs-for-Component.md) | [F003 - Verify API implementation is ready](features/UC002-F003-Verify-API-implementation-is-ready.feature) |
 | [UC002 - Expose APIs for Component](UC002-Expose-APIs-for-Component.md) | [F004 - Upgrade component with additional API](features/UC002-F004-Upgrade-component-with-additional-API.feature) |
 | [UC002 - Expose APIs for Component](UC002-Expose-APIs-for-Component.md) | [F005 - Upgrade component with removed API](features/UC002-F005-Upgrade-component-with-removed-API.feature) |
+
+
+## How to run the tests
+
+Run the test in the command line using the following command:
+
+```
+npm install
+npm start
+```
+
+All the tests should run and display the results in the command line.
