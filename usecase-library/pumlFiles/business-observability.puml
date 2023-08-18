@@ -1,0 +1,30 @@
+@startuml
+
+actor Operations
+actor "Business Operations"
+entity Component
+participant "Component Implementation"
+participant ComponentOperator
+entity ExposedAPI
+participant APIExposureOperator
+participant "Observability Platform"
+group component setup
+    Component <- Operations : Deploy component
+    Component -> ComponentOperator: on.create 
+    ComponentOperator -> ExposedAPI: create
+    note right
+        The business metrics are defined in the ManagementFunction segment of a component
+        specification. The metrics are exposed via the ExposedAPI, using an open standard like OpenMetrics.
+    end note
+    group For each exposed API in the ManagementFunction segment
+        ExposedAPI -> APIExposureOperator: on.create 
+        APIExposureOperator -> "Observability Platform" : configure Observability Platform
+    end
+end
+group in-life Operations
+    "Component Implementation" -> "Observability Platform" : stream business metrics
+    "Business Operations" -> "Observability Platform" : view business metrics
+    "Observability Platform" -> "Business Operations" : Raise alarms for pre-defined thresholds
+end 
+
+@enduml

@@ -2,9 +2,9 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-Feature: UC007-F001-Logging-and-Monitoring-of-Authentication-Activity
+Feature: UC001-F003 Bootstrap:Grouping Permission Specification Sets into Business Roles in Identity Management Solution
 
-    # TBD - see issue #84
+    # TBD - see issue #82
 
 
 

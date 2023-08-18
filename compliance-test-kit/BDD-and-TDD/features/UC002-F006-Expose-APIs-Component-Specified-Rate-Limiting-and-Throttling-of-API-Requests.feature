@@ -2,9 +2,9 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-Feature: UC001-F002-Support-Standard-Defined-Role-for-Canvas-Admin
+Feature: UC002-F006 Expose APIs: Component Specified Rate Limiting and Throttling of API Requests
 
-    # TBD - see issue #85
+    # TBD - see issue #80
 
 
 

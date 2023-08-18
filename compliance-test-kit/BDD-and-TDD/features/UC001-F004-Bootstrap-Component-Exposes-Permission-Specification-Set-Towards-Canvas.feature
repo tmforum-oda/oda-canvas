@@ -2,9 +2,9 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-Feature: UC001-F001-Secure-User-and-Role-Information-Communication
+Feature: UC001-F004 Bootstrap:Component Exposes Permission Specification Set Towards Canvas
 
-    # TBD - see issue #79
+    # TBD - see issue #81
 
 
 

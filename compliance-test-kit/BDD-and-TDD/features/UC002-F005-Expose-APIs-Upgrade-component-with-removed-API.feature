@@ -1,4 +1,4 @@
-Feature: UC002-F003-Upgrade component with removed API
+Feature: UC002-F003 Expose APIs: Upgrade component with removed API
     Background:
         Given An example component 'productcatalogadd' with '2' API in its 'coreFunction' segment
         And An example component 'productcatalogadd' has been installed

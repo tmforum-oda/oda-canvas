@@ -2,7 +2,7 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-Feature: UC002-F001-Create API Resource
+Feature: UC002-F001 Expose APIs: Create API Resource
 
     Scenario: Create API Resource for Core API
         Given An example component 'productcatalog' with '1' API in its 'coreFunction' segment

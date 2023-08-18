@@ -2,9 +2,9 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-Feature: UC001-F003-Grouping-Permission-Specification-Sets-into-Business-Roles-in-Identity-Management-Solution
+Feature: UC001-F001 Bootstrap:Secure User and Role Information Communication
 
-    # TBD - see issue #82
+    # TBD - see issue #79
 
 
 

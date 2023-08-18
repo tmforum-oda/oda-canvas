@@ -2,7 +2,7 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-Feature: UC016-F001-Installing-component-using-prev-version
+Feature: UC016-F001 Seamless upgrade: Installing component using previous version
 
     Scenario: Installing a component using a previous (N-1) version
         Given An example component 'productcatalog-v1beta1' with '1' API in its 'coreFunction' segment

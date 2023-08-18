@@ -5,7 +5,7 @@ actor Operations
 entity Component
 participant "Component Implementation" as ComponentImplementation
 participant "Identity Operator" as identityOperator
-participant "Kubernetes API" as K8s
+participant "Secret store" as SecretStore
 participant "Identity Management System" as IDM
 
 
@@ -22,7 +22,7 @@ note right
     canvas service).
 end note
 identityOperator <- IDM: Return clientId and secret
-identityOperator -> K8s: Create kubernetes secret with clientId and secret
+identityOperator -> SecretStore: Update with clientId and secret
 
 identityOperator -> ComponentImplementation: Register identityOperator to PartyRole events
 identityOperator -> IDM: Register component

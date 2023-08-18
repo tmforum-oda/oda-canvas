@@ -1,4 +1,4 @@
-Feature: UC002-F002-Publish API Resource URL
+Feature: UC002-F002 Expose APIs: Publish API Resource URL
 
     Scenario: Test API Resource URL for Core API
         Given An example component 'productcatalog' with '1' API in its 'coreFunction' segment

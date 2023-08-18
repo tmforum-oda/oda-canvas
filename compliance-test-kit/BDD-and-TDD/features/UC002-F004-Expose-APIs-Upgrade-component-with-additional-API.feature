@@ -1,4 +1,4 @@
-Feature: UC002-F003-Upgrade component with additional API
+Feature: UC002-F003 Expose APIs: Upgrade component with additional API
     Background:
         Given An example component 'productcatalog' with '1' API in its 'coreFunction' segment
         And An example component 'productcatalog' has been installed
