@@ -1,5 +1,5 @@
 {
-  "name": "TMFC001-ProductCatalog component BDD tests",
+  "name": "ODA Canvas BDD tests",
   "version": "0.0.1",
   "scripts": {
     "start": "cucumber-js  --publish"

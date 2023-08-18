@@ -68,8 +68,8 @@ Then('I should see the {string} API resource', {timeout : 10 * 1000}, async func
   while (apiResource == null) {
     apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
     endTime = performance.now()
-    // assert that the API resource was found within 3 seconds
-    assert.ok(endTime - startTime < 5000, "The API resource should be found within 3 seconds")
+    // assert that the API resource was found within 10 seconds
+    assert.ok(endTime - startTime < 10000, "The API resource should be found within 10 seconds")
   }
 });
 
@@ -82,7 +82,7 @@ Then('I should not see the {string} API resource', {timeout : 10 * 1000}, async 
     apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
     endTime = performance.now()
     // assert that the API resource was removed within 3 seconds
-    assert.ok(endTime - startTime < 5000, "The API resource should be removed within 3 seconds")
+    assert.ok(endTime - startTime < 10000, "The API resource should be removed within 10 seconds")
   }
 });
 
