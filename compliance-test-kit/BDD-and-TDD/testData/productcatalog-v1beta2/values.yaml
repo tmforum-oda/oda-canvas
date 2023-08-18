@@ -6,7 +6,7 @@
 component:
   # Specifies whether a service account should be created
   id: TMFC001
-  typename: ProductCatalogCanagement
+  typename: ProductCatalogManagement
   name: productcatalog
   functionalBlock: CoreCommerce
   publicationDate: 2023-08-18T00:00:00.000Z

@@ -18,13 +18,13 @@ const testDataFolder = './testData/'
 let documentArray = []
 
 // verify that the file exists, contains a YAML document, The document includes an ODA Component with at least 1 API in the componentSegment 
-Given('An example component {string} with {string} API in its {string} segment', function (componentHelmChart, numberOfAPIs, componentSegmentName) {
+Given('An example package {string} with a {string} component with {string} API in its {string} segment', async function (componentHelmChart, componentName, numberOfAPIs, componentSegmentName) {
   exposedAPIs = componentUtils.getExposedAPIsFromHelm(componentHelmChart, 'ctk', componentSegmentName)
   // assert that there are the correct number of APIs in the componentSegment
   assert.ok(exposedAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " API")
 });
 
-When('I install the {string} component', function (componentHelmChart) {
+When('I install the {string} package', function (componentHelmChart) {
   componentUtils.installHelmChart(componentHelmChart, releaseName, NAMESPACE)
 });
 
@@ -55,7 +55,7 @@ Given('the {string} component has a deployment status of {string}', {timeout : 1
   }
 });
 
-When('I upgrade the {string} component', function (componentHelmChart) {
+When('I upgrade the {string} package', function (componentHelmChart) {
     // install the helm template command to generate the component envelope
     const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentHelmChart + ' -n ' + NAMESPACE, { encoding: 'utf-8' });   
 });

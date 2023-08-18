@@ -4,7 +4,7 @@
 
 
 component:
-  type: TMFC001-ProductCatalogCanagement
+  type: TMFC001-ProductCatalogManagement
   name: productcatalog
   version: "0.0.1"
   storageClassName: default
