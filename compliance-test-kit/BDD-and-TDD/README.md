@@ -22,3 +22,21 @@ npm start
 ```
 
 All the tests should run and display the results in the command line.
+
+If you only want to run a single test, you can use the following command:
+
+```
+npm start -- features/UC002-F001-Expose-APIs-Create-API-Resource.feature
+```
+
+The use cases and features are tagged. You can run the tests for a given use case with the following command:
+
+```
+npm start -- --tags '@UC002'
+```
+
+Or run the tests for a single feature with the following command:
+
+```
+npm start -- --tags '@UC002-F001'
+```

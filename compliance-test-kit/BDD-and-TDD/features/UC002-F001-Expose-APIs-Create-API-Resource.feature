@@ -2,6 +2,8 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
+@UC002         # tagged as use case 2
+@UC002-F001    # tagged as use feature 1 within use case 2
 Feature: UC002-F001 Expose APIs: Create API Resource
 
     Scenario: Create API Resource for Core API

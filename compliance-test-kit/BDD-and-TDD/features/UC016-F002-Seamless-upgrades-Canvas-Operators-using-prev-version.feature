@@ -2,6 +2,8 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
+@UC016         # tagged as use case 16
+@UC016-F002    # tagged as use feature 2 within use case 16
 Feature: UC016-F002 Seamless upgrade: Canvas operators using previous version
 
     Scenario: Installing a component and testing access using a previous (N-1) version
