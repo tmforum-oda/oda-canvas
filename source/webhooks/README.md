@@ -27,3 +27,10 @@ The Webhook allows you to create custom code to support Kubernetes in converting
           port: 443
 ``` 
 
+## Unit tests
+
+For details about how to unit test as a standalone Node application see [Unit tests](./unit-tests/README.md)
+
+## System tests
+
+For details about how to test as a micro-service in Kubernetes through the Kubernetes API, see [System tests](./system-tests/README.md)

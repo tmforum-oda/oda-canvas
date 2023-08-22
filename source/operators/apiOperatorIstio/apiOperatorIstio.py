@@ -32,7 +32,7 @@ HTTP_SCHEME = "http://"
 HTTP_K8s_LABELS = ['http', 'http2']
 HTTP_STANDARD_PORTS = [80, 443]
 GROUP = "oda.tmforum.org"
-VERSION = "v1alpha4"
+VERSION = "v1beta2"
 APIS_PLURAL = "apis"
 
 # get environment variables
@@ -40,8 +40,8 @@ OPENMETRICS_IMPLEMENTATION = os.environ.get('OPENMETRICS_IMPLEMENTATION', 'Servi
 print('Prometheus pattern set to ',OPENMETRICS_IMPLEMENTATION)
 
 
-@kopf.on.create('oda.tmforum.org', 'v1alpha4', 'apis', retries=5)
-@kopf.on.update('oda.tmforum.org', 'v1alpha4', 'apis', retries=5)
+@kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
 def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for new or updated APIs.
     
@@ -202,7 +202,8 @@ def createOrPatchDataDogAnnotation(patch, spec, namespace, name, inHandler, comp
         logWrapper(logging.INFO, 'createOrPatchDataDogAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchDataDogAnnotation pod patched with annotation=", annotation)
 
     except ApiException as e:
-        logWrapper(logging.WARNING, 'createOrPatchDataDogAnnotation', inHandler, 'api/' + name, componentName, "Exception", e)
+        logWrapper(logging.DEBUG, 'createOrPatchDataDogAnnotation', inHandler, 'api/' + name, componentName, "Exception", e)
+        logWrapper(logging.WARNING, 'createOrPatchDataDogAnnotation', inHandler, 'api/' + name, componentName, "Exception", " in createOrPatchDataDogAnnotation - will retry")
         raise kopf.TemporaryError("Exception in createOrPatchDataDogAnnotation.")   
 
 def createOrPatchServiceMonitor(patch, spec, namespace, name, inHandler, componentName):            
@@ -278,7 +279,8 @@ def createOrPatchServiceMonitor(patch, spec, namespace, name, inHandler, compone
             logWrapper(logging.INFO, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Service Monitor created", name)
             return 
     except ApiException as e:
-        logWrapper(logging.WARNING, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Exception when calling CustomObjectsApi", e)
+        logWrapper(logging.DEBUG, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Exception when calling CustomObjectsApi", e)
+        logWrapper(logging.WARNING, 'createOrPatchServiceMonitor', inHandler, 'api/' + name, componentName, "Exception", " when calling CustomObjectsApi - will retry")
         raise kopf.TemporaryError("Exception creating ServiceMonitor.")   
 
 
@@ -386,7 +388,8 @@ def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, co
                         logWrapper(logging.DEBUG, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "apiStatus", apistatus)
             return apistatus['apiStatus']
     except ApiException as e:
-        logWrapper(logging.WARNING, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Exception when calling CustomObjectsApi", e)
+        logWrapper(logging.DEBUG, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Exception when calling CustomObjectsApi", e)
+        logWrapper(logging.WARNING, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Exception", " when calling CustomObjectsApi - will retry")
         raise kopf.TemporaryError("Exception creating virtualService.")                  
 
 
@@ -414,7 +417,8 @@ def updateImplementationStatus(namespace, name, inHandler, componentName):
     except ValueError as e: # if there are no endpoints it will create a ValueError
         logWrapper(logging.INFO, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "Can not find", "Endpoint Slice")
     except ApiException as e:
-        logWrapper(logging.WARNING, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "ApiException calling list_namespaced_endpoint_slice", e)
+        logWrapper(logging.DEBUG, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "ApiException calling list_namespaced_endpoint_slice", e)
+        logWrapper(logging.WARNING, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "ApiException", " calling list_namespaced_endpoint_slice")
 
 
 # helper function to get Istio Ingress status
@@ -567,7 +571,7 @@ def createAPIImplementationStatus(serviceName, endpointsArray, namespace, inHand
                         logWrapper(logging.INFO, 'createAPIImplementationStatus', inHandler, 'endpointslice/' + api['metadata']['name'], componentName, "Added implementation ready status", anyEndpointReady)
 
                 if found == False:
-                    logWrapper(logging.INFO, 'createAPIImplementationStatus', inHandler, 'endpointslice/' + api['metadata']['name'], componentName, "Can't find API resource", serviceName)
+                    logWrapper(logging.INFO, 'createAPIImplementationStatus', inHandler, 'service/' + serviceName, componentName, "Can't find API resource", serviceName)
 
 
 def logWrapper(logLevel, functionName, handlerName, resourceName, componentName, subject, message):

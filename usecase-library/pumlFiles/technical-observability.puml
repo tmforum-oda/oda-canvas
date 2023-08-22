@@ -1,0 +1,45 @@
+@startuml
+
+actor Operations
+entity Component
+participant ComponentOperator
+entity ExposedAPI
+participant APIExposureOperator
+participant "Service Mesh"
+participant "Cloud Platform"
+participant "Observability Platform"
+group canvas installation
+    "Cloud Platform" <-> "Observability Platform" : Integrate observability with cloud platform
+    note right
+        Register the observability platform to listen to technical metric data from any deployed resources
+        (e.g. CPU, memory etc.)
+    end note
+    "Service Mesh" <-> "Observability Platform" : Integrate observability with service mesh    
+    note right
+        Register the observability platform to listen to technical metric data from any resources
+        configured with the service mesh control plane
+        (e.g. HTTP traffic in/out etc.)
+    end note
+end
+group component setup
+    Component <- Operations : Deploy component
+    Component -> ComponentOperator: on.create 
+    ComponentOperator -> ExposedAPI: create
+    note right
+        A separate ExposedAPI resource is created
+        for each exposed API in the core function,
+        security and management sections
+    end note
+    group For each exposed API
+        ExposedAPI -> APIExposureOperator: on.create 
+        APIExposureOperator -> "Service Mesh" : configure Service Mesh
+    end
+end
+group in-life Operations
+    "Cloud Platform" -> "Observability Platform" : stream metrics
+    "Service Mesh" -> "Observability Platform" : stream metrics
+    Operations -> "Observability Platform" : view performance and operational metrics
+    "Observability Platform" -> Operations : Raise alarms for pre-defined thresholds
+end 
+
+@enduml

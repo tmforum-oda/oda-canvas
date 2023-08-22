@@ -1,0 +1,242 @@
+{
+	"info": {
+		"_postman_id": "01165076-c0b5-4a87-bee4-8663230c8c4a",
+		"name": "KubernetesAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "314044"
+	},
+	"item": [
+		{
+			"name": "GET version list in oda.tmforum.org",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET all resources in v1beta1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1beta1/",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1beta1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET all resources in v1alpha4",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1alpha4/",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1alpha4",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET all components as v1beta2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1beta2/components",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1beta2",
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET all components as v1beta1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1beta1/components",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1beta1",
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET all components as v1alpha4",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1alpha4/components",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1alpha4",
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET all components as v1alpha3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1alpha3/components",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1alpha3",
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET all components as v1alpha2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1alpha2/components",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1alpha2",
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET all apis as v1alpha4",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1alpha4/apis",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1alpha4",
+						"apis"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET service monitors list in monitoring.coreos.com",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/monitoring.coreos.com/v1/servicemonitors",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"monitoring.coreos.com",
+						"v1",
+						"servicemonitors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET components in namespace components",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1alpha3/namespaces/components/components",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1alpha3",
+						"namespaces",
+						"components",
+						"components"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

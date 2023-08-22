@@ -66,13 +66,16 @@ seccon_user = 'seccon'
 
 kc = Keycloak(kcBaseURL)
 
+GROUP = "oda.tmforum.org"
+VERSION = "v1beta2"
+COMPONENTS_PLURAL = "components"
 
 # Kopf handlers -------------
 
 @kopf.on.update(
-    'oda.tmforum.org',
-    'v1alpha4',
-    'components',
+    GROUP,
+    VERSION,
+    COMPONENTS_PLURAL,
     field='status.summary/status.deployment_status',
     value='In-Progress-SecCon',
     retries=5
@@ -81,8 +84,15 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
     """
     Handler for component create/update
     """
-
-    if not('security' in spec and 'partyrole' in spec['security'] and 'path' in spec['security']['partyrole']):
+    foundPartyRole = False
+    partyRoleAPI = None
+    if ('securityFunction' in spec and 'exposedAPIs' in spec['securityFunction']):
+        for api in spec['securityFunction']['exposedAPIs']:
+            if ('partyrole' in api['name']):
+                partyRoleAPI = api
+                foundPartyRole = True
+                break
+    if not(foundPartyRole):
         raise kopf.TemporaryError(
             'Could not get partyrole path from component. Will retry.',
             delay=10
@@ -92,10 +102,10 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
 
     rooturl = (
         'http://'
-        + spec['security']['partyrole']['implementation']
+        + partyRoleAPI['implementation']
         + '.' + namespace + '.svc.cluster.local:'
-        + str(spec['security']['partyrole']['port'])
-        + spec['security']['partyrole']['path']
+        + str(partyRoleAPI['port'])
+        + partyRoleAPI['path']
     )
     logger.debug('using component root url: %s', rooturl)
     logger.debug('status.deployment_status = %s -> %s', old, new)
@@ -136,14 +146,14 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             client = client_list[name]
 
     try: # to create the bootstrap role
-        # TODO find security.controllerRole and add_role in {name}
-        # 1) GET security.controllerRole from the component
-        # 2) add_role for security.controllerRole against component
+        # TODO find securityFunction.controllerRole and add_role in {name}
+        # 1) GET securityFunction.controllerRole from the component
+        # 2) add_role for securityFunction.controllerRole against component
         # 3) write new function for add_role_to_user
         # 4) create user for seccon
         # 5) add_role_to_user for secCon user
 
-        seccon_role = spec['security']['controllerRole']
+        seccon_role = spec['securityFunction']['controllerRole']
         kc.add_role(seccon_role, client, token, kcRealm)
     except RuntimeError as e:
         logging.error(format_cloud_event(
@@ -179,7 +189,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
     # under securityRoles parameter (corresponds to function name)
     return status_value
 
-@kopf.on.delete('oda.tmforum.org', 'v1alpha4', 'components', retries=5)
+@kopf.on.delete(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 def security_client_delete(meta, spec, status, body, namespace, labels, name, **kwargs):
     """
     Handler to delete component from Keycloak

@@ -36,7 +36,7 @@ cert-manager-init:
   #  Post "https://cert-manager-webhook.cert-manager.svc:443/mutate?timeout=10s": x509: certificate signed by unknown authority
   # In seconds
   # -- Time to wait CertManager to be ready to prevent issuer creation errors
-  leaseWaitTimeonStartup: 20
+  leaseWaitTimeonStartup: 80
 
   cert-manager:
     enabled: true
@@ -108,9 +108,9 @@ keycloak:
 controller:
   deployment:
     controllerName: oda-controller-ingress
-    compconImage: tmforumodacanvas/component-istio-controller:0.2.6
+    compconImage: tmforumodacanvas/component-istio-controller:0.3.2 
     istioGateway: true
-    secconImage: tmforumodacanvas/security-listener:0.6.0
+    secconImage: tmforumodacanvas/security-listener:0.7.0
     monitoredNamespaces: 'components'           # comma separated list of namespaces
     ingressClass:
       enabled: false
@@ -127,4 +127,4 @@ controller:
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
 webhooks:
-  image: tmforumodacanvas/compcrdwebhook:0.5.1
+  image: tmforumodacanvas/compcrdwebhook:0.6.2 

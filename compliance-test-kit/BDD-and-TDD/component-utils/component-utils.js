@@ -12,6 +12,12 @@ const HTTP_CREATED = 201
 const HTTP_OK = 200
 const HTTP_DELETE_SUCCESS = 204
 const testDataFolder = './testData/'
+
+const GROUP = "oda.tmforum.org"
+const VERSION = "v1beta2"
+const APIS_PLURAL = "apis"
+const COMPONENTS_PLURAL = "components"
+
 let testComponentName
 
 /**
@@ -64,7 +70,7 @@ const componentUtils = {
   getAPIResource: async function (inAPIName, inNamespace) {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
     const APIResourceName = testComponentName + '-' + inAPIName
-    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha4', inNamespace, 'apis', undefined, undefined, 'metadata.name=' + APIResourceName)
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, APIS_PLURAL, undefined, undefined, 'metadata.name=' + APIResourceName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
     } 
@@ -78,11 +84,29 @@ const componentUtils = {
   * @param    {String} inNamespace            Namespace where the component instance is running
   * @return   {String}         String containing the base URL for the API, or null if the API is not found
   */
-    getComponentResource: async function (inComponentName, inNamespace) {
+  getComponentResource: async function (inComponentName, inNamespace) {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
-    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha4', inNamespace, 'components', undefined, undefined, 'metadata.name=' + inComponentName)
+
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, COMPONENTS_PLURAL, undefined, undefined, 'metadata.name=' + inComponentName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
+    } 
+      
+    return namespacedCustomObject.body.items[0]
+  },
+
+  /**
+  * Function that returns the custom Component resource of a specific version, given Component Name
+  * @param    {String} inComponentName        Name of the API that is requested
+  * @param    {String} inComponentVersion     Version of the component spec that is requested
+  * @param    {String} inNamespace            Namespace where the component instance is running
+  * @return   {String}         String containing the base URL for the API, or null if the API is not found
+  */
+  getComponentResourceByVersion: async function (inComponentName, inComponentVersion, inNamespace) {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, inComponentVersion, inNamespace, COMPONENTS_PLURAL, undefined, undefined, 'metadata.name=' + inComponentName)
+    if (namespacedCustomObject.body.items.length === 0) {
+      return null // Component not found
     } 
       
     return namespacedCustomObject.body.items[0]
@@ -98,7 +122,7 @@ const componentUtils = {
    getAPIURL: async function (inComponentInstance, inAPIName, inNamespace) {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
     const APIResourceName = inComponentInstance + '-' + inAPIName
-    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject('oda.tmforum.org', 'v1alpha4', inNamespace, 'apis', undefined, undefined, 'metadata.name=' + APIResourceName)
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, APIS_PLURAL, undefined, undefined, 'metadata.name=' + APIResourceName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
     }
@@ -282,13 +306,12 @@ const componentUtils = {
 
     if (componentSegmentName == 'coreFunction') {
       exposedAPIs = componentSegment.items.filter(item => item.key == 'exposedAPIs')[0].value.items
-    } else if (componentSegmentName == 'management') {
+    } else if (componentSegmentName == 'managementFunction') {
       exposedAPIs = componentSegment.items
-    } else if (componentSegmentName == 'security') {
-      exposedAPIs = [componentSegment.get('partyrole')]
-      exposedAPIs[0].set('name', 'partyrole')
+    } else if (componentSegmentName == 'securityFunction') {
+      exposedAPIs = [componentSegment.items]
     } else {
-      assert.ok(false, "componentSegmentName should be one of 'coreFunction', 'management' or 'security'")
+      assert.ok(false, "componentSegmentName should be one of 'coreFunction', 'managementFunction' or 'securityFunction'")
     }
 
     return exposedAPIs
