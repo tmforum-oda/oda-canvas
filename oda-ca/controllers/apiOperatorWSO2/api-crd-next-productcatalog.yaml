@@ -1,0 +1,16 @@
+# This is the wso2 CRD definition for an API that was greated as part of the scenarios/scenario-1 
+# To create the API, you also need to create the ConfigMap that contains the swagger definition.
+apiVersion: wso2.com/v1alpha1
+kind: API
+metadata:
+  generation: 1
+  name: next-pc-productcatalog
+spec:
+  definition:
+    interceptors: {}
+    swaggerConfigmapNames:
+    - next-pc-swagger
+    type: swagger
+  mode: privateJet
+  override: true
+  replicas: 1

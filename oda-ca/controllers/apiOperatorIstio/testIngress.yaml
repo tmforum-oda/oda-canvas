@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: "camunda"
+  namespace: "default"
+  labels:
+    app: camunda
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: "camunda"
+              servicePort: 8080

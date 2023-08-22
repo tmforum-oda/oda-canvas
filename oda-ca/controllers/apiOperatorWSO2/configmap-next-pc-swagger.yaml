@@ -1,0 +1,41 @@
+apiVersion: v1
+data:
+  pc_swagger.yaml: |
+    openapi: 3.0.1
+    info:
+      title: Next-productcatalog
+      version: v1.0.0
+      description: This API contains operations related to product catalog.
+    x-wso2-basePath: /catalogManagement
+    x-wso2-production-endpoints:
+      urls:
+        - http://next-pc:8191/catalogManagement        
+    servers:
+      - url: 'http://35.230.142.105/catalogManagement'
+        description: Generated server url
+    paths:
+      /v1/catalog:
+        get:
+          tags:
+            - catalog
+          summary: List catalogs
+          responses:
+            '200':
+              description: successful operation
+              headers:
+                X-Total-Count:
+                  description: Total number of items matching criteria
+                  style: simple
+                X-Result-Count:
+                  description: Actual number of items returned in the response body
+                  style: simple
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CatalogEntity'
+  
+kind: ConfigMap
+metadata:
+  name: next-pc-swagger
