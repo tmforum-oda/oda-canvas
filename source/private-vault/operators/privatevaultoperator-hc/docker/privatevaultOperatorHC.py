@@ -295,7 +295,7 @@ def inject_sidecar(body, patch):
         return
 
     containers.append(container_pvsidecar)
-    patch.spec["template"] = template
+    patch.spec["containers"] = containers
     logging.debug(f"injecting pvsidecar container")
     
 
@@ -652,8 +652,8 @@ if __name__ == '__main__':
     #test_kubeconfig()
     #testDeletePV()
     #testCreatePV()
-    #test_inject_sidecar()
+    test_inject_sidecar()
     #test_get_pv_spec()
-    test_label_deployment_pods()
+    #test_label_deployment_pods()
     
 
