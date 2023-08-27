@@ -63,6 +63,8 @@ class ServiceTunnel:
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
+    settings.peering.priority = 100
+    settings.peering.name = "privatevault"
     settings.admission.server = ServiceTunnel()
     settings.admission.managed = 'pv.sidecar.kopf'
     

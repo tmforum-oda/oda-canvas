@@ -2,11 +2,11 @@
 apiVersion: zalando.org/v1
 kind: ClusterKopfPeering
 metadata:
-  name: default
+  name: privatevault
 ---
 apiVersion: zalando.org/v1
 kind: KopfPeering
 metadata:
   namespace: {{ .Release.Namespace }}
-  name: default
+  name: privatevault
 ---

@@ -172,3 +172,37 @@ kubectl delete ns privatevault-system
 #kubectl delete -f installation/canvas-vault-hc/public-route-for-testing.yaml
 #kubectl delete ns canvas-vault  
 ```
+
+
+# Windows CLI
+
+```
+set VAULT_ADDR=https://canvas-vault-hc.k8s.cluster3.de
+vault login
+```
+
+# Troubleshooting
+
+two kopf hooks blocking each other
+
+```
+[2023-08-27 18:44:12,991] kopf._core.engines.a [INFO    ] Initial authentication has finished.
+[2023-08-27 18:44:13,249] kopf._cogs.clients.w [DEBUG   ] Starting the watch-stream for customresourcedefinitions.v1.apiextensions.k8s.io cluster-wide.
+[2023-08-27 18:44:13,253] kopf._kits.webhooks  [DEBUG   ] Generating a self-signed certificate for HTTPS.
+[2023-08-27 18:44:13,812] kopf._cogs.clients.w [DEBUG   ] Starting the watch-stream for clusterkopfpeerings.v1.zalando.org cluster-wide.
+[2023-08-27 18:44:13,820] kopf._cogs.clients.w [DEBUG   ] Starting the watch-stream for privatevaults.v1alpha1.oda.tmforum.org cluster-wide.
+[2023-08-27 18:44:13,885] kopf._core.engines.p [DEBUG   ] Keep-alive in 'default' cluster-wide: ok.
+[2023-08-27 18:44:13,887] kopf._kits.webhooks  [DEBUG   ] Listening for webhooks at https://*:9443
+[2023-08-27 18:44:13,887] kopf._kits.webhooks  [DEBUG   ] Accessing the webhooks at https://privatevault-operator-svc.privatevault-system.svc:9443
+[2023-08-27 18:44:13,888] kopf._core.engines.a [INFO    ] Reconfiguring the validating webhook pv.sidecar.kopf.
+[2023-08-27 18:44:13,893] kopf._core.engines.a [INFO    ] Reconfiguring the mutating webhook pv.sidecar.kopf.
+[2023-08-27 18:44:22,742] kopf._core.engines.p [INFO    ] Pausing operations in favour of [<Peer root@overcommit-operator-7d444b7477-mm9bz/20230818225741/3uz: priority=100, lifetime=60, lastseen='2023-08-27T18:44:22.622240'>].
+[2023-08-27 18:44:22,843] kopf._cogs.clients.w [DEBUG   ] Pausing the watch-stream for privatevaults.v1alpha1.oda.tmforum.org cluster-wide (blockers: default@None).
+```
+
+https://github.com/nolar/kopf/issues/734
+
+## solution
+
+use different peering names and not default.
+
