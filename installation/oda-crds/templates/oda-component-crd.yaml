@@ -3,7 +3,7 @@ kind: "CustomResourceDefinition"
 metadata:
   name: "components.oda.tmforum.org"
   annotations:
-    cert-manager.io/inject-ca-from:  {{ printf "%s/%s" .Release.Namespace .Values.global.certificate.appName  }}
+    cert-manager.io/inject-ca-from:  canvas/compcrdwebhook #{{ printf "%s/%s" .Release.Namespace .Values.global.certificate.appName  }}
 spec:
   scope: "Namespaced"
   group: "oda.tmforum.org"
@@ -18,7 +18,7 @@ spec:
       conversionReviewVersions: ["v1beta1", "v1alpha4", "v1alpha3", "v1alpha2", "v1alpha1"]
       clientConfig:
         service:
-          namespace: {{ .Release.Namespace}}
+          namespace: canvas #{{ .Release.Namespace}}
           name: {{ .Values.global.certificate.appName}}
           path: /
           port: 443
