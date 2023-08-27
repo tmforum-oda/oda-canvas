@@ -1,3 +1,0 @@
-FROM wctdevops/apigcontroller:base
-ADD . /
-CMD kopf run --namespace=$COMPONENT_NAMESPACE --standalone componentOperator/componentOperator.py apiOperatorApig/apiOperatorApig.py

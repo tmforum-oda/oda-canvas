@@ -108,7 +108,7 @@ keycloak:
 controller:
   deployment:
     controllerName: oda-controller-ingress
-    compconImage: tmforumorg/canvas-gmp:latest #tmforumodacanvas/component-istio-controller:0.2.6
+    compconImage: tmforumodacanvas/component-istio-controller:0.3.2 
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener:0.7.0
     monitoredNamespaces: 'components'           # comma separated list of namespaces

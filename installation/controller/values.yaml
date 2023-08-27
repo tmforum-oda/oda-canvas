@@ -1,23 +1,14 @@
-global:
-  certificate:
-    # -- Name of the certificate and webhook |
-    appName: "compcrdwebhook"
-
-
-
 deployment:
   controllerName: oda-controller-ingress
   compconImage: tmforumodacanvas/component-istio-controller:0.2.6
   istioGateway: true
-  secconImage: tmforumodacanvas/security-listener:0.7.0
+  secconImage: tmforumodacanvas/security-listener:0.6.0
   monitoredNamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false
     name: nginx
   keycloak:
-    port: 8083
-  dataDog:
-      enabled: true
+    port: 8080
 #We reuse the admin user created on keycloak instalation
 credentials:
   user: admin
@@ -26,5 +17,3 @@ configmap:
   #kcbase: http://canvas-keycloak:8088/auth # trying to parameterise this in the configmap
   kcrealm: myrealm
   loglevel: '20'
-webhooks:
-  image: tmforumodacanvas/compcrdwebhook:0.6.2 
