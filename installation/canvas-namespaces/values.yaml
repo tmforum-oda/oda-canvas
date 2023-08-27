@@ -2,7 +2,9 @@ global:
   certificate:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
-# Declare variables to be passed into your templates.
 
-image: tmforumodacanvas/compcrdwebhook:0.5.1
 
+certManagerNamespace: cert-manager
+componentNamespace: components
+istio:
+  labelEnabledComponent: true
