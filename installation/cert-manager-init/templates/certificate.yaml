@@ -26,7 +26,7 @@ spec:
     - key encipherment
     - server auth
   dnsNames:
-  - {{ .Values.certificate.appName }}
+  - {{ .Values.global.certificate.appName }}
   - {{ printf "%s.%s" .Values.global.certificate.appName (include "cert-manager-init.namespace" .) }}
   - {{ printf "%s.%s.svc" .Values.global.certificate.appName (include "cert-manager-init.namespace" .) }}
   - {{ printf "%s.%s.svc.cluster.local" .Values.global.certificate.appName (include "cert-manager-init.namespace" .) }}
