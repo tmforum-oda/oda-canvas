@@ -15,3 +15,6 @@ cert-manager:
 
 certificate:
   appName: "compcrdwebhook"
+
+cert-manager-init:
+  namespace: canvas
