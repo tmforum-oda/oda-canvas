@@ -12,3 +12,6 @@ cert-manager:
   enabled: true
   installCRDs: true
   namespace: cert-manager
+
+certificate:
+  appName: "compcrdwebhook"
