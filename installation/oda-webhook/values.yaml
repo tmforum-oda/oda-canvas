@@ -6,3 +6,5 @@ global:
 
 image: tmforumodacanvas/compcrdwebhook:0.5.1
 
+cert-manager-init:
+  namespace: canvas
