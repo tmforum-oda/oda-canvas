@@ -14,7 +14,7 @@ const NAMESPACE = 'components'
 const HTTP_OK = 200
 const releaseName = 'ctk'
 const testDataFolder = './testData/'
-
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0 // dont validate the TLS certificate (as it is not from a trusted authority)
 let documentArray = []
 
 // verify that the file exists, contains a YAML document, The document includes an ODA Component with at least 1 API in the componentSegment 
