@@ -1,0 +1,24 @@
+@startuml
+
+actor Operations
+entity Component
+participant "Component Implementation" as ComponentImplementation
+participant "apiOperator-Istio\n (Open Metrics)"
+entity "Service Monitor"
+entity "DataDog Operator" as DataDogOperator
+participant Prometheus
+participant "Observability Platform\n DataDog"
+
+Component <- Operations : Install
+Component -> ComponentImplementation : Install
+ComponentImplementation -> "apiOperator-Istio\n (Open Metrics)": onCreate/Update
+group Prometheus Openmetrics-Implementation, create Service Monitor resource
+    "apiOperator-Istio\n (Open Metrics)" -> "Service Monitor": Create or update\n service monitor resource
+    "Service Monitor"-> Prometheus: Configure Prometheus for Observability
+end
+group DataDog Openmetrics-Implementation, create Datadog Monitor resource
+   "apiOperator-Istio\n (Open Metrics)" -> DataDogOperator: Create or update\n Datadog monitor resource
+    DataDogOperator-> "Observability Platform\n DataDog" : Configure Datadog for Observability
+end 
+
+@enduml
