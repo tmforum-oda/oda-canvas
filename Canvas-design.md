@@ -26,4 +26,5 @@ The documentation approach for the Canvas is summarised in the diagram below:
 The Canvas design is split into the following epics:
 
 * [Epic 1: Authentication](Authentication-design.md)
-* [Epic 2: Event based integration.md](Event-based-integration-design.md)
+* [Epic 2: Event based integration](Event-based-integration-design.md)
+* [Epic 3: Observability](Observability-design.md)
