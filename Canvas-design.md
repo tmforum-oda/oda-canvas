@@ -19,7 +19,7 @@ The canvas reads the component requirements as meta-data in the component spec. 
 
 The documentation approach for the Canvas is summarised in the diagram below:
 
-![Canvas Documentation](/CanvasDocumentation.png)
+![Canvas Documentation](CanvasDocumentation.png)
 
 ## Design Epics
 

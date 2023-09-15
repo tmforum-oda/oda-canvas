@@ -1,4 +1,4 @@
-# ODA Canvas Use-Case library, BDD and TDD
+# ODA Canvas Compliance Test Kit (CTK)
 
 The compliance test kit for an ODA Canvas consists of:
 
