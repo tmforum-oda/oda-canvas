@@ -65,6 +65,7 @@ The procedure has been tested
 
 - local k3s distribution, rancher desktop or similar
 - AWS [Kops](https://kops.sigs.k8s.io/) with AmazonVPC as network and with and without cert-manager managed by kops
+
 We assume
 
 - There is a ```kubeconfig``` file available with adequate permissions on the K8s cluster to:
