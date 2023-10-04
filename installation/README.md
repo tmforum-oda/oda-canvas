@@ -41,7 +41,8 @@ The helm chart installs the following updated versions of third party to
 
 ## Changes
 
-The Helm chart has been refactored to move all the different subcharts to the same level to improve rreadabilityA new chart, oda-ca has been create as an umbrella for others allowing to have a centralised configuration
+The Helm chart has been refactored to move all the different subcharts to the same level to improve readability.
+A new chart, oda-ca has been created as an umbrella for others allowing to have a centralised configuration.
 |OLD| NEW | DESCRIPTION
 |--|--|--|
 | shell script  | oda-ca  | Chart of chart.
