@@ -11,16 +11,25 @@ For each release, we will support a min and max Kubernetes version.
 | --------------------- | ---------------------- | ----------------------- |
 | v1alpha4              | 1.20                   | 1.22                    |
 | v1beta1               | 1.22                   | 1.25                    |
+| v1beta2               | 1.22                   | 1.25                    |
+
+If you are connected to an ODA Canvas, to test what version of Canvas it is, use the command:
+```
+kubectl get crd components.oda.tmforum.org -o jsonpath='{.spec.versions[?(@.served==true)].name}'
+```
+It will return the versions of components the canvas supports. A canvas should support N-2 versions of a component i.e. for the `v1beta2` canvas, it will support components that are v1beta2, v1beta1, v1alpha4 (and v1alpha3 with a deprecation warning).
+
 
 We will test the Reference Implementation Canvas against a range of kubernetes versions and on a number of different deployments.
 
 | Kubernetes deployment     | Tested | Notes             |
 | ------------------------- | ------ | ----------------- |
-| Rancher on AWS            |        | [Open Digital Lab environment]                   | 
-| Azure AKS                 |        |                   | 
-| Microk8s                  |        |                   | 
-| MiniKube                  |        |                   |
-| Docker Desktop            |        |                   |
+| Rancher on AWS            |   Yes  | [Open Digital Lab environment]                   | 
+| Azure AKS                 |   Yes  |                   | 
+| GCP GKE                   |   Yes  |                   |
+| Microk8s                  |   Yes  |                   | 
+| MiniKube                  |   Yes  |                   |
+| Docker Desktop            |   Yes  |                   |
 | Kind                      |        | Using [Canvas-in-a-bottle](canvas-in-a-bottle/README.md) |
 | K3s                       |        |                   |  
 | (other)                   |        | To suggest additional environments please add to this [issue](https://github.com/tmforum-oda/oda-canvas-charts/issues/52)                  |
@@ -38,19 +47,6 @@ The helm chart installs the following updated versions of third party to
 |Cert-Manager  |1.20  |
 |Keycloak  |  20.0.3|
 |Postgress| 15.0.1 |
-
-## Changes
-
-The Helm chart has been refactored to move all the different subcharts to the same level to improve rreadabilityA new chart, oda-ca has been create as an umbrella for others allowing to have a centralised configuration
-|OLD| NEW | DESCRIPTION
-|--|--|--|
-| shell script  | oda-ca  | Chart of chart.
-| shell script | cert-manager-init  | Install cert-manager Deploy Issuer and generate Certificate used by CRD webhook
-| canvas/chart/keycloak | Bitnami/keycloak  | Direct remote dependency  on oda-ca
-| canvas/| canvas-namespaces  | Namespaces
-| canvas/chart/controller| controller  | ODA ingress controller
-| canvas/chart/crds| oda-crds| ODA crds
-| canvas/chart/weebhooks | oda-webhook| ODA mutating webhook to handle conversion among versions
 
 ## Configuration values
 
@@ -247,4 +243,16 @@ Increase leaseWaitTimeonStartup value btw 80-100 in canvas-oda\values.yaml
 
 Reinstall it with the new time.
 
+## Changes
 
+The Helm chart has been refactored to move all the different subcharts to the same level to improve readability. A new chart, oda-ca has been created as an umbrella to simplify the deployment.
+
+|OLD| NEW | DESCRIPTION
+|--|--|--|
+| shell script  | oda-ca  | Chart of chart.
+| shell script | cert-manager-init  | Install cert-manager Deploy Issuer and generate Certificate used by CRD webhook
+| canvas/chart/keycloak | Bitnami/keycloak  | Direct remote dependency  on oda-ca
+| canvas/| canvas-namespaces  | Namespaces
+| canvas/chart/controller| controller  | ODA ingress controller
+| canvas/chart/crds| oda-crds| ODA crds
+| canvas/chart/weebhooks | oda-webhook| ODA mutating webhook to handle conversion among versions
