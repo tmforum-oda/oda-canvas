@@ -208,7 +208,8 @@ Checking the logs `kubectl logs -n canvas sts/canvas-postgresql`  we can see an 
  FATAL:  password authentication failed for user "bn_keycloak"
  ````
 
-In that case, a previous installation left a PVC reused by the Postgress
+In that case, a previous installation left a PVC reused by the Postgres pod.
+
 To solve that issue
 
 - Uninstall the helm chart
