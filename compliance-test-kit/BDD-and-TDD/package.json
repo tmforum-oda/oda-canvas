@@ -13,7 +13,7 @@
     "@cucumber/cucumber": "^7.3.2",
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
-    "component-utils": "file:component-utils",
+    "kubernetes-utils": "file:kubernetes-utils",
     "yaml": "^2.1.3"
   }
 }

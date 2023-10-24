@@ -268,15 +268,15 @@ const componentUtils = {
 
   /**
   * Function that gets the exposedAPIs from the given segment of a helm chart.
-  * @param    {String} componentHelmChart    Helm chart folder name
+  * @param    {String} componentPackage      Helm chart folder name
   * @param    {String} releaseName           Helm release name
   * @param    {String} componentSegmentName  segment of the component (coreFunction, management, security)
   * @return   {Array}          The array of 0 or more exposed APIs
   */  
-  getExposedAPIsFromHelm: function(componentHelmChart, releaseName, componentSegmentName) {
+  getExposedAPIsFromPackage: function(componentPackage, releaseName, componentSegmentName) {
 
     // run the helm template command to generate the component envelope
-    const output = execSync('helm template ' + releaseName + ' ' + testDataFolder + componentHelmChart, { encoding: 'utf-8' });  
+    const output = execSync('helm template ' + releaseName + ' ' + testDataFolder + componentPackage, { encoding: 'utf-8' });  
       
     // parse the template
     documentArray = YAML.parseAllDocuments(output)
@@ -319,10 +319,10 @@ const componentUtils = {
 
   /**
   * Function that checks if a helm chart is already installed, and installs it if not.
-  * @param    {String} componentHelmChart    Helm chart folder name
+  * @param    {String} componentPackage      Helm chart folder name
   * @param    {String} releaseName           Helm release name
   */  
-  installHelmChart: function(componentHelmChart, releaseName, namespace) {
+  installPackage: function(componentPackage, releaseName, namespace) {
 
     // only install the helm chart if it is not already installed
     const helmList = execSync('helm list -o json  -n ' + namespace, { encoding: 'utf-8' });    
@@ -335,12 +335,39 @@ const componentUtils = {
     })
 
     if (found) {
-      const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentHelmChart + ' -n ' + namespace, { encoding: 'utf-8' });   
+      const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace, { encoding: 'utf-8' });   
     }
     else {
       // install the helm template command to generate the component envelope
-      const output = execSync('helm install ' + releaseName + ' ' + testDataFolder + componentHelmChart + ' -n ' + namespace, { encoding: 'utf-8' });   
+      const output = execSync('helm install ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace, { encoding: 'utf-8' });   
     } 
-  } 
+  },
+
+  /**
+   * Uninstall a specified package using the helm uninstall command.
+   *  
+   * @param {string} releaseName - The name of the release to uninstall.
+   * @param {string} namespace - The namespace of the release to uninstall.
+   */
+    uninstallPackage: function(releaseName, namespace) {
+      const output = execSync('helm uninstall ' + releaseName + ' -n ' + namespace, { encoding: 'utf-8' });
+    },
+
+  /**
+   * Upgrade a specified package using the helm upgrade command.
+   *
+   * @param {string} componentPackage - The name of the package to upgrade.
+   * @param {string} releaseName - The name of the release to upgrade.
+   * @param {string} namespace - The namespace of the release to upgrade.
+   */
+  upgradePackage: function(componentPackage, releaseName, namespace) {
+    const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace, { encoding: 'utf-8' });   
+  }
+
+
+
 }
+
+
+
 module.exports = componentUtils
