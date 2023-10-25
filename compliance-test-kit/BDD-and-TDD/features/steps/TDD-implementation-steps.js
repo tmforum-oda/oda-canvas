@@ -1,16 +1,13 @@
 // This TDD uses a utility library to interact with the technical implementation of a specific canvas.
 // Replace the library with your own implementation library if you use a different implementation technology.
-const componentUtils = require('kubernetes-utils');
+const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
+const packageManagerUtils = require('package-manager-utils-helm');
 
 const { Given, When, Then, AfterAll } = require('@cucumber/cucumber');
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const assert = require('assert');
-const execSync = require('child_process').execSync;
-
 chai.use(chaiHttp)
-
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0 // dont validate the TLS certificate (as it is not from a trusted authority)
 
 const NAMESPACE = 'components'
 const releaseName = 'ctk'
@@ -30,27 +27,27 @@ const CLEANUP_PACKAGE = true // set to true to uninstall the package after each 
  * @param {string} componentSegmentName - The name of the component segment.
  */
 Given('An example package {string} with a {string} component with {string} API in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
-  exposedAPIs = componentUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
+  exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
   // assert that there are the correct number of APIs in the componentSegment
   assert.ok(exposedAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " API")
 });
 
 /**
- * Install a specified package using the componentUtils.installPackage function.
+ * Install a specified package using the packageManagerUtils.installPackage function.
  *
  * @param {string} componentPackage - The name of the package to install.
  */
 When('I install the {string} package', function (componentPackage) {
-  componentUtils.installPackage(componentPackage, releaseName, NAMESPACE)
+  packageManagerUtils.installPackage(componentPackage, releaseName, NAMESPACE)
 });
 
 /**
- * Validate if a package has been installed (and install it if not) using the componentUtils.installPackage function.
+ * Validate if a package has been installed (and install it if not) using the packageManagerUtils.installPackage function.
  *
  * @param {string} componentPackage - The name of the example component package to install.
  */
 Given('An example component {string} has been installed', function (componentPackage) {
-  componentUtils.installPackage(componentPackage, releaseName, NAMESPACE)
+  packageManagerUtils.installPackage(componentPackage, releaseName, NAMESPACE)
 });
 
 /**
@@ -67,7 +64,7 @@ Given('the {string} component has a deployment status of {string}', {timeout : C
 
   // wait until the component resource is found or the timeout is reached
   while (componentResource == null) {
-    componentResource = await componentUtils.getComponentResource(releaseName + '-' + componentName, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResource(releaseName + '-' + componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
@@ -85,13 +82,13 @@ Given('the {string} component has a deployment status of {string}', {timeout : C
 });
 
 /**
- * Upgrade a specified package using using the componentUtils.upgradePackage function
+ * Upgrade a specified package using using the packageManagerUtils.upgradePackage function
  *
  * @param {string} componentPackage - The name of the package to upgrade.
  * @returns {void}
  */
 When('I upgrade the {string} package', function (componentPackage) {
-  componentUtils.upgradePackage(componentPackage, releaseName, NAMESPACE)
+  packageManagerUtils.upgradePackage(componentPackage, releaseName, NAMESPACE)
 });
 
 
@@ -101,14 +98,14 @@ When('I upgrade the {string} package', function (componentPackage) {
  * @param {string} APIName - The name of the API resource to check.
  * @returns {Promise<void>} - A Promise that resolves when the API resource is available.
  */
-Then('I should see the {string} API resource', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName) {
+Then('I should see the {string} API resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
   let apiResource = null
   var startTime = performance.now()
   var endTime
 
   // wait until the API resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getAPIResource(APIName, componentName, releaseName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
@@ -122,7 +119,7 @@ Then('I should see the {string} API resource', {timeout : API_DEPLOY_TIMEOUT + T
  * @param {string} APIName - The name of the API resource to check.
  * @returns {Promise<void>} - A Promise that resolves when the API resource is removed.
  */
-Then('I should not see the {string} API resource', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName) {
+Then('I should not see the {string} API resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
   // set the initial value of apiResource to 'not null'
   let apiResource = 'not null'
   var startTime = performance.now()
@@ -130,7 +127,7 @@ Then('I should not see the {string} API resource', {timeout : API_DEPLOY_TIMEOUT
 
   // wait until the API resource is removed or the timeout is reached
   while (apiResource != null) {
-    apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getAPIResource(APIName, componentName, releaseName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the API resource was removed within the timeout
@@ -145,7 +142,7 @@ Then('I should not see the {string} API resource', {timeout : API_DEPLOY_TIMEOUT
  * @param {string} APIName - The name of the API resource to check.
  * @returns {Promise<void>} - A Promise that resolves when the API resource has a URL on the Service Mesh or Gateway.
  */
-Then('I should see the {string} API resource with a url on the Service Mesh or Gateway', {timeout : API_URL_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName) {
+Then('I should see the {string} API resource on the {string} component with a url on the Service Mesh or Gateway', {timeout : API_URL_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
   // get the API resource
   let apiResource = null
   var startTime = performance.now()
@@ -153,7 +150,7 @@ Then('I should see the {string} API resource with a url on the Service Mesh or G
 
   // wait until the API resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getAPIResource(APIName, componentName, releaseName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
@@ -167,7 +164,7 @@ Then('I should see the {string} API resource with a url on the Service Mesh or G
 
 });
 
-Then('I should see the {string} API resource with an implementation ready status on the Service Mesh or Gateway', {timeout : API_READY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName) {
+Then('I should see the {string} API resource on the {string} component with an implementation ready status on the Service Mesh or Gateway', {timeout : API_READY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
   // get the API resource
   let apiResource = null
   var startTime = performance.now()
@@ -175,7 +172,7 @@ Then('I should see the {string} API resource with an implementation ready status
 
   // wait until the API resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await componentUtils.getAPIResource(APIName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getAPIResource(APIName, componentName, releaseName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
@@ -202,7 +199,7 @@ Then('I can query the {string} spec version of the {string} component', {timeout
   var endTime
   let componentResource = null
   while (componentResource == null) {
-    componentResource = await componentUtils.getComponentResourceByVersion(releaseName + '-' + componentName, ComponentSpecVersion, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResourceByVersion(releaseName + '-' + componentName, ComponentSpecVersion, NAMESPACE)
     endTime = performance.now()
     // assert that the Component resource was found within COMPONENT_DEPLOY_TIMEOUT seconds
     assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The component should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
@@ -217,6 +214,6 @@ Then('I can query the {string} spec version of the {string} component', {timeout
  */
 AfterAll(function () {
   if (CLEANUP_PACKAGE) {
-    componentUtils.uninstallPackage(releaseName, NAMESPACE)   
+    packageManagerUtils.uninstallPackage(releaseName, NAMESPACE)   
   }
 });

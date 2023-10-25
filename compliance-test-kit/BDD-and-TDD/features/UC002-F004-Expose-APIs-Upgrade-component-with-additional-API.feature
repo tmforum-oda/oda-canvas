@@ -14,4 +14,4 @@ Feature: UC002-F004 Expose APIs: Upgrade component with additional API
     Scenario: Upgrade component with additional API in coreFunction
         Given An example package 'productcatalog-enhanced-v1beta2' with a 'productcatalog' component with '2' API in its 'coreFunction' segment
         When I upgrade the 'productcatalog-enhanced-v1beta2' package
-        Then I should see the 'promotionmanagement' API resource
+        Then I should see the 'promotionmanagement' API resource on the 'productcatalog' component

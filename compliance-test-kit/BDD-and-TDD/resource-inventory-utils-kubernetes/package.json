@@ -1,8 +1,8 @@
 {
-  "name": "kubernetes-utils",
+  "name": "resource-inventory-utils-kubernetes",
   "version": "1.0.0",
-  "description": "Utilities for interacting with ODA Components and support BDD tests in a Kubernetes implementation",
-  "main": "kubernetes-utils.js",
+  "description": "Utilities for interacting with ODA Components to support BDD tests in a Kubernetes implementation",
+  "main": "resource-inventory-utils-kubernetes.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

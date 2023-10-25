@@ -14,4 +14,4 @@ Feature: UC002-F005 Expose APIs: Upgrade component with removed API
     Scenario: Upgrade component with removed API in coreFunction
         Given An example package 'productcatalog-v1beta2' with a 'productcatalog' component with '1' API in its 'coreFunction' segment
         When I upgrade the 'productcatalog-v1beta2' package
-        Then I should not see the 'promotionmanagement' API resource
+        Then I should not see the 'promotionmanagement' API resource on the 'productcatalog' component
