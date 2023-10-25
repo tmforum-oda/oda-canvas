@@ -1,0 +1,13 @@
+{
+  "name": "package-manager-utils-helm",
+  "version": "1.0.0",
+  "description": "Utilities for interacting with Helm package manager to deploy ODA Components and support BDD tests",
+  "main": "package-manager-utils-helm.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lester Thomas",
+  "license": "Apache-2.0",
+  "dependencies": {
+  }
+}

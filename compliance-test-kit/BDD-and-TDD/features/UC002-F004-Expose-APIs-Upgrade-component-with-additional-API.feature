@@ -3,7 +3,7 @@
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
 @UC002         # tagged as use case 2
-@UC002-F002    # tagged as feature 4 within use case 2
+@UC002-F004    # tagged as feature 4 within use case 2
 Feature: UC002-F004 Expose APIs: Upgrade component with additional API
 
     Background:
@@ -14,4 +14,4 @@ Feature: UC002-F004 Expose APIs: Upgrade component with additional API
     Scenario: Upgrade component with additional API in coreFunction
         Given An example package 'productcatalog-enhanced-v1beta2' with a 'productcatalog' component with '2' API in its 'coreFunction' segment
         When I upgrade the 'productcatalog-enhanced-v1beta2' package
-        Then I should see the 'promotionmanagement' API resource
+        Then I should see the 'promotionmanagement' API resource on the 'productcatalog' component
