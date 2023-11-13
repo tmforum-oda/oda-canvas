@@ -1,12 +1,20 @@
 const axios = require('axios');
 
 //const config = require('./keycloak-credentials').keycloak;
+
+// asset the environment variables are set
+if (!process.env.KEYCLOAK_USER || !process.env.KEYCLOAK_PASSWORD || !process.env.KEYCLOAK_BASE_URL || !process.env.KEYCLOAK_REALM) {
+  console.log('Please set the environment variables KEYCLOAK_USER, KEYCLOAK_PASSWORD, KEYCLOAK_BASE_URL and KEYCLOAK_REALM');
+  process.exit(1);
+}
+
 const config = {
-  user: "<keycloak admin username>",
-  password: "<keycloak admin password>",
-  baseURL: "http://<loadbalancer ip address>:8083/auth",
-  realm: "myrealm"
+  user: process.env.KEYCLOAK_USER,
+  password: process.env.KEYCLOAK_PASSWORD,
+  baseURL: process.env.KEYCLOAK_BASE_URL,
+  realm: process.env.KEYCLOAK_REALM
 };
+
 const clientId = 'admin-cli';
 
 const identityManagerUtils = {
