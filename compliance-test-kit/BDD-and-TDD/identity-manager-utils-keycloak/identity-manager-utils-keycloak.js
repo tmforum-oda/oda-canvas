@@ -1,8 +1,6 @@
 const axios = require('axios');
 
-//const config = require('./keycloak-credentials').keycloak;
-
-// asset the environment variables are set
+// assert the environment variables are set
 if (!process.env.KEYCLOAK_USER || !process.env.KEYCLOAK_PASSWORD || !process.env.KEYCLOAK_BASE_URL || !process.env.KEYCLOAK_REALM) {
   console.log('Please set the environment variables KEYCLOAK_USER, KEYCLOAK_PASSWORD, KEYCLOAK_BASE_URL and KEYCLOAK_REALM');
   process.exit(1);
