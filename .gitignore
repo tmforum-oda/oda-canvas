@@ -3,3 +3,4 @@ cabundle.pem.b64
 .hypothesis/
 .DS_Store
 .vscode
+keycloak-credentials.js
