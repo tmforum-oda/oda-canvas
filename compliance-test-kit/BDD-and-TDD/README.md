@@ -25,6 +25,13 @@ This repository contains a list of BDD features and scenarios that describe each
 Run the test in the command line using the following command:
 
 ```
+cd identity-manager-utils-keycloak
+npm install
+cd ../package-manager-utils-helm
+npm install
+cd ../resource-inventory-utils-kubernetes
+npm install
+cd ..
 npm install
 npm start
 ```
