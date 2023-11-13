@@ -218,7 +218,7 @@ Then('I can query the {string} spec version of the {string} component', {timeout
  * @param {string} componentName - The name of the component to check.
  * @returns {Promise<void>} - A Promise that resolves when the component is available.
  */
-Then('I should see the predefined role assigned to the {string} user in the {string} client in the identity platform', async function (operatorUserName, componentName) {
+Then('I should see the predefined role assigned to the {string} user for the {string} component in the identity platform', async function (operatorUserName, componentName) {
   let componentResource = null
   let secconRole = null
   var startTime = performance.now()
