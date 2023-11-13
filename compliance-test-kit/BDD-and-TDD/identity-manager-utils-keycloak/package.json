@@ -1,0 +1,14 @@
+{
+  "name": "identity-manager-utils-keycloak",
+  "version": "1.0.0",
+  "description": "Utilities for interacting with Keycloak to support BDD tests",
+  "main": "identity-manager-utils-keycloak.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brian Burton",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "*"
+  }
+}

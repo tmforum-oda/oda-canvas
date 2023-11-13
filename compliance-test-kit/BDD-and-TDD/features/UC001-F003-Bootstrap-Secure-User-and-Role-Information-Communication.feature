@@ -3,10 +3,10 @@
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
 @UC001         # tagged as use case 1
-@UC001-F002    # tagged as use feature 2 within use case 1
-Feature: UC001-F002 Bootstrap:Support Standard Defined Role for Canvas Admin
+@UC001-F003    # tagged as use feature 3 within use case 1
+Feature: UC001-F003 Bootstrap:Secure User and Role Information Communication
 
-    # TBD - see issue #85
+    # TBD - see issue #79
 
 
 

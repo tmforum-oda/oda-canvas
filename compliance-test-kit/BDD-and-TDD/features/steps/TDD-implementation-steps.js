@@ -2,8 +2,9 @@
 // Replace the library with your own implementation library if you use a different implementation technology.
 const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 const packageManagerUtils = require('package-manager-utils-helm');
+const identityManagerUtils = require('identity-manager-utils-keycloak');
 
-const { Given, When, Then, AfterAll } = require('@cucumber/cucumber');
+const { Given, When, Then, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const assert = require('assert');
@@ -17,6 +18,8 @@ const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
 const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
 const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const CLEANUP_PACKAGE = true // set to true to uninstall the package after each test
+
+setDefaultTimeout( 20 * 1000);
 
 /**
  * Verify the given package includes a component that has a specified number of APIs in a specific segment.
@@ -46,7 +49,7 @@ When('I install the {string} package', function (componentPackage) {
  *
  * @param {string} componentPackage - The name of the example component package to install.
  */
-Given('An example component {string} has been installed', function (componentPackage) {
+Given('An example package {string} has been installed', function (componentPackage) {
   packageManagerUtils.installPackage(componentPackage, releaseName, NAMESPACE)
 });
 
@@ -57,7 +60,7 @@ Given('An example component {string} has been installed', function (componentPac
  * @param {string} deploymentStatus - The expected deployment status of the component.
  * @returns {Promise<void>} - A Promise that resolves when the component has the expected deployment status.
  */
-Given('the {string} component has a deployment status of {string}', {timeout : COMPONENT_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (componentName, deploymentStatus) {
+When('the {string} component has a deployment status of {string}', {timeout : COMPONENT_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (componentName, deploymentStatus) {
   let componentResource = null
   var startTime = performance.now()
   var endTime
@@ -95,7 +98,7 @@ When('I upgrade the {string} package', function (componentPackage) {
 /**
  * Wait for a specified API resource to be available and assert that it was found within a specified timeout.
  *
- * @param {string} APIName - The name of the API resource to check.
+ * @param {string} APINamspece - The name of the API resource to check.
  * @returns {Promise<void>} - A Promise that resolves when the API resource is available.
  */
 Then('I should see the {string} API resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
@@ -208,6 +211,38 @@ Then('I can query the {string} spec version of the {string} component', {timeout
   assert.ok(componentResource.hasOwnProperty('spec'), "The component resource should be found with a spec property")
 });
 
+/**
+ * Check for role to be assigned to the security operator in identity management.
+ *
+ * @param {string} operatorUserName - the username of the operator to check.
+ * @param {string} componentName - The name of the component to check.
+ * @returns {Promise<void>} - A Promise that resolves when the component is available.
+ */
+Then('I should see the predefined role assigned to the {string} user for the {string} component in the identity platform', async function (operatorUserName, componentName) {
+  let componentResource = null
+  let secconRole = null
+  var startTime = performance.now()
+  var endTime
+
+  // wait until the component resource is found or the timeout is reached
+  while (componentResource == null) {
+    componentResource = await resourceInventoryUtils.getComponentResource(releaseName + '-' + componentName, NAMESPACE)
+    endTime = performance.now()
+
+    // assert that the component resource was found within the timeout
+    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
+
+    // check if the component deployment status is deploymentStatus
+    if ((!componentResource) || (!componentResource.hasOwnProperty('spec')) || (!componentResource.spec.hasOwnProperty('securityFunction')) || (!componentResource.spec.securityFunction.hasOwnProperty('controllerRole'))) {
+      componentResource = null // reset the componentResource to null so that we can try again
+    } else {
+      secconRole = componentResource.spec.securityFunction.controllerRole;
+      allUserRoles = await identityManagerUtils.getRolesForUser(operatorUserName, releaseName, componentName);
+      //return 'pending';
+      assert.ok(allUserRoles.includes(secconRole), 'The predefine role for the security operator should be correctly assigned in the identity platform');
+    }
+  }
+});
 
 /**
  * Uninstall the package associated with the release name and namespace.
