@@ -4,7 +4,7 @@ This repository contains a list of BDD features and scenarios that describe each
 
 | Use-Case            | Feature                         | Test Status |
 | ------------------- | ------------------------------- | ----------- |
-| [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F001 - Apply Standard Defined Role to Canvas Admin user](features/UC001-F001-Bootstrap-Apply-Standard-Defined-Role-to-Canvas-Admin-user.feature) | Not started |
+| [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F001 - Apply Standard Defined Role to Canvas Admin user](features/UC001-F001-Bootstrap-Apply-Standard-Defined-Role-to-Canvas-Admin-user.feature) | Complete |
 | [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F002 - Grouping Permission Specification Sets-into Business Roles in Identity Management Solution](features/UC001-F002-Bootstrap-Grouping-Permission-Specification-Sets-into-Business-Roles-in-Identity-Management-Solution.feature) | Not started |
 | [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F003 - Secure User and Role Information](features/UC001-F003-Bootstrap-Secure-User-and-Role-Information-Communication.feature) | Not started |
 | [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F004 - Component Exposes Permission Specification Set Towards Canvas](features/UC001-F004-Bootstrap-Component-Exposes-Permission-Specification-Set-Towards-Canvas.feature) | Not started |
