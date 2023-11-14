@@ -229,7 +229,7 @@ spec:
                   securitySchemes:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
-                  permissionspecificationset:
+                  permissionSpecificationSet:
                     type: object
                     properties:
                       specification:
@@ -378,7 +378,7 @@ spec:
                   securitySchemes:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
-                  permissionspecificationset:
+                  permissionSpecificationSet:
                     type: object
                     properties:
                       specification:
@@ -544,7 +544,7 @@ spec:
                   securitySchemes:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
-                  permissionspecificationset:
+                  permissionSpecificationSet:
                     type: object
                     properties:
                       specification:
@@ -857,7 +857,7 @@ spec:
                       - apitype
                   controllerRole:
                     description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
-                      It must exist in the roles exposed by the permissionspecificationset API.
+                      It must exist in the roles exposed by the permissionSpecificationSet API.
                     type: string
           status:
             type: object
@@ -1186,7 +1186,7 @@ spec:
                       - apitype
                   controllerRole:
                     description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
-                      It must exist in the roles exposed by the permissionspecificationset API.
+                      It must exist in the roles exposed by the permissionSpecificationSet API.
                     type: string
           status:
             type: object
