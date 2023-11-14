@@ -39,5 +39,5 @@ For the KOPF framework controllers, we deploy these into a single Docker image. 
 * The component controller, simpleIngress API controller and security controller into a single docker image;
 * The component controller, WSO2 API controller and security controller into a single docker image.
 
-The security controller also includes a separate API Listener image (that listens to partyrole events from each component). In the Canvas Helm charts the KOPF doker image and the API Listener image are deployed into a single Pod.
+The security controller also includes a separate API Listener image (that listens to permissionSpecificationSet events from each component). In the Canvas Helm charts the KOPF doker image and the API Listener image are deployed into a single Pod.
 

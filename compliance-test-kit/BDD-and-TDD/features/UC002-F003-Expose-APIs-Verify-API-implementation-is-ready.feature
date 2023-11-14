@@ -19,6 +19,6 @@ Feature: UC002-F003 Expose APIs: Verify API implementation is ready
     Scenario: Verify API Resource is ready for Security API
         Given An example package 'productcatalog-v1beta2' with a 'productcatalog' component with '1' API in its 'securityFunction' segment
         When I install the 'productcatalog-v1beta2' package
-        Then I should see the 'partyrole' API resource on the 'productcatalog' component with an implementation ready status on the Service Mesh or Gateway
+        Then I should see the 'partyrole' or 'permissionSpecificationSet' API resource on the 'productcatalog' component with an implementation ready status on the Service Mesh or Gateway
 
 

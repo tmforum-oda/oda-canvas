@@ -19,7 +19,7 @@ Feature: UC002-F001 Expose APIs: Create API Resource
     Scenario: Create API Resource for Security API
         Given An example package 'productcatalog-v1beta2' with a 'productcatalog' component with '1' API in its 'securityFunction' segment
         When I install the 'productcatalog-v1beta2' package
-        Then I should see the 'partyrole' API resource on the 'productcatalog' component
+        Then I should see the 'partyrole' or 'permissionSpecificationSet' API resource on the 'productcatalog' component
 
 
 
