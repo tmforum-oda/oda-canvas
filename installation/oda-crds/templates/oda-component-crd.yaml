@@ -229,7 +229,7 @@ spec:
                   securitySchemes:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
-                  partyrole:
+                  permissionspecificationset:
                     type: object
                     properties:
                       specification:
@@ -242,6 +242,19 @@ spec:
                         type: string
                       port:
                         type: integer
+                  partyrole:
+                    type: object
+                    properties:
+                      specification:
+                        type: string
+                      implementation:
+                        type: string
+                      path:
+                        type: string
+                      developerUI:
+                        type: string
+                      port:
+                        type: integer                  
               version:
                 type: string
               description:
@@ -365,7 +378,7 @@ spec:
                   securitySchemes:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
-                  partyrole:
+                  permissionspecificationset:
                     type: object
                     properties:
                       specification:
@@ -531,7 +544,7 @@ spec:
                   securitySchemes:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
-                  partyrole:
+                  permissionspecificationset:
                     type: object
                     properties:
                       specification:
@@ -844,7 +857,7 @@ spec:
                       - apitype
                   controllerRole:
                     description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
-                      It must exist in the roles exposed by the partyRole API.
+                      It must exist in the roles exposed by the permissionspecificationset API.
                     type: string
           status:
             type: object
@@ -1173,7 +1186,7 @@ spec:
                       - apitype
                   controllerRole:
                     description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
-                      It must exist in the roles exposed by the partyRole API.
+                      It must exist in the roles exposed by the permissionspecificationset API.
                     type: string
           status:
             type: object
