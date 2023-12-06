@@ -5,7 +5,7 @@ const request = require('request')
 var mandatory_only = process.env.CANVAS_CTK_MANDATORY_ONLY;
 var optional_keycloak = process.env.CANVAS_CTK_OPTIONAL_KEYCLOAK;
 var optional_istio = process.env.CANVAS_CTK_OPTIONAL_ISTIO;
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0' // ignore self-signed certificate errors
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0' // ignore self-signed certificate errors
 
 
 const kc = new k8s.KubeConfig()
@@ -82,15 +82,15 @@ describe("Mandatory non-functional capabilities", function () {
             done()
         }).catch(done)
     })
-    it("oda.tmforum.org/v1beta1 Components definition (CRD) exists", function (done) {
-        request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1beta1/namespaces/*/components`, opts,
+    it("oda.tmforum.org/v1beta2 Components definition (CRD) exists", function (done) {
+        request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1beta2/namespaces/*/components`, opts,
             (error, response, body) => {
                 expect(response.statusCode, "API response code").to.equal(200)
                 done()
             })
     })
-    it("oda.tmforum.org/v1beta1 APIs definition (CRD) exists", function (done) {
-        request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1beta1/namespaces/*/apis`, opts,
+    it("oda.tmforum.org/v1beta2 APIs definition (CRD) exists", function (done) {
+        request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1beta2/namespaces/*/apis`, opts,
             (error, response, body) => {
                 expect(response.statusCode, "API response code").to.equal(200)
                 done()

@@ -1,4 +1,4 @@
-apiVersion: oda.tmforum.org/v1beta1
+apiVersion: oda.tmforum.org/v1alpha4
 kind: component
 metadata:
   name: {{.Release.Name}}-{{.Values.component.name}}
@@ -6,9 +6,18 @@ metadata:
     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
 spec:
   type: {{.Values.component.type}}
+  selector:
+    matchLabels:
+     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+  componentKinds:
+  - group: core
+    kind: Service    
+  - group: core
+    kind: PersistentVolumeClaim
+  - group: apps
+    kind: Deployment  
   version: {{.Values.component.version}}
-  description: "Simple Product Catalog ODA-Component from Open-API reference implementation."
-
+  description: "Simple Product Catalog ODA-Component from Open-API reference implementation." 
   maintainers:
   - name: Lester Thomas
     email: lester.thomas@vodafone.com
@@ -32,7 +41,6 @@ spec:
     publishedEvents: []
     subscribedEvents: []
   management: 
-    exposedAPIs: 
     - name: metrics
       apitype: prometheus
       implementation: {{.Release.Name}}-{{.Values.component.name}}-sm
@@ -40,8 +48,12 @@ spec:
       port: 4000    
   security:
     controllerRole: {{ .Values.security.controllerRole }}
-    exposedAPIs: 
-    - name: partyrole
+    securitySchemes:
+      bearerAuth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+    partyrole:
       specification: https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
       implementation: {{.Release.Name}}-partyroleapi
       apitype: openapi

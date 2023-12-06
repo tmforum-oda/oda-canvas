@@ -12,12 +12,9 @@ spec:
   versions:
   - name: "v1alpha1"
     # Each version can be enabled/disabled by Served flag.
-    served: true
+    served: false
     # One and only one version must be marked as the storage version.
     storage: false
-    deprecated: false
-    # This overrides the default warning returned to API clients making v1alpha1 API requests.
-    # deprecationWarning: "oda.tmforum.org/v1alpha1 API is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
     schema:
       openAPIV3Schema:
         type: object
@@ -36,10 +33,9 @@ spec:
       jsonPath: .status.ingress.url
   - name: "v1alpha2"
     # Each version can be enabled/disabled by Served flag.
-    served: true
+    served: false
     # One and only one version must be marked as the storage version.
     storage: false
-    deprecated: false
     schema:
       openAPIV3Schema:
         type: object
@@ -65,7 +61,8 @@ spec:
     served: true
     # One and only one version must be marked as the storage version.
     storage: false
-    deprecated: false
+    deprecated: true
+    deprecationWarning: "oda.tmforum.org/v1alpha3 API is deprecated; Please upgrade to oda.tmforum.org/v1beta2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
     schema:
       openAPIV3Schema:
         type: object
