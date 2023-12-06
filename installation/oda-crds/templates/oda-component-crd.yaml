@@ -28,8 +28,6 @@ spec:
     served: false
     # One and only one version must be marked as the storage version.
     storage: false
-    deprecated: true
-    deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1beta1 see https://github.com/tmforum-oda/oda-canvas-charts/issues/19"
     schema:
       openAPIV3Schema:
         type: object
@@ -148,11 +146,9 @@ spec:
       jsonPath: .status.summary/status.deployment_status
   - name: "v1alpha2"
     # Each version can be enabled/disabled by Served flag.
-    served: true
+    served: false
     # One and only one version must be marked as the storage version.
     storage: false
-    deprecated: true
-    deprecationWarning: "oda.tmforum.org/v1alpha2 Component is deprecated; Please upgrade to oda.tmforum.org/v1beta1"
     schema:
       openAPIV3Schema:
         type: object
@@ -300,8 +296,8 @@ spec:
     served: true
     # One and only one version must be marked as the storage version.
     storage: false
-    # deprecated: false
-    # deprecationWarning: "oda.tmforum.org/v1alpha1 Component is deprecated; Please upgrade to oda.tmforum.org/v1alpha2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
+    deprecated: true
+    deprecationWarning: "oda.tmforum.org/v1alpha3 Component is deprecated; Please upgrade to oda.tmforum.org/v1beta2 see https://github.com/tmforum-oda/oda-canvas-charts/issues/9"
     schema:
       openAPIV3Schema:
         type: object
