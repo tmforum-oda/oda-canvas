@@ -108,14 +108,15 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 ### 4. Reference implementation
 
 1. Move to *canvas-oda*
+  
+  ```bash
+  cd canvas-oda
+  ```
+
 2. Update the dependencies using the plugin installed
 
 ````bash
 $ helm resolve-deps
-Fetching updates from all helm repositories, attempt #1 ...
-  * Updates have been fetched, took 2.146s
-Resolving dependencies in canvas-oda chart ...
-  * Dependencies have been resolved, took 8.672s
 ````
 
 If we prefer not to use the plugin, we have to manually update the subchart which has dependencies, in this case *cert-manager-init*
@@ -138,12 +139,6 @@ Install the canvas using the following command.
 
 ````bash
 helm install canvas -n canvas --create-namespace . 
-NAME: canvas
- Feb  7 09:35:38 2023
-NAMESPACE: canvas
-STATUS: deployed
-REVISION: 1
-TEST SUITE: None
 ````
 
 ## Troubleshooting
