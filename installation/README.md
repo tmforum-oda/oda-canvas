@@ -69,6 +69,31 @@ We assume
 - Install [CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
 - Manage resources in namespaces
 
+Run the following to check that you have the required Kubernetes permissions to run the install:
+
+```bash
+kubectl auth can-i create namespaces --all-namespaces
+kubectl auth can-i create customresourcedefinitions --all-namespaces  
+kubectl auth can-i create clusterroles --all-namespaces
+kubectl auth can-i create clusterrolebindings --all-namespaces
+kubectl auth can-i create mutatingwebhookconfigurations --all-namespaces
+kubectl auth can-i create validatingwebhookconfigurations --all-namespaces
+kubectl auth can-i create clusterissuers  --all-namespaces
+kubectl auth can-i create serviceaccounts
+kubectl auth can-i create secrets
+kubectl auth can-i create configmaps
+kubectl auth can-i create roles
+kubectl auth can-i create rolebindings
+kubectl auth can-i create services
+kubectl auth can-i create deployments
+kubectl auth can-i create statefulsets
+kubectl auth can-i create gateways  
+kubectl auth can-i create jobs
+kubectl auth can-i create certificates  
+kubectl auth can-i create issuers
+```
+
+
 ### 2. Helm
 
 A Helm 3.0+ installation is needed. Depending on your
