@@ -1,0 +1,107 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: canvas-portal
+  namespace: {{ .Release.Namespace }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - get
+  - create
+  - update
+  - patch
+- apiGroups:
+    - "apps"
+  resources:
+    - daemonsets
+    - deployments
+    - deployments/rollback
+    - deployments/scale
+    - replicasets
+    - replicasets/scale
+    - statefulsets
+    - statefulsets/scale
+  verbs:
+    - get
+    - create
+    - update
+    - patch
+    - list
+    - delete
+- apiGroups:
+    - ""
+  resources:
+    - pods
+    - pods/attach
+    - pods/exec
+    - pods/portforward
+    - pods/proxy
+  verbs:
+    - create
+    - delete
+    - deletecollection
+    - patch
+    - update
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+    - events
+    - persistentvolumeclaims
+    - replicationcontrollers
+    - replicationcontrollers/scale
+    - secrets
+    - serviceaccounts
+    - services
+    - services/proxy
+  verbs:
+    - create
+    - delete
+    - deletecollection
+    - patch
+    - update
+    - get
+    - list
+- apiGroups:
+    - networking.k8s.io
+  resources:
+    - ingresses
+    - networkpolicies
+  verbs:
+    - create
+    - delete
+    - deletecollection
+    - patch
+    - update
+- apiGroups:
+    - oda.tmforum.org
+  resources:
+    - components
+    - apis
+  verbs:
+    - create
+    - delete
+    - patch
+    - update
+    - list
+    - get
+- apiGroups:
+    - batch
+  resources:
+    - cronjobs
+    - jobs
+  verbs:
+    - list
+    - get
+    - delete
+- apiGroups:
+    - rbac.authorization.k8s.io
+  resources:
+    - roles
+    - rolebindings
+  verbs:
+    - get
+    - list
