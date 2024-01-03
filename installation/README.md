@@ -113,8 +113,8 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
    cd oda-canvas
    ```
 
-2. Move to `installation/canvas-oda`
-3. Update the dependencies using the plugin installed
+1. Move to `installation/canvas-oda`
+2. Update the dependencies using the plugin installed
 
   ```bash
   $ helm resolve-deps
