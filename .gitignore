@@ -4,3 +4,4 @@ cabundle.pem.b64
 .DS_Store
 .vscode
 keycloak-credentials.js
+.env
