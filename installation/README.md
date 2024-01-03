@@ -57,13 +57,13 @@ The values used [here](canvas-oda/README.md)
 ### 1. Kubernetes distribution
 
 **Prerequisites**: a running K8S distribution.
+
 The procedure has been tested
 
 - local k3s distribution, rancher desktop or similar
 - AWS [Kops](https://kops.sigs.k8s.io/) with AmazonVPC as network and with and without cert-manager managed by kops
-We assume
-
-- There is a ```kubeconfig``` file available with adequate permissions on the K8s cluster to:
+  
+We assume there is a ```kubeconfig``` file available with adequate permissions on the K8s cluster to:
 
 - Manage namespaces
 - Install [CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
@@ -71,8 +71,7 @@ We assume
 
 ### 2. Helm
 
-A Helm 3.0+ installation is needed. Depending on your
-<https://helm.sh/docs/intro/install/#through-package-managers>
+A [Helm 3.0+ installation](https://helm.sh/docs/intro/install/#through-package-managers) is needed.
 
 Helm currently has an issue with the dependencies declared, the **helm dependency update** command only takes care of the dependencies at the first level preventing the correct installation. It supposes to be addressed in a future (May'23) 3.12 version
 
