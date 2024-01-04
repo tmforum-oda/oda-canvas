@@ -34,7 +34,7 @@ This repository contains a list of BDD features and scenarios that describe each
   npm install
   ```
 
-- create a `.env` file and set `KEYCLOAK_USER`, `KEYCLOAK_PASSWORD`, `KEYCLOAK_BASE_URL` and `KEYCLOAK_REALM`
+- create a `.env` file and set `KEYCLOAK_USER`, `KEYCLOAK_PASSWORD`, `KEYCLOAK_BASE_URL` and `KEYCLOAK_REALM` - or use another option to define the variables
 
   ```
   KEYCLOAK_USER=admin 
