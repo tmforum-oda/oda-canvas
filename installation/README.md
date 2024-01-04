@@ -62,8 +62,10 @@ The procedure has been tested
 
 - local k3s distribution, rancher desktop or similar
 - AWS [Kops](https://kops.sigs.k8s.io/) with AmazonVPC as network and with and without cert-manager managed by kops
+
   
 We assume there is a ```kubeconfig``` file available with adequate permissions on the K8s cluster to:
+
 
 - Manage namespaces
 - Install [CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
@@ -208,7 +210,8 @@ Checking the logs `kubectl logs -n canvas sts/canvas-postgresql`  we can see an 
  FATAL:  password authentication failed for user "bn_keycloak"
 ```
 
-In that case, a previous installation left a PVC reused by the Postgress
+In that case, a previous installation left a PVC reused by the Postgres pod.
+
 To solve that issue
 
 - Uninstall the helm chart
