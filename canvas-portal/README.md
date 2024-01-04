@@ -27,6 +27,8 @@ helm install canvas-portal ./charts -n components \
 --set service.type=NodePort
 ```
 
+The command will install the canvas portal and give details for finding the IP address and port to access the portal. The full url will be http://<ip>:<port>/canvas-portal/login.html (username: admin, password: pAssw0rd)
+
 - install with ingress
 
 ```bash
