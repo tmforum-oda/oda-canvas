@@ -60,7 +60,7 @@ var httpsServer, httpServer;
 // get command line arguments
 var args = process.argv.slice(2);
 
-const supportedAPIVersions = ["oda.tmforum.org/v1alpha3", "oda.tmforum.org/v1alpha4", "oda.tmforum.org/v1beta1", "oda.tmforum.org/v1beta2"]
+const supportedAPIVersions = ["oda.tmforum.org/v1alpha1", "oda.tmforum.org/v1alpha2", "oda.tmforum.org/v1alpha3", "oda.tmforum.org/v1alpha4", "oda.tmforum.org/v1beta1", "oda.tmforum.org/v1beta2", "oda.tmforum.org/v1beta3"]
 
 // reference data to support functional block mapping
 const PartyManagementComponents = ["TMFC020", "TMFC022", "TMFC023", "TMFC024", "TMFC025"]
@@ -84,9 +84,7 @@ if (testMode) {
 }
 
 app.post("/", (req, res, next) => {
-
   try {
-
     var uid = req.body.request.uid;
     var desiredAPIVersion = req.body.request.desiredAPIVersion;
     var conversionReviewAPIVersion = req.body.apiVersion;
@@ -108,8 +106,60 @@ app.post("/", (req, res, next) => {
       // create APIVersion object based on objectsArray[key].apiVersion and desiredAPIVersion
       var apiVersion = new APIVersion(currentAPIVersion, desiredAPIVersion);
 
+      objectsArray[key].metadata.annotations = objectsArray[key].metadata.annotations || {};
       objectsArray[key].metadata.annotations.webhookconverted = "Webhook converted From " + currentAPIVersion + " to " + desiredAPIVersion;
       console.log('Comparing old version ' + currentAPIVersion + ' and desired version ' + desiredAPIVersion);
+
+      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2"], ["v1beta3"])) {
+        console.log("Update eventNotification segments");
+        
+        if (objectsArray[key].spec.eventNotification) {
+          if (objectsArray[key].spec.eventNotification.publishedEvents && 
+            Array.isArray(objectsArray[key].spec.eventNotification.publishedEvents) && 
+            objectsArray[key].spec.eventNotification.publishedEvents.length > 0
+          ) {
+            objectsArray[key].spec.eventNotification.publishedEvents.forEach(event => {
+              try {
+                var parts = new URL(event.href);
+                delete event.href;
+                event.description = "";
+                event.apitype = "openapi";
+                event.specification = "";
+                event.implementation = parts.hostname;
+                event.developerUI = "";
+                event.hub = parts.pathname;
+                event.port = parseInt(parts.port, 10) || 80;
+              } catch (err) {
+                console.log("EVENT PAYLOAD: " + JSON.stringify(event));
+                console.log(err); 
+              }
+            })
+          }
+
+          if (objectsArray[key].spec.eventNotification.subscribedEvents && 
+            Array.isArray(objectsArray[key].spec.eventNotification.subscribedEvents) && 
+            objectsArray[key].spec.eventNotification.subscribedEvents.length > 0
+          ) {
+            objectsArray[key].spec.eventNotification.subscribedEvents.forEach(event => {
+              try {
+                var parts = new URL(event.href);
+                delete event.href;
+                event.description = "";
+                event.apitype = "openapi";
+                event.specification = "";
+                event.implementation = parts.hostname;
+                event.developerUI = "";
+                event.callback = parts.pathname;
+                event.port = parseInt(parts.port, 10) || 80;
+                event.query = "";
+              } catch (err) {
+                console.log("EVENT PAYLOAD: " + JSON.stringify(event));
+                console.log(err); 
+              }
+            })
+          }
+        }
+      }
 
 
       // if the oldAPIVersion is v1alpha3, v1alph4a or v1beta1 and newVersion is v1beta2 then:
@@ -148,6 +198,57 @@ app.post("/", (req, res, next) => {
       // - rename securityFunction and managementFunction segments to security and management  
       // - join id and name fields to create type 
       if (apiVersion.mapOldToNew(["v1beta2"], ["v1alpha3", "v1alpha4", "v1beta1"])) {
+        console.log("rename securityFunction and managementFunction segments to security and management")
+        objectsArray[key].spec.management = objectsArray[key].spec.managementFunction
+        delete objectsArray[key].spec.managementFunction
+        objectsArray[key].spec.security = objectsArray[key].spec.securityFunction
+        delete objectsArray[key].spec.securityFunction
+
+        console.log("join id and name fields to create type")
+        objectsArray[key].spec.type = objectsArray[key].spec.id + '-' + objectsArray[key].spec.name
+        delete objectsArray[key].spec.id
+        delete objectsArray[key].spec.name
+        
+        console.log("remove the metadata for functionalBlock")
+        delete objectsArray[key].spec.functionalBlock
+      }   
+
+      if (apiVersion.mapOldToNew(["v1beta3"], ["v1alpha3", "v1alpha4", "v1beta1", "v1beta2"])) {
+        if (objectsArray[key].spec.eventNotification) {
+          if (objectsArray[key].spec.eventNotification.publishedEvents && 
+            Array.isArray(objectsArray[key].spec.eventNotification.publishedEvents) && 
+            objectsArray[key].spec.eventNotification.publishedEvents.length > 0
+          ) {
+            objectsArray[key].spec.eventNotification.publishedEvents.forEach(event => {
+              event.href = "http://" + event.implementation + ":" + event.port + event.hub;
+              delete event.description;
+              delete event.apitype;
+              delete event.specification;
+              delete event.implementation;
+              delete event.developerUI;
+              delete event.hub;
+              delete event.port;
+            })
+          }
+
+          if (objectsArray[key].spec.eventNotification.subscribedEvents && 
+            Array.isArray(objectsArray[key].spec.eventNotification.subscribedEvents) && 
+            objectsArray[key].spec.eventNotification.subscribedEvents.length > 0
+          ) {
+            objectsArray[key].spec.eventNotification.subscribedEvents.forEach(event => {
+              event.href = "http://" + event.implementation + ":" + event.port + event.callback;
+              delete event.description;
+              delete event.apitype;
+              delete event.specification;
+              delete event.implementation;
+              delete event.developerUI;
+              delete event.callback;
+              delete event.port;
+              delete event.query;
+            })
+          }
+        }
+        
         console.log("rename securityFunction and managementFunction segments to security and management")
         objectsArray[key].spec.management = objectsArray[key].spec.managementFunction
         delete objectsArray[key].spec.managementFunction

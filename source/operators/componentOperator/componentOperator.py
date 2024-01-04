@@ -15,7 +15,6 @@ import traceback
 from kubernetes.client.rest import ApiException
 import os
 import asyncio
-from urllib.parse import urlparse
 
 # Setup logging
 logging_level = os.environ.get('LOGGING', logging.INFO)
@@ -33,7 +32,7 @@ logger.info(f'Monitoring namespace %s', component_namespace)
 HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta2"
+VERSION = "v1beta3"
 APIS_PLURAL = "apis"
 COMPONENTS_PLURAL = "components"
 
@@ -391,7 +390,7 @@ def constructAPIResourcePayload(inAPI):
     :meta private:
     """
     APIResource = {
-        "apiVersion": "oda.tmforum.org/v1beta2",
+        "apiVersion": GROUP + "/" + VERSION,
         "kind": "api",
         "metadata": {},
         "spec": {}
@@ -884,7 +883,7 @@ async def createPublishedNotificationResource(definition, namespace, name, inHan
     logWrapper(logging.INFO, 'createPublishedNotificationResource', inHandler, 'component/' + name, name, "Create PublishedNotification", definition)
 
     PublishedNotificationResource = {
-        "apiVersion": GROUP + "/v1beta1",
+        "apiVersion": GROUP + "/" + VERSION,
         "kind": "PublishedNotification",
         "metadata": {},
         "spec": {}
@@ -896,15 +895,7 @@ async def createPublishedNotificationResource(definition, namespace, name, inHan
     newName = (PublishedNotificationResource['metadata']['ownerReferences'][0]['name'] + '-' + definition['name']).lower()
 
     PublishedNotificationResource['metadata']['name'] = newName
-
-    urlparts = urlparse(definition['href'])
-    PublishedNotificationResource['spec'] = {
-        "name": definition['name'],
-        "specification": "",
-        "implementation": urlparts.hostname,
-        "path": urlparts.path,
-        "port": urlparts.port or 80
-    }
+    PublishedNotificationResource['spec'] = definition;
 
     returnPublishedNotificationObject = {}
     
@@ -975,7 +966,7 @@ async def createSubscribedNotificationResource(definition, namespace, name, inHa
     logWrapper(logging.INFO, 'createSubscribedNotificationResource', inHandler, 'component/' + name, name, "Create SubscribedNotification", definition)
 
     SubscribedNotificationResource = {
-        "apiVersion": GROUP + "/v1beta1",
+        "apiVersion": GROUP + "/" + VERSION,
         "kind": "SubscribedNotification",
         "metadata": {},
         "spec": {}
@@ -986,15 +977,7 @@ async def createSubscribedNotificationResource(definition, namespace, name, inHa
     newName = (SubscribedNotificationResource['metadata']['ownerReferences'][0]['name'] + '-' + definition['name']).lower()
 
     SubscribedNotificationResource['metadata']['name'] = newName
-
-    urlparts = urlparse(definition['href'])
-    SubscribedNotificationResource['spec'] = {
-        "name": definition['name'],
-        "specification": "",
-        "implementation": urlparts.hostname,
-        "path": urlparts.path,
-        "port": urlparts.port or 80
-    }
+    SubscribedNotificationResource['spec'] = definition
 
     returnSubscribedNotificationObject = {}
 

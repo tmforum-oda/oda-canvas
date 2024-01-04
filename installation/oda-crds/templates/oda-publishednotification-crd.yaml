@@ -11,8 +11,10 @@ spec:
     plural: "publishednotifications"
   versions:
     - name: "v1beta1"
+      # Each version can be enabled/disabled by Served flag.
       served: true
-      storage: true
+      # One and only one version must be marked as the storage version.
+      storage: false
       deprecated: false
       schema:
         openAPIV3Schema:
@@ -56,6 +58,137 @@ spec:
           type: string
           description: HREF
           jsonPath: .spec.href
+        - name: UID
+          type: string
+          description: UID
+          jsonPath: .status.uid
+        - name: Status
+          type: string
+          description: Publisher status
+          jsonPath: .status.status
+    - name: "v1beta2"
+      # Each version can be enabled/disabled by Served flag.
+      served: true
+      # One and only one version must be marked as the storage version.
+      storage: false
+      deprecated: false
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: ["spec"]
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                name:
+                  type: string
+                  description: Name of PublishedNotification that this component is dependent on
+                specification:
+                  type: string
+                  format: url
+                  description: url to the specification of the Notification. e.g. url to the swagger file
+                implementation:
+                  type: string
+                  description: The name of the service sending the notifications
+                path:
+                  type: string
+                  description: the path to the hub for this Notification
+                port:
+                  type: integer
+                  description: The port where the hub is exposed 
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                uid:
+                  type: string
+                status:
+                  type: string
+                error:
+                  type: string
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: HREF
+          type: string
+          description: HREF
+          jsonPath: .spec.href
+        - name: UID
+          type: string
+          description: UID
+          jsonPath: .status.uid
+        - name: Status
+          type: string
+          description: Publisher status
+          jsonPath: .status.status
+    - name: "v1beta3"
+      # Each version can be enabled/disabled by Served flag.
+      served: true
+      # One and only one version must be marked as the storage version.
+      storage: true
+      deprecated: false
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: ["spec"]
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                name:
+                  type: string
+                  description: Name of the Topic that this Component is going to push events into
+                description:
+                  type: string
+                  description: (Optional) Description
+                apitype:
+                  type: string
+                  enum:
+                  - openapi
+                  description: The type of API specification. Currently only OpenAPI (swagger) APIs are supported.
+                specification:
+                  type: string
+                  format: url
+                  description: (optional) url to the specification of the API. e.g. url to the swagger file
+                implementation:
+                  type: string
+                  description: The name of the service sending the notifications
+                developerUI:
+                  type: string
+                  description: (optional) The path to the developer User Interface for the API
+                hub:
+                  type: string
+                  description: The path to the root of the API
+                port:
+                  type: integer
+                  description: The port where the API is exposed
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                uid:
+                  type: string
+                status:
+                  type: string
+                error:
+                  type: string
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Hub
+          type: string
+          description: Hub
+          jsonPath: .spec.hub
+        - name: Port
+          type: string
+          description: Port
+          jsonPath: .spec.port
+        - name: APIType
+          type: string
+          description: APIType
+          jsonPath: .spec.apitype
         - name: UID
           type: string
           description: UID

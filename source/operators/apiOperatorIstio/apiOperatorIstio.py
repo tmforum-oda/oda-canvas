@@ -32,7 +32,7 @@ HTTP_SCHEME = "http://"
 HTTP_K8s_LABELS = ['http', 'http2']
 HTTP_STANDARD_PORTS = [80, 443]
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta2"
+VERSION = "v1beta3"
 APIS_PLURAL = "apis"
 
 # get environment variables
