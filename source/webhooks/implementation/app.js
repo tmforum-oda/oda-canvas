@@ -166,7 +166,7 @@ app.post("/", (req, res, next) => {
       // - add the metadata for functionalBlock
       // - rename security and management segments to securityFunction and managementFunction
       // - split type into two fields id and name
-      if (apiVersion.mapOldToNew(["v1alpha3", "v1alpha4", "v1beta1"], ["v1beta2"])) {
+      if (apiVersion.mapOldToNew(["v1alpha3", "v1alpha4", "v1beta1"], ["v1beta2", "v1beta3"])) {
 
         console.log("rename security and management segments to securityFunction and managementFunction")
         objectsArray[key].spec.managementFunction = objectsArray[key].spec.management
@@ -193,11 +193,11 @@ app.post("/", (req, res, next) => {
         }
       }
 
-      // if the oldAPIVersion is v1beta2 and newVersion is v1alpha3, v1alph4a or v1beta1 then:
+      // if the oldAPIVersion is v1beta2,v1beta3 and newVersion is v1alpha3, v1alph4a or v1beta1 then:
       // - remove the metadata for functionalBlock
       // - rename securityFunction and managementFunction segments to security and management  
       // - join id and name fields to create type 
-      if (apiVersion.mapOldToNew(["v1beta2"], ["v1alpha3", "v1alpha4", "v1beta1"])) {
+      if (apiVersion.mapOldToNew(["v1beta2", "v1beta3"], ["v1alpha3", "v1alpha4", "v1beta1"])) {
         console.log("rename securityFunction and managementFunction segments to security and management")
         objectsArray[key].spec.management = objectsArray[key].spec.managementFunction
         delete objectsArray[key].spec.managementFunction
@@ -248,26 +248,12 @@ app.post("/", (req, res, next) => {
             })
           }
         }
-        
-        console.log("rename securityFunction and managementFunction segments to security and management")
-        objectsArray[key].spec.management = objectsArray[key].spec.managementFunction
-        delete objectsArray[key].spec.managementFunction
-        objectsArray[key].spec.security = objectsArray[key].spec.securityFunction
-        delete objectsArray[key].spec.securityFunction
-
-        console.log("join id and name fields to create type")
-        objectsArray[key].spec.type = objectsArray[key].spec.id + '-' + objectsArray[key].spec.name
-        delete objectsArray[key].spec.id
-        delete objectsArray[key].spec.name
-        
-        console.log("remove the metadata for functionalBlock")
-        delete objectsArray[key].spec.functionalBlock
       }   
 
 
       // if the oldAPIVersion is v1alpha3 or v1alpha4 and newVersion is v1beta1 or v1beta2 then remove the componentKinds and selector
       // and add dependentAPIs to the management and security segments
-      if (apiVersion.mapOldToNew(["v1alpha3", "v1alpha4"], ["v1beta1", "v1beta2"])) {
+      if (apiVersion.mapOldToNew(["v1alpha3", "v1alpha4"], ["v1beta1", "v1beta2", "v1beta3"])) {
         console.log("remove componentKinds")
         if (objectsArray[key].spec.componentKinds) {
           delete objectsArray[key].spec.componentKinds
@@ -318,7 +304,7 @@ app.post("/", (req, res, next) => {
       
       // if the oldAPIVersion is v1beta1 or v1beta2 and newVersion is v1alpha3 or v1alpha4 then add the componentKinds
       // and remove dependentAPIs from the management and security segments
-      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2"], ["v1alpha3", "v1alpha4"])) {
+      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2", "v1beta3"], ["v1alpha3", "v1alpha4"])) {
         console.log("add componentKinds")
         objectsArray[key].spec.componentKinds = []
 
