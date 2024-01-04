@@ -13,7 +13,9 @@
     "@cucumber/cucumber": "^7.3.2",
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
-    "component-utils": "file:component-utils",
+    "resource-inventory-utils-kubernetes": "file:resource-inventory-utils-kubernetes",
+    "package-manager-utils-helm": "file:package-manager-utils-helm",
+    "identity-manager-utils-keycloak": "file:identity-manager-utils-keycloak",
     "yaml": "^2.1.3"
   }
 }

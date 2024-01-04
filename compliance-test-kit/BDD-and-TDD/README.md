@@ -4,9 +4,9 @@ This repository contains a list of BDD features and scenarios that describe each
 
 | Use-Case            | Feature                         | Test Status |
 | ------------------- | ------------------------------- | ----------- |
-| [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F001 - Secure User and Role Information](features/UC001-F001-Bootstrap-Secure-User-and-Role-Information-Communication.feature) | Not started |
-| [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F002 - Support Standard Defined Role for Canvas Admin](features/UC001-F002-Bootstrap-Support-Standard-Defined-Role-for-Canvas-Admin.feature) | Not started |
-| [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F003 - Grouping Permission Specification Sets-into Business Roles in Identity Management Solution](features/UC001-F003-Bootstrap-Grouping-Permission-Specification-Sets-into-Business-Roles-in-Identity-Management-Solution.feature) | Not started |
+| [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F001 - Apply Standard Defined Role to Canvas Admin user](features/UC001-F001-Bootstrap-Apply-Standard-Defined-Role-to-Canvas-Admin-user.feature) | Complete |
+| [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F002 - Grouping Permission Specification Sets-into Business Roles in Identity Management Solution](features/UC001-F002-Bootstrap-Grouping-Permission-Specification-Sets-into-Business-Roles-in-Identity-Management-Solution.feature) | Not started |
+| [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F003 - Secure User and Role Information](features/UC001-F003-Bootstrap-Secure-User-and-Role-Information-Communication.feature) | Not started |
 | [UC001 - Bootstrap](../../usecase-library/UC001-Bootstrap-role-for-component.md)              | [F004 - Component Exposes Permission Specification Set Towards Canvas](features/UC001-F004-Bootstrap-Component-Exposes-Permission-Specification-Set-Towards-Canvas.feature) | Not started |
 | [UC002 - Expose APIs for Component](../../usecase-library/UC002-Expose-APIs-for-Component.md) | [F001 - Create API Resource](features/UC002-F001-Expose-APIs-Create-API-Resource.feature) | Complete |
 | [UC002 - Expose APIs for Component](../../usecase-library/UC002-Expose-APIs-for-Component.md) | [F002 - Publish API Resource URL](features/UC002-F002-Expose-APIs-Publish-API-Resource-URL.feature) | Complete |
@@ -25,6 +25,13 @@ This repository contains a list of BDD features and scenarios that describe each
 Run the test in the command line using the following command:
 
 ```
+cd identity-manager-utils-keycloak
+npm install
+cd ../package-manager-utils-helm
+npm install
+cd ../resource-inventory-utils-kubernetes
+npm install
+cd ..
 npm install
 npm start
 ```

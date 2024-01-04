@@ -1,0 +1,3 @@
+# Run Listeners
+org.springframework.boot.SpringApplicationRunListener=\
+org.tmforum.oda.canvas.portal.core.listener.SpringContextListener

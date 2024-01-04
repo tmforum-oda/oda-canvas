@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Page</title>
+    <style>
+        body {
+            color: #646464;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #1e5799 0%, #2989d8 30%, #207cca 63%, #7db9e8 100%);
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 20px 20px 30px 20px;
+            border-radius: 3px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .login-container .title {
+            text-align: center;
+            margin-top: 0;
+            font-size: 25px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .login-form input {
+            margin-top: 20px;
+            height: 32px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 15px;
+            width: 305px;
+            transition: border-color 0.3s;
+            outline: none;
+            padding: 0 8px;
+        }
+
+        .login-form input:focus {
+            border-color: #007bff;
+        }
+
+        .login-form button {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .login-form button:hover {
+            background-color: #0056b3;
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin-top: 5px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap .error-message {
+            font-size: 12px;
+            position: absolute;
+            top: 50px;
+            left: 2px;
+        }
+
+        .input-wrap #errorMsg {
+            top: -4px;
+        }
+
+        .language-box {
+            position: absolute;
+            right: 40px;
+            top: 20px;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .language {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .language:hover {
+            color: #007bff !important;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const ENTPL = `<div class="language-box">
+        <div class="language chinese">中文</div>
+        <div class="language enligsh" style="display: none;">English</div>
+    </div>
+    <div class="login-container">
+        <div class="title" data-text="登录">Login</div>
+        <form class="login-form">
+            <div class="input-wrap">
+                <span class="error-message" id="errorMsg"></span>
+                <input type="text" id="username" placeholder="username" />
+                <span class="error-message" id="usernameError"></span>
+            </div>
+            <div class="input-wrap">
+                <input type="password" id="password" placeholder="password" />
+                <span class="error-message" id="passwordError"></span>
+            </div>
+            <button class="btn" type="button">Login</button>
+        </form>
+    </div>`;
+        const ZHTPL = `<div class="language-box">
+        <div class="language chinese" style="display: none;">中文</div>
+        <div class="language enligsh">English</div>
+    </div>
+    <div class="login-container">
+        <div class="title" data-text="登录">登录</div>
+        <form class="login-form">
+            <div class="input-wrap">
+                <span class="error-message" id="errorMsg"></span>
+                <input type="text" id="username" placeholder="用户名" />
+                <span class="error-message" id="usernameError"></span>
+            </div>
+            <div class="input-wrap">
+                <input type="password" id="password" placeholder="密码" />
+                <span class="error-message" id="passwordError"></span>
+            </div>
+            <button class="btn" type="button">登录</button>
+        </form>
+    </div>`;
+        const body = document.querySelector('body');
+        function getCookie(name) {
+            let cookies = document.cookie.split('; ');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].split('=');
+                if (cookie[0] === name) {
+                    return cookie[1];
+                }
+            }
+            return null;
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const usernameError = document.getElementById('usernameError');
+            const passwordError = document.getElementById('passwordError');
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = '';
+            if (username === '') {
+                usernameError.textContent = 'Username cannot be empty';
+                return false;
+            } else {
+                usernameError.textContent = '';
+            }
+
+            if (password === '') {
+                passwordError.textContent = 'Password cannot be empty';
+                return false;
+            } else {
+                passwordError.textContent = '';
+            }
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'login', true);
+            const jsonData = JSON.stringify({
+                username,
+                password
+            });
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        window.open('index.html', '_self');
+                    } else if (xhr.status === 401) {
+                        errorMsg.textContent = LOCALE === 'zh' ? '用户名或者密码错误。' : 'username or password error.';
+                    }
+                }
+            }
+            xhr.send(jsonData);
+        }
+        function setCookie(name, value, days) {
+            let expires = '';
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + '=' + value + expires;
+        }
+
+        function switchToZh() {
+            resetCookie('zh');
+            body.innerHTML = '';
+            body.innerHTML = ZHTPL;
+        }
+        function switchToEn() {
+            resetCookie('en');
+            body.innerHTML = '';
+            body.innerHTML = ENTPL;
+        }
+        function resetCookie(key) {
+            setCookie('LOCALE', key, 30);
+        }
+        const LOCALE = getCookie('LOCALE');
+        if (LOCALE && LOCALE === 'zh') {
+            switchToZh();
+        } else {
+            switchToEn();
+        }
+        const btn = document.querySelector('.btn');
+        const zhBtn = document.querySelector('.language-box>.chinese');
+        const enBtn = document.querySelector('.language-box>.enligsh');
+        body.addEventListener('click', e => {
+            e.preventDefault();
+            if (e.target.className.includes('chinese')) {
+                zhBtn.style.display = 'none';
+                enBtn.style.display = 'block';
+                switchToZh();
+            } else if (e.target.className.includes('enligsh')) {
+                enBtn.style.display = 'none';
+                zhBtn.style.display = 'block';
+                switchToEn();
+            } else if (e.target.className.includes('btn')) {
+                login();
+            }
+        });
+        body.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && e.target.id === 'password') {
+                e.preventDefault();
+                login();
+            }
+        });
+
+    </script>
+</body>
+
+</html>
