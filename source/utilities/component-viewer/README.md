@@ -23,6 +23,19 @@ The utility will use the current kubeconfig to connect to the Kubernetes cluster
 To exit the utility, type `CTRL-C`
 
 
+## Testing locally
+
+During development, you can test the utility locally by installing the dependencies with
+
+```
+npm install
+```
+
+and running the command
+
+```
+npm test
+```
 
 ## Publishing
 
