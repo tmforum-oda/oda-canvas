@@ -33,12 +33,27 @@ process.argv.forEach(function (val, index, array) {
 
 displayComponentTree()
 
-function displayComponentTree() {
+async function displayComponentTree() {
 
     try {
         const customk8sApi = kc.makeApiClient(k8s.CustomObjectsApi);
 
-        customk8sApi.listNamespacedCustomObject('oda.tmforum.org', 'v1beta3', namespace, 'components').then((res) => {
+        // check the connected Kuberenets cluster has the components CRD installed
+        const res = await customk8sApi.listClusterCustomObject('apiextensions.k8s.io', 'v1', 'customresourcedefinitions')
+
+        const crds = res.body.items;
+        const crdExists = crds.some(crd => crd.spec.names.plural === 'components');
+
+        if (!crdExists) {
+            console.log(`Components Custom Resource Definition does not exist. Check your canvas installation.`.red);
+            process.exit(1);
+        }
+        const crd = crds.find(crd => crd.spec.names.plural === 'components');
+        const storedVersions = crd.status.storedVersions;
+        const mostRecentVersion = storedVersions[storedVersions.length - 1];
+        console.log(`Using Components Custom Resource Definition: ${mostRecentVersion}`);
+
+        customk8sApi.listNamespacedCustomObject('oda.tmforum.org', mostRecentVersion, namespace, 'components').then((res) => {
             
             for (var key in res.body.items) {
                 var componentInstance = res.body.items[key]
@@ -120,7 +135,6 @@ function displayComponentTree() {
         });
     } 
     catch (err) {
-        clearInterval(intervalTimer);
         console.error(err)
     }
 }
