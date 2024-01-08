@@ -3,5 +3,8 @@ cabundle.pem.b64
 .hypothesis/
 .DS_Store
 .vscode
-keycloak-credentials.js
 .env
+keycloak-credentials.js
+canvas-portal/portal-core/target/
+canvas-portal/portal-helm/target/
+canvas-portal/portal-service/target/
