@@ -53,17 +53,18 @@ helm install canvas-portal ./charts -n components \
 
 ## Parameters and defaults
 
-| Parameter            | Description                               | Default                                                      |
-|----------------------|-------------------------------------------|--------------------------------------------------------------|
-| image.repository     | image repository            |                                                              |
-| image.tag            | image tag                   |                                                              |
-| ingress.enabled      |  use ingress or not                        | false                                                        |
-| service.type         | service type                              | ClusterIP                                                    |
-| env.portalUsername   | username of portal                               | admin                                                        |
-| env.portalPassword   | password of portal                               | pAssw0rd                                                     | 
-| env.helmRepoUrl      | helm repo for  ODA components |                                                              |                             
-| env.helmRepoUsername | helm repo username                       |                                                              |                           
-| env.helmRepoPassword | helm repo password                    |                                                              |
+| Parameter            | Description                                                          | Default   |
+|----------------------|----------------------------------------------------------------------|-----------|
+| image.repository     | image repository                                                     |           |
+| image.tag            | image tag                                                            |           |
+| ingress.enabled      | use ingress or not                                                   | false     |
+| service.type         | service type                                                         | ClusterIP |
+| env.portalUsername   | username of portal                                                   | admin     |
+| env.portalPassword   | password of portal                                                   | pAssw0rd  | 
+| env.helmRepoUrl      | helm repo for  ODA components                                        |           |
+| env.helmRepoUsername | helm repo username                                                   |           |
+| env.helmRepoPassword | helm repo password                                                   |           |
+ | env.httpLoggingInterceptorLevel | http logging interceptor level, allowed value TRACE,OFF   | TRACE     |
 
 # Uninstall
 

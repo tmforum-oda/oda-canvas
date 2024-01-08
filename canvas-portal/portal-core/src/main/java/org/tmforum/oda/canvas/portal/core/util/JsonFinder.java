@@ -16,6 +16,11 @@ public class JsonFinder {
         this.context = JsonPath.parse(json);
     }
 
+    /**
+     * 从JSON字符串获取指定路径的数据
+     *
+     * @param jsonPath 查找的路径
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> T find(String jsonPath) throws BaseAppException {
         try {
@@ -28,6 +33,11 @@ public class JsonFinder {
         return null;
     }
 
+    /**
+     * 查找满足条件的第一条数据
+     *
+     * @param jsonPath 查找的路径
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public <T> T findOne(String jsonPath) throws BaseAppException {
         T result = find(jsonPath);
@@ -40,6 +50,12 @@ public class JsonFinder {
         return result;
     }
 
+    /**
+     * 将搜索到的数据转换成指定的对象
+     *
+     * @param jsonPath 查找的路径
+     * @param type     要转换成的对象
+     */
     public <T> T find(String jsonPath, Class<T> type) throws BaseAppException {
         try {
             return context.read(jsonPath, type);

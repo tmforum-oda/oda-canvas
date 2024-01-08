@@ -15,6 +15,9 @@ import org.tmforum.oda.canvas.portal.helm.client.operation.BaseOperation;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -411,12 +414,36 @@ public class ReleaseOperation extends BaseOperation {
         if (StringUtils.isNoneBlank(this.helmClientConfig.getKubeConfig())) {
             cmd = cmd.concat(" --kubeconfig ").concat(this.helmClientConfig.getKubeConfig());
         }
+        else {
+            // Service Account file
+            File saTokenPathFile = new File("/var/run/secrets/kubernetes.io/serviceaccount/token");
+            try {
+                String serviceTokenCandidate = new String(Files.readAllBytes(saTokenPathFile.toPath()));
+                cmd = cmd.concat(" --kube-token ").concat(serviceTokenCandidate);
+            }
+            catch (IOException e) {
+                ExceptionPublisher.publish(HelmClientExceptionErrorCode.HELM_RELEASE_NOT_EXIST);
+            }
+        }
         if (StringUtils.isNoneBlank(this.helmClientConfig.getKubeContext())) {
             cmd = cmd.concat(" --kube-context ").concat(this.helmClientConfig.getKubeContext());
         }
         if (StringUtils.isNoneBlank(this.helmClientConfig.getKubeApiserver())) {
             cmd = cmd.concat(" --kube-apiserver ").concat(this.helmClientConfig.getKubeApiserver());
         }
+        else {
+            String kubernetesServiceHost = System.getenv("KUBERNETES_SERVICE_HOST");
+            String kubernetesServicePort = System.getenv("KUBERNETES_SERVICE_PORT");
+            cmd = cmd.concat(" --kube-apiserver ").concat("https://" + joinHostPort(kubernetesServiceHost, kubernetesServicePort));
+        }
         return super.exec(cmd);
+    }
+
+    private static String joinHostPort(String host, String port) {
+        if (host.indexOf(':') >= 0) {
+            // Host is an IPv6
+            return "[" + host + "]:" + port;
+        }
+        return host + ":" + port;
     }
 }

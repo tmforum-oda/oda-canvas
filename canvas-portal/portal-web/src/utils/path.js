@@ -15,5 +15,9 @@ export default {
     installRelease: 'console/helm/releases',
     getChartValues: (repoName, chartName, version) => `console/helm/charts/${repoName}/${chartName}/${version}/values`,
     uninstallRelease: (release, namespace) => `console/helm/releases/${release}/uninstall?namespace=${namespace}`,
-    getNamespace: 'console/oda/namespaces'
+    getNamespace: 'console/oda/namespaces',
+    getComponentYaml: name => `console/oda/instances/${name}/yaml`,
+    getResourceYaml: (namespace, name, type) => `console/namespaces/${namespace}/${type.toLowerCase()}s/${name}/yaml`,
+    getReleaseValues: release => `console/helm/releases/${release}/values`,
+    getApiYaml: name => `console/oda/apis/${name}/yaml`
 }

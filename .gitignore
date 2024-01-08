@@ -4,3 +4,4 @@ cabundle.pem.b64
 .DS_Store
 .vscode
 keycloak-credentials.js
+/canvas-portal/portal-service/src/main/resources/config/application-dev.properties

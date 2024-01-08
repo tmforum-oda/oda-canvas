@@ -1,5 +1,9 @@
 package org.tmforum.oda.canvas.portal.core.exception;
 
+/**
+ * 定义异常错误码
+ * Created by li.peilong on 2017/5/20.
+ */
 public enum CoreExceptionErrorCode implements ExceptionErrorCode {
 
     //utils(00100~00149)

@@ -19,7 +19,9 @@ public enum HelmClientExceptionErrorCode implements ExceptionErrorCode {
     HELM_GET_CHART_STRUCTURE_FAILED("HELM-00007"),
     HELM_GET_CHART_FILE_FAILED("HELM-00008"),
     HELM_SEARCH_CHART_FILE_FAILED("HELM-00009"),
-    HELM_CHART_NOT_EXIST("HELM-00010");
+    HELM_CHART_NOT_EXIST("HELM-00010"),
+
+    READ_SERVICE_ACCOUNT_TOKEN_FILE_FAILED("HELM-00011");
     private String code;
 
     HelmClientExceptionErrorCode(String code) {
