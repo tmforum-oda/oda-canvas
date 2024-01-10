@@ -11,7 +11,7 @@ For each release, we will support a min and max Kubernetes version.
 | --------------------- | ---------------------- | ----------------------- |
 | v1alpha4              | 1.20                   | 1.22                    |
 | v1beta1               | 1.22                   | 1.25                    |
-| v1beta2               | 1.22                   | 1.25                    |
+| v1beta2               | 1.22                   | 1.27                    |
 
 If you are connected to an ODA Canvas, to test what version of Canvas it is, use the command:
 ```
@@ -26,7 +26,7 @@ We will test the Reference Implementation Canvas against a range of kubernetes v
 | ------------------------- | ------ | ----------------- |
 | Rancher on AWS            |   Yes  | [Open Digital Lab environment]                   | 
 | Azure AKS                 |   Yes  |                   | 
-| GCP GKE                   |   Yes  |                   |
+| GCP GKE                   |   Yes  | [Innovation Hub environment]                  |
 | Microk8s                  |   Yes  |                   | 
 | MiniKube                  |   Yes  |                   |
 | Docker Desktop            |   Yes  |                   |
@@ -134,22 +134,18 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 ### 4. Reference implementation
 
 
-0. Clone oda-canvas project
+1. Clone oda-canvas project
    
    ```bash
    git clone https://github.com/tmforum-oda/oda-canvas.git
    cd oda-canvas
    ```
 
-1. Move to `installation/canvas-oda`
-2. Update the dependencies using the plugin installed
+2. Move to `installation/canvas-oda`
+3. Update the dependencies using the plugin installed
 
   ```bash
   $ helm resolve-deps
-  Fetching updates from all helm repositories, attempt #1 ...
-    * Updates have been fetched, took 2.146s
-  Resolving dependencies in canvas-oda chart ...
-    * Dependencies have been resolved, took 8.672s
   ```
 
   If we prefer not to use the plugin, we have to manually update the subchart which has dependencies, in this case *cert-manager-init*
@@ -166,7 +162,7 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
   helm dependency update
   ```
 
-3. Install the reference implementation
+4. Install the reference implementation
 
 
 Install the canvas using the following command.
@@ -191,6 +187,9 @@ There are two major causes of this error
 
 ```bash
 $ kubectl get pods -n canvas
+```
+
+```bash
 NAME                                        READY   STATUS      RESTARTS   AGE
 canvas-keycloak-0                           1/1     Running     0          4m43s
 canvas-keycloak-keycloak-config-cli-5k6h7   0/1     Error       0          2m50s
@@ -216,6 +215,9 @@ The ranges valid are the following
 
 ```bash
 $ kubectl get pods -A
+```
+
+```
 NAMESPACE       NAME                                              READY   STATUS             RESTARTS      AGE
 canvas          canvas-keycloak-0                                 0/1     CrashLoopBackOff   4 (89s ago)   6m11s
 canvas          canvas-keycloak-keycloak-config-cli-9ks9d         0/1     Error              0             2m28s
