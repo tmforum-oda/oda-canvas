@@ -94,9 +94,12 @@ rules:
     - cronjobs
     - jobs
   verbs:
+    - create
+    - delete
+    - patch
+    - update
     - list
     - get
-    - delete
 - apiGroups:
     - rbac.authorization.k8s.io
   resources:

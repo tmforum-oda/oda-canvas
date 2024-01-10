@@ -23,7 +23,7 @@ cd oda-canvas/canvas-portal/
 ```bash
 helm install canvas-portal ./charts -n components \
 --set image.repository=docker.io/wctdevops/canvas-portal \
---set image.tag=20240102 \
+--set image.tag=20240109 \
 --set service.type=NodePort
 ```
 
@@ -34,7 +34,7 @@ The command will install the canvas portal and give details for finding the IP a
 ```bash
 helm install canvas-portal ./charts -n components \
 --set image.repository=docker.io/wctdevops/canvas-portal \
---set image.tag=20240102 \
+--set image.tag=20240109 \
 --set ingress.enabled=true \
 --set ingress.className=nginx \
 ```
