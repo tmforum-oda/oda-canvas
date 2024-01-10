@@ -11,7 +11,7 @@ For each release, we will support a min and max Kubernetes version.
 | --------------------- | ---------------------- | ----------------------- |
 | v1alpha4              | 1.20                   | 1.22                    |
 | v1beta1               | 1.22                   | 1.25                    |
-| v1beta2               | 1.22                   | 1.25                    |
+| v1beta2               | 1.22                   | 1.27                    |
 
 If you are connected to an ODA Canvas, to test what version of Canvas it is, use the command:
 ```
@@ -26,7 +26,7 @@ We will test the Reference Implementation Canvas against a range of kubernetes v
 | ------------------------- | ------ | ----------------- |
 | Rancher on AWS            |   Yes  | [Open Digital Lab environment]                   | 
 | Azure AKS                 |   Yes  |                   | 
-| GCP GKE                   |   Yes  |                   |
+| GCP GKE                   |   Yes  | [Innovation Hub environment]                  |
 | Microk8s                  |   Yes  |                   | 
 | MiniKube                  |   Yes  |                   |
 | Docker Desktop            |   Yes  |                   |
@@ -71,6 +71,31 @@ We assume there is a ```kubeconfig``` file available with adequate permissions o
 - Install [CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
 - Manage resources in namespaces
 
+Run the following to check that you have the required Kubernetes permissions to run the install:
+
+```bash
+kubectl auth can-i create namespaces --all-namespaces
+kubectl auth can-i create customresourcedefinitions --all-namespaces  
+kubectl auth can-i create clusterroles --all-namespaces
+kubectl auth can-i create clusterrolebindings --all-namespaces
+kubectl auth can-i create mutatingwebhookconfigurations --all-namespaces
+kubectl auth can-i create validatingwebhookconfigurations --all-namespaces
+kubectl auth can-i create clusterissuers  --all-namespaces
+kubectl auth can-i create serviceaccounts
+kubectl auth can-i create secrets
+kubectl auth can-i create configmaps
+kubectl auth can-i create roles
+kubectl auth can-i create rolebindings
+kubectl auth can-i create services
+kubectl auth can-i create deployments
+kubectl auth can-i create statefulsets
+kubectl auth can-i create gateways  
+kubectl auth can-i create jobs
+kubectl auth can-i create certificates  
+kubectl auth can-i create issuers
+```
+
+
 ### 2. Helm
 
 A [Helm 3.0+ installation](https://helm.sh/docs/intro/install/#through-package-managers) is needed.
@@ -108,22 +133,19 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 
 ### 4. Reference implementation
 
-0. Clone oda-canvas project
+
+1. Clone oda-canvas project
    
    ```bash
    git clone https://github.com/tmforum-oda/oda-canvas.git
    cd oda-canvas
    ```
 
-1. Move to `installation/canvas-oda`
-2. Update the dependencies using the plugin installed
+2. Move to `installation/canvas-oda`
+3. Update the dependencies using the plugin installed
 
   ```bash
   $ helm resolve-deps
-  Fetching updates from all helm repositories, attempt #1 ...
-    * Updates have been fetched, took 2.146s
-  Resolving dependencies in canvas-oda chart ...
-    * Dependencies have been resolved, took 8.672s
   ```
 
   If we prefer not to use the plugin, we have to manually update the subchart which has dependencies, in this case *cert-manager-init*
@@ -140,19 +162,14 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
   helm dependency update
   ```
 
-3. Install the reference implementation
+4. Install the reference implementation
 
-  Install the canvas using the following command.
-  
-  ```bash
-  helm install canvas -n canvas --create-namespace . 
-  NAME: canvas
-   Feb  7 09:35:38 2023
-  NAMESPACE: canvas
-  STATUS: deployed
-  REVISION: 1
-  TEST SUITE: None
-  ```
+
+Install the canvas using the following command.
+
+````bash
+helm install canvas -n canvas --create-namespace . 
+````
 
 ## Troubleshooting
 
@@ -170,6 +187,9 @@ There are two major causes of this error
 
 ```bash
 $ kubectl get pods -n canvas
+```
+
+```bash
 NAME                                        READY   STATUS      RESTARTS   AGE
 canvas-keycloak-0                           1/1     Running     0          4m43s
 canvas-keycloak-keycloak-config-cli-5k6h7   0/1     Error       0          2m50s
@@ -195,6 +215,9 @@ The ranges valid are the following
 
 ```bash
 $ kubectl get pods -A
+```
+
+```
 NAMESPACE       NAME                                              READY   STATUS             RESTARTS      AGE
 canvas          canvas-keycloak-0                                 0/1     CrashLoopBackOff   4 (89s ago)   6m11s
 canvas          canvas-keycloak-keycloak-config-cli-9ks9d         0/1     Error              0             2m28s
