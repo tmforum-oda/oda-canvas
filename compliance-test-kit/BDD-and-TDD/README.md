@@ -19,20 +19,35 @@ This repository contains a list of BDD features and scenarios that describe each
 | [UC016 - Seamless upgrade](../../usecase-library/UC016-Seamless-upgrade-of-component-spec.md) | [F002 - Canvas Operators using prev version](features/UC016-F002-Seamless-upgrades-Canvas-Operators-using-prev-version.feature) | Complete |
 
 
+## Installation
+
+- install necessary packages
+
+  ```bash
+  cd identity-manager-utils-keycloak
+  npm install
+  cd ../package-manager-utils-helm
+  npm install
+  cd ../resource-inventory-utils-kubernetes
+  npm install
+  cd ..
+  npm install
+  ```
+
+- create a `.env` file and set `KEYCLOAK_USER`, `KEYCLOAK_PASSWORD`, `KEYCLOAK_BASE_URL` and `KEYCLOAK_REALM` - or use another option to define the variables
+
+  ```
+  KEYCLOAK_USER=admin 
+  KEYCLOAK_PASSWORD=adpass 
+  KEYCLOAK_BASE_URL=http://keycloack-ip:8083/auth/ 
+  KEYCLOAK_REALM=myrealm
+  ```
 
 ## How to run the tests
 
 Run the test in the command line using the following command:
 
-```
-cd identity-manager-utils-keycloak
-npm install
-cd ../package-manager-utils-helm
-npm install
-cd ../resource-inventory-utils-kubernetes
-npm install
-cd ..
-npm install
+```bash
 npm start
 ```
 
