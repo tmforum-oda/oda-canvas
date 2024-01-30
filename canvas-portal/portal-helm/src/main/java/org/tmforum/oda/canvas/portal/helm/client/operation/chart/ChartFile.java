@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 /**
- * Chart文件
+ * Chart file
  *
  * @author li.peilong
  * @date 2023/02/04
@@ -17,7 +17,10 @@ public class ChartFile {
     private String name;
     private Boolean directory;
     private Long size;
-    // 文件路径(相对路径)
+
+    /**
+     * file relative path
+     */
     private String path;
 
     public String getName() {

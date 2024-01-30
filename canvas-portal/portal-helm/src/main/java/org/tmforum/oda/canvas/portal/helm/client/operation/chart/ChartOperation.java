@@ -30,9 +30,8 @@ import org.tmforum.oda.canvas.portal.helm.client.HelmClientUtil;
 import org.tmforum.oda.canvas.portal.helm.client.operation.BaseOperation;
 import org.tmforum.oda.canvas.portal.helm.client.operation.repo.RepoOperation;
 
-
 /**
- * 提供Chart相关操作
+ * Provides Chart related operations
  *
  * @author li.peilong
  * @date 2022/12/08
@@ -45,21 +44,21 @@ public class ChartOperation extends BaseOperation {
     private static final String SHOW_CHART_CRDS_CMD = "helm show crds {} --version {} --insecure-skip-tls-verify";
     private static final String SHOW_CHART_CMD = "helm show chart {} --version {} --insecure-skip-tls-verify";
     private static final String PULL_CHART_CMD = "helm pull {} --version {} -d {} --insecure-skip-tls-verify";
-    // TODO：暂时仅支持ChartMuseum
+    // TODO: Currently only supports ChartMuseum
     private static final String PUSH_CHART_CMD = "helm cm-push {} {} --insecure";
 
     /**
-     * 将Chart推送到仓库中
+     * Pushes a Chart to the repository
      *
-     * @param chartPath
-     * @param repoName
+     * @param chartPath chartPath
+     * @param repoName chart repo name
      */
     public void push(String chartPath, String repoName) throws BaseAppException {
         push(chartPath, repoName, 60);
     }
 
     /**
-     * 将Chart推送到仓库中
+     * Pushes a Chart to the repository
      *
      * @param chartPath
      * @param repoName
@@ -68,7 +67,7 @@ public class ChartOperation extends BaseOperation {
      */
     public void push(String chartPath, String repoName, Integer timeout) throws BaseAppException {
         Preconditions.checkArgument(Files.exists(Paths.get(chartPath)), "chart path[%s] does not exist", chartPath);
-        Preconditions.checkArgument(StringUtils.isNoneBlank(repoName), "repoName can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(repoName), "repoName cannot be null or empty");
         String cmd = StringUtil.format(PUSH_CHART_CMD, chartPath, repoName);
         if (timeout != null && timeout > 0) {
             cmd = cmd.concat(" --timeout ").concat(timeout.toString());
@@ -77,15 +76,15 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 获取chart文件的内容
+     * Gets the content of a chart file
      *
-     * @param name 格式repoName/chartName
+     * @param name Format repoName/chartName
      * @param version
-     * @param filePath chart文件路径，相对于chart根目录
+     * @param filePath chart file path, relative to the chart root directory
      * @return
      */
     public String file(String name, String version, String filePath) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(filePath), "filePath can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(filePath), "filePath cannot be null or empty");
         pull(name, version, true);
         Path chartDir = HelmClientUtil.chartUntarDir(name, version);
         Path path  = chartDir.resolve(filePath);
@@ -102,11 +101,11 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 检索Chart中的文件
+     * Searches for files in a Chart
      *
-     * @param name 格式repoName/chartName
+     * @param name Format repoName/chartName
      * @param version
-     * @param keyword 文件的名字关键字
+     * @param keyword file name keyword
      * @return
      * @throws BaseAppException
      */
@@ -134,7 +133,7 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 将路径转换成ChartFile
+     * Converts paths to ChartFile
      *
      * @param pathStream
      * @param chartDir
@@ -155,11 +154,11 @@ public class ChartOperation extends BaseOperation {
         }).collect(Collectors.toList());
     }
     /**
-     * 获取 Chart的目录结构
+     * Gets the directory structure of a Chart
      *
-     * @param name 格式repoName/chartName
+     * @param name Format repoName/chartName
      * @param version
-     * @param subdirectory 子目录，不设置表示获取chart根路径结构
+     * @param subdirectory subdirectory, not set means getting the root path structure of the chart
      * @return
      * @throws BaseAppException
      */
@@ -181,24 +180,24 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 下载chart
+     * Downloads a chart
      *
-     * @param name chart名称，格式repoName/chartName
+     * @param name chart name, format repoName/chartName
      * @param version
-     * @param update 下载前是否更新仓库
-     * @param untar 是否解压chart
+     * @param update whether to update the repository before downloading
+     * @param untar whether to unzip the chart
      * @throws BaseAppException
      */
     public void pull(String name, String version, Boolean update, Boolean untar) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name can not be null or empty, and format is: repoName/charName,for example:bitnami/nginx");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name cannot be null or empty, and format is: repoName/charName, for example: bitnami/nginx");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version cannot be null or empty");
 
         Path chartsDir = HelmClientUtil.chartsDownloadDir();
         String chartName = StringUtil.format("{}-{}.tgz", Splitter.on("/").splitToList(name).get(1), version);
         Path chart = chartsDir.resolve(chartName);
-        // 不存在则拉取
+        // Pull if it doesn't exist
         if (!Files.exists(chart)) {
-            // 先更新一下仓库
+            // Update the repository first
             if (BooleanUtils.isTrue(update)) {
                 new RepoOperation().update(getRepoName(name));
             }
@@ -210,22 +209,22 @@ public class ChartOperation extends BaseOperation {
         if (!untar) {
             return;
         }
-        // 进行解压
+        // Unzip
         Path destDir = HelmClientUtil.chartUntarDir(name, version);
-        // 因为chart压缩包会包含一层chart名的目录，所以此处往上一层
+        // Since the chart package includes a directory named after the chart, move up one level here
         if (destDir.getParent() != null) {
             destDir = destDir.getParent();
         }
-        // 已经解压
+        // Skip if already unzipped
         if (Files.exists(destDir)) {
             return;
         }
         try {
-            // 不使用--untar参数，该参数无法按照版本进行解压
+            // Use uncompression instead of --untar parameter, as it does not decompress by version
             HelmClientUtil.tgzUncompress(chart.toFile(), destDir);
         }
         catch (Exception e) {
-            // 异常清理目录
+            // Clean up the directory on exception
             FileUtils.deleteQuietly(destDir.toFile());
             ExceptionPublisher.publish(e);
         }
@@ -233,9 +232,9 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 下载chart
+     * Downloads a chart
      *
-     * @param name 格式repoName/chartName
+     * @param name Format repoName/chartName
      * @param version
      * @throws BaseAppException
      */
@@ -244,9 +243,9 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 下载chart
+     * Downloads a chart
      *
-     * @param name 格式repoName/chartName
+     * @param name Format repoName/chartName
      * @param version
      * @param untar
      * @throws BaseAppException
@@ -256,80 +255,80 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 获取Chart的完整定义
+     * Gets the full definition of a Chart
      *
-     * @param name 格式repoName/chartName
+     * @param name Format repoName/chartName
      * @param version
      * @return
      * @throws BaseAppException
      */
     public HelmChartMetadata metadata(String name, String version) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name can not be null or empty, and format is: repoName/charName,for example:bitnami/nginx");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name cannot be null or empty, and format is: repoName/charName, for example: bitnami/nginx");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version cannot be null or empty");
         String cmd = StringUtil.format(SHOW_CHART_CMD, name, version);
         String output = exec(cmd);
         Yaml yaml = new Yaml();
         HelmChartMetadata chartDefinition = yaml.loadAs(output, HelmChartMetadata.class);
-        // 重置name
+        // Reset name
         chartDefinition.setName(name);
         return chartDefinition;
     }
 
     /**
-     * 获取Chart的默认values配置
+     * Gets the default values configuration of a Chart
      *
-     * @param name 格式repoName/chartName
+     * @param name Format repoName/chartName
      * @param version
-     * @return YAML格式values
+     * @return YAML format values
      * @throws BaseAppException
      */
     public String values(String name, String version) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name can not be null or empty, and format is: repoName/charName,for example:bitnami/nginx");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name cannot be null or empty, and format is: repoName/charName, for example: bitnami/nginx");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version cannot be null or empty");
         String cmd = StringUtil.format(SHOW_CHART_VALUES_CMD, name, version);
         return exec(cmd);
     }
 
     /**
-     * 显示chart的README文件的内容
+     * Shows the content of the README file of a chart
      *
-     * @param name 格式repoName/chartName
+     * @param name Format repoName/chartName
      * @param version
      * @return
      * @throws BaseAppException
      */
     public String readme(String name, String version) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name can not be null or empty, and format is: repoName/charName,for example:bitnami/nginx");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name cannot be null or empty, and format is: repoName/charName, for example: bitnami/nginx");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version cannot be null or empty");
         String cmd = StringUtil.format(SHOW_CHART_README_CMD, name, version);
         return exec(cmd);
     }
 
     /**
-     * 显示chart的CRD文件的内容
+     * Shows the content of the CRD files of a chart
      *
-     * @param name 格式repoName/chartName
+     * @param name Format repoName/chartName
      * @param version
      * @return
      * @throws BaseAppException
      */
     public String crds(String name, String version) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name can not be null or empty, and format is: repoName/charName,for example:bitnami/nginx");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name cannot be null or empty, and format is: repoName/charName, for example: bitnami/nginx");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "version cannot be null or empty");
         String cmd = StringUtil.format(SHOW_CHART_CRDS_CMD, name, version);
         return exec(cmd);
     }
 
     /**
-     * 获取chart
+     * Gets a chart
      *
      * @param name
-     * @param version 未指定，返回最新版本
+     * @param version If not specified, returns the latest version
      * @return
      * @throws BaseAppException
      */
     public HelmChart chart(String name, String version) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name can not be null or empty, and format is: repoName/charName,for example:bitnami/nginx");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name cannot be null or empty, and format is: repoName/charName, for example: bitnami/nginx");
         List<HelmChart> charts = versions(name);
         if (CollectionUtils.isEmpty(charts)) {
             ExceptionPublisher.publish(HelmClientExceptionErrorCode.HELM_CHART_NOT_EXIST, name, version);
@@ -347,9 +346,9 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 获取chart列表
+     * Gets a list of charts
      *
-     * @param keyword chart名称关键字
+     * @param keyword chart name keyword
      * @return
      * @throws BaseAppException
      */
@@ -358,7 +357,7 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 获取chart列表
+     * Gets a list of charts
      *
      * @param repoName
      * @param keyword
@@ -371,16 +370,16 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 获取chart列表
-     * @param repoName 仓库名称
-     * @param keyword chart名称关键字
-     * @param devel 是否显示开发版本
-     * @param update 获取列表前是否更新仓库
+     * Gets a list of charts
+     * @param repoName Repository name
+     * @param keyword chart name keyword
+     * @param devel whether to show development versions
+     * @param update whether to update the repository before getting the list
      * @return
      * @throws BaseAppException
      */
     public List<HelmChart> list(String repoName, String keyword, Boolean devel, Boolean update) throws BaseAppException {
-        // 先更新一下仓库
+        // Update the repository first
         if (BooleanUtils.isTrue(update)) {
             new RepoOperation().update(repoName);
         }
@@ -398,9 +397,9 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 获取某Chart的所有版本
+     * Gets all versions of a Chart
      *
-     * @param name chart名称，格式repoName/chartName
+     * @param name chart name, format repoName/chartName
      * @return
      * @throws BaseAppException
      */
@@ -409,9 +408,9 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 获取某Chart的所有版本
+     * Gets all versions of a Chart
      *
-     * @param name chart名称，格式repoName/chartName
+     * @param name chart name, format repoName/chartName
      * @param devel
      * @return
      * @throws BaseAppException
@@ -421,17 +420,17 @@ public class ChartOperation extends BaseOperation {
     }
 
     /**
-     * 获取某Chart的所有版本
+     * Gets all versions of a Chart
      *
-     * @param name chart名称，格式repoName/chartName
-     * @param devel 是否显示开发版本
-     * @param update 获取版本前是否更新仓库
+     * @param name chart name, format repoName/chartName
+     * @param devel whether to show development versions
+     * @param update whether to update the repository before getting versions
      * @return
      * @throws BaseAppException
      */
     public List<HelmChart> versions(String name, Boolean devel, Boolean update) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name can not be null or empty, and format is: repoName/charName,for example:bitnami/nginx");
-        // 先更新下仓库
+        Preconditions.checkArgument(StringUtils.isNoneBlank(name) && name.contains("/"), "name cannot be null or empty, and format is: repoName/charName, for example: bitnami/nginx");
+        // Update the repository first
         if (BooleanUtils.isTrue(update)) {
             new RepoOperation().update(getRepoName(name));
         }
@@ -441,7 +440,7 @@ public class ChartOperation extends BaseOperation {
         }
         String output = exec(cmd);
         List<HelmChart> result = JsonUtil.json2List(output, HelmChart.class);
-        // 需要精确匹配名称
+        // Need to precisely match the name
         return result.stream().filter(chart -> StringUtils.equals(name, chart.getName())).collect(Collectors.toList());
     }
 }

@@ -10,6 +10,7 @@ import HistoryRevision from '@/components/ComponentInstance/HistoryRevision/Inde
 import { formatDate } from '@/utils/utils';
 import { Loading } from '@element-plus/icons-vue';
 import { showLoading, hideLoading } from '@/utils/loading';
+import MonaCoEditor from '@/components/monacoEditor/IndexView.vue';
 const namespaceStore = useStore();
 const INSTANCE_NAME = location.hash.replace('#/ComponentDetail/', '');
 const info = ref({});
@@ -18,9 +19,24 @@ const chartVersion = ref({});
 const release = ref('');
 const activeName = ref('first');
 const loading = ref(true);
+
+const yamlDialogTitle = ref('');
+const code = ref('');
+const options = ref({
+    theme: 'vs-dark',
+    language: 'yaml',
+    readOnly: true,
+    minimap: {
+        enabled: true // 小地图
+    }
+});
+
 const param = {
     namespace: namespaceStore.namespace
 };
+
+const dialogVisible = ref(false);
+
 const renderDetail = async () => {
     try {
         showLoading({ target: '.info-detail' });
@@ -29,7 +45,6 @@ const renderDetail = async () => {
         // 如果查询到的release不存在
         if (!data.release) loading.value = false;
         release.value = data.release;
-        // console.log(info);
     } catch {
         loading.value = false;
     } finally {
@@ -45,22 +60,28 @@ const renderInstanceEvents = async () => {
         hideLoading();
     }
 }
+
+const viewYaml = async () => {
+    console.log(info.value);
+    const { data } = await request.getComponentYaml(info.value.name, param);
+    code.value = data.data;
+    yamlDialogTitle.value = `${info.value.name}`;
+    dialogVisible.value=true;
+}
 watch(() => {
     return info.value.release;
 }, async (newValue) => {
     if (newValue && info.value.release) {
         const { data } = await request.getReleaseDetailInfo(info.value.release, param);
         loading.value = false;
-        // console.log('data:', data);
         chartVersion.value = data;
     }
 });
+
 onMounted(() => {
     renderDetail();
     renderInstanceEvents();
-})
-// console.log(INSTANCE_NAME);
-
+});
 
 </script>
 <template>
@@ -70,8 +91,9 @@ onMounted(() => {
                 <h3 class="text-lg text-labelVal">{{ $t('ODA.BASIC_INFORMATION') }}</h3>
             </el-col>
             <el-col class="text-right text-label" :span="14">
-                <el-button style="font-size: 14px;margin-top: 4px;" class="text-right" type="primary" link>{{
-                    $t('ODA.VIEW_YAML') }}</el-button>
+                <el-button @click="viewYaml" style="font-size: 14px;margin-top: 4px;" class="text-right" type="primary"
+                    link>{{
+                        $t('ODA.VIEW_YAML') }}</el-button>
             </el-col>
         </el-row>
 
@@ -120,7 +142,6 @@ onMounted(() => {
                 <el-col class="text-labelVal" :span="10">{{ formatDate(info.createTime) }}</el-col>
             </el-row>
         </div>
-
     </div>
     <div class="bg-customFFF mt-4" style="padding: 15px 10px 20px 20px;">
         <el-row :gutter="10">
@@ -128,7 +149,7 @@ onMounted(() => {
                 <h3 class="text-lg text-labelVal">{{ $t('ODA.EVENT') }}</h3>
             </el-col>
         </el-row>
-        <div class="wrapper instance-wrap mt-4" style="overflow-y: scroll;max-height: 400px;color: #646464;">
+        <div class="wrapper instance-wrap mt-4" style="overflow-y: auto;max-height: 400px;color: #646464;">
             <div v-if="instanceEvents.length !== 0">
                 <div v-for="(item, index) in instanceEvents" :key="index">
                     <div class="oda-event-item">
@@ -177,8 +198,20 @@ onMounted(() => {
             </el-tab-pane>
         </el-tabs>
     </div>
+
+    <el-dialog class="detail-dialog" width="55%" v-model="dialogVisible" :title="yamlDialogTitle">
+        <MonaCoEditor width="100%" height="500px" :options="options" :modelValue="code" />
+    </el-dialog>
+
 </template>
 <style>
+.detail-dialog .el-dialog__header {
+    /* padding-top: 5px !important; */
+}
+
+.detail-dialog .el-dialog__body {
+    padding-top: 5px !important;
+}
 .demo-tabs>.el-tabs__content {
     padding: 32px;
     color: #6b778c;

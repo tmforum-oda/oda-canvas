@@ -45,5 +45,6 @@ export default {
         SWITCH_LAN: '切换至英文',
         CREATE: '新建',
         RULES: '规则',
+        UNINSTALL_INSTANCE_CONFIRM: '确定删除组件实例'
     }
 };

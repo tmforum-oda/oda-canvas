@@ -6,7 +6,7 @@ public class SpringContext {
 
     private static ApplicationContext applicationContext;
 
-    public static void setApplicationContext(ApplicationContext applictionContext){
+    public static void setApplicationContext(ApplicationContext applictionContext) {
         SpringContext.applicationContext = applictionContext;
     }
 

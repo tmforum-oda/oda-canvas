@@ -46,6 +46,7 @@ const defaultOption = ref({
     tabSize: 0, // tab 缩进长度
     scrollBeyondLastLine: false,
     // height: 400,
+    wordWrap: 'on', // 默认换行
     minimap: {
         enabled: false, // 不要小地图
     },

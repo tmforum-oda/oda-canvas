@@ -36,7 +36,7 @@ public abstract class JsonUtil {
 
     private static ObjectMapper instance() {
         if (cachedObjectMapper.get("default") != null) {
-            return (ObjectMapper)cachedObjectMapper.get("default");
+            return (ObjectMapper) cachedObjectMapper.get("default");
         } else {
             ObjectMapper ret = new ObjectMapper();
             ret.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -124,7 +124,7 @@ public abstract class JsonUtil {
 
     public static <K, V> Map<K, V> json2Map(String json) throws BaseAppException {
         try {
-            return (Map)instance().readValue(json, Map.class);
+            return (Map) instance().readValue(json, Map.class);
         } catch (IOException var2) {
             // FIXME
            /* ExceptionHandler.publish("7071004", var2);
@@ -135,7 +135,7 @@ public abstract class JsonUtil {
 
     public static <K, V> Map<K, V> json2Map(String json, String datePattern) throws BaseAppException {
         try {
-            return (Map)instance(datePattern).readValue(json, Map.class);
+            return (Map) instance(datePattern).readValue(json, Map.class);
         } catch (IOException var3) {
             //FIXME
            /* ExceptionHandler.publish("7071004", var3);

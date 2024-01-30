@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Helm Chart的元数据信息
+ * Helm Chart metadata info
  *
  * @author liu.jiang
  * @date 2022/11/23 10:55
@@ -52,7 +52,7 @@ public class HelmChartMetadata {
         if (StringUtils.isNotEmpty(repoName)) {
             return repoName;
         }
-        // 从name中提取
+        // extract from name
         if (StringUtils.isNotEmpty(name) && name.contains("/")) {
             repoName = Splitter.on("/").limit(2).splitToList(name).get(0);
         }

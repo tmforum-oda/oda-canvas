@@ -1,11 +1,15 @@
 <script setup>
-import { ref, onMounted, watch, toRef } from 'vue';
+import { ref, computed, watch, toRef } from 'vue';
 import request from "@/utils/index.js";
 import { useI18n } from 'vue-i18n';
+import useStore from '@/stores/namespace'
 const { t } = useI18n();
-// import { charts, versions } from '@/components/ComponentInstance/InstanceCreate/mockData.js'; // 假数据
 import MonaCoEditor from '@/components/monacoEditor/IndexView.vue';
-const param = {};
+const namespaceStore = useStore();
+const namespace = computed(() => namespaceStore.namespace);
+const param = {
+    namespace: namespace.value
+};
 const props = defineProps({
     dialogFormVisible: {
         type: Boolean,
@@ -23,7 +27,7 @@ const props = defineProps({
             version: '',
             description: '',
             values: '',
-            namespace: 'components'
+            namespace: ''
         }
     },
     formLabelWidth: {
@@ -59,23 +63,35 @@ watch(() => code.value, () => {
 watch(() => props.dialogData, val => {
     ruleForm.value = val;
 });
+watch(() => props.dialogFormVisible, val => {
+    val && getCharts(); // 每次dialog显现时重新加载charts
+    code.value = '';
+})
 
 const getCharts = async () => {
     try {
         const { data = [] } = await request.getCharts(param);
         chartData.value = data;
-    } catch (error) { }
+        if (props.dialogData.release) {
+            const { data } = await request.getReleaseDetailInfo(props.dialogData.release, param);
+            const { repoName, chartName, chartVersion } = data;
+            ruleForm.value.chart = repoName + '/' + chartName;
+            await changeChart(ruleForm.value.chart);
+            changeVersion(chartVersion);
+        }
+    } catch (error) {
+        chartData.value = [];
+    }
 
 }
 
 const emit = defineEmits(['close-dialog']);
-onMounted(() => {
-    getCharts();
-})
+// onMounted(() => {
+//     getCharts();
+// })
 const createInstance = async () => {
-    const param = ruleForm.value;
-    debugger
-    await request.installRelease(param);
+    const parameter = ruleForm.value;
+    await request.installRelease(parameter);
     emit('close-dialog', true);
 }
 const changeVersion = async version => {
@@ -83,10 +99,16 @@ const changeVersion = async version => {
         code.value = '';
         return;
     }
-    const { repoName, chartName, version: targetVersion } = versionData.value.find(o => o.version === version);
+    const tarVersion = versionData.value.find(o => o.version === version);
+    if (!tarVersion) {
+        return;
+    }
+    const { repoName, chartName, version: targetVersion } = tarVersion;
     const { data } = await request.getChartValues(repoName, chartName, targetVersion);
     code.value = data.data;
 }
+
+// chart改变的回调
 const changeChart = async name => {
     ruleForm.value.version = '';
     if (name === '') {
@@ -94,14 +116,20 @@ const changeChart = async name => {
         return;
     }
     const obj = chartData.value.find(o => o.name === name);
+    if (!obj) {
+        versionData.value = [];
+        return;
+    }
     const { data = [] } = await request.getChartVersions(obj.repoName, obj.chartName, param);
-    versionData.value = data;
 
+    versionData.value = data;
+    ruleForm.value.version = obj.version;
+    return true;
 }
 </script>
 <template>
     <el-dialog class="create-isntance-dialog" destroy-on-close :close-on-click-modal="false" :draggable="true"
-        @close="emit('close-dialog')" :model-value="props.dialogFormVisible"
+        @close="emit('close-dialog', false)" :model-value="props.dialogFormVisible"
         :title="props.mode ? $t('ODA.NEW_INSTANCE') : $t('ODA.UPGRADE_INSTANCE')">
         <el-form label-position="right" label-width="80px" @submit.prevent :model="ruleForm" :rules="rules">
             <el-collapse :model-value="['1', '2']">

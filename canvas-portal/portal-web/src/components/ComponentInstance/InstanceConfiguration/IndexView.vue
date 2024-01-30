@@ -12,7 +12,7 @@ const props = defineProps({
     release: {
         type: String,
         default: ''
-    },
+    }
 });
 const code = ref('');
 const options = ref({
@@ -34,7 +34,7 @@ onMounted(() => {
 </script>
 <template>
     <!-- <div class="editor" ref="editorRef"></div> -->
-    <MonaCoEditor class="instance-configuration-code-textarea" height="600px" :options="options" :code="code" />
+    <MonaCoEditor class="instance-configuration-code-textarea" height="600px" :options="options" :modelValue="code" />
 </template>
 <style lang="scss" scoped>
 .editor {
