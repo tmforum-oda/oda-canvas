@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HelmChart {
-    // 组成：repoName/chartName
+    // format：repoName/chartName
     private String name;
     private String repoName;
     private String chartName;
@@ -25,7 +25,7 @@ public class HelmChart {
         if (StringUtils.isNotEmpty(repoName)) {
             return repoName;
         }
-        // 从name中提取
+        // extract from name
         if (StringUtils.isNotEmpty(name) && name.contains("/")) {
             repoName = Splitter.on("/").limit(2).splitToList(name).get(0);
         }
@@ -52,7 +52,7 @@ public class HelmChart {
         if (StringUtils.isNotEmpty(chartName)) {
             return chartName;
         }
-        // 从name中提取
+        // extract from name
         if (StringUtils.isNotEmpty(name) && name.contains("/")) {
             chartName = Splitter.on("/").limit(2).splitToList(name).get(1);
         }

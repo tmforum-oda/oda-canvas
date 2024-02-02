@@ -1,15 +1,70 @@
 <script setup>
-import request from '@/utils/index';
-import { onMounted, ref, reactive, nextTick, computed, onBeforeUnmount } from 'vue';
-import { chunk, throttle } from 'lodash-es';
+import { onMounted, ref, nextTick, onBeforeUnmount, watch, defineEmits } from 'vue';
+import { throttle } from 'lodash-es';
 import { showLoading, hideLoading } from '@/utils/loading';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
+const formatDate = (timestamp, format = 'YYYY-MM-DD HH:mm:ss') => dayjs(timestamp).format(format);
+const emit = defineEmits(['change-list']);
+const props = defineProps({
+    componentList: {
+        type: Array,
+        default: []
+    },
+    maxPolygon: {
+        type: Number,
+        default: 0
+    },
+    showComponent: {
+        type: Boolean,
+        default: false
+    }
+});
+
+onMounted(() => {
+    window.addEventListener('resize', () => {
+        if (resizeFlag.value) {
+            clearTimeout(resizeFlag.value);
+        }
+        resizeFlag.value = setTimeout(() => {
+            renderHexagonalShape();
+        }, 50);
+    });
+})
 
 onBeforeUnmount(() => {
     window.removeEventListener('resize', renderHexagonalShape);
-})
-const componentList = reactive([]);
+});
+
+const renderHexagonalShape = async () => {
+    const couple = Math.ceil(props.maxPolygon / 2);
+    await nextTick();
+    if (Object.prototype.toString.call(myListItem.value) !== '[object Array]' && myListItem.value?.length === 0) {
+        return;
+    }
+    try {
+        const itemWidth = Array.from(myListItem.value)[0].offsetWidth;
+        const hexItemWidth = itemWidth * 0.34; // 六边形对边之和
+        const hexItemPointToPointLength = hexItemWidth / 1.732 * 2; // 六边形对顶点距离
+        const innerMgT = hexItemWidth / 3.464;
+        const boxHeight = ((innerMgT + 4) * 3 * couple) + innerMgT;
+        const maxHeight = ((hexItemPointToPointLength * 3) + innerMgT + 5);
+        listHeight.value = boxHeight + 12;
+        listMaxHeight.value = maxHeight;
+        listPaddingTop.value = innerMgT + 5;
+        polygonWidth.value = hexItemWidth;
+        polygonHeight.value = hexItemPointToPointLength;
+        polygonMt.value = innerMgT - (4 * 1.732);
+        polygonInnerMt.value = innerMgT;
+        fPolygonMl.value = (hexItemWidth + 16) / 2;
+        listPaddingLeft.value = (itemWidth - ((2.5 * hexItemWidth) + 20)) / 2;
+        await nextTick();
+        carouselHeight.value = singleContainer.value[0].offsetHeight + 20 + 'px';
+    } catch (error) { }
+}
+
 const boolFalse = ref(false);
-const maxPolygon = ref(0);
 const myListItem = ref(null);
 const singleContainer = ref(null);
 const carouselHeight = ref('480px');
@@ -23,30 +78,6 @@ const polygonMt = ref(0);
 const fPolygonMl = ref(0);
 const polygonInnerMt = ref(0);
 const resizeFlag = ref(null);
-const renderHexagonalShape = async () => {
-    const couple = Math.ceil(maxPolygon.value / 2);
-    await nextTick();
-    const itemWidth = Array.from(myListItem.value)[0].offsetWidth;
-    // // 六边形对边之和
-    const hexItemWidth = itemWidth * 0.34;
-    // // 六边形对顶点距离
-    const hexItemPointToPointLength = hexItemWidth / 1.732 * 2;
-    // const innerHeight = hexItemWidth / 1.732;
-    const innerMgT = hexItemWidth / 3.464;
-    const boxHeight = ((innerMgT + 4) * 3 * couple) + innerMgT;
-    const maxHeight = ((hexItemPointToPointLength * 3) + innerMgT + 5);
-    listHeight.value = boxHeight + 12;
-    listMaxHeight.value = maxHeight;
-    listPaddingTop.value = innerMgT + 5;
-    polygonWidth.value = hexItemWidth;
-    polygonHeight.value = hexItemPointToPointLength;
-    polygonMt.value = innerMgT - (4 * 1.732);
-    polygonInnerMt.value = innerMgT;
-    fPolygonMl.value = (hexItemWidth + 16) / 2;
-    listPaddingLeft.value = (itemWidth - ((2.5 * hexItemWidth) + 20)) / 2;
-    await nextTick();
-    carouselHeight.value = singleContainer.value[0].offsetHeight + 20 + 'px';
-}
 const getPolygonStyle = idx => {
     const commonStyle = {
         width: polygonWidth.value + 'px',
@@ -61,105 +92,59 @@ const getPolygonStyle = idx => {
     }
     return commonStyle;
 }
-
-const resolveChunkData = data => {
-    console.log(data);
-    const colorMap = {
-        Production: '#179287',
-        Engagement_Management: '#D97A0B ',
-        Core_Commerce_Management: '#763BC4',
-        Decoupling_and_Integration: '#3484f5',
-        Party_Management: '#8acc42',
-        Intelligence_Management: '#215AB0'
-    };
-    data.forEach(o => {
-        o.color = colorMap[o.domain.split(' ').join('_')]; // 指定每个组件的颜色
-        if (o.types.length && maxPolygon.value < o.types.length) {
-            maxPolygon.value = o.types.length;
-        }
-        o.types.forEach(obj => {
-            if (obj.instances.length !== 0) {
-                if (obj.instances.some(item => String(item.status).toLowerCase() === 'failed')) obj.failExsit = true;
-            }
-        });
-    });
-    const newArr = chunk(data, 4);
-    componentList.push(...newArr);
+watch(() => props.componentList, () => {
     renderHexagonalShape();
-    return data;
-}
-const resolveInstance = throttle(type => {
-    console.log(type);
-}, 200);
-onMounted(async () => {
+});
 
-    showLoading({ target: '.oda-components' });//打开加载中
-
-    // const loading = ElLoading.service({
-    //     lock: true,
-    //     text: 'Loading',
-    //     background: 'rgba(0, 0, 0, 0.7)'
-    // })
-    try {
-        const { data } = await request.getComponents({
-            namespace: 'components',
-            tenantId: '101237'
-        }) || [];
-        const chunkData = resolveChunkData(data);
-
-
-    } finally {
-        // loading.close();
-
-        hideLoading();//关闭加载中
+watch(() => props.showComponent, val => {
+    if (!val) {
+        showLoading({ target: '.oda-components' });//打开加载中
+    } else {
+        hideLoading();
     }
-    const leftBtn = document.querySelector('.el-carousel__arrow--left');
-    const rightBtn = document.querySelector('.el-carousel__arrow--right');
-    leftBtn.style.left = '-40px';
-    rightBtn.style.right = '-40px';
-    window.addEventListener('resize', () => {
-        if (resizeFlag.value) {
-            clearTimeout(resizeFlag.value);
-        }
-        resizeFlag.value = setTimeout(() => {
-            renderHexagonalShape();
-        }, 50);
-    });
-    // 如果左右按钮点击事件要重写，走下面的逻辑
-    // const newLElement = leftBtn.cloneNode(true);
-    // const newRElement = rightBtn.cloneNode(true);
-    // leftBtn.replaceWith(newLElement);
-    // rightBtn.replaceWith(newRElement);
-    // newLElement.style.display = 'block';
-    // newLElement.style.left = '-40px';
-    // newRElement.style.display = 'block';
-    // newRElement.style.right = '-40px';
-})
+}, { immediate: true });
+
+
+const resolveInstance = throttle(async (item) => {
+    const instances = item.instances || [];
+    if (instances && instances.length !== 0) {
+        const dealIns = instances.map(o => ({
+            ...o,
+            createTime: formatDate(o.createTime)
+        }));
+        emit('change-list', dealIns);
+    } else {
+        emit('change-list', []);
+    }
+}, 200);
+
+
 </script>
 
 <template>
     <div class="oda-components mt-5 bg-customFFF">
 
         <h3>{{ $t('ODA.ODA_COMPONENT') }}</h3>
-        <el-carousel :height="carouselHeight" :autoplay=boolFalse arrow="always" indicator-position="none" :loop=boolFalse>
-            <el-carousel-item v-for="chunk in  componentList " :key="chunk">
-                <div ref="singleContainer" class="components-item bg-customBg" v-for="item in chunk " :key="item.domain">
+        <el-carousel :height="carouselHeight" :autoplay="boolFalse" arrow="always" indicator-position="none"
+            :loop="boolFalse">
+            <el-carousel-item v-for="chunk in props.componentList" :key="chunk">
+                <div ref="singleContainer" class="components-item bg-customBg" v-for="item in chunk" :key="item.domain">
                     <div class="instance-list-item" ref="myListItem"
                         :style="{ height: listHeight + 'px', maxHeight: listMaxHeight + 'px' }">
                         <ul :style="{ paddingTop: listPaddingTop + 'px', paddingLeft: listPaddingLeft + 'px' }">
                             <div v-for="(ins, idx) in item.types" :key="ins.type" class="polygon-six-wrap"
                                 :style="getPolygonStyle(idx)">
-                                <template v-if="ins.failExsit === true">
-                                    <div class="instance-tip isntance-active-red">{{ instances.length }}</div>
-                                    <div class="polygon-six isntance-active-red" @click="resolveInstance(ins.type)"
+                                <template v-if="ins?.failExsit && ins?.failExsit === true">
+                                    <div class="instance-tip isntance-active-red">{{ ins?.instances.length }}</div>
+                                    <div class="polygon-six isntance-active-red" @click="resolveInstance(ins)"
                                         :title="ins.type">
-                                        <div class="polygon-six-inner" :style="{ marginTop: polygonInnerMt.value + 'px' }">
+                                        <div class="polygon-six-inner" :style="{ marginTop: polygonInnerMt + 'px' }">
                                             {{ ins.type }}</div>
                                     </div>
                                 </template>
                                 <template v-else>
-                                    <div class="instance-tip">{{ ins.instances.length }}</div>
-                                    <div class="polygon-six" @click="resolveInstance(ins.type)" :title="ins.type">
+                                    <div class="instance-tip">{{ ins?.instances?.length }}</div>
+                                    <div class="polygon-six" @click="resolveInstance(ins)" :title="ins.type">
                                         <div class="polygon-six-inner" :style="{ marginTop: polygonInnerMt + 'px' }">
                                             {{ ins.type }}</div>
                                     </div>
@@ -168,7 +153,7 @@ onMounted(async () => {
                             </div>
                         </ul>
                     </div>
-                    <div class="component-list-name text-customFFF" :style="{ backgroundColor: item.color }">
+                    <div class="instance-name component-list-name text-customFFF" :style="{ backgroundColor: item.color }">
                         {{ item.domain }}
                     </div>
                 </div>
@@ -178,10 +163,37 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
+::v-deep {
+    .el-carousel__arrow--left {
+        left: -40px
+    }
+
+    .el-carousel__arrow--right {
+        right: -40px
+    }
+}
+
 h3 {
     padding: 10px 15px;
     color: #333;
     font-size: 16px;
+}
+
+.isntance-active-red {
+    background-color: #BE3131 !important;
+    color: #fff !important;
+}
+
+.polygon-six:hover {
+    background-color: #e5e8eb;
+}
+
+.el-carousel__arrow--left {
+    left: -40px
+}
+
+.el-carousel__arrow--right {
+    right: -40px;
 }
 
 .el-carousel__item {
@@ -221,13 +233,13 @@ h3 {
     padding: 0 60px;
 }
 
-.el-carousel__item:nth-child(2n) {
-    // background-color: #99a9bf;
-}
+// .el-carousel__item:nth-child(2n) {
+// background-color: #99a9bf;
+// }
 
-.el-carousel__item:nth-child(2n + 1) {
-    // background-color: #d3dce6;
-}
+// .el-carousel__item:nth-child(2n + 1) {
+// background-color: #d3dce6;
+// }
 
 .el-carousel__item:last-child {
     justify-content: left;

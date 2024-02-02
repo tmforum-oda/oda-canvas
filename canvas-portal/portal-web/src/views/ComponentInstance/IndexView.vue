@@ -24,10 +24,12 @@ const formParam = {
 };
 const input = ref('');
 const tableData = ref([]);
-const mode = ref(true);
-const dialogFormVisible = ref(false);
+const mode = ref(true); // true:新建  false:升级
+const dialogFormVisible = ref(false); // dialog是否展示
 const dialogData = ref(formParam);
 const formatDate = (timestamp, format = 'YYYY-MM-DD HH:mm:ss') => dayjs(timestamp).format(format);
+
+// 查询表格数据
 const requestGridData = async () => {
     try {
         showLoading({ target: '.component-instance' });
@@ -58,23 +60,20 @@ const viewDetail = (row) => {
 const updateInstance = row => {
     mode.value = false;
     dialogData.value = row;
-    console.log('row:', row);
     dialogFormVisible.value = true;
 }
 const uninstallInstance = ({ name, release }) => {
     ElMessageBox.confirm(
-        `确定删除组件实例 "${name}"?`,
+        `${t('ODA.UNINSTALL_INSTANCE_CONFIRM')} "${name}"?`,
         'Warning',
         {
-            // confirmButtonText: '确认',
-            // cancelButtonText: '取消',
             confirmButtonText: t('ODA.CONFIRM'),
             cancelButtonText: t('ODA.CANCEL'),
             type: 'warning',
         }
     ).then(async () => {
         try {
-            await request.uninstallRelease(release, 'components');
+            await request.uninstallRelease(release, namespace.value);
             ElMessage({
                 type: 'success',
                 message: 'Delete completed',
@@ -92,8 +91,15 @@ const uninstallInstance = ({ name, release }) => {
 }
 const createInstance = () => {
     mode.value = true;
-    dialogData.value = formParam;
-    dialogFormVisible.value = '';
+    dialogData.value = {
+        release: '',
+        chart: '',
+        version: '',
+        description: '',
+        values: '',
+        namespace: namespace.value
+    };
+    dialogFormVisible.value = true;
 }
 </script>
 <template>
@@ -129,7 +135,7 @@ const createInstance = () => {
                             <div v-html="formatStatus(row.status)"></div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="version" :label="$t('ODA.VERSION')" show-overflow-tooltip width="60" />
+                    <el-table-column prop="version" :label="$t('ODA.VERSION')" show-overflow-tooltip width="80" />
                     <el-table-column prop="description" :label="$t('ODA.DESCRIPTION')" show-overflow-tooltip />
                     <el-table-column prop="createTime" :label="$t('ODA.CREATE_TIME')" show-overflow-tooltip width="130" />
                     <el-table-column fixed="right" :label="$t('ODA.OPERATION')" align="center" width="210">

@@ -2,7 +2,7 @@ package org.tmforum.oda.canvas.portal.core.util;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class StringUtil {
+public final class StringUtil {
 
     private StringUtil() {
     }

@@ -51,7 +51,7 @@ const logOut = () => {
         'Warning',
         {
             confirmButtonText: t('ODA.OK'),
-            cancelButtonText: t('ODA.CONFIRM'),
+            cancelButtonText: t('ODA.CANCEL'),
             type: 'warning',
         }
     ).then(() => {

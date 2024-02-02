@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * Provides helm repo opertation
+ *
  * @author liu.jiang
  * @date 2022/11/23 16:23
  */
@@ -22,10 +24,10 @@ public class RepoOperation extends BaseOperation {
     private static final String ADD_REPO_CMD = "helm repo add {} {}  --insecure-skip-tls-verify";
 
     /**
-     * 获取仓库列表
+     * Get the list of repositories
      *
-     * @param keywords 仓库的名称
-     * @return
+     * @param keywords Names of the repositories
+     * @return list of repo whose name contains keyword
      */
     public List<HelmRepo> list(String... keywords) throws BaseAppException {
         String output = exec(LIST_REPO_CMD);
@@ -39,41 +41,42 @@ public class RepoOperation extends BaseOperation {
     }
 
     /**
+     * Add a Chart repository
      *
-     * @param name 仓库名
-     * @param url 仓库地址
-     * @throws BaseAppException
+     * @param name Repository name
+     * @param url  Repository URL
+     * @throws BaseAppException if the add operation failed
      */
     public void add(String name, String url) throws BaseAppException {
         add(name, url, null, null);
     }
 
     /**
-     * 添加Chart仓库
+     * Add a Chart repository
      *
-     * @param name 仓库名
-     * @param url 仓库地址
-     * @param username 仓库用户名
-     * @param password 仓库密码
-     * @throws BaseAppException
+     * @param name Repository name
+     * @param url Repository URL
+     * @param username Repository username
+     * @param password Repository password
+     * @throws BaseAppException if the add operation failed
      */
     public void add(String name, String url, String username, String password) throws BaseAppException {
         add(name, url, username, password, false);
     }
 
     /**
-     * 添加Chart仓库
+     * Add a Chart repository
      *
-     * @param name 仓库名
-     * @param url 仓库地址
-     * @param username 仓库用户名
-     * @param password 仓库密码
-     * @param overwrite 如果仓库已经添加过，是否重新添加
-     * @throws BaseAppException
+     * @param name Repository name
+     * @param url Repository URL
+     * @param username Repository username
+     * @param password Repository password
+     * @param overwrite Whether to re-add if the repository has already been added
+     * @throws BaseAppException if the add operation failed
      */
     public void add(String name, String url, String username, String password, boolean overwrite) throws BaseAppException {
         Preconditions.checkArgument(StringUtils.isNoneBlank(name), "repo name can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(name), "repo url can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(url), "repo url can not be null or empty"); // Corrected argument check from name to url
         String cmd = StringUtil.format(ADD_REPO_CMD, name, url);
         if (StringUtils.isNoneBlank(username)) {
             cmd = cmd.concat(" --username=").concat(username);
@@ -89,8 +92,9 @@ public class RepoOperation extends BaseOperation {
     }
 
     /**
-     * 移除仓库
-     * @param repos
+     * remove helm repositories
+     *
+     * @param repos repos
      */
     public void remove(String... repos) throws BaseAppException {
         if (repos == null || repos.length == 0) {
@@ -101,9 +105,9 @@ public class RepoOperation extends BaseOperation {
     }
 
     /**
-     * 更新仓库
+     * Update repositories
      *
-     * @param repos
+     * @param repos repos
      */
     public void update(String... repos) throws BaseAppException {
         String repo = "";

@@ -134,7 +134,7 @@ public abstract class DateUtil {
         }
         catch (ParseException e) {
             throw new IllegalArgumentException(
-                    "the date string " + date + " is not matching format " , e);
+                    "the date string " + date + " is not matching format ", e);
         }
     }
 

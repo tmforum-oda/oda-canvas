@@ -33,7 +33,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 提供一些公共方法
+ * Provides some common methods
  *
  * @author li.peilong
  * @date 2022/12/06
@@ -45,22 +45,22 @@ public abstract class BaseOperation {
             .setNameFormat("helm-result-reader-%d").setDaemon(true).build());
 
     /**
-     * 执行helm命令
+     * Execute helm command
      *
-     * @param cmd
-     * @return
-     * @throws BaseAppException
+     * @param cmd command to execute
+     * @return command execute result
+     * @throws BaseAppException if exec operation failed
      */
     protected String exec(String cmd) throws BaseAppException {
         return exec(cmd, 300);
     }
 
     /**
-     * 执行helm命令
-     * @param cmd
-     * @param timeout 命令执行超时时间，单位：秒
+     * Execute helm command
      *
-     * @return 返回helm命令结果
+     * @param cmd     command to execute
+     * @param timeout Command execution timeout in seconds
+     * @return Returns the result of the helm command
      */
     protected String exec(String cmd, int timeout) throws BaseAppException {
         String[] cmds = fullCmd(cmd);
@@ -71,16 +71,16 @@ public abstract class BaseOperation {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             LOGGER.debug("Execute command [{}]", Joiner.on(" ").join(cmds));
-            // 启动命令
+            // Start the command
             ProcessBuilder pb = new ProcessBuilder(cmds);
-            // 设置helm的数据、配置等路径
+            // Set the paths for helm data, configuration, etc.
             if (!HelmClientUtil.isWindows()) {
                 pb.environment().put("HELM_CACHE_HOME", HelmClientUtil.helmCacheDir().toFile().getAbsolutePath());
                 pb.environment().put("HELM_CONFIG_HOME", HelmClientUtil.helmConfigDir().toFile().getAbsolutePath());
                 pb.environment().put("HELM_DATA_HOME", HelmClientUtil.helmDataDir().toFile().getAbsolutePath());
             }
             process = pb.start();
-            // 读取命令返回信息和错误信息
+            // Read command return information and error information
             readProcessOutput(stdout, stderr, process, timeout);
             exitCode = process.waitFor();
         }
@@ -104,10 +104,10 @@ public abstract class BaseOperation {
     }
 
     /**
-     * 获取完整的命令，主要是拼接helm命令文件的绝对地址
+     * Get the full command, mainly to concatenate the absolute address of the helm command file
      *
-     * @param cmd
-     * @return
+     * @param cmd command to execute
+     * @return the full command
      */
     private String[] fullCmd(String cmd) {
         if (HelmClientUtil.isWindows()) {
@@ -117,11 +117,11 @@ public abstract class BaseOperation {
     }
 
     /**
-     * 将文本写入到文件中
+     * Write text to a file
      *
-     * @param text
-     * @param extension 文件扩展名，比如yaml
-     * @return
+     * @param text text
+     * @param extension File extension, such as yaml
+     * @return the file path
      */
     protected String writeToFile(String text, String extension) throws BaseAppException {
         Path dir = HelmClientUtil.tmpDir();
@@ -134,7 +134,7 @@ public abstract class BaseOperation {
             if (Files.notExists(dir)) {
                 Files.createDirectories(dir);
             }
-            // 将文本写入临时文件
+            // Write text to temporary file
             FileUtils.writeStringToFile(tmpFile, text, StandardCharsets.UTF_8);
             return tmpFile.getAbsolutePath();
         }
@@ -143,7 +143,7 @@ public abstract class BaseOperation {
             ExceptionPublisher.publish(e, HelmClientExceptionErrorCode.WRITE_TMP_FILE_FAILED, tmpFile.getAbsolutePath(), e.getMessage());
         }
         finally {
-            // 先尝试清理历史临时文件
+            // Attempt to clean up historical temporary files first
             cleanTmpFiles();
         }
         return "";
@@ -151,17 +151,17 @@ public abstract class BaseOperation {
     }
 
     /**
-     * 获取仓库名称
+     * Get the repository name
      *
-     * @param name 格式repoName/chartName
-     * @return
+     * @param name Format repoName/chartName
+     * @return repository name
      */
     public String getRepoName(String name) {
         return Splitter.on("/").splitToList(name).get(0);
     }
 
     /**
-     * 清理生成的临时文件
+     * Clean up generated temporary files
      *
      */
     private void cleanTmpFiles() {
@@ -169,7 +169,7 @@ public abstract class BaseOperation {
             Collection<File> files = FileUtils.listFiles(HelmClientUtil.tmpDir().toFile(), null, false);
             files.stream()
                     .filter(file -> FileUtils.isFileOlder(file, DateUtils.addDays(new Date(), -3)))
-                    .forEach(file -> FileUtils.deleteQuietly(file));
+                    .forEach(FileUtils::deleteQuietly);
         }
         catch (Exception e) {
             LOGGER.warn("Failed to clean tmp files, error:", e);
@@ -178,17 +178,17 @@ public abstract class BaseOperation {
     }
 
     /**
-     * 读取helm命令输出
+     * Read helm command output
      *
-     * @param stdout
-     * @param stderr
-     * @param process
-     * @throws InterruptedException
-     * @throws BaseAppException
+     * @param stdout  stdout
+     * @param stderr  stderr
+     * @param process process which execute command
+     * @throws InterruptedException if thre
+     * @throws BaseAppException if the read operation failed
      */
     private static void readProcessOutput(StringBuilder stdout, StringBuilder stderr, Process process, int timeout) throws InterruptedException, BaseAppException {
         CountDownLatch latch = new CountDownLatch(2);
-        // 读取标准错误输出
+        // Read standard error output
         POOL.execute(() -> {
                     try {
                         int c;
@@ -197,15 +197,14 @@ public abstract class BaseOperation {
                         }
                     }
                     catch (Exception e) {
-                        //FIXME
-                        //LOGGER.error(e);
+                        LOGGER.error("process exec failed", e);
                     }
                     finally {
                         latch.countDown();
                     }
                 }
         );
-        // 读取标准输出
+        // Read standard output
         POOL.execute(() -> {
             try {
                 int c;
@@ -214,14 +213,13 @@ public abstract class BaseOperation {
                 }
             }
             catch (Exception e) {
-                //FIXME
-                // LOGGER.error(e);
+                LOGGER.error("process exec failed", e);
             }
             finally {
                 latch.countDown();
             }
         });
-        // 等待读取结束
+        // Wait for reading to end
         boolean result = latch.await(timeout, TimeUnit.SECONDS);
         if (!result) {
             ExceptionPublisher.publish(HelmClientExceptionErrorCode.EXEC_OPERATION_TIMEOUT);
