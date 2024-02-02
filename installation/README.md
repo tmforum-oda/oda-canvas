@@ -134,41 +134,19 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 ### 4. Reference implementation
 
 
-1. Clone oda-canvas project
+1. Add oda-canvas helm repo
    
    ```bash
-   git clone https://github.com/tmforum-oda/oda-canvas.git
-   cd oda-canvas
+   helm repo add oda-canvas https://github.com/tmforum-oda/oda-canvas
    ```
-
-2. Move to `installation/canvas-oda`
-3. Update the dependencies using the plugin installed
-
-  ```bash
-  $ helm resolve-deps
-  ```
-
-  If we prefer not to use the plugin, we have to manually update the subchart which has dependencies, in this case *cert-manager-init*
-
-  ```bash
-  cd ../cert-manager-init
-  helm dependency update
-  ```
-  
-  and then do the same with the umbrella helm *canvas-oda*
-  
-  ```bash
-  cd ../canvas-oda
-  helm dependency update
-  ```
-
-4. Install the reference implementation
+   
+2. Install the reference implementation
 
 
 Install the canvas using the following command.
 
 ````bash
-helm install canvas -n canvas --create-namespace . 
+helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
 ````
 
 ## Troubleshooting
@@ -295,3 +273,10 @@ The Helm chart has been refactored to move all the different subcharts to the sa
 | canvas/chart/controller| controller  | ODA ingress controller
 | canvas/chart/crds| oda-crds| ODA crds
 | canvas/chart/weebhooks | oda-webhook| ODA mutating webhook to handle conversion among versions
+
+
+## oda-canvas helm chart uninstallation
+
+To  uninstall the oda-canvas chart:
+
+helm uninstall oda-canvas -n canvas
