@@ -145,9 +145,9 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 
 Install the canvas using the following command.
 
-````bash
-helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
-````
+  ````bash
+  helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
+  ````
 
 ## Troubleshooting
 
@@ -278,5 +278,6 @@ The Helm chart has been refactored to move all the different subcharts to the sa
 ## oda-canvas helm chart uninstallation
 
 To  uninstall the oda-canvas chart:
-
-helm uninstall oda-canvas -n canvas
+```bash
+  helm uninstall oda-canvas -n canvas
+```
