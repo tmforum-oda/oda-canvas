@@ -8,7 +8,7 @@ spec:
   names:
     plural: "apis"
     singular: "api"
-    kind: "api"
+    kind: "API"
   versions:
   - name: "v1alpha1"
     # Each version can be enabled/disabled by Served flag.

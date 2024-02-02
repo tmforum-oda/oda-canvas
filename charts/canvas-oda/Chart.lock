@@ -1,21 +1,21 @@
 dependencies:
 - name: cert-manager-init
   repository: file://../cert-manager-init
-  version: 1.0.0
+  version: 0.1.0
 - name: canvas-namespaces
   repository: file://../canvas-namespaces
-  version: 1.1.0
+  version: 0.1.0
 - name: oda-crds
   repository: file://../oda-crds
-  version: 1.0.0
+  version: 0.1.0
 - name: keycloak
   repository: https://charts.bitnami.com/bitnami
   version: 13.0.2
 - name: controller
   repository: file://../controller
-  version: 1.0.1
+  version: 0.1.0
 - name: oda-webhook
   repository: file://../oda-webhook
-  version: 1.0.0
-digest: sha256:0b944833881f390cc8c566a7eb423bcb61916442d515fe72197b1b9b4ab8bea0
-generated: "2023-03-03T11:51:42.8288335+01:00"
+  version: 0.1.0
+digest: sha256:09e89a3756b50da196c7a852d802325542814509e4cf758ed98ac9022bdb0447
+generated: "2024-02-02T12:26:24.5510289Z"

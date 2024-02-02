@@ -100,7 +100,7 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
                 if processedAPI['name'] == name + '-' + coreAPI['name'].lower():
                     alreadyProcessed = True
             if alreadyProcessed == False:
-                logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Creating API", coreAPI['name'])
+                logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Calling createAPIResource", coreAPI['name'])
                 resultStatus = await createAPIResource(coreAPI, namespace, name, 'coreAPIs')
                 apiChildren.append(resultStatus)
 
@@ -207,7 +207,7 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
                     alreadyProcessed = True
 
             if alreadyProcessed == False:
-                logWrapper(logging.INFO, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Creating API", managementAPI['name'])
+                logWrapper(logging.INFO, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Calling createAPIResource", managementAPI['name'])
                 resultStatus = await createAPIResource(managementAPI, namespace, name, 'managementAPIs')
                 apiChildren.append(resultStatus)
 
@@ -283,7 +283,7 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
                     alreadyProcessed = True
 
             if alreadyProcessed == False:
-                logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Creating API", securityAPI['name'])
+                logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Calling createAPIResource", securityAPI['name'])
                 resultStatus = await createAPIResource(securityAPI, namespace, name, 'securityAPIs')
                 apiChildren.append(resultStatus)
 
@@ -391,7 +391,7 @@ def constructAPIResourcePayload(inAPI):
     """
     APIResource = {
         "apiVersion": GROUP + "/" + VERSION,
-        "kind": "api",
+        "kind": "API",
         "metadata": {},
         "spec": {}
     }
@@ -437,8 +437,13 @@ async def patchAPIResource(inAPI, namespace, name, inHandler):
             plural = APIS_PLURAL,
             name = APIResource['metadata']['name'])
 
-        logWrapper(logging.DEBUG, 'patchAPIResource', inHandler, 'component/' + name, name, "Comparing new and existing API ", f"Comparing {APIResource['spec']} to {apiObj['spec']}")
+
         if not(APIResource['spec'] == apiObj['spec']):
+            # log the difference
+            logWrapper(logging.INFO, 'patchAPIResource', inHandler, 'component/' + name, name, "Comparing new and existing API ", f"Old {APIResource['spec']}")
+            logWrapper(logging.INFO, 'patchAPIResource', inHandler, 'component/' + name, name, "Comparing new and existing API ", f"New {apiObj['spec']}")
+            logWrapper(logging.INFO, 'patchAPIResource', inHandler, 'component/' + name, name, "Comparing new and existing API ", f"New {(APIResource['spec'] == apiObj['spec'])}")
+
             apiObj = custom_objects_api.patch_namespaced_custom_object(
                 group = GROUP,
                 version = VERSION,
@@ -487,6 +492,8 @@ async def createAPIResource(inAPI, namespace, name, inHandler):
 
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
+        logWrapper(logging.INFO, 'createAPIResource', inHandler, 'component/' + name, name, "Creating API Custom Object", APIResource)
+
         apiObj = custom_objects_api.create_namespaced_custom_object(
             group = GROUP,
             version = VERSION,
@@ -500,6 +507,7 @@ async def createAPIResource(inAPI, namespace, name, inHandler):
 
     except ApiException as e:
         logWrapper(logging.WARNING, 'createAPIResource', inHandler, 'component/' + name, name, "API Exception creating", APIResource)
+        logWrapper(logging.WARNING, 'createAPIResource', inHandler, 'component/' + name, name, "API Exception creating", e)
         
         raise kopf.TemporaryError("Exception creating API custom resource.")
     return returnAPIObject
@@ -659,7 +667,7 @@ async def patchComponent(namespace, name, component, inHandler):
         logWrapper(logging.DEBUG, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "custom_objects_api.patch_namespaced_custom_object response", api_response)
     except ApiException as e:
         logWrapper(logging.DEBUG, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "Exception when calling api_instance.patch_namespaced_custom_object", e)
-        logWrapper(logging.INFO, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "Exception" " when calling api_instance.patch_namespaced_custom_object - will retry")
+        logWrapper(logging.INFO, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "Exception when calling api_instance.patch_namespaced_custom_object - will retry","")
 
         raise kopf.TemporaryError(
             "Exception when calling api_instance.patch_namespaced_custom_object for component " + name)

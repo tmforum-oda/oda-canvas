@@ -526,9 +526,13 @@ def implementation_status(meta, spec, status, body, namespace, labels, name, **k
 
     :meta public:
     """
+    try:
+        componentName = labels['oda.tmforum.org/componentName']
+        createAPIImplementationStatus(meta['ownerReferences'][0]['name'], body['endpoints'], namespace, 'implementation_status', componentName)
+    except Exception as e:
+        logWrapper(logging.WARNING, 'implementation_status', meta['ownerReferences'][0]['name'], 'api/' + name, componentName, "Exception in implementation_status", str(e))
+        raise kopf.TemporaryError("Exception handling implementation_status.")
 
-    componentName = labels['oda.tmforum.org/componentName']
-    createAPIImplementationStatus(meta['ownerReferences'][0]['name'], body['endpoints'], namespace, 'implementation_status', componentName)
 
 def createAPIImplementationStatus(serviceName, endpointsArray, namespace, inHandler, componentName):
     """Helper function to update the implementation Ready status on the API custom resource.

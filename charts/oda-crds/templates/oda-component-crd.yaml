@@ -10,7 +10,7 @@ spec:
   names:
     plural: "components"
     singular: "component"
-    kind: "component"
+    kind: "Component"
   conversion:
     strategy: Webhook
     # webhookClientConfig is required when strategy is `Webhook` and it configures the webhook endpoint to be called by API server.

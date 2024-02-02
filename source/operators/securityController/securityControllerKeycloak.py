@@ -67,7 +67,7 @@ seccon_user = 'seccon'
 kc = Keycloak(kcBaseURL)
 
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta2"
+VERSION = "v1beta3"
 COMPONENTS_PLURAL = "components"
 
 # Kopf handlers -------------
