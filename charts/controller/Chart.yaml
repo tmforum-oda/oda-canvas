@@ -1,6 +1,6 @@
 apiVersion: v2
 name: controller
-description: The component controller
+description: A helm chart to deploy the component controller
 
 # A chart can be either an 'application' or a 'library' chart.
 #

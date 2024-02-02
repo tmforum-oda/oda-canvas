@@ -1,6 +1,6 @@
 apiVersion: v2
 name: oda-webhook
-description: A Helm chart for deploying webhook following pattern in https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion
+description: A Helm chart to deploy the webhook following pattern in https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion
 
 # A chart can be either an 'application' or a 'library' chart.
 #

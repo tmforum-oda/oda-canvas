@@ -1,6 +1,6 @@
 apiVersion: v2
 name: oda-crds
-description: Canvas CRDs
+description: A helm chart to deploy the Canvas CRDs
 
 # A chart can be either an 'application' or a 'library' chart.
 #
