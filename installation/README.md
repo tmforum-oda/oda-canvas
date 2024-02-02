@@ -137,7 +137,8 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 1. Add oda-canvas helm repo
    
    ```bash
-   helm repo add oda-canvas https://github.com/tmforum-oda/oda-canvas
+   helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
+   helm repo update
    ```
    
 2. Install the reference implementation
