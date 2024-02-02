@@ -1,5 +1,10 @@
 package org.tmforum.oda.canvas.portal.core.exception;
 
+/**
+ * Exception error code
+ *
+ * @author li.peilong
+ */
 public enum CoreExceptionErrorCode implements ExceptionErrorCode {
 
     //utils(00100~00149)

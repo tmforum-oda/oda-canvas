@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Release版本
+ * Release revision
  *
  * @author li.peilong
  * @date 2022/12/07

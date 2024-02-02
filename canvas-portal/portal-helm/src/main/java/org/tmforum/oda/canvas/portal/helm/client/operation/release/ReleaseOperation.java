@@ -15,13 +15,16 @@ import org.tmforum.oda.canvas.portal.helm.client.operation.BaseOperation;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * 提供release相关操作
+ * Provides helm release operations
  *
  * @author li.peilong
  * @date 2022/12/07
@@ -43,7 +46,7 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取release的notes
+     * Get the notes of a release
      *
      * @param namespace
      * @param release
@@ -55,17 +58,17 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取release指定revision的notes
+     * Get the notes of a specific revision of a release
      *
      * @param namespace
      * @param release
-     * @param revision 小于0，获取最新revision的配置
+     * @param revision If less than 0, get the configuration of the latest revision
      * @return notes
      * @throws BaseAppException
      */
     public String notes(String namespace, String release, Integer revision) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name cannot be null or empty");
         String cmd = StringUtil.format(GET_RELEASE_NOTES_CMD, release, namespace);
         if (revision != null && revision > 0) {
             cmd = cmd.concat(" --revision ").concat(String.valueOf(revision));
@@ -75,7 +78,7 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取Release的状态
+     * Get the status of a release
      *
      * @param namespace
      * @param release
@@ -87,17 +90,17 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取Release的状态
+     * Get the status of a release
      *
      * @param namespace
      * @param release
-     * @param revision 小于等于0，查询当前revision
+     * @param revision If less than or equal to 0, query the current revision
      * @return
      * @throws BaseAppException
      */
     public HelmReleaseStatus status(String namespace, String release, Integer revision) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name cannot be null or empty");
         String cmd = StringUtil.format(GET_RELEASE_STATUS_CMD, release, namespace);
         if (revision != null && revision > 0) {
             cmd = cmd.concat(" --revision ").concat(String.valueOf(revision));
@@ -110,7 +113,7 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取release的manifest
+     * Get the manifest of a release
      *
      * @param namespace
      * @param release
@@ -122,17 +125,17 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取release指定revision的manifest
+     * Get the manifest of a specific revision of a release
      *
      * @param namespace
      * @param release
-     * @param revision 小于0，获取最新revision的配置
+     * @param revision If less than 0, get the configuration of the latest revision
      * @return manifest
      * @throws BaseAppException
      */
     public String manifest(String namespace, String release, Integer revision) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name cannot be null or empty");
         String cmd = StringUtil.format(GET_RELEASE_MANIFEST_CMD, release, namespace);
         if (revision != null && revision > 0) {
             cmd = cmd.concat(" --revision ").concat(String.valueOf(revision));
@@ -142,11 +145,11 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取release的配置
+     * Get the configuration of a release
      *
      * @param namespace
      * @param release
-     * @return yaml格式的全量配置
+     * @return yaml format of the full configuration
      * @throws BaseAppException
      */
     public String values(String namespace, String release) throws BaseAppException {
@@ -154,18 +157,18 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取release指定revision的配置
+     * Get the configuration of a specific revision of a release
      *
      * @param namespace
      * @param release
-     * @param revision 小于0，获取最新revision的配置
-     * @param all 是否显示所有的values， false仅显示用户自定义的配置
-     * @return yaml格式的全量配置
+     * @param revision If less than 0, get the configuration of the latest revision
+     * @param all Whether to display all values, false only displays user-defined configurations
+     * @return yaml format of the full configuration
      * @throws BaseAppException
      */
     public String values(String namespace, String release, Integer revision, boolean all) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name cannot be null or empty");
         String cmd = StringUtil.format(GET_RELEASE_VALUES_CMD, release, namespace);
         if (revision != null && revision > 0) {
             cmd = cmd.concat(" --revision ").concat(String.valueOf(revision));
@@ -178,7 +181,7 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 安装release
+     * Install a release
      *
      * @param namespace
      * @param release
@@ -193,7 +196,7 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 安装release
+     * Install a release
      *
      * @param namespace
      * @param release
@@ -201,16 +204,17 @@ public class ReleaseOperation extends BaseOperation {
      * @param version
      * @param description
      * @param values
+     * @param update Whether to update the repository before installation
      * @throws BaseAppException
      */
     public void install(String namespace, String release, String chart, String version, String description, String values, Boolean update) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(chart), "chart can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "release version can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(chart), "chart cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "release version cannot be null or empty");
         String cmd = StringUtil.format(INSTALL_RELEASE_CMD, release, chart, version, namespace);
 
-        // 先更新一下仓库
+        // Update the repository first
         if (BooleanUtils.isTrue(update)) {
             new RepoOperation().update(getRepoName(chart));
         }
@@ -219,7 +223,7 @@ public class ReleaseOperation extends BaseOperation {
             cmd = cmd.concat(" --description \"").concat(description).concat("\"");
         }
         if (StringUtils.isNoneBlank(values)) {
-            // 先将values写入文件
+            // Write values to a file first
             String path = writeToFile(values, "yaml");
             cmd = cmd.concat(" --values \"").concat(path).concat("\"");
         }
@@ -227,11 +231,11 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 升级release
+     * Upgrade a release
      *
      * @param namespace
      * @param release
-     * @param chart 格式repo/chart,比如：bitnami/nginx
+     * @param chart The chart to upgrade, in the format repo/chart, e.g., bitnami/nginx
      * @param version
      * @param description
      * @param values
@@ -241,22 +245,22 @@ public class ReleaseOperation extends BaseOperation {
         upgrade(namespace, release, chart, version, description, values, false);
     }
     /**
-     * 升级release
+     * Upgrade a release
      *
      * @param namespace
      * @param release
-     * @param chart 要升级的chart，格式repo/chart,比如：bitnami/nginx
+     * @param chart The chart to upgrade, in the format repo/chart, e.g., bitnami/nginx
      * @param version
      * @param description
-     * @param update 升级前是否更新仓库
+     * @param update Whether to update the repository before upgrading
      * @throws BaseAppException
      */
     public void upgrade(String namespace, String release, String chart, String version, String description, String values, Boolean update) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(chart), "chart can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "release version can not be null or empty");
-        // 先更新一下仓库
+        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(chart), "chart cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(version), "release version cannot be null or empty");
+        // Update the repository first
         if (BooleanUtils.isTrue(update)) {
             new RepoOperation().update(getRepoName(chart));
         }
@@ -265,7 +269,7 @@ public class ReleaseOperation extends BaseOperation {
             cmd = cmd.concat(" --description \"").concat(description).concat("\"");
         }
         if (StringUtils.isNoneBlank(values)) {
-            // 先将values写入文件
+            // Write values to a file first
             String path = writeToFile(values, "yaml");
             cmd = cmd.concat(" --values \"").concat(path).concat("\"");
         }
@@ -273,20 +277,21 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 卸载release
+     * Uninstall a release
      *
      * @param namespace
      * @param release
      * @throws BaseAppException
      */
     public void uninstall(String namespace, String release) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name cannot be null or empty");
         String cmd = StringUtil.format(UNINSTALL_RELEASE_CMD, release, namespace);
         exec(cmd);
     }
 
     /**
+     * Rollback a release
      *
      * @param namespace
      * @param release
@@ -294,18 +299,18 @@ public class ReleaseOperation extends BaseOperation {
      * @throws BaseAppException
      */
     public void rollback(String namespace, String release, Integer revision) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name cannot be null or empty");
         Preconditions.checkArgument(revision != null && revision > 0, "revision must be greater than 0");
         String cmd = StringUtil.format(ROLLBACK_RELEASE_CMD, release, revision, namespace);
         exec(cmd);
     }
 
     /**
-     * 获取release的历史版本列表
+     * Get the history of release versions
      *
-     * @param namespace 命名空间
-     * @param release release名称
+     * @param namespace Namespace
+     * @param release Release name
      * @return
      * @throws BaseAppException
      */
@@ -313,24 +318,24 @@ public class ReleaseOperation extends BaseOperation {
         return history(namespace, release, -1);
     }
     /**
-     * 获取release的历史版本列表
+     * Get the history of release versions
      *
-     * @param namespace 命名空间
-     * @param release release名称
-     * @param limit 返回的最大release历史版本数
+     * @param namespace Namespace
+     * @param release Release name
+     * @param limit The maximum number of release history versions to return
      * @return
      * @throws BaseAppException
      */
     public List<HelmReleaseRevision> history(String namespace, String release, Integer limit) throws BaseAppException {
-        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace can not be null or empty");
-        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name can not be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(namespace), "namespace cannot be null or empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(release), "release name cannot be null or empty");
         String cmd = StringUtil.format(LIST_RELEASE_HISTORY_CMD, release, namespace);
         if (limit != null && limit > 0) {
             cmd = cmd.concat(" --max").concat(String.valueOf(limit));
         }
         String output = exec(cmd);
         List<HelmReleaseRevision> result = JsonUtil.json2List(output, HelmReleaseRevision.class);
-        result.stream().forEach(helmReleaseRevision -> {
+        result.forEach(helmReleaseRevision -> {
             helmReleaseRevision.setReleaseName(release);
             helmReleaseRevision.setNamespace(namespace);
         });
@@ -338,9 +343,9 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取release列表
+     * Get the list of releases
      *
-     * @param namespace 命名空间
+     * @param namespace Namespace
      * @return
      * @throws BaseAppException
      */
@@ -349,7 +354,7 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取release
+     * Get a release
      *
      * @param namespace
      * @param releaseName
@@ -367,12 +372,12 @@ public class ReleaseOperation extends BaseOperation {
     }
 
     /**
-     * 获取release列表
+     * Get the list of releases
      *
-     * @param namespace 命名空间, 未指定则查询所有命名空间
-     * @param keyword release名称关键字
-     * @param limit 返回的最大release数
-     * @param statuses 获取指定状态的release deployed/failed/uninstalling/pending/superseded/uninstalling
+     * @param namespace Namespace, if not specified, query all namespaces
+     * @param keyword Release name keyword
+     * @param limit The maximum number of releases to return
+     * @param statuses Get releases of specified statuses deployed/failed/uninstalling/pending/superseded/uninstalling
      * @return
      * @throws BaseAppException
      */
@@ -396,7 +401,7 @@ public class ReleaseOperation extends BaseOperation {
         if (statuses == null || statuses.length == 0) {
             return result;
         }
-        // 获取指定状态的release
+        // Get releases of specified statuses
         return result.stream().filter(helmRelease -> Arrays.asList(statuses).contains(helmRelease.getStatus())).collect(Collectors.toList());
     }
 
@@ -411,12 +416,36 @@ public class ReleaseOperation extends BaseOperation {
         if (StringUtils.isNoneBlank(this.helmClientConfig.getKubeConfig())) {
             cmd = cmd.concat(" --kubeconfig ").concat(this.helmClientConfig.getKubeConfig());
         }
+        else {
+            // Service Account file
+            File saTokenPathFile = new File("/var/run/secrets/kubernetes.io/serviceaccount/token");
+            try {
+                String serviceTokenCandidate = new String(Files.readAllBytes(saTokenPathFile.toPath()));
+                cmd = cmd.concat(" --kube-token ").concat(serviceTokenCandidate);
+            }
+            catch (IOException e) {
+                ExceptionPublisher.publish(HelmClientExceptionErrorCode.HELM_RELEASE_NOT_EXIST);
+            }
+        }
         if (StringUtils.isNoneBlank(this.helmClientConfig.getKubeContext())) {
             cmd = cmd.concat(" --kube-context ").concat(this.helmClientConfig.getKubeContext());
         }
         if (StringUtils.isNoneBlank(this.helmClientConfig.getKubeApiserver())) {
             cmd = cmd.concat(" --kube-apiserver ").concat(this.helmClientConfig.getKubeApiserver());
         }
+        else {
+            String kubernetesServiceHost = System.getenv("KUBERNETES_SERVICE_HOST");
+            String kubernetesServicePort = System.getenv("KUBERNETES_SERVICE_PORT");
+            cmd = cmd.concat(" --kube-apiserver ").concat("https://" + joinHostPort(kubernetesServiceHost, kubernetesServicePort));
+        }
         return super.exec(cmd);
+    }
+
+    private static String joinHostPort(String host, String port) {
+        if (host.indexOf(':') >= 0) {
+            // Host is an IPv6
+            return "[" + host + "]:" + port;
+        }
+        return host + ":" + port;
     }
 }

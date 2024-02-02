@@ -18,7 +18,19 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 
+/**
+ * A simple encapsulation of JSON-Path:</br>
+ * 1. Using Jackson as the JSON engine, to support conversion from JSON to objects</br>
+ * 2. Restricting the available API to simplify usage</br>
+ * 3. Implementing some enhancements</br>
+ * References:
+ * http://www.baeldung.com/guide-to-jayway-jsonpath
+ * https://github.com/jayway/JsonPath
+ *
+ * @author li.peilong
+ */
 public abstract class JsonPathUtil {
+    // Using Jackson
     static {
         Configuration.setDefaults(new Configuration.Defaults() {
 
@@ -38,12 +50,19 @@ public abstract class JsonPathUtil {
             @Override
             public Set<Option> options() {
                 EnumSet<Option> options = EnumSet.noneOf(Option.class);
+                // Do not throw an exception if the path does not exist, return null
                 options.add(Option.DEFAULT_PATH_LEAF_TO_NULL);
                 return options;
             }
         });
     }
 
+    /**
+     * Finds the data at the specified path
+     *
+     * @param json     The JSON data
+     * @param jsonPath The path to find
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T> T find(String json, String jsonPath) throws BaseAppException {
         try {
@@ -76,6 +95,12 @@ public abstract class JsonPathUtil {
         return find(JSON.toJSONString(json), jsonPath);
     }
 
+    /**
+     * Finds the first piece of data that matches the condition
+     *
+     * @param json     The JSON data
+     * @param jsonPath The path to find
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T> T findOne(String json, String jsonPath) throws BaseAppException {
         T result = find(json, jsonPath);
@@ -97,6 +122,13 @@ public abstract class JsonPathUtil {
         return findOne(JSON.toJSONString(json), jsonPath);
     }
 
+    /**
+     * Finds the first piece of data that matches the condition, with support for a default value
+     *
+     * @param json
+     * @param jsonPath
+     * @param defaultVal
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T> T findOne(String json, String jsonPath, T defaultVal) throws BaseAppException {
         T result = find(json, jsonPath);
@@ -114,6 +146,14 @@ public abstract class JsonPathUtil {
         return result;
     }
 
+    /**
+     * Finds an integer at the specified path
+     *
+     * @param json
+     * @param jsonPath
+     * @return
+     * @throws BaseAppException
+     */
     public static Integer findInteger(String json, String jsonPath) throws BaseAppException {
         Object result = findOne(json, jsonPath);
         if (result == null) {
@@ -122,6 +162,15 @@ public abstract class JsonPathUtil {
         return Integer.parseInt(result.toString());
     }
 
+    /**
+     * Finds an integer at the specified path, with support for a default value
+     *
+     * @param json
+     * @param jsonPath
+     * @param defaultValue
+     * @return
+     * @throws BaseAppException
+     */
     public static Integer findInteger(String json, String jsonPath, int defaultValue) throws BaseAppException {
         Object result = findOne(json, jsonPath);
         if (result == null) {
@@ -130,6 +179,13 @@ public abstract class JsonPathUtil {
         return Integer.parseInt(result.toString());
     }
 
+    /**
+     * Converts the found data into a specified object
+     *
+     * @param json
+     * @param jsonPath
+     * @param type
+     */
     public static <T> T find(String json, String jsonPath, Class<T> type) throws BaseAppException {
         try {
             DocumentContext jsonContext = JsonPath.parse(json);
@@ -141,6 +197,16 @@ public abstract class JsonPathUtil {
         return null;
     }
 
+    /**
+     * Finds an enum value
+     *
+     * @param json
+     * @param jsonPath
+     * @param type
+     * @param <T>
+     * @return
+     * @throws BaseAppException
+     */
     public static <T extends Enum<T>> T findEnum(String json, String jsonPath, Class<T> type) throws BaseAppException {
         try {
             String data = findOne(json, jsonPath);
@@ -164,7 +230,9 @@ public abstract class JsonPathUtil {
     }
 
     public static <T> List<T> findList(String data, String jsonPath, Class<T> clazz) throws BaseAppException {
+        // Extract the required data first
         List list = JsonPathUtil.find(data, jsonPath);
+        // Convert it into the required object
         return JsonUtil.json2List(JsonUtil.list2Json(list), clazz);
     }
 

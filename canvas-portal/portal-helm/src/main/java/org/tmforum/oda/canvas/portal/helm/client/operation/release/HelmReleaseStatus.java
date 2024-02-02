@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 /**
- * Release状态
+ * Release status
  *
  * @author li.peilong
  * @date 2023/02/13

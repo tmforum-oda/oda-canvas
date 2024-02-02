@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus';
 import { formatDate } from '@/utils/utils';
 import { showLoading, hideLoading } from '@/utils/loading';
 import useStore from '@/stores/namespace';
+import MonaCoEditor from '@/components/monacoEditor/IndexView.vue';
 const namespaceStore = useStore();
 const param = {
     namespace: namespaceStore.namespace
@@ -15,6 +16,20 @@ const props = defineProps({
         default: ''
     }
 });
+
+const dialogVisible = ref(false);
+const yamlDialogTitle = ref('');
+
+const code = ref('');
+const options = ref({
+    theme: 'vs-dark',
+    language: 'yaml',
+    readOnly: true,
+    minimap: {
+        enabled: true // 不要小地图
+    }
+});
+
 const gridData = ref([]);
 const currentRevision = ref('');
 const showMgs = () => {
@@ -47,6 +62,14 @@ const loadGrid = async () => {
         hideLoading();
     }
 }
+const viewConfig = async row => {
+    console.log(row);
+    const { data } = await request.getReleaseValues(row.releaseName, param);
+    code.value = data.data;
+    yamlDialogTitle.value = `Release|${row.releaseName}`;
+    dialogVisible.value = true;
+}
+
 onMounted(() => {
     loadGrid();
 });
@@ -82,11 +105,25 @@ const handleVersion = (revision) => {
                     <el-table-column prop="description" label="Description" show-overflow-tooltip />
                     <el-table-column fixed="right" label="Operation" align="center" width="250">
                         <template #default="scope">
-                            <el-button link type="primary" @click="handle()" size="small">Instance Configuration</el-button>
+                            <el-button link type="primary" @click="viewConfig(scope.row)" size="small">Instance
+                                Configuration</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
             </el-col>
         </el-row>
     </div>
+    <el-dialog class="revision-dialog" width="55%" v-model="dialogVisible" :title="yamlDialogTitle">
+        <MonaCoEditor width="100%" height="500px" :options="options" :modelValue="code" />
+    </el-dialog>
 </template>
+
+<style lang="scss">
+.revision-dialog .el-dialog__header {
+    padding-top: 5px !important;
+}
+
+.revision-dialog .el-dialog__body {
+    padding-top: 5px !important;
+}
+</style>

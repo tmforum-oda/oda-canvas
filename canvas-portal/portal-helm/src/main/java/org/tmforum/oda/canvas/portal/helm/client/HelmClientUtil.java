@@ -21,14 +21,14 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 /**
- * 工具类
+ * Utility class
  *
  * @author li.peilong
  * @date 2022/12/09
  */
 public abstract class HelmClientUtil {
     /**
-     * 当前系统是否是Windows
+     * Whether the current system is Windows
      *
      * @return
      */
@@ -37,7 +37,7 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * 获取工作目录
+     * Get the working directory
      *
      * @return
      */
@@ -47,7 +47,7 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * helm缓存目录
+     * Helm cache directory
      *
      * @return
      */
@@ -56,7 +56,7 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * helm配置目录
+     * Helm configuration directory
      *
      * @return
      */
@@ -65,7 +65,7 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * helm数据目录
+     * Helm data directory
      *
      * @return
      */
@@ -74,7 +74,7 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * helm 插件目录
+     * Helm plugins directory
      *
      * @return
      */
@@ -83,7 +83,7 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * 存放下载的charts的目录
+     * The directory for storing downloaded charts
      *
      * @return
      */
@@ -92,7 +92,7 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * charts解压目录
+     * Charts extraction directory
      *
      * @return
      */
@@ -101,9 +101,9 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * 某版本chart的解压目录
+     * The extraction directory for a specific version of a chart
      *
-     * @param name 格式 repoName/chartName
+     * @param name format repoName/chartName
      * @param version
      * @return
      */
@@ -113,7 +113,7 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * 获取临时目录
+     * Get the temporary directory
      *
      * @return
      */
@@ -122,7 +122,7 @@ public abstract class HelmClientUtil {
     }
 
     /**
-     * 创建目录
+     * Create directories
      *
      * @param dir
      * @throws BaseAppException
@@ -133,14 +133,13 @@ public abstract class HelmClientUtil {
         }
         try {
             Files.createDirectories(dir);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             ExceptionPublisher.publish(e, HelmClientExceptionErrorCode.HELM_CREATE_DIRECTORY_FAILED, dir.toFile().getAbsolutePath());
         }
     }
 
     /**
-     * 解压缩tar.gz文件
+     * Uncompress tar.gz files
      *
      * @param in
      * @param destPath
@@ -150,13 +149,12 @@ public abstract class HelmClientUtil {
         tgzUncompress(in, destPath, false);
     }
 
-
     /**
-     * 解压缩tar.gz文件
+     * Uncompress tar.gz files
      *
      * @param in
-     * @param destPath 目标目录
-     * @param ignoreDirectory 是否忽略目录，设置为true后，压缩包中的文件会直接解压到destPath目录
+     * @param destPath The target directory
+     * @param ignoreDirectory Whether to ignore directories, if set to true, the files in the archive will be directly extracted to the destPath directory
      */
     public static void tgzUncompress(InputStream in, Path destPath, Boolean ignoreDirectory) throws BaseAppException {
         try (BufferedInputStream bin = new BufferedInputStream(in);
@@ -178,8 +176,7 @@ public abstract class HelmClientUtil {
                 if (ignoreDirectory) {
                     String[] names = entry.getName().split("/");
                     filePath = destPath.resolve(names[names.length - 1]);
-                }
-                else {
+                } else {
                     filePath = destPath.resolve(entry.getName());
                     Path parentPath = filePath.getParent();
                     if (parentPath != null && Files.notExists(parentPath)) {
@@ -188,14 +185,13 @@ public abstract class HelmClientUtil {
                 }
                 Files.copy(tin, filePath, StandardCopyOption.REPLACE_EXISTING);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             ExceptionPublisher.publish(e, HelmClientExceptionErrorCode.HELM_UNCOMPRESS_FAILED, e.getMessage());
         }
     }
 
     /**
-     * 解压缩tar.gz文件
+     * Uncompress tar.gz files
      *
      * @param file
      * @param destPath
@@ -204,8 +200,7 @@ public abstract class HelmClientUtil {
         try {
             FileInputStream in = new FileInputStream(file);
             tgzUncompress(in, destPath);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             ExceptionPublisher.publish(HelmClientExceptionErrorCode.HELM_UNCOMPRESS_FAILED, e.getMessage());
         }
     }

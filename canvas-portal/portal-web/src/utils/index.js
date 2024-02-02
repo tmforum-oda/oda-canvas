@@ -51,6 +51,18 @@ const api = {
     },
     getNamespace() {
         return request.get(path.getNamespace);
+    },
+    getComponentYaml(name, params) {
+        return request.get(path.getComponentYaml(name), { params });
+    },
+    getResourceYaml(namespace, name, type) {
+        return request.get(path.getResourceYaml(namespace, name, type));
+    },
+    getReleaseValues(name, params) {
+        return request.get(path.getReleaseValues(name), { params });
+    },
+    getApiYaml(name, params) {
+        return request.get(path.getApiYaml(name), { params });
     }
 }
 export default api; 

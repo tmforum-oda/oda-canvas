@@ -19,7 +19,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
- * Helm客户端
+ * Helm client
  *
  * @author li.peilong
  * @date 2022/12/08
@@ -35,7 +35,7 @@ public class HelmClient {
     private HelmClientConfig helmClientConfig;
 
     /**
-     * Chart相关操作
+     * Operations related to Charts
      *
      * @return
      */
@@ -44,7 +44,7 @@ public class HelmClient {
     }
 
     /**
-     * Chart仓库相关操作
+     * Operations related to Chart repositories
      *
      * @return
      */
@@ -53,7 +53,7 @@ public class HelmClient {
     }
 
     /**
-     * helm相关操作
+     * Operations related to helm
      *
      * @return
      */
@@ -62,7 +62,7 @@ public class HelmClient {
     }
 
     /**
-     * Release相关操作
+     * Operations related to Releases
      *
      * @return
      */
@@ -71,7 +71,7 @@ public class HelmClient {
     }
 
     /**
-     * 获取helm client配置
+     * Get the helm client configuration
      *
      * @return
      */
@@ -79,38 +79,34 @@ public class HelmClient {
         return helmClientConfig;
     }
 
-    // 将helm client安装到本地
+    // Install the helm client locally
     static {
         if (!HelmClientUtil.isWindows()) {
             InputStream in = null;
-            // 安装helm
+            // Install helm
             try {
                 in = Objects.requireNonNull(HelmClient.class.getResourceAsStream(StringUtil.format("/install-package/{}.tar.gz", HELM_PACKAGE_NAME)), "Helm Client does not exist");
                 HelmClientUtil.tgzUncompress(in, HelmClientUtil.workingDir(), true);
-                // 设置执行权限
+                // Set execution permissions
                 File helmClientFile = new File(HelmClientUtil.workingDir().toFile().getAbsolutePath(), "helm");
                 helmClientFile.setExecutable(true);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Failed to install helm client, error: ", e);
-            }
-            finally {
+            } finally {
                 IOUtils.closeQuietly(in);
             }
-            // 安装helm push插件
+            // Install helm push plugin
             try {
                 in = Objects.requireNonNull(HelmClient.class.getResourceAsStream(StringUtil.format("/install-package/{}.tar.gz", HELM_PUSH_PACKAGE_NAME)), "Helm push plugin does not exist");
                 Path pushPluginPath = HelmClientUtil.pluginDir().resolve("helm-push");
                 HelmClientUtil.tgzUncompress(in, pushPluginPath);
-                // 设置执行权限
+                // Set execution permissions
                 File helmClientFile = new File(pushPluginPath.resolve("bin").toFile().getAbsolutePath(), "helm-cm-push");
                 helmClientFile.setExecutable(true);
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Failed to install helm push plugin, error: ", e);
-            }
-            finally {
+            } finally {
                 IOUtils.closeQuietly(in);
             }
         }

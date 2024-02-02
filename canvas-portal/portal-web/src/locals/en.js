@@ -45,5 +45,6 @@ export default {
         SWITCH_LAN: 'Chinese',
         CREATE: 'New',
         RULES: 'Rules',
+        UNINSTALL_INSTANCE_CONFIRM: 'Confirm to delete the component instance '
     }
 };
