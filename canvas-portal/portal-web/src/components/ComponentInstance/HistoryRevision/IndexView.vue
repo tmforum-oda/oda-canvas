@@ -1,15 +1,19 @@
 <script setup>
 import request from "@/utils/index";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { ElMessage } from 'element-plus';
 import { formatDate } from '@/utils/utils';
-import { showLoading, hideLoading } from '@/utils/loading';
+// import { showLoading, hideLoading } from '@/utils/loading';
 import useStore from '@/stores/namespace';
 import MonaCoEditor from '@/components/monacoEditor/IndexView.vue';
 const namespaceStore = useStore();
 const param = {
     namespace: namespaceStore.namespace
 };
+watch(() => namespaceStore.namespace, val => {
+    param.namespace = val;
+    loadGrid();
+})
 const props = defineProps({
     release: {
         type: String,
@@ -46,7 +50,7 @@ const getReleaseVersion = async () => {
 }
 const loadGrid = async () => {
     try {
-        showLoading({ target: '.revision-table' });
+        // showLoading({ target: '.revision-table' });
         const { data: detail } = await getReleaseDetailInfo();
         const revision = detail?.revision;
         currentRevision.value = revision;
@@ -59,7 +63,7 @@ const loadGrid = async () => {
     } catch (error) {
         showMgs();
     } finally {
-        hideLoading();
+        // hideLoading();
     }
 }
 const viewConfig = async row => {

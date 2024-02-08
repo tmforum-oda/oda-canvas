@@ -7,6 +7,7 @@ import useStore from '@/stores/namespace';
 const namespaceStore = useStore();
 const route = useRoute();
 const namespace = computed(() => namespaceStore.namespace); // namespace的获取放在顶层，获取后再进行渲染
+const dataSource = computed(() => namespaceStore.dataSource); // namespace的获取放在顶层，获取后再进行渲染
 const showNav = ref(false);
 showNav.value = route.name !== 'ComponentDetail';
 </script>

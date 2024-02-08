@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps } from 'vue';
+import { ref } from 'vue';
 const boolFalse = ref(false);
 const props = defineProps({
     instanceList: {
@@ -18,8 +18,8 @@ const viewDetail = (name) => {
         <h3>
             {{ $t('ODA.COMPONENT_INSTANCES') }}
         </h3>
-
-        <el-carousel height="370px" :autoplay="boolFalse" arrow="always" indicator-position="none" :loop="boolFalse">
+        <el-carousel v-if="instanceList.length !== 0" height="370px" :autoplay="boolFalse" arrow="always"
+            indicator-position="none" :loop="boolFalse">
             <el-carousel-item v-for="(o, idx) in props.instanceList" :key="idx">
 
                 <div class="instance-detail-item" v-for="(item, index) in o" :key="index">
@@ -59,7 +59,9 @@ const viewDetail = (name) => {
                 </div>
             </el-carousel-item>
         </el-carousel>
-
+        <div v-else style="color: #909399;text-align:center">
+            No data
+        </div>
     </div>
 </template>
 

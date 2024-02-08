@@ -1,10 +1,11 @@
 <script setup>
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, computed, ref, watch } from 'vue';
 import useStore from '@/stores/namespace';
 import TopBg from "@/components/ComponentStatus/TopBg.vue";
 import OdaComponent from "@/components/ComponentStatus/OdaComponents.vue";
 import ComponentInstance from "@/components/ComponentStatus/ComponentInstance.vue";
 import ODACanvasService from "@/components/ComponentStatus/ODACanvasService.vue";
+import { showLoading, hideLoading } from '@/utils/loading';
 import { chunk } from 'lodash-es';
 import request from '@/utils/index';
 import dayjs from 'dayjs';
@@ -19,14 +20,25 @@ const showComponent = ref(false);
 
 const componentList = ref([]);
 const instanceList = ref([]);
+
+watch(() => namespaceStore.namespace, val => {
+    namespace.value = val;
+    getComponents();
+})
 onMounted(() => {
     getComponents();
 });
+
 const getComponents = async () => {
-    const { data } = await request.getComponents({
-        namespace: namespace.value
-    }) || [];
-    resolveChunkData(data);
+    try {
+        showLoading();
+        const { data } = await request.getComponents({
+            namespace: namespace.value
+        }) || [];
+        resolveChunkData(data);
+    } finally {
+        hideLoading();
+    }
 }
 
 const instanceTrigger = list => {
@@ -79,13 +91,11 @@ const resolveChunkData = data => {
 </template>
   
 <style lang="scss" scoped>
-::v-deep {
-    .el-carousel__arrow--left {
-        left: -40px
-    }
+:deep(.el-carousel__arrow--left) {
+    left: -40px
+}
 
-    .el-carousel__arrow--right {
-        right: -40px
-    }
+:deep(.el-carousel__arrow--right) {
+    right: -40px
 }
 </style>

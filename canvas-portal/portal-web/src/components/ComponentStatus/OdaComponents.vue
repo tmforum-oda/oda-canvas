@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, nextTick, onBeforeUnmount, watch, defineEmits } from 'vue';
+import { onMounted, ref, nextTick, onBeforeUnmount, watch } from 'vue';
 import { throttle } from 'lodash-es';
 import { showLoading, hideLoading } from '@/utils/loading';
 import dayjs from 'dayjs';
@@ -163,14 +163,12 @@ const resolveInstance = throttle(async (item) => {
 </template>
 
 <style lang="scss" scoped>
-::v-deep {
-    .el-carousel__arrow--left {
-        left: -40px
-    }
+:deep(.el-carousel__arrow--left) {
+    left: -40px
+}
 
-    .el-carousel__arrow--right {
-        right: -40px
-    }
+:deep(.el-carousel__arrow--right) {
+    right: -40px
 }
 
 h3 {
