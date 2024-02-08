@@ -54,7 +54,7 @@ public class ComponentInstanceService {
      */
     public List<GenericKubernetesResource> listOdaComponentInstances(String namespace, String keyword) throws BaseAppException {
         try {
-            List<GenericKubernetesResource> components = kubeClient.genericKubernetesResources(getCustomResourceDefinitionContext()).inNamespace(namespace).list().getItems();
+            List<GenericKubernetesResource> components = kubeClient.genericKubernetesResources(getCustomResourceDefinitionContext(namespace)).inNamespace(namespace).list().getItems();
             if (StringUtils.isBlank(keyword)) {
                 return components;
             }
@@ -234,7 +234,7 @@ public class ComponentInstanceService {
     public GenericKubernetesResource getOdaComponentInstance(String namespace, String name) throws BaseAppException {
         GenericKubernetesResource component = null;
         try {
-            component = kubeClient.genericKubernetesResources(getCustomResourceDefinitionContext()).inNamespace(namespace).withName(name).get();
+            component = kubeClient.genericKubernetesResources(getCustomResourceDefinitionContext(namespace)).inNamespace(namespace).withName(name).get();
         }
         catch (Exception e) {
             LOGGER.warn("Failed to get ODA component instance [{}] in namespace [{}], error: ", name, namespace, e);
@@ -253,7 +253,7 @@ public class ComponentInstanceService {
      * @return crd context
      * @throws BaseAppException
      */
-    public CustomResourceDefinitionContext getCustomResourceDefinitionContext() throws BaseAppException {
+    public CustomResourceDefinitionContext getCustomResourceDefinitionContext(String namespace) throws BaseAppException {
         synchronized (customResourceDefinitionContexts) {
             for (String version : SUPPORTED_VERSIONS) {
                 CustomResourceDefinitionContext customResourceDefinitionContext = new CustomResourceDefinitionContext.Builder()
@@ -265,7 +265,7 @@ public class ComponentInstanceService {
                         .withKind("component")
                         .build();
                 try {
-                    kubeClient.genericKubernetesResources(customResourceDefinitionContext).list();
+                    kubeClient.genericKubernetesResources(customResourceDefinitionContext).inNamespace(namespace).list();
                     return customResourceDefinitionContext;
                 }
                 catch (Exception e) {

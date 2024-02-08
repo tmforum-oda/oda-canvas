@@ -4,7 +4,7 @@ npm i && npm run build
 cd ../build
 
 # copy front output to static dir
-./copy-nodejs-dist-to-static.sh
+#./copy-nodejs-dist-to-static.sh
 
 cd ..
 

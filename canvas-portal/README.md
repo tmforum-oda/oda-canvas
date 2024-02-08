@@ -21,9 +21,9 @@ cd oda-canvas/canvas-portal/
 - quick install
 
 ```bash
-helm install canvas-portal ./charts -n components \
+helm install canvas-portal ./charts -n canvas \
 --set image.repository=docker.io/wctdevops/canvas-portal \
---set image.tag=20240109 \
+--set image.tag=20240228 \
 --set service.type=NodePort
 ```
 
@@ -32,9 +32,9 @@ The command will install the canvas portal and give details for finding the IP a
 - install with ingress
 
 ```bash
-helm install canvas-portal ./charts -n components \
+helm install canvas-portal ./charts -n canvas \
 --set image.repository=docker.io/wctdevops/canvas-portal \
---set image.tag=20240109 \
+--set image.tag=20240228 \
 --set ingress.enabled=true \
 --set ingress.className=nginx \
 ```
@@ -42,7 +42,7 @@ helm install canvas-portal ./charts -n components \
 - install with more parameters
 
 ```bash
-helm install canvas-portal ./charts -n components \
+helm install canvas-portal ./charts -n canvas \
 --set image.repository=xx \
 --set image.tag=xx \
 --set service.type=NodePort \
@@ -70,5 +70,5 @@ helm install canvas-portal ./charts -n components \
 # Uninstall
 
 ```bash
-helm uninstall canvas-portal -n components
+helm uninstall canvas-portal -n canvas
 ```

@@ -1,10 +1,10 @@
 <script setup>
 import request from "@/utils/index";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { formatDate as format } from '@/utils/utils'
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { showLoading, hideLoading } from '@/utils/loading';
+// import { showLoading, hideLoading } from '@/utils/loading';
 import MonaCoEditor from '@/components/monacoEditor/IndexView.vue';
 dayjs.extend(relativeTime);
 import useStore from '@/stores/namespace';
@@ -12,6 +12,10 @@ const namespaceStore = useStore();
 const param = {
     namespace: namespaceStore.namespace
 };
+watch(() => namespaceStore.namespace, val => {
+    param.namespace = val;
+    loadGrid();
+});
 const props = defineProps({
     instanceName: {
         type: String,
@@ -34,12 +38,12 @@ const options = ref({
 const gridData = ref([]);
 const loadGrid = async () => {
     try {
-        showLoading({ target: '.resource-table' });
+        // showLoading({ target: '.resource-table' });
         const { data } = await request.getComponentResources(props.instanceName, param);
         // console.log(data);
         gridData.value = data;
     } finally {
-        hideLoading();
+        // hideLoading();
     }
 }
 const viewYaml = async (row) => {
