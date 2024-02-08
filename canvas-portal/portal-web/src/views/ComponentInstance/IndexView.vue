@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import useStore from '@/stores/namespace'
 import { Search, Plus } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -28,7 +28,9 @@ const mode = ref(true); // true:新建  false:升级
 const dialogFormVisible = ref(false); // dialog是否展示
 const dialogData = ref(formParam);
 const formatDate = (timestamp, format = 'YYYY-MM-DD HH:mm:ss') => dayjs(timestamp).format(format);
-
+watch(() => namespaceStore.namespace, () => {
+    requestGridData();
+})
 // 查询表格数据
 const requestGridData = async () => {
     try {
