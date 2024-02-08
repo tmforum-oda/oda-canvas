@@ -1,3 +1,5 @@
+{{- if .Values.namespacedRole.create -}}
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -108,3 +110,23 @@ rules:
   verbs:
     - get
     - list
+
+{{- $odaComponentNamespace := split "," .Values.env.odaComponentNamespace }}
+  {{- range $ns := $odaComponentNamespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: canvas-portal
+  namespace: {{ $ns }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: canvas-portal
+subjects:
+  - kind: ServiceAccount
+    name: canvas-portal
+    namespace: {{ .Release.Namespace }}
+  {{- end }}
+
+{{- end }}
