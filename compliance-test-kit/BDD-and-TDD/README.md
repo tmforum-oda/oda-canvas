@@ -34,7 +34,7 @@ This repository contains a list of BDD features and scenarios that describe each
   npm install
   ```
 
-- create a `.env` file and set `KEYCLOAK_USER`, `KEYCLOAK_PASSWORD`, `KEYCLOAK_BASE_URL` and `KEYCLOAK_REALM`, `CUCUMBER_PUBLISH_TOKEN` - or use another option to define the variables
+- create a `.env` file and set `KEYCLOAK_USER`, `KEYCLOAK_PASSWORD`, `KEYCLOAK_BASE_URL` and `KEYCLOAK_REALM`, `CUCUMBER_PUBLISH_TOKEN`(only use/export this token if you want to run 'npm start' command for all tests) - or use another option to define the variables
 
   ```
   KEYCLOAK_USER=admin 
