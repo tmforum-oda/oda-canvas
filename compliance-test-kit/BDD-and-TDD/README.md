@@ -34,13 +34,14 @@ This repository contains a list of BDD features and scenarios that describe each
   npm install
   ```
 
-- create a `.env` file and set `KEYCLOAK_USER`, `KEYCLOAK_PASSWORD`, `KEYCLOAK_BASE_URL` and `KEYCLOAK_REALM` - or use another option to define the variables
+- create a `.env` file and set `KEYCLOAK_USER`, `KEYCLOAK_PASSWORD`, `KEYCLOAK_BASE_URL` and `KEYCLOAK_REALM`, `CUCUMBER_PUBLISH_TOKEN` - or use another option to define the variables
 
   ```
   KEYCLOAK_USER=admin 
   KEYCLOAK_PASSWORD=adpass 
   KEYCLOAK_BASE_URL=http://keycloack-ip:8083/auth/ 
   KEYCLOAK_REALM=myrealm
+  CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
   ```
 
 ## How to run the tests
