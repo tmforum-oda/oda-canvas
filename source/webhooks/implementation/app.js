@@ -110,6 +110,7 @@ app.post("/", (req, res, next) => {
       objectsArray[key].metadata.annotations.webhookconverted = "Webhook converted From " + currentAPIVersion + " to " + desiredAPIVersion;
       console.log('Comparing old version ' + currentAPIVersion + ' and desired version ' + desiredAPIVersion);
 
+      // update the eventNotification segments and change exposedAPI specification to an array of 1
       if (apiVersion.mapOldToNew(["v1beta1", "v1beta2"], ["v1beta3"])) {
         console.log("Update eventNotification segments");
         
@@ -159,6 +160,18 @@ app.post("/", (req, res, next) => {
             })
           }
         }
+
+        console.log("Change exposedAPI specification to an array of 1");
+        for (api in objectsArray[key].spec.core.exposedAPIs) {
+          objectsArray[key].spec.core.exposedAPIs[api].specification = [objectsArray[key].spec.core.exposedAPIs[api].specification];
+        }
+        for (api in objectsArray[key].spec.management.exposedAPIs) {
+          objectsArray[key].spec.management.exposedAPIs[api].specification = [objectsArray[key].spec.management.exposedAPIs[api].specification];
+        }
+        for (api in objectsArray[key].spec.security.exposedAPIs) {
+          objectsArray[key].spec.security.exposedAPIs[api].specification = [objectsArray[key].spec.security.exposedAPIs[api].specification];
+        }
+
       }
 
 

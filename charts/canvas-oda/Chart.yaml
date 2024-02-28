@@ -15,7 +15,9 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.0
+version: 1.1.0
+# version: 1.1.0 - updated component CRD to support oneOf string or array for the specification field in the exposed API
+# version: 1.0.0 - baseline version
 
 # This is the version number of the application being deployed. We are versioning the canvas as the
 # version of the latest component spec that it supports.
@@ -30,9 +32,9 @@ dependencies:
     repository: 'file://../canvas-namespaces'
     condition: canvas-namespaces.enabled
   - name: oda-crds
-    version: "1.0.0"
+    version: "1.1.0"
     repository: 'file://../oda-crds'
-    condition: oda-cdrs.enabled
+    condition: oda-crds.enabled
   - name: keycloak
     version: "13.0.2"
     repository: 'https://charts.bitnami.com/bitnami'
