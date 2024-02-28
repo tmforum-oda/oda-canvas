@@ -1,5 +1,5 @@
 apiVersion: oda.tmforum.org/v1beta2
-kind: component
+kind: Component
 metadata:
   name: {{.Release.Name}}-{{.Values.component.name}}
   labels:

@@ -1,52 +1,53 @@
 ﻿
 # ODA Canvas installation
 
-The Reference Implementation of the ODA Canvas is a set of Helm charts that can be used to install and configure a fully working Canvas. The Reference Implementation is built on top of Kubernetes and Istio. 
+The Reference Implementation of the ODA Canvas is a set of Helm charts that can be used to install and configure a fully working Canvas. The Reference Implementation is built on top of Kubernetes and Istio.
 
 ## Software Versions
 
-For each release, we will support a min and max Kubernetes version. 
+For each release, we will support a min and max Kubernetes version.
 
-| ODA Component version | Min Kubernetes version | Max Kubernetes version  |
-| --------------------- | ---------------------- | ----------------------- |
-| v1alpha4              | 1.20                   | 1.22                    |
-| v1beta1               | 1.22                   | 1.25                    |
-| v1beta2               | 1.22                   | 1.27                    |
+| ODA Component version | Min Kubernetes version | Max Kubernetes version |
+| --------------------- | ---------------------- | ---------------------- |
+| v1alpha4              | 1.20                   | 1.22                   |
+| v1beta1               | 1.22                   | 1.25                   |
+| v1beta2               | 1.22                   | 1.27                   |
 
 If you are connected to an ODA Canvas, to test what version of Canvas it is, use the command:
-```
+
+```bash
 kubectl get crd components.oda.tmforum.org -o jsonpath='{.spec.versions[?(@.served==true)].name}'
 ```
-It will return the versions of components the canvas supports. A canvas should support N-2 versions of a component i.e. for the `v1beta2` canvas, it will support components that are v1beta2, v1beta1, v1alpha4 (and v1alpha3 with a deprecation warning).
 
+It will return the versions of components the canvas supports. A canvas should support N-2 versions of a component i.e. for the `v1beta2` canvas, it will support components that are v1beta2, v1beta1, v1alpha4 (and v1alpha3 with a deprecation warning).
 
 We will test the Reference Implementation Canvas against a range of kubernetes versions and on a number of different deployments.
 
-| Kubernetes deployment     | Tested | Notes             |
-| ------------------------- | ------ | ----------------- |
-| Rancher on AWS            |   Yes  | [Open Digital Lab environment]                   | 
-| Azure AKS                 |   Yes  |                   | 
-| GCP GKE                   |   Yes  | [Innovation Hub environment]                  |
-| Microk8s                  |   Yes  |                   | 
-| MiniKube                  |   Yes  |                   |
-| Docker Desktop            |   Yes  |                   |
-| Kind                      |        | Using [Canvas-in-a-bottle](canvas-in-a-bottle/README.md) |
-| K3s                       |        |                   |  
-| (other)                   |        | To suggest additional environments please add to this [issue](https://github.com/tmforum-oda/oda-canvas-charts/issues/52)                  |
+| Kubernetes deployment | Tested | Notes                                                                                                                     |
+| --------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
+| Rancher on AWS        | Yes    | [Open Digital Lab environment]                                                                                            |
+| Azure AKS             | Yes    |                                                                                                                           |
+| GCP GKE               | Yes    | [Innovation Hub environment]                                                                                              |
+| Microk8s              | Yes    |                                                                                                                           |
+| MiniKube              | Yes    |                                                                                                                           |
+| Docker Desktop        | Yes    | see also [devcontainer.md](../devcontainer.md)                                                                            |
+| Kind                  |        | Using [Canvas-in-a-bottle](canvas-in-a-bottle/README.md)                                                                  |
+| K3s                   |        |                                                                                                                           |
+| (other)               |        | To suggest additional environments please add to this [issue](https://github.com/tmforum-oda/oda-canvas-charts/issues/52) |
 
 The environment where the chart has been tested has the following
-|Software|Version  |
-|--|--|
-|Istio  | 1.16.1  |
-|Helm | 3.10 |
+| Software | Version |
+| -------- | ------- |
+| Istio    | 1.16.1  |
+| Helm     | 3.10    |
 
 The helm chart installs the following updated versions of third party to
 
-|Software|Version  |
-|--|--|
-|Cert-Manager  |1.20  |
-|Keycloak  |  20.0.3|
-|Postgress| 15.0.1 |
+| Software     | Version |
+| ------------ | ------- |
+| Cert-Manager | 1.20    |
+| Keycloak     | 20.0.3  |
+| Postgress    | 15.0.1  |
 
 ## Configuration values
 
@@ -63,15 +64,13 @@ The procedure has been tested
 - local k3s distribution, rancher desktop or similar
 - AWS [Kops](https://kops.sigs.k8s.io/) with AmazonVPC as network and with and without cert-manager managed by kops
 
-  
 We assume there is a ```kubeconfig``` file available with adequate permissions on the K8s cluster to:
-
 
 - Manage namespaces
 - Install [CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
 - Manage resources in namespaces
 
-Run the following to check that you have the required Kubernetes permissions to run the install:
+Run the following to check that you have the required Kubernetes permissions to run the install (or run `./installation/precheck.sh`):
 
 ```bash
 kubectl auth can-i create namespaces --all-namespaces
@@ -94,7 +93,6 @@ kubectl auth can-i create jobs
 kubectl auth can-i create certificates  
 kubectl auth can-i create issuers
 ```
-
 
 ### 2. Helm
 
@@ -133,22 +131,20 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 
 ### 4. Reference implementation
 
-
 1. Add oda-canvas helm repo
-   
+
    ```bash
    helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
    helm repo update
    ```
-   
+
 2. Install the reference implementation
 
+    Install the canvas using the following command.
 
-  Install the canvas using the following command.
-
-  ````bash
-  helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
-  ````
+    ```bash
+    helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
+    ```
 
 ## Troubleshooting
 
@@ -156,16 +152,16 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 
 The installation can fail with an error
 
-````bash
+```bash
 Error: INSTALLATION FAILED: failed post-install: job failed: BackoffLimitExceeded
-````
+```
 
 There are two major causes of this error
 
 1. An error on the Job for configuring keycloak
 
 ```bash
-$ kubectl get pods -n canvas
+kubectl get pods -n canvas
 ```
 
 ```bash
@@ -193,7 +189,7 @@ The ranges valid are the following
 2. An Error in the Job but caused because the canvas-keycloak-0 that is in CrashLoopBackOff
 
 ```bash
-$ kubectl get pods -A
+kubectl get pods -A
 ```
 
 ```
@@ -209,7 +205,7 @@ canvas          job-hook-postinstall-v56pt                        0/1     Comple
 Checking the logs `kubectl logs -n canvas sts/canvas-postgresql`  we can see an error
 
 ```bash
- FATAL:  password authentication failed for user "bn_keycloak"
+FATAL:  password authentication failed for user "bn_keycloak"
 ```
 
 In that case, a previous installation left a PVC reused by the Postgres pod.
@@ -265,20 +261,20 @@ Reinstall it with the new time.
 
 The Helm chart has been refactored to move all the different subcharts to the same level to improve readability. A new chart, oda-ca has been created as an umbrella to simplify the deployment.
 
-|OLD| NEW | DESCRIPTION
-|--|--|--|
-| shell script  | oda-ca  | Chart of chart.
-| shell script | cert-manager-init  | Install cert-manager Deploy Issuer and generate Certificate used by CRD webhook
-| canvas/chart/keycloak | Bitnami/keycloak  | Direct remote dependency  on oda-ca
-| canvas/| canvas-namespaces  | Namespaces
-| canvas/chart/controller| controller  | ODA ingress controller
-| canvas/chart/crds| oda-crds| ODA crds
-| canvas/chart/weebhooks | oda-webhook| ODA mutating webhook to handle conversion among versions
-
+| OLD                     | NEW               | DESCRIPTION                                                                     |
+| ----------------------- | ----------------- | ------------------------------------------------------------------------------- |
+| shell script            | oda-ca            | Chart of chart.                                                                 |
+| shell script            | cert-manager-init | Install cert-manager Deploy Issuer and generate Certificate used by CRD webhook |
+| canvas/chart/keycloak   | Bitnami/keycloak  | Direct remote dependency  on oda-ca                                             |
+| canvas/                 | canvas-namespaces | Namespaces                                                                      |
+| canvas/chart/controller | controller        | ODA ingress controller                                                          |
+| canvas/chart/crds       | oda-crds          | ODA crds                                                                        |
+| canvas/chart/weebhooks  | oda-webhook       | ODA mutating webhook to handle conversion among versions                        |
 
 ## oda-canvas helm chart uninstallation
 
 To  uninstall the oda-canvas chart:
+
 ```bash
 helm uninstall oda-canvas -n canvas
 ```
