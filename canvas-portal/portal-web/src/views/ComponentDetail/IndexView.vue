@@ -42,12 +42,9 @@ const renderDetail = async () => {
         showLoading({ target: '.info-detail' });
         const { data } = await request.getInstanceDetail(INSTANCE_NAME, param);
         info.value = data;
-        // 如果查询到的release不存在
-        if (!data.release) loading.value = false;
         release.value = data.release;
-    } catch {
-        loading.value = false;
     } finally {
+        loading.value = false;
         hideLoading();
     }
 }
@@ -62,21 +59,27 @@ const renderInstanceEvents = async () => {
 }
 
 const viewYaml = async () => {
-    console.log(info.value);
     const { data } = await request.getComponentYaml(info.value.name, param);
     code.value = data.data;
     yamlDialogTitle.value = `${info.value.name}`;
-    dialogVisible.value=true;
+    dialogVisible.value = true;
 }
-watch(() => {
-    return info.value.release;
-}, async (newValue) => {
+watch(() => info.value.release, async (newValue) => {
     if (newValue && info.value.release) {
-        const { data } = await request.getReleaseDetailInfo(info.value.release, param);
-        loading.value = false;
-        chartVersion.value = data;
+        try {
+            const { data } = await request.getReleaseDetailInfo(info.value.release, param);
+            chartVersion.value = data;
+        } finally {
+            loading.value = false;
+        }
     }
 });
+
+watch(() => namespaceStore.namespace, val => {
+    param.namespace = val;
+    renderDetail();
+    renderInstanceEvents();
+})
 
 onMounted(() => {
     renderDetail();
@@ -117,9 +120,6 @@ onMounted(() => {
                         <Loading />
                     </el-icon>
                 </el-col>
-                <!-- <el-col class="text-labelVal" :span="10" v-if="loading">
-                    <SvgIcon name="spinner" color="#3b82f6" class="animate-spin w-4 h-4 fill-blue-400" />
-                </el-col> -->
                 <el-col class="text-labelVal" :span="10" v-else-if="!loading && chartVersion.chart">
                     <el-button style="font-size: 13px;margin-top: -2px;border: none;" type="primary" link>{{
                         chartVersion.chart }}</el-button>
@@ -202,7 +202,6 @@ onMounted(() => {
     <el-dialog class="detail-dialog" width="55%" v-model="dialogVisible" :title="yamlDialogTitle">
         <MonaCoEditor width="100%" height="500px" :options="options" :modelValue="code" />
     </el-dialog>
-
 </template>
 <style>
 .detail-dialog .el-dialog__header {
@@ -212,6 +211,7 @@ onMounted(() => {
 .detail-dialog .el-dialog__body {
     padding-top: 5px !important;
 }
+
 .demo-tabs>.el-tabs__content {
     padding: 32px;
     color: #6b778c;

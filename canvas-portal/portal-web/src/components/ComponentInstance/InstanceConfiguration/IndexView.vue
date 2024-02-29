@@ -1,13 +1,17 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import request from "@/utils/index";
 import MonaCoEditor from '@/components/monacoEditor/IndexView.vue';
-import { showLoading, hideLoading } from '@/utils/loading';
+// import { showLoading, hideLoading } from '@/utils/loading';
 import useStore from '@/stores/namespace';
 const namespaceStore = useStore();
 const param = {
     namespace: namespaceStore.namespace
 };
+watch(() => namespaceStore.namespace, val => {
+    param.namespace = val;
+    getReleaseValues();
+});
 const props = defineProps({
     release: {
         type: String,
@@ -21,11 +25,11 @@ const options = ref({
 });
 const getReleaseValues = async () => {
     try {
-        showLoading({ target: '.instance-configuration-code-textarea' });
+        // showLoading({ target: '.instance-configuration-code-textarea' });
         const { data } = await request.getReleaseValues(props.release, param);
         code.value = data.data;
     } finally {
-        hideLoading();
+        // hideLoading();
     }
 }
 onMounted(() => {

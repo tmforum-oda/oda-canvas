@@ -15,9 +15,17 @@ env:
   helmRepoPassword: ""
   portalUsername: "admin"
   portalPassword: "pAssw0rd"
+  # Specifies the namespaces where oda components deployed, format: [components,test]
+  odaComponentNamespace: []
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+clusterRole:
+  create: true
+
+#namespacedRole:
+#  create: false
 
 serviceAccount:
   # Specifies whether a service account should be created

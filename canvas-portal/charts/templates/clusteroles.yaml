@@ -1,12 +1,17 @@
-{{- if not .Values.clusterRole.create -}}
-{{- range $ns := .Values.env.odaComponentNamespace }}
+{{- if .Values.clusterRole.create -}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
-  name: canvas-portal-role-namespaced
-  namespace: {{ $ns }}
+  name: canvas-portal
+  #namespace: {{ .Release.Namespace }}
 rules:
+- apiGroups:
+  - ""
+  resources:
+    - namespaces
+  verbs:
+    - list
 - apiGroups:
   - ""
   resources:
@@ -111,20 +116,18 @@ rules:
   verbs:
     - get
     - list
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: canvas-portal-rolebinding-namespaced
-  namespace: {{ $ns }}
+  name: canvas-portal
+  #namespace: {{ .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: canvas-portal-role-namespaced
+  kind: ClusterRole
+  name: canvas-portal
 subjects:
   - kind: ServiceAccount
     name: canvas-portal
-    namespace: {{ $.Release.Namespace }}
-  {{- end }}
+    namespace: {{ .Release.Namespace }}
 {{- end }}

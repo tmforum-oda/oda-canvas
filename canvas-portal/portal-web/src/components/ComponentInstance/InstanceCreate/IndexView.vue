@@ -67,7 +67,9 @@ watch(() => props.dialogFormVisible, val => {
     val && getCharts(); // 每次dialog显现时重新加载charts
     code.value = '';
 })
-
+watch(() => namespaceStore.namespace, val => {
+    param.namespace = val;
+})
 const getCharts = async () => {
     try {
         const { data = [] } = await request.getCharts(param);
