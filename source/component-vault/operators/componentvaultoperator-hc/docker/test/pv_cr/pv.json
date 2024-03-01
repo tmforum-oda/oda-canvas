@@ -1,0 +1,95 @@
+{
+	"apiVersion": "oda.tmforum.org/v1alpha1",
+	"kind": "componentvault",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"name\":\"demo-comp-123\",\"podSelector\":{\"namespace\":\"demo-comp-123\",\"serviceAccount\":\"default\"},\"sideCar\":{\"port\":5000,\"token\":\"negotiate\"},\"type\":\"sideCar\"}}\n",
+			"kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"oda.tmforum.org/v1alpha1\",\"kind\":\"componentvault\",\"metadata\":{\"annotations\":{},\"name\":\"componentvault-demo-comp-123\",\"namespace\":\"componentvault-system\"},\"spec\":{\"name\":\"demo-comp-123\",\"podSelector\":{\"namespace\":\"demo-comp-123\",\"serviceAccount\":\"default\"},\"sideCar\":{\"port\":5000,\"token\":\"negotiate\"},\"type\":\"sideCar\"}}\n"
+		},
+		"creationTimestamp": "2023-06-14T09:54:06Z",
+		"finalizers": [
+			"kopf.zalando.org/KopfFinalizerMarker"
+		],
+		"generation": 1,
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1alpha1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {
+							},
+							"f:kubectl.kubernetes.io/last-applied-configuration": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:name": {
+						},
+						"f:podSelector": {
+							".": {
+							},
+							"f:namespace": {
+							},
+							"f:serviceAccount": {
+							}
+						},
+						"f:sideCar": {
+							".": {
+							},
+							"f:port": {
+							},
+							"f:token": {
+							}
+						},
+						"f:type": {
+						}
+					}
+				},
+				"manager": "kubectl-client-side-apply",
+				"operation": "Update",
+				"time": "2023-06-14T09:54:06Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1alpha1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							"f:kopf.zalando.org/last-handled-configuration": {
+							}
+						},
+						"f:finalizers": {
+							".": {
+							},
+							"v:\"kopf.zalando.org/KopfFinalizerMarker\"": {
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2023-06-14T09:54:14Z"
+			}
+		],
+		"name": "componentvault-demo-comp-123",
+		"namespace": "componentvault-system",
+		"resourceVersion": "41674325",
+		"uid": "f767b88c-1749-428f-a78f-070cc9ab86cd"
+	},
+	"spec": {
+		"name": "demo-comp-123",
+		"podSelector": {
+			"namespace": "demo-comp-123",
+			"serviceAccount": "default"
+		},
+		"sideCar": {
+			"port": 5000,
+			"token": "negotiate"
+		},
+		"type": "sideCar"
+	}
+}

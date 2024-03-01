@@ -17,7 +17,7 @@ helm upgrade --install kopf-framework-crds operators/privatevaultoperator-hc/hel
 echo "okay to fail, if peering crs already exist"
 helm upgrade --install kopf-framework operators/privatevaultoperator-hc/helmcharts/kopf-framework --namespace privatevault-system --create-namespace
 
-helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/helmcharts/pvop --namespace privatevault-system --create-namespace
+helm upgrade --install privatevault-operator operators/privatevaultoperator-hc/helmcharts/cvop --namespace privatevault-system --create-namespace
 sleep 10
 
 kubectl apply -f test/privatevault-demoa-comp-one.yaml
