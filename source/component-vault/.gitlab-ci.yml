@@ -4,8 +4,9 @@ variables:
   
   IMAGE_TAG: component-vault-sidecar-${VERSION}
   MAGENTA_TRUSTED_REGISTRY: mtr.devops.telekom.de
-  MTR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/public
-  MTR_FULL_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/public:${IMAGE_TAG}
+  MTR_REPO: magenta-canavs/public
+  MTR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}
+  MTR_FULL_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${IMAGE_TAG}
   
   DOCKER_REGISTRY_USERNAME: "magenta_canvas+builder"
   #DOCKER_REGISTRY_PASSWORD: "has to be defined in CICD variables"    
@@ -40,7 +41,7 @@ stages:
 # Build Alternative mit Kaniko
 build_sidecar:
   image:
-    name: artifactory.devops.telekom.de/gcr.io/kaniko-project/executor:v1.6.0-debug
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   stage: 
     build
