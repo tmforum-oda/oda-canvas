@@ -1,5 +1,5 @@
 /*
- * Private Vault - OpenAPI 3.0
+ * Component Vault - OpenAPI 3.0
  *
  * This is a simple key-value store  Some useful links: - [The sources](https://github.com/.../openapi.yaml)
  *

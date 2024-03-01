@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Private Vault - OpenAPI 3.0
+  title: Component Vault - OpenAPI 3.0
   description: "This is a simple key-value store \nSome useful links:\n- [The sources](https://github.com/.../openapi.yaml)"
   termsOfService: http://.../
   contact:
@@ -10,7 +10,7 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 0.1.0
 externalDocs:
-  description: Find out more about Private Vault
+  description: Find out more about Component Vault
   url: http://.../
 servers:
 - url: http://localhost:8080/api/v3
@@ -169,11 +169,11 @@ components:
           schema:
             $ref: '#/components/schemas/Secret'
   securitySchemes:
-    privatevault_auth:
+    componentvault_auth:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: https://privatevault.k8s.feri.ai/oauth/authorize
+          authorizationUrl: https://componentvault.k8s.feri.ai/oauth/authorize
           scopes:
             write:pets: modify secrets in your account
             read:pets: read your secrets

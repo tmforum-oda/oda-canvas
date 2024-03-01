@@ -1,4 +1,4 @@
-module private-vault-service
+module component-vault-service
 
 go 1.17
 
