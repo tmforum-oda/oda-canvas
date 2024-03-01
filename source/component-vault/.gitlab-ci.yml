@@ -49,7 +49,7 @@ build_sidecar:
     # https://github.com/GoogleContainerTools/kaniko?tab=readme-ov-file#pushing-to-different-registries
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${MAGENTA_TRUSTED_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${DOCKER_REGISTRY_USERNAME}" "${DOCKER_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
-    - cat /kaniko/.docker/config.json
+    #- cat /kaniko/.docker/config.json
     - echo /kaniko/executor
       --registry-mirror dockerhub.devops.telekom.de
       --context $CI_PROJECT_DIR/source/component-vault/sidecars/componentvaultsidecar-hc
