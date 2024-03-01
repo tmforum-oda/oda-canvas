@@ -1,0 +1,100 @@
+variables:
+  
+  VERSION: 0.1.0-rc
+  
+  IMAGE_TAG: component-vault-sidecar-${VERSION}
+  MAGENTA_TRUSTED_REGISTRY: mtr.devops.telekom.de
+  MTR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/public
+  MTR_FULL_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/public:${IMAGE_TAG}
+  
+  DOCKER_REGISTRY_USERNAME: "magenta_canvas+builder"
+  #DOCKER_REGISTRY_PASSWORD: "has to be defined in CICD variables"    
+  
+  SECRET_DETECTION_HISTORIC_SCAN: "true"
+
+  HTTP_PROXY: $http_proxy
+  HTTPS_PROXY: $https_proxy
+  NO_PROXY: $no_proxy
+
+
+include:
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  # DevSecOps Container Scanner
+  # https://gitlab.devops.telekom.de/devsecops-tools/container-scanner/-/blob/master/README.md
+  - project: 'devsecops-tools/container-scanner'
+    # can be set to a fixed version if one chooses to use a specific version. Default is master.
+    ref: "master"
+    file: 'container-scan.yml'
+
+
+
+stages:
+  - build
+  - test
+  - scan
+  - sign
+
+
+
+# Build Alternative mit Kaniko
+build_sidecar:
+  image:
+    name: artifactory.devops.telekom.de/gcr.io/kaniko-project/executor:v1.6.0-debug
+    entrypoint: [""]
+  stage: 
+    build
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${MAGENTA_TRUSTED_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${DOCKER_REGISTRY_USERNAME}" "${DOCKER_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor
+      --registry-mirror dockerhub.devops.telekom.de
+      --context $CI_PROJECT_DIR/source/component-vault/sidecars/componentvaultsidecar-hc
+      --dockerfile $CI_PROJECT_DIR/source/component-vault/sidecars/componentvaultsidecar-hc/Dockerfile 
+      --destination $MTR_FULL_IMAGE
+      --build-arg http_proxy=$http_proxy
+      --build-arg https_proxy=$https_proxy
+      --build-arg no_proxy=$no_proxy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+    - changes:
+      - "source/component-vault/sidecars/componentvaultsidecar-hc/**/*"
+      - Dockerfile
+    - when: manual
+
+
+scan_sidecar:
+  stage: scan
+  variables:
+    SCAN_REGISTRY: ${MAGENTA_TRUSTED_REGISTRY}
+    SCAN_REGISTRY_IMAGE: ${MTR_IMAGE}
+    SCAN_REGISTRY_TAG: ${IMGTAG}
+    SCAN_REGISTRY_USER: ${DOCKER_REGISTRY_USERNAME}
+    SCAN_REGISTRY_PASSWORD: "${DOCKER_REGISTRY_PASSWORD}"
+    MAX_SEVERITY: critical
+    FAIL_PIPELINE: "true"
+  extends: .container_scan
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - scanresults/*
+  needs:
+    - build_sidecar
+
+
+sign:
+  stage: sign
+  image: dockerhub.devops.telekom.de/bitnami/cosign
+  script:
+    # echo setup credentials for MTR with access to repository
+    - export DOCKER_CONFIG=$(pwd)/.docker
+    - mkdir -p $DOCKER_CONFIG
+    - echo "{\"auths\":{\"${MAGENTA_TRUSTED_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${DOCKER_REGISTRY_USERNAME}" "${DOCKER_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}"  > $DOCKER_CONFIG/config.json
+    # sign with private key
+    # the environment variable COSIGN_PASSWORD has to be set in CICD variables!
+    - cosign sign --key $COSIGN_PRIVATE_KEY $MTR_FULL_IMAGE
+  needs:
+    - scan_sidecar
+
