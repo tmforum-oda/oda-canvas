@@ -96,7 +96,7 @@ sign:
     - echo "{\"auths\":{\"${MAGENTA_TRUSTED_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${DOCKER_REGISTRY_USERNAME}" "${DOCKER_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}"  > $DOCKER_CONFIG/config.json
     # sign with private key
     # the environment variable COSIGN_PASSWORD has to be set in CICD variables!
-    - cosign sign --key $COSIGN_PRIVATE_KEY $MTR_FULL_IMAGE
+    - cosign sign --tlog-upload=false --key $COSIGN_PRIVATE_KEY $MTR_FULL_IMAGE
   needs:
     - scan_sidecar
 
