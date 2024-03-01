@@ -1,0 +1,17 @@
+apiVersion: oda.tmforum.org/v1alpha1
+kind: privatevault
+metadata:
+  name: privatevault-demob-comp-two
+  namespace: privatevault-system
+spec:
+  name: demob-comp-two
+  type: sideCar
+  sideCar:
+    port: 5000
+    token: 
+      negotiate
+  podSelector:
+    namespace: demo-comp
+    name: demob-comp-two-*
+    serviceAccount: default
+

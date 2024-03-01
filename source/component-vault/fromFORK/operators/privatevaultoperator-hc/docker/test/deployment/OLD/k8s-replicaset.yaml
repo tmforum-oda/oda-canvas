@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  annotations:
+    deployment.kubernetes.io/desired-replicas: "1"
+    deployment.kubernetes.io/max-replicas: "2"
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: "2023-07-28T22:09:22Z"
+  generation: 1
+  labels:
+    app: echoservice
+    oda.tmforum.org/privatevault: sidecar
+    pod-template-hash: 78d486c6b7
+  name: echoservice-deployment-78d486c6b7
+  namespace: demo-comp
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Deployment
+    name: echoservice-deployment
+    uid: 106afedf-c439-4ff5-b2b4-bde19cebf651
+  resourceVersion: "79691"
+  uid: 0e875c6b-6915-4e8e-9b28-5c4439e07fcb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echoservice
+      pod-template-hash: 78d486c6b7
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: echoservice
+        oda.tmforum.org/privatevault: sidecar
+        pod-template-hash: 78d486c6b7
+    spec:
+      containers:
+      - image: mtr.devops.telekom.de/magenta_canvas/public/tools/echoservice:v0.1.0
+        imagePullPolicy: Always
+        name: echoservice
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  fullyLabeledReplicas: 1
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1

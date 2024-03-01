@@ -1,0 +1,183 @@
+openapi: 3.0.3
+info:
+  title: Private Vault - OpenAPI 3.0
+  description: "This is a simple key-value store \nSome useful links:\n- [The sources](https://github.com/.../openapi.yaml)"
+  termsOfService: http://.../
+  contact:
+    email: ferenc.hechler@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.0
+externalDocs:
+  description: Find out more about Private Vault
+  url: http://.../
+servers:
+- url: http://localhost:8080/api/v3
+tags:
+- name: secret
+  description: Secure Key-Value store
+  externalDocs:
+    description: Find out more
+    url: http://...
+paths:
+  /secret:
+    post:
+      tags:
+      - secret
+      summary: Create secret
+      description: auth needed.
+      operationId: createSecret
+      requestBody:
+        description: Created secret object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Secret'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Secret'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Secret'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Secret'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Secret'
+  /secret/{secretkey}:
+    get:
+      tags:
+      - secret
+      summary: Get secret by secretkey
+      description: ""
+      operationId: getSecretByKey
+      parameters:
+      - name: secretkey
+        in: path
+        description: 'The key of the secret. '
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Secret'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Secret'
+        "400":
+          description: Invalid secretkey supplied
+        "404":
+          description: Secret not found
+    put:
+      tags:
+      - secret
+      summary: Update secret
+      description: auth needed.
+      operationId: updateSecret
+      parameters:
+      - name: secretkey
+        in: path
+        description: key that need to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: Update an existent secret in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Secret'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Secret'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Secret'
+      responses:
+        default:
+          description: successful operation
+    delete:
+      tags:
+      - secret
+      summary: Delete secret
+      description: auth needed.
+      operationId: deleteSecret
+      parameters:
+      - name: secretkey
+        in: path
+        description: The key that needs to be deleted
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Invalid secretkey supplied
+        "404":
+          description: Secret not found
+components:
+  schemas:
+    Secret:
+      type: object
+      properties:
+        key:
+          type: string
+          example: password
+        value:
+          type: string
+          example: H37c5bza+d9.de89
+      example:
+        value: H37c5bza+d9.de89
+        key: password
+      xml:
+        name: secret
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+  requestBodies:
+    Secret:
+      description: Secret object that needs to be added to the store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Secret'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Secret'
+  securitySchemes:
+    privatevault_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://privatevault.k8s.feri.ai/oauth/authorize
+          scopes:
+            write:pets: modify secrets in your account
+            read:pets: read your secrets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

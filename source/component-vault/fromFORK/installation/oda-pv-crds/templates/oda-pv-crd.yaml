@@ -1,0 +1,48 @@
+apiVersion: "apiextensions.k8s.io/v1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "privatevaults.oda.tmforum.org"
+spec:
+  group: "oda.tmforum.org"
+  scope: "Namespaced"
+  names:
+    plural: "privatevaults"
+    singular: "privatevault"
+    kind: "privatevault"
+  versions:
+  - name: "v1alpha1"
+    # Each version can be enabled/disabled by Served flag.
+    served: true
+    # One and only one version must be marked as the storage version.
+    storage: true
+    deprecated: false
+    # This overrides the default warning returned to API clients making v1alpha1 API requests.
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+    additionalPrinterColumns:
+    - name: PV_NAME
+      type: string
+      description: PrivateVault endpoint Url
+      jsonPath: .spec.name
+    - name: NAME_SEL
+      type: string
+      description: PrivateVault pod name selector
+      jsonPath: .spec.podSelector.name
+    - name: NAMESPACE_SEL
+      type: string
+      description: PrivateVault pod namespace selector
+      jsonPath: .spec.podSelector.namespace
+    - name: SVCACCT_SEL
+      type: string
+      description: PrivateVault pod serviceAccount selector
+      jsonPath: .spec.podSelector.serviceAccount
+      
