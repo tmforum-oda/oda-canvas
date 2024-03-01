@@ -4,7 +4,7 @@ variables:
   
   IMAGE_TAG: component-vault-sidecar-${VERSION}
   MAGENTA_TRUSTED_REGISTRY: mtr.devops.telekom.de
-  MTR_REPO: magenta-canavs/public
+  MTR_REPO: magenta_canavs/public
   MTR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}
   MTR_FULL_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${IMAGE_TAG}
   
