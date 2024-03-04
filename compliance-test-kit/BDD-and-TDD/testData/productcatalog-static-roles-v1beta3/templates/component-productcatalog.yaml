@@ -44,11 +44,10 @@ spec:
       port: 4000    
   securityFunction:
     controllerRole: {{ .Values.security.controllerRole }}
-    exposedAPIs: 
-    - name: partyrole
-      specification: https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
-      implementation: {{.Release.Name}}-partyroleapi
-      apitype: openapi
-      path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4
-      developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4/docs
-      port: 8080
+    exposedAPIs: []
+    dependantAPIs: []
+    componentRole:
+    - name: role1
+      description: role1 description
+    - name: role2
+      description: role2 description
