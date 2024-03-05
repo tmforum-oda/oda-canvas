@@ -1,0 +1,40 @@
+@startuml
+
+participant Canvas as "Canvas"
+entity Component
+participant "Component Operator" as ComponentOperator
+participant "Kubernetes API" as KubernetesAPI
+participant "Component-Implementation" as ComponentImplementation
+participant "Canvas-Vault" as CanvasVault 
+participant "Standard-Vault" as StandardVault  
+
+
+group Canvas Vault Setup 
+    ...
+	Canvas -> CanvasVault : setup jwt endpoint for oidc_discovery with secrets/kubernetes.io/serviceaccount/ca.crt
+	...
+end group
+
+group Bootstrap - component deployment
+	Component -> ComponentOperator : on.create
+	ComponentOperator -> ComponentOperator : create unique Component-Instance-ID <CIID>
+	ComponentOperator -> KubernetesAPI : create ServiceAccount "sa-<CIID>"
+	ComponentOperator -> CanvasVault : create Key-Value store "privatevault-<CIID>"
+	ComponentOperator -> CanvasVault : Setup JWT role for "sa-<CIID>" with full access to path "privatevault-<CIID>"
+	group Mutate PODs which request Private-Vault-Access
+		ComponentOperator -> ComponentImplementation: inject JWT, "<CIID>" and Canvas-Vault URL
+		activate ComponentImplementation 
+	end group
+	group Component runtime
+		ComponentImplementation -> CanvasVault : login to "privatevault-<CIID>" using JWT of "sa-<CIID>"
+		ComponentImplementation -> CanvasVault : create secret("privatevault-<CIID>", key, value)
+		CanvasVault -> StandardVault : create secret("privatevault-<CIID>", key, value)
+		ComponentImplementation -> CanvasVault : read secret("privatevault-<CID>", key)
+		skinparam responseMessageBelowArrow true
+		CanvasVault -> StandardVault : read secret("privatevault-<CID>", key)
+		CanvasVault <-- StandardVault : return secret-value
+		ComponentImplementation <-- CanvasVault : return secret-value 
+	end group
+end group
+
+@enduml
