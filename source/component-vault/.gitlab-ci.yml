@@ -77,13 +77,13 @@ build_sidecar:
 build_operator:
   extends: .build_template
   variables:
-    BUILD_FOLDER: source/component-vault/operators/componentvaultoperator-hc
+    BUILD_FOLDER: source/component-vault/operators/componentvaultoperator-hc/docker
     MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
       when: manual
     - changes:
-      - "source/component-vault/operators/componentvaultoperator-hc/**/*"
+      - "source/component-vault/operators/componentvaultoperator-hc/docker/**/*"
     - when: manual
 
 
