@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: canvas-vault-hc-vs
+  namespace: canvas-vault
+  labels:
+    app: canvas-vault-hc
+spec:
+  gateways:
+  - components/component-gateway
+  hosts:
+  - 'canvas-vault-hc.ihc-dt.cluster-3.de'
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: canvas-vault-hc.canvas-vault.svc.cluster.local
+        port:
+          number: 8200  
