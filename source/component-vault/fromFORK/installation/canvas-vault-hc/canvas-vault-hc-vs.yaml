@@ -1,4 +1,4 @@
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: canvas-vault-hc-vs
@@ -7,9 +7,9 @@ metadata:
     app: canvas-vault-hc
 spec:
   gateways:
-  - istio-ingress/k8s-gateway
+  - components/component-gateway
   hosts:
-  - 'canvas-vault-hc.k8s.cluster2.de'
+  - 'canvas-vault-hc.ihc-dt.cluster-3.de'
   http:
   - match:
     - uri:
