@@ -10,3 +10,4 @@ canvas-portal/portal-helm/target/
 canvas-portal/portal-service/target/
 /canvas-portal/portal-web/package-lock.json
 /.project
+/.pydevproject

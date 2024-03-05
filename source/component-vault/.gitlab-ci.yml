@@ -2,11 +2,13 @@ variables:
   
   VERSION: 0.1.0-rc
   
-  IMAGE_TAG: component-vault-sidecar-${VERSION}
+  SIDECAR_IMAGE_TAG: component-vault-sidecar-${VERSION}
+  OPERATOR_IMAGE_TAG: component-vault-operator-${VERSION}
   MAGENTA_TRUSTED_REGISTRY: mtr.devops.telekom.de
   MTR_REPO: magenta_canvas/public
   MTR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}
-  MTR_FULL_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${IMAGE_TAG}
+  MTR_FULL_SIDECAR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${SIDECAR_IMAGE_TAG}
+  MTR_FULL_OPERATOR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${OPERATOR_IMAGE_TAG}
   
   DOCKER_REGISTRY_USERNAME: "magenta_canvas+builder"
   #DOCKER_REGISTRY_PASSWORD: "has to be defined in CICD variables"    
@@ -38,8 +40,7 @@ stages:
 
 
 
-# Build Alternative mit Kaniko
-build_sidecar:
+.build_template:
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -51,19 +52,40 @@ build_sidecar:
     - echo "{\"auths\":{\"${MAGENTA_TRUSTED_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${DOCKER_REGISTRY_USERNAME}" "${DOCKER_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
     - /kaniko/executor
       --registry-mirror dockerhub.devops.telekom.de
-      --context $CI_PROJECT_DIR/source/component-vault/sidecars/componentvaultsidecar-hc
-      --dockerfile $CI_PROJECT_DIR/source/component-vault/sidecars/componentvaultsidecar-hc/Dockerfile 
+      --context $CI_PROJECT_DIR/$BUILD_FOLDER
+      --dockerfile $CI_PROJECT_DIR/$BUILD_FOLDER/Dockerfile 
       --destination $MTR_FULL_IMAGE
       --build-arg http_proxy=$http_proxy
       --build-arg https_proxy=$https_proxy
       --build-arg no_proxy=$no_proxy
+
+
+build_sidecar:
+  extends: .build_template
+  variables:
+    BUILD_FOLDER: source/component-vault/sidecars/componentvaultsidecar-hc
+    MTR_FULL_IMAGE: $MTR_FULL_SIDECAR_IMAGE
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
       when: manual
     - changes:
       - "source/component-vault/sidecars/componentvaultsidecar-hc/**/*"
-      - Dockerfile
     - when: manual
+
+
+
+build_operator:
+  extends: .build_template
+  variables:
+    BUILD_FOLDER: source/component-vault/operators/componentvaultoperator-hc
+    MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+    - changes:
+      - "source/component-vault/operators/componentvaultoperator-hc/**/*"
+    - when: manual
+
 
 
 scan_sidecar:
@@ -71,7 +93,7 @@ scan_sidecar:
   variables:
     SCAN_REGISTRY: ${MAGENTA_TRUSTED_REGISTRY}
     SCAN_REGISTRY_IMAGE: ${MTR_IMAGE}
-    SCAN_REGISTRY_TAG: ${IMAGE_TAG}
+    SCAN_REGISTRY_TAG: ${SIDECAR_IMAGE_TAG}
     SCAN_REGISTRY_USER: ${DOCKER_REGISTRY_USERNAME}
     SCAN_REGISTRY_PASSWORD: "${DOCKER_REGISTRY_PASSWORD}"
     MAX_SEVERITY: critical
@@ -86,7 +108,7 @@ scan_sidecar:
     - build_sidecar
 
 
-sign:
+sign_sidecar:
   stage: sign
   image: dockerhub.devops.telekom.de/bitnami/cosign
   script:
@@ -96,7 +118,7 @@ sign:
     - echo "{\"auths\":{\"${MAGENTA_TRUSTED_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${DOCKER_REGISTRY_USERNAME}" "${DOCKER_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}"  > $DOCKER_CONFIG/config.json
     # sign with private key
     # the environment variable COSIGN_PASSWORD has to be set in CICD variables!
-    - cosign sign --tlog-upload=false --key $COSIGN_PRIVATE_KEY $MTR_FULL_IMAGE
+    - cosign sign --tlog-upload=false --key $COSIGN_PRIVATE_KEY $MTR_FULL_SIDECAR_IMAGE
   needs:
     - scan_sidecar
 
