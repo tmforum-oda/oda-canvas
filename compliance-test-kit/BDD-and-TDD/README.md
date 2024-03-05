@@ -43,7 +43,7 @@ This repository contains a list of BDD features and scenarios that describe each
   KEYCLOAK_REALM=myrealm
   ```
 
-- set or export `CUCUMBER_PUBLISH_TOKEN` only when you want to run 'npm start' command for all tests
+- set or export `CUCUMBER_PUBLISH_TOKEN` only applicable for master branch, when you want to run 'npm start' command for all tests
   
   ```
   CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
