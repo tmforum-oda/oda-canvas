@@ -142,7 +142,7 @@ scan_operator:
 sign_sidecar:
   extends: .sign_template
   variables:
-    MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
+    MTR_FULL_IMAGE: $MTR_FULL_SIDECAR_IMAGE
   needs:
     - scan_sidecar
 
