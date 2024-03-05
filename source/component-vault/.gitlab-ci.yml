@@ -114,14 +114,14 @@ build_operator:
 scan_sidecar:
   extends: .scan_template
   variables:
-    IMAGE_TAGE: $SIDECAR_IMAGE_TAG
+    IMAGE_TAG: $SIDECAR_IMAGE_TAG
   needs:
     - build_sidecar
 
 scan_operator:
   extends: .scan_template
   variables:
-    IMAGE_TAGE: $OPERATOR_IMAGE_TAG
+    IMAGE_TAG: $OPERATOR_IMAGE_TAG
   needs:
     - build_operator
 
