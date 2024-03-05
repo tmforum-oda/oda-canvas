@@ -1,4 +1,4 @@
-apiVersion: oda.tmforum.org/v1beta2
+apiVersion: oda.tmforum.org/v1beta3
 kind: Component
 metadata:
   name: {{.Release.Name}}-{{.Values.component.name}}
@@ -47,7 +47,9 @@ spec:
     exposedAPIs: []
     dependantAPIs: []
     componentRole:
-    - name: role1
-      description: role1 description
-    - name: role2
-      description: role2 description
+    - name: pcadmin
+      description: Product Catalogue Administrator
+    - name: cat1owner
+      description: Catalogue Owner for catalogue 1
+    - name: cat2owner
+      description: Catalogue Owner for catalogue 2
