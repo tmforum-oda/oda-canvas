@@ -8,7 +8,7 @@ spec:
     istio: ingressgateway
   servers:
   - hosts:
-    - '*.ihc-dt.cluster-3.de'
+    - '*'
     port:
       name: http
       number: 80

@@ -95,11 +95,31 @@ build_operator:
       allow_failure: true
 
 
+.build_template_docker:
+  stage: build
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  services:
+    - name: 'dockerhub.devops.telekom.de/docker:dind'
+      command: ['--tls=false', '--host=tcp://0.0.0.0:2375', '--registry-mirror=https://dockerhub.devops.telekom.de']
+      alias: docker
+  image: docker:20.10.6
+  tags:
+    - otc_run_sysbox_s
+  script:
+    - docker login --username=$DOCKER_REGISTRY_USERNAME --password=$DOCKER_REGISTRY_PASSWORD $MAGENTA_TRUSTED_REGISTRY
+    - cd $BUILD_FOLDER
+    - docker build -t $MTR_FULL_IMAGE . 
+    - docker push $MTR_FULL_IMAGE
+
+
 build_codeserver:
-  extends: .build_template
+  extends: .build_template_docker
   variables:
     BUILD_FOLDER: source/component-vault/custom/code-server/code-server-with-helm
-    MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
+    MTR_FULL_IMAGE: $MTR_FULL_CODESERVER_IMAGE
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
       when: manual
