@@ -164,7 +164,11 @@ scan_operator:
   needs:
     - build_operator
 
-scan_codeserver:
+# problems scanning with dev-sec-ops scanner: 
+#   failed to catalog: unable to load image: unable to use DockerDaemon source: pull failed: 
+#     Error response from daemon: manifest for mtr.devops.telekom.de/magenta_canvas/public:code-server-with-helm-4.22.0 not found: 
+#       manifest unknown: manifest unknown
+.scan_codeserver:
   extends: .scan_template
   variables:
     IMAGE_TAG: $CODESERVER_IMAGE_TAG
