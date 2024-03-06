@@ -1,12 +1,10 @@
 cd /D "%~dp0"
 
-test -n "$CODE_SERVER_PASSWORD"
-
 IF "%CODE_SERVER_PASSWORD%"=="" ECHO Variable CODE_SERVER_PASSWORD is NOT defined
 IF "%CODE_SERVER_PASSWORD%"=="" GOTO :exit
 
 kubectl create ns code-server --dry-run=client -oyaml | kubectl apply -f -
-kubectl create secret generic -n code-server code-server-secret --from-literal=password="$CODE_SERVER_PASSWORD" --dry-run=client -oyaml | kubectl apply -f - 
+kubectl create secret generic -n code-server code-server-secret --from-literal=password="%CODE_SERVER_PASSWORD%" --dry-run=client -oyaml | kubectl apply -f - 
 
 git clone https://github.com/coder/code-server
 cd code-server
