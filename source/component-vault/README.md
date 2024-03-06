@@ -3,7 +3,7 @@
 ## Install Private Vault Custom Resource Definition
 
 ```
-helm upgrade --install oda-pv-crd installation/oda-pv-crds --namespace componentvault-system --create-namespace
+helm upgrade --install oda-cv-crd installation/oda-cv-crds --namespace componentvault-system --create-namespace
 ```
 
 ## Install HashiCorp Vault in DEV mode
@@ -66,9 +66,9 @@ helm upgrade --install componentvault-operator operators/componentvaultoperator-
 These privatevault crs would normally be deployed from the Component-Operator which extracts the corresponding section from the component.yaml.
 
 ```
-kubectl apply -f test/privatevault-demoa-comp-one.yaml
-kubectl apply -f test/privatevault-demob-comp-two.yaml
-kubectl get privatevaults -A
+kubectl apply -f test/componentvault-demoa-comp-one.yaml
+kubectl apply -f test/componentvault-demob-comp-two.yaml
+kubectl get componentvaults -A
 ```
 
 ### deploy demo components with "oda.tmforum.org/privatevault" annotation
