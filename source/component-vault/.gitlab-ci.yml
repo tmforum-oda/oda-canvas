@@ -1,14 +1,18 @@
 variables:
   
-  VERSION: 0.1.0-rc
+  SIDECAR_VERSION: 0.1.0-rc
+  OPERATOR_VERSION: 0.1.0-rc
+  CODESERVER_VERSION: 4.22.0
   
-  SIDECAR_IMAGE_TAG: component-vault-sidecar-${VERSION}
-  OPERATOR_IMAGE_TAG: component-vault-operator-${VERSION}
+  SIDECAR_IMAGE_TAG: component-vault-sidecar-${SIDECAR_VERSION}
+  OPERATOR_IMAGE_TAG: component-vault-operator-${OPERATOR_VERSION}
+  CODESERVER_IMAGE_TAG: code-server-with-helm-${CODESERVER_VERSION}
   MAGENTA_TRUSTED_REGISTRY: mtr.devops.telekom.de
   MTR_REPO: magenta_canvas/public
   MTR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}
   MTR_FULL_SIDECAR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${SIDECAR_IMAGE_TAG}
   MTR_FULL_OPERATOR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${OPERATOR_IMAGE_TAG}
+  MTR_FULL_CODESERVER_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${OPERATOR_IMAGE_TAG}
   
   DOCKER_REGISTRY_USERNAME: "magenta_canvas+builder"
   #DOCKER_REGISTRY_PASSWORD: "has to be defined in CICD variables"    
@@ -91,6 +95,21 @@ build_operator:
       allow_failure: true
 
 
+build_codeserver:
+  extends: .build_template
+  variables:
+    BUILD_FOLDER: source/component-vault/custom/code-server/code-server-with-helm
+    MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+      allow_failure: true
+    - changes:
+      - "source/component-vault/custom/code-server/code-server-with-helm/**/*"
+    - when: manual
+      allow_failure: true
+
+
 
 
 .scan_template:
@@ -125,6 +144,13 @@ scan_operator:
   needs:
     - build_operator
 
+scan_codeserver:
+  extends: .scan_template
+  variables:
+    IMAGE_TAG: $CODESERVER_IMAGE_TAG
+  needs:
+    - build_codeserver
+
 
 .sign_template:
   stage: sign
@@ -152,4 +178,11 @@ sign_operator:
     MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
   needs:
     - scan_operator
+
+sign_codeserver:
+  extends: .sign_template
+  variables:
+    MTR_FULL_IMAGE: $MTR_FULL_CODESERVER_IMAGE
+  needs:
+    - scan_codeserver
 

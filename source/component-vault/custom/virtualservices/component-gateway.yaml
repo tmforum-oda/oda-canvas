@@ -1,0 +1,24 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: component-gateway
+  namespace: components
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - hosts:
+    - '*.ihc-dt.cluster-3.de'
+    port:
+      name: http
+      number: 80
+      protocol: HTTP
+  - hosts:
+    - '*.ihc-dt.cluster-3.de'
+    port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      credentialName: wc-ihc-dt-cluster-3-de-tls
+      mode: SIMPLE
