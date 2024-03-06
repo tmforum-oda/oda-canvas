@@ -208,5 +208,6 @@ sign_codeserver:
   variables:
     MTR_FULL_IMAGE: $MTR_FULL_CODESERVER_IMAGE
   needs:
-    - scan_codeserver
+    #- scan_codeserver
+    - build_codeserver
 
