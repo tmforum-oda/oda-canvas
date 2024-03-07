@@ -1,0 +1,86 @@
+kong:
+  deployment:
+    kong:
+      enabled: true
+    serviceAccount:
+      create: true
+      automountServiceAccountToken: false
+    test:
+      enabled: false
+    daemonset: false
+    hostNetwork: false
+    prefixDir:
+      sizeLimit: 256Mi
+    tmpDir:
+      sizeLimit: 1Gi
+  env:
+    database: "postgres"
+    pg_host: "kong-postgresql.kong.svc.cluster.local"
+    pg_user: "kong"
+    pg_password: "kong"
+    pg_database: "kong"
+    router_flavor: "traditional"
+    nginx_worker_processes: "2"
+    proxy_access_log: "/dev/stdout"
+    admin_access_log: "/dev/stdout"
+    admin_gui_access_log: "/dev/stdout"
+    portal_api_access_log: "/dev/stdout"
+    proxy_error_log: "/dev/stderr"
+    admin_error_log: "/dev/stderr"
+    admin_gui_error_log: "/dev/stderr"
+    portal_api_error_log: "/dev/stderr"
+    prefix: "/kong_prefix/"
+  image:
+    repository: kong
+    tag: "3.5"
+    pullPolicy: IfNotPresent
+  admin:
+    enabled: true
+    type: LoadBalancer
+    http:
+      enabled: true
+      servicePort: 8001
+      containerPort: 8001
+    tls:
+      enabled: true
+      servicePort: 8444
+      containerPort: 8444
+      parameters:
+        - http2
+  proxy:
+    enabled: true
+    type: LoadBalancer
+    http:
+      enabled: true
+      servicePort: 80
+      containerPort: 8000
+    tls:
+      enabled: true
+      servicePort: 443
+      containerPort: 8443
+      parameters:
+        - http2
+    ingress:
+      enabled: true
+  postgresql:
+    enabled: true
+    auth:
+      username: "kong"
+      password: "kong"
+      database: "kong"
+    image:
+      tag: "13.11.0-debian-11-r20"
+  enterprise:
+    enabled: true
+    vitals:
+      enabled: true
+    portal:
+      enabled: true
+    manager:
+      enabled: false  
+    portalapi:
+      enabled: true
+  ingressController:
+    enabled: true
+    admissionWebhook:
+      enabled: true
