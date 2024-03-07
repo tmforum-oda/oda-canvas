@@ -14,6 +14,7 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-{{ .Values.component.name }}-sender
+        "oda.tmforum.org/componentvault": "sidecar"        
     spec:
       automountServiceAccountToken: false
       securityContext:

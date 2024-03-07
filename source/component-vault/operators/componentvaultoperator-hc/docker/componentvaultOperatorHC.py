@@ -63,7 +63,7 @@ class ServiceTunnel:
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
-    settings.peering.priority = 100
+    settings.peering.priority = 200
     settings.peering.name = "componentvault"
     settings.admission.server = ServiceTunnel()
     settings.admission.managed = 'pv.sidecar.kopf'
@@ -177,7 +177,7 @@ def inject_sidecar(body, patch):
 
     container_pvsidecar = {
             "name": "pvsidecar",
-            "image": "mtr.devops.telekom.de/magenta_canvas/component-vault-service:0.1.1",
+            "image": "mtr.devops.telekom.de/magenta_canvas/public:component-vault-sidecar-0.1.0-rc",
             "ports": [
                 {
                     "containerPort": sidecar_port,

@@ -40,6 +40,16 @@ rules:
     resources: [pods]
     verbs: [list, watch, patch]
     
+  # Application: read-only access for replica_Set
+  - apiGroups: [apps]
+    resources: [replicasets]
+    verbs: [list, get]
+
+  # Application: read-only access for deployments
+  - apiGroups: [apps]
+    resources: [deployments]
+    verbs: [list, get]
+
   # Application: create events
   - apiGroups: [""]
     resources: [events]
@@ -78,10 +88,16 @@ rules:
     resources: [pods]
     verbs: [list, watch, patch]
 
+  # Application: read-only access for replica_Set
+  - apiGroups: [apps]
+    resources: [replicasets]
+    verbs: [list, get]
+
+
   # Application: watching & handling for deployments (transfer labels to pods).
   - apiGroups: [apps]
-    resources: [deployment]
-    verbs: [list, watch, patch]
+    resources: [deployments]
+    verbs: [list, watch, patch, get]
 
   # Application: other resources it produces and manipulates.
   # Here, we create Jobs+PVCs+Pods, but we do not patch/update/delete them ever.

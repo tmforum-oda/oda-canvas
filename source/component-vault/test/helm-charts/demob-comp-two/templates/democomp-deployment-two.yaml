@@ -9,6 +9,7 @@ spec:
   selector:
     matchLabels:
       app: {{ .Release.Name }}-{{ .Values.component.name }}
+      "oda.tmforum.org/componentvault": "sidecar"        
   replicas: 1
   template:
     metadata:
