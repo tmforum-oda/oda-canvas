@@ -7,4 +7,5 @@ login_role_tpl: "pv-{0}-role"
 secrets_mount_tpl: "kv-{0}"
 secrets_base_path_tpl: "sidecar"
 
-audience: "https://kubernetes.default.svc.cluster.local"
+#audience: "https://kubernetes.default.svc.cluster.local"
+audience: "https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt"
