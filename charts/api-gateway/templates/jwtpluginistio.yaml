@@ -1,0 +1,15 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: jwt-auth-in-istio
+  namespace: istio-ingress
+plugin: jwt
+config: 
+  uri_param_names:
+  - jwt
+  cookie_names:
+  - token
+  claims_to_verify:
+  - exp
+  key_claim_name: iss
+  secret_is_base64: false
