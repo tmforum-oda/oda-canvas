@@ -1,4 +1,5 @@
 @startuml
+skin rose 
 
 entity Component
 entity "Service/Deployment/PVC"
