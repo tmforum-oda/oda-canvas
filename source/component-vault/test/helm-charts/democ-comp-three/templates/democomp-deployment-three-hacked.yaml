@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demob-comp-two-{{ .Release.Name }}-{{ .Values.component.name }}-hacked
+  labels:
+    ### try to hack demos-comp-one private vault...      
+    oda.tmforum.org/componentName: demoa-comp-one   # {{ .Release.Name }}-{{ .Values.component.name }}  
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Values.component.name }}-hacked
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-{{ .Values.component.name }}-hacked
+        oda.tmforum.org/componentvault: "sidecar"        
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1001
+        runAsGroup: 1001
+        runAsNonRoot: true
+        runAsUser: 1001
+        supplementalGroups:
+        - 1001
+      containers:
+
+      - env:
+        - name: COMPONENTVAULT_NAME
+          value: demob-comp-two
+        - name: VAULT_ADDR
+          value: http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200
+        - name: AUTH_PATH
+          value: jwt-k8s-pv
+        - name: LOGIN_ROLE
+          value: pv-demob-comp-two-role
+        - name: SCRETS_MOUNT
+          value: kv-demob-comp-two
+        - name: SCRETS_BASE_PATH
+          value: sidecar
+        image: mtr.devops.telekom.de/magenta_canvas/public:component-vault-sidecar-0.1.0-rc
+        imagePullPolicy: Always
+        name: pvsidecar
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp
+          name: pvsidecar-tmp
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: pvsidecar-kube-api-access
+          readOnly: true
+         
+      - name: component-implementation
+        image: curlimages/curl:7.88.1
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "echo starting component THREE;
+           date;
+           echo going to sleep;
+           sleep infinite;
+           echo --- FINISHED ---"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - emptyDir: {}
+        name: pvsidecar-tmp
+      - name: pvsidecar-kube-api-access
+        projected:
+          defaultMode: 420
+          sources:
+          - serviceAccountToken:
+              expirationSeconds: 3607
+              path: token
+          - configMap:
+              items:
+              - key: ca.crt
+                path: ca.crt
+              name: kube-root-ca.crt
+          - downwardAPI:
+              items:
+              - fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+                path: namespace
+              - fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+                path: name

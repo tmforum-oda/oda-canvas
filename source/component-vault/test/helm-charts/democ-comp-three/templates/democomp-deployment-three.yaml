@@ -5,17 +5,16 @@ metadata:
   labels:
     ### try to hack demos-comp-one private vault...      
     oda.tmforum.org/componentName: demoa-comp-one   # {{ .Release.Name }}-{{ .Values.component.name }}  
-    oda.tmforum.org/privatevault: sidecar
 spec:
   selector:
     matchLabels:
       app: {{ .Release.Name }}-{{ .Values.component.name }}
-      "oda.tmforum.org/componentvault": "sidecar"        
   replicas: 1
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}-{{ .Values.component.name }}
+        oda.tmforum.org/componentvault: "sidecar"        
     spec:
       automountServiceAccountToken: false
       securityContext:

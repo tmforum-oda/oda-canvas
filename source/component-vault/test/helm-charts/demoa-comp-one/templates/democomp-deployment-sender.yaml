@@ -4,7 +4,6 @@ metadata:
   name: {{ .Release.Name }}-{{ .Values.component.name }}-sender
   labels:
     oda.tmforum.org/componentName: {{ .Release.Name }}-{{ .Values.component.name }}        
-    oda.tmforum.org/privatevault: sidecar
 spec:
   selector:
     matchLabels:
@@ -14,7 +13,7 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-{{ .Values.component.name }}-sender
-        "oda.tmforum.org/componentvault": "sidecar"        
+        oda.tmforum.org/componentvault: "sidecar"        
     spec:
       automountServiceAccountToken: false
       securityContext:
