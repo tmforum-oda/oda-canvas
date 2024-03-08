@@ -17,6 +17,9 @@ export default defineConfig(({ mode }) => {
   }
   return {
     base: '',
+    build: {
+      outDir: '../portal-service/src/main/resources/static'
+    },
     plugins: [
       vue(),
       monacoEditorPlugin({ languageWorkers: ['editorWorkerService', 'css', 'html', 'json', 'typescript'] }),

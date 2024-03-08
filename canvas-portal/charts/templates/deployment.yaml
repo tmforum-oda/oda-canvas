@@ -42,6 +42,8 @@ spec:
             value: {{ .Values.env.portalPassword | quote }}
           - name: SERVER_SERVLET_CONTEXT_PATH
             value: /canvas-portal
+          - name: ODA_COMPONENT_NAMESPACE
+            value: '{{ join "," .Values.env.odaComponentNamespace }}'
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

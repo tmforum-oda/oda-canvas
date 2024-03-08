@@ -1,14 +1,18 @@
 <script setup>
 import request from "@/utils/index";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { dealApiStatus } from '@/views/ComponentInstance/formatter';
-import { showLoading, hideLoading } from '@/utils/loading';
+// import { showLoading, hideLoading } from '@/utils/loading';
 import useStore from '@/stores/namespace';
 import MonaCoEditor from '@/components/monacoEditor/IndexView.vue';
 const namespaceStore = useStore();
 const param = {
     namespace: namespaceStore.namespace
 };
+watch(() => namespaceStore.namespace, val => {
+    param.namespace = val;
+    loadGrid();
+})
 const dialogVisible = ref(false);
 const yamlDialogTitle = ref('');
 const props = defineProps({
@@ -29,15 +33,14 @@ const options = ref({
 const gridData = ref([]);
 const loadGrid = async () => {
     try {
-        showLoading({ target: '.api-table' });
+        // showLoading({ target: '.api-table' });
         const { data } = await request.getComponentApi({
             componentName: props.instanceName,
             ...param,
         });
         gridData.value = data;
-        console.log(data);
     } finally {
-        hideLoading();
+        // hideLoading();
     }
 }
 const viewYaml = async row => {
