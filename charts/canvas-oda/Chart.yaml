@@ -16,7 +16,7 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 version: 1.1.0
-# version: 1.1.0 - updated component CRD to support oneOf string or array for the specification field in the exposed API
+# version: 1.1.0 - updated component CRD to support an array for the specification field in the exposed API (to support Gen5 APIs)
 # version: 1.0.0 - baseline version
 
 # This is the version number of the application being deployed. We are versioning the canvas as the
