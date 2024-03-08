@@ -19,7 +19,6 @@ const packageManagerUtils = {
       // run the helm template command to generate the component envelope
       const output = execSync('helm template ' + releaseName + ' ' + testDataFolder + componentPackage, { encoding: 'utf-8' });  
         
-      console.log("output: " + output)
       // parse the template
       documentArray = YAML.parseAllDocuments(output)
 
