@@ -90,7 +90,20 @@ const packageManagerUtils = {
    * @param {string} namespace - The namespace of the release to uninstall.
    */
     uninstallPackage: function(releaseName, namespace) {
-      const output = execSync('helm uninstall ' + releaseName + ' -n ' + namespace, { encoding: 'utf-8' });
+
+      // only uninstall the helm chart if it is already installed
+      const helmList = execSync('helm list -o json  -n ' + namespace, { encoding: 'utf-8' });    
+      var found = false
+      // look through the helm list and see if there is a chart with name releaseName
+      JSON.parse(helmList).forEach(chart => {
+        if (chart.name == releaseName) {
+          found = true
+        }
+      })
+
+      if (found) {
+        const output = execSync('helm uninstall ' + releaseName + ' -n ' + namespace, { encoding: 'utf-8' });
+      }
     },
 
   /**
