@@ -1,7 +1,7 @@
 
 # Declare variables to be passed into your templates.
 
-image: tmforumodacanvas/compcrdwebhook:0.7.0
+image: tmforumodacanvas/compcrdwebhook:0.8.0
 
   
 

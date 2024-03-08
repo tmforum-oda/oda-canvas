@@ -16,7 +16,7 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 version: 1.1.0
-# version: 1.1.0 - enabled oneOf string or array for the specification field in the exposed API
+# version: 1.1.0 - changed the specification field in the exposed API to an array
 # version: 1.0.0 - baseline version
 
 # This is the version number of the application being deployed. We are versioning the canvas as the
