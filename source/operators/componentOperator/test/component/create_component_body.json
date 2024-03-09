@@ -1,0 +1,89 @@
+{
+	"apiVersion": "oda.tmforum.org/v1alpha1",
+	"kind": "componentvault",
+	"metadata": {
+		"annotations": {
+			"kubectl.kubernetes.io/lastppliedonfiguration": "{\"apiVersion\": \"oda.tmforum.org/v1alpha1\",\"kind\": \"componentvault\",\"metadata\": {\"annotations\": {},\"name\": \"componentvault-demo-comp-123\",\"namespace\": \"componentvault-system\"},\"spec\": {\"name\": \"demo-comp-123\",\"podSelector\": {\"namespace\": \"demo-comp-123\",\"serviceAccount\": \"default\"},\"sideCar\": {\"port\": 5000,\"token\": \"negotiate\"},\"type\": \"sideCar\"}}\n"},
+		"creationTimestamp": "2023-06-12T09: 12: 18Z",
+		"finalizers": [
+			"kopf.zalando.org/KopfFinalizerMarker"
+		],
+		"generation": 1,
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1alpha1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f: metadata": {
+						"f: finalizers": {
+							".": {
+							},
+							"v: \"kopf.zalando.org/KopfFinalizerMarker\"": {
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2023-06-12T09: 12: 18Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1alpha1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f: metadata": {
+						"f: annotations": {
+							".": {
+							},
+							"f: kubectl.kubernetes.io/lastppliedonfiguration": {
+							}
+						}
+					},
+					"f: spec": {
+						".": {
+						},
+						"f: name": {
+						},
+						"f: podSelector": {
+							".": {
+							},
+							"f: namespace": {
+							},
+							"f: serviceAccount": {
+							}
+						},
+						"f: sideCar": {
+							".": {
+							},
+							"f: port": {
+							},
+							"f: token": {
+							}
+						},
+						"f: type": {
+						}
+					}
+				},
+				"manager": "kubectllientidepply",
+				"operation": "Update",
+				"time": "2023-06-12T09: 12: 18Z"
+			}
+		],
+		"name": "componentvaultemoomp-123",
+		"namespace": "componentvaultystem",
+		"resourceVersion": "41115483",
+		"uid": "87c81a28dad-4758-928c-4c9c1448cb51"
+	},
+	"spec": {
+		"name": "demoomp-123",
+		"podSelector": {
+			"namespace": "demoomp-123",
+			"serviceAccount": "default"
+		},
+		"sideCar": {
+			"port": 5000,
+			"token": "negotiate"
+		},
+		"type": "sideCar"
+	}
+}
