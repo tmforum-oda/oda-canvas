@@ -141,7 +141,7 @@ build_codeserver:
   extends: .build_template_docker
   variables:
     BUILD_FOLDER: source/component-vault/custom/code-server/code-server-with-helm
-    DOCKERFILE: $BUILD_FOLDER/Dockerfile 
+    DOCKERFILE: Dockerfile 
     MTR_FULL_IMAGE: $MTR_FULL_CODESERVER_IMAGE
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
