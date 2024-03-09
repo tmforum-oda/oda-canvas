@@ -25,11 +25,9 @@ logger.setLevel(int(logging_level))
 logger.info(f'Logging set to %s', logging_level)
 
 
-### Ferenc Hechler: I think this is deprecated and causes confusion
-#
-# # get namespace to monitor
-# component_namespace = os.environ.get('COMPONENT_NAMESPACE', 'components')
-# logger.info(f'Monitoring namespace %s', component_namespace)
+# get namespace to monitor
+component_namespace = os.environ.get('COMPONENT_NAMESPACE', 'components')
+logger.info(f'Monitoring namespace %s', component_namespace)
 
 # Constants
 HTTP_CONFLICT = 409
@@ -343,69 +341,39 @@ async def securityComponentVault(meta, spec, status, body, namespace, labels, na
 
     :meta public:
     """
+    logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Handler called with body", f"{body}")
+
     logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Handler called", "")
     componentVaultChildren = []
-    oldSecurityComponentVaults = {}
     cv_name = f"cv_{name}"
+
     try:
-
-        # compare desired state (spec) with actual state (status) and initiate changes
+        oldSecurityComponentVault = {}
         if status:  # if status exists (i.e. this is not a new component)
-            # update a component - look in old and new to see if we need to delete any API resources
             oldSecurityComponentVault = safe_get({}, status, 'securityComponentVault')
-            logWrapper(logging.DEBUG, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Old ComponentVault", f"{oldSecurityComponentVault}")
-            newSecurityComponentVault = safe_get({}, spec, 'securityFunction', 'componentVault')
-            logWrapper(logging.DEBUG, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "New ComponentVault", f"{newSecurityComponentVault}")
-            # find apis in old that are missing in new
-            if oldSecurityComponentVault != {} and newSecurityComponentVault == {}:
-                logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Deleting ComponentVault", cv_name)
-                await deleteComponentVault(cv_name, name, status, namespace, 'securityComponentVault')
+        logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- OLD COMPONENTVAULT (from status) ---", f"{oldSecurityComponentVault}")
             
-            if oldSecurityComponentVault == {} and newSecurityComponentVault != {}:
-                logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Calling createComponentVault", cv_name)
-                resultStatus = await createAPIResource(newSecurityComponentVault, namespace, name, 'securityComponentVault')
-                componentVaultChildren.append(resultStatus)                
+        newSecurityComponentVault = safe_get({}, spec, 'securityFunction', 'componentVault')
+        logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- NEW COMPONENTVAULT ---", f"{newSecurityComponentVault}")
+        
+        if oldSecurityComponentVault != {} and newSecurityComponentVault == {}:
+            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Deleting ComponentVault", cv_name)
+            await deleteComponentVault(cv_name, name, status, namespace, 'securityComponentVault')
             
-            #for oldAPI in oldSecurityAPIs:
-            #    found = False
-            #    for newAPI in newSecurityAPIs:
-            #
-            #        logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Comparing old and new APIs", f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
-            #        if oldAPI['name'] == name + '-' + newAPI['name'].lower():
-            #            found = True
-            #            logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Patching API", newAPI['name'])
-            #            resultStatus = await patchAPIResource(newAPI, namespace, name, 'securityAPIs')
-            #            apiChildren.append(resultStatus)
-            #    if not found:
-            #        logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Deleting API", oldAPI['name'])
-            #        await deleteAPI(oldAPI['name'], name, status, namespace, 'securityAPIs')
-
-        # get exposed APIS
-        securityComponentVault = safe_get({}, spec, 'securityFunction', 'componentVault')
-        logWrapper(logging.DEBUG, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "security.componentVault", f"{securityComponentVault}")
-
-        for securityAPI in securityAPIs:
-            # check if we have already patched this API
-            alreadyProcessed = False
-            for processedAPI in apiChildren:
-                logger.debug(
-                    f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}")
-                logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Comparing new APIs with status", f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}")
-                if processedAPI['name'] == name + '-' + securityAPI['name'].lower():
-                    alreadyProcessed = True
-
-            if alreadyProcessed == False:
-                logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Calling createAPIResource", securityAPI['name'])
-                resultStatus = await createAPIResource(securityAPI, namespace, name, 'securityAPIs')
-                apiChildren.append(resultStatus)
-
+        if oldSecurityComponentVault == {} and newSecurityComponentVault != {}:
+            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Calling createComponentVault", cv_name)
+            resultStatus = await createComponentVault(newSecurityComponentVault, namespace, name, 'securityComponentVault')
+            componentVaultChildren.append(resultStatus)                
+            
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e) # allow the operator to retry            
     except Exception as e:
-        logWrapper(logging.ERROR, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+        logWrapper(logging.ERROR, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+
+    logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "result for status ", f"{componentVaultChildren}")
         
     # Update the parent's status.
-    return apiChildren
+    return componentVaultChildren
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)

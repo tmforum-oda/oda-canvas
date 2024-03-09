@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.12
 RUN pip install kopf
 RUN pip install kubernetes==17.14.0a1
 RUN pip install cloudevents

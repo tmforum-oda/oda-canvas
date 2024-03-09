@@ -3,16 +3,20 @@ variables:
   SIDECAR_VERSION: 0.1.0-rc
   OPERATOR_VERSION: 0.1.0-rc
   CODESERVER_VERSION: 4.22.0
+  COMPISTIOCTLR_VERSION: 0.4.0-compvault
+  
   
   SIDECAR_IMAGE_TAG: component-vault-sidecar-${SIDECAR_VERSION}
   OPERATOR_IMAGE_TAG: component-vault-operator-${OPERATOR_VERSION}
   CODESERVER_IMAGE_TAG: code-server-with-helm-${CODESERVER_VERSION}
+  COMPISTIOCTLR_IMAGE_TAG: component-istio-controller-${COMPISTIOCTLR_VERSION}
   MAGENTA_TRUSTED_REGISTRY: mtr.devops.telekom.de
   MTR_REPO: magenta_canvas/public
   MTR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}
   MTR_FULL_SIDECAR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${SIDECAR_IMAGE_TAG}
   MTR_FULL_OPERATOR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${OPERATOR_IMAGE_TAG}
   MTR_FULL_CODESERVER_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${CODESERVER_IMAGE_TAG}
+  MTR_FULL_COMPISTIOCTLR_IMAGE: ${MAGENTA_TRUSTED_REGISTRY}/${MTR_REPO}:${COMPISTIOCTLR_IMAGE_TAG}
   
   DOCKER_REGISTRY_USERNAME: "magenta_canvas+builder"
   #DOCKER_REGISTRY_PASSWORD: "has to be defined in CICD variables"    
@@ -57,7 +61,7 @@ stages:
     - /kaniko/executor
       --registry-mirror dockerhub.devops.telekom.de
       --context $CI_PROJECT_DIR/$BUILD_FOLDER
-      --dockerfile $CI_PROJECT_DIR/$BUILD_FOLDER/Dockerfile 
+      --dockerfile $DOCKERFILE 
       --destination $MTR_FULL_IMAGE
       --build-arg http_proxy=$http_proxy
       --build-arg https_proxy=$https_proxy
@@ -68,6 +72,7 @@ build_sidecar:
   extends: .build_template
   variables:
     BUILD_FOLDER: source/component-vault/sidecars/componentvaultsidecar-hc
+    DOCKERFILE: $BUILD_FOLDER/Dockerfile 
     MTR_FULL_IMAGE: $MTR_FULL_SIDECAR_IMAGE
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -84,6 +89,7 @@ build_operator:
   extends: .build_template
   variables:
     BUILD_FOLDER: source/component-vault/operators/componentvaultoperator-hc/docker
+    DOCKERFILE: $BUILD_FOLDER/Dockerfile 
     MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -91,6 +97,22 @@ build_operator:
       allow_failure: true
     - changes:
       - "source/component-vault/operators/componentvaultoperator-hc/docker/**/*"
+    - when: manual
+      allow_failure: true
+
+
+build_compistioctlr:
+  extends: .build_template
+  variables:
+    BUILD_FOLDER: source/operators
+    DOCKERFILE: $BUILD_FOLDER/component-IstioController-dockerfile 
+    MTR_FULL_IMAGE: $MTR_FULL_COMPISTIOCTLR_IMAGE
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+      allow_failure: true
+    - changes:
+      - "source/operators/componentOperator/**/*"
     - when: manual
       allow_failure: true
 
@@ -111,7 +133,7 @@ build_operator:
   script:
     - docker login --username=$DOCKER_REGISTRY_USERNAME --password=$DOCKER_REGISTRY_PASSWORD $MAGENTA_TRUSTED_REGISTRY
     - cd $BUILD_FOLDER
-    - docker build -t $MTR_FULL_IMAGE . 
+    - docker build -f $DOCKERFILE -t $MTR_FULL_IMAGE . 
     - docker push $MTR_FULL_IMAGE
 
 
@@ -119,6 +141,7 @@ build_codeserver:
   extends: .build_template_docker
   variables:
     BUILD_FOLDER: source/component-vault/custom/code-server/code-server-with-helm
+    DOCKERFILE: $BUILD_FOLDER/Dockerfile 
     MTR_FULL_IMAGE: $MTR_FULL_CODESERVER_IMAGE
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -164,6 +187,14 @@ scan_operator:
   needs:
     - build_operator
 
+scan_compistioctlr:
+  extends: .scan_template
+  variables:
+    IMAGE_TAG: $COMPISTIOCTLR_IMAGE_TAG
+  needs:
+    - build_compistioctlr
+
+
 # problems scanning with dev-sec-ops scanner, set to manual. Error-Message: 
 #   failed to catalog: unable to load image: unable to use DockerDaemon source: pull failed: 
 #     Error response from daemon: manifest for mtr.devops.telekom.de/magenta_canvas/public:code-server-with-helm-4.22.0 not found: 
@@ -205,6 +236,14 @@ sign_operator:
     MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
   needs:
     - scan_operator
+
+sign_compistioctlr:
+  extends: .sign_template
+  variables:
+    MTR_FULL_IMAGE: $MTR_FULL_COMPISTIOCTLR_IMAGE
+  needs:
+    - scan_compistioctlr
+    
 
 sign_codeserver:
   extends: .sign_template
