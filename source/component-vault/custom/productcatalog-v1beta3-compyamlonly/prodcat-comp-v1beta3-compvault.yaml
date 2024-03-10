@@ -1,0 +1,63 @@
+apiVersion: oda.tmforum.org/v1beta3
+kind: Component
+metadata:
+  namespace: components
+  name: prodcat-productcatalog
+  labels:
+    oda.tmforum.org/componentName: prodcat-productcatalog
+spec:
+  id: TMFC001
+  name: ProductCatalogManagement
+  functionalBlock: CoreCommerce
+  publicationDate: "2023-08-18T00:00:00.000Z"
+  status: specified
+  version: 0.0.1
+  description: Simple Product Catalog ODA-Component from Open-API reference implementation.
+
+  maintainers:
+  - name: Lester Thomas
+    email: lester.thomas@vodafone.com
+  owners:
+  - name: Lester Thomas
+    email: lester.thomas@vodafone.com
+  coreFunction:
+    exposedAPIs:
+    - name: productcatalogmanagement
+      specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+      implementation: prodcat-prodcatapi
+      apitype: openapi
+      path: /prodcat-productcatalog/tmf-api/productCatalogManagement/v4
+      developerUI: /prodcat-productcatalog/tmf-api/productCatalogManagement/v4/docs
+      port: 8080
+    dependentAPIs:
+    - name: party
+      apitype: openapi
+      specification: https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json
+  eventNotification:
+    publishedEvents: []
+    subscribedEvents: []
+  managementFunction:
+    exposedAPIs:
+    - name: metrics
+      apitype: prometheus
+      implementation: prodcat-productcatalog-sm
+      path: /prodcat-productcatalog/metrics
+      port: 4000
+  securityFunction:
+    componentVault:
+      controllerRole: Admin
+      type: sideCar
+      sideCar:
+        port: 5000
+      podSelector:
+        namespace: demo-comp
+        name: demoa-comp-one-*
+        serviceAccount: default
+    exposedAPIs:
+    - name: partyrole
+      specification: https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
+      implementation: prodcat-partyroleapi
+      apitype: openapi
+      path: /prodcat-productcatalog/tmf-api/partyRoleManagement/v4
+      developerUI: /prodcat-productcatalog/tmf-api/partyRoleManagement/v4/docs
+      port: 8080

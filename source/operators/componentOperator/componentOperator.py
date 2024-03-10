@@ -386,7 +386,7 @@ async def securityComponentVault(meta, spec, status, body, namespace, labels, na
         oldSecurityComponentVault = []
         if status:  # if status exists (i.e. this is not a new component)
             oldSecurityComponentVault = safe_get([], status, 'securityComponentVault')
-        logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- OLD COMPONENTVAULT (from status) ---", f"{oldSecurityComponentVault}")
+        logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- OLD COMPONENTVAULT (from status) ---", f"{oldSecurityComponentVault}, type={type(oldSecurityComponentVault)}")
             
         newSecurityComponentVault = safe_get({}, spec, 'securityFunction', 'componentVault')
         logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- NEW COMPONENTVAULT ---", f"{newSecurityComponentVault}")
@@ -394,6 +394,14 @@ async def securityComponentVault(meta, spec, status, body, namespace, labels, na
         if oldSecurityComponentVault != [] and newSecurityComponentVault == {}:
             logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Deleting ComponentVault", cv_name)
             await deleteComponentVault(cv_name, name, status, namespace, 'securityComponentVault')
+
+        if oldSecurityComponentVault == []:
+            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "oldSecurityComponentVault is empty list", f"oldSecurityComponentVault is empty list")
+        else:
+            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "list size", f"{len(oldSecurityComponentVault)}")
+            
+        if newSecurityComponentVault != {}:
+            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "newSecurityComponentVault is not empty dict", f"newSecurityComponentVault is not empty dict")
             
         if oldSecurityComponentVault == [] and newSecurityComponentVault != {}:
             logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Calling createComponentVault", cv_name)
