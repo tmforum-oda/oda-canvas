@@ -1,0 +1,233 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    meta.helm.sh/release-name: canvas
+    meta.helm.sh/release-namespace: canvas
+  labels:
+    app.kubernetes.io/instance: canvas
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: controller
+    app.kubernetes.io/version: 1.0.0
+    helm.sh/chart: controller-1.0.0
+  name: odacomponent-role-cluster
+rules:
+- apiGroups:
+  - zalando.org
+  resources:
+  - clusterkopfpeerings
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - list
+  - watch
+  - get
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+- apiGroups:
+  - oda.tmforum.org
+  resources:
+  - components
+  - components/status
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+- apiGroups:
+  - oda.tmforum.org
+  resources:
+  - apis
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - wso2.com
+  resources:
+  - apis
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - services/status
+  - pods
+  - persistentvolumeclaims
+  - persistentvolumeclaims/status
+  - namespaces
+  - configmaps
+  - configmaps/status
+  - secrets
+  - secrets/status
+  - serviceaccounts
+  - serviceaccounts/status
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  - ingresses/status
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - extensions
+  - apps
+  resources:
+  - deployments
+  - deployments/status
+  - statefulsets
+  - statefulsets/status
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  - roles/status
+  - rolebindings
+  - rolebindings/status
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - batch
+  - extensions
+  resources:
+  - jobs
+  - jobs/status
+  - cronjobs
+  - cronjobs/status
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - get
+  - list
+  - patch
+- apiGroups:
+  - oda.tmforum.org
+  resources:
+  - publishednotifications
+  - publishednotifications/status
+  - subscribednotifications
+  - subscribednotifications/status
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - batch
+  - extensions
+  resources:
+  - jobs
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - persistentvolumeclaims
+  verbs:
+  - create
+- apiGroups:
+  - networking.istio.io
+  resources:
+  - virtualservices
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - oda.tmforum.org
+  resources:
+  - componentvaults
+  verbs:
+  - list
+  - watch
+  - patch
+  - get
+  - create
+  - update
+  - delete
