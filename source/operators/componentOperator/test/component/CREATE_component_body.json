@@ -1,0 +1,464 @@
+{
+	"apiVersion": "oda.tmforum.org/v1beta3",
+	"kind": "Component",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/coreAPIs": "{\"started\":\"2024-03-10T07:51:21.818005+00:00\",\"stopped\":\"2024-03-10T07:51:21.830719+00:00\",\"purpose\":\"update\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"coreFunction\":{\"dependentAPIs\":[{\"apitype\":\"openapi\",\"name\":\"party\",\"specification\":\"https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json\"}],\"exposedAPIs\":[{\"apitype\":\"openapi\",\"developerUI\":\"/prodcat-productcatalog/tmf-api/productCatalogManagement/v4/docs\",\"implementation\":\"prodcat-prodcatapi\",\"name\":\"productcatalogmanagement\",\"path\":\"/prodcat-productcatalog/tmf-api/productCatalogManagement/v4\",\"port\":8080,\"specification\":\"https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json\"}]},\"description\":\"Simple Product Catalog ODA-Component from Open-API reference implementation.\",\"eventNotification\":{\"publishedEvents\":[],\"subscribedEvents\":[]},\"functionalBlock\":\"CoreCommerce\",\"id\":\"TMFC001\",\"maintainers\":[{\"email\":\"lester.thomas@vodafone.com\",\"name\":\"Lester Thomas\"}],\"managementFunction\":{\"exposedAPIs\":[{\"apitype\":\"prometheus\",\"implementation\":\"prodcat-productcatalog-sm\",\"name\":\"metrics\",\"path\":\"/prodcat-productcatalog/metrics\",\"port\":4000}]},\"name\":\"ProductCatalogManagement\",\"owners\":[{\"email\":\"lester.thomas@vodafone.com\",\"name\":\"Lester Thomas\"}],\"publicationDate\":\"2023-08-18T00:00:00.000Z\",\"securityFunction\":{\"controllerRole\":\"Admin\",\"exposedAPIs\":[{\"apitype\":\"openapi\",\"developerUI\":\"/prodcat-productcatalog/tmf-api/partyRoleManagement/v4/docs\",\"implementation\":\"prodcat-partyroleapi\",\"name\":\"partyrole\",\"path\":\"/prodcat-productcatalog/tmf-api/partyRoleManagement/v4\",\"port\":8080,\"specification\":\"https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json\"}]},\"status\":\"specified\",\"version\":\"0.0.1\"},\"metadata\":{\"labels\":{\"app.kubernetes.io/managed-by\":\"Helm\",\"oda.tmforum.org/componentName\":\"prodcat-productcatalog\"},\"annotations\":{\"meta.helm.sh/release-name\":\"prodcat\",\"meta.helm.sh/release-namespace\":\"components\",\"webhookconverted\":\"Webhook converted From oda.tmforum.org/v1beta2 to oda.tmforum.org/v1beta3\"}},\"status\":{\"coreAPIs\":[{\"developerUI\":\"http://34.159.217.74/prodcat-productcatalog/tmf-api/productCatalogManagement/v4/docs\",\"name\":\"prodcat-productcatalog-productcatalogmanagement\",\"ready\":false,\"uid\":\"dbf7b930-5daf-4749-a2c8-847f6e00cfa0\",\"url\":\"http://34.159.217.74/prodcat-productcatalog/tmf-api/productCatalogManagement/v4\"}],\"managementAPIs\":[{\"name\":\"prodcat-productcatalog-metrics\",\"ready\":false,\"uid\":\"92d9478a-4235-40ba-89c2-43d9479b2a0d\"}],\"publishedEvents\":[],\"securityAPIs\":[{\"developerUI\":\"http://34.159.217.74/prodcat-productcatalog/tmf-api/partyRoleManagement/v4/docs\",\"name\":\"prodcat-productcatalog-partyrole\",\"ready\":false,\"uid\":\"c65e4e76-8900-4ac4-a295-cee5ec99ff68\",\"url\":\"http://34.159.217.74/prodcat-productcatalog/tmf-api/partyRoleManagement/v4\"}],\"securityComponentVault\":[],\"subscribedEvents\":[]}}\n",
+			"kopf.zalando.org/managementAPIs": "{\"started\":\"2024-03-10T07:51:21.818023+00:00\",\"stopped\":\"2024-03-10T07:51:21.989293+00:00\",\"purpose\":\"update\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/publishedEvents": "{\"started\":\"2024-03-10T07:51:21.818040+00:00\",\"purpose\":\"update\",\"retries\":0,\"success\":false,\"failure\":false}",
+			"kopf.zalando.org/securityAPIs": "{\"started\":\"2024-03-10T07:51:21.818029+00:00\",\"stopped\":\"2024-03-10T07:51:22.145128+00:00\",\"purpose\":\"update\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/securityComponentVault": "{\"started\":\"2024-03-10T07:51:21.818035+00:00\",\"purpose\":\"update\",\"retries\":0,\"success\":false,\"failure\":false}",
+			"kopf.zalando.org/subscribedEvents": "{\"started\":\"2024-03-10T07:51:21.818046+00:00\",\"purpose\":\"update\",\"retries\":0,\"success\":false,\"failure\":false}",
+			"kopf.zalando.org/summary.status": "{\"started\":\"2024-03-10T07:51:21.818052+00:00\",\"purpose\":\"update\",\"retries\":0,\"success\":false,\"failure\":false}",
+			"meta.helm.sh/release-name": "prodcat",
+			"meta.helm.sh/release-namespace": "components",
+			"webhookconverted": "Webhook converted From oda.tmforum.org/v1beta2 to oda.tmforum.org/v1beta3"
+		},
+		"creationTimestamp": "2024-03-10T07:37:10Z",
+		"finalizers": [
+			"kopf.zalando.org/KopfFinalizerMarker"
+		],
+		"generation": 13,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "prodcat-productcatalog"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1beta2",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {
+							},
+							"f:meta.helm.sh/release-name": {
+							},
+							"f:meta.helm.sh/release-namespace": {
+							}
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:coreFunction": {
+							".": {
+							},
+							"f:dependentAPIs": {
+							},
+							"f:exposedAPIs": {
+							}
+						},
+						"f:description": {
+						},
+						"f:eventNotification": {
+							".": {
+							},
+							"f:publishedEvents": {
+							},
+							"f:subscribedEvents": {
+							}
+						},
+						"f:functionalBlock": {
+						},
+						"f:id": {
+						},
+						"f:maintainers": {
+						},
+						"f:managementFunction": {
+							".": {
+							},
+							"f:exposedAPIs": {
+							}
+						},
+						"f:name": {
+						},
+						"f:owners": {
+						},
+						"f:publicationDate": {
+						},
+						"f:securityFunction": {
+							".": {
+							},
+							"f:controllerRole": {
+							},
+							"f:exposedAPIs": {
+							}
+						},
+						"f:status": {
+						},
+						"f:version": {
+						}
+					}
+				},
+				"manager": "helm",
+				"operation": "Update",
+				"time": "2024-03-10T07:37:10Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							"f:kopf.zalando.org/coreAPIs": {
+							},
+							"f:kopf.zalando.org/last-handled-configuration": {
+							},
+							"f:kopf.zalando.org/managementAPIs": {
+							},
+							"f:kopf.zalando.org/publishedEvents": {
+							},
+							"f:kopf.zalando.org/securityAPIs": {
+							},
+							"f:kopf.zalando.org/securityComponentVault": {
+							},
+							"f:kopf.zalando.org/subscribedEvents": {
+							},
+							"f:kopf.zalando.org/summary.status": {
+							}
+						},
+						"f:finalizers": {
+							".": {
+							},
+							"v:\"kopf.zalando.org/KopfFinalizerMarker\"": {
+							}
+						}
+					},
+					"f:status": {
+						".": {
+						},
+						"f:coreAPIs": {
+						},
+						"f:kopf": {
+							".": {
+							},
+							"f:progress": {
+								".": {
+								},
+								"f:coreAPIs": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:managementAPIs": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:publishedEvents": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:success": {
+									}
+								},
+								"f:securityAPIs": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:securityComponentVault": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:success": {
+									}
+								},
+								"f:subscribedEvents": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:success": {
+									}
+								},
+								"f:summary/status": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:success": {
+									}
+								}
+							}
+						},
+						"f:managementAPIs": {
+						},
+						"f:publishedEvents": {
+						},
+						"f:securityAPIs": {
+						},
+						"f:securityComponentVault": {
+						},
+						"f:subscribedEvents": {
+						},
+						"f:summary/status": {
+							".": {
+							},
+							"f:coreAPIsummary": {
+							},
+							"f:deployment_status": {
+							},
+							"f:developerUIsummary": {
+							},
+							"f:managementAPIsummary": {
+							},
+							"f:securityAPIsummary": {
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2024-03-10T07:51:22Z"
+			}
+		],
+		"name": "prodcat-productcatalog",
+		"namespace": "components",
+		"resourceVersion": "8307707",
+		"uid": "10cf4b25-d47d-41a9-b239-5d593ae93e50"
+	},
+	"spec": {
+		"coreFunction": {
+			"dependentAPIs": [
+				{
+					"apitype": "openapi",
+					"name": "party",
+					"specification": "https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json"
+				}
+			],
+			"exposedAPIs": [
+				{
+					"apitype": "openapi",
+					"developerUI": "/prodcat-productcatalog/tmf-api/productCatalogManagement/v4/docs",
+					"implementation": "prodcat-prodcatapi",
+					"name": "productcatalogmanagement",
+					"path": "/prodcat-productcatalog/tmf-api/productCatalogManagement/v4",
+					"port": 8080,
+					"specification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+				}
+			]
+		},
+		"description": "Simple Product Catalog ODA-Component from Open-API reference implementation.",
+		"eventNotification": {
+			"publishedEvents": [
+			],
+			"subscribedEvents": [
+			]
+		},
+		"functionalBlock": "CoreCommerce",
+		"id": "TMFC001",
+		"maintainers": [
+			{
+				"email": "lester.thomas@vodafone.com",
+				"name": "Lester Thomas"
+			}
+		],
+		"managementFunction": {
+			"exposedAPIs": [
+				{
+					"apitype": "prometheus",
+					"implementation": "prodcat-productcatalog-sm",
+					"name": "metrics",
+					"path": "/prodcat-productcatalog/metrics",
+					"port": 4000
+				}
+			]
+		},
+		"name": "ProductCatalogManagement",
+		"owners": [
+			{
+				"email": "lester.thomas@vodafone.com",
+				"name": "Lester Thomas"
+			}
+		],
+		"publicationDate": "2023-08-18T00:00:00.000Z",
+		"securityFunction": {
+			"controllerRole": "Admin",
+			"exposedAPIs": [
+				{
+					"apitype": "openapi",
+					"developerUI": "/prodcat-productcatalog/tmf-api/partyRoleManagement/v4/docs",
+					"implementation": "prodcat-partyroleapi",
+					"name": "partyrole",
+					"path": "/prodcat-productcatalog/tmf-api/partyRoleManagement/v4",
+					"port": 8080,
+					"specification": "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
+				}
+			]
+		},
+		"status": "specified",
+		"version": "0.0.1"
+	},
+	"status": {
+		"coreAPIs": [
+			{
+				"developerUI": "http://34.159.217.74/prodcat-productcatalog/tmf-api/productCatalogManagement/v4/docs",
+				"implementation": "prodcat-prodcatapi",
+				"ip": "34.159.217.74",
+				"name": "prodcat-productcatalog-productcatalogmanagement",
+				"path": "/prodcat-productcatalog/tmf-api/productCatalogManagement/v4",
+				"port": 8080,
+				"uid": "dbf7b930-5daf-4749-a2c8-847f6e00cfa0",
+				"url": "http://34.159.217.74/prodcat-productcatalog/tmf-api/productCatalogManagement/v4"
+			}
+		],
+		"kopf": {
+			"progress": {
+				"coreAPIs": {
+					"failure": false,
+					"purpose": "update",
+					"retries": 1,
+					"started": "2024-03-10T07:51:21.818005+00:00",
+					"stopped": "2024-03-10T07:51:21.830719+00:00",
+					"success": true
+				},
+				"managementAPIs": {
+					"failure": false,
+					"purpose": "update",
+					"retries": 1,
+					"started": "2024-03-10T07:51:21.818023+00:00",
+					"stopped": "2024-03-10T07:51:21.989293+00:00",
+					"success": true
+				},
+				"publishedEvents": {
+					"failure": false,
+					"purpose": "update",
+					"retries": 0,
+					"started": "2024-03-10T07:51:21.818040+00:00",
+					"success": false
+				},
+				"securityAPIs": {
+					"failure": false,
+					"purpose": "update",
+					"retries": 1,
+					"started": "2024-03-10T07:51:21.818029+00:00",
+					"stopped": "2024-03-10T07:51:22.145128+00:00",
+					"success": true
+				},
+				"securityComponentVault": {
+					"failure": false,
+					"purpose": "update",
+					"retries": 0,
+					"started": "2024-03-10T07:51:21.818035+00:00",
+					"success": false
+				},
+				"subscribedEvents": {
+					"failure": false,
+					"purpose": "update",
+					"retries": 0,
+					"started": "2024-03-10T07:51:21.818046+00:00",
+					"success": false
+				},
+				"summary/status": {
+					"failure": false,
+					"purpose": "update",
+					"retries": 0,
+					"started": "2024-03-10T07:51:21.818052+00:00",
+					"success": false
+				}
+			}
+		},
+		"managementAPIs": [
+			{
+				"name": "prodcat-productcatalog-metrics",
+				"ready": false,
+				"uid": "92d9478a-4235-40ba-89c2-43d9479b2a0d"
+			}
+		],
+		"publishedEvents": [
+		],
+		"securityAPIs": [
+			{
+				"developerUI": "http://34.159.217.74/prodcat-productcatalog/tmf-api/partyRoleManagement/v4/docs",
+				"implementation": "prodcat-partyroleapi",
+				"ip": "34.159.217.74",
+				"name": "prodcat-productcatalog-partyrole",
+				"path": "/prodcat-productcatalog/tmf-api/partyRoleManagement/v4",
+				"port": 8080,
+				"uid": "c65e4e76-8900-4ac4-a295-cee5ec99ff68",
+				"url": "http://34.159.217.74/prodcat-productcatalog/tmf-api/partyRoleManagement/v4"
+			}
+		],
+		"securityComponentVault": [
+		],
+		"subscribedEvents": [
+		],
+		"summary/status": {
+			"coreAPIsummary": "http://34.159.217.74/prodcat-productcatalog/tmf-api/productCatalogManagement/v4 ",
+			"deployment_status": "In-Progress-CompCon",
+			"developerUIsummary": "http://34.159.217.74/prodcat-productcatalog/tmf-api/productCatalogManagement/v4/docs http://34.159.217.74/prodcat-productcatalog/tmf-api/partyRoleManagement/v4/docs ",
+			"managementAPIsummary": "",
+			"securityAPIsummary": "http://34.159.217.74/prodcat-productcatalog/tmf-api/partyRoleManagement/v4 "
+		}
+	}
+}

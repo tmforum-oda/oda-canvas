@@ -1,0 +1,6 @@
+# ODA Canvas installation with ComponentValut
+
+```
+helm upgrade --install canvas -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault .
+```
+

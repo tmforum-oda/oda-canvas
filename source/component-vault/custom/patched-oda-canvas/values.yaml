@@ -1,0 +1,8 @@
+controller:
+  deployment:
+    #compconImage: tmforumodacanvas/component-istio-controller:0.4.0
+    compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault
+
+keycloak:
+  service:
+    type: ClusterIP
