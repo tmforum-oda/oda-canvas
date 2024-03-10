@@ -383,19 +383,19 @@ async def securityComponentVault(meta, spec, status, body, namespace, labels, na
     cv_name = f"cv_{name}"
 
     try:
-        oldSecurityComponentVault = {}
+        oldSecurityComponentVault = []
         if status:  # if status exists (i.e. this is not a new component)
-            oldSecurityComponentVault = safe_get({}, status, 'securityComponentVault')
+            oldSecurityComponentVault = safe_get([], status, 'securityComponentVault')
         logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- OLD COMPONENTVAULT (from status) ---", f"{oldSecurityComponentVault}")
             
         newSecurityComponentVault = safe_get({}, spec, 'securityFunction', 'componentVault')
         logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- NEW COMPONENTVAULT ---", f"{newSecurityComponentVault}")
         
-        if oldSecurityComponentVault != {} and newSecurityComponentVault == {}:
+        if oldSecurityComponentVault != [] and newSecurityComponentVault == {}:
             logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Deleting ComponentVault", cv_name)
             await deleteComponentVault(cv_name, name, status, namespace, 'securityComponentVault')
             
-        if oldSecurityComponentVault == {} and newSecurityComponentVault != {}:
+        if oldSecurityComponentVault == [] and newSecurityComponentVault != {}:
             logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Calling createComponentVault", cv_name)
             resultStatus = await createComponentVaultResource(newSecurityComponentVault, namespace, name, 'securityComponentVault')
             componentVaultChildren.append(resultStatus)                
@@ -538,7 +538,7 @@ def constructComponentVaultResourcePayload(inComponentVault):
     }
     # Make it our child: assign the namespace, name, labels, owner references, etc.
     kopf.adopt(ComponentVaultResource)
-    newName = (ComponentVaultResource['metadata']['ownerReferences'][0]['name'] + '-' + inComponentVault['name']).lower()
+    newName = (ComponentVaultResource['metadata']['ownerReferences'][0]['name'])
     ComponentVaultResource['metadata']['name'] = newName
     ComponentVaultResource['spec'] = inComponentVault
     return ComponentVaultResource
@@ -668,7 +668,7 @@ async def createComponentVaultResource(inComponentVault, namespace, name, inHand
     """
     logWrapper(logging.DEBUG, 'createComponentVaultResource', inHandler, 'component/' + name, name, "Create ComponentVault", inComponentVault)
 
-    ComponentVaultResource = constructComponentVaultResourcePayload(inAPI)
+    ComponentVaultResource = constructComponentVaultResourcePayload(inComponentVault)
     
     componentVaultReadyStatus = False
     returnComponentVaultObject = {}
@@ -679,7 +679,7 @@ async def createComponentVaultResource(inComponentVault, namespace, name, inHand
 
         componentVaultObj = custom_objects_api.create_namespaced_custom_object(
             group = GROUP,
-            version = VERSION,
+            version = CV_VERSION,
             namespace = namespace,
             plural = COMPONENTVAULTS_PLURAL,
             body = ComponentVaultResource)
@@ -1241,35 +1241,4 @@ def logWrapper(logLevel, functionName, handlerName, resourceName, componentName,
     """
     logger.log(logLevel, f"[{componentName}|{resourceName}|{handlerName}|{functionName}] {subject}: {message}")
     return
-
-
-
-# ------------------- TESTS ---------------- #
-
-import json 
-
-def test_componentvault_extract():
-    body_json_file = 'test/component/create_component_body.json'
-    with open (body_json_file, 'r') as f:
-        body = json.load(f)
-    meta = body["metadata"]
-    spec = body["spec"]
-    status = safe_get(None, body, "status")
-    #patch = kopf.Patch({})
-    warnings = []
-    labels = safe_get(None, meta, 'labels')
-    namespace = meta["namespace"]
-    name = meta["name"]
-    
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(securityComponentVault(meta, spec, status, body, namespace, labels, name))
-    loop.close()
-
-
-
-
-if __name__ == '__main__':
-    logging.info(f"main called")
-    test_componentvault_extract()
-    
 

@@ -344,6 +344,17 @@
 		"publicationDate": "2023-08-18T00:00:00.000Z",
 		"securityFunction": {
 			"controllerRole": "Admin",
+			"componentVault": {
+              "type": "sideCar",
+              "sideCar": {
+                "port": 5000
+              },
+              "podSelector": {
+                "namespace": "components",
+                "name": "prodcat-*",
+                "serviceAccount": "default"
+              }
+            },
 			"exposedAPIs": [
 				{
 					"apitype": "openapi",
