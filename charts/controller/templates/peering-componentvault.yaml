@@ -9,4 +9,3 @@ kind: KopfPeering
 metadata:
   namespace: {{ .Release.Namespace }}
   name: componentvault
----

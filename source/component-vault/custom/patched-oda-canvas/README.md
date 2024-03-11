@@ -1,5 +1,21 @@
 # ODA Canvas installation with ComponentValut
 
+
+## deploy from modified charts
+
+```
+
+cd charts/cert-manager-init
+helm dependency update
+cd ../..
+
+helm dependency update
+helm upgrade --install canvas -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault --set=controller.configmap.loglevel=10 charts/canvas-oda
+```
+
+
+## patching public helm chart
+
 ```
 helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
 helm repo update

@@ -395,18 +395,15 @@ async def securityComponentVault(meta, spec, status, body, namespace, labels, na
             logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Deleting ComponentVault", cv_name)
             await deleteComponentVault(cv_name, name, status, namespace, 'securityComponentVault')
 
-        if oldSecurityComponentVault == []:
-            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "oldSecurityComponentVault is empty list", f"oldSecurityComponentVault is empty list")
-        else:
-            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "list size", f"{len(oldSecurityComponentVault)}")
-            
-        if newSecurityComponentVault != {}:
-            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "newSecurityComponentVault is not empty dict", f"newSecurityComponentVault is not empty dict")
-            
         if oldSecurityComponentVault == [] and newSecurityComponentVault != {}:
             logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Calling createComponentVault", cv_name)
             resultStatus = await createComponentVaultResource(newSecurityComponentVault, namespace, name, 'securityComponentVault')
             componentVaultChildren.append(resultStatus)                
+
+        if oldSecurityComponentVault != [] and newSecurityComponentVault != {}:
+            # TODO[FH] implement check for update
+            componentVaultChildren.append(oldSecurityComponentVault)  
+
             
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e) # allow the operator to retry            

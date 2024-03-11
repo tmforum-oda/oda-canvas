@@ -44,8 +44,8 @@ spec:
       path: /prodcat-productcatalog/metrics
       port: 4000
   securityFunction:
+    controllerRole: Admin
     componentVault:
-      controllerRole: Admin
       type: sideCar
       sideCar:
         port: 5000
