@@ -15,3 +15,13 @@ component:
   
 security:
   controllerRole: Admin
+
+test:
+  key1: value1
+  structure:
+    list: 
+      - item 1
+      - item 2
+  key2: value2
+
+    

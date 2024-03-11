@@ -2,7 +2,19 @@ deployment:
   controllerName: oda-controller-ingress
   compconImage: tmforumodacanvas/component-istio-controller:0.4.0
   imagePullPolicy: IfNotPresent
-  istioGateway: true
+  istioGateway: 
+    enabled: true
+    # optional section to configure istio gateway with wildcard certificate for HTTPS termination 
+    #tlsServer: 
+    #- tls:
+    #    credentialName: wc-ihc-dt-example-com-tls
+    #    mode: SIMPLE
+    #  port:
+    #    name: https
+    #    number: 443
+    #    protocol: HTTPS
+    #  hosts:
+    #  - '*.ihc-dt.example.com'
   secconImage: tmforumodacanvas/security-listener:0.6.0
   monitoredNamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
