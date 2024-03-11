@@ -21,9 +21,7 @@ spec:
       containers:
       - name: {{.Values.deployment.controllerName}}
         image: {{.Values.deployment.compconImage}}
-        ### for debugging current development in componentOperator.py
-        #imagePullPolicy: IfNotPresent
-        imagePullPolicy: Always
+        imagePullPolicy: {{.Values.deployment.imagePullPolicy}}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap
@@ -31,7 +29,7 @@ spec:
               name: {{ .Release.Name }}-controller-secret
       - name: seccon
         image: {{.Values.deployment.secconImage}}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{.Values.deployment.imagePullPolicy}}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap
