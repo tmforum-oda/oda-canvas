@@ -503,7 +503,7 @@ def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kw
     logging.debug(f"componentvault  called with labels: {labels}")
 
     # do not use safe_get for mandatory fields
-    pv_name = spec['name']
+    pv_name = name   # spec['name']
     pod_name = safe_get(None, spec, 'podSelector', 'name')
     pod_namespace = safe_get(None, spec, 'podSelector', 'namespace')
     pod_service_account = safe_get(None, spec, 'podSelector', 'serviceAccount')
@@ -520,7 +520,7 @@ def componentvaultDelete(meta, spec, status, body, namespace, labels, name, **kw
     logging.info(f"Create/Update  called with name: {name}")
     logging.info(f"Create/Update  called with labels: {labels}")
     
-    pv_name = spec['name']
+    pv_name = name    # spec['name']
 
     deleteComponentVault(pv_name)
 

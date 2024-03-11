@@ -33,7 +33,7 @@ rules:
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [oda.tmforum.org]
     resources: [componentvaults]
-    verbs: [list, watch, get]
+    verbs: [list, watch, get, patch]
 
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [""]

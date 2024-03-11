@@ -50,3 +50,8 @@ helm install prodcat -n components --create-namespace oda-components/productcata
 helm uninstall prodcat -n components 
 ```
 
+# ComponentVault
+
+```
+helm upgrade --install componentvault-operator -n canvas --create-namespace source/component-vault/operators/componentvaultoperator-hc/helmcharts/cvop
+```
