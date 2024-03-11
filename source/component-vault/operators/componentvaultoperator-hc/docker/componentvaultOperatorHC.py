@@ -67,7 +67,7 @@ def configure(settings: kopf.OperatorSettings, **_):
     settings.peering.name = "componentvault"
     settings.admission.server = ServiceTunnel()
     settings.admission.managed = 'pv.sidecar.kopf'
-    
+    settings.watching.server_timeout = 1 * 60
 
 
 def entryExists(dictionary, key, value):
