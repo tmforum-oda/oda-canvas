@@ -69,6 +69,27 @@
 			"response": []
 		},
 		{
+			"name": "GET all components as v1beta3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1beta3/components",
+					"protocol": "http",
+					"host": [
+						"{{Hostname}}"
+					],
+					"path": [
+						"apis",
+						"oda.tmforum.org",
+						"v1beta3",
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "GET all components as v1beta2",
 			"request": {
 				"method": "GET",
@@ -125,48 +146,6 @@
 						"apis",
 						"oda.tmforum.org",
 						"v1alpha4",
-						"components"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET all components as v1alpha3",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1alpha3/components",
-					"protocol": "http",
-					"host": [
-						"{{Hostname}}"
-					],
-					"path": [
-						"apis",
-						"oda.tmforum.org",
-						"v1alpha3",
-						"components"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET all components as v1alpha2",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://{{Hostname}}/apis/oda.tmforum.org/v1alpha2/components",
-					"protocol": "http",
-					"host": [
-						"{{Hostname}}"
-					],
-					"path": [
-						"apis",
-						"oda.tmforum.org",
-						"v1alpha2",
 						"components"
 					]
 				}

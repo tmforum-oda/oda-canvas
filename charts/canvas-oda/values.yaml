@@ -9,7 +9,7 @@ global:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
 
-oda-cdrs:
+oda-crds:
   enabled: true
 canvas-namespaces:
   enabled: true

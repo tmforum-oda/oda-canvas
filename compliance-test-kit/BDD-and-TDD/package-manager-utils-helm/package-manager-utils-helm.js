@@ -15,46 +15,52 @@ const packageManagerUtils = {
   * @return   {Array}          The array of 0 or more exposed APIs
   */  
   getExposedAPIsFromPackage: function(componentPackage, releaseName, componentSegmentName) {
+    try {
+      // run the helm template command to generate the component envelope
+      const output = execSync('helm template ' + releaseName + ' ' + testDataFolder + componentPackage, { encoding: 'utf-8' });  
+        
+      // parse the template
+      documentArray = YAML.parseAllDocuments(output)
 
-    // run the helm template command to generate the component envelope
-    const output = execSync('helm template ' + releaseName + ' ' + testDataFolder + componentPackage, { encoding: 'utf-8' });  
-      
-    // parse the template
-    documentArray = YAML.parseAllDocuments(output)
+      // assert that the documentArray is an array
+      assert.equal(Array.isArray(documentArray), true, "The file should contain at least one YAML document")
 
-    // assert that the documentArray is an array
-    assert.equal(Array.isArray(documentArray), true, "The file should contain at least one YAML document")
+      // assert that the file contains at least one YAML document
+      assert.ok(documentArray.length > 0, "File should contain at least one YAML document")
 
-    // assert that the file contains at least one YAML document
-    assert.ok(documentArray.length > 0, "File should contain at least one YAML document")
+      // get the document with kind: component
+      const componentDocument = documentArray.find(document => document.get('kind') === 'Component')
 
-    // get the document with kind: component
-    const componentDocument = documentArray.find(document => document.get('kind') === 'component')
+      // get the spec of the component
+      const componentSpec = componentDocument.get('spec')
 
-    // get the spec of the component
-    const componentSpec = componentDocument.get('spec')
+      // Find the componentSegment with the name componentSegmentName
+      let componentSegment
+      componentSpec.items.forEach(item => {
+        if (item.key == componentSegmentName) {
+          componentSegment = item.value
+        }
+      })
 
-    // Find the componentSegment with the name componentSegmentName
-    let componentSegment
-    componentSpec.items.forEach(item => {
-      if (item.key == componentSegmentName) {
-        componentSegment = item.value
+      let exposedAPIs = []
+
+      if (componentSegmentName == 'coreFunction') {
+        exposedAPIs = componentSegment.items.filter(item => item.key == 'exposedAPIs')[0].value.items
+      } else if (componentSegmentName == 'managementFunction') {
+        exposedAPIs = componentSegment.items
+      } else if (componentSegmentName == 'securityFunction') {
+        exposedAPIs = [componentSegment.items]
+      } else {
+        assert.ok(false, "componentSegmentName should be one of 'coreFunction', 'managementFunction' or 'securityFunction'")
       }
-    })
 
-    let exposedAPIs = []
+      return exposedAPIs
+    } catch (error) {
+      // Handle the error here
+      assert.ok(false, "Exception thrown when trying to get exposedAPIs from package: " + error.message)
 
-    if (componentSegmentName == 'coreFunction') {
-      exposedAPIs = componentSegment.items.filter(item => item.key == 'exposedAPIs')[0].value.items
-    } else if (componentSegmentName == 'managementFunction') {
-      exposedAPIs = componentSegment.items
-    } else if (componentSegmentName == 'securityFunction') {
-      exposedAPIs = [componentSegment.items]
-    } else {
-      assert.ok(false, "componentSegmentName should be one of 'coreFunction', 'managementFunction' or 'securityFunction'")
+      return []; // or return a default value
     }
-
-    return exposedAPIs
   },
 
   /**
@@ -90,7 +96,20 @@ const packageManagerUtils = {
    * @param {string} namespace - The namespace of the release to uninstall.
    */
     uninstallPackage: function(releaseName, namespace) {
-      const output = execSync('helm uninstall ' + releaseName + ' -n ' + namespace, { encoding: 'utf-8' });
+
+      // only uninstall the helm chart if it is already installed
+      const helmList = execSync('helm list -o json  -n ' + namespace, { encoding: 'utf-8' });    
+      var found = false
+      // look through the helm list and see if there is a chart with name releaseName
+      JSON.parse(helmList).forEach(chart => {
+        if (chart.name == releaseName) {
+          found = true
+        }
+      })
+
+      if (found) {
+        const output = execSync('helm uninstall ' + releaseName + ' -n ' + namespace, { encoding: 'utf-8' });
+      }
     },
 
   /**
