@@ -12,4 +12,4 @@ controller:
           number: 443
           protocol: HTTPS
         hosts:
-        - '*.ihc-dt.example.com'
+        - '*.ihc-dt.cluster-3.de'

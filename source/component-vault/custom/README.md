@@ -8,7 +8,9 @@
 helm dependency update charts/cert-manager-init
 helm dependency update charts/canvas-oda
 
-helm upgrade --install canvas -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault --set controller.deployment.imagePullPolicy=Always --set=controller.configmap.loglevel=10 --values=source/component-vault/custom/virtualservices/component-gateway-tls-values.yaml charts/canvas-oda
+# helm upgrade --install canvas -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault --set controller.deployment.imagePullPolicy=Always --set=controller.configmap.loglevel=10 --values=source/component-vault/custom/virtualservices/component-gateway-tls-values.yaml charts/canvas-oda
+
+helm upgrade --install canvas -n canvas --create-namespace --values source/component-vault/custom/patched-oda-canvas/values.yaml charts/canvas-oda
 ```
 
 ### deploy Canvas from public charts
