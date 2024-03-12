@@ -147,14 +147,14 @@ def inject_sidecar(body, patch):
     
     # HIERWEITER deployment = find_deployment(pod_namespace, pod_name, pod-template-hash)
     
-    cv_cr_name = f"componentvault-{cv_name}"
-    logging.debug(f"getting componentvault cr {cv_cr_name} from k8s")
+    cv_cr_name = f"{cv_name}"
+    logging.debug(f"getting componentvault cr {cv_cr_name} from namespace {pod_namespace} k8s")
     cv_spec = get_cv_spec(cv_cr_name, pod_namespace)
     logging.debug(f"componentvault spec: {cv_spec}")
     if not cv_spec:
         raise kopf.AdmissionError(f"componentvault {cv_cr_name} has no spec.", code=400)
     
-    cvname = safe_get("", cv_spec, "name")
+    cvname = cv_cr_name # safe_get("", cv_spec, "name")
     type = safe_get("sideCar", cv_spec, "type")
     sidecar_port = int(safe_get("5000", cv_spec, "sideCar", "port"))
     podsel_name = safe_get("", cv_spec, "podSelector", "name")
@@ -192,7 +192,7 @@ def inject_sidecar(body, patch):
                 },
                 {
                     "name": "AUTH_PATH",
-                    "value": "jwt-k8s-cv"
+                    "value": auth_path
                 },
                 {
                     "name": "LOGIN_ROLE",
