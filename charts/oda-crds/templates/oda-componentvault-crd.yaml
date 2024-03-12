@@ -29,10 +29,6 @@ spec:
             type: object
             x-kubernetes-preserve-unknown-fields: true
     additionalPrinterColumns:
-    - name: CV_NAME
-      type: string
-      description: ComponentVault name
-      jsonPath: .spec.name
     - name: NAME_SEL
       type: string
       description: ComponentVault pod name selector
@@ -43,5 +39,5 @@ spec:
       jsonPath: .spec.podSelector.namespace
     - name: SVCACCT_SEL
       type: string
-      description: ComponentVault pod serviceAccount selector
-      jsonPath: .spec.podSelector.serviceAccount
+      description: ComponentVault pod serviceaccount selector
+      jsonPath: .spec.podSelector.serviceaccount

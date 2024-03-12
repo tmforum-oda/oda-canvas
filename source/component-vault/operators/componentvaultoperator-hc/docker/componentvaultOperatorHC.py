@@ -489,6 +489,36 @@ def deleteComponentVault(cv_name:str):
    
 
 
+
+def restart_pods_with_missing_sidecar(namespace, podsel_name, podsel_namespace, podsel_serviceaccount):
+    label_selector = "oda.tmforum.org/componentvault=sidecar"
+    logging.info(f'searching for PODs to restart in namespace {namespace} with label {label_selector}')
+    v1 = kubernetes.client.CoreV1Api()
+    pod_list = v1.list_namespaced_pod(namespace, label_selector=label_selector)
+    for pod in pod_list.items:
+        pod_namespace = pod.metadata.namespace
+        pod_name = pod.metadata.name
+        pod_serviceAccountName = pod.spec.service_account_name
+        matches = True
+        if podsel_name and not fnmatch.fnmatch(pod_name, podsel_name):
+            logging.debug(f'name {pod_name} does not match {podsel_name}')
+            matches = False      
+        if podsel_namespace and not fnmatch.fnmatch(pod_namespace, podsel_namespace):
+            logging.debug(f'namespace {pod_namespace} does not match {podsel_namespace}')
+            matches = False      
+        if podsel_serviceaccount and not fnmatch.fnmatch(pod_serviceAccountName, podsel_serviceaccount):
+            logging.debug(f'serviceaccount {pod_serviceAccountName} does not match {podsel_serviceaccount}')
+            matches = False      
+        
+        has_sidecar = has_container(pod, "cvsidecar")
+        
+        logging.info(f'INFO FOR POD {pod_namespace}:{pod_name}:{pod_serviceAccountName}, matches: {matches}, has sidecar: {has_sidecar}')
+        if matches and not has_sidecar:
+            logging.info(f'RESTARTING POD {pod_namespace}:{pod_name}')
+            body = kubernetes.client.V1DeleteOptions()
+            v1.delete_namespaced_pod(pod_name, pod_namespace, body=body) 
+
+
 # when an oda.tmforum.org componentvault resource is created or updated, configure policy and role 
 @kopf.on.create('oda.tmforum.org', 'v1alpha1', 'componentvaults')
 @kopf.on.update('oda.tmforum.org', 'v1alpha1', 'componentvaults')
@@ -503,9 +533,11 @@ def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kw
     cv_name = name   # spec['name']
     pod_name = safe_get(None, spec, 'podSelector', 'name')
     pod_namespace = safe_get(None, spec, 'podSelector', 'namespace')
-    pod_service_account = safe_get(None, spec, 'podSelector', 'serviceAccount')
+    pod_service_account = safe_get(None, spec, 'podSelector', 'serviceaccount')
     
     setupComponentVault(cv_name, pod_name, pod_namespace, pod_service_account)
+    
+    restart_pods_with_missing_sidecar(namespace, pod_name, pod_namespace, pod_service_account)
     
  
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
@@ -541,7 +573,7 @@ def testCreateCV():
         'podSelector': {
             'namespace': 'demo-comp',
             'name': 'demoa-comp-one-*',
-            'serviceAccount': 'default'
+            'serviceaccount': 'default'
         }
     }
     componentvaultCreate(dummy, spec, dummy, dummy, "demoa-comp-one", dummy, "componentvault-demoa-comp-one")
@@ -559,7 +591,7 @@ def testDeleteCV():
         'podSelector': {
             'namespace': 'demo-comp',
             'name': 'demoa-comp-one-*',
-            'serviceAccount': 'default'
+            'serviceaccount': 'default'
         }
     }
     componentvaultDelete(dummy, spec, dummy, dummy, "demoa-comp-one", dummy, "componentvault-demoa-comp-one")
@@ -592,23 +624,46 @@ def test_label_deployment_pods():
 
 
 
+def k8s_load_incluster_config():
+    if kubernetes.client.Configuration._default:
+        return
+    kubernetes.config.load_incluster_config()
+    print("loaded incluster config")
+    
+def k8s_load_vps5_config():
+    if kubernetes.client.Configuration._default:
+        return
+    kube_config_file = "~/.kube/config-vps5"
+    proxy = "http://specialinternetaccess-lb.telekom.de:8080"
+    kubernetes.config.load_kube_config(config_file = kube_config_file)
+    kubernetes.client.Configuration._default.proxy = proxy 
+    print("loaded config "+kube_config_file+" with proxy "+proxy)
+    
+def k8s_load_default_config():
+    if kubernetes.client.Configuration._default:
+        return
+    kubernetes.config.load_kube_config()
+    print("loaded default config")
+    
+def k8s_load_default_config_with_proxy():
+    if kubernetes.client.Configuration._default:
+        return
+    proxy = "http://specialinternetaccess-lb.telekom.de:8080"
+    kubernetes.config.load_kube_config()
+    kubernetes.client.Configuration._default.proxy = proxy 
+    print("loaded default config")
+    
 def k8s_load_config():
     if kubernetes.client.Configuration._default:
         return
     try:
-        kubernetes.config.load_incluster_config()
-        print("loaded incluster config")
+        k8s_load_incluster_config()
     except kubernetes.config.ConfigException:
         try:
-            kube_config_file = "~/.kube/config-vps5"
-            proxy = "http://specialinternetaccess-lb.telekom.de:8080"
-            kubernetes.config.load_kube_config(config_file = kube_config_file)
-            kubernetes.client.Configuration._default.proxy = proxy 
-            print("loaded config "+kube_config_file+" with proxy "+proxy)
+            k8s_load_vps5_config()
         except kubernetes.config.ConfigException:
             try:
-                kubernetes.config.load_kube_config()
-                print("loaded default config")
+                k8s_load_default_config()
             except kubernetes.config.ConfigException:
                 raise Exception("Could not configure kubernetes python client")
     
@@ -644,15 +699,42 @@ def test_get_cv_spec():
     if not fnmatch.fnmatch("demo-comp-1234fedc-zyxw7756", podsel_name):
         raise kopf.AdmissionError(f"pod name does not match selector.", code=400)
 
+
+def has_container(pod, container_name):
+    for container in pod.spec.containers:
+        if container.name == container_name:
+            return True
+    return False 
+
+
+def test_restart_pods():
+    #namespace = "canvas"
+    #label_selector = "app.kubernetes.io/managed-by=Helm"
+    namespace = "components"
+    label_selector = "oda.tmforum.org/componentvault=sidecar"
+    v1 = kubernetes.client.CoreV1Api()
+    pod_list = v1.list_namespaced_pod(namespace, label_selector=label_selector)
+    #pod_list = v1.list_namespaced_pod(namespace)
+    podsel_namespace = "components"
+    podsel_name = "prodcat-*"
+    podsel_serviceaccount = "default"
+
+    restart_pods_with_missing_sidecar(namespace, podsel_name, podsel_namespace, podsel_serviceaccount)
+
+
+
 if __name__ == '__main__':
     logging.info(f"main called")
     #set_proxy()
     #k8s_load_config()
+    k8s_load_default_config_with_proxy()
     #test_kubeconfig()
     #testDeleteCV()
     #testCreateCV()
-    test_inject_sidecar()
+    #test_inject_sidecar()
     #test_get_cv_spec()
     #test_label_deployment_pods()
+    test_restart_pods()
+    
     
 

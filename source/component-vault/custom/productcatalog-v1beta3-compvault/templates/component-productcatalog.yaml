@@ -51,7 +51,7 @@ spec:
       podSelector:
         namespace: components
         name: {{.Release.Name}}-*
-        serviceAccount: default
+        serviceaccount: default
     exposedAPIs: 
     - name: partyrole
       specification: https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json

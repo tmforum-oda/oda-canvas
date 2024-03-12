@@ -1,5 +1,148 @@
 # Current tests
 
+## DEMO
+
+### set default namespace to "components"
+
+```
+kubectl config set-context --current --namespace=components
+```
+
+### open CMD with componentoperator logfile
+
+```
+kubectl logs -n canvas deployment/componentvault-operator --tail 1 -f
+```
+
+### show empty HashiCorp Vault GUI
+
+
+https://canvas-vault-hc.ihc-dt.cluster-3.de
+
+
+### PPT Folie xxx
+
+Explain what will be done next.
+
+
+### deploy demo-a
+
+```
+cd git/oda-canvas-component-vault
+helm upgrade --install demo-a -n components --create-namespace source/component-vault/custom/productcatalog-v1beta3-compvault
+```
+
+### show HashiCorp Vault GUI
+
+
+### restart prodcatapi
+
+```
+kubectl rollout restart deployment demo-a-prodcatapi
+```
+
+(15 sec to start sidecar)
+
+### conenct to prodcatapi shell 
+
+```
+kubectl get pods
+
+kubectl exec -it demo-a-prodcatapi-XXXXXXXXXXXXXX -- /bin/bash
+```
+
+### Open Swagger GUI
+
+https://developer.telekom.de/swagger-editor/
+
+--> Create Secret as CURL
+
+### paste into demo-a
+
+### Open Swagger GUI
+
+show new password
+
+--> get Secret as cURL
+
+### paste into demo-a
+
+### start second instance
+
+cmd window sbottom right
+
+```
+kubectl scale deployment demo-a-prodcatapi --replicas=2
+```
+
+(15 sec)
+
+connect to second instance
+
+```
+kubectl get pods
+
+kubectl exec -it demo-a-prodcatapi-XXXXXXXXXXXXXX -- /bin/bash
+```
+
+### copy curl command from swagger
+
+### paste into 2nd demo-a window
+
+### close demo-a window, start new cmd bottom right
+
+### install demo-b
+
+```
+cd git/oda-canvas-component-vault
+helm upgrade --install demo-b -n components --create-namespace source/component-vault/custom/productcatalog-v1beta3-compvault
+```
+
+### restart demo-b prodcatapi 
+
+```
+kubectl rollout restart deployment demo-b-prodcatapi
+```
+
+### log into demo-b prodcatapi
+
+```
+kubectl get pods
+
+kubectl exec -it demo-a-prodcatapi-XXXXXXXXXXXXXX -- /bin/bash
+```
+
+### copy curl from swagger
+
+### explain X in PPT
+
+### copy CREATE curl from swagger with other value
+
+### curl with get (arrow-up)
+
+### Explain demo-b arrow to own componentvault
+
+### in demo-a curl with get --> other value
+
+### open Vault, show new password
+
+
+## undepoly demo-a
+
+```
+helm uninstall demo-a
+```
+
+--> show componentvault logs
+
+--> show in HC Vault
+
+
+
+
+
+
+
 ## Canvas
 
 ### deploy Canvas from modified charts
