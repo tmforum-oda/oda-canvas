@@ -192,7 +192,7 @@ def inject_sidecar(body, patch):
                 },
                 {
                     "name": "AUTH_PATH",
-                    "value": "jwt-k8s-cv"
+                    "value": auth_path
                 },
                 {
                     "name": "LOGIN_ROLE",
