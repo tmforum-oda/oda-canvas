@@ -39,9 +39,6 @@ webhook_service_port = int(os.getenv('WEBHOOK_SERVICE_PORT', '443'))
 componentname_label = os.getenv('COMPONENTNAME_LABEL', 'oda.tmforum.org/componentName')
 componentvaulttype_label = os.getenv('COMPONENTVAULTTYPE_LABEL', "oda.tmforum.org/componentvault")
 
-componentvault_cr_namespace = os.getenv('COMPONENTVAULT_CR_NAMESPACE', 'componentvault-system')
-
-
 
 # Inheritance: https://github.com/nolar/kopf/blob/main/docs/admission.rst#custom-serverstunnels
 # https://github.com/nolar/kopf/issues/785#issuecomment-859931945
@@ -152,7 +149,7 @@ def inject_sidecar(body, patch):
     
     cv_cr_name = f"componentvault-{cv_name}"
     logging.debug(f"getting componentvault cr {cv_cr_name} from k8s")
-    cv_spec = get_cv_spec(cv_cr_name)
+    cv_spec = get_cv_spec(cv_cr_name, pod_namespace)
     logging.debug(f"componentvault spec: {cv_spec}")
     if not cv_spec:
         raise kopf.AdmissionError(f"componentvault {cv_cr_name} has no spec.", code=400)
@@ -405,7 +402,7 @@ def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_servic
         logging.info(f'create policy {policy_name}')
         policy = f'''
         path "{secrets_mount}/data/{secrets_base_path}/*" {{
-          capabilities = ["create", "read", "update", "delete", "list", "patch"]
+          capabilities = ["create", "read", "update", "delete", "patch"]   # do not support "list" for security reasons   
         }}
         '''
         client.sys.create_or_update_policy(
@@ -618,10 +615,10 @@ def k8s_load_config():
 
 
 
-def get_cv_spec(cv_name):
+def get_cv_spec(cv_name, cv_namespace):
     coa = kubernetes.client.CustomObjectsApi()
     try:
-        cv_cr = coa.get_namespaced_custom_object("oda.tmforum.org", "v1alpha1", componentvault_cr_namespace, "componentvaults", cv_name)
+        cv_cr = coa.get_namespaced_custom_object("oda.tmforum.org", "v1alpha1", cv_namespace, "componentvaults", cv_name)
         return cv_cr["spec"]
     except ApiException:
         return None
@@ -629,7 +626,7 @@ def get_cv_spec(cv_name):
 
 def test_get_cv_spec():
     k8s_load_config()
-    cv_spec = get_cv_spec("componentvault-demo-comp-123")
+    cv_spec = get_cv_spec("componentvault-demo-comp-123", "components")
     print(cv_spec)
     name = safe_get("", cv_spec, "name")
     podsel_name = safe_get("", cv_spec, "podSelector", "name")

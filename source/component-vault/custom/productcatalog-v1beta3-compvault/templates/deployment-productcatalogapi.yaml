@@ -5,7 +5,7 @@ metadata:
   labels:
     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       impl: {{.Release.Name}}-prodcatapi
@@ -15,6 +15,7 @@ spec:
         app: {{.Release.Name}}-{{.Values.component.name}}
         impl: {{.Release.Name}}-prodcatapi
         version: lesterthomas-productcatalogapi-0.2
+        oda.tmforum.org/componentvault: sidecar        
     spec:
       containers:
       - name: {{.Release.Name}}-prodcatapi
