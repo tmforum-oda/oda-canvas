@@ -24,9 +24,9 @@ logger.setLevel(int(os.getenv('LOGGING', 10)))
 
 #vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.feri.ai')
 vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
-auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-pv')
-policy_name_tpl = os.getenv('POLICY_NAME_TPL', 'pv-{0}-policy')
-login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'pv-{0}-role')
+auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-cv')
+policy_name_tpl = os.getenv('POLICY_NAME_TPL', 'cv-{0}-policy')
+login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'cv-{0}-role')
 secrets_mount_tpl = os.getenv('SECRETS_MOUNT_TPL', 'kv-{0}')
 secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'sidecar')
 
@@ -66,7 +66,7 @@ def configure(settings: kopf.OperatorSettings, **_):
     settings.peering.priority = 200
     settings.peering.name = "componentvault"
     settings.admission.server = ServiceTunnel()
-    settings.admission.managed = 'pv.sidecar.kopf'
+    settings.admission.managed = 'cv.sidecar.kopf'
     settings.watching.server_timeout = 1 * 60
 
 
@@ -97,9 +97,9 @@ def test_kubeconfig():
 
 def get_comp_name(body):
     
-    pv_name = safe_get(None, body, "metadata", "labels", componentname_label)
-    if pv_name:
-        return pv_name
+    cv_name = safe_get(None, body, "metadata", "labels", componentname_label)
+    if cv_name:
+        return cv_name
     namespace = safe_get(None, body, "metadata", "namespace")
     owners = safe_get(None, body, "metadata", "ownerReferences")
     if not owners:
@@ -126,8 +126,8 @@ def get_comp_name(body):
                                 labels = deployment.metadata.labels
                                 # print(labels)
                                 if labels and componentname_label in labels:
-                                    pv_name = labels[componentname_label]
-                                    return pv_name 
+                                    cv_name = labels[componentname_label]
+                                    return cv_name 
             
 
 def inject_sidecar(body, patch):
@@ -135,8 +135,8 @@ def inject_sidecar(body, patch):
     logging.debug(f"loading k8s config")
     k8s_load_config()
 
-    pv_name = get_comp_name(body)
-    if not pv_name:
+    cv_name = get_comp_name(body)
+    if not cv_name:
         logging.info(f"Component name in label {componentname_label} not set, doing nothing")
         return
 
@@ -150,33 +150,33 @@ def inject_sidecar(body, patch):
     
     # HIERWEITER deployment = find_deployment(pod_namespace, pod_name, pod-template-hash)
     
-    pv_cr_name = f"componentvault-{pv_name}"
-    logging.debug(f"getting componentvault cr {pv_cr_name} from k8s")
-    pv_spec = get_pv_spec(pv_cr_name)
-    logging.debug(f"componentvault spec: {pv_spec}")
-    if not pv_spec:
-        raise kopf.AdmissionError(f"componentvault {pv_cr_name} has no spec.", code=400)
+    cv_cr_name = f"componentvault-{cv_name}"
+    logging.debug(f"getting componentvault cr {cv_cr_name} from k8s")
+    cv_spec = get_cv_spec(cv_cr_name)
+    logging.debug(f"componentvault spec: {cv_spec}")
+    if not cv_spec:
+        raise kopf.AdmissionError(f"componentvault {cv_cr_name} has no spec.", code=400)
     
-    pvname = safe_get("", pv_spec, "name")
-    type = safe_get("sideCar", pv_spec, "type")
-    sidecar_port = int(safe_get("5000", pv_spec, "sideCar", "port"))
-    podsel_name = safe_get("", pv_spec, "podSelector", "name")
-    podsel_namespace = safe_get("", pv_spec, "podSelector", "namespace")
-    podsel_serviceaccount = safe_get("", pv_spec, "podSelector", "serviceaccount")
+    cvname = safe_get("", cv_spec, "name")
+    type = safe_get("sideCar", cv_spec, "type")
+    sidecar_port = int(safe_get("5000", cv_spec, "sideCar", "port"))
+    podsel_name = safe_get("", cv_spec, "podSelector", "name")
+    podsel_namespace = safe_get("", cv_spec, "podSelector", "namespace")
+    podsel_serviceaccount = safe_get("", cv_spec, "podSelector", "serviceaccount")
     logger.debug(f"filter: name={podsel_name}, namespace={podsel_namespace}, serviceaccount={podsel_serviceaccount}")
-    if not pvname:
-        raise kopf.AdmissionError(f"componentvault {pv_cr_name}: missing name.", code=400)      
+    if not cvname:
+        raise kopf.AdmissionError(f"componentvault {cv_cr_name}: missing name.", code=400)      
     if type != "sideCar":
-        raise kopf.AdmissionError(f"componentvault {pv_cr_name}: unsupported type {type}.", code=400)
+        raise kopf.AdmissionError(f"componentvault {cv_cr_name}: unsupported type {type}.", code=400)
     if podsel_name and not fnmatch.fnmatch(pod_name, podsel_name):
-        raise kopf.AdmissionError(f"componentvault {pv_cr_name}: pod name does not match selector.", code=400)      
+        raise kopf.AdmissionError(f"componentvault {cv_cr_name}: pod name does not match selector.", code=400)      
     if podsel_namespace and not fnmatch.fnmatch(pod_namespace, podsel_namespace):
-        raise kopf.AdmissionError(f"componentvault {pv_cr_name}: pod namespace does not match selector.", code=400)      
+        raise kopf.AdmissionError(f"componentvault {cv_cr_name}: pod namespace does not match selector.", code=400)      
     if podsel_serviceaccount and not fnmatch.fnmatch(pod_serviceAccountName, podsel_serviceaccount):
-        raise kopf.AdmissionError(f"componentvault {pv_cr_name}: pod serviceAccountName does not match selector.", code=400)      
+        raise kopf.AdmissionError(f"componentvault {cv_cr_name}: pod serviceAccountName does not match selector.", code=400)      
 
-    container_pvsidecar = {
-            "name": "pvsidecar",
+    container_cvsidecar = {
+            "name": "cvsidecar",
             "image": "mtr.devops.telekom.de/magenta_canvas/public:component-vault-sidecar-0.1.0-rc",
             "ports": [
                 {
@@ -187,7 +187,7 @@ def inject_sidecar(body, patch):
             "env": [
                 {
                     "name": "COMPONENTVAULT_NAME",
-                    "value": f"{pvname}"
+                    "value": f"{cvname}"
                 },
                 {
                     "name": "VAULT_ADDR",
@@ -195,15 +195,15 @@ def inject_sidecar(body, patch):
                 },
                 {
                     "name": "AUTH_PATH",
-                    "value": "jwt-k8s-pv"
+                    "value": "jwt-k8s-cv"
                 },
                 {
                     "name": "LOGIN_ROLE",
-                    "value": f"pv-{pvname}-role"
+                    "value": f"cv-{cvname}-role"
                 },
                 {
                     "name": "SCRETS_MOUNT",
-                    "value": f"kv-{pvname}"
+                    "value": f"kv-{cvname}"
                 },
                 {
                     "name": "SCRETS_BASE_PATH",
@@ -214,11 +214,11 @@ def inject_sidecar(body, patch):
             },
             "volumeMounts": [
                 {
-                    "name": "pvsidecar-tmp",
+                    "name": "cvsidecar-tmp",
                     "mountPath": "/tmp"
                 },
                 {
-                    "name": "pvsidecar-kube-api-access",
+                    "name": "cvsidecar-kube-api-access",
                     "readOnly": True,
                     "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
                 }
@@ -238,13 +238,13 @@ def inject_sidecar(body, patch):
             }
         }
             
-    volume_pvsidecar_tmp = {
-            "name": "pvsidecar-tmp",
+    volume_cvsidecar_tmp = {
+            "name": "cvsidecar-tmp",
             "emptyDir": {}
         }
 
-    volume_pvsidecar_kube_api_access = {
-            "name": "pvsidecar-kube-api-access",
+    volume_cvsidecar_kube_api_access = {
+            "name": "cvsidecar-kube-api-access",
             "projected": {
                 "sources": [
                     {
@@ -292,24 +292,24 @@ def inject_sidecar(body, patch):
     containers = safe_get([], body, "spec", "containers")
     vols = safe_get([], body, "spec", "volumes")
 
-    if entryExists(containers, "name", "pvsidecar"):
-        logging.info("pvsidecar container already exists, doing nothing")
+    if entryExists(containers, "name", "cvsidecar"):
+        logging.info("cvsidecar container already exists, doing nothing")
         return
 
-    containers.append(container_pvsidecar)
+    containers.append(container_cvsidecar)
     patch.spec["containers"] = containers
-    logging.debug(f"injecting pvsidecar container")
+    logging.debug(f"injecting cvsidecar container")
     
 
-    if not entryExists(vols, "name", "pvsidecar-tmp"):
-        vols.append(volume_pvsidecar_tmp)
+    if not entryExists(vols, "name", "cvsidecar-tmp"):
+        vols.append(volume_cvsidecar_tmp)
         patch.spec['volumes'] = vols
-        logging.debug(f"injecting pvsidecar-tmp volume")
+        logging.debug(f"injecting cvsidecar-tmp volume")
 
-    if not entryExists(vols, "name", "pvsidecar-kube-api-access"):
-        vols.append(volume_pvsidecar_kube_api_access)
+    if not entryExists(vols, "name", "cvsidecar-kube-api-access"):
+        vols.append(volume_cvsidecar_kube_api_access)
         patch.spec['volumes'] = vols
-        logging.debug(f"injecting pvsidecar-kube-api-access volume")
+        logging.debug(f"injecting cvsidecar-kube-api-access volume")
 
 
 
@@ -319,7 +319,7 @@ def label_deployment_pods(body, patch):
     labels = safe_get(None, body, 'metadata', 'labels')
     if labels and componentname_label in labels:
         component_name = labels[componentname_label]
-        pv_type = safe_get("sidecar", labels, componentvaulttype_label)
+        cv_type = safe_get("sidecar", labels, componentvaulttype_label)
         logger.info(f"COMPONENTNAME: {component_name}")
 
         labels = safe_get({}, body, "spec", "template", "metadata", "labels")
@@ -327,7 +327,7 @@ def label_deployment_pods(body, patch):
            labels[componentname_label] = component_name
            
         if not componentvaulttype_label in labels:
-           labels[componentvaulttype_label] = pv_type
+           labels[componentvaulttype_label] = cv_type
 
         patch.spec["template"] = {"metadata": {"labels": labels}}
 
@@ -371,14 +371,14 @@ def encrypt(plain_text):
     return Fernet(base64.b64encode((auth_path*32)[:32].encode('ascii')).decode('ascii')).encrypt(plain_text.encode('ascii')).decode('ascii')
 
 
-def setupComponentVault(pv_name:str, pod_name:str, pod_namespace:str, pod_service_account:str):
+def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_service_account:str):
     try:
-        logging.info(f"SETUP COMPONENTVAULT pv_name={pv_name}, pod={pod_name}, ns={pod_namespace}, sa={pod_service_account}")
+        logging.info(f"SETUP COMPONENTVAULT cv_name={cv_name}, pod={pod_name}, ns={pod_namespace}, sa={pod_service_account}")
         
-        policy_name = policy_name_tpl.format(pv_name)
-        login_role = login_role_tpl.format(pv_name)
-        secrets_mount = secrets_mount_tpl.format(pv_name)
-        secrets_base_path = secrets_base_path_tpl.format(pv_name)
+        policy_name = policy_name_tpl.format(cv_name)
+        login_role = login_role_tpl.format(cv_name)
+        secrets_mount = secrets_mount_tpl.format(cv_name)
+        secrets_base_path = secrets_base_path_tpl.format(cv_name)
 
         logging.info(f"policy_name: {policy_name}")
         logging.info(f"login_role: {login_role}")
@@ -444,16 +444,16 @@ def setupComponentVault(pv_name:str, pod_name:str, pod_namespace:str, pod_servic
 
         )
     except:
-        logging.exception(f"ERRPR setup vault {pv_name} failed!")
+        logging.exception(f"ERRPR setup vault {cv_name} failed!")
     
 
-def deleteComponentVault(pv_name:str):
+def deleteComponentVault(cv_name:str):
     try:
-        logging.info(f"DELETE COMPONENTVAULT pv_name={pv_name}")
+        logging.info(f"DELETE COMPONENTVAULT cv_name={cv_name}")
         
-        login_role = login_role_tpl.format(pv_name)
-        policy_name = policy_name_tpl.format(pv_name)
-        secrets_mount = secrets_mount_tpl.format(pv_name)
+        login_role = login_role_tpl.format(cv_name)
+        policy_name = policy_name_tpl.format(cv_name)
+        secrets_mount = secrets_mount_tpl.format(cv_name)
         
         logging.info(f"policy_name: {policy_name}")
         logging.info(f"login_role: {login_role}")
@@ -466,7 +466,7 @@ def deleteComponentVault(pv_name:str):
             token=token,
         )
     except:
-        logging.exception(f"ERRPR delete vault {pv_name} failed!")
+        logging.exception(f"ERRPR delete vault {cv_name} failed!")
         
     
     ### disable KV secrets engine
@@ -503,12 +503,12 @@ def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kw
     logging.debug(f"componentvault  called with labels: {labels}")
 
     # do not use safe_get for mandatory fields
-    pv_name = name   # spec['name']
+    cv_name = name   # spec['name']
     pod_name = safe_get(None, spec, 'podSelector', 'name')
     pod_namespace = safe_get(None, spec, 'podSelector', 'namespace')
     pod_service_account = safe_get(None, spec, 'podSelector', 'serviceAccount')
     
-    setupComponentVault(pv_name, pod_name, pod_namespace, pod_service_account)
+    setupComponentVault(cv_name, pod_name, pod_namespace, pod_service_account)
     
  
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
@@ -520,9 +520,9 @@ def componentvaultDelete(meta, spec, status, body, namespace, labels, name, **kw
     logging.info(f"Create/Update  called with name: {name}")
     logging.info(f"Create/Update  called with labels: {labels}")
     
-    pv_name = name    # spec['name']
+    cv_name = name    # spec['name']
 
-    deleteComponentVault(pv_name)
+    deleteComponentVault(cv_name)
 
 
 
@@ -531,7 +531,7 @@ def set_proxy():
     os.environ["HTTPS_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
     os.environ["NO_PROXY"]="10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
 
-def testCreatePV():
+def testCreateCV():
     #set_proxy()
     dummy = {}
     spec = {
@@ -549,7 +549,7 @@ def testCreatePV():
     }
     componentvaultCreate(dummy, spec, dummy, dummy, "demoa-comp-one", dummy, "componentvault-demoa-comp-one")
 
-def testDeletePV():
+def testDeleteCV():
     #set_proxy()
     dummy = {}
     spec = {
@@ -618,31 +618,31 @@ def k8s_load_config():
 
 
 
-def get_pv_spec(pv_name):
+def get_cv_spec(cv_name):
     coa = kubernetes.client.CustomObjectsApi()
     try:
-        pv_cr = coa.get_namespaced_custom_object("oda.tmforum.org", "v1alpha1", componentvault_cr_namespace, "componentvaults", pv_name)
-        return pv_cr["spec"]
+        cv_cr = coa.get_namespaced_custom_object("oda.tmforum.org", "v1alpha1", componentvault_cr_namespace, "componentvaults", cv_name)
+        return cv_cr["spec"]
     except ApiException:
         return None
 
 
-def test_get_pv_spec():
+def test_get_cv_spec():
     k8s_load_config()
-    pv_spec = get_pv_spec("componentvault-demo-comp-123")
-    print(pv_spec)
-    name = safe_get("", pv_spec, "name")
-    podsel_name = safe_get("", pv_spec, "podSelector", "name")
-    podsel_namespace = safe_get("", pv_spec, "podSelector", "namespace")
-    podsel_serviceaccount = safe_get("", pv_spec, "podSelector", "serviceaccount")
-    sidecar_port = int(safe_get("5000", pv_spec, "sideCar", "port"))
-    type = safe_get("sideCar", pv_spec, "type")
-    print(f"PV name: {name}")
-    print(f"PV podsel_name: {podsel_name}")
-    print(f"PV podsel_namespace: {podsel_namespace}")
-    print(f"PV podsel_serviceaccount: {podsel_serviceaccount}")
-    print(f"PV sidecar_port: {sidecar_port}")
-    print(f"PV type: {type}")
+    cv_spec = get_cv_spec("componentvault-demo-comp-123")
+    print(cv_spec)
+    name = safe_get("", cv_spec, "name")
+    podsel_name = safe_get("", cv_spec, "podSelector", "name")
+    podsel_namespace = safe_get("", cv_spec, "podSelector", "namespace")
+    podsel_serviceaccount = safe_get("", cv_spec, "podSelector", "serviceaccount")
+    sidecar_port = int(safe_get("5000", cv_spec, "sideCar", "port"))
+    type = safe_get("sideCar", cv_spec, "type")
+    print(f"CV name: {name}")
+    print(f"CV podsel_name: {podsel_name}")
+    print(f"CV podsel_namespace: {podsel_namespace}")
+    print(f"CV podsel_serviceaccount: {podsel_serviceaccount}")
+    print(f"CV sidecar_port: {sidecar_port}")
+    print(f"CV type: {type}")
 
     if not fnmatch.fnmatch("demo-comp-1234fedc-zyxw7756", podsel_name):
         raise kopf.AdmissionError(f"pod name does not match selector.", code=400)
@@ -652,10 +652,10 @@ if __name__ == '__main__':
     #set_proxy()
     #k8s_load_config()
     #test_kubeconfig()
-    #testDeletePV()
-    #testCreatePV()
+    #testDeleteCV()
+    #testCreateCV()
     test_inject_sidecar()
-    #test_get_pv_spec()
+    #test_get_cv_spec()
     #test_label_deployment_pods()
     
 
