@@ -154,7 +154,7 @@ def inject_sidecar(body, patch):
     if not cv_spec:
         raise kopf.AdmissionError(f"componentvault {cv_cr_name} has no spec.", code=400)
     
-    cvname = safe_get("", cv_spec, "name")
+    cvname = cv_cr_name # safe_get("", cv_spec, "name")
     type = safe_get("sideCar", cv_spec, "type")
     sidecar_port = int(safe_get("5000", cv_spec, "sideCar", "port"))
     podsel_name = safe_get("", cv_spec, "podSelector", "name")
