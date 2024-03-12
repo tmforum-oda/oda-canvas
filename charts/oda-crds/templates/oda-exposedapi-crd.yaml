@@ -43,12 +43,93 @@ spec:
                 - openapi
                 - prometheus
                 description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
-              ratelimit:
-                type: integer
-                description: (optional) The rate limit for the API
-              policytemplate:
+              apiKeyVerification:
+                type: object
+                description: (optional) 
+                properties:
+                  enabled:
+                    type: boolean
+                    description: "(default: false) Enforce verification of API key"
+                  location:
+                    type: string
+                    description: (optional) Name of variable where API key value is expected
+              rateLimit:
+                type: object
+                description: (optional) The rate limit configuration for the API
+                properties:
+                  enabled:
+                    type: boolean
+                    description: "(default: false)"
+                  identifier:
+                    type: string
+                    description: Limit requests by this identifier when enforcing the rate limit
+                  limit:
+                    type: string
+                    description: The limit (count) of requests to allow for each identifier
+                  interval:
+                    type: string
+                    description: "(default: ps) The interval when enforcing the rate limit (ps or pm)"
+              quota:
+                type: object
+                description: (optional) Quota configuration
+                properties:
+                  identifier:
+                    type: string
+                    description: Identifier used for each quota counter
+                  limit:
+                    type: string
+                    description: Quota counter limit to enforce for each identifier
+              OASValidation:
+                type: object
+                description: (optional) Validate the request or response against the OpenAPI Specification file for the API
+                properties:
+                  requestEnabled:
+                    type: boolean
+                    description: "(default: false) Enable for the incoming request"
+                  responseEnabled:
+                    type: boolean
+                    description: "(default: false) Enable for the response"
+                  allowUnspecifiedHeaders:
+                    type: boolean
+                    description: "(default: false) (request only) Allow for headers that are not explicitly referenced in the OAS"
+                  allowUnspecifiedQueryParams:
+                    type: boolean
+                    description: "(default: false) (request only) Allow for query parameters that are not explicitly referenced in the OAS"
+                  allowUnspecifiedCookies:
+                    type: boolean
+                    description: "(default: false) (request only) Allow for cookies that are not explicitly referenced in the OAS"
+              CORS:
+                type: object
+                description: (optional) Cross-origin Resource Sharing
+                properties:
+                  enabled:
+                    type: boolean
+                    description: "(default: false)"
+                  allowCredentials:
+                    type: boolean
+                    description: "(default: false) Indicates whether the client is allowed to send the actual request (not the preflight request) using credentials. Translates to the Access-Control-Allow-Credentials header"
+                  allowOrigins:
+                    type: string
+                    description: "(default: *) CSV of origins allowed to access the resource. The Access-Control-Allow-Origin header will include the matched origin"
+                  handlePreflightRequests:
+                    type: object
+                    description: "(optional) Configuration for handling preflight OPTIONS requests"
+                    properties:
+                      enabled:
+                        type: boolean
+                        description: "(default: true) Indicates whether the API should handle OPTIONS preflight requests by generating a compliant response"
+                      allowHeaders:
+                        type: string
+                        description: "(default: Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers) CSV of HTTP headers than can be used. Translates to the Access-Control-Allow-Headers header"
+                      allowMethods:
+                        type: string
+                        description: "(default: GET, POST, HEAD, OPTIONS) CSV of HTTP methods allowed for the resource. Translates to the Access-Control-Allow-Methods header"
+                      maxAge:
+                        type: integer
+                        description: "(default: 1800) Specifies how long (in seconds) a client should cache the values of the Access-Control-Allow-Headers and Access-Control-Allow-Methods headers for each resource"
+              template:
                 type: string
-                description: (optional) The name of the policy template to use for the API
+                description: (optional) The name of a pre-configured template to use for the API
               implementation:
                 type: string
                 description: The name of the service where the implementation of the API is found
@@ -71,7 +152,7 @@ spec:
                 description: Required is a flag that indicates whether the API is required or not.
             required:
             - name
-            - apitype
+            - apiType
             - implementation
             - path
             - port            
