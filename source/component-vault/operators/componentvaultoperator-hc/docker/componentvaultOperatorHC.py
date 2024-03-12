@@ -147,7 +147,7 @@ def inject_sidecar(body, patch):
     
     # HIERWEITER deployment = find_deployment(pod_namespace, pod_name, pod-template-hash)
     
-    cv_cr_name = f"componentvault-{cv_name}"
+    cv_cr_name = f"{cv_name}"
     logging.debug(f"getting componentvault cr {cv_cr_name} from namespace {pod_namespace} k8s")
     cv_spec = get_cv_spec(cv_cr_name, pod_namespace)
     logging.debug(f"componentvault spec: {cv_spec}")
