@@ -5,7 +5,7 @@ metadata:
   labels:
     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       impl: {{.Release.Name}}-prodcatapi

@@ -38,7 +38,7 @@ rules:
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [""]
     resources: [pods]
-    verbs: [list, watch, patch]
+    verbs: [list, watch, patch, delete]
     
   # Application: read-only access for replica_Set
   - apiGroups: [apps]
@@ -86,7 +86,7 @@ rules:
   # Application: watching & handling for the custom resource we declare.
   - apiGroups: [""]
     resources: [pods]
-    verbs: [list, watch, patch]
+    verbs: [list, watch, patch, delete]
 
   # Application: read-only access for replica_Set
   - apiGroups: [apps]

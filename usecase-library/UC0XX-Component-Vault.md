@@ -129,11 +129,11 @@ It might be good to define more fine granular permissions, like PODs which are a
 Thinking more about this, it could be solved by a generic definition of roles with own settings
 
 ```
-security:
+securityFunction:
   ...
   componentVault:
     - name: admin
-      permissions: ["create", "read", "update", "delete", "list", "patch"]
+      permissions: ["create", "read", "update", "delete", "patch"]
       selector: 
         podnames:
         - db-mgmt
