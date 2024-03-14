@@ -31,7 +31,7 @@ describe("Basic Kubernetes checks", function () {
         }).catch(done)
     })
     
-    const supportedVersions = ['v1.22', 'v1.23', 'v1.24', 'v1.25', 'v1.25+']
+    const supportedVersions = ['v1.22', 'v1.23', 'v1.24', 'v1.25', 'v1.26', 'v1.27', 'v1.28', 'v1.29']
     it("Cluster is running a supported kubernetes version: " + supportedVersions, function (done) {
         k8sVersionAPI.getCode().then((res) => {
             let clusterVersion = "v" + res.body.major + "." + res.body.minor
@@ -82,15 +82,15 @@ describe("Mandatory non-functional capabilities", function () {
             done()
         }).catch(done)
     })
-    it("oda.tmforum.org/v1beta2 Components definition (CRD) exists", function (done) {
-        request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1beta2/namespaces/*/components`, opts,
+    it("oda.tmforum.org/v1beta3 Components definition (CRD) exists", function (done) {
+        request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1beta3/namespaces/*/components`, opts,
             (error, response, body) => {
                 expect(response.statusCode, "API response code").to.equal(200)
                 done()
             })
     })
-    it("oda.tmforum.org/v1beta2 APIs definition (CRD) exists", function (done) {
-        request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1beta2/namespaces/*/apis`, opts,
+    it("oda.tmforum.org/v1beta3 APIs definition (CRD) exists", function (done) {
+        request.get(`${kc.getCurrentCluster().server}/apis/oda.tmforum.org/v1beta3/namespaces/*/apis`, opts,
             (error, response, body) => {
                 expect(response.statusCode, "API response code").to.equal(200)
                 done()
