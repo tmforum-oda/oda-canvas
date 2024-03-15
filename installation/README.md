@@ -12,6 +12,7 @@ For each release, we will support a min and max Kubernetes version.
 | v1alpha4              | 1.20                   | 1.22                   |
 | v1beta1               | 1.22                   | 1.25                   |
 | v1beta2               | 1.22                   | 1.27                   |
+| v1beta3               | 1.22                   | 1.29                   |
 
 If you are connected to an ODA Canvas, to test what version of Canvas it is, use the command:
 
@@ -19,7 +20,7 @@ If you are connected to an ODA Canvas, to test what version of Canvas it is, use
 kubectl get crd components.oda.tmforum.org -o jsonpath='{.spec.versions[?(@.served==true)].name}'
 ```
 
-It will return the versions of components the canvas supports. A canvas should support N-2 versions of a component i.e. for the `v1beta2` canvas, it will support components that are v1beta2, v1beta1, v1alpha4 (and v1alpha3 with a deprecation warning).
+It will return the versions of components the canvas supports. A canvas should support N-2 versions of a component i.e. for the `v1beta3` canvas, it will support components that are v1beta3, v1beta2, v1beta1 (and v1alpha4 with a deprecation warning).
 
 We will test the Reference Implementation Canvas against a range of kubernetes versions and on a number of different deployments.
 

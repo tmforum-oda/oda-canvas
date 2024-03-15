@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.0
+version: 1.1.1
+# version: 1.1.1 - bug fix for empty specification property of exposedAPI
 # version: 1.1.0 - updated component CRD to support an array for the specification field in the exposed API (to support Gen5 APIs)
 # version: 1.0.0 - baseline version
 
@@ -43,6 +44,6 @@ dependencies:
     version: "1.0.0"
     repository: 'file://../controller'
   - name: oda-webhook
-    version: "1.1.0"
+    version: "1.1.1"
     repository: 'file://../oda-webhook'
 
