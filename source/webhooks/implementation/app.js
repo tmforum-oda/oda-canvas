@@ -250,15 +250,20 @@ app.post("/", (req, res, next) => {
 
         console.log("Change exposedAPI specification to an array of 1");
         for (api in objectsArray[key].spec.coreFunction.exposedAPIs) {
-          objectsArray[key].spec.coreFunction.exposedAPIs[api].specification = [objectsArray[key].spec.coreFunction.exposedAPIs[api].specification];
+          if (objectsArray[key].spec.coreFunction.exposedAPIs[api].specification) {
+            objectsArray[key].spec.coreFunction.exposedAPIs[api].specification = [objectsArray[key].spec.coreFunction.exposedAPIs[api].specification];
+          }
         }
         for (api in objectsArray[key].spec.managementFunction.exposedAPIs) {
-          objectsArray[key].spec.managementFunction.exposedAPIs[api].specification = [objectsArray[key].spec.managementFunction.exposedAPIs[api].specification];
+          if (objectsArray[key].spec.managementFunction.exposedAPIs[api].specification) {
+            objectsArray[key].spec.managementFunction.exposedAPIs[api].specification = [objectsArray[key].spec.managementFunction.exposedAPIs[api].specification];
+          }
         }
         for (api in objectsArray[key].spec.securityFunction.exposedAPIs) {
-          objectsArray[key].spec.securityFunction.exposedAPIs[api].specification = [objectsArray[key].spec.securityFunction.exposedAPIs[api].specification];
+          if (objectsArray[key].spec.securityFunction.exposedAPIs[api].specification) {
+            objectsArray[key].spec.securityFunction.exposedAPIs[api].specification = [objectsArray[key].spec.securityFunction.exposedAPIs[api].specification];
+          } 
         }
-
       }
 
       

@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@kubernetes/client-node": "^0.15.0",
-    "chai": "*",
+    "chai": "^4.4.1",
     "mocha": "*"
   },
   "homepage": "https://github.com/tmforum-oda/oda-canvas-ctk#readme"
