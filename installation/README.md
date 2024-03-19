@@ -33,7 +33,7 @@ We will test the Reference Implementation Canvas against a range of kubernetes v
 | MiniKube              | Yes    |                                                                                                                           |
 | Docker Desktop        | Yes    | see also [devcontainer.md](../devcontainer.md)                                                                            |
 | Kind                  |        | Using [Canvas-in-a-bottle](canvas-in-a-bottle/README.md)                                                                  |
-| K3s                   |        |                                                                                                                           |
+| K3s                   | Yes    |                                                                                                                           |
 | (other)               |        | To suggest additional environments please add to this [issue](https://github.com/tmforum-oda/oda-canvas-charts/issues/52) |
 
 The environment where the chart has been tested has the following
