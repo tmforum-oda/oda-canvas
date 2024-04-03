@@ -1,0 +1,13 @@
+@startuml
+
+participant "Component\nManagement\nOperator" as ComponentOperator
+entity ExposedAPI
+participant "API\nManagement\nOperator" as APIExposureOperator
+participant "APIGateway/Service Mesh" as APIGateway
+
+ComponentOperator -> ExposedAPI: delete
+ExposedAPI -> APIExposureOperator: on.delete 
+APIExposureOperator -> APIGateway : clean-up configuration of\nAPI Gateway and/or Service Mesh
+ExposedAPI <- APIExposureOperator: allow delete
+
+@enduml

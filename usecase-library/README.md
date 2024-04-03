@@ -10,17 +10,17 @@ The ODA canvas is itself a modular and extensible platform. The list below shows
 
 This is a list of the Canvas operators (including status of whether this has been tested in the Canvas referernce implementation).
 
-| Operator            | Description                     |
-| ------------------- | ------------------------------- |
+| Operator             | Description                     |
+| -------------------- | ------------------------------- |
 | Component Management | The Component operator manages the de-composition of an ODA component into APIs and Events (that are processed by their corresponding operators). |
-| API Management | Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed |
+| API Management       | Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed |
 | Observability Management | Configures observabiliy services for both technical and business metrics and events. Enables alarming, tracing and root-cause analysis of issues.|
-| Event Management | Configures event based integration to allow components to use asynchronous events (in addition to Rest based API integration). |
-| Identity Management | Configures an Identity Management Service based on requirements defined in ODA Components. |
-| Secrets Management | Configures a secrets vault to enable ODA Components to store secrets in a secure way |
-| Carbon Management | Configures a services to analyze carbon (and energy) usage of ODA Components and to provide API services to enable components to make intelligent decisions to minimise Carbon usage.  |
-| Cost Management | Configures services for cost control for both cloud consumption and license costs.  |
-| Other | Additional operators will be added over time.  |
+| Event Management     | Configures event based integration to allow components to use asynchronous events (in addition to Rest based API integration). |
+| Identity Management  | Configures an Identity Management Service based on requirements defined in ODA Components. |
+| Secrets Management   | Configures a secrets vault to enable ODA Components to store secrets in a secure way |
+| Carbon Management    | Configures a services to analyze carbon (and energy) usage of ODA Components and to provide API services to enable components to make intelligent decisions to minimise Carbon usage.  |
+| Cost Management      | Configures services for cost control for both cloud consumption and license costs.  |
+| Other                | Additional operators will be added over time.  |
 
 
 
@@ -29,11 +29,20 @@ This is a list of the Canvas operators (including status of whether this has bee
 
 The use-cases are named based on the [use case naming conventions](use-case-naming-conventions.md)
 
+| ID  |   use-case          | Description           |
+| --- | ------------------- | --------------------- |
+| UC001 | [Install Canvas](UC001-Install-Canvas.md) | Install, upgrade and uninstall the ODA Canvas. |
+| UC002 | [Manage Components](UC002-Manage-Components.md) | When an ODA Component is Installed, Updated or Uninstalled, create the sub-resources and update the status of the component. |
+| UC003 | [Configure Exposed APIs](UC003-Configure-Exposed-APIs.md) | Integrate with the Service Mesh and/or API Gateway to configure and expose the API Endpoints for a Component. |
+| UC004 | [Configure Observability](UC003-Configure-Observability.md) | Integrate with the Observability solution to configure technical and business observability. |
 
+****************************************************
+****************************************************
+
+*OLD LIST - TO BE UPDATED*
 | ID  |   use-case          | Description           |
 | --- | ------------------- | --------------------- |
 | UC001 | [Bootstrap role for component](UC001-Bootstrap-role-for-component.md) | When a new instance of a component is deployed or deleted, integrate with the Canvas Identity service and bootstrap the initial role and clean-up the bootstraped role. |
-| UC002 | [Expose APIs for Component](UC002-Expose-APIs-for-Component.md) | When a component is deployed, updated or deleted, integrate with the Service Mesh and/or API Gateway to configure and expose the API Endpoints |
 | UC003 | [Discover dependent APIs for Component](UC003-Discover-dependent-APIs-for-Component.md) | When a component is deployed, updated or deleted, search for any declared dependent APIs and update the component via a ServiceActivationConfiguration Open-API call |
 | UC004 | [Configure Observability](UC004-Configure-Observability.md) | When a component is deployed, updated or deleted, configure the observability service. || Authentication | When an external consumer calls an exposed API for a component, manage the authenticate the consumer and pass the authenticated request (including authentication token) to the component. |
 | UC005 | [Technical Observability](UC005-Technical-Observability.md) | When a component is deployed, view the baseline technical metrics such as HTTP Requests per second, CPU, Memory etc. using the observability service management dashboard.|

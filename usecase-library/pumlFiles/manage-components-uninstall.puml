@@ -1,0 +1,50 @@
+@startuml
+
+actor Operations
+entity "Component\nResource" as Component
+participant "Component\nManagement\nOperator" as ComponentOperator
+entity "Exposed\nAPI\nResource" as ExposedAPI
+participant "API\nManagement\nOperator" as APIExposureOperator
+entity "Published\nNotification\nResource" as PublishedNotification
+participant "Event\nManagement\nOperator" as EventOperator
+entity "Identity\nResource" as Identity
+participant "Identity\nManagement\nOperator" as IdentityOperator
+entity "Observability\nResource" as Observability
+participant "Observability\nManagement\nOperator" as ObservabilityOperator
+entity "Secrets\nResource" as Secrets
+participant "Secrets\nManagement\nOperator" as SecretsOperator
+entity "DependentAPI\nResource" as DependentAPI
+participant "Dependency\nManagement\nOperator" as DependencyOperator
+
+
+Component <- Operations : Uninstall
+Component -> Component: on.delete
+note right
+    Cascading delete of all child resources
+end note
+group For each exposed API
+    Component -> ExposedAPI: delete
+    ExposedAPI -> APIExposureOperator: on.delete
+    APIExposureOperator -> APIExposureOperator: Cleanup API
+end
+group For each Published Notification
+    Component -> PublishedNotification: delete
+    PublishedNotification -> EventOperator: on.delete
+    EventOperator -> EventOperator: Cleanup Notification
+end
+Component -> Identity: delete
+Identity -> IdentityOperator: on.delete
+IdentityOperator -> IdentityOperator: Cleanup roles and users
+Component -> Observability: delete
+Observability -> ObservabilityOperator: on.delete
+ObservabilityOperator -> ObservabilityOperator: Cleanup Observability
+Component -> Secrets: delete
+Secrets -> SecretsOperator: on.delete
+SecretsOperator -> SecretsOperator: Cleanup secrets vault
+group For each dependent API
+    Component -> DependentAPI: delete
+    DependentAPI -> DependencyOperator: on.delete
+    DependencyOperator -> DependencyOperator: Cleanup dependencies
+end
+
+@enduml

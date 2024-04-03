@@ -1,0 +1,38 @@
+@startuml
+actor Operator
+participant "Package\nManager" as PackageManager
+participant "Cloud-Native\nPlatform" as CloudPlatform
+participant "Version\nControl\nService" as VersionControlService
+participant "Component\nOperator" as ComponentOperator
+participant "API\nManagement\nOperator" as APIManagementOperator
+participant "Observability\nManagement\nOperator" as ObservabilityManagementOperator
+participant "Event\nManagement\nOperator" as EventManagementOperator
+participant "Identity\nManagement\nOperator" as IdentityManagementOperator
+participant "Secrets\nManagement\nOperator" as SecretsManagementOperator
+
+Operator -> PackageManager: install
+PackageManager -> PackageManager: Pre-install hook to validate pre-requisites
+PackageManager -> CloudPlatform: Create namespaces
+PackageManager -> CloudPlatform: Create CRD's
+PackageManager -> CloudPlatform: Deploy version control service
+CloudPlatform -> VersionControlService: Deploy
+PackageManager -> CloudPlatform: Deploy Component Operator
+CloudPlatform -> ComponentOperator: Deploy
+ComponentOperator -> ComponentOperator: Self-test
+PackageManager -> CloudPlatform: Deploy API Management Operator
+CloudPlatform -> APIManagementOperator: Deploy
+APIManagementOperator -> APIManagementOperator: Self-test
+PackageManager -> CloudPlatform: Deploy Observability Management Operator
+CloudPlatform -> ObservabilityManagementOperator: Deploy
+ObservabilityManagementOperator -> ObservabilityManagementOperator: Self-test
+PackageManager -> CloudPlatform: Deploy Event Management Operator
+CloudPlatform -> EventManagementOperator: Deploy
+EventManagementOperator -> EventManagementOperator: Self-test
+PackageManager -> CloudPlatform: Deploy Identity Management Operator
+CloudPlatform -> IdentityManagementOperator: Deploy
+IdentityManagementOperator -> IdentityManagementOperator: Self-test
+PackageManager -> CloudPlatform: Deploy Secrets Management Operator
+CloudPlatform -> SecretsManagementOperator: Deploy
+SecretsManagementOperator -> SecretsManagementOperator: Self-test
+
+@enduml
