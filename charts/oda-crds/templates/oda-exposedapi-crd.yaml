@@ -152,6 +152,7 @@ spec:
                 description: Required is a flag that indicates whether the API is required or not.
             required:
             - name
+            # TODO: inconsitentency in upper/lowercase writing
             - apiType
             - implementation
             - path
