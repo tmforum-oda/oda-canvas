@@ -13,14 +13,22 @@ This is a list of the Canvas operators (including status of whether this has bee
 | Operator            | Description                     |
 | ------------------- | ------------------------------- |
 | Component Management | The Component operator manages the de-composition of an ODA component into APIs and Events (that are processed by their corresponding operators). |
-| API Exposure | Configures the Service Providers API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers |
-| License Manager | Audits compliance of component usage against licensing agreements |
-| Identity | Provides identity management to grant system and user access to components. |
-| Observability | Captures observability data and allows alarming, tracing and root-cause analysis of issues. |
-| Event Hub | Enables components to publish and subscribe to asynchronous events |
+| API Management | Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed |
+| Observability Management | Configures observabiliy services for both technical and business metrics and events. Enables alarming, tracing and root-cause analysis of issues.|
+| Event Management | Configures event based integration to allow components to use asynchronous events (in addition to Rest based API integration). |
+| Identity Management | Configures an Identity Management Service based on requirements defined in ODA Components. |
+| Secrets Management | Configures a secrets vault to enable ODA Components to store secrets in a secure way |
+| Carbon Management | Configures a services to analyze carbon (and energy) usage of ODA Components and to provide API services to enable components to make intelligent decisions to minimise Carbon usage.  |
+| Cost Management | Configures services for cost control for both cloud consumption and license costs.  |
+| Other | Additional operators will be added over time.  |
+
+
 
 
 ## Use-case list
+
+The use-cases are named based on the [use case naming conventions](use-case-naming-conventions.md)
+
 
 | ID  |   use-case          | Description           |
 | --- | ------------------- | --------------------- |
