@@ -2,11 +2,11 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-@UC001         # tagged as use case 1
-@UC001-F004    # tagged as use feature 4 within use case 1
-Feature: UC001-F004 Bootstrap:Component Exposes Permission Specification Set Towards Canvas
+@UC010         # tagged as use case 10
+@UC010-F001    # tagged as use feature 1 within use case 10
+Feature: UC010-F001 External Authentication: Logging and Monitoring of Authentication Activity
 
-    # TBD - see issue #81
+    # TBD - see issue #84
 
 
 

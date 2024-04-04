@@ -1,4 +1,4 @@
-# View technical observability metrics for component use-case
+# View technical observability use-case
 
 When a component is deployed, you should be able to view the baseline technical metrics such as HTTP Requests per second, CPU, Memory etc. using the observability service management dashboard that comes with the Canvas implementation. 
 

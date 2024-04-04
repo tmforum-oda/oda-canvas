@@ -1,4 +1,4 @@
-# Configure Event Subscription for Component use-case
+# Configure Subscribed Events use-case
 
 This use-case describes how a component is configured for subscribing to Notifications and other Events published by other components.  When a component is deployed, updated or deleted, this use-case describes how the Canvas integrates with the Event Management component to configure Event Publishing on a topic. The use case uses the following assumptions:
 

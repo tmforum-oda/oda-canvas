@@ -1,0 +1,17 @@
+@startuml
+
+participant "Component\nManagement\nOperator" as ComponentOperator
+entity ExposedAPI
+participant "API\nManagement\nOperator" as APIExposureOperator
+participant "Component\nImplementation" as Component
+participant "APIGateway/Service Mesh" as APIGateway
+
+ComponentOperator -> ExposedAPI: update
+ExposedAPI -> APIExposureOperator: on.update 
+APIExposureOperator -> APIGateway : reconfigure API Gateway and/or Service Mesh
+APIExposureOperator -> APIGateway : query for external URL for the API
+APIExposureOperator -> Component : query the readiness status\nfor the API implementation
+ExposedAPI <- APIExposureOperator: update
+ComponentOperator <- ExposedAPI: on.update
+
+@enduml

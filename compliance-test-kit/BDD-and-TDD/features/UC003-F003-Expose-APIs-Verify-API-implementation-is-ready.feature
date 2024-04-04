@@ -2,24 +2,23 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-@UC002         # tagged as use case 2
-@UC002-F002    # tagged as feature 2 within use case 2
-Feature: UC002-F002 Expose APIs: Publish API Resource URL
+@UC003         # tagged as use case 3
+@UC003-F003    # tagged as feature 3 within use case 3
+Feature: UC003-F003 Expose APIs: Verify API implementation is ready
 
-    Scenario: Test API Resource URL for Core API
+    Scenario: Verify API Resource is ready for Core API
         Given An example package 'productcatalog-v1beta3' with a 'productcatalog' component with '1' API in its 'coreFunction' segment
         When I install the 'productcatalog-v1beta3' package
-        Then I should see the 'productcatalogmanagement' API resource on the 'productcatalog' component with a url on the Service Mesh or Gateway
+        Then I should see the 'productcatalogmanagement' API resource on the 'productcatalog' component with an implementation ready status on the Service Mesh or Gateway
 
-    Scenario: Test API Resource URL for Management API
+    Scenario: Verify API Resource is ready for Management API
         Given An example package 'productcatalog-v1beta3' with a 'productcatalog' component with '1' API in its 'managementFunction' segment
         When I install the 'productcatalog-v1beta3' package
-        Then I should see the 'metrics' API resource on the 'productcatalog' component with a url on the Service Mesh or Gateway
+        Then I should see the 'metrics' API resource on the 'productcatalog' component with an implementation ready status on the Service Mesh or Gateway
 
-    Scenario: Test API Resource URL for Security API
+    Scenario: Verify API Resource is ready for Security API
         Given An example package 'productcatalog-v1beta3' with a 'productcatalog' component with '1' API in its 'securityFunction' segment
         When I install the 'productcatalog-v1beta3' package
-        Then I should see the 'partyrole' API resource on the 'productcatalog' component with a url on the Service Mesh or Gateway
-
+        Then I should see the 'partyrole' API resource on the 'productcatalog' component with an implementation ready status on the Service Mesh or Gateway
 
 

@@ -1,24 +1,17 @@
 @startuml
 
-actor Operations
-entity Component
-participant "Component Implementation" as ComponentImplementation
-participant "apiOperator-Istio\n (Open Metrics)"
-entity "Service Monitor"
-entity "DataDog Operator" as DataDogOperator
-participant Prometheus
-participant "Observability Platform\n DataDog"
+participant "Component\nManagement\nOperator" as ComponentOperator
+entity "Observability\nResource" as Observability
+participant "Observability\nManagement\nOperator" as ObservabilityOperator
+participant "Observability Platform" as ObservabilityPlatform
 
-Component <- Operations : Install
-Component -> ComponentImplementation : Install
-ComponentImplementation -> "apiOperator-Istio\n (Open Metrics)": onCreate/Update
-group Prometheus Openmetrics-Implementation, create Service Monitor resource
-    "apiOperator-Istio\n (Open Metrics)" -> "Service Monitor": Create or update\n service monitor resource
-    "Service Monitor"-> Prometheus: Configure Prometheus for Observability
-end
-group DataDog Openmetrics-Implementation, create Datadog Monitor resource
-   "apiOperator-Istio\n (Open Metrics)" -> DataDogOperator: Create or update\n Datadog monitor resource
-    DataDogOperator-> "Observability Platform\n DataDog" : Configure Datadog for Observability
-end 
+ComponentOperator -> Observability : create/update
+Observability -> ObservabilityOperator: onCreate/Update
+ObservabilityOperator -> ObservabilityPlatform: Configure observability 
+note right of ObservabilityPlatform
+  The Observability Platform will scrape the Service Mesh and
+  Cloud Platform for Technical observability data and will
+  scrape the ODA Component for Business observability data
+end note
 
 @enduml
