@@ -2,11 +2,11 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-@UC007         # tagged as use case 7
-@UC007-F001    # tagged as use feature 1 within use case 7
-Feature: UC007-F001 External Authentication: Logging and Monitoring of Authentication Activity
+@UC005         # tagged as use case 5
+@UC005-F002    # tagged as use feature 2 within use case 5
+Feature: UC001-F002 Bootstrap:Grouping Permission Specification Sets into Business Roles in Identity Management Solution
 
-    # TBD - see issue #84
+    # TBD - see issue #82
 
 
 

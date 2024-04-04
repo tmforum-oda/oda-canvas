@@ -1,4 +1,4 @@
-# Manage Components
+# Manage Components use case
 
 This use-case describes the initial actions that take place when an ODA Component is Installed, Updated or Uninstalled.
 

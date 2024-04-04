@@ -1,4 +1,4 @@
-# Manage Components
+# Install Canvas use case
 
 This use-case describes installation, upgrade and uninstallation of the ODA Canvas.
 

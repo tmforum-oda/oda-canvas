@@ -2,11 +2,11 @@
 # from the Vendor of a component, from a Systems Integrator who may be integrating and deploying 
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
-@UC002         # tagged as use case 2
-@UC002-F006    # tagged as feature 6 within use case 2
-Feature: UC002-F006 Expose APIs: Component Specified Rate Limiting and Throttling of API Requests
+@UC005         # tagged as use case 5
+@UC005-F004    # tagged as use feature 4 within use case 5
+Feature: UC001-F004 Bootstrap:Component Exposes Permission Specification Set Towards Canvas
 
-    # TBD - see issue #80
+    # TBD - see issue #81
 
 
 
