@@ -6,7 +6,7 @@ metadata:
     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
 spec:
   id: {{.Values.component.id}}
-  name: {{.Values.component.typename}}
+  name: {{.Values.component.name}}
   functionalBlock: {{.Values.component.functionalBlock}}
   publicationDate: {{.Values.component.publicationDate}}
   status: specified
@@ -22,7 +22,7 @@ spec:
   coreFunction:
     exposedAPIs: 
     - name: productcatalogmanagement
-      specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"]
       implementation: {{.Release.Name}}-prodcatapi
       apitype: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4

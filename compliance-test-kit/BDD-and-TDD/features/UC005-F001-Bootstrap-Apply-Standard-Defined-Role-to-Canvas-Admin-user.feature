@@ -11,6 +11,6 @@ Feature: UC005-F001 Bootstrap:Apply Standard Defined Role to Canvas Admin user
 
     Scenario: Create role for security user in the identity platform
         Given An example package 'productcatalog-v1beta3' has been installed
-        When the 'productcatalog' component has a deployment status of 'Complete'
-        Then I should see the predefined role assigned to the 'seccon' user for the 'productcatalog' component in the identity platform
+        When the 'productcatalogmanagement' component has a deployment status of 'Complete'
+        Then I should see the predefined role assigned to the 'seccon' user for the 'productcatalogmanagement' component in the identity platform
 

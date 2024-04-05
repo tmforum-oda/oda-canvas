@@ -8,7 +8,7 @@ metadata:
     app: {{.Release.Name}}-{{.Values.component.name}}
 spec:
   ports:
-  - port: 27017
+  - port: {{.Values.mongodb.port}}
     targetPort: {{.Release.Name}}-mongodb
     name: tcp-{{.Release.Name}}-mongodb
   type: NodePort

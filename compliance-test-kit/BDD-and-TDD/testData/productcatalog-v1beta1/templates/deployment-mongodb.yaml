@@ -21,7 +21,7 @@ spec:
         image: mongo:5.0.1
         ports:
         - name: {{.Release.Name}}-mongodb
-          containerPort: 27017
+          containerPort: {{.Values.mongodb.port}}
         volumeMounts:
         - name: {{.Release.Name}}-mongodb-pv-storage
           mountPath: "/data/db"

@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: {{.Release.Name}}-productcataloginitialization
-        image: lesterthomas/productcataloginitialization:0.2
+        image: lesterthomas/productcataloginitialization:0.3
         env:
         - name: RELEASE_NAME
           value: {{.Release.Name}}           
