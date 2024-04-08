@@ -16,8 +16,9 @@ security:
 mongodb:
   port: 27017
   database: tmf
-api:
+productcatalog:
   image: csotiriou/productcatalogapi:0.10
+  initializationimage: lesterthomas/productcataloginitialization:0.3
   versionlabel: productcatalogapi-0.10
   otlp:
     console:
@@ -27,4 +28,5 @@ api:
       url: http://datadog-agent.default.svc.cluster.local:4318/v1/traces
 partyrole:
   image: lesterthomas/partyroleapi:1.0
+  initializationimage: lesterthomas/roleinitialization:0.3
   versionlabel: partyroleapi-1.0

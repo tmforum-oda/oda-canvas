@@ -14,22 +14,22 @@ spec:
       labels:
         app: {{.Release.Name}}-{{.Values.component.name}}
         impl: {{.Release.Name}}-prodcatapi
-        version: {{.Values.api.versionlabel}}
+        version: {{.Values.productcatalog.versionlabel}}
     spec:
       containers:
       - name: {{.Release.Name}}-prodcatapi
-        image: {{.Values.api.image}}
+        image: {{.Values.productcatalog.image}}
         env:
         - name: RELEASE_NAME
           value: {{.Release.Name}}
         - name: COMPONENT_NAME
           value: {{.Release.Name}}-{{.Values.component.name}}
         - name: OTL_EXPORTER_CONSOLE_ENABLED
-          value: "{{.Values.api.otlp.console.enabled}}"
+          value: "{{.Values.productcatalog.otlp.console.enabled}}"
         - name: OTL_EXPORTER_TRACE_PROTO_ENABLED
-          value: "{{.Values.api.otlp.protobuffCollector.enabled}}"
+          value: "{{.Values.productcatalog.otlp.protobuffCollector.enabled}}"
         - name: OTL_EXPORTER_TRACE_PROTO_COLLECTOR_URL
-          value: {{.Values.api.otlp.protobuffCollector.url}}
+          value: {{.Values.productcatalog.otlp.protobuffCollector.url}}
         - name: MONGODB_HOST
           value: {{.Release.Name}}-mongodb
         - name: MONGODB_PORT
