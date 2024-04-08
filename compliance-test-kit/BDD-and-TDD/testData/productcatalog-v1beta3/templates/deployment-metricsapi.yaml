@@ -14,11 +14,11 @@ spec:
       labels:
         app: {{.Release.Name}}-{{.Values.component.name}}
         impl: {{.Release.Name}}-metricsapi
-        version: lesterthomas-metricsapi-latest
+        version: {{.Values.partyrole.versionlabel}}
     spec:
       containers:
       - name: {{.Release.Name}}-registerallevents
-        image: lesterthomas/registerallevents:latest
+        image: {{.Values.partyrole.image}}
         env:
         - name: RELEASE_NAME
           value: {{.Release.Name}}           
