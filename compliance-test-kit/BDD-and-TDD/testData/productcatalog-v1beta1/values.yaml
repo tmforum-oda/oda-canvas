@@ -4,10 +4,28 @@
 
 
 component:
+  # Specifies whether a service account should be created
   type: TMFC001-ProductCatalogManagement
-  name: productcatalog
+  name: productcatalogmanagement
+  functionalBlock: CoreCommerce
+  publicationDate: 2023-08-18T00:00:00.000Z
   version: "0.0.1"
   storageClassName: default
   
 security:
   controllerRole: Admin
+mongodb:
+  port: 27017
+  database: tmf
+api:
+  image: csotiriou/productcatalogapi:0.10
+  versionlabel: productcatalogapi-0.10
+  otlp:
+    console:
+      enabled: false
+    protobuffCollector:
+      enabled: true
+      url: http://datadog-agent.default.svc.cluster.local:4318/v1/traces
+partyrole:
+  image: lesterthomas/partyroleapi:1.0
+  versionlabel: partyroleapi-1.0

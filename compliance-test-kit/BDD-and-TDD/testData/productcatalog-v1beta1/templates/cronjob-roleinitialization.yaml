@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: {{.Release.Name}}-roleinitialization
-        image: lesterthomas/roleinitialization:latest
+        image: lesterthomas/roleinitialization:0.3
         env:
         - name: RELEASE_NAME
           value: {{.Release.Name}}           

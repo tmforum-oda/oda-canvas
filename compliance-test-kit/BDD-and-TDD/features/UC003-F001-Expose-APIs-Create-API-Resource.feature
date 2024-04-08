@@ -7,19 +7,19 @@
 Feature: UC003-F001 Expose APIs: Create API Resource
 
     Scenario: Create API Resource for Core API
-        Given An example package 'productcatalog-v1beta3' with a 'productcatalog' component with '1' API in its 'coreFunction' segment
+        Given An example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' API in its 'coreFunction' segment
         When I install the 'productcatalog-v1beta3' package
-        Then I should see the 'productcatalogmanagement' API resource on the 'productcatalog' component
+        Then I should see the 'productcatalogmanagement' API resource on the 'productcatalogmanagement' component
 
     Scenario: Create API Resource for Management API
-        Given An example package 'productcatalog-v1beta3' with a 'productcatalog' component with '1' API in its 'managementFunction' segment
+        Given An example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' API in its 'managementFunction' segment
         When I install the 'productcatalog-v1beta3' package
-        Then I should see the 'metrics' API resource on the 'productcatalog' component
+        Then I should see the 'metrics' API resource on the 'productcatalogmanagement' component
 
     Scenario: Create API Resource for Security API
-        Given An example package 'productcatalog-v1beta3' with a 'productcatalog' component with '1' API in its 'securityFunction' segment
+        Given An example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' API in its 'securityFunction' segment
         When I install the 'productcatalog-v1beta3' package
-        Then I should see the 'partyrole' API resource on the 'productcatalog' component
+        Then I should see the 'partyrole' API resource on the 'productcatalogmanagement' component
 
 
 
