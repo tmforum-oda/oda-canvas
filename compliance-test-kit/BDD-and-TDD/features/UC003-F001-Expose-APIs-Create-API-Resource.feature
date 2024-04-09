@@ -6,20 +6,13 @@
 @UC003-F001    # tagged as use feature 1 within use case 3
 Feature: UC003-F001 Expose APIs: Create API Resource
 
-    Scenario: Create API Resource for Core API
-        Given An example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' API in its 'coreFunction' segment
-        When I install the 'productcatalog-v1beta3' package
-        Then I should see the 'productcatalogmanagement' API resource on the 'productcatalogmanagement' component
+    Scenario Outline: Create API Resource for API
+        Given An example package '<PackageName>' with a '<ComponentName>' component with '<ApiCount>' API in its '<SegmentName>' segment
+        When I install the '<PackageName>' package
+        Then I should see the '<ResourceName>' API resource on the '<ComponentName>' component
 
-    Scenario: Create API Resource for Management API
-        Given An example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' API in its 'managementFunction' segment
-        When I install the 'productcatalog-v1beta3' package
-        Then I should see the 'metrics' API resource on the 'productcatalogmanagement' component
-
-    Scenario: Create API Resource for Security API
-        Given An example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' API in its 'securityFunction' segment
-        When I install the 'productcatalog-v1beta3' package
-        Then I should see the 'partyrole' API resource on the 'productcatalogmanagement' component
-
-
-
+    Examples:
+       | Name           | PackageName            | ResourceName             | ComponentName            | SegmentName        | ApiCount |
+       | Core API       | productcatalog-v1beta3 | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1        |
+       | Management API | productcatalog-v1beta3 | metrics                  | productcatalogmanagement | managementFunction | 1        |
+       | Security API   | productcatalog-v1beta3 | partyrole                | productcatalogmanagement | securityFunction   | 1        |
