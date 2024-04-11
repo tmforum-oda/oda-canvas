@@ -7,18 +7,23 @@
 Feature: UC012-F001 View Functional Observability
 
     Scenario: Install component and test Observability config
-        Given You install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
+        Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
         When the component 'ctk-productcatalog' has a deployment status of 'Complete'
-        Then the 'metrics' endpoint should be monitored by the Observability platform
+        Then the Observability platform monitors the 'metrics' endpoint 
 
     Scenario: Uninstall component and test Observability config is cleaned up
-        Given A package 'productcatalog' with a metrics API 'metrics' and release name 'ctk' has been installed
+        Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
         And the component 'ctk-productcatalog' has a deployment status of 'Complete'
-        When the package with release 'ctk' is uninstalled
-        Then the 'metrics' endpoint should not be monitored by the Observability platform
+        When I uninstall the package with release 'ctk'
+        Then the Observability platform does not monitor the 'metrics' endpoint 
 
-    Scenario: Install component and view Observability metrics
-        Given A package 'productcatalog' with a metrics API 'metrics' and release name 'ctk' has been installed
+    Scenario Outline: Install component and view Observability metrics
+        Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
         And the component 'ctk-productcatalog' has a deployment status of 'Complete'
-        When traffic is sent to the 'productcatalog' component to trigger metrics
-        Then you observe metrics in the Observability platform
+        When A user creates a '<resource>' in the 'productcatalog' component
+        Then the Observability platform shows the '<event>' metrics
+
+    Examples:
+       | resource | event          |
+       | category | createCategory |
+       | catalog  | createCatalog  |
