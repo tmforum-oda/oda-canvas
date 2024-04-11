@@ -20,10 +20,10 @@ Feature: UC012-F001 View Functional Observability
     Scenario Outline: Install component and view Observability metrics
         Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
         And the component 'ctk-productcatalog' has a deployment status of 'Complete'
-        When A user creates a '<resource>' in the 'productcatalog' component
-        Then the Observability platform shows the '<event>' metrics
+        When A user creates a '<Resource>' in the 'productcatalog' component
+        Then the Observability platform shows the '<Event>' metrics
 
     Examples:
-       | resource | event          |
+       | Resource | Event          |
        | category | createCategory |
        | catalog  | createCatalog  |
