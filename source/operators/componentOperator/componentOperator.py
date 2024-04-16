@@ -418,7 +418,7 @@ async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, *
             dapi_name = oldCoreDependentAPI["name"] 
             cr_name = f"{dapi_base_name}-{dapi_name}"
             print(dapi_name)
-            newCoreDependentAPI = find_entry_by_name(newCoreDependentAPIs, dapi_name)
+            newCoreDependentAPI = find_entry_by_name(newCoreDependentAPIs, cr_name)
             if not newCoreDependentAPI:
                 logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Deleting DependentAPIs", cr_name)
                 await deleteDependentAPI(cr_name, name, status, namespace, 'coreDependentAPIs')
@@ -431,7 +431,7 @@ async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, *
             dapi_name = newCoreDependentAPI["name"] 
             cr_name = f"{dapi_base_name}-{dapi_name}"
             print(dapi_name)
-            oldCoreDependentAPI = find_entry_by_name(oldCoreDependentAPIs, dapi_name)
+            oldCoreDependentAPI = find_entry_by_name(oldCoreDependentAPIs, cr_name)
             if not oldCoreDependentAPI:
                 logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Calling createDependentAPI", cr_name)
                 resultStatus = await createDependentAPIResource(newCoreDependentAPI, namespace, name, cr_name, 'coreDependentAPIs')
