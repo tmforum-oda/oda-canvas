@@ -376,7 +376,7 @@ def find_entry_by_name(entries, name):
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
-async def coreDependentAPI(meta, spec, status, body, namespace, labels, name, **kwargs):
+async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **coreFunction** part new or updated components.
     
     Processes the **coreFunction.dependentAPIs** part of the component envelope and creates, if requested, the child DependentAPI resources.
@@ -391,13 +391,13 @@ async def coreDependentAPI(meta, spec, status, body, namespace, labels, name, **
         * name (String): The name of the component
 
     Returns:
-        Dict: The coreDependentAPI status that is put into the component envelope status field.
+        Dict: The coreDependentAPIs status that is put into the component envelope status field.
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "Handler called with body", f"{body}")
+    logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called with body", f"{body}")
 
-    logWrapper(logging.INFO, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called", "")
     dependentAPIChildren = []
     dapi_base_name = f"{name}-dapi"
 
@@ -405,10 +405,10 @@ async def coreDependentAPI(meta, spec, status, body, namespace, labels, name, **
         oldCoreDependentAPIs = []
         if status:  # if status exists (i.e. this is not a new component)
             oldCoreDependentAPIs = safe_get([], status, 'coreDependentAPIs')
-        logWrapper(logging.INFO, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "--- OLD DEPENDENTAPI (from status) ---", f"{oldCoreDependentAPIs}, type={type(oldCoreDependentAPIs)}")
+        logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "--- OLD DEPENDENTAPI (from status) ---", f"{oldCoreDependentAPIs}, type={type(oldCoreDependentAPIs)}")
             
         newCoreDependentAPIs = safe_get([], spec, 'coreFunction', 'dependentAPIs')
-        logWrapper(logging.INFO, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "--- NEW DEPENDENTAPI ---", f"{newCoreDependentAPIs}")
+        logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "--- NEW DEPENDENTAPI ---", f"{newCoreDependentAPIs}")
 
         # compare entries by name
         for oldCoreDependentAPI in oldCoreDependentAPIs:
@@ -417,11 +417,11 @@ async def coreDependentAPI(meta, spec, status, body, namespace, labels, name, **
             print(dapi_name)
             newCoreDependentAPI = find_entry_by_name(newCoreDependentAPIs, dapi_name)
             if not newCoreDependentAPI:
-                logWrapper(logging.INFO, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "Deleting DependentAPIs", cr_name)
-                await deleteDependentAPI(cr_name, name, status, namespace, 'coreDependentAPI')
+                logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Deleting DependentAPIs", cr_name)
+                await deleteDependentAPI(cr_name, name, status, namespace, 'coreDependentAPIs')
             else:
                 # TODO[FH] implement check for update
-                logWrapper(logging.INFO, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "TODO: Update DependentAPIs", cr_name)
+                logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "TODO: Update DependentAPIs", cr_name)
                 dependentAPIChildren.append(oldCoreDependentAPI)                 
         
         for newCoreDependentAPI in newCoreDependentAPIs:
@@ -430,8 +430,8 @@ async def coreDependentAPI(meta, spec, status, body, namespace, labels, name, **
             print(dapi_name)
             oldCoreDependentAPI = find_entry_by_name(oldCoreDependentAPIs, dapi_name)
             if not oldCoreDependentAPI:
-                logWrapper(logging.INFO, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "Calling createDependentAPI", cr_name)
-                resultStatus = await createDependentAPIResource(newCoreDependentAPI, namespace, name, cr_name, 'coreDependentAPI')
+                logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Calling createDependentAPI", cr_name)
+                resultStatus = await createDependentAPIResource(newCoreDependentAPI, namespace, name, cr_name, 'coreDependentAPIs')
                 dependentAPIChildren.append(resultStatus)                
             # else: already handled above        
 
@@ -439,9 +439,9 @@ async def coreDependentAPI(meta, spec, status, body, namespace, labels, name, **
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e) # allow the operator to retry            
     except Exception as e:
-        logWrapper(logging.ERROR, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+        logWrapper(logging.ERROR, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
 
-    logWrapper(logging.INFO, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "result for status ", f"{dependentAPIChildren}")
+    logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "result for status ", f"{dependentAPIChildren}")
         
     # Update the parent's status.
     return dependentAPIChildren

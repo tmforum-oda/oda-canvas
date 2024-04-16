@@ -1,4 +1,4 @@
-from componentOperator import coreDependentAPI, safe_get
+from componentOperator import coreDependentAPIs, safe_get
 
 import logging
 import os
@@ -108,7 +108,7 @@ def test_dependentAPI_extract():
     )
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(coreDependentAPI(meta, spec, status, body, namespace, labels, name))
+        loop.run_until_complete(coreDependentAPIs(meta, spec, status, body, namespace, labels, name))
         loop.close()
 
 
@@ -163,7 +163,7 @@ def test_dependentAPI_drop():
     )
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(coreDependentAPI(meta, spec, status, body, namespace, labels, name))
+        loop.run_until_complete(coreDependentAPIs(meta, spec, status, body, namespace, labels, name))
         loop.close()
 
 
@@ -218,7 +218,7 @@ def test_dependentAPI_keep():
     )
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(coreDependentAPI(meta, spec, status, body, namespace, labels, name))
+        loop.run_until_complete(coreDependentAPIs(meta, spec, status, body, namespace, labels, name))
         loop.close()
 
 

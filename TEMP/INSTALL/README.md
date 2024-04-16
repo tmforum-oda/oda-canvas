@@ -20,9 +20,18 @@ helm uninstall -n canvas dependent-api-operator
 
 ### install
 
+#### with 1 dependent APIs
+
 ```
 helm upgrade --install -n components prodcat helmcharts/productcatalog-component
 ```
+
+#### with 2 dependent APIs
+
+```
+helm upgrade --install -n components prodcat helmcharts/productcatalog-component-2depapis
+```
+
 
 ### uninstall
 

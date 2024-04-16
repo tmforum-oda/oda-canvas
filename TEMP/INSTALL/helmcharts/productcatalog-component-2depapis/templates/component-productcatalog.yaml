@@ -33,6 +33,9 @@ spec:
     - name: party 
       apitype: openapi     
       specification: https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json  
+    - name: party2 
+      apitype: openapi     
+      specification: https://open-api.tmforum.org/TMF632-Party2-v4.0.0.swagger.json  
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
