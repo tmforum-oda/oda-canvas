@@ -5,14 +5,14 @@ entity Component
 entity "Service/Deployment/PVC"
 participant componentController
 entity API
-entity ComponentVault #00AA00
+entity DependentAPI #00AA00
 entity publishedNotification
 entity subscribedNotification
 
 Component-> componentController: Create Component
 componentController -> API: Create exposedAPIs API resources
 componentController -> API: Create securityAPIs API resources
-componentController -[#00AA00]> ComponentVault **: <b><color:#00AA00>Create ComponentVault resource</color></b> 
+componentController -[#00AA00]> DependentAPI **: <b><color:#00AA00>Create DependentAPI resources</color></b> 
 componentController -> publishedNotification: Create publishedNotification resources
 componentController -> subscribedNotification: Create subscribedNotification resources
 
@@ -22,7 +22,7 @@ componentController-> componentController: Make child of Component
 componentController-> "Service/Deployment/PVC": Update Service/Deployment/PVC
 
 API-> componentController: API resource updated 
-ComponentVault-[#00AA00]> componentController : <b><color:#00AA00>ComponentVault resource updated</color></b> 
+DependentAPI-[#00AA00]> componentController : <b><color:#00AA00>DependentAPI resource updated</color></b> 
 publishedNotification-> componentController: publishedNotification resource updated 
 subscribedNotification-> componentController: subscribedNotification resource updated 
 componentController -> Component: Update status of Component
