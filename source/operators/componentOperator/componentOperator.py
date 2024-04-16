@@ -730,14 +730,35 @@ async def createDependentAPIResource(inDependentAPI, namespace, comp_name, cr_na
 
         logWrapper(logging.DEBUG, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Resource created", dependentAPIObj)
         logWrapper(logging.INFO, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI created", DependentAPIResource['metadata']['name'])
-        returnDependentAPIObject = {"name": DependentAPIResource['metadata']['name'], "uid": dependentAPIObj['metadata']['uid'], "ready": dependentAPIReadyStatus}
 
     except ApiException as e:
-        logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, comp_name, "DependentAPI Exception creating", DependentAPIResource)
-        logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Exception creating", e)
-        
-        raise kopf.TemporaryError("Exception creating DependentAPI custom resource.")
+        if e.status != HTTP_CONFLICT:
+            logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, comp_name, "DependentAPI Exception creating", DependentAPIResource)
+            logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Exception creating", e)
+            raise kopf.TemporaryError("Exception creating DependentAPI custom resource.")
+        else:
+            # Conflict = try updating existing cr
+            logWrapper(logging.INFO, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI already exists", f"Error:{str(e.status)}")
+            try:
+                dependentAPIObj = custom_objects_api.patch_namespaced_custom_object(
+                    group = GROUP,
+                    version = DEPENDENTAPI_VERSION,
+                    namespace = namespace,
+                    plural = DEPENDENTAPIS_PLURAL,
+                    name = cr_name,
+                    body = DependentAPIResource)
+                
+                logWrapper(logging.DEBUG, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Resource updated", dependentAPIObj)
+                logWrapper(logging.INFO, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI updated", DependentAPIResource['metadata']['name'])
+            
+            except ApiException as e:
+                logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, comp_name, "DependentAPI Exception updating", DependentAPIResource)
+                logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Exception updating", e)
+                raise kopf.TemporaryError("Exception creating DependentAPI custom resource.")
+            
+    returnDependentAPIObject = {"name": DependentAPIResource['metadata']['name'], "uid": dependentAPIObj['metadata']['uid'], "ready": dependentAPIReadyStatus}
     return returnDependentAPIObject
+            
 
 
 # When api adds url address of where api is exposed, update parent Component object

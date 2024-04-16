@@ -113,7 +113,7 @@ def test_dependentAPI_extract():
 
 
 def test_dependentAPI_drop():
-    body_json_file = 'test/component/UPDATE_no_dependentapi.json'
+    body_json_file = 'test/component/UPDATE_prodcat_2to1depapi.json'
     with open (body_json_file, 'r') as f:
         body = json.load(f)
     meta = body["metadata"]
