@@ -16,9 +16,6 @@ from kubernetes.client.rest import ApiException
 import os
 import asyncio
 
-GIT_COMMIT_SHA = os.getenv('GIT_COMMIT_SHA')
-CICD_BUILD_TIME = os.getenv('CICD_BUILD_TIME')
-    
 # Setup logging
 logging_level = os.environ.get('LOGGING', logging.INFO)
 kopf_logger = logging.getLogger()
@@ -26,8 +23,13 @@ kopf_logger.setLevel(logging.WARNING)
 logger = logging.getLogger('ComponentOperator')
 logger.setLevel(int(logging_level))
 logger.info(f'Logging set to %s', logging_level)
-logger.info(f'CICD_BUILD_TIME=%s', CICD_BUILD_TIME)
-logger.info(f'GIT_COMMIT_SHA=%s', GIT_COMMIT_SHA)
+
+CICD_BUILD_TIME = os.getenv('CICD_BUILD_TIME')
+GIT_COMMIT_SHA = os.getenv('GIT_COMMIT_SHA')
+if CICD_BUILD_TIME:
+    logger.info(f'CICD_BUILD_TIME=%s', CICD_BUILD_TIME)
+if GIT_COMMIT_SHA:
+    logger.info(f'GIT_COMMIT_SHA=%s', GIT_COMMIT_SHA)
 
 
 
@@ -161,13 +163,14 @@ async def deleteAPI(deleteAPIName, componentName, status, namespace, inHandler):
 
 
 async def deleteDependentAPI(dependentAPIName, componentName, status, namespace, inHandler):
-    """Helper function to delete API Custom objects.
+    """Helper function to delete DependentAPI Custom objects.
     
     Args:
-        * dependentAPIName (String): Name of the DependentAPI Custom Object to delete 
-        * componentName (String): Name of the component the API is linked to 
+        * dependentAPIName (String): Name of the DependentAPI Custom Resource to delete 
+        * componentName (String): Name of the component the dependent API is linked to 
         * status (Dict): The status from the yaml component envelope.
         * namespace (String): The namespace for the component
+        * inHandler (String): The name of the handler that called this function
 
     Returns:
         No return value
@@ -385,7 +388,7 @@ def find_entry_by_name(entries, name):
 async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **coreFunction** part new or updated components.
     
-    Processes the **coreFunction.dependentAPIs** part of the component envelope and creates, if requested, the child DependentAPI resources.
+    Processes the **coreFunction.dependentAPIs** part of the component envelope and creates the child DependentAPI resources.
 
     Args:
         * meta (Dict): The metadata from the yaml component envelope 
@@ -566,7 +569,7 @@ def constructDependentAPIResourcePayload(inDependentAPI, cr_name):
 
     Args:
         * inDependentAPI (Dict): The DependentAPI spec 
-        * name of the dependent api
+        * cr_name custom resource name of the dependent api 
 
     Returns:
         DependentAPI Custom object (Dict)

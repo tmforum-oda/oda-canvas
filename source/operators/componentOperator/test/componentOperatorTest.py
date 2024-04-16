@@ -1,9 +1,11 @@
-from componentOperator import coreDependentAPIs, safe_get
-
-import logging
 import os
+import sys
+import logging
 import kopf
 import asyncio
+
+sys.path.append("..")
+from componentOperator import coreDependentAPIs, safe_get
 
 
 
@@ -57,8 +59,8 @@ def k8s_load_config(proxy = False):
 
 
 def test_dependentAPI_extract():
-    #body_json_file = 'test/component/CREATE_component_body.json'
-    body_json_file = 'test/component/CREATE_prodcat.json'
+    #body_json_file = 'testdata/CREATE_prodcat_2depapis.json'
+    body_json_file = 'testdata/CREATE_prodcat.json'
     with open (body_json_file, 'r') as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -113,7 +115,7 @@ def test_dependentAPI_extract():
 
 
 def test_dependentAPI_drop():
-    body_json_file = 'test/component/UPDATE_prodcat_2to1depapi.json'
+    body_json_file = 'testdata/UPDATE_prodcat_2to1depapi.json'
     with open (body_json_file, 'r') as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -168,7 +170,7 @@ def test_dependentAPI_drop():
 
 
 def test_dependentAPI_keep():
-    body_json_file = 'test/component/CREATE_prodcat.json'
+    body_json_file = 'testdata/CREATE_prodcat.json'
     with open (body_json_file, 'r') as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -227,8 +229,8 @@ if __name__ == '__main__':
     logging.info(f"main called")
     k8s_load_config(proxy=True)
     #test_kubeconfig()
-    #test_dependentAPI_extract()
-    test_dependentAPI_drop()
+    test_dependentAPI_extract()
+    #test_dependentAPI_drop()
     #test_dependentAPI_keep()
     
 
