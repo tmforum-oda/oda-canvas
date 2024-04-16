@@ -1,0 +1,46 @@
+apiVersion: oda.tmforum.org/v1beta3
+kind: API
+metadata:
+  annotations:
+    kopf.zalando.org/last-handled-configuration: |
+      {"spec":{"apitype":"openapi","developerUI":"/demo-a-productcatalog/tmf-api/productCatalogManagement/v4/docs","implementation":"demo-a-prodcatapi","name":"productcatalogmanagement","path":"/demo-a-productcatalog/tmf-api/productCatalogManagement/v4","port":8080,"specification":["https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"]},"metadata":{"labels":{"app.kubernetes.io/managed-by":"Helm","oda.tmforum.org/componentName":"demo-a-productcatalog"}},"status":{"implementation":{"ready":true},"apiStatus":{"developerUI":"http://34.159.217.74/demo-a-productcatalog/tmf-api/productCatalogManagement/v4/docs","implementation":"demo-a-prodcatapi","ip":"34.159.217.74","name":"demo-a-productcatalog-productcatalogmanagement","path":"/demo-a-productcatalog/tmf-api/productCatalogManagement/v4","port":8080,"uid":"a400f740-ddbd-42b1-828c-a143cbf53506","url":"http://34.159.217.74/demo-a-productcatalog/tmf-api/productCatalogManagement/v4"}}}
+  creationTimestamp: "2024-04-11T09:23:25Z"
+  generateName: demo-a-productcatalog-
+  generation: 6
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    oda.tmforum.org/componentName: demo-a-productcatalog
+  name: demo-a-productcatalog-productcatalogmanagement
+  namespace: components
+  ownerReferences:
+  - apiVersion: oda.tmforum.org/v1beta3
+    blockOwnerDeletion: true
+    controller: true
+    kind: Component
+    name: demo-a-productcatalog
+    uid: 3c9f4da9-4781-43a1-8071-d4ca7cb4d321
+  resourceVersion: "36119142"
+  uid: 3be7df95-4f7a-45d6-a691-9147bacc644c
+spec:
+  apitype: openapi
+  developerUI: /demo-a-productcatalog/tmf-api/productCatalogManagement/v4/docs
+  implementation: demo-a-prodcatapi
+  name: productcatalogmanagement
+  path: /demo-a-productcatalog/tmf-api/productCatalogManagement/v4
+  port: 8080
+  specification:
+  - https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+status:
+  apiStatus:
+    developerUI: http://34.159.217.74/demo-a-productcatalog/tmf-api/productCatalogManagement/v4/docs
+    implementation: demo-a-prodcatapi
+    ip: 34.159.217.74
+    name: demo-a-productcatalog-productcatalogmanagement
+    path: /demo-a-productcatalog/tmf-api/productCatalogManagement/v4
+    port: 8080
+    uid: a400f740-ddbd-42b1-828c-a143cbf53506
+    url: http://34.159.217.74/demo-a-productcatalog/tmf-api/productCatalogManagement/v4
+  implementation:
+    ready: true
+  kopf:
+    progress: {}

@@ -24,7 +24,7 @@ spec:
         properties:
           spec:
             type: object
-            x-kubernetes-preserve-unknown-fields: true
+            #x-kubernetes-preserve-unknown-fields: true
             properties:
               name:
                 type: string
@@ -40,12 +40,12 @@ spec:
                 description: The type of API specification. Currently only OpenAPI (swagger) is supported.
               selector:
                 type: object
-                description: key value pairs for filtering the dependent API search, e.g. 'releaseName:demo-b'.
+                description: key value pairs for filtering the dependent API search, e.g. 'releaseName:demo-b'
                 x-kubernetes-preserve-unknown-fields: true
                 properties:
                   zone: 
                     type: string
-                    description: zone(cluster-/canvas-/gateway-id) or 'SAME' for same as component
+                    description: zone(cluster-/canvas-id) or 'SAME' for same as component
                   releaseName: 
                     type: string
                     description: release name of the component
