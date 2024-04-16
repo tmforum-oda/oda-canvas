@@ -16,6 +16,8 @@ from kubernetes.client.rest import ApiException
 import os
 import asyncio
 
+GIT_COMMIT_SHA = os.getenv('GIT_COMMIT_SHA')
+    
 # Setup logging
 logging_level = os.environ.get('LOGGING', logging.INFO)
 kopf_logger = logging.getLogger()
@@ -23,6 +25,7 @@ kopf_logger.setLevel(logging.WARNING)
 logger = logging.getLogger('ComponentOperator')
 logger.setLevel(int(logging_level))
 logger.info(f'Logging set to %s', logging_level)
+logger.info(f'GIT_COMMIT_SHA=%s', GIT_COMMIT_SHA)
 
 
 # get namespace to monitor

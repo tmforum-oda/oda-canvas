@@ -2,6 +2,10 @@ FROM python:3.12
 RUN pip install kopf
 RUN pip install kubernetes==27.2.0
 RUN pip install cloudevents
+
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
+
 ADD . /
 ADD securityController/secconkeycloak.py /
 CMD kopf run --namespace=$COMPONENT_NAMESPACE --standalone componentOperator/componentOperator.py apiOperatorIstio/apiOperatorIstio.py securityController/securityControllerKeycloak.py
