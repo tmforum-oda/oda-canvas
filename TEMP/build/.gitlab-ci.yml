@@ -57,6 +57,7 @@ stages:
       --dockerfile $DOCKERFILE 
       --destination $MTR_FULL_IMAGE
       --build-arg "GIT_COMMIT_SHA=$CI_COMMIT_SHORT_SHA"
+      --build-arg "CICD_BUILD_TIME=$CI_JOB_STARTED_AT"
       --build-arg http_proxy=$http_proxy
       --build-arg https_proxy=$https_proxy
       --build-arg no_proxy=$no_proxy
