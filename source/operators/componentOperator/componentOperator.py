@@ -160,11 +160,11 @@ async def deleteAPI(deleteAPIName, componentName, status, namespace, inHandler):
         logWrapper(logging.ERROR, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "Exception", " when calling CustomObjectsApi->delete_namespaced_custom_object")
 
 
-async def deleteDependentAPI(deleteDependentAPIName, componentName, status, namespace, inHandler):
+async def deleteDependentAPI(dependentAPIName, componentName, status, namespace, inHandler):
     """Helper function to delete API Custom objects.
     
     Args:
-        * deleteDependentAPIName (String): Name of the DependentAPI Custom Object to delete 
+        * dependentAPIName (String): Name of the DependentAPI Custom Object to delete 
         * componentName (String): Name of the component the API is linked to 
         * status (Dict): The status from the yaml component envelope.
         * namespace (String): The namespace for the component
@@ -175,7 +175,7 @@ async def deleteDependentAPI(deleteDependentAPIName, componentName, status, name
     :meta private:
     """
 
-    logWrapper(logging.INFO, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "Deleting DependentAPI", f"Deleting DependentAPI {deleteDependentAPIName}")
+    logWrapper(logging.INFO, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "Deleting DependentAPI", f"Deleting DependentAPI {dependentAPIName}")
     custom_objects_api = kubernetes.client.CustomObjectsApi()
     try:
         dependentapi_response = custom_objects_api.delete_namespaced_custom_object(
@@ -183,7 +183,7 @@ async def deleteDependentAPI(deleteDependentAPIName, componentName, status, name
             version = DEPENDENTAPI_VERSION, 
             namespace = namespace, 
             plural = DEPENDENTAPIS_PLURAL, 
-            name = deleteDependentAPIName)
+            name = dependentAPIName)
         logWrapper(logging.DEBUG, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "DependentAPI response", dependentapi_response)
     except ApiException as e:
         logWrapper(logging.DEBUG, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
@@ -418,10 +418,10 @@ async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, *
 
         # compare entries by name
         for oldCoreDependentAPI in oldCoreDependentAPIs:
-            dapi_name = oldCoreDependentAPI["name"] 
-            cr_name = f"{dapi_base_name}-{dapi_name}"
+            cr_name = oldCoreDependentAPI["name"] 
+            dapi_name = cr_name[len(dapi_base_name)+1:]
             print(dapi_name)
-            newCoreDependentAPI = find_entry_by_name(newCoreDependentAPIs, cr_name)
+            newCoreDependentAPI = find_entry_by_name(newCoreDependentAPIs, dapi_name)
             if not newCoreDependentAPI:
                 logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Deleting DependentAPIs", cr_name)
                 await deleteDependentAPI(cr_name, name, status, namespace, 'coreDependentAPIs')
