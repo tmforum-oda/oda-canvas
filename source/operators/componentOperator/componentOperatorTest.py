@@ -1,4 +1,4 @@
-from componentOperator import securityComponentVault, safe_get
+from componentOperator import coreDependentAPI, safe_get
 
 import logging
 import os
@@ -22,8 +22,18 @@ import kubernetes.client
 
 
 
+def set_proxy():
+    os.environ["HTTP_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
+    os.environ["HTTPS_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
+    os.environ["NO_PROXY"]="10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
 
-def k8s_load_config():
+def test_kubeconfig():
+    v1 = kubernetes.client.CoreV1Api()
+    nameSpaceList = v1.list_namespace()
+    for nameSpace in nameSpaceList.items:
+        print(nameSpace.metadata.name)
+
+def k8s_load_config(proxy = False):
     if kubernetes.client.Configuration._default:
         return
     try:
@@ -32,21 +42,22 @@ def k8s_load_config():
     except kubernetes.config.ConfigException:
         try:
             kube_config_file = "~/.kube/config-vps5"
-            proxy = "http://specialinternetaccess-lb.telekom.de:8080"
             kubernetes.config.load_kube_config(config_file = kube_config_file)
-            kubernetes.client.Configuration._default.proxy = proxy 
-            print("loaded config "+kube_config_file+" with proxy "+proxy)
         except kubernetes.config.ConfigException:
             try:
                 kubernetes.config.load_kube_config()
                 print("loaded default config")
             except kubernetes.config.ConfigException:
                 raise Exception("Could not configure kubernetes python client")
+        if proxy:
+            proxy = "http://sia-lb.telekom.de:8080"
+            kubernetes.client.Configuration._default.proxy = proxy
+            print(f"set proxy to {proxy}")
     
 
 
-def test_componentvault_extract():
-    body_json_file = 'test/component/CREATE_component_body_with_vault.json'
+def test_dependentAPI_extract():
+    body_json_file = 'test/component/CREATE_component_body.json'
     with open (body_json_file, 'r') as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -96,11 +107,11 @@ def test_componentvault_extract():
     )
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(securityComponentVault(meta, spec, status, body, namespace, labels, name))
+        loop.run_until_complete(coreDependentAPI(meta, spec, status, body, namespace, labels, name))
         loop.close()
 
 
-def test_componentvault_keep():
+def test_dependentAPI_keep():
     body_json_file = 'test/component/UPDATE_component_body_with_vault_unchanged.json'
     with open (body_json_file, 'r') as f:
         body = json.load(f)
@@ -151,15 +162,16 @@ def test_componentvault_keep():
     )
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(securityComponentVault(meta, spec, status, body, namespace, labels, name))
+        loop.run_until_complete(coreDependentAPI(meta, spec, status, body, namespace, labels, name))
         loop.close()
 
 
 
 if __name__ == '__main__':
     logging.info(f"main called")
-    k8s_load_config()
-    #test_componentvault_extract()
-    test_componentvault_keep()
+    k8s_load_config(proxy=True)
+    test_kubeconfig()
+    test_dependentAPI_extract()
+    #test_dependentAPI_keep()
     
 
