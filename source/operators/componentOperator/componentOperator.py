@@ -399,7 +399,7 @@ async def coreDependentAPI(meta, spec, status, body, namespace, labels, name, **
 
     logWrapper(logging.INFO, 'coreDependentAPI', 'coreDependentAPI', 'component/' + name, name, "Handler called", "")
     dependentAPIChildren = []
-    dapi_base_name = f"dapi-{name}"
+    dapi_base_name = f"{name}-dapi"
 
     try:
         oldCoreDependentAPIs = []

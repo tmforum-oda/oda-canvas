@@ -1,0 +1,27 @@
+controller:
+  configmap:
+    loglevel: 10
+  deployment:
+    #compconImage: tmforumodacanvas/component-istio-controller:0.4.0
+    compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault
+    imagePullPolicy: Always
+    istioGateway: 
+      enabled: true
+      # optional section to configure istio to terminate HTTPS
+      tlsServer: 
+      - tls:
+          credentialName: wc-ihc-dt-cluster-3-de-tls
+          mode: SIMPLE
+        port:
+          name: https
+          number: 443
+          protocol: HTTPS
+        hosts:
+        - '*.ihc-dt.cluster-3.de'
+
+keycloak:
+  service:
+    type: ClusterIP
+
+
+    
