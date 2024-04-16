@@ -1,0 +1,11 @@
+vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
+
+auth_path: "jwt-k8s-pv"
+
+policy_name_tpl: "cv-{0}-policy"
+login_role_tpl: "cv-{0}-role"
+secrets_mount_tpl: "kv-{0}"
+secrets_base_path_tpl: "sidecar"
+
+#audience: "https://kubernetes.default.svc.cluster.local"
+audience: "https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt"

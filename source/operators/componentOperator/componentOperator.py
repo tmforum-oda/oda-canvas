@@ -24,6 +24,7 @@ logger = logging.getLogger('ComponentOperator')
 logger.setLevel(int(logging_level))
 logger.info(f'Logging set to %s', logging_level)
 
+
 # get namespace to monitor
 component_namespace = os.environ.get('COMPONENT_NAMESPACE', 'components')
 logger.info(f'Monitoring namespace %s', component_namespace)
@@ -33,11 +34,21 @@ HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
+CV_VERSION = "v1alpha1"
 APIS_PLURAL = "apis"
+COMPONENTVAULTS_PLURAL = "componentvaults"
+COMPONENTVAULTS_SINGULAR = "componentvault" 
 COMPONENTS_PLURAL = "components"
 
 PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
+
+
+# try to recover from broken watchers https://github.com/nolar/kopf/issues/1036
+@kopf.on.startup()
+def configure(settings: kopf.OperatorSettings, **_):
+    settings.watching.server_timeout = 1 * 60
+
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -141,6 +152,38 @@ async def deleteAPI(deleteAPIName, componentName, status, namespace, inHandler):
     except ApiException as e:
         logWrapper(logging.DEBUG, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
         logWrapper(logging.ERROR, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "Exception", " when calling CustomObjectsApi->delete_namespaced_custom_object")
+
+
+async def deleteComponentVault(deleteComponentVaultName, componentName, status, namespace, inHandler):
+    """Helper function to delete API Custom objects.
+    
+    Args:
+        * deleteComponentVaultName (String): Name of the ComponentVault Custom Object to delete 
+        * componentName (String): Name of the component the API is linked to 
+        * status (Dict): The status from the yaml component envelope.
+        * namespace (String): The namespace for the component
+
+    Returns:
+        No return value
+
+    :meta private:
+    """
+
+    logWrapper(logging.INFO, 'deleteComponentVault', inHandler, 'component/' + componentName, componentName, "Deleting ComponentVault", f"Deleting ComponentVault {deleteComponentVaultName}")
+    custom_objects_api = kubernetes.client.CustomObjectsApi()
+    try:
+        componentvault_response = custom_objects_api.delete_namespaced_custom_object(
+            group = GROUP, 
+            version = CV_VERSION, 
+            namespace = namespace, 
+            plural = COMPONENTVAULTS_PLURAL, 
+            name = deleteComponentVaultName)
+        logWrapper(logging.DEBUG, 'deleteComponentVault', inHandler, 'component/' + componentName, componentName, "ComponentVault response", componentvault_response)
+    except ApiException as e:
+        logWrapper(logging.DEBUG, 'deleteComponentVault', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
+        logWrapper(logging.ERROR, 'deleteComponentVault', inHandler, 'component/' + componentName, componentName, "Exception", " when calling CustomObjectsApi->delete_namespaced_custom_object")
+
+
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -295,6 +338,90 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
     # Update the parent's status.
     return apiChildren
 
+
+# -------------------------------------------------- HELPER FUNCTIONS -------------------------------------------------- #
+def entryExists(dictionary, key, value):
+    for entry in dictionary:
+        if key in entry:
+            if entry[key] == value:
+                return True
+    return False
+
+
+def safe_get(default_value, dictionary, *paths):
+    result = dictionary
+    for path in paths:
+        if path not in result:
+            return default_value
+        result = result[path]
+    return result
+# -------------------------------------------------- ---------------- -------------------------------------------------- #
+
+
+
+
+
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+async def securityComponentVault(meta, spec, status, body, namespace, labels, name, **kwargs):
+    """Handler function for **securityFunction** part new or updated components.
+    
+    Processes the **securityFunction.componentVault** part of the component envelope and creates, if requested, the child ComponentVault resource.
+
+    Args:
+        * meta (Dict): The metadata from the yaml component envelope 
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state) 
+        * status (Dict): The status from the yaml component envelope showing the actual state.
+        * body (Dict): The entire yaml component envelope
+        * namespace (String): The namespace for the component
+        * labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the component
+
+    Returns:
+        Dict: The securityComponentVault status that is put into the component envelope status field.
+
+    :meta public:
+    """
+    logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Handler called with body", f"{body}")
+
+    logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Handler called", "")
+    componentVaultChildren = []
+    cv_name = f"cv_{name}"
+
+    try:
+        oldSecurityComponentVault = []
+        if status:  # if status exists (i.e. this is not a new component)
+            oldSecurityComponentVault = safe_get([], status, 'securityComponentVault')
+        logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- OLD COMPONENTVAULT (from status) ---", f"{oldSecurityComponentVault}, type={type(oldSecurityComponentVault)}")
+            
+        newSecurityComponentVault = safe_get({}, spec, 'securityFunction', 'componentVault')
+        logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- NEW COMPONENTVAULT ---", f"{newSecurityComponentVault}")
+        
+        if oldSecurityComponentVault != [] and newSecurityComponentVault == {}:
+            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Deleting ComponentVault", cv_name)
+            await deleteComponentVault(cv_name, name, status, namespace, 'securityComponentVault')
+
+        if oldSecurityComponentVault == [] and newSecurityComponentVault != {}:
+            logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Calling createComponentVault", cv_name)
+            resultStatus = await createComponentVaultResource(newSecurityComponentVault, namespace, name, 'securityComponentVault')
+            componentVaultChildren.append(resultStatus)                
+
+        if oldSecurityComponentVault != [] and newSecurityComponentVault != {}:
+            # TODO[FH] implement check for update
+            componentVaultChildren.append(oldSecurityComponentVault)  
+
+            
+    except kopf.TemporaryError as e:
+        raise kopf.TemporaryError(e) # allow the operator to retry            
+    except Exception as e:
+        logWrapper(logging.ERROR, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+
+    logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "result for status ", f"{componentVaultChildren}")
+        
+    # Update the parent's status.
+    return componentVaultChildren
+
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -404,6 +531,30 @@ def constructAPIResourcePayload(inAPI):
         APIResource['spec']['developerUI'] = inAPI['developerUI']
     return APIResource
 
+def constructComponentVaultResourcePayload(inComponentVault):
+    """Helper function to create payloads for ComponentVault Custom objects.
+
+    Args:
+        * inComponentVault (Dict): The ComponentVault spec 
+
+    Returns:
+        ComponentVault Custom object (Dict)
+
+    :meta private:
+    """
+    ComponentVaultResource = {
+        "apiVersion": GROUP + "/" + CV_VERSION,
+        "kind": COMPONENTVAULTS_SINGULAR,
+        "metadata": {},
+        "spec": {}
+    }
+    # Make it our child: assign the namespace, name, labels, owner references, etc.
+    kopf.adopt(ComponentVaultResource)
+    newName = (ComponentVaultResource['metadata']['ownerReferences'][0]['name'])
+    ComponentVaultResource['metadata']['name'] = newName
+    ComponentVaultResource['spec'] = inComponentVault
+    return ComponentVaultResource
+
 async def patchAPIResource(inAPI, namespace, name, inHandler):
     """Helper function to patch API Custom objects.
 
@@ -511,6 +662,50 @@ async def createAPIResource(inAPI, namespace, name, inHandler):
         
         raise kopf.TemporaryError("Exception creating API custom resource.")
     return returnAPIObject
+
+
+async def createComponentVaultResource(inComponentVault, namespace, name, inHandler):
+    """Helper function to create or update API Custom objects.
+
+    Args:
+        * inComponentVault (Dict): The ComponentVault definition 
+        * namespace (String): The namespace for the Component and API
+        * name (String): The name of the API resource
+        * inHandler (String): The name of the handler calling this function
+
+    Returns:
+        Dict with ComponentVault definition including uuid of the ComponentVault resource and ready status.
+
+    :meta private:
+    """
+    logWrapper(logging.DEBUG, 'createComponentVaultResource', inHandler, 'component/' + name, name, "Create ComponentVault", inComponentVault)
+
+    ComponentVaultResource = constructComponentVaultResourcePayload(inComponentVault)
+    
+    componentVaultReadyStatus = False
+    returnComponentVaultObject = {}
+
+    try:
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+        logWrapper(logging.INFO, 'createComponentVaultResource', inHandler, 'component/' + name, name, "Creating ComponentVault Custom Object", ComponentVaultResource)
+
+        componentVaultObj = custom_objects_api.create_namespaced_custom_object(
+            group = GROUP,
+            version = CV_VERSION,
+            namespace = namespace,
+            plural = COMPONENTVAULTS_PLURAL,
+            body = ComponentVaultResource)
+
+        logWrapper(logging.DEBUG, 'createComponentVaultResource', inHandler, 'component/' + name, name, "ComponentVault Resource created", componentVaultObj)
+        logWrapper(logging.INFO, 'createComponentVaultResource', inHandler, 'component/' + name, name, "ComponentVault created", ComponentVaultResource['metadata']['name'])
+        returnComponentVaultObject = {"name": ComponentVaultResource['metadata']['name'], "uid": componentVaultObj['metadata']['uid'], "ready": componentVaultReadyStatus}
+
+    except ApiException as e:
+        logWrapper(logging.WARNING, 'createComponentVaultResource', inHandler, 'component/' + name, name, "ComponentVault Exception creating", ComponentVaultResource)
+        logWrapper(logging.WARNING, 'createComponentVaultResource', inHandler, 'component/' + name, name, "ComponentVault Exception creating", e)
+        
+        raise kopf.TemporaryError("Exception creating ComponentVault custom resource.")
+    return returnComponentVaultObject
 
 
 # When api adds url address of where api is exposed, update parent Component object
@@ -1058,3 +1253,4 @@ def logWrapper(logLevel, functionName, handlerName, resourceName, componentName,
     """
     logger.log(logLevel, f"[{componentName}|{resourceName}|{handlerName}|{functionName}] {subject}: {message}")
     return
+

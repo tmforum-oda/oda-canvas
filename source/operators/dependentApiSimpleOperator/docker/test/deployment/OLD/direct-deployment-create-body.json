@@ -1,0 +1,151 @@
+{
+	"kind": "Pod",
+	"apiVersion": "v1",
+	"metadata": {
+		"generateName": "echoservice-deployment-78d486c6b7-",
+		"namespace": "demo-comp",
+		"creationTimestamp": "",
+		"labels": {
+			"app": "echoservice",
+			"oda.tmforum.org/componentvault": "sidecar",
+			"pod-template-hash": "78d486c6b7"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "apps/v1",
+				"kind": "ReplicaSet",
+				"name": "echoservice-deployment-78d486c6b7",
+				"uid": "0e875c6b-6915-4e8e-9b28-5c4439e07fcb",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		],
+		"managedFields": [
+			{
+				"manager": "kube-controller-manager",
+				"operation": "Update",
+				"apiVersion": "v1",
+				"time": "2023-07-28T22:09:22Z",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {},
+						"f:labels": {
+							".": {},
+							"f:app": {},
+							"f:oda.tmforum.org/componentvault": {},
+							"f:pod-template-hash": {}
+						},
+						"f:ownerReferences": {
+							".": {},
+							"k:{\"uid\":\"0e875c6b-6915-4e8e-9b28-5c4439e07fcb\"}": {}
+						}
+					},
+					"f:spec": {
+						"f:containers": {
+							"k:{\"name\":\"echoservice\"}": {
+								".": {},
+								"f:image": {},
+								"f:imagePullPolicy": {},
+								"f:name": {},
+								"f:resources": {},
+								"f:terminationMessagePath": {},
+								"f:terminationMessagePolicy": {}
+							}
+						},
+						"f:dnsPolicy": {},
+						"f:enableServiceLinks": {},
+						"f:restartPolicy": {},
+						"f:schedulerName": {},
+						"f:securityContext": {},
+						"f:terminationGracePeriodSeconds": {}
+					}
+				}
+			}
+		]
+	},
+	"spec": {
+		"volumes": [
+			{
+				"name": "kube-api-access-wg8dr",
+				"projected": {
+					"sources": [
+						{
+							"serviceAccountToken": {
+								"expirationSeconds": 3607,
+								"path": "token"
+							}
+						},
+						{
+							"configMap": {
+								"name": "kube-root-ca.crt",
+								"items": [
+									{
+										"key": "ca.crt",
+										"path": "ca.crt"
+									}
+								]
+							}
+						},
+						{
+							"downwardAPI": {
+								"items": [
+									{
+										"path": "namespace",
+										"fieldRef": {
+											"apiVersion": "v1",
+											"fieldPath": "metadata.namespace"
+										}
+									}
+								]
+							}
+						}
+					],
+					"defaultMode": 420
+				}
+			}
+		],
+		"containers": [
+			{
+				"name": "echoservice",
+				"image": "mtr.devops.telekom.de/magenta_canvas/public/tools/echoservice:v0.1.0",
+				"resources": {},
+				"volumeMounts": [
+					{
+						"name": "kube-api-access-wg8dr",
+						"readOnly": true,
+						"mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+					}
+				],
+				"terminationMessagePath": "/dev/termination-log",
+				"terminationMessagePolicy": "File",
+				"imagePullPolicy": "Always"
+			}
+		],
+		"restartPolicy": "Always",
+		"terminationGracePeriodSeconds": 30,
+		"dnsPolicy": "ClusterFirst",
+		"serviceAccountName": "default",
+		"serviceAccount": "default",
+		"securityContext": {},
+		"schedulerName": "default-scheduler",
+		"tolerations": [
+			{
+				"key": "node.kubernetes.io/not-ready",
+				"operator": "Exists",
+				"effect": "NoExecute",
+				"tolerationSeconds": 300
+			},
+			{
+				"key": "node.kubernetes.io/unreachable",
+				"operator": "Exists",
+				"effect": "NoExecute",
+				"tolerationSeconds": 300
+			}
+		],
+		"priority": 0,
+		"enableServiceLinks": true,
+		"preemptionPolicy": "PreemptLowerPriority"
+	},
+	"status": {}
+}

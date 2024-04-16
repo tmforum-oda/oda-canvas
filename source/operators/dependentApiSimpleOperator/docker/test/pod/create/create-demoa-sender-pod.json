@@ -1,0 +1,155 @@
+{
+	"kind": "Pod",
+	"apiVersion": "v1",
+	"metadata": {
+		"generateName": "demoa-comp-one-sender-75f95988f4-",
+		"namespace": "demo-comp",
+		"creationTimestamp": "",
+		"labels": {
+			"app": "demoa-comp-one-sender",
+			"oda.tmforum.org/componentName": "demoa-comp-one",
+			"oda.tmforum.org/componentvault": "sidecar",
+			"pod-template-hash": "75f95988f4"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "apps/v1",
+				"kind": "ReplicaSet",
+				"name": "demoa-comp-one-sender-75f95988f4",
+				"uid": "737a1ec9-ae6d-4262-85e2-e65c3c28f47f",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		],
+		"managedFields": [
+			{
+				"manager": "kube-controller-manager",
+				"operation": "Update",
+				"apiVersion": "v1",
+				"time": "2023-08-26T20:49:21Z",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {},
+						"f:labels": {
+							".": {},
+							"f:app": {},
+							"f:oda.tmforum.org/componentName": {},
+							"f:oda.tmforum.org/componentvault": {},
+							"f:pod-template-hash": {}
+						},
+						"f:ownerReferences": {
+							".": {},
+							"k:{\"uid\":\"737a1ec9-ae6d-4262-85e2-e65c3c28f47f\"}": {}
+						}
+					},
+					"f:spec": {
+						"f:automountServiceAccountToken": {},
+						"f:containers": {
+							"k:{\"name\":\"component-implementation\"}": {
+								".": {},
+								"f:args": {},
+								"f:command": {},
+								"f:image": {},
+								"f:imagePullPolicy": {},
+								"f:name": {},
+								"f:resources": {},
+								"f:securityContext": {
+									".": {},
+									"f:allowPrivilegeEscalation": {},
+									"f:capabilities": {
+										".": {},
+										"f:drop": {}
+									},
+									"f:privileged": {},
+									"f:readOnlyRootFilesystem": {}
+								},
+								"f:terminationMessagePath": {},
+								"f:terminationMessagePolicy": {}
+							}
+						},
+						"f:dnsPolicy": {},
+						"f:enableServiceLinks": {},
+						"f:priority": {},
+						"f:priorityClassName": {},
+						"f:restartPolicy": {},
+						"f:schedulerName": {},
+						"f:securityContext": {
+							".": {},
+							"f:fsGroup": {},
+							"f:runAsGroup": {},
+							"f:runAsNonRoot": {},
+							"f:runAsUser": {},
+							"f:supplementalGroups": {}
+						},
+						"f:terminationGracePeriodSeconds": {}
+					}
+				}
+			}
+		]
+	},
+	"spec": {
+		"containers": [
+			{
+				"name": "component-implementation",
+				"image": "curlimages/curl:7.88.1",
+				"command": [
+					"/bin/sh"
+				],
+				"args": [
+					"-c",
+					"echo starting component ONE-SENDER; date; echo going to sleep; sleep infinite; echo --- FINISHED ---"
+				],
+				"resources": {},
+				"terminationMessagePath": "/dev/termination-log",
+				"terminationMessagePolicy": "File",
+				"imagePullPolicy": "IfNotPresent",
+				"securityContext": {
+					"capabilities": {
+						"drop": [
+							"ALL"
+						]
+					},
+					"privileged": false,
+					"readOnlyRootFilesystem": true,
+					"allowPrivilegeEscalation": false
+				}
+			}
+		],
+		"restartPolicy": "Always",
+		"terminationGracePeriodSeconds": 30,
+		"dnsPolicy": "ClusterFirst",
+		"serviceAccountName": "default",
+		"serviceAccount": "default",
+		"automountServiceAccountToken": false,
+		"securityContext": {
+			"runAsUser": 1001,
+			"runAsGroup": 1001,
+			"runAsNonRoot": true,
+			"supplementalGroups": [
+				1001
+			],
+			"fsGroup": 1001
+		},
+		"schedulerName": "default-scheduler",
+		"tolerations": [
+			{
+				"key": "node.kubernetes.io/not-ready",
+				"operator": "Exists",
+				"effect": "NoExecute",
+				"tolerationSeconds": 300
+			},
+			{
+				"key": "node.kubernetes.io/unreachable",
+				"operator": "Exists",
+				"effect": "NoExecute",
+				"tolerationSeconds": 300
+			}
+		],
+		"priorityClassName": "component-priority",
+		"priority": 5000,
+		"enableServiceLinks": true,
+		"preemptionPolicy": "PreemptLowerPriority"
+	},
+	"status": {}
+}
