@@ -1,29 +1,21 @@
 {
-  "name": "oda-canvas-ctk",
+  "name": "ODA Canvas BDD tests",
   "version": "0.0.1",
-  "description": "ODA Canvas Compliance Test Kit",
-  "main": "index.js",
   "scripts": {
-    "test": "mocha tests.js"
+    "start": "cucumber-js  --publish",
+    "use-case-2": "cucumber-js --publish --tags @UC001",
+    "use-case-2-feature-1": "cucumber-js --publish --tags @UC002-F001",
+    "get-tags": "node getTags.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tmforum-oda/oda-canvas-ctk.git"
-  },
-  "keywords": [
-    "ODA",
-    "Canvas",
-    "CTK"
-  ],
-  "author": "Tom Kivlin",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/tmforum-oda/oda-canvas-ctk/issues"
-  },
+  "author": "Lester Thomas",
   "dependencies": {
-    "@kubernetes/client-node": "^0.15.0",
-    "chai": "^4.4.1",
-    "mocha": "*"
-  },
-  "homepage": "https://github.com/tmforum-oda/oda-canvas-ctk#readme"
+    "@cucumber/cucumber": "^7.3.2",
+    "chai": "^4.3.6",
+    "chai-http": "^4.3.0",
+    "resource-inventory-utils-kubernetes": "file:resource-inventory-utils-kubernetes",
+    "package-manager-utils-helm": "file:package-manager-utils-helm",
+    "identity-manager-utils-keycloak": "file:identity-manager-utils-keycloak",
+    "yaml": "^2.1.3"
+  }
 }
