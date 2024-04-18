@@ -31,7 +31,7 @@ To get started with the ODA Canvas development environment, follow these steps:
 
 3. Visual Studio Code will detect the dev container configuration and prompt you to reopen the project in a container. Click on "Reopen in Container" to start the development environment.
 
-4. Once the dev container is built and the development environment is ready, you can run the compliance-test-kit by executing the following command in the integrated terminal:
+4. Once the dev container is built and the development environment is ready, you can run the test-kit by executing the following command in the integrated terminal:
 
 ```bash
 $ gcloud auth login --no-browser
