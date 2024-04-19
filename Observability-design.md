@@ -14,7 +14,7 @@ The observability use cases are documented in the [use case library](usecase-lib
 
 ## BDD Features (WIP)
 
-For each use case, a set of BDD features describes the behaviour required of the Canvas, using scenarios. The goal is for a set of business-friendly pseudo-code that describes the behaviour of the Canvas, and that directly maps to compliance tests (TDD) that will test that feature. Some features are optional - the compliance report will indicate which features have passed, but will not fail the compliance test for a canvas if an optional feature is not implemented.
+For each use case, a set of BDD features describes the behaviour required of the Canvas, using scenarios. The goal is for a set of business-friendly pseudo-code that describes the behaviour of the Canvas, and that directly maps to steps that will test that feature. Some features are optional - the test report will indicate which features have passed, but will not fail the test for a canvas if an optional feature is not implemented.
 
 
 
