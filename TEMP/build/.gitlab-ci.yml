@@ -3,7 +3,7 @@ variables:
   OPERATOR_VERSION: 0.1.0-rc
   COMPISTIOCTLR_VERSION: 0.4.0-depapi
   
-  OPERATOR_IMAGE_TAG: dependent-api-simple-operator-${OPERATOR_VERSION}
+  OPERATOR_IMAGE_TAG: dependentapi-simple-operator-${OPERATOR_VERSION}
   COMPISTIOCTLR_IMAGE_TAG: component-istio-controller-${COMPISTIOCTLR_VERSION}
   MAGENTA_TRUSTED_REGISTRY: mtr.devops.telekom.de
   MTR_REPO: magenta_canvas/public

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: kopf framework peering crs
-description: need for kopd used in Component Vault Operator
+description: need for kopd used in DependentAPI Operator
 
 # A chart can be either an 'application' or a 'library' chart.
 #

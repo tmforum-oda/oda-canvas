@@ -32,7 +32,7 @@ rules:
 
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [oda.tmforum.org]
-    resources: [componentvaults]
+    resources: [dependentapis]
     verbs: [list, watch, get, patch]
 
   # Application: read-only access for watching cluster-wide.
@@ -80,7 +80,7 @@ rules:
 
   # Application: watching & handling for the custom resource we declare.
   - apiGroups: [oda.tmforum.org]
-    resources: [componentvaults]
+    resources: [dependentapis]
     verbs: [list, watch, patch, get]
 
   # Application: watching & handling for the custom resource we declare.
