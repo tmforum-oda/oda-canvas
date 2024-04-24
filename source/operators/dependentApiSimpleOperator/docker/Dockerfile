@@ -5,6 +5,9 @@ ENV CICD_BUILD_TIME $CICD_BUILD_TIME
 ARG GIT_COMMIT_SHA
 ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
 
+RUN apk update && \
+    apk add --no-cache git
+
 WORKDIR /src
 
 ADD requirements.txt /src/
