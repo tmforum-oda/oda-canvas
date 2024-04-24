@@ -16,7 +16,8 @@ kubectl get ns zz-ihc-dt
 helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
 helm repo update
 
-helm upgrade --install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-depapi  --set=controller.configmap.loglevel=10
+helm upgrade --install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-depapi  --set=controller.configmap.loglevel=10 --set=controller.deployment.dataDog.enabled=false
+
 ```
 
 ### install crd for dependentapi
@@ -118,13 +119,54 @@ helm upgrade --install depapi-operator -n canvas source/operators/dependentApiSi
 ## open logfile terminals
 
 ```
+cd git\oda-canvas-dependent-apis
 kubectl logs -n canvas deployment/oda-controller-ingress --tail 100 -f
 ```
 
 ```
-kubectl logs -n canvas deployment/dependentapi-simple-operator --tail 100 -f
+cd git\oda-canvas-dependent-apis
+kubectl logs -n canvas deployment/depapi-operator --tail 100 -f
 ```
 
+## set default to components
+
+```
+kubectl config set-context --current --namespace=components
+```
+
+## deploy product catalog
+
+```
+helm upgrade --install prodcat -n components --create-namespace compliance-test-kit/BDD-and-TDD/testData/productcatalog-v1beta3
+```
+
+## show dependentapis
+
+```
+kubectl get dependentapis -A
+```
+
+Details:
+
+```
+kubectl get dependentapis -n components   prodcat-productcatalog-dapi-party -oyaml
+```
+
+compare with component yaml:
+
+https://github.com/ODA-CANVAS-FORK/oda-canvas-dependent-apis/blob/master/compliance-test-kit/BDD-and-TDD/testData/productcatalog-v1beta3/templates/component-productcatalog.yaml#L31
+
+
+## undeploy product catalog
+
+```
+helm uninstall -n components prodcat
+```
+
+
+
+
+# Cleanup 
 
 ## undeploy DependentAPI Operator
 
