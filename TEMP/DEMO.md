@@ -113,6 +113,21 @@ helm upgrade --install dependentapi-simple-operator -n canvas source/operators/d
 ```
 
 
+# showcase
+
+## open logfile terminals
+
+```
+kubectl logs -n canvas deployment/oda-controller-ingress --tail 100 -f
+```
+
+```
+kubectl logs -n canvas deployment/dependentapi-simple-operator --tail 100 -f
+```
+
+
+
+
 
 # installed helm charts
 

@@ -1,7 +1,9 @@
-FROM python:3.12
+FROM python:3.12-alpine
 
-# for debugging
-RUN apt-get update && apt-get install -y vim
+ARG CICD_BUILD_TIME
+ENV CICD_BUILD_TIME $CICD_BUILD_TIME
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
 
 WORKDIR /src
 
