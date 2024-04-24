@@ -1,3 +1,5 @@
 kopf 
 kubernetes
 certbuilder
+cryptography 
+git+https://github.com/wbond/oscrypto.git@1547f535001ba568b239b8797465536759c742a3
