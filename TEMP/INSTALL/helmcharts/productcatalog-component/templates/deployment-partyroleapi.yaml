@@ -18,7 +18,8 @@ spec:
     spec:
       containers:
       - name: {{.Release.Name}}-partyroleapi
-        image: lesterthomas/partyroleapi:latest
+        #image: lesterthomas/partyroleapi:latest
+        image: lesterthomas/partyroleapi:0.2
         env:
         - name: RELEASE_NAME
           value: {{.Release.Name}}           

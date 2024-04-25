@@ -1,5 +1,21 @@
 # Demo for Dependent API Operator
 
+# !!! install prometheus !!!
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm upgrade --install kube-prometheus-stack --namespace grafana --create-namespace prometheus-community/kube-prometheus-stack
+
+# after istio:
+
+kubectl apply -f ../oda-canvas-component-vault/source/component-vault/custom/virtualservices/grafana-vs.yaml
+
+https://grafana.ihc-dt.cluster-3.de/
+admin / prom-operator
+```
+
+
 ## connect kubectl to cluster ihc-dt
 
 ```
@@ -147,7 +163,8 @@ kubectl config set-context --current --namespace=components
 
 ```
 cd git\oda-canvas-dependent-apis
-helm upgrade --install prodcat -n components --create-namespace compliance-test-kit/BDD-and-TDD/testData/productcatalog-v1beta3
+#helm upgrade --install prodcat -n components compliance-test-kit/BDD-and-TDD/testData/productcatalog-v1beta3
+helm upgrade --install prodcat -n components TEMP/INSTALL/helmcharts/productcatalog-component
 ```
 
 ## show dependentapis
