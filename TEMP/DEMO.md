@@ -156,6 +156,14 @@ compare with component yaml:
 https://github.com/ODA-CANVAS-FORK/oda-canvas-dependent-apis/blob/master/compliance-test-kit/BDD-and-TDD/testData/productcatalog-v1beta3/templates/component-productcatalog.yaml#L31
 
 
+## increase loglevel to DEBUG (10)
+
+```
+helm upgrade --install depapi-operator -n canvas source/operators/dependentApiSimpleOperator/helmcharts/dependentApiSimpleOperator --set=loglevel=10
+```
+
+depapi-operator logger quits. Restart it after a few seconds
+
 ## undeploy product catalog
 
 ```

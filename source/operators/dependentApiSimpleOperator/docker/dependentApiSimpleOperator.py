@@ -11,7 +11,7 @@ DEPAPI_PLURAL = 'dependentapis'
 # https://kopf.readthedocs.io/en/stable/install/
 
 # Setup logging
-logging_level = os.environ.get('LOGGING', logging.DEBUG)
+logging_level = os.environ.get('LOGGING', logging.INFO)
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.INFO)
 logger = logging.getLogger('DependentApiSimpleOperator')
