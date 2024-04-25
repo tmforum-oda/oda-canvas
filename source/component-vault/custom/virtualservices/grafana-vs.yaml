@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: grafana-vs
+  namespace: grafana
+  labels:
+    app: grafana
+spec:
+  gateways:
+  - components/component-gateway
+  hosts:
+  - 'grafana.ihc-dt.cluster-3.de'
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: kube-prometheus-stack-grafana.grafana.svc.cluster.local
+        port:
+          number: 80
+          
+          

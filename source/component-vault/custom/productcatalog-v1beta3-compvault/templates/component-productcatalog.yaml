@@ -22,16 +22,18 @@ spec:
   coreFunction:
     exposedAPIs: 
     - name: productcatalogmanagement
-      specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+      specification: 
+      - https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
       implementation: {{.Release.Name}}-prodcatapi
       apitype: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4/docs
       port: 8080
-    dependentAPIs: 
-    - name: party 
-      apitype: openapi     
-      specification: https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json  
+    #dependentAPIs: 
+    #- name: party 
+    #  apitype: openapi     
+    #  specification: https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json  
+    dependentAPIs: [] 
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
@@ -54,7 +56,8 @@ spec:
         serviceaccount: default
     exposedAPIs: 
     - name: partyrole
-      specification: https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
+      specification: 
+      - https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
       implementation: {{.Release.Name}}-partyroleapi
       apitype: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4
