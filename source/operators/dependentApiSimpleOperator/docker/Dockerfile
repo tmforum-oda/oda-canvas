@@ -19,4 +19,4 @@ RUN pip install -r requirements.txt && \
 
 ADD *.py /src/
 
-CMD kopf run /src/dependentApiSimpleOperator.py --verbose
+CMD kopf run --all-namespaces --verbose /src/dependentApiSimpleOperator.py
