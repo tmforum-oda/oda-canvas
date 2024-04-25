@@ -23,5 +23,9 @@ spec:
         env:
         - name: LOGGING
           value: "{{ .Values.loglevel }}"
+        {{- if Value.apioperatoristio.publichostname }}
+        - name: APIOPERATORISTIO_PUBLICHOSTNAME
+          value: {{ Value.apioperatoristio.publichostname }}
+        {{- end -}}
         ports:
         - containerPort: 9443

@@ -116,6 +116,17 @@ helm upgrade --install depapi-operator -n canvas source/operators/dependentApiSi
 
 # Showcase
 
+## show info 
+
+UseCase Discover dependent APIs for Component use-case:
+
+https://github.com/ODA-CANVAS-FORK/oda-canvas-dependent-apis/blob/master/usecase-library/UC003-Discover-dependent-APIs-for-Component.md
+
+Story ODAA-63 "Dependent APIs"
+https://projects.tmforum.org/jira/browse/ODAA-63
+
+5 Sub-Tasks
+
 ## open logfile terminals
 
 ```
@@ -193,6 +204,9 @@ kubectl logs -n canvas deployment/depapi-operator
 [2024-04-24 20:53:42,427] kopf.objects         [INFO    ] [components/prodcat-productcatalog-dapi-party] Deletion is processed: 1 succeeded; 0 failed.
 ```
 
+## Buildprocess
+
+https://gitlab.devops.telekom.de/magenta-canvas/github-sync/oda-canvas-dependent-apis-cicd/-/pipelines
 
 
 # Cleanup 

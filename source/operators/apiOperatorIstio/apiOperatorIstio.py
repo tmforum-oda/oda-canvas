@@ -18,6 +18,7 @@ import logging
 import json
 from kubernetes.client.rest import ApiException
 import os
+import re
 
 logging_level = os.environ.get('LOGGING',logging.INFO)
 print('Logging set to ',logging_level)
@@ -39,6 +40,14 @@ APIS_PLURAL = "apis"
 OPENMETRICS_IMPLEMENTATION = os.environ.get('OPENMETRICS_IMPLEMENTATION', 'ServiceMonitor') # could be ServiceMonitor or PrometheusAnnotation or DataDogAnnotation
 print('Prometheus pattern set to ',OPENMETRICS_IMPLEMENTATION)
 
+APIOPERATORISTIO_PUBLICHOSTNAME = os.environ.get('APIOPERATORISTIO_PUBLICHOSTNAME') # hostname to be used for calling public APIs. 
+publichostname_loadBalancer = None                                                  # Overwrites the LB ip/hostname retrieved from istioingress service.
+if APIOPERATORISTIO_PUBLICHOSTNAME:
+    logger.info(f'Public hostname set: {APIOPERATORISTIO_PUBLICHOSTNAME}')
+    if re.match("^[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+$", APIOPERATORISTIO_PUBLICHOSTNAME):
+        publichostname_loadBalancer = {"ingress": [{"ip": APIOPERATORISTIO_PUBLICHOSTNAME}]}
+    else:
+        publichostname_loadBalancer = {"ingress": [{"hostname": APIOPERATORISTIO_PUBLICHOSTNAME}]}
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
@@ -312,6 +321,9 @@ def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, co
         VIRTUAL_SERVICE_PLURAL = "virtualservices"
 
         # FIX required to optionally add hostname instead of ["*"]
+        hostname = "*"
+        if APIOPERATORISTIO_PUBLICHOSTNAME:
+            hostname = APIOPERATORISTIO_PUBLICHOSTNAME
         body = {
             "apiVersion": "networking.istio.io/v1alpha3",
             "kind": "VirtualService",
@@ -319,7 +331,7 @@ def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, co
                 "name": inAPIName
                 },
             "spec": {
-                "hosts": ["*"],  
+                "hosts": [hostname],  
                 "gateways": ["component-gateway"],
                 "http": [
                     {
@@ -443,6 +455,8 @@ def getIstioIngressStatus(inHandler, name, componentName):
         if serviceStatus.load_balancer is not None:
             loadBalancer = serviceStatus.load_balancer.to_dict()
         ports = serviceSpec.ports
+        if publichostname_loadBalancer:
+            loadBalancer = publichostname_loadBalancer
         response = {'loadBalancer': loadBalancer, 'ports': ports}
         logWrapper(logging.INFO, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Istio Ingress Gateway", "Received ingress status.")
     except Exception as e:
