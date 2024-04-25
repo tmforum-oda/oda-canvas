@@ -14,19 +14,13 @@ This operator can be deployed as part of the ODA Canvas in Kubernetes clusters w
 providing a robust and scalable API management solution.
 """
 
-
-
 import kopf
 import kubernetes.client
 import logging
-import json
 from kubernetes.client.rest import ApiException
-from kubernetes.client.api import CustomObjectsApi
 import os
 import yaml
 import requests
-import time
-import subprocess
 
 logging_level = os.environ.get('LOGGING',logging.INFO)
 print('Logging set to ',logging_level)
@@ -37,10 +31,6 @@ kopf_logger.setLevel(logging.WARNING)
 logger = logging.getLogger('APIOperator')
 logger.setLevel(int(logging_level))
 
-
-HTTP_SCHEME = "http://"
-HTTP_K8s_LABELS = ['http', 'http2']
-HTTP_STANDARD_PORTS = [80, 443]
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
 APIS_PLURAL = "exposedapis"
@@ -615,7 +605,7 @@ def manage_plugins_from_url(spec, name, namespace, meta):
 
 
 #This function to only log the expected HTTPRoute deletion ,can be removed will not effect functionality
-@kopf.on.delete(GROUP, VERSION, APIS_PLURAL)
+@kopf.on.delete(GROUP, VERSION, APIS_PLURAL, retries=1)
 def delete_api_lifecycle(meta, name, namespace, **kwargs):
     """
     Handles the deletion event of an API resource and logs the expected cascading deletions.
