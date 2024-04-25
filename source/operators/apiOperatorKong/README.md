@@ -1,9 +1,11 @@
 Kubernetes Kong API Lifecycle Management Operator
 
 Overview
+
 The Kubernetes Kong API Lifecycle Management Operator is a component of the ODA Canvas, optimized for environments that utilize the Kong API Gateway. It is built using the Kopf Kubernetes operator framework to effectively manage API custom resources. This operator ensures seamless integration with the Kong API Gateway, facilitating the creation, management, and exposure of APIs through HTTPRoute configurations.
 
 Key Features
+
 Lifecycle Management: Automates the creation, update, and deletion of ODA API resources and their corresponding HTTPRoute configurations.
 Plugin Management: Manages KongPlugin resources to enforce various policies and plugins on APIs, enhancing security and functionality.
 
