@@ -11,3 +11,4 @@ canvas-portal/portal-service/target/
 /canvas-portal/portal-web/package-lock.json
 /.project
 /.pydevproject
+/.settings/
