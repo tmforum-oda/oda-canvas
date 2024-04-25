@@ -6,7 +6,7 @@ The Kubernetes Kong API Lifecycle Management Operator is a component of the ODA 
 
 Key Features
 
-Lifecycle Management: Automates the creation, update, and deletion of ODA API resources and their corresponding HTTPRoute configurations.
+Lifecycle Management: Automates the creation, update, and deletion of ODA ExposedAPI resources and their corresponding HTTPRoute configurations.
 Plugin Management: Manages KongPlugin resources to enforce various policies and plugins on APIs, enhancing security and functionality.
 
 Usage
