@@ -114,7 +114,7 @@ helm upgrade --install depapi-operator -n canvas source/operators/dependentApiSi
 ```
 
 
-# showcase
+# Showcase
 
 ## open logfile terminals
 
@@ -163,6 +163,28 @@ https://github.com/ODA-CANVAS-FORK/oda-canvas-dependent-apis/blob/master/complia
 helm uninstall -n components prodcat
 ```
 
+## Logfiles of DependentAPI-Operator
+
+```
+kubectl logs -n canvas deployment/depapi-operator
+[2024-04-24 20:40:46,725] DependentApiSimpleOp [INFO    ] Logging set to 10
+[2024-04-24 20:40:46,726] DependentApiSimpleOp [INFO    ] CICD_BUILD_TIME=2024-04-24T20:38:30Z
+[2024-04-24 20:40:46,726] DependentApiSimpleOp [INFO    ] GIT_COMMIT_SHA=84214722
+/usr/local/lib/python3.12/site-packages/kopf/_core/reactor/running.py:179: FutureWarning: Absence of either namespaces or cluster-wide flag will become an error soon. For now, switching to the cluster-wide mode for backward compatibility.
+  warnings.warn("Absence of either namespaces or cluster-wide flag will become an error soon."
+[2024-04-24 20:40:46,731] kopf.activities.star [INFO    ] Activity 'configure' succeeded.
+[2024-04-24 20:40:46,732] kopf._core.engines.a [INFO    ] Initial authentication has been initiated.
+[2024-04-24 20:40:46,734] kopf.activities.auth [INFO    ] Activity 'login_via_client' succeeded.
+[2024-04-24 20:40:46,734] kopf._core.engines.a [INFO    ] Initial authentication has finished.
+[2024-04-24 20:40:47,347] kopf._core.engines.a [INFO    ] Reconfiguring the validating webhook depapi.mutate.kopf.
+[2024-04-24 20:40:47,357] kopf._core.engines.a [INFO    ] Reconfiguring the mutating webhook depapi.mutate.kopf.
+[2024-04-24 20:43:18,654] root                 [INFO    ] Create/Update  called with name prodcat-productcatalog-dapi-party in namespace components
+[2024-04-24 20:43:18,655] kopf.objects         [INFO    ] [components/prodcat-productcatalog-dapi-party] Handler 'dependentApiCreate' succeeded.
+[2024-04-24 20:43:18,655] kopf.objects         [INFO    ] [components/prodcat-productcatalog-dapi-party] Creation is processed: 1 succeeded; 0 failed.
+[2024-04-24 20:53:42,426] root                 [INFO    ] Delete         called with name prodcat-productcatalog-dapi-party in namespace components
+[2024-04-24 20:53:42,426] kopf.objects         [INFO    ] [components/prodcat-productcatalog-dapi-party] Handler 'dependentApiDelete' succeeded.
+[2024-04-24 20:53:42,427] kopf.objects         [INFO    ] [components/prodcat-productcatalog-dapi-party] Deletion is processed: 1 succeeded; 0 failed.
+```
 
 
 
