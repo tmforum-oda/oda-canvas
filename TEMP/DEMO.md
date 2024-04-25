@@ -119,12 +119,10 @@ helm upgrade --install depapi-operator -n canvas source/operators/dependentApiSi
 ## open logfile terminals
 
 ```
-cd git\oda-canvas-dependent-apis
 kubectl logs -n canvas deployment/oda-controller-ingress --tail 100 -f
 ```
 
 ```
-cd git\oda-canvas-dependent-apis
 kubectl logs -n canvas deployment/depapi-operator --tail 100 -f
 ```
 
@@ -137,6 +135,7 @@ kubectl config set-context --current --namespace=components
 ## deploy product catalog
 
 ```
+cd git\oda-canvas-dependent-apis
 helm upgrade --install prodcat -n components --create-namespace compliance-test-kit/BDD-and-TDD/testData/productcatalog-v1beta3
 ```
 
