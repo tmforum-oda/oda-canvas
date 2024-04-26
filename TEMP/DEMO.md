@@ -166,9 +166,10 @@ cd git\oda-canvas-dependent-apis
 #helm upgrade --install prodcat -n components compliance-test-kit/BDD-and-TDD/testData/productcatalog-v1beta3
 helm upgrade --install prodcat -n components TEMP/INSTALL/helmcharts/productcatalog-component
 
-# forked version is broken, 
+# forked version is broken.
 # missing commit "Fixed image version and minor bugs in ctk test data" 
 # https://github.com/tmforum-oda/oda-canvas/commit/3ac507a264dd5bae1d8b148c91c6e76644f462f1
+
 ```
 
 Alternative from repo
