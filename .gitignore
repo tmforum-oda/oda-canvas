@@ -8,7 +8,5 @@ keycloak-credentials.js
 canvas-portal/portal-core/target/
 canvas-portal/portal-helm/target/
 canvas-portal/portal-service/target/
-/canvas-portal/portal-web/package-lock.json
-/.project
-/.pydevproject
-/.settings/
+canvas-portal/portal-web/package-lock.json
+canvas-portal/portal-service/src/main/resources/static/
