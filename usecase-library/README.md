@@ -10,35 +10,39 @@ The ODA canvas is itself a modular and extensible platform. The list below shows
 
 This is a list of the Canvas operators (including status of whether this has been tested in the Canvas referernce implementation).
 
-| Operator            | Description                     |
-| ------------------- | ------------------------------- |
+| Operator             | Description                     |
+| -------------------- | ------------------------------- |
 | Component Management | The Component operator manages the de-composition of an ODA component into APIs and Events (that are processed by their corresponding operators). |
-| API Exposure | Configures the Service Providers API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers |
-| License Manager | Audits compliance of component usage against licensing agreements |
-| Identity | Provides identity management to grant system and user access to components. |
-| Observability | Captures observability data and allows alarming, tracing and root-cause analysis of issues. |
-| Event Hub | Enables components to publish and subscribe to asynchronous events |
+| API Management       | Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed |
+| Event Management     | Configures event based integration to allow components to use asynchronous events (in addition to Rest based API integration). |
+| Identity Management  | Configures an Identity Management Service based on requirements defined in ODA Components. |
+| Observability Management | Configures observabiliy services for both technical and business metrics and events. Enables alarming, tracing and root-cause analysis of issues.|
+| Secrets Management   | Configures a secrets vault to enable ODA Components to store secrets in a secure way |
+| Carbon Management    | Configures a services to analyze carbon (and energy) usage of ODA Components and to provide API services to enable components to make intelligent decisions to minimise Carbon usage.  |
+| Cost Management      | Configures services for cost control for both cloud consumption and license costs.  |
+| Other                | Additional operators will be added over time.  |
+
+
 
 
 ## Use-case list
 
+The use-cases are named based on the [use case naming conventions](use-case-naming-conventions.md)
+
 | ID  |   use-case          | Description           |
 | --- | ------------------- | --------------------- |
-| UC001 | [Bootstrap role for component](UC001-Bootstrap-role-for-component.md) | When a new instance of a component is deployed or deleted, integrate with the Canvas Identity service and bootstrap the initial role and clean-up the bootstraped role. |
-| UC002 | [Expose APIs for Component](UC002-Expose-APIs-for-Component.md) | When a component is deployed, updated or deleted, integrate with the Service Mesh and/or API Gateway to configure and expose the API Endpoints |
-| UC003 | [Discover dependent APIs for Component](UC003-Discover-dependent-APIs-for-Component.md) | When a component is deployed, updated or deleted, search for any declared dependent APIs and update the component via a ServiceActivationConfiguration Open-API call |
-| UC004 | [Configure Observability](UC004-Configure-Observability.md) | When a component is deployed, updated or deleted, configure the observability service. || Authentication | When an external consumer calls an exposed API for a component, manage the authenticate the consumer and pass the authenticated request (including authentication token) to the component. |
-| UC005 | [Technical Observability](UC005-Technical-Observability.md) | When a component is deployed, view the baseline technical metrics such as HTTP Requests per second, CPU, Memory etc. using the observability service management dashboard.|
-| UC006 | [Business Observability](UC006-Business-Observability.md) | When a component is deployed, view the custom business metrics such as creation of orders, customer interactions, status events etc. using the observability service management dashboard.|
-| UC007 | [Authentication - external](UC007-Authentication-external.md) | When an external client wants to call an API exposed by a Component, how they Authenticate and get a token. |
-| UC008 | [Authentication - internal](UC008-Authentication-internal.md) | When an internal client wants to call an API exposed by a Component, how they Authenticate and get a token. |
-| UC009 | [Authorization](UC009-Authorization.md) | After a client has been authenticated, verify their authorization for the specific API and data.|
-| UC010 | [Token Refresh](UC010-Token-Refresh.md) | After a client token expires, refresh the token and resubmit API request.|
-| UC011 | [License Metrics Observability](UC011-License-Metrics-Observability.md) | Capture a tamper-proof stream of metrics that can drive the commercial license agreements with Component Vendors.|
-| UC012 | [Enable event publishing](UC012-Enable-Event-Publishing.md)      | When a component is deployed, configure the Component so that it can publish events |
-| UC013 | [Enable event subscription](UC013-Enable-Event-Subscription.md)  | When a component is deployed, configure the subscription on the event hub|
-| UC014 | [Create Topic](UC014-Create-Topic.md)                            | When a Topic is created, configure security, Publishers and Subscribers|
-| UC015 | [Delete Topic](UC015-Delete-Topic.md)                            | When a Topic is deleted, unconfigure security, Publishers and Subscribers|
-| UC016 | [Seamless Upgrades](UC016-Seamless-upgrade-of-component-spec.md)                            | Support a seamless upgrade of the underlying component specifications|
+| UC001 | [Install Canvas](UC001-Install-Canvas.md) | Install, upgrade and uninstall the ODA Canvas. |
+| UC002 | [Manage Components](UC002-Manage-Components.md) | When an ODA Component is Installed, Updated or Uninstalled, create the sub-resources and update the status of the component. |
+| UC003 | [Configure Exposed APIs](UC003-Configure-Exposed-APIs.md) | Integrate with the Service Mesh and/or API Gateway to configure and expose the API Endpoints for a Component. |
+| UC004 | [Configure Published Events](UC004-Configure-Published-Events.md) | Integrate with the Eventing Service to configure and publish the Events for an ODA Component. |
+| UC004 | [Configure Users and Roles](UC005-Configure-Users-and-Roles.md) | Integrate with the Identity Management System to configure users and roles. |
+| UC006 | [Configure Observability](UC006-Configure-Observability.md) | Integrate with the Observability solution to configure technical and business observability. |
+| UC007 | [Configure Dependent APIs](UC007-Configure-Dependent-APIs.md) | Configure components to be able to call APIs (on other ODA Components or external APIs). |
+| UC008 | [Configure Subscribed Events](UC008-Configure-Subscribed-Events.md) | Configure components to be able to subscribe to events. |
+| UC009 | [Internal Authentication](UC009-Internal-Authentication.md) | Authenticate API calls within the Canvas. |
+| UC010 | [External Authentication](UC010-External-Authentication.md) | Authenticate API calls originating outside the Canvas. |
+| UC011 | [View Technical Observability](UC011-View-Technical-Observability.md) | Run-time view of technical observability data. |
+| UC012 | [View Business Observability](UC012-View-Business-Observability.md) | Run-time view of business observability data. |
+| UC013 | [Upgrade Canvas](UC013-Upgrade-Canvas.md) | Seamless in-life upgrade of the ODA Canvas. |
 
-The corresponding Behavour Driven Design (BDD) features and scenarious can be found here: [BDD Features and Scenarios](../compliance-test-kit/BDD-and-TDD/README.md)
+The corresponding Behavour Driven Design (BDD) features and scenarious can be found here: [BDD Features and Scenarios](../feature-definition-and-test-kit/README.md)
