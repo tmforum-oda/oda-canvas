@@ -1,4 +1,1 @@
 loglevel: '20'
-
-apioperatoristio:
-  publichostname: components.ihc-dt.cluster-3.de
