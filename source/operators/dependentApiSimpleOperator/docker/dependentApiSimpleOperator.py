@@ -50,7 +50,7 @@ async def dependentApiCreate(meta, spec, status, body, namespace, labels, name, 
     logger.debug(f"Create/Update  called with body: {body}")
     
     # Dummy implementation for testing, just sets implementation status to ready.
-    setDependentAPIImplementationStatusReady(namespace, name)
+    setDependentAPIStatus(namespace, name, f"http://dummy.url/{name}")
 
     
  
@@ -63,12 +63,13 @@ async def dependentApiDelete(meta, spec, status, body, namespace, labels, name, 
 
 
 
-def setDependentAPIImplementationStatusReady(namespace, name):
-    """Helper function to update the implementation Ready status on the DependentAPI custom resource.
+def setDependentAPIStatus(namespace, name, url):
+    """Helper function to update the url and implementation Ready status on the DependentAPI custom resource.
     
     Args:
         * namespace (String): namespace of the DependentAPI cutom resours
         * name (String): name of the DependentAPI cutom resours
+        * url (String): communication parameter url
 
     Returns:
         No return value.
@@ -87,6 +88,9 @@ def setDependentAPIImplementationStatusReady(namespace, name):
     da_name = depapi['spec']['name']
     if not('status' in depapi.keys()):
         depapi['status'] = {}
+    if not('depapiStatus' in depapi['status']):
+        depapi['status']['depapiStatus'] = {}
+    depapi['status']['depapiStatus']['url'] = url
     depapi['status']['implementation'] = {"ready": True}
     try:
         api_response = api_instance.patch_namespaced_custom_object(DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, depapi['metadata']['name'], depapi)

@@ -4,7 +4,8 @@ Normally this module is deployed as part of an ODA Canvas. It uses the kopf kube
 It registers handler functions for:
 
 1. New ODA Components - to create, update or delete child API custom resources. see `coreAPIs <#componentOperator.componentOperator.coreAPIs>`_ and `securityAPIs <#componentOperator.componentOperator.securityAPIs>`_
-2. For status updates in the child API Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateAPIStatus <#componentOperator.componentOperator.updateAPIStatus>`_ and `updateAPIReady <#componentOperator.componentOperator.updateAPIReady>`_
+2a. For status updates in the child API Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateAPIStatus <#componentOperator.componentOperator.updateAPIStatus>`_ and `updateAPIReady <#componentOperator.componentOperator.updateAPIReady>`_
+2b. For status updates in the child DependentAPI Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateDependentAPIStatus <#componentOperator.componentOperator.updateDependentAPIStatus>`_ and `updateDependentAPIReady <#componentOperator.componentOperator.updateDependentAPIReady>`_
 3. For new Services, Deployments, PersistentVolumeClaims and Jobs that have a oda.tmforum.org/componentName label. These resources are updated to become children of the ODA Component resource. see `adopt_deployment <#componentOperator.componentOperator.adopt_deployment>`_ , `adopt_persistentvolumeclaim <#componentOperator.componentOperator.adopt_persistentvolumeclaim>`_ , `adopt_job <#componentOperator.componentOperator.adopt_job>`_ and `adopt_service <#componentOperator.componentOperator.adopt_service>`_
 """
 import time
@@ -47,6 +48,10 @@ APIS_PLURAL = "apis"
 DEPENDENTAPIS_PLURAL = "dependentapis"
 DEPENDENTAPIS_KIND = "DependentAPI" 
 COMPONENTS_PLURAL = "components"
+
+DEPAPI_GROUP = 'oda.tmforum.org'
+DEPAPI_VERSION = 'v1beta3'
+DEPAPI_PLURAL = 'dependentapis'
 
 PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
@@ -898,6 +903,72 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
                         await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
                         return
 
+
+
+@kopf.on.field(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, field='status.implementation', retries=5)
+async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
+    """Handler function to register for status changes in child DependentAPI resources.
+    
+    Processes status updates to the *implementation* status in the child DependentAPI Custom resources, so that the Component status reflects a summary of all the childrens status.
+
+    Args:
+        * meta (Dict): The metadata from the API resource 
+        * spec (Dict): The spec from the yaml API resource showing the intent (or desired state) 
+        * status (Dict): The status from the API resource showing the actual state.
+        * body (Dict): The entire API resource definition
+        * namespace (String): The namespace for the API resource
+        * labels (Dict): The labels attached to the API resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the API resource
+
+    Returns:
+        No return value.
+
+    :meta public:
+    """
+
+    if 'ready' in status['implementation'].keys():
+        if status['implementation']['ready'] == True:
+            if 'ownerReferences' in meta.keys():
+                # str | the custom object's name
+                parent_component_name = meta['ownerReferences'][0]['name']
+
+                try:
+                    custom_objects_api = kubernetes.client.CustomObjectsApi()
+                    parent_component = custom_objects_api.get_namespaced_custom_object(
+                        GROUP, VERSION, namespace, COMPONENTS_PLURAL, parent_component_name)
+                except ApiException as e:
+                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                    if e.status == HTTP_NOT_FOUND:
+                        raise kopf.TemporaryError(
+                            "Cannot find parent component " + parent_component_name)
+                    else:
+                        logger.error(
+                            "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
+
+                logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
+
+                # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
+                for key in range(len(parent_component['status']['coreAPIs'])):
+                    if parent_component['status']['coreAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['coreAPIs'][key]['ready'] = True
+                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component coreAPIs status", status['implementation']['ready'])
+                        await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
+                        return
+                for key in range(len(parent_component['status']['managementAPIs'])):
+                    if parent_component['status']['managementAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['managementAPIs'][key]['ready'] = True
+                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component managementAPIs status", status['implementation']['ready'])
+                        await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
+                        return
+                for key in range(len(parent_component['status']['securityAPIs'])):
+                    if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['securityAPIs'][key]['ready'] = True
+                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component securityAPIs status", status['implementation']['ready'])
+                        await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
+                        return
+
+
+
 async def patchComponent(namespace, name, component, inHandler):
     """Helper function to patch a component.
 
@@ -1309,4 +1380,3 @@ def logWrapper(logLevel, functionName, handlerName, resourceName, componentName,
     """
     logger.log(logLevel, f"[{componentName}|{resourceName}|{handlerName}|{functionName}] {subject}: {message}")
     return
-

@@ -11,6 +11,7 @@ spec:
     singular: "dependentapi"
     shortNames:
     - depapi
+    - depapis
     kind: "DependentAPI"
   versions:
   - name: "v1beta3"
@@ -72,7 +73,7 @@ spec:
     - name: DepAPI_endpoint
       type: string
       description: Dependent API endpoint Url
-      jsonPath: .status.dependentAPIStatus.url
+      jsonPath: .status.depapiStatus.url
     - name: DepAPI_ready
       type: string
       description: Dependent API configuration is ready - e.g. gateway configuration
