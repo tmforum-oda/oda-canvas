@@ -179,8 +179,8 @@ def test_dependentApiDelete():
 
 if __name__ == '__main__':
     logging.info(f"main called")
-    #k8s_load_config(proxy=True)
-    #test_kubeconfig()
+    k8s_load_config(proxy=False)
+    test_kubeconfig()
     test_dependentApiCreate()
     #test_dependentApiDelete()
     

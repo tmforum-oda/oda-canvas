@@ -9,6 +9,8 @@ spec:
   names:
     plural: "dependentapis"
     singular: "dependentapi"
+    shortNames:
+    - depapi
     kind: "DependentAPI"
   versions:
   - name: "v1beta3"

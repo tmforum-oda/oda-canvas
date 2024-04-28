@@ -2,6 +2,9 @@ import kopf
 import logging
 import os
 
+import kubernetes.client
+from kubernetes.client.rest import ApiException
+
 
 DEPAPI_GROUP = 'oda.tmforum.org'
 DEPAPI_VERSION = 'v1beta3'
@@ -45,6 +48,9 @@ async def dependentApiCreate(meta, spec, status, body, namespace, labels, name, 
 
     logger.info( f"Create/Update  called with name {name} in namespace {namespace}")
     logger.debug(f"Create/Update  called with body: {body}")
+    
+    # Dummy implementation for testing, just sets implementation status to ready.
+    setDependentAPIImplementationStatusReady(namespace, name)
 
     
  
@@ -54,4 +60,37 @@ async def dependentApiDelete(meta, spec, status, body, namespace, labels, name, 
 
     logger.info( f"Delete         called with name {name} in namespace {namespace}")
     logger.debug(f"Delete         called with body: {body}")
+
+
+
+def setDependentAPIImplementationStatusReady(namespace, name):
+    """Helper function to update the implementation Ready status on the DependentAPI custom resource.
+    
+    Args:
+        * namespace (String): namespace of the DependentAPI cutom resours
+        * name (String): name of the DependentAPI cutom resours
+
+    Returns:
+        No return value.
+    """
+    logger.info(f'setting implementation status to ready for dependent api {namespace}:{name}')
+    api_instance = kubernetes.client.CustomObjectsApi()
+    try:
+        depapi = api_instance.get_namespaced_custom_object(DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, name+"x")
+    except ApiException as e:
+        if e.status == 404:
+            logger.error(f"setDependentAPIImplementationStatusReady: dependentapi {namespace}:{name} not found")
+            raise e
+        else:
+            logger.error(f"setDependentAPIImplementationStatusReady: Exception in get_namespaced_custom_object: {e.body}")
+            raise kopf.TemporaryError(f"setDependentAPIImplementationStatusReady: Exception in get_namespaced_custom_object: {e.body}")   
+    da_name = depapi['spec']['name']
+    if not('status' in depapi.keys()):
+        depapi['status'] = {}
+    depapi['status']['implementation'] = {"ready": True}
+    try:
+        api_response = api_instance.patch_namespaced_custom_object(DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, depapi['metadata']['name'], depapi)
+    except ApiException as e:
+        logger.error(f"setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {e.body}")
+        raise kopf.TemporaryError(f"setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {e.body}")   
 
