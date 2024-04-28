@@ -108,7 +108,8 @@ keycloak:
 controller:
   deployment:
     controllerName: oda-controller-ingress
-    compconImage: tmforumodacanvas/component-istio-controller:0.4.0 
+    #compconImage: tmforumodacanvas/component-istio-controller:0.4.0 
+    compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-depapi
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener:0.7.0
     monitoredNamespaces: 'components'           # comma separated list of namespaces
@@ -126,5 +127,12 @@ controller:
     kcrealm: myrealm
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
+    
+dependentApiSimpleOperator:
+  enabled: true
+  image: mtr.devops.telekom.de/magenta_canvas/public:dependentapi-simple-operator-0.1.0-rc
+  imagePullPolicy: Always
+  loglevel: '20'
+
 webhooks:
   image: tmforumodacanvas/compcrdwebhook:0.6.2 
