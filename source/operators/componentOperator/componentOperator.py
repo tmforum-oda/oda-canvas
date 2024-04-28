@@ -43,15 +43,13 @@ HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
-DEPENDENTAPI_VERSION = "v1beta3"
 APIS_PLURAL = "apis"
-DEPENDENTAPIS_PLURAL = "dependentapis"
-DEPENDENTAPIS_KIND = "DependentAPI" 
 COMPONENTS_PLURAL = "components"
 
-DEPAPI_GROUP = 'oda.tmforum.org'
-DEPAPI_VERSION = 'v1beta3'
-DEPAPI_PLURAL = 'dependentapis'
+DEPENDENTAPI_GROUP = 'oda.tmforum.org'
+DEPENDENTAPI_VERSION = "v1beta3"
+DEPENDENTAPIS_PLURAL = "dependentapis"
+DEPENDENTAPIS_KIND = "DependentAPI" 
 
 PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
@@ -905,7 +903,7 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
 
 
 
-@kopf.on.field(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, field='status.implementation', retries=5)
+@kopf.on.field(DEPENDENTAPI_GROUP, DEPENDENTAPI_VERSION, DEPENDENTAPI_PLURAL, field='status.implementation', retries=5)
 async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child DependentAPI resources.
     
@@ -945,26 +943,14 @@ async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, na
                         logger.error(
                             "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
 
-                logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
+                logWrapper(logging.INFO, 'updateDependentAPIReady', 'updateDependentAPIReady', 'depapi/' + name, parent_component['metadata']['name'], "Handler called", "")
 
-                # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
-                for key in range(len(parent_component['status']['coreAPIs'])):
-                    if parent_component['status']['coreAPIs'][key]['uid'] == meta['uid']:
-                        parent_component['status']['coreAPIs'][key]['ready'] = True
-                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component coreAPIs status", status['implementation']['ready'])
-                        await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
-                        return
-                for key in range(len(parent_component['status']['managementAPIs'])):
-                    if parent_component['status']['managementAPIs'][key]['uid'] == meta['uid']:
-                        parent_component['status']['managementAPIs'][key]['ready'] = True
-                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component managementAPIs status", status['implementation']['ready'])
-                        await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
-                        return
-                for key in range(len(parent_component['status']['securityAPIs'])):
-                    if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
-                        parent_component['status']['securityAPIs'][key]['ready'] = True
-                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component securityAPIs status", status['implementation']['ready'])
-                        await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
+                # find the correct array entry to update either in coreDependentAPIs, managementAPIs or securityAPIs
+                for key in range(len(parent_component['status']['coreDependetAPIs'])):
+                    if parent_component['status']['coreDependetAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['coreDependetAPIs'][key]['ready'] = True
+                        logWrapper(logging.INFO, 'updateDependentAPIReady', 'updateDependentAPIReady', 'depapi/' + name, parent_component['metadata']['name'], "Updating component coreDependentAPIs status", status['implementation']['ready'])
+                        await patchComponent(namespace, parent_component_name, parent_component, 'updateDependentAPIReady')
                         return
 
 
@@ -1141,11 +1127,14 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Handler called", "")
 
     coreAPIsummary = ''
+    coreDependentAPIsummary = ''
     managementAPIsummary = ''
     securityAPIsummary = ''
     developerUIsummary = ''
     countOfCompleteAPIs = 0
     countOfDesiredAPIs = 0
+    countOfCompleteDependentAPIs = 0
+    countOfDesiredDependentAPIs = 0
     if 'coreAPIs' in status.keys():
         countOfDesiredAPIs = countOfDesiredAPIs + len(status['coreAPIs'])
         for api in status['coreAPIs']:
@@ -1157,6 +1146,14 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
                 if 'ready' in api.keys():
                     if api['ready'] == True:
                         countOfCompleteAPIs = countOfCompleteAPIs + 1
+    if 'coreDependentAPIs' in status.keys():
+        countOfDesiredDependentAPIs = countOfDesiredDependentAPIs + len(status['coreDependentAPIs'])
+        for depapi in status['coreDependentAPIs']:
+            if 'url' in depapi.keys():
+                coreDependentAPIsummary = coreDependentAPIsummary + depapi['url'] + ' '
+                if 'ready' in depapi.keys():
+                    if depapi['ready'] == True:
+                        countOfCompleteDependentAPIs = countOfCompleteDependentAPIs + 1
     if 'managementAPIs' in status.keys():  
         countOfDesiredAPIs = countOfDesiredAPIs + len(status['managementAPIs'])                                    
         for api in status['managementAPIs']:
@@ -1182,6 +1179,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     status_summary = {}
     status_summary['coreAPIsummary'] = coreAPIsummary
+    status_summary['coreDependentAPIsummary'] = coreDependentAPIsummary
     status_summary['managementAPIsummary'] = managementAPIsummary
     status_summary['securityAPIsummary'] = securityAPIsummary
     status_summary['developerUIsummary'] = developerUIsummary
@@ -1191,7 +1189,9 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     if countOfCompleteAPIs == countOfDesiredAPIs:
         status_summary['deployment_status'] = 'In-Progress-SecCon'
         if (('security_client_add/status.summary/status.deployment_status' in status.keys()) and (status['security_client_add/status.summary/status.deployment_status']['listenerRegistered'] == True)):
-            status_summary['deployment_status'] = 'Complete'
+            status_summary['deployment_status'] = 'In-Progress-DepApi'
+            if countOfCompleteDependentAPIs == countOfDesiredDependentAPIs:
+                status_summary['deployment_status'] = 'Complete'
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Creating summary - deployment status", status_summary['deployment_status'])
 
     return status_summary

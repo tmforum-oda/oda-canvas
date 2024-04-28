@@ -10,6 +10,8 @@ DEPAPI_GROUP = 'oda.tmforum.org'
 DEPAPI_VERSION = 'v1beta3'
 DEPAPI_PLURAL = 'dependentapis'
 
+HTTP_NOT_FOUND = 404
+
 
 # https://kopf.readthedocs.io/en/stable/install/
 
@@ -79,7 +81,7 @@ def setDependentAPIStatus(namespace, name, url):
     try:
         depapi = api_instance.get_namespaced_custom_object(DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, name)
     except ApiException as e:
-        if e.status == 404:
+        if e.status == HTTP_NOT_FOUND:
             logger.error(f"setDependentAPIImplementationStatusReady: dependentapi {namespace}:{name} not found")
             raise e
         else:
