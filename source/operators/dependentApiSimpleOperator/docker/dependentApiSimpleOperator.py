@@ -76,7 +76,7 @@ def setDependentAPIImplementationStatusReady(namespace, name):
     logger.info(f'setting implementation status to ready for dependent api {namespace}:{name}')
     api_instance = kubernetes.client.CustomObjectsApi()
     try:
-        depapi = api_instance.get_namespaced_custom_object(DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, name+"x")
+        depapi = api_instance.get_namespaced_custom_object(DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, name)
     except ApiException as e:
         if e.status == 404:
             logger.error(f"setDependentAPIImplementationStatusReady: dependentapi {namespace}:{name} not found")
