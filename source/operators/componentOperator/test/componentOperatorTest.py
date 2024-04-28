@@ -228,7 +228,7 @@ def test_dependentAPI_keep():
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=True)
+    k8s_load_config(proxy=False)
     # test_kubeconfig()
     test_dependentAPI_extract()
     # test_dependentAPI_drop()
