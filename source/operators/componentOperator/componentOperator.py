@@ -48,8 +48,8 @@ COMPONENTS_PLURAL = "components"
 
 DEPENDENTAPI_GROUP = 'oda.tmforum.org'
 DEPENDENTAPI_VERSION = "v1beta3"
-DEPENDENTAPIS_PLURAL = "dependentapis"
-DEPENDENTAPIS_KIND = "DependentAPI" 
+DEPENDENTAPI_PLURAL = "dependentapis"
+DEPENDENTAPI_KIND = "DependentAPI" 
 
 PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
@@ -188,7 +188,7 @@ async def deleteDependentAPI(dependentAPIName, componentName, status, namespace,
             group = GROUP, 
             version = DEPENDENTAPI_VERSION, 
             namespace = namespace, 
-            plural = DEPENDENTAPIS_PLURAL, 
+            plural = DEPENDENTAPI_PLURAL, 
             name = dependentAPIName)
         logWrapper(logging.DEBUG, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "DependentAPI response", dependentapi_response)
     except ApiException as e:
@@ -581,7 +581,7 @@ def constructDependentAPIResourcePayload(inDependentAPI, cr_name):
     """
     DependentAPIResource = {
         "apiVersion": GROUP + "/" + DEPENDENTAPI_VERSION,
-        "kind": DEPENDENTAPIS_KIND,
+        "kind": DEPENDENTAPI_KIND,
         "metadata": {},
         "spec": {}
     }
@@ -731,7 +731,7 @@ async def createDependentAPIResource(inDependentAPI, namespace, comp_name, cr_na
             group = GROUP,
             version = DEPENDENTAPI_VERSION,
             namespace = namespace,
-            plural = DEPENDENTAPIS_PLURAL,
+            plural = DEPENDENTAPI_PLURAL,
             body = DependentAPIResource)
 
         logWrapper(logging.DEBUG, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Resource created", dependentAPIObj)
@@ -750,7 +750,7 @@ async def createDependentAPIResource(inDependentAPI, namespace, comp_name, cr_na
                     group = GROUP,
                     version = DEPENDENTAPI_VERSION,
                     namespace = namespace,
-                    plural = DEPENDENTAPIS_PLURAL,
+                    plural = DEPENDENTAPI_PLURAL,
                     name = cr_name,
                     body = DependentAPIResource)
                 
