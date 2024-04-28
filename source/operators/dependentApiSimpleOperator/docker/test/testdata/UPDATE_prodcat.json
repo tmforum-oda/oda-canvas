@@ -1,0 +1,120 @@
+{
+	"apiVersion": "oda.tmforum.org/v1beta3",
+	"kind": "DependentAPI",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/dependentApiCreate": "{\"started\":\"2024-04-28T19:58:53.584084+00:00\",\"delayed\":\"2024-04-28T19:59:53.647708+00:00\",\"purpose\":\"create\",\"retries\":1,\"success\":false,\"failure\":false,\"message\":\"setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {\\\"kind\\\":\\\"Status\\\",\\\"apiVersion\\\":\\\"v1\\\",\\\"metadata\\\":{},\\\"status\\\":\\\"Failure\\\",\\\"message\\\":\\\"Operation cannot be fulfilled on dependentapis.oda.tmforum.org \\\\\\\"prodcat-productcatalogmanagement-dapi-party\\\\\\\": the object has been modified; please apply your changes to the latest version and try again\\\",\\\"reason\\\":\\\"Conflict\\\",\\\"details\\\":{\\\"name\\\":\\\"prodcat-productcatalogmanagement-dapi-party\\\",\\\"group\\\":\\\"oda.tmforum.org\\\",\\\"kind\\\":\\\"dependentapis\\\"},\\\"code\\\":409}\\n\"}"
+		},
+		"creationTimestamp": "2024-04-28T19:58:53Z",
+		"finalizers": [
+			"kopf.zalando.org/KopfFinalizerMarker"
+		],
+		"generateName": "prodcat-productcatalogmanagement-",
+		"generation": 2,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "prodcat-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {},
+						"f:labels": {
+							".": {},
+							"f:app.kubernetes.io/managed-by": {},
+							"f:oda.tmforum.org/componentName": {}
+						},
+						"f:ownerReferences": {
+							".": {},
+							"k:{\"uid\":\"29cb5d23-ca73-4fba-af8b-d842798d5a5b\"}": {}
+						}
+					},
+					"f:spec": {
+						".": {},
+						"f:apitype": {},
+						"f:name": {},
+						"f:specification": {}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2024-04-28T19:58:53Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {},
+							"f:kopf.zalando.org/dependentApiCreate": {}
+						},
+						"f:finalizers": {
+							".": {},
+							"v:\"kopf.zalando.org/KopfFinalizerMarker\"": {}
+						}
+					},
+					"f:status": {
+						".": {},
+						"f:kopf": {
+							".": {},
+							"f:progress": {
+								".": {},
+								"f:dependentApiCreate": {
+									".": {},
+									"f:delayed": {},
+									"f:failure": {},
+									"f:message": {},
+									"f:purpose": {},
+									"f:retries": {},
+									"f:started": {},
+									"f:success": {}
+								}
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2024-04-28T19:59:53Z"
+			}
+		],
+		"name": "prodcat-productcatalogmanagement-dapi-party",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "prodcat-productcatalogmanagement",
+				"uid": "29cb5d23-ca73-4fba-af8b-d842798d5a5b"
+			}
+		],
+		"resourceVersion": "57266557",
+		"uid": "2988704c-273d-4bc0-9fd1-71c589bac858"
+	},
+	"spec": {
+		"apitype": "openapi",
+		"name": "party",
+		"specification": "https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json"
+	},
+	"status": {
+		"kopf": {
+			"progress": {
+				"dependentApiCreate": {
+					"delayed": "2024-04-28T19:59:53.647708+00:00",
+					"failure": false,
+					"message": "setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"Operation cannot be fulfilled on dependentapis.oda.tmforum.org \\\"prodcat-productcatalogmanagement-dapi-party\\\": the object has been modified; please apply your changes to the latest version and try again\",\"reason\":\"Conflict\",\"details\":{\"name\":\"prodcat-productcatalogmanagement-dapi-party\",\"group\":\"oda.tmforum.org\",\"kind\":\"dependentapis\"},\"code\":409}\n",
+					"purpose": "create",
+					"retries": 1,
+					"started": "2024-04-28T19:58:53.584084+00:00",
+					"success": false
+				}
+			}
+		}
+	}
+}

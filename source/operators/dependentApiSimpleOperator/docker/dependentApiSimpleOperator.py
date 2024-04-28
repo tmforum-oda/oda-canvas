@@ -11,6 +11,7 @@ DEPAPI_VERSION = 'v1beta3'
 DEPAPI_PLURAL = 'dependentapis'
 
 HTTP_NOT_FOUND = 404
+HTTP_CONFLICT = 409
 
 
 # https://kopf.readthedocs.io/en/stable/install/
@@ -41,6 +42,23 @@ def configure(settings: kopf.OperatorSettings, **_):
     settings.watching.server_timeout = 1 * 60
 
 
+# -------------------------------------------------- HELPER FUNCTIONS -------------------------------------------------- #
+
+def safe_get(default_value, dictionary, *paths):
+    result = dictionary
+    for path in paths:
+        if path not in result:
+            return default_value
+        result = result[path]
+    return result
+    
+# -------------------------------------------------- ---------------- -------------------------------------------------- #
+
+
+
+def implementationReady(depapiBody):
+    return safe_get(None, depapiBody, "status", "implementation", "ready")
+
 
 # triggered when an oda.tmforum.org dependentapi resource is created or updated 
 @kopf.on.resume(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, retries=5)
@@ -51,8 +69,9 @@ async def dependentApiCreate(meta, spec, status, body, namespace, labels, name, 
     logger.info( f"Create/Update  called with name {name} in namespace {namespace}")
     logger.debug(f"Create/Update  called with body: {body}")
     
-    # Dummy implementation for testing, just sets implementation status to ready.
-    setDependentAPIStatus(namespace, name, f"http://dummy.url/{name}")
+    # Dummy implementation set dummy url and ready status
+    if not implementationReady(body): # avoid recursion
+        setDependentAPIStatus(namespace, name, f"http://dummy.url/{name}")
 
     
  
@@ -82,11 +101,11 @@ def setDependentAPIStatus(namespace, name, url):
         depapi = api_instance.get_namespaced_custom_object(DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, name)
     except ApiException as e:
         if e.status == HTTP_NOT_FOUND:
-            logger.error(f"setDependentAPIImplementationStatusReady: dependentapi {namespace}:{name} not found")
+            logger.error(f"setDependentAPIStatus: dependentapi {namespace}:{name} not found")
             raise e
         else:
-            logger.error(f"setDependentAPIImplementationStatusReady: Exception in get_namespaced_custom_object: {e.body}")
-            raise kopf.TemporaryError(f"setDependentAPIImplementationStatusReady: Exception in get_namespaced_custom_object: {e.body}")   
+            logger.error(f"setDependentAPIStatus: Exception in get_namespaced_custom_object: {e.body}")
+            raise kopf.TemporaryError(f"setDependentAPIStatus: Exception in get_namespaced_custom_object: {e.body}")   
     da_name = depapi['spec']['name']
     if not('status' in depapi.keys()):
         depapi['status'] = {}
@@ -95,8 +114,8 @@ def setDependentAPIStatus(namespace, name, url):
     depapi['status']['depapiStatus']['url'] = url
     depapi['status']['implementation'] = {"ready": True}
     try:
-        api_response = api_instance.patch_namespaced_custom_object(DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, depapi['metadata']['name'], depapi)
+        api_response = api_instance.patch_namespaced_custom_object(DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, name, depapi)
     except ApiException as e:
-        logger.error(f"setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {e.body}")
-        raise kopf.TemporaryError(f"setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {e.body}")   
+        logger.error(f"setDependentAPIStatus: Exception in patch_namespaced_custom_object: {e.body}")
+        raise kopf.TemporaryError(f"setDependentAPIStatus: Exception in patch_namespaced_custom_object: {e.body}")   
 
