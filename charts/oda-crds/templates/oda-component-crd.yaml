@@ -1287,7 +1287,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -1330,7 +1330,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         resources:
                           type: array
                           items:
@@ -1360,7 +1360,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
                         specification:
                           type: string
                           format: url
@@ -1392,7 +1392,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
                         specification:
                           type: string
                           format: url
@@ -1480,8 +1480,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          - prometheus
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         resources:
                           type: array
                           items:
@@ -1518,7 +1517,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -1561,7 +1560,7 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus APIs are supported.
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         resources:
                           type: array
                           items:
