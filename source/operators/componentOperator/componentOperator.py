@@ -926,6 +926,7 @@ async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, na
 
     if 'ready' in status['implementation'].keys():
         if status['implementation']['ready'] == True:
+            depapi_url = safe_get(None, status, 'depapiStatus', 'url') 
             if 'ownerReferences' in meta.keys():
                 # str | the custom object's name
                 parent_component_name = meta['ownerReferences'][0]['name']
@@ -946,9 +947,10 @@ async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, na
                 logWrapper(logging.INFO, 'updateDependentAPIReady', 'updateDependentAPIReady', 'depapi/' + name, parent_component['metadata']['name'], "Handler called", "")
 
                 # find the correct array entry to update either in coreDependentAPIs, managementAPIs or securityAPIs
-                for key in range(len(parent_component['status']['coreDependetAPIs'])):
-                    if parent_component['status']['coreDependetAPIs'][key]['uid'] == meta['uid']:
-                        parent_component['status']['coreDependetAPIs'][key]['ready'] = True
+                for key in range(len(parent_component['status']['coreDependentAPIs'])):
+                    if parent_component['status']['coreDependentAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['coreDependentAPIs'][key]['ready'] = True
+                        parent_component['status']['coreDependentAPIs'][key]['url'] = depapi_url
                         logWrapper(logging.INFO, 'updateDependentAPIReady', 'updateDependentAPIReady', 'depapi/' + name, parent_component['metadata']['name'], "Updating component coreDependentAPIs status", status['implementation']['ready'])
                         await patchComponent(namespace, parent_component_name, parent_component, 'updateDependentAPIReady')
                         return
