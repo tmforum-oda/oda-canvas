@@ -109,7 +109,8 @@ controller:
   deployment:
     controllerName: oda-controller-ingress
     #compconImage: tmforumodacanvas/component-istio-controller:0.4.0 
-    compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-depapi
+    compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.1
+    compconImagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener:0.7.0
     monitoredNamespaces: 'components'           # comma separated list of namespaces
@@ -130,7 +131,7 @@ controller:
     
 dependentApiSimpleOperator:
   enabled: true
-  image: mtr.devops.telekom.de/magenta_canvas/public:dependentapi-simple-operator-0.1.0-rc
+  image: mtr.devops.telekom.de/magenta_canvas/public:dependentapi-simple-operator-0.1.0
   imagePullPolicy: Always
   loglevel: '20'
 
