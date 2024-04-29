@@ -92,7 +92,7 @@ kubectl edit -n canvas cm canvas-controller-configmap
 apiVersion: v1
 data:
   ...
-  APIOPERATORISTIO_PUBLICHOSTNAME: components.vps2.cluster-3.de
+  APIOPERATORISTIO_PUBLICHOSTNAME: components.ihc-dt.cluster-3.de
 ```
 
 restart oda-controller-ingress

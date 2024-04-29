@@ -407,9 +407,8 @@ async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, *
 
     :meta public:
     """
-    ### TODO INFO->DEBUG
-    logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called with body", f"{body}")
     logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.DEBUG, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called with body", f"{body}")
     dependentAPIChildren = []
     dapi_base_name = f"{name}-dapi"
 
@@ -900,67 +899,6 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
                         logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component securityAPIs status", status['implementation']['ready'])
                         await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
                         return
-
-
-
-@kopf.on.field(DEPENDENTAPI_GROUP, DEPENDENTAPI_VERSION, DEPENDENTAPI_PLURAL, field='status.implementation', retries=5)
-async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
-    """Handler function to register for status changes in child DependentAPI resources.
-    
-    Processes status updates to the *implementation* status in the child DependentAPI Custom resources, so that the Component status reflects a summary of all the childrens status.
-
-    Args:
-        * meta (Dict): The metadata from the API resource 
-        * spec (Dict): The spec from the yaml API resource showing the intent (or desired state) 
-        * status (Dict): The status from the API resource showing the actual state.
-        * body (Dict): The entire API resource definition
-        * namespace (String): The namespace for the API resource
-        * labels (Dict): The labels attached to the API resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
-        * name (String): The name of the API resource
-
-    Returns:
-        No return value.
-
-    :meta public:
-    """
-    ### TODO INFO->DEBUG
-    logWrapper(logging.INFO, 'updateDepedentAPIReady', 'updateDepedentAPIReady', 'depapi/' + name, "?", f"Handler called with body", f"{body}")
-    logWrapper(logging.INFO, 'updateDepedentAPIReady', 'updateDepedentAPIReady', 'depapi/' + name, "?", "Handler called", "")
-
-    if 'ready' in status['implementation'].keys():
-        if status['implementation']['ready'] == True:
-            depapi_url = safe_get(None, status, 'depapiStatus', 'url') 
-            if 'ownerReferences' in meta.keys():
-                # str | the custom object's name
-                parent_component_name = meta['ownerReferences'][0]['name']
-
-                try:
-                    custom_objects_api = kubernetes.client.CustomObjectsApi()
-                    parent_component = custom_objects_api.get_namespaced_custom_object(
-                        GROUP, VERSION, namespace, COMPONENTS_PLURAL, parent_component_name)
-                except ApiException as e:
-                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    if e.status == HTTP_NOT_FOUND:
-                        raise kopf.TemporaryError(
-                            "Cannot find parent component " + parent_component_name)
-                    else:
-                        logger.error(
-                            "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
-
-                logWrapper(logging.INFO, 'updateDependentAPIReady', 'updateDependentAPIReady', 'depapi/' + name, parent_component['metadata']['name'], "Handler called", "")
-
-                # find the correct array entry to update either in coreDependentAPIs, managementAPIs or securityAPIs
-                for key in range(len(parent_component['status']['coreDependentAPIs'])):
-                    if parent_component['status']['coreDependentAPIs'][key]['uid'] == meta['uid']:
-                        logger.info(parent_component['status']['coreDependentAPIs'][key]['ready'])
-                        logger.info(type(parent_component['status']['coreDependentAPIs'][key]['ready']))
-                        if parent_component['status']['coreDependentAPIs'][key]['ready'] != True:   # avoid recursion
-                            logger.info("patching component!")
-                            parent_component['status']['coreDependentAPIs'][key]['ready'] = True
-                            parent_component['status']['coreDependentAPIs'][key]['url'] = depapi_url
-                            logWrapper(logging.INFO, 'updateDependentAPIReady', 'updateDependentAPIReady', 'depapi/' + name, parent_component['metadata']['name'], "Updating component coreDependentAPIs status", status['implementation']['ready'])
-                            await patchComponent(namespace, parent_component_name, parent_component, 'updateDependentAPIReady')
-                            return
 
 
 

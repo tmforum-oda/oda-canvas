@@ -10,6 +10,10 @@ DEPAPI_GROUP = "oda.tmforum.org"
 DEPAPI_VERSION = "v1beta3"
 DEPAPI_PLURAL = "dependentapis"
 
+COMP_GROUP = "oda.tmforum.org"
+COMP_VERSION = "v1beta3"
+COMP_PLURAL = "components"
+
 HTTP_NOT_FOUND = 404
 HTTP_CONFLICT = 409
 
@@ -112,9 +116,6 @@ def setDependentAPIStatus(namespace, name, url):
             )
             raise e
         else:
-            logger.error(
-                f"setDependentAPIStatus: Exception in get_namespaced_custom_object: {e.body}"
-            )
             raise kopf.TemporaryError(
                 f"setDependentAPIStatus: Exception in get_namespaced_custom_object: {e.body}"
             )
@@ -130,9 +131,61 @@ def setDependentAPIStatus(namespace, name, url):
             DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, name, depapi
         )
     except ApiException as e:
-        logger.error(
-            f"setDependentAPIStatus: Exception in patch_namespaced_custom_object: {e.body}"
-        )
         raise kopf.TemporaryError(
             f"setDependentAPIStatus: Exception in patch_namespaced_custom_object: {e.body}"
         )
+
+
+
+@kopf.on.field(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, field='status.implementation', retries=5)
+async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
+    """moved from componentOperator to here, to avoid inifite loops.
+    If possible to configure kopf correctly it should be ported back to componentOperator
+    
+    Processes status updates to the *implementation* status in the child DependentAPI Custom resources, so that the Component status reflects a summary of all the childrens status.
+
+    Args:
+        * meta (Dict): The metadata from the DependentAPI resource 
+        * spec (Dict): The spec from the yaml DependentAPI resource showing the intent (or desired state) 
+        * status (Dict): The status from the DependentAPI resource showing the actual state.
+        * body (Dict): The entire DependentAPI resource definition
+        * namespace (String): The namespace for the DependentAPI resource
+        * labels (Dict): The labels attached to the DependentAPI resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the DependentAPI resource
+
+    Returns:
+        No return value, nothing to write into the status.
+    """
+    parent_component_name = safe_get("?", meta, 'ownerReferences',0, 'name')
+    logger.info(f"updateDepedentAPIReady called for {namespace}:{name}")
+    logger.debug(f"updateDepedentAPIReady called for {namespace}:{name} with body {body}")
+    if 'ready' in status['implementation'].keys():
+        if status['implementation']['ready'] == True:
+            depapi_url = safe_get(None, status, 'depapiStatus', 'url') 
+            if 'ownerReferences' in meta.keys():
+                parent_component_name = meta['ownerReferences'][0]['name']
+                logger.info(f"reading component {parent_component_name}")
+                try:
+                    api_instance = kubernetes.client.CustomObjectsApi()
+                    parent_component = api_instance.get_namespaced_custom_object(COMP_GROUP, COMP_VERSION, namespace, COMP_PLURAL, parent_component_name)
+                except ApiException as e:
+                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                    if e.status == HTTP_NOT_FOUND:
+                        raise kopf.TemporaryError("Cannot find parent component " + parent_component_name)
+                    else:
+                        raise kopf.TemporaryError("Exception when calling api_instance.get_namespaced_custom_object %s", parent_component_name)
+                # find the correct array entry to update either in coreDependentAPIs, managementAPIs or securityAPIs
+                for key in range(len(parent_component['status']['coreDependentAPIs'])):
+                    if parent_component['status']['coreDependentAPIs'][key]['uid'] == meta['uid']:
+                        ready = parent_component['status']['coreDependentAPIs'][key]['ready']
+                        logger.info(f"status.coreDependentAPIs.{key}.ready={ready}")
+                        logger.info(f"type={type(ready)}")
+                        if parent_component['status']['coreDependentAPIs'][key]['ready'] != True:   # avoid recursion
+                            logger.info("patching component!")
+                            parent_component['status']['coreDependentAPIs'][key]['ready'] = True
+                            parent_component['status']['coreDependentAPIs'][key]['url'] = depapi_url
+                            try:
+                                api_response = api_instance.patch_namespaced_custom_object(COMP_GROUP, COMP_VERSION, namespace, COMP_PLURAL, parent_component_name, parent_component)
+                            except ApiException as e:
+                                raise kopf.TemporaryError(f"setDependentAPIStatus: Exception in patch_namespaced_custom_object: {e.body}")
+                        return
