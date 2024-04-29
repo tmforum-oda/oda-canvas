@@ -924,7 +924,7 @@ async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, na
     :meta public:
     """
     ### TODO INFO->DEBUG
-    logWrapper(logging.INFO, 'updateDepedentAPIReady', 'updateDepedentAPIReady', 'depapi/' + name, "?", "Handler called with body", f"{body}")
+    logWrapper(logging.INFO, 'updateDepedentAPIReady', 'updateDepedentAPIReady', 'depapi/' + name, "?", f"Handler called with body: {body}")
     logWrapper(logging.INFO, 'updateDepedentAPIReady', 'updateDepedentAPIReady', 'depapi/' + name, "?", "Handler called")
 
     if 'ready' in status['implementation'].keys():
