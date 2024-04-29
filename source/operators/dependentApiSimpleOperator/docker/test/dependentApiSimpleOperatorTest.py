@@ -5,7 +5,11 @@ import kopf
 import asyncio
 
 sys.path.append("..")
-from dependentApiSimpleOperator import dependentApiCreate, dependentApiDelete, updateDepedentAPIReady
+from dependentApiSimpleOperator import (
+    dependentApiCreate,
+    dependentApiDelete,
+    updateDepedentAPIReady,
+)
 
 
 # Setup logging
@@ -53,10 +57,10 @@ def k8s_load_config(proxy=False):
         kubernetes.config.load_incluster_config()
         print("loaded incluster config")
     except kubernetes.config.ConfigException:
-        #try:
+        # try:
         #    kube_config_file = "~/.kube/config-vps5"
         #    kubernetes.config.load_kube_config(config_file=kube_config_file)
-        #except kubernetes.config.ConfigException:
+        # except kubernetes.config.ConfigException:
         try:
             kubernetes.config.load_kube_config()
             print("loaded default config")
@@ -290,7 +294,6 @@ def test_updateDepedentAPIReady():
             updateDepedentAPIReady(meta, spec, status, body, namespace, labels, name)
         )
         loop.close()
-
 
 
 if __name__ == "__main__":

@@ -65,6 +65,9 @@ rules:
 - apiGroups: [oda.tmforum.org]
   resources: [dependentapis]
   verbs: [list, watch, patch, get, create, update, delete]    
+- apiGroups: [oda.tmforum.org]
+  resources: [components]
+  verbs: [list, watch, patch, get, create, update, delete]    
 ```
 
 ### patch deployment oda-controller-ingress
