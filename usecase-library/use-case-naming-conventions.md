@@ -1,5 +1,5 @@
 # Use case naming conventions
-See also the ODA Component and Canvase working page
+See also the ODA Component and Canvas working page
 https://projects.tmforum.org/wiki/display/TAC/ODA+++Behaviour+Driven+Design%28BDD%29+Feature+Guidelines
 
 Here are key guidelines for naming use cases:
