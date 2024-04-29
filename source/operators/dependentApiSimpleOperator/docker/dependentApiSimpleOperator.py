@@ -156,7 +156,6 @@ async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, na
     Returns:
         No return value, nothing to write into the status.
     """
-    parent_component_name = safe_get("?", meta, 'ownerReferences',0, 'name')
     logger.info(f"updateDepedentAPIReady called for {namespace}:{name}")
     logger.debug(f"updateDepedentAPIReady called for {namespace}:{name} with body {body}")
     if 'ready' in status['implementation'].keys():
@@ -172,8 +171,8 @@ async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, na
                     # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
                     if e.status == HTTP_NOT_FOUND:
                         raise kopf.TemporaryError("Cannot find parent component " + parent_component_name)
-                    else:
-                        raise kopf.TemporaryError("Exception when calling api_instance.get_namespaced_custom_object %s", parent_component_name)
+                    logger.error(e)
+                    raise kopf.TemporaryError(f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}")
                 # find the correct array entry to update either in coreDependentAPIs, managementAPIs or securityAPIs
                 for key in range(len(parent_component['status']['coreDependentAPIs'])):
                     if parent_component['status']['coreDependentAPIs'][key]['uid'] == meta['uid']:
