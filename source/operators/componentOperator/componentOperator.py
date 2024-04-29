@@ -949,9 +949,7 @@ async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, na
                 # find the correct array entry to update either in coreDependentAPIs, managementAPIs or securityAPIs
                 for key in range(len(parent_component['status']['coreDependentAPIs'])):
                     if parent_component['status']['coreDependentAPIs'][key]['uid'] == meta['uid']:
-                        logger.info(parent_component['status']['coreDependentAPIs'][key]['ready'])
-                        logger.info(type(parent_component['status']['coreDependentAPIs'][key]['ready']))
-                        if parent_component['status']['coreDependentAPIs'][key]['ready'] != "true":   # avoid recursion
+                        if parent_component['status']['coreDependentAPIs'][key]['ready'] != True:   # avoid recursion
                             parent_component['status']['coreDependentAPIs'][key]['ready'] = True
                             parent_component['status']['coreDependentAPIs'][key]['url'] = depapi_url
                             logWrapper(logging.INFO, 'updateDependentAPIReady', 'updateDependentAPIReady', 'depapi/' + name, parent_component['metadata']['name'], "Updating component coreDependentAPIs status", status['implementation']['ready'])
