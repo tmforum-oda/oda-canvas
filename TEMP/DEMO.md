@@ -149,7 +149,8 @@ data:
 ## deploy DependentAPI Operator
 
 ```
-helm upgrade --install depapi-operator -n canvas source/operators/dependentApiSimpleOperator/helmcharts/dependentApiSimpleOperator
+# now dependency in canvas-oda
+#helm upgrade --install depapi-operator -n canvas source/operators/dependentApiSimpleOperator/helmcharts/dependentApiSimpleOperator
 ```
 
 
@@ -173,7 +174,7 @@ kubectl logs -n canvas deployment/oda-controller-ingress --tail 100 -f
 ```
 
 ```
-kubectl logs -n canvas deployment/depapi-operator --tail 100 -f
+kubectl logs -n canvas deployment/canvas-depapi-op --tail 100 -f
 ```
 
 ## set default to components
@@ -223,10 +224,11 @@ https://github.com/ODA-CANVAS-FORK/oda-canvas-dependent-apis/blob/master/complia
 ## increase loglevel to DEBUG (10)
 
 ```
-helm upgrade --install depapi-operator -n canvas source/operators/dependentApiSimpleOperator/helmcharts/dependentApiSimpleOperator --set=loglevel=10
+# now dependency in canvas-oda
+#helm upgrade --install depapi-operator -n canvas source/operators/dependentApiSimpleOperator/helmcharts/dependentApiSimpleOperator --set=loglevel=10
 ```
 
-depapi-operator logger quits. Restart it after a few seconds
+canvas-depapi-op logger quits. Restart it after a few seconds
 
 ## undeploy product catalog
 
@@ -237,7 +239,8 @@ helm uninstall -n components prodcat
 ## Logfiles of DependentAPI-Operator
 
 ```
-kubectl logs -n canvas deployment/depapi-operator
+kubectl logs -n canvas deployment/canvas-depapi-op
+
 [2024-04-24 20:40:46,725] DependentApiSimpleOp [INFO    ] Logging set to 10
 [2024-04-24 20:40:46,726] DependentApiSimpleOp [INFO    ] CICD_BUILD_TIME=2024-04-24T20:38:30Z
 [2024-04-24 20:40:46,726] DependentApiSimpleOp [INFO    ] GIT_COMMIT_SHA=84214722
@@ -267,7 +270,8 @@ https://gitlab.devops.telekom.de/magenta-canvas/github-sync/oda-canvas-dependent
 ## undeploy DependentAPI Operator
 
 ```
-helm uninstall -n canvas depapi-operator 
+# now dependency in canvas-oda
+#helm uninstall -n canvas depapi-operator 
 ```
 
 
