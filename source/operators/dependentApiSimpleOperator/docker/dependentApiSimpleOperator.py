@@ -37,7 +37,7 @@ if GIT_COMMIT_SHA:
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
     settings.peering.priority = 110
-    settings.peering.name = "dependentapi"
+    #settings.peering.name = "dependentapi"
     settings.watching.server_timeout = 1 * 60
 
 
