@@ -202,8 +202,10 @@ def createOrPatchDataDogAnnotation(patch, spec, namespace, name, inHandler, comp
         
         annotation = json.dumps(annotationDict)
         logWrapper(logging.INFO, 'createOrPatchDataDogAnnotation', inHandler, 'api/' + name, componentName, "createOrPatchDataDogAnnotation patching pod with annotation=", annotation)
-
-
+        
+        if not pod.metadata.annotations:
+            pod.metadata["annotations"] = {}
+            
         pod.metadata.annotations['ad.datadoghq.com/' + targetContainerName + '.checks'] = annotation
         # patch the pod
         core_api.patch_namespaced_pod(podName, namespace, pod)
