@@ -33,7 +33,12 @@ helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
 helm repo update
 
 helm upgrade --install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-depapi  --set=controller.configmap.loglevel=10 --set=controller.deployment.dataDog.enabled=false
+```
 
+directly from filesystem:
+
+```
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=controller.configmap.loglevel=10
 ```
 
 ### install crd for dependentapi

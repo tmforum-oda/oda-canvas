@@ -44,10 +44,10 @@ dependencies:
   - name: controller
     version: "1.0.0"
     repository: 'file://../controller'
-  - name: dependentApiSimpleOperator
+  - name: dependentapi-simple-operator
     version: "0.1.0"
-    repository: 'file://../dependentApiSimpleOperator'
-    condition: dependentApiSimpleOperator.enabled
+    repository: 'file://../dependentapi-simple-operator'
+    condition: dependentapi-simple-operator.enabled
   - name: oda-webhook
     version: "1.1.1"
     repository: 'file://../oda-webhook'

@@ -129,7 +129,7 @@ controller:
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
     
-dependentApiSimpleOperator:
+dependentapi-simple-operator:
   enabled: true
   image: mtr.devops.telekom.de/magenta_canvas/public:dependentapi-simple-operator-0.1.0
   imagePullPolicy: Always
