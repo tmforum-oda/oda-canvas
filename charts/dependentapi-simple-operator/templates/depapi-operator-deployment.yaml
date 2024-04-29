@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-depapi-op
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ .Release.Name }}-depapi-op
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ .Release.Name }}-depapi-op
     spec:
-      serviceAccountName: {{ .Release.Name }}-account
+      serviceAccountName: {{ .Release.Name }}-depapi-op-account
       containers:
-      - name: {{ .Release.Name }}
+      - name: {{ .Release.Name }}-depapi-op
         image: {{ .Values.image }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         env:

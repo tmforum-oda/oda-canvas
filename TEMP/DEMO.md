@@ -38,7 +38,7 @@ helm upgrade --install canvas oda-canvas/canvas-oda -n canvas --create-namespace
 directly from filesystem:
 
 ```
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=controller.configmap.loglevel=10
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=controller.configmap.loglevel=10 --set=controller.deployment.compconImagePullPolicy=Always
 ```
 
 ### install crd for dependentapi
