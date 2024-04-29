@@ -407,8 +407,8 @@ async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, *
 
     :meta public:
     """
+    ### TODO INFO->DEBUG
     logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called with body", f"{body}")
-
     logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called", "")
     dependentAPIChildren = []
     dapi_base_name = f"{name}-dapi"
@@ -923,6 +923,9 @@ async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, na
 
     :meta public:
     """
+    ### TODO INFO->DEBUG
+    logWrapper(logging.INFO, 'updateDepedentAPIReady', 'updateDepedentAPIReady', 'depapi/' + name, "?", "Handler called with body", f"{body}")
+    logWrapper(logging.INFO, 'updateDepedentAPIReady', 'updateDepedentAPIReady', 'depapi/' + name, "?", "Handler called")
 
     if 'ready' in status['implementation'].keys():
         if status['implementation']['ready'] == True:
@@ -949,7 +952,10 @@ async def updateDepedentAPIReady(meta, spec, status, body, namespace, labels, na
                 # find the correct array entry to update either in coreDependentAPIs, managementAPIs or securityAPIs
                 for key in range(len(parent_component['status']['coreDependentAPIs'])):
                     if parent_component['status']['coreDependentAPIs'][key]['uid'] == meta['uid']:
+                        logger.info(parent_component['status']['coreDependentAPIs'][key]['ready'])
+                        logger.info(type(parent_component['status']['coreDependentAPIs'][key]['ready']))
                         if parent_component['status']['coreDependentAPIs'][key]['ready'] != True:   # avoid recursion
+                            logger.info("patching component!")
                             parent_component['status']['coreDependentAPIs'][key]['ready'] = True
                             parent_component['status']['coreDependentAPIs'][key]['url'] = depapi_url
                             logWrapper(logging.INFO, 'updateDependentAPIReady', 'updateDependentAPIReady', 'depapi/' + name, parent_component['metadata']['name'], "Updating component coreDependentAPIs status", status['implementation']['ready'])
