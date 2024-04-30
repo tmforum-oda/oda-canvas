@@ -724,7 +724,7 @@ async def createDependentAPIResource(inDependentAPI, namespace, comp_name, cr_na
 
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
-        logWrapper(logging.INFO, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "Creating DependentAPI Custom Object", DependentAPIResource)
+        logWrapper(logging.INFO, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "Creating DependentAPI Custom Object", "")
 
         dependentAPIObj = custom_objects_api.create_namespaced_custom_object(
             group = GROUP,

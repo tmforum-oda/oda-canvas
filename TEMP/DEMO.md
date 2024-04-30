@@ -38,19 +38,21 @@ helm upgrade --install canvas oda-canvas/canvas-oda -n canvas --create-namespace
 directly from filesystem:
 
 ```
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=controller.configmap.loglevel=10 --set=controller.deployment.compconImagePullPolicy=Always
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=controller.configmap.loglevel=10 --set=controller.deployment.compconImagePullPolicy=Always --set=dependentapi-simple-operator.loglevel=10
 ```
 
 ### install crd for dependentapi
 
 ```
-kubectl apply -f charts/oda-crds/templates/oda-dependentapi-crd.yaml
+# now part of canvas-oda deployment
+#kubectl apply -f charts/oda-crds/templates/oda-dependentapi-crd.yaml
 ```
 
 ### patch ClusterRole odacomponent-role-cluster
 
 ```
-$ kubectl edit clusterrole odacomponent-role-cluster
+# now part of canvas-oda deployment
+# kubectl edit clusterrole odacomponent-role-cluster
 ```
 
 ```
@@ -73,7 +75,8 @@ rules:
 ### patch deployment oda-controller-ingress
 
 ```
-kubectl edit deployment -n canvas oda-controller-ingress
+# now part of canvas-oda deployment
+# kubectl edit deployment -n canvas oda-controller-ingress
 
 apiVersion: apps/v1
 kind: Deployment

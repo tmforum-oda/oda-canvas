@@ -201,15 +201,13 @@ async def updateDepedentAPIReady(
                         ready = parent_component["status"]["coreDependentAPIs"][key][
                             "ready"
                         ]
-                        logger.info(f"status.coreDependentAPIs.{key}.ready={ready}")
-                        logger.info(f"type={type(ready)}")
                         if (
                             parent_component["status"]["coreDependentAPIs"][key][
                                 "ready"
                             ]
                             != True
                         ):  # avoid recursion
-                            logger.info("patching component!")
+                            logger.info(f"patching coreDependentAPI {key} in component {parent_component_name}")
                             parent_component["status"]["coreDependentAPIs"][key][
                                 "ready"
                             ] = True
@@ -229,6 +227,6 @@ async def updateDepedentAPIReady(
                                 )
                             except ApiException as e:
                                 raise kopf.TemporaryError(
-                                    f"setDependentAPIStatus: Exception in patch_namespaced_custom_object: {e.body}"
+                                    f"updateDepedentAPIReady: Exception in patch_namespaced_custom_object: {e.body}"
                                 )
                         return
