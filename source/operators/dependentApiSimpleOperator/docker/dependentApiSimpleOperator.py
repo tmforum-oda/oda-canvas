@@ -207,7 +207,9 @@ async def updateDepedentAPIReady(
                             ]
                             != True
                         ):  # avoid recursion
-                            logger.info(f"patching coreDependentAPI {key} in component {parent_component_name}")
+                            logger.info(
+                                f"patching coreDependentAPI {key} in component {parent_component_name}"
+                            )
                             parent_component["status"]["coreDependentAPIs"][key][
                                 "ready"
                             ] = True
