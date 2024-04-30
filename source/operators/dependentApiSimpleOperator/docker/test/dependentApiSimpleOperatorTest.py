@@ -38,9 +38,9 @@ def safe_get(default_value, dictionary, *paths):
 def set_proxy():
     os.environ["HTTP_PROXY"] = "http://specialinternetaccess-lb.telekom.de:8080"
     os.environ["HTTPS_PROXY"] = "http://specialinternetaccess-lb.telekom.de:8080"
-    os.environ[
-        "NO_PROXY"
-    ] = "10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
+    os.environ["NO_PROXY"] = (
+        "10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
+    )
 
 
 def test_kubeconfig():
