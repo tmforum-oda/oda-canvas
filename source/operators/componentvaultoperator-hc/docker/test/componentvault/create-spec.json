@@ -1,0 +1,12 @@
+{
+	'name': 'demoomp-123',
+	'podSelector': {
+		'namespace': 'demoomp-123',
+		'serviceAccount': 'default'
+	},
+	'sideCar': {
+		'port': 5000,
+		'token': 'negotiate'
+	},
+	'type': 'sideCar'
+}

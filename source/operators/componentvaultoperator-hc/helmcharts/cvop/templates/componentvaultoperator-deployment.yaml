@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-account
+      containers:
+      - name: {{ .Release.Name }}
+        image: mtr.devops.telekom.de/magenta_canvas/public:componentvault-controller-0.1.0-rc
+        imagePullPolicy: Always
+        #command: ["/bin/sh", "-c", "sleep 36000"]
+        env:
+        - name: VAULT_ADDR
+          value: "{{ .Values.vault_addr }}"
+        - name: AUTH_PATH
+          value: "{{ .Values.auth_path }}"
+        - name: LOGIN_ROLE_TPL
+          value: "{{ .Values.login_role_tpl }}"
+        - name: POLICY_NAME_TPL
+          value: "{{ .Values.policy_name_tpl }}"
+        - name: SECRETS_MOUNT_TPL
+          value: "{{ .Values.secrets_mount_tpl }}"
+        - name: SECRETS_BASE_PATH_TPL
+          value: "{{ .Values.secrets_base_path_tpl }}"
+        - name: AUDIENCE
+          value: "{{ .Values.audience }}"
+          
+        - name: WEBHOOK_SERVICE_NAME
+          value: "{{ .Release.Name }}-svc"
+        - name: WEBHOOK_SERVICE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: WEBHOOK_SERVICE_PORT
+          value: "443"
+        ports:
+        - containerPort: 9443

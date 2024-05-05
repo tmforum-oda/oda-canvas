@@ -37,3 +37,17 @@ helm upgrade --install prodcat -n components feature-definition-and-test-kit/tes
 helm uninstall prodcat -n components 
 ```
 
+# ComponentVault Operator
+
+## deploy ComponentVault Operator
+
+```
+helm upgrade --install componentvault-operator -n canvas --create-namespace source/operators/componentvaultoperator-hc/helmcharts/cvop
+```
+
+
+## undeploy ComponentVault Operator
+
+```
+helm uninstall -n canvas componentvault-operator
+```
