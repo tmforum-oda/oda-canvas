@@ -19,8 +19,20 @@ from kubernetes.client.models.v1_deployment import V1Deployment
 
 # https://kopf.readthedocs.io/en/stable/install/
 
-logger = logging.getLogger()
-logger.setLevel(int(os.getenv('LOGGING', 10)))
+# Setup logging
+logging_level = os.environ.get('LOGGING', logging.INFO)
+kopf_logger = logging.getLogger()
+kopf_logger.setLevel(logging.WARNING)
+logger = logging.getLogger('ComponentOperator')
+logger.setLevel(int(logging_level))
+logger.info(f'Logging set to %s', logging_level)
+
+CICD_BUILD_TIME = os.getenv('CICD_BUILD_TIME')
+GIT_COMMIT_SHA = os.getenv('GIT_COMMIT_SHA')
+if CICD_BUILD_TIME:
+    logger.info(f'CICD_BUILD_TIME=%s', CICD_BUILD_TIME)
+if GIT_COMMIT_SHA:
+    logger.info(f'GIT_COMMIT_SHA=%s', GIT_COMMIT_SHA)
 
 #vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.feri.ai')
 vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')

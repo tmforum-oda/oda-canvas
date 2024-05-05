@@ -28,7 +28,7 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 ## deploy PRODCAT
 
 ```
-helm upgrade --install prodcat -n components feature-definition-and-test-kit/testData/productcatalog-v1beta3-compvault
+helm upgrade --install prodcat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1beta3-compvault
 ```
 
 ## undeploy PRODCAT

@@ -1,6 +1,6 @@
 vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
 
-auth_path: "jwt-k8s-pv"
+auth_path: "jwt-k8s-cv"
 
 policy_name_tpl: "cv-{0}-policy"
 login_role_tpl: "cv-{0}-role"
