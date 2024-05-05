@@ -21,6 +21,9 @@ spec:
         imagePullPolicy: Always
         #command: ["/bin/sh", "-c", "sleep 36000"]
         env:
+        - name: LOGGING
+          value: "{{ .Values.logLevel }}"
+
         - name: VAULT_ADDR
           value: "{{ .Values.vault_addr }}"
         - name: AUTH_PATH

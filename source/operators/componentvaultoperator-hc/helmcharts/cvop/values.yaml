@@ -11,3 +11,5 @@ secrets_base_path_tpl: "sidecar"
 #   kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer'
 audience: "https://kubernetes.default.svc.cluster.local"
 #audience: "https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt"
+
+logLevel: 20

@@ -42,7 +42,7 @@ helm uninstall prodcat -n components
 ## deploy ComponentVault Operator
 
 ```
-helm upgrade --install componentvault-operator -n canvas --create-namespace source/operators/componentvaultoperator-hc/helmcharts/cvop
+helm upgrade --install componentvault-operator -n canvas --create-namespace --set=logLevel=10 source/operators/componentvaultoperator-hc/helmcharts/cvop
 ```
 
 
