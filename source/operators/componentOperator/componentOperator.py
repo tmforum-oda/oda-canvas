@@ -714,9 +714,9 @@ async def createComponentVaultResource(inComponentVault, namespace, name, inHand
 
         componentVaultObj = custom_objects_api.create_namespaced_custom_object(
             group = GROUP,
-            version = COMPONENTVAULTS_VERSION,
+            version = COMPONENTVAULT_VERSION,
             namespace = namespace,
-            plural = COMPONENTVAULTS_PLURAL,
+            plural = COMPONENTVAULT_PLURAL,
             body = ComponentVaultResource)
 
         logWrapper(logging.DEBUG, 'createComponentVaultResource', inHandler, 'component/' + name, name, "ComponentVault Resource created", componentVaultObj)
