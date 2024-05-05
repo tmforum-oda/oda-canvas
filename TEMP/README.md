@@ -23,10 +23,17 @@ cd ../..
 helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=controller.configmap.loglevel=10 --set=controller.deployment.imagePullPolicy=Always
 ```
 
-# deploy product catalog with component vault
+# product catalog with component vault
 
+## deploy PRODCAT
 
 ```
 helm upgrade --install prodcat -n components feature-definition-and-test-kit/testData/productcatalog-v1beta3-compvault
+```
+
+## undeploy PRODCAT
+
+```
+helm uninstall prodcat -n components 
 ```
 
