@@ -566,8 +566,8 @@ def constructComponentVaultResourcePayload(inComponentVault):
     :meta private:
     """
     ComponentVaultResource = {
-        "apiVersion": GROUP + "/" + CV_VERSION,
-        "kind": COMPONENTVAULTS_SINGULAR,
+        "apiVersion": GROUP + "/" + COMPONENTVAULT_VERSION,
+        "kind": COMPONENTVAULT_KIND,
         "metadata": {},
         "spec": {}
     }
@@ -714,7 +714,7 @@ async def createComponentVaultResource(inComponentVault, namespace, name, inHand
 
         componentVaultObj = custom_objects_api.create_namespaced_custom_object(
             group = GROUP,
-            version = CV_VERSION,
+            version = COMPONENTVAULTS_VERSION,
             namespace = namespace,
             plural = COMPONENTVAULTS_PLURAL,
             body = ComponentVaultResource)

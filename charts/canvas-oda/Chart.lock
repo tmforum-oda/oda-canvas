@@ -16,6 +16,6 @@ dependencies:
   version: 1.0.0
 - name: oda-webhook
   repository: file://../oda-webhook
-  version: 1.0.0
-digest: sha256:661ef665d7e8e5f89b9a829aaffea28a89f37f177f45d2acffbc788bb6872cf6
-generated: "2024-02-28T15:38:22.6078126Z"
+  version: 1.1.1
+digest: sha256:32f88a0ea80a6354c11c1cd0351984b24c45ff568e9fba499ffa4d8b28bfaec1
+generated: "2024-05-05T13:28:03.7716432+02:00"
