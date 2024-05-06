@@ -401,9 +401,9 @@ def encrypt(plain_text):
     return Fernet(base64.b64encode((auth_path*32)[:32].encode('ascii')).decode('ascii')).encrypt(plain_text.encode('ascii')).decode('ascii')
 
 
-def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_service_account:str):
+def setupComponentVault(cv_namespace:str, cv_name:str, pod_name:str, pod_namespace:str, pod_service_account:str):
     try:
-        logger.info(f"SETUP COMPONENTVAULT cv_name={cv_name}, pod={pod_name}, ns={pod_namespace}, sa={pod_service_account}")
+        logger.info(f"SETUP COMPONENTVAULT cv_namespace={cv_namespace}, cv_name={cv_name}, pod={pod_name}, ns={pod_namespace}, sa={pod_service_account}")
         
         policy_name = policy_name_tpl.format(cv_name)
         login_role = login_role_tpl.format(cv_name)
@@ -474,7 +474,7 @@ def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_servic
 
         )
         
-        setComponentVaultReady(namespace, name)
+        setComponentVaultReady(cv_namespace, name)
     except:
         logger.exception(f"ERRPR setup vault {cv_name} failed!")
         raise kopf.TemporaryError(e)
@@ -572,14 +572,15 @@ def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kw
     logger.debug(f"componentvault  called with labels: {labels}")
 
     # do not use safe_get for mandatory fields
+    cv_namespace = namespace
     cv_name = name   # spec['name']
     pod_name = safe_get(None, spec, 'podSelector', 'name')
     pod_namespace = safe_get(None, spec, 'podSelector', 'namespace')
     pod_service_account = safe_get(None, spec, 'podSelector', 'serviceaccount')
     
-    setupComponentVault(cv_name, pod_name, pod_namespace, pod_service_account)
+    setupComponentVault(cv_namespace, cv_name, pod_name, pod_namespace, pod_service_account)
     
-    restart_pods_with_missing_sidecar(namespace, pod_name, pod_namespace, pod_service_account)
+    restart_pods_with_missing_sidecar(cv_namespace, pod_name, pod_namespace, pod_service_account)
     
  
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
