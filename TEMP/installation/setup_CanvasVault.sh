@@ -45,7 +45,7 @@ else
 fi
 
 # see also: https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/kubernetes#using-service-account-issuer-discovery
-CRB=`kubectl get clusterrolebinding oidc-reviewer | grep "service-account-issuer-discovery" || true`
+CRB=`kubectl get clusterrolebinding oidc-reviewer 2>/dev/null | grep "service-account-issuer-discovery" || true`
 if [ "$CRB" == "" ]; then
     echo -e "\t${Y}create cluster role binding${NC}"
     kubectl create clusterrolebinding oidc-reviewer  --clusterrole=system:service-account-issuer-discovery --group=system:unauthenticated
