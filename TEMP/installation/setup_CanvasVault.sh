@@ -10,7 +10,7 @@ if [ ! $1 ] || ([ "$1" != "AWS" ] && [ "$1" != "GCP" ]) ; then
     exit 1
 fi
 
-SRCDIR=../source/component-vault/
+SRCDIR=.
 BASEDIR=`pwd`
 
 if [ ! -d $SRCDIR ]; then
@@ -24,10 +24,10 @@ echo -e "${Y}Deploy and configure HashiCorp Vault (in DEV mode)${NC}"
 echo -e "${Y}Installing HashiCorp Vault in DEV mode${NC}"
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo update
-helm upgrade --install canvas-vault-hc hashicorp/vault --version 0.24.0 --namespace canvas-vault --create-namespace --values installation/canvas-vault-hc/values.yaml
+helm upgrade --install canvas-vault-hc hashicorp/vault --version 0.24.0 --namespace canvas-vault --create-namespace --values canvas-vault-hc/values.yaml
 
 echo -e "${Y}Creating public route to canvas vault${NC}"
-kubectl apply -f installation/canvas-vault-hc/canvas-vault-hc-vs.yaml
+kubectl apply -f canvas-vault-hc/canvas-vault-hc-vs.yaml
 
 
 echo -e "${Y}Configuring HashiCorp Vault to accept K8S Service Account Issuer${NC}"
