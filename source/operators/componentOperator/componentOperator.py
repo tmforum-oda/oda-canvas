@@ -1039,7 +1039,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Handler called", "")
 
     coreAPIsummary = ''
-    coreComponentVaultsummary = ''
+    securityComponentVaultSummary = ''
     managementAPIsummary = ''
     securityAPIsummary = ''
     developerUIsummary = ''
@@ -1058,11 +1058,11 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
                 if 'ready' in api.keys():
                     if api['ready'] == True:
                         countOfCompleteAPIs = countOfCompleteAPIs + 1
-    if 'coreComponentVaults' in status.keys():
-        countOfDesiredComponentVaults = countOfDesiredComponentVaults + len(status['coreComponentVaults'])
-        for compvault in status['coreComponentVaults']:
+    if 'securityComponentVault' in status.keys():
+        countOfDesiredComponentVaults = countOfDesiredComponentVaults + len(status['securityComponentVault'])
+        for compvault in status['securityComponentVault']:
             if 'url' in compvault.keys():
-                coreComponentVaultsummary = coreComponentVaultsummary + compvault['url'] + ' '
+                securityComponentVaultSummary = securityComponentVaultSummary + compvault['url'] + ' '
                 if 'ready' in compvault.keys():
                     if compvault['ready'] == True:
                         countOfCompleteComponentVaults = countOfCompleteComponentVaults + 1
@@ -1091,7 +1091,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     status_summary = {}
     status_summary['coreAPIsummary'] = coreAPIsummary
-    status_summary['coreComponentVaultsummary'] = coreComponentVaultsummary
+    status_summary['securityComponentVaultSummary'] = securityComponentVaultSummary
     status_summary['managementAPIsummary'] = managementAPIsummary
     status_summary['securityAPIsummary'] = securityAPIsummary
     status_summary['developerUIsummary'] = developerUIsummary
