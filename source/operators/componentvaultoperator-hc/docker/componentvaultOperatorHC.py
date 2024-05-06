@@ -474,9 +474,9 @@ def setupComponentVault(cv_namespace:str, cv_name:str, pod_name:str, pod_namespa
 
         )
         
-        setComponentVaultReady(cv_namespace, name)
-    except:
-        logger.exception(f"ERRPR setup vault {cv_name} failed!")
+        setComponentVaultReady(cv_namespace, cv_name)
+    except Exception as e:
+        logger.exception(f"ERRPR setup vault {cv_namespace}:{cv_name} failed!")
         raise kopf.TemporaryError(e)
     
 
