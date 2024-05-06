@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -xev
+
 cd $(dirname -- $0)
 
 GIT_COMMIT_SHA=$(git rev-parse --short HEAD)
