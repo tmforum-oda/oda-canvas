@@ -71,9 +71,17 @@ helm upgrade --install canvas-vault-hc --namespace canvas-vault --create-namespa
 
 kubectl apply -n canvas-vault -f TEMP/canvas-vault/canvas-vault-hc-vs.yaml
 
+kubectl create clusterrolebinding oidc-reviewer  --clusterrole=system:service-account-issuer-discovery --group=system:unauthenticated
+
+echo "wait 15 seconds for Vault to startup"
+sleep 15
+
 kubectl exec -n canvas-vault canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-cv jwt
 # see: https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/kubernetes#using-service-account-issuer-discovery
-kubectl create clusterrolebinding oidc-reviewer  --clusterrole=system:service-account-issuer-discovery --group=system:unauthenticated
+
+ISSUER="$(kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer')"
+echo "ISSUER=$ISSUER"
+kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=$ISSUER oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 ```
 
 
@@ -86,14 +94,18 @@ helm upgrade --install canvas-vault-hc --namespace canvas-vault --create-namespa
 
 kubectl apply -n canvas-vault -f TEMP/canvas-vault/canvas-vault-hc-vs-VPS2.yaml
 
+kubectl create clusterrolebinding oidc-reviewer  --clusterrole=system:service-account-issuer-discovery --group=system:unauthenticated
+
 kubectl exec -n canvas-vault canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-cv jwt
 set ISSUER=https://kubernetes.default.svc.cluster.local
 kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=%ISSUER% oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 ```
+
 ## uninstall Vault
 
 ```
 helm uninstall -n canvas-vault canvas-vault-hc
 kubectl delete -n canvas-vault -f TEMP/canvas-vault/canvas-vault-hc-vs.yaml
+kubectl delete clusterrolebinding oidc-reviewer  
 kubectl delete ns canvas-vault
 ```
