@@ -409,41 +409,43 @@ async def securityComponentVault(meta, spec, status, body, namespace, labels, na
     logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Handler called with body", f"{body}")
 
     logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Handler called", "")
-    componentVaultChildren = []
+    componentVaultStatus = {}
     cv_name = f"cv_{name}"
 
     try:
-        oldSecurityComponentVault = []
+        oldSecurityComponentVault = {}
         if status:  # if status exists (i.e. this is not a new component)
-            oldSecurityComponentVault = safe_get([], status, 'securityComponentVault')
+            oldSecurityComponentVault = safe_get({}, status, 'securityComponentVault')
         logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- OLD COMPONENTVAULT (from status) ---", f"{oldSecurityComponentVault}, type={type(oldSecurityComponentVault)}")
             
         newSecurityComponentVault = safe_get({}, spec, 'securityFunction', 'componentVault')
         logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "--- NEW COMPONENTVAULT ---", f"{newSecurityComponentVault}")
         
-        if oldSecurityComponentVault != [] and newSecurityComponentVault == {}:
+        if oldSecurityComponentVault != {} and newSecurityComponentVault == {}:
             logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Deleting ComponentVault", cv_name)
             await deleteComponentVault(cv_name, name, status, namespace, 'securityComponentVault')
 
-        if oldSecurityComponentVault == [] and newSecurityComponentVault != {}:
+        if oldSecurityComponentVault == {} and newSecurityComponentVault != {}:
             logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Calling createComponentVault", cv_name)
             resultStatus = await createComponentVaultResource(newSecurityComponentVault, namespace, name, 'securityComponentVault')
-            componentVaultChildren.append(resultStatus)                
+            componentVaultStatus = resultStatus
 
-        if oldSecurityComponentVault != [] and newSecurityComponentVault != {}:
+        if oldSecurityComponentVault != {} and newSecurityComponentVault != {}:
             # TODO[FH] implement check for update
-            componentVaultChildren.append(oldSecurityComponentVault)  
+            componentVaultStatus = newSecurityComponentVault  
 
             
     except kopf.TemporaryError as e:
-        raise kopf.TemporaryError(e) # allow the operator to retry            
+        raise e # propagate
     except Exception as e:
         logWrapper(logging.ERROR, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+        raise kopf.TemporaryError(e) # allow the operator to retry            
 
-    logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "result for status ", f"{componentVaultChildren}")
+    logWrapper(logging.INFO, 'securityComponentVault', 'securityComponentVault', 'component/' + name, name, "result for status ", f"{componentVaultStatus}")
         
     # Update the parent's status.
-    return componentVaultChildren
+    return componentVaultStatus
+
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)

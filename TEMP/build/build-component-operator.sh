@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -xev
+
 cd $(dirname -- $0)
 
 GIT_COMMIT_SHA=$(git rev-parse --short HEAD)
@@ -12,4 +14,4 @@ sudo docker build -t mtr.devops.telekom.de/magenta_canvas/public:component-istio
 	-f component-IstioController-dockerfile .
 sudo docker push mtr.devops.telekom.de/magenta_canvas/public:component-istiocontroller-0.4.0-compvault
 
-kubectl rollout restart deployment -n canvas oda-controller-ingress
+kubectl rollout restart deployment -n canvas oda-controller-ingress || true
