@@ -9,7 +9,7 @@ spec:
   gateways:
   - istio-ingress/k8s-gateway
   hosts:
-  - 'canvas-vault-hc.ihc-dt.cluster-3.de'
+  - 'canvas-vault-hc.k8s.cluster-1.de'
   http:
   - match:
     - uri:
