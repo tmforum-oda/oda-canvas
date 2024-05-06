@@ -12,7 +12,7 @@ import base64
 import kubernetes
 from kubernetes.client.rest import ApiException
 from typing import AsyncIterator
-from setuptools.command.setopt import config_file
+#from setuptools.command.setopt import config_file
 from kubernetes.client.models.v1_replica_set import V1ReplicaSet
 from kubernetes.client.models.v1_deployment import V1Deployment
 
@@ -23,9 +23,10 @@ from kubernetes.client.models.v1_deployment import V1Deployment
 logging_level = os.environ.get('LOGGING', logging.INFO)
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.WARNING)
-logger = logging.getLogger('ComponentOperator')
+logger = logging.getLogger('ComponentvaultOperator')
 logger.setLevel(int(logging_level))
 logger.info(f'Logging set to %s', logging_level)
+logger.debug(f'debug logging active')
 
 CICD_BUILD_TIME = os.getenv('CICD_BUILD_TIME')
 GIT_COMMIT_SHA = os.getenv('GIT_COMMIT_SHA')
@@ -141,12 +142,12 @@ def get_comp_name(body):
 
 def inject_sidecar(body, patch):
     
-    logging.debug(f"loading k8s config")
+    logger.debug(f"loading k8s config")
     k8s_load_config()
 
     cv_name = get_comp_name(body)
     if not cv_name:
-        logging.info(f"Component name in label {componentname_label} not set, doing nothing")
+        logger.info(f"Component name in label {componentname_label} not set, doing nothing")
         return
 
     pod_name = safe_get(None, body, "metadata", "name")
@@ -154,15 +155,15 @@ def inject_sidecar(body, patch):
         pod_name = safe_get(None, body, "metadata", "generateName")
     pod_namespace = body["metadata"]["namespace"]
     pod_serviceAccountName = safe_get("default", body, "spec", "serviceAccountName")
-    logging.info(f"POD serviceaccount:{pod_namespace}:{pod_name}:{pod_serviceAccountName}")
+    logger.info(f"POD serviceaccount:{pod_namespace}:{pod_name}:{pod_serviceAccountName}")
 
     
     # HIERWEITER deployment = find_deployment(pod_namespace, pod_name, pod-template-hash)
     
     cv_cr_name = f"{cv_name}"
-    logging.debug(f"getting componentvault cr {cv_cr_name} from namespace {pod_namespace} k8s")
+    logger.debug(f"getting componentvault cr {cv_cr_name} from namespace {pod_namespace} k8s")
     cv_spec = get_cv_spec(cv_cr_name, pod_namespace)
-    logging.debug(f"componentvault spec: {cv_spec}")
+    logger.debug(f"componentvault spec: {cv_spec}")
     if not cv_spec:
         raise kopf.AdmissionError(f"componentvault {cv_cr_name} has no spec.", code=400)
     
@@ -302,23 +303,23 @@ def inject_sidecar(body, patch):
     vols = safe_get([], body, "spec", "volumes")
 
     if entryExists(containers, "name", "cvsidecar"):
-        logging.info("cvsidecar container already exists, doing nothing")
+        logger.info("cvsidecar container already exists, doing nothing")
         return
 
     containers.append(container_cvsidecar)
     patch.spec["containers"] = containers
-    logging.debug(f"injecting cvsidecar container")
+    logger.debug(f"injecting cvsidecar container")
     
 
     if not entryExists(vols, "name", "cvsidecar-tmp"):
         vols.append(volume_cvsidecar_tmp)
         patch.spec['volumes'] = vols
-        logging.debug(f"injecting cvsidecar-tmp volume")
+        logger.debug(f"injecting cvsidecar-tmp volume")
 
     if not entryExists(vols, "name", "cvsidecar-kube-api-access"):
         vols.append(volume_cvsidecar_kube_api_access)
         patch.spec['volumes'] = vols
-        logging.debug(f"injecting cvsidecar-kube-api-access volume")
+        logger.debug(f"injecting cvsidecar-kube-api-access volume")
 
 
 
@@ -347,12 +348,12 @@ def label_deployment_pods(body, patch):
 @kopf.on.mutate('pods', labels={"oda.tmforum.org/componentvault": "sidecar"}, operation='CREATE', ignore_failures=True)
 def podmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
     try:
-        logging.info(f"POD mutate called with body: {type(body)} -  {body}")
+        logger.info(f"POD mutate called with body: {type(body)} -  {body}")
         inject_sidecar(body, patch)
-        logging.info(f"POD mutate returns patch: {type(patch)} -  {patch}")
+        logger.info(f"POD mutate returns patch: {type(patch)} -  {patch}")
     
     except:
-        logging.exception(f"ERRPR podmutate failed!")
+        logger.exception(f"ERRPR podmutate failed!")
         warnings.append("internal error, patch not applied")
         patch.clear()
     
@@ -360,12 +361,12 @@ def podmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], 
 @kopf.on.mutate('deployments', labels={"oda.tmforum.org/componentvault": "sidecar"}, operation='CREATE', ignore_failures=True)
 def deploymentmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
     try:
-        logging.info(f"DEPLOYMENT mutate called with body: {type(body)} -  {body}")
+        logger.info(f"DEPLOYMENT mutate called with body: {type(body)} -  {body}")
         label_deployment_pods(body, patch)
-        logging.info(f"DEPLOYMENT mutate returns patch: {type(patch)} -  {patch}")
+        logger.info(f"DEPLOYMENT mutate returns patch: {type(patch)} -  {patch}")
     
     except:
-        logging.exception(f"ERRPR deploymentmutate failed!")
+        logger.exception(f"ERRPR deploymentmutate failed!")
         warnings.append("internal error, patch not applied")
         patch.clear()
     
@@ -382,20 +383,20 @@ def encrypt(plain_text):
 
 def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_service_account:str):
     try:
-        logging.info(f"SETUP COMPONENTVAULT cv_name={cv_name}, pod={pod_name}, ns={pod_namespace}, sa={pod_service_account}")
+        logger.info(f"SETUP COMPONENTVAULT cv_name={cv_name}, pod={pod_name}, ns={pod_namespace}, sa={pod_service_account}")
         
         policy_name = policy_name_tpl.format(cv_name)
         login_role = login_role_tpl.format(cv_name)
         secrets_mount = secrets_mount_tpl.format(cv_name)
         secrets_base_path = secrets_base_path_tpl.format(cv_name)
 
-        logging.info(f"policy_name: {policy_name}")
-        logging.info(f"login_role: {login_role}")
-        logging.info(f"secrets_mount: {secrets_mount}")
-        logging.info(f"secrets_base_path: {secrets_base_path}")
+        logger.info(f"policy_name: {policy_name}")
+        logger.info(f"login_role: {login_role}")
+        logger.info(f"secrets_mount: {secrets_mount}")
+        logger.info(f"secrets_base_path: {secrets_base_path}")
 
         
-        token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
+        token = decrypt("gAAAAABmOIdWCC1fkWaHnThsR45vWw3H-4cCq925h8Jdund9lbtsGLXHs8NjcKQHwdx5Cpoq270S-cDaIEFl9vP7SNXnuoLHEA==")
         # Authentication
         client = hvac.Client(
             url=vault_addr,
@@ -405,13 +406,13 @@ def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_servic
         ### enable KV v2 engine 
         # https://hvac.readthedocs.io/en/stable/source/hvac_api_system_backend.html?highlight=mount#hvac.api.system_backend.Mount.enable_secrets_engine
         #
-        logging.info(f"enabling KV v2 engine at {secrets_mount}")
+        logger.info(f"enabling KV v2 engine at {secrets_mount}")
         client.sys.enable_secrets_engine("kv", secrets_mount, options={"version":"2"})
         
         ### create policy
         # https://hvac.readthedocs.io/en/stable/usage/system_backend/policy.html#create-or-update-policy
         #
-        logging.info(f'create policy {policy_name}')
+        logger.info(f'create policy {policy_name}')
         policy = f'''
         path "{secrets_mount}/data/{secrets_base_path}/*" {{
           capabilities = ["create", "read", "update", "delete", "patch"]   # do not support "list" for security reasons   
@@ -425,7 +426,7 @@ def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_servic
         ### create role
         # https://hvac.readthedocs.io/en/stable/usage/auth_methods/jwt-oidc.html#create-role
         #
-        logging.info(f'create role {login_role}')
+        logger.info(f'create role {login_role}')
         allowed_redirect_uris = [f'{vault_addr}/jwt-test/callback'] # ?
 
         
@@ -453,41 +454,47 @@ def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_servic
 
         )
     except:
-        logging.exception(f"ERRPR setup vault {cv_name} failed!")
+        logger.exception(f"ERRPR setup vault {cv_name} failed!")
     
 
 def deleteComponentVault(cv_name:str):
     try:
-        logging.info(f"DELETE COMPONENTVAULT cv_name={cv_name}")
+        logger.info(f"DELETE COMPONENTVAULT cv_name={cv_name}")
         
         login_role = login_role_tpl.format(cv_name)
         policy_name = policy_name_tpl.format(cv_name)
         secrets_mount = secrets_mount_tpl.format(cv_name)
         
-        logging.info(f"policy_name: {policy_name}")
-        logging.info(f"login_role: {login_role}")
-        logging.info(f"secrets_mount: {secrets_mount}")
+        logger.info(f"policy_name: {policy_name}")
+        logger.info(f"login_role: {login_role}")
+        logger.info(f"secrets_mount: {secrets_mount}")
         
-        token = decrypt("gAAAAABkh0MEK0_rdLWahgD8PGgo6d5xgPlnHnMmTbvN4s1BdKyO0xOFFxagsN4nQCmGKNuoAlopr4GHfvuM3E6jNt5N-YLODQ==")
+        token = decrypt("gAAAAABmOIdWCC1fkWaHnThsR45vWw3H-4cCq925h8Jdund9lbtsGLXHs8NjcKQHwdx5Cpoq270S-cDaIEFl9vP7SNXnuoLHEA==")
         # Authentication
         client = hvac.Client(
             url=vault_addr,
             token=token,
         )
-    except:
-        logging.exception(f"ERRPR delete vault {cv_name} failed!")
+    except Exception as e:
+        logger.exception(f"ERRPR delete vault {cv_name} failed!")
+        raise kopf.TemporaryError(e) # allow the operator to retry
         
     
     ### disable KV secrets engine
     # https://hvac.readthedocs.io/en/stable/usage/system_backend/mount.html?highlight=mount#disable-secrets-engine
     #
-    logging.info(f"disabling KV engine {secrets_mount}")
-    client.sys.disable_secrets_engine(secrets_mount)
+    logger.info(f"disabling KV engine {secrets_mount}")
+    try:
+        client.sys.disable_secrets_engine(secrets_mount)
+    except Exception as e:
+        logger.exception(f"ERRPR disable secrets {secrets_mount} failed!")
+        raise kopf.TemporaryError(e) # allow the operator to retry
+        
     
     ### delete role
     # https://hvac.readthedocs.io/en/stable/usage/auth_methods/jwt-oidc.html#delete-role
     #
-    logging.info(f'delete role {login_role}')
+    logger.info(f'delete role {login_role}')
     client.auth.jwt.delete_role(
         name=login_role,
         path = auth_path,
@@ -496,7 +503,7 @@ def deleteComponentVault(cv_name:str):
     ### delete policy
     # https://hvac.readthedocs.io/en/stable/usage/system_backend/policy.html#delete-policy
     #
-    logging.info(f'delete policy {policy_name}')
+    logger.info(f'delete policy {policy_name}')
     client.sys.delete_policy(name=policy_name)
    
 
@@ -504,7 +511,7 @@ def deleteComponentVault(cv_name:str):
 
 def restart_pods_with_missing_sidecar(namespace, podsel_name, podsel_namespace, podsel_serviceaccount):
     label_selector = "oda.tmforum.org/componentvault=sidecar"
-    logging.info(f'searching for PODs to restart in namespace {namespace} with label {label_selector}')
+    logger.info(f'searching for PODs to restart in namespace {namespace} with label {label_selector}')
     v1 = kubernetes.client.CoreV1Api()
     pod_list = v1.list_namespaced_pod(namespace, label_selector=label_selector)
     for pod in pod_list.items:
@@ -513,20 +520,20 @@ def restart_pods_with_missing_sidecar(namespace, podsel_name, podsel_namespace, 
         pod_serviceAccountName = pod.spec.service_account_name
         matches = True
         if podsel_name and not fnmatch.fnmatch(pod_name, podsel_name):
-            logging.debug(f'name {pod_name} does not match {podsel_name}')
+            logger.debug(f'name {pod_name} does not match {podsel_name}')
             matches = False      
         if podsel_namespace and not fnmatch.fnmatch(pod_namespace, podsel_namespace):
-            logging.debug(f'namespace {pod_namespace} does not match {podsel_namespace}')
+            logger.debug(f'namespace {pod_namespace} does not match {podsel_namespace}')
             matches = False      
         if podsel_serviceaccount and not fnmatch.fnmatch(pod_serviceAccountName, podsel_serviceaccount):
-            logging.debug(f'serviceaccount {pod_serviceAccountName} does not match {podsel_serviceaccount}')
+            logger.debug(f'serviceaccount {pod_serviceAccountName} does not match {podsel_serviceaccount}')
             matches = False      
         
         has_sidecar = has_container(pod, "cvsidecar")
         
-        logging.info(f'INFO FOR POD {pod_namespace}:{pod_name}:{pod_serviceAccountName}, matches: {matches}, has sidecar: {has_sidecar}')
+        logger.info(f'INFO FOR POD {pod_namespace}:{pod_name}:{pod_serviceAccountName}, matches: {matches}, has sidecar: {has_sidecar}')
         if matches and not has_sidecar:
-            logging.info(f'RESTARTING POD {pod_namespace}:{pod_name}')
+            logger.info(f'RESTARTING POD {pod_namespace}:{pod_name}')
             body = kubernetes.client.V1DeleteOptions()
             v1.delete_namespaced_pod(pod_name, pod_namespace, body=body) 
 
@@ -536,10 +543,10 @@ def restart_pods_with_missing_sidecar(namespace, podsel_name, podsel_namespace, 
 @kopf.on.update('oda.tmforum.org', 'v1beta3', 'componentvaults')
 def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
 
-    logging.info(f"Create/Update  called with body: {body}")
-    logging.debug(f"componentvault  called with namespace: {namespace}")
-    logging.debug(f"componentvault  called with name: {name}")
-    logging.debug(f"componentvault  called with labels: {labels}")
+    logger.info(f"Create/Update  called with body: {body}")
+    logger.debug(f"componentvault  called with namespace: {namespace}")
+    logger.debug(f"componentvault  called with name: {name}")
+    logger.debug(f"componentvault  called with labels: {labels}")
 
     # do not use safe_get for mandatory fields
     cv_name = name   # spec['name']
@@ -556,10 +563,10 @@ def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kw
 @kopf.on.delete('oda.tmforum.org', 'v1beta3', 'componentvaults', retries=5)
 def componentvaultDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
 
-    logging.info(f"Create/Update  called with body: {body}")
-    logging.info(f"Create/Update  called with namespace: {namespace}")
-    logging.info(f"Create/Update  called with name: {name}")
-    logging.info(f"Create/Update  called with labels: {labels}")
+    logger.info(f"Create/Update  called with body: {body}")
+    logger.info(f"Create/Update  called with namespace: {namespace}")
+    logger.info(f"Create/Update  called with name: {name}")
+    logger.info(f"Create/Update  called with labels: {labels}")
     
     cv_name = name    # spec['name']
 
@@ -736,7 +743,7 @@ def test_restart_pods():
 
 
 if __name__ == '__main__':
-    logging.info(f"main called")
+    logger.info(f"main called")
     #set_proxy()
     #k8s_load_config()
     k8s_load_default_config_with_proxy()

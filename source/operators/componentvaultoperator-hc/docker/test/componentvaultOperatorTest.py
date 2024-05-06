@@ -5,7 +5,7 @@ import kopf
 import asyncio
 
 sys.path.append("..")
-from componentOperator import safe_get, securityComponentVault
+from componentvaultOperatorHC import safe_get, componentvaultDelete
 
 
 # Setup logging
@@ -56,8 +56,21 @@ def k8s_load_config(proxy=False):
             kubernetes.client.Configuration._default.proxy = proxy
             print(f"set proxy to {proxy}")
 
+def k8s_load_vps2_config(proxy=True):
+    if kubernetes.client.Configuration._default:
+        return
+    try:
+        kube_config_file = "~/.kube/config.vps2"
+        kubernetes.config.load_kube_config(config_file=kube_config_file)
+    except kubernetes.config.ConfigException:
+        raise Exception("Could not configure kubernetes python client")
+    if proxy:
+        proxy = "http://sia-lb.telekom.de:8080"
+        kubernetes.client.Configuration._default.proxy = proxy
+        print(f"set proxy to {proxy}")
 
-def test_securityComponentVault():
+
+def test_componentvaultDelete():
     body_json_file = "testdata/CREATE-prodcat_cv.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
@@ -108,14 +121,16 @@ def test_securityComponentVault():
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(
-            securityComponentVault(meta, spec, status, body, namespace, labels, name)
+            componentvaultDelete(meta, spec, status, body, namespace, labels, name)
         )
         loop.close()
+    print("finished")
 
 
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=False)
+    #k8s_load_config(proxy=False)
+    k8s_load_vps2_config(proxy=True)
     test_kubeconfig()
-    test_securityComponentVault()
+    test_componentvaultDelete()
