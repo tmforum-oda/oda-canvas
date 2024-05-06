@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+set -xev
 
 Y='\033[0;33m'
 NC='\033[0m' # No Color
@@ -59,7 +61,8 @@ fi
 if [ "$1" == "GCP" ]; then
     # setup on GCP
     ISSUER="$(kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer')"
-    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=$ISSUER
+    # kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=$ISSUER
+    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=$ISSUER oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt 
 fi
 
 cd $BASEDIR
