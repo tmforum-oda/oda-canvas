@@ -33,11 +33,7 @@ echo "waiting up to 30 seconds for the vault to be ready"
 kubectl -n canvas-vault wait -l  statefulset.kubernetes.io/pod-name=canvas-vault-hc-0 --for=condition=ready pod --timeout=30s
 
 echo -e "${Y}Creating public route to canvas vault${NC}"
-if [ "$1" == "VPS2" ]; then
-    kubectl apply -f canvas-vault-hc/canvas-vault-hc-vs-VPS2.yaml
-else 
-    kubectl apply -f canvas-vault-hc/canvas-vault-hc-vs.yaml
-fi
+kubectl apply -f canvas-vault-hc/canvas-vault-hc-vs-$1.yaml
 
 
 echo -e "${Y}Configuring HashiCorp Vault to accept K8S Service Account Issuer${NC}"
