@@ -163,7 +163,6 @@ def get_comp_name(body):
 def inject_sidecar(body, patch):
     
     logger.debug(f"loading k8s config")
-    k8s_load_config()
 
     cv_name = get_comp_name(body)
     if not cv_name:
