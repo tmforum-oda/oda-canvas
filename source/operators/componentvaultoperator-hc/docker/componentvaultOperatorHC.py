@@ -55,6 +55,9 @@ secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'sidecar')
 
 audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 
+hvac_token_enc = os.getenv('HVAC_TOKEN_ENC', "gAAAAABmOIdWCC1fkWaHnThsR45vWw3H-4cCq925h8Jdund9lbtsGLXHs8NjcKQHwdx5Cpoq270S-cDaIEFl9vP7SNXnuoLHEA==")
+
+
 webhook_service_name = os.getenv('WEBHOOK_SERVICE_NAME', 'dummyservicename') 
 webhook_service_namespace = os.getenv('WEBHOOK_SERVICE_NAMESPACE', 'dummyservicenamespace') 
 webhook_service_port = int(os.getenv('WEBHOOK_SERVICE_PORT', '443'))
@@ -413,7 +416,7 @@ def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_servic
         logger.info(f"secrets_base_path: {secrets_base_path}")
 
         
-        token = decrypt("gAAAAABmOIdWCC1fkWaHnThsR45vWw3H-4cCq925h8Jdund9lbtsGLXHs8NjcKQHwdx5Cpoq270S-cDaIEFl9vP7SNXnuoLHEA==")
+        token = decrypt(hvac_token_enc)
         # Authentication
         client = hvac.Client(
             url=vault_addr,
@@ -470,8 +473,11 @@ def setupComponentVault(cv_name:str, pod_name:str, pod_namespace:str, pod_servic
             path = auth_path,
 
         )
+        
+        setComponentVaultReady(namespace, name)
     except:
         logger.exception(f"ERRPR setup vault {cv_name} failed!")
+        raise kopf.TemporaryError(e)
     
 
 def deleteComponentVault(cv_name:str):
@@ -486,7 +492,7 @@ def deleteComponentVault(cv_name:str):
         logger.info(f"login_role: {login_role}")
         logger.info(f"secrets_mount: {secrets_mount}")
         
-        token = decrypt("gAAAAABmOIdWCC1fkWaHnThsR45vWw3H-4cCq925h8Jdund9lbtsGLXHs8NjcKQHwdx5Cpoq270S-cDaIEFl9vP7SNXnuoLHEA==")
+        token = decrypt(hvac_token_enc)
         # Authentication
         client = hvac.Client(
             url=vault_addr,
@@ -591,6 +597,40 @@ def componentvaultDelete(meta, spec, status, body, namespace, labels, name, **kw
 
 
 
+def setComponentVaultReady(namespace, name):
+    """Helper function to update the implementation Ready status on the ComponentVault custom resource.
+
+    Args:
+        * namespace (String): namespace of the ComponentVault custom resource
+        * name (String): name of the ComponentVault custom resource
+
+    Returns:
+        No return value.
+    """
+    logger.info(f"setting implementation status to ready for dependent api {namespace}:{name}")
+    api_instance = kubernetes.client.CustomObjectsApi()
+    try:
+        compvault = api_instance.get_namespaced_custom_object(
+            COMPVAULT_GROUP, COMPVAULT_VERSION, namespace, COMPVAULT_PLURAL, name
+        )
+    except ApiException as e:
+        if e.status == HTTP_NOT_FOUND:
+            logger.error(f"setComponentVaultReady: componentvault {namespace}:{name} not found")
+            raise kopf.TemporaryError(f"setComponentVaultReady: componentvault {namespace}:{name} not found")
+        else:
+            raise kopf.TemporaryError(f"setComponentVaultReady: Exception in get_namespaced_custom_object: {e.body}")
+    if not ("status" in compvault.keys()):
+        compvault["status"] = {}
+    compvault["status"]["implementation"] = {"ready": True}
+    try:
+        api_response = api_instance.patch_namespaced_custom_object(
+            COMPVAULT_GROUP, COMPVAULT_VERSION, namespace, COMPVAULT_PLURAL, name, compvault
+        )
+    except ApiException as e:
+        raise kopf.TemporaryError(f"setComponentVaultReady: Exception in patch_namespaced_custom_object: {e.body}")
+
+
+
 @kopf.on.field(
     COMPVAULT_GROUP,
     COMPVAULT_VERSION,
@@ -607,13 +647,13 @@ async def updateComponentVaultReady(
     Propagate status updates of the *implementation* status in the ComponentVault Custom resources to the Component status 
 
     Args:
-        * meta (Dict): The metadata from the DependentAPI resource
-        * spec (Dict): The spec from the yaml DependentAPI resource showing the intent (or desired state)
-        * status (Dict): The status from the DependentAPI resource showing the actual state.
-        * body (Dict): The entire DependentAPI resource definition
-        * namespace (String): The namespace for the DependentAPI resource
-        * labels (Dict): The labels attached to the DependentAPI resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
-        * name (String): The name of the DependentAPI resource
+        * meta (Dict): The metadata from the ComponentVault resource
+        * spec (Dict): The spec from the yaml ComponentVault resource showing the intent (or desired state)
+        * status (Dict): The status from the ComponentVault resource showing the actual state.
+        * body (Dict): The entire ComponentVault resource definition
+        * namespace (String): The namespace for the ComponentVault resource
+        * labels (Dict): The labels attached to the ComponentVault resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the ComponentVault resource
 
     Returns:
         No return value, nothing to write into the status.

@@ -41,3 +41,7 @@ spec:
       type: string
       description: ComponentVault pod serviceaccount selector
       jsonPath: .spec.podSelector.serviceaccount
+    - name: READY
+      type: string
+      description: Component Vault configuration is ready
+      jsonPath: .status.implementation.ready
