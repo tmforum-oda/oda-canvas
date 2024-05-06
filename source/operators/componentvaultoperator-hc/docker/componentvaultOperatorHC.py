@@ -14,7 +14,7 @@ from kubernetes.client.rest import ApiException
 from typing import AsyncIterator
 from kubernetes.client.models.v1_replica_set import V1ReplicaSet
 from kubernetes.client.models.v1_deployment import V1Deployment
-from hvac.exceptions import InvalidRequest
+from hvac.exceptions import InvalidRequest, InvalidPath
 
 COMPVAULT_GROUP = "oda.tmforum.org"
 COMPVAULT_VERSION = "v1beta3"
@@ -471,7 +471,10 @@ def setupComponentVault(cv_namespace:str, cv_name:str, pod_name:str, pod_namespa
         if pod_service_account:
             bound_claims["/kubernetes.io/serviceaccount/name"] = pod_service_account;
         
-        role_names = client.auth.jwt.list_roles(path=auth_path)['data']['keys']
+        try:
+            role_names = client.auth.jwt.list_roles(path=auth_path)['data']['keys']
+        except InvalidPath:
+            role_names = []
         if login_role in role_names:
             ## TODO[FH]: read role using 
             ## client.auth.jwt.read_role(name=login_role, path=auth_path)
