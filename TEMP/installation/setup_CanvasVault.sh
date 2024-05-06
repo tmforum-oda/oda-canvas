@@ -26,14 +26,17 @@ echo -e "${Y}Deploy and configure HashiCorp Vault (in DEV mode)${NC}"
 echo -e "${Y}Installing HashiCorp Vault in DEV mode${NC}"
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo update
-helm upgrade --install canvas-vault-hc hashicorp/vault --version 0.24.0 --namespace canvas-vault --create-namespace --values canvas-vault-hc/values.yaml
+helm upgrade --install canvas-vault-hc hashicorp/vault --namespace canvas-vault --create-namespace --values canvas-vault-hc/values.yaml --wait
+             # --version 0.24.0
+
+sleep 5
 
 echo -e "${Y}Creating public route to canvas vault${NC}"
 kubectl apply -f canvas-vault-hc/canvas-vault-hc-vs.yaml
 
 
 echo -e "${Y}Configuring HashiCorp Vault to accept K8S Service Account Issuer${NC}"
-X=`kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth list | grep "jwt-k8s-cv"`
+X=`kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth list | grep "jwt-k8s-cv" || true`
 if [ "$X" == "" ] ; then
     echo -e "\t${Y}exec vault enable${NC}"
     kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-cv jwt
@@ -41,10 +44,8 @@ else
 	echo -e "\t${Y}auth method jwt-k8s-cv already enabled${NC}"
 fi
 
-sleep 2
-
 # see also: https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/kubernetes#using-service-account-issuer-discovery
-CRB=`kubectl get clusterrolebinding oidc-reviewer | grep "service-account-issuer-discovery"`
+CRB=`kubectl get clusterrolebinding oidc-reviewer | grep "service-account-issuer-discovery" || true`
 if [ "$CRB" == "" ]; then
     echo -e "\t${Y}create cluster role binding${NC}"
     kubectl create clusterrolebinding oidc-reviewer  --clusterrole=system:service-account-issuer-discovery --group=system:unauthenticated
