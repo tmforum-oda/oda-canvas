@@ -16,6 +16,16 @@ from typing import AsyncIterator
 from kubernetes.client.models.v1_replica_set import V1ReplicaSet
 from kubernetes.client.models.v1_deployment import V1Deployment
 
+COMPVAULT_GROUP = "oda.tmforum.org"
+COMPVAULT_VERSION = "v1beta3"
+COMPVAULT_PLURAL = "componentvaults"
+
+COMP_GROUP = "oda.tmforum.org"
+COMP_VERSION = "v1beta3"
+COMP_PLURAL = "components"
+
+HTTP_NOT_FOUND = 404
+HTTP_CONFLICT = 409
 
 # https://kopf.readthedocs.io/en/stable/install/
 
@@ -97,12 +107,22 @@ def safe_get(default_value, dictionary, *paths):
     return result
 
 
+def get_cv_spec(cv_name, cv_namespace):
+    coa = kubernetes.client.CustomObjectsApi()
+    try:
+        cv_cr = coa.get_namespaced_custom_object(COMPVAULT_GROUP, COMPVAULT_VERSION, cv_namespace, COMPVAULT_PLURAL, cv_name)
+        return cv_cr["spec"]
+    except ApiException:
+        return None
 
-def test_kubeconfig():
-    v1 = kubernetes.client.CoreV1Api()
-    nameSpaceList = v1.list_namespace()
-    for nameSpace in nameSpaceList.items:
-        print(nameSpace.metadata.name)
+
+
+def has_container(pod, container_name):
+    for container in pod.spec.containers:
+        if container.name == container_name:
+            return True
+    return False 
+
 
 
 def get_comp_name(body):
@@ -539,8 +559,8 @@ def restart_pods_with_missing_sidecar(namespace, podsel_name, podsel_namespace, 
 
 
 # when an oda.tmforum.org componentvault resource is created or updated, configure policy and role 
-@kopf.on.create('oda.tmforum.org', 'v1beta3', 'componentvaults')
-@kopf.on.update('oda.tmforum.org', 'v1beta3', 'componentvaults')
+@kopf.on.create(COMPVAULT_GROUP, COMPVAULT_VERSION, COMPVAULT_PLURAL)
+@kopf.on.update(COMPVAULT_GROUP, COMPVAULT_VERSION, COMPVAULT_PLURAL)
 def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logger.info(f"Create/Update  called with body: {body}")
@@ -560,7 +580,7 @@ def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kw
     
  
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
-@kopf.on.delete('oda.tmforum.org', 'v1beta3', 'componentvaults', retries=5)
+@kopf.on.delete(COMPVAULT_GROUP, COMPVAULT_VERSION, COMPVAULT_PLURAL, retries=5)
 def componentvaultDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logger.info(f"Create/Update  called with body: {body}")
@@ -574,186 +594,79 @@ def componentvaultDelete(meta, spec, status, body, namespace, labels, name, **kw
 
 
 
-def set_proxy():
-    os.environ["HTTP_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
-    os.environ["HTTPS_PROXY"]="http://specialinternetaccess-lb.telekom.de:8080"
-    os.environ["NO_PROXY"]="10.0.0.0/8,.eks.amazonaws.com,.aws.telekom.de,caas-portal-test.telekom.de,caas-portal.telekom.de,.caas-t02.telekom.de"
+@kopf.on.field(
+    COMPVAULT_GROUP,
+    COMPVAULT_VERSION,
+    COMPVAULT_PLURAL,
+    field="status.implementation",
+    retries=5,
+)
+async def updateComponentVaultReady(
+    meta, spec, status, body, namespace, labels, name, **kwargs
+):
+    """moved from componentOperator to here, to avoid inifite loops.
+    If possible to configure kopf correctly it should be ported back to componentOperator
 
-def testCreateCV():
-    #set_proxy()
-    dummy = {}
-    spec = {
-        'name': 'demoa-comp-one',
-        'type': 'sideCar',        
-        'sideCar': {
-            'port': 5000,
-            'token': 'negotiate'
-        },
-        'podSelector': {
-            'namespace': 'demo-comp',
-            'name': 'demoa-comp-one-*',
-            'serviceaccount': 'default'
-        }
-    }
-    componentvaultCreate(dummy, spec, dummy, dummy, "demoa-comp-one", dummy, "componentvault-demoa-comp-one")
+    Propagate status updates of the *implementation* status in the ComponentVault Custom resources to the Component status 
 
-def testDeleteCV():
-    #set_proxy()
-    dummy = {}
-    spec = {
-        'name': 'demoa-comp-one',
-        'type': 'sideCar',        
-        'sideCar': {
-            'port': 5000,
-            'token': 'negotiate'
-        },
-        'podSelector': {
-            'namespace': 'demo-comp',
-            'name': 'demoa-comp-one-*',
-            'serviceaccount': 'default'
-        }
-    }
-    componentvaultDelete(dummy, spec, dummy, dummy, "demoa-comp-one", dummy, "componentvault-demoa-comp-one")
+    Args:
+        * meta (Dict): The metadata from the DependentAPI resource
+        * spec (Dict): The spec from the yaml DependentAPI resource showing the intent (or desired state)
+        * status (Dict): The status from the DependentAPI resource showing the actual state.
+        * body (Dict): The entire DependentAPI resource definition
+        * namespace (String): The namespace for the DependentAPI resource
+        * labels (Dict): The labels attached to the DependentAPI resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the DependentAPI resource
 
-
-def test_inject_sidecar():
-    # body_json_file = 'test/pod/mutate/mutate-body.json'
-    body_json_file = 'test/pod/mutate/create-demo-comp-one-pod-body.json'
-    with open (body_json_file, 'r') as f:
-        body = json.load(f)
-    meta = body["metadata"]
-    spec = body["spec"]
-    status = body["status"]
-    patch = kopf.Patch({})
-    warnings = []
-    podmutate(body, meta, spec, status, patch, warnings)
-
-
-def test_label_deployment_pods():
-    # body_json_file = 'test/pod/mutate/mutate-body.json'
-    body_json_file = 'test/deployment/create/demoa-deployment-create.json'
-    with open (body_json_file, 'r') as f:
-        body = json.load(f)
-    meta = body["metadata"]
-    spec = body["spec"]
-    status = body["status"]
-    patch = kopf.Patch({})
-    warnings = []
-    deploymentmutate(body, meta, spec, status, patch, warnings)
-
-
-
-def k8s_load_incluster_config():
-    if kubernetes.client.Configuration._default:
-        return
-    kubernetes.config.load_incluster_config()
-    print("loaded incluster config")
-    
-def k8s_load_vps5_config():
-    if kubernetes.client.Configuration._default:
-        return
-    kube_config_file = "~/.kube/config-vps5"
-    proxy = "http://specialinternetaccess-lb.telekom.de:8080"
-    kubernetes.config.load_kube_config(config_file = kube_config_file)
-    kubernetes.client.Configuration._default.proxy = proxy 
-    print("loaded config "+kube_config_file+" with proxy "+proxy)
-    
-def k8s_load_default_config():
-    if kubernetes.client.Configuration._default:
-        return
-    kubernetes.config.load_kube_config()
-    print("loaded default config")
-    
-def k8s_load_default_config_with_proxy():
-    if kubernetes.client.Configuration._default:
-        return
-    proxy = "http://specialinternetaccess-lb.telekom.de:8080"
-    kubernetes.config.load_kube_config()
-    kubernetes.client.Configuration._default.proxy = proxy 
-    print("loaded default config")
-    
-def k8s_load_config():
-    if kubernetes.client.Configuration._default:
-        return
-    try:
-        k8s_load_incluster_config()
-    except kubernetes.config.ConfigException:
-        try:
-            k8s_load_vps5_config()
-        except kubernetes.config.ConfigException:
-            try:
-                k8s_load_default_config()
-            except kubernetes.config.ConfigException:
-                raise Exception("Could not configure kubernetes python client")
-    
-
-
-
-def get_cv_spec(cv_name, cv_namespace):
-    coa = kubernetes.client.CustomObjectsApi()
-    try:
-        cv_cr = coa.get_namespaced_custom_object("oda.tmforum.org", "v1beta3", cv_namespace, "componentvaults", cv_name)
-        return cv_cr["spec"]
-    except ApiException:
-        return None
-
-
-def test_get_cv_spec():
-    k8s_load_config()
-    cv_spec = get_cv_spec("componentvault-demo-comp-123", "components")
-    print(cv_spec)
-    name = safe_get("", cv_spec, "name")
-    podsel_name = safe_get("", cv_spec, "podSelector", "name")
-    podsel_namespace = safe_get("", cv_spec, "podSelector", "namespace")
-    podsel_serviceaccount = safe_get("", cv_spec, "podSelector", "serviceaccount")
-    sidecar_port = int(safe_get("5000", cv_spec, "sideCar", "port"))
-    type = safe_get("sideCar", cv_spec, "type")
-    print(f"CV name: {name}")
-    print(f"CV podsel_name: {podsel_name}")
-    print(f"CV podsel_namespace: {podsel_namespace}")
-    print(f"CV podsel_serviceaccount: {podsel_serviceaccount}")
-    print(f"CV sidecar_port: {sidecar_port}")
-    print(f"CV type: {type}")
-
-    if not fnmatch.fnmatch("demo-comp-1234fedc-zyxw7756", podsel_name):
-        raise kopf.AdmissionError(f"pod name does not match selector.", code=400)
-
-
-def has_container(pod, container_name):
-    for container in pod.spec.containers:
-        if container.name == container_name:
-            return True
-    return False 
-
-
-def test_restart_pods():
-    #namespace = "canvas"
-    #label_selector = "app.kubernetes.io/managed-by=Helm"
-    namespace = "components"
-    label_selector = "oda.tmforum.org/componentvault=sidecar"
-    v1 = kubernetes.client.CoreV1Api()
-    pod_list = v1.list_namespaced_pod(namespace, label_selector=label_selector)
-    #pod_list = v1.list_namespaced_pod(namespace)
-    podsel_namespace = "components"
-    podsel_name = "prodcat-*"
-    podsel_serviceaccount = "default"
-
-    restart_pods_with_missing_sidecar(namespace, podsel_name, podsel_namespace, podsel_serviceaccount)
-
-
-
-if __name__ == '__main__':
-    logger.info(f"main called")
-    #set_proxy()
-    #k8s_load_config()
-    k8s_load_default_config_with_proxy()
-    #test_kubeconfig()
-    #testDeleteCV()
-    #testCreateCV()
-    #test_inject_sidecar()
-    #test_get_cv_spec()
-    #test_label_deployment_pods()
-    test_restart_pods()
-    
-    
-
+    Returns:
+        No return value, nothing to write into the status.
+    """
+    logger.info(f"updateComponentVaultReady called for {namespace}:{name}")
+    logger.debug(
+        f"updateComponentVaultReady called for {namespace}:{name} with body {body}"
+    )
+    if "ready" in status["implementation"].keys():
+        if status["implementation"]["ready"] == True:
+            if "ownerReferences" in meta.keys():
+                parent_component_name = meta["ownerReferences"][0]["name"]
+                logger.info(f"reading component {parent_component_name}")
+                try:
+                    api_instance = kubernetes.client.CustomObjectsApi()
+                    parent_component = api_instance.get_namespaced_custom_object(
+                        COMP_GROUP,
+                        COMP_VERSION,
+                        namespace,
+                        COMP_PLURAL,
+                        parent_component_name,
+                    )
+                except ApiException as e:
+                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                    if e.status == HTTP_NOT_FOUND:
+                        raise kopf.TemporaryError(
+                            "Cannot find parent component " + parent_component_name
+                        )
+                    logger.error(e)
+                    raise kopf.TemporaryError(
+                        f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}"
+                    )
+                # find the entry to update in securityComponentVault status
+                cv_status =parent_component["status"]["securityComponentVault"]
+                ready = cv_status["ready"]
+                if ready != True:  # avoid recursion
+                    logger.info(f"patching securityComponentVault in component {parent_component_name}")
+                    cv_status["ready"] = True
+                    try:
+                        api_response = (
+                            api_instance.patch_namespaced_custom_object(
+                                COMP_GROUP,
+                                COMP_VERSION,
+                                namespace,
+                                COMP_PLURAL,
+                                parent_component_name,
+                                parent_component,
+                            )
+                        )
+                    except ApiException as e:
+                        raise kopf.TemporaryError(
+                            f"updateComponentVaultReady: Exception in patch_namespaced_custom_object: {e.body}"
+                        )
