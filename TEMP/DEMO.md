@@ -266,6 +266,16 @@ kubectl logs -n canvas deployment/canvas-depapi-op
 [2024-04-24 20:53:42,427] kopf.objects         [INFO    ] [components/prodcat-productcatalog-dapi-party] Deletion is processed: 1 succeeded; 0 failed.
 ```
 
+## show Vault roles
+
+Open Shell `[>_]` in Vault UI
+
+```
+vault list auth/jwt-k8s-cv/role
+vault read auth/jwt-k8s-cv/role/cv-prodcat-productcatalogmanagement-role
+```
+
+
 ## Buildprocess
 
 https://gitlab.devops.telekom.de/magenta-canvas/github-sync/oda-canvas-dependent-apis-cicd/-/pipelines
