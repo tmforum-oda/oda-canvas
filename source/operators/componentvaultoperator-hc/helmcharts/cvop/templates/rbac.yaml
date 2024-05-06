@@ -30,11 +30,14 @@ rules:
     verbs: [create, patch]
 
 
-  # Application: read-only access for watching cluster-wide.
   - apiGroups: [oda.tmforum.org]
     resources: [componentvaults]
     verbs: [list, watch, get, patch]
 
+  - apiGroups: [oda.tmforum.org]
+    resources: [components]
+    verbs: [list, watch, get, patch]
+    
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [""]
     resources: [pods]

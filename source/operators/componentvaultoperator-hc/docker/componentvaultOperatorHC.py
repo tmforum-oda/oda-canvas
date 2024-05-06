@@ -12,9 +12,9 @@ import base64
 import kubernetes
 from kubernetes.client.rest import ApiException
 from typing import AsyncIterator
-#from setuptools.command.setopt import config_file
 from kubernetes.client.models.v1_replica_set import V1ReplicaSet
 from kubernetes.client.models.v1_deployment import V1Deployment
+from hvac.exceptions import InvalidRequest
 
 COMPVAULT_GROUP = "oda.tmforum.org"
 COMPVAULT_VERSION = "v1beta3"
@@ -45,8 +45,8 @@ if CICD_BUILD_TIME:
 if GIT_COMMIT_SHA:
     logger.info(f'GIT_COMMIT_SHA=%s', GIT_COMMIT_SHA)
 
-#vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.feri.ai')
-vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
+vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.cluster-1.de')
+#vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
 auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-cv')
 policy_name_tpl = os.getenv('POLICY_NAME_TPL', 'cv-{0}-policy')
 login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'cv-{0}-role')
@@ -126,6 +126,8 @@ def has_container(pod, container_name):
             return True
     return False 
 
+def implementationReady(compvaultBody):
+    return safe_get(None, compvaultBody, "status", "implementation", "ready")
 
 
 def get_comp_name(body):
@@ -366,7 +368,7 @@ def label_deployment_pods(body, patch):
     
 
 @kopf.on.mutate('pods', labels={"oda.tmforum.org/componentvault": "sidecar"}, operation='CREATE', ignore_failures=True)
-def podmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
+async def podmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
     try:
         logger.info(f"POD mutate called with body: {type(body)} -  {body}")
         inject_sidecar(body, patch)
@@ -379,7 +381,7 @@ def podmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], 
     
     
 @kopf.on.mutate('deployments', labels={"oda.tmforum.org/componentvault": "sidecar"}, operation='CREATE', ignore_failures=True)
-def deploymentmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
+async def deploymentmutate(body, meta, spec, status, patch: kopf.Patch, warnings: list[str], **_):
     try:
         logger.info(f"DEPLOYMENT mutate called with body: {type(body)} -  {body}")
         label_deployment_pods(body, patch)
@@ -421,13 +423,19 @@ def setupComponentVault(cv_namespace:str, cv_name:str, pod_name:str, pod_namespa
         client = hvac.Client(
             url=vault_addr,
             token=token,
+            strict_http=True,   # workaround BadRequest for LIST method (https://github.com/hvac/hvac/issues/773)
         )
     
         ### enable KV v2 engine 
         # https://hvac.readthedocs.io/en/stable/source/hvac_api_system_backend.html?highlight=mount#hvac.api.system_backend.Mount.enable_secrets_engine
         #
         logger.info(f"enabling KV v2 engine at {secrets_mount}")
-        client.sys.enable_secrets_engine("kv", secrets_mount, options={"version":"2"})
+        existing_secret_engines = client.sys.list_mounted_secrets_engines()
+        if f"{secrets_mount}/" in existing_secret_engines:
+            ## TODO[FH]: additional security checks to ensure no orphane vault is reused
+            logger.info(f"  already exists")
+        else:
+            client.sys.enable_secrets_engine("kv", secrets_mount, options={"version":"2"})
         
         ### create policy
         # https://hvac.readthedocs.io/en/stable/usage/system_backend/policy.html#create-or-update-policy
@@ -438,17 +446,22 @@ def setupComponentVault(cv_namespace:str, cv_name:str, pod_name:str, pod_namespa
           capabilities = ["create", "read", "update", "delete", "patch"]   # do not support "list" for security reasons   
         }}
         '''
-        client.sys.create_or_update_policy(
-            name=policy_name,
-            policy=policy,
-        )
+        
+        policies = client.sys.list_policies()['data']['policies']
+        if policy_name in policies:
+            logger.info(f"  already exists")
+            ## TODO[FH] read policy and check for changes
+        else:
+            client.sys.create_or_update_policy(
+                name=policy_name,
+                policy=policy,
+            )
         
         ### create role
         # https://hvac.readthedocs.io/en/stable/usage/auth_methods/jwt-oidc.html#create-role
         #
         logger.info(f'create role {login_role}')
         allowed_redirect_uris = [f'{vault_addr}/jwt-test/callback'] # ?
-
         
         bound_claims = {}
         if pod_name:
@@ -458,25 +471,30 @@ def setupComponentVault(cv_namespace:str, cv_name:str, pod_name:str, pod_namespa
         if pod_service_account:
             bound_claims["/kubernetes.io/serviceaccount/name"] = pod_service_account;
         
-        client.auth.jwt.create_role(
-            name=login_role,
-            role_type='jwt',
-            bound_audiences=[audience],
-            user_claim='sub',
-            #user_claim='/kubernetes.io/pod/uid',  # not yet supported, see PR #998
-            #user_claim_json_pointer=True,         # https://github.com/hvac/hvac/pull/998
-            bound_claims_type = "glob",
-            bound_claims = bound_claims,
-            token_policies=[policy_name],
-            token_ttl=3600,
-            allowed_redirect_uris=allowed_redirect_uris,  # why mandatory? 
-            path = auth_path,
-
-        )
+        role_names = client.auth.jwt.list_roles(path=auth_path)['data']['keys']
+        if login_role in role_names:
+            ## TODO[FH]: read role using 
+            ## client.auth.jwt.read_role(name=login_role, path=auth_path)
+            ## and check for changes
+            logger.info(f"  already exists")
+        else:
+            client.auth.jwt.create_role(
+                name=login_role,
+                role_type='jwt',
+                bound_audiences=[audience],
+                user_claim='sub',
+                #user_claim='/kubernetes.io/pod/uid',  # not yet supported, see PR #998
+                #user_claim_json_pointer=True,         # https://github.com/hvac/hvac/pull/998
+                bound_claims_type = "glob",
+                bound_claims = bound_claims,
+                token_policies=[policy_name],
+                token_ttl=3600,
+                allowed_redirect_uris=allowed_redirect_uris,  # why mandatory? 
+                path = auth_path,
+            )
         
-        setComponentVaultReady(cv_namespace, cv_name)
     except Exception as e:
-        logger.exception(f"ERRPR setup vault {cv_namespace}:{cv_name} failed!")
+        logger.exception(f"ERROR setup vault {cv_namespace}:{cv_name} failed!")
         raise kopf.TemporaryError(e)
     
 
@@ -564,7 +582,7 @@ def restart_pods_with_missing_sidecar(namespace, podsel_name, podsel_namespace, 
 # when an oda.tmforum.org componentvault resource is created or updated, configure policy and role 
 @kopf.on.create(COMPVAULT_GROUP, COMPVAULT_VERSION, COMPVAULT_PLURAL)
 @kopf.on.update(COMPVAULT_GROUP, COMPVAULT_VERSION, COMPVAULT_PLURAL)
-def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
+async def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logger.info(f"Create/Update  called with body: {body}")
     logger.debug(f"componentvault  called with namespace: {namespace}")
@@ -580,12 +598,15 @@ def componentvaultCreate(meta, spec, status, body, namespace, labels, name, **kw
     
     setupComponentVault(cv_namespace, cv_name, pod_name, pod_namespace, pod_service_account)
     
+    if not implementationReady(body):
+        setComponentVaultReady(cv_namespace, cv_name)
+    
     restart_pods_with_missing_sidecar(cv_namespace, pod_name, pod_namespace, pod_service_account)
     
  
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
 @kopf.on.delete(COMPVAULT_GROUP, COMPVAULT_VERSION, COMPVAULT_PLURAL, retries=5)
-def componentvaultDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
+async def componentvaultDelete(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logger.info(f"Create/Update  called with body: {body}")
     logger.info(f"Create/Update  called with namespace: {namespace}")
@@ -620,6 +641,9 @@ def setComponentVaultReady(namespace, name):
             raise kopf.TemporaryError(f"setComponentVaultReady: componentvault {namespace}:{name} not found")
         else:
             raise kopf.TemporaryError(f"setComponentVaultReady: Exception in get_namespaced_custom_object: {e.body}")
+    current_ready_status = safe_get(False, compvault, "status", "implementation", "ready")
+    if current_ready_status == True:
+        return 
     if not ("status" in compvault.keys()):
         compvault["status"] = {}
     compvault["status"]["implementation"] = {"ready": True}
@@ -631,14 +655,7 @@ def setComponentVaultReady(namespace, name):
         raise kopf.TemporaryError(f"setComponentVaultReady: Exception in patch_namespaced_custom_object: {e.body}")
 
 
-
-@kopf.on.field(
-    COMPVAULT_GROUP,
-    COMPVAULT_VERSION,
-    COMPVAULT_PLURAL,
-    field="status.implementation",
-    retries=5,
-)
+@kopf.on.field(COMPVAULT_GROUP, COMPVAULT_VERSION, COMPVAULT_PLURAL, field="status.implementation", retries=5)
 async def updateComponentVaultReady(
     meta, spec, status, body, namespace, labels, name, **kwargs
 ):
