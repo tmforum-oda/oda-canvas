@@ -162,8 +162,6 @@ def get_comp_name(body):
 
 def inject_sidecar(body, patch):
     
-    logger.debug(f"loading k8s config")
-
     cv_name = get_comp_name(body)
     if not cv_name:
         logger.info(f"Component name in label {componentname_label} not set, doing nothing")
