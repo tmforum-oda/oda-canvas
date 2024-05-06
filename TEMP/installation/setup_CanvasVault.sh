@@ -60,8 +60,8 @@ if [ "$1" == "AWS" ]; then
     kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     ##old kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 fi
-if [ "$1" == "GCP" || "$1" == "VPS2" ]; then
-    # setup on GCP / VPS2
+if [ "$1" == "GCP" ]; then
+    # setup on GCP
     ISSUER="$(kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer')"
     kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=$ISSUER
 fi
