@@ -40,6 +40,8 @@ group Dynamic role management - optional
         The identityOperator listens to the API and manages roles based on the events. The component needs
         to implement the **TMF672 User Roles and Permissions API** and the operator listens for **permissionSpecificationSet** events.
     end note
+    identityOperator -> IdentityResource: Query statically defined roles in\ncomponent SecurityFunction segment
+    identityOperator -> IDM: create role(s)
 end 
 group Static role management - optional
     identityOperator -> IdentityResource: Query statically defined roles in\ncomponent SecurityFunction segment
