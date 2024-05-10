@@ -1,8 +1,8 @@
 FROM golang:1.19 AS build
 WORKDIR /go/src
-COPY *.go .
-COPY go.mod .
-COPY go.sum .
+COPY *.go ./
+COPY go.mod ./
+COPY go.sum ./
 
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
