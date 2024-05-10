@@ -8,6 +8,9 @@ spec:
   names:
     plural: "componentvaults"
     singular: "componentvault"
+    shortNames:
+    - compvault
+    - compvaults
     kind: "ComponentVault"
   versions:
   - name: "v1beta3"
