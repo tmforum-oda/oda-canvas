@@ -7,7 +7,7 @@ metadata:
     app: canvas-vault-hc
 spec:
   gateways:
-  - istio-ingress/k8s-gateway
+  - components/component-gateway
   hosts:
   - 'canvas-vault-hc.ihc-dt.cluster-3.de'
   http:

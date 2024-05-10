@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-compvaultop
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-compvaultop
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-compvaultop
+    spec:
+      serviceAccountName: {{ .Release.Name }}-compvaultop-account
+      containers:
+      - name: {{ .Release.Name }}-compvaultop
+        image: {{ .Values.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        env:
+        - name: LOGGING
+          value: "{{ .Values.logLevel }}"
+
+        - name: VAULT_ADDR
+          value: "{{ .Values.vault_addr }}"
+        - name: AUTH_PATH
+          value: "{{ .Values.auth_path }}"
+        - name: LOGIN_ROLE_TPL
+          value: "{{ .Values.login_role_tpl }}"
+        - name: POLICY_NAME_TPL
+          value: "{{ .Values.policy_name_tpl }}"
+        - name: SECRETS_MOUNT_TPL
+          value: "{{ .Values.secrets_mount_tpl }}"
+        - name: SECRETS_BASE_PATH_TPL
+          value: "{{ .Values.secrets_base_path_tpl }}"
+        - name: AUDIENCE
+          value: "{{ .Values.audience }}"
+          
+        - name: WEBHOOK_SERVICE_NAME
+          value: "{{ .Release.Name }}-compvaultop-svc"
+        - name: WEBHOOK_SERVICE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: WEBHOOK_SERVICE_PORT
+          value: "443"
+        ports:
+        - containerPort: 9443

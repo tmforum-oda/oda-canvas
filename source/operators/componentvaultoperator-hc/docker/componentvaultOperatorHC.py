@@ -45,8 +45,9 @@ if CICD_BUILD_TIME:
 if GIT_COMMIT_SHA:
     logger.info(f'GIT_COMMIT_SHA=%s', GIT_COMMIT_SHA)
 
-vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.cluster-1.de')
-#vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
+#vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.ihc-dt.cluster-3.de')
+#vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.cluster-1.de')
+vault_addr = os.getenv('VAULT_ADDR', 'http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200')
 auth_path = os.getenv('AUTH_PATH', 'jwt-k8s-cv')
 policy_name_tpl = os.getenv('POLICY_NAME_TPL', 'cv-{0}-policy')
 login_role_tpl = os.getenv('LOGIN_ROLE_TPL', 'cv-{0}-role')

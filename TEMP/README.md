@@ -20,8 +20,72 @@ cd ../../charts/canvas-oda
 helm dependency update
 helm dependency build
 cd ../..
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=controller.configmap.loglevel=10 --set=controller.deployment.imagePullPolicy=Always
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=10 --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istiocontroller-0.4.0-compvault --set=componentvault-operator.logLevel=10
 ```
+
+## patch component gateway
+
+```
+kubectl edit gateway -n components component-gateway
+
+...
+spec:
+  ...
+  - hosts:
+[*] - '*.ihc-dt.cluster-3.de'
+...
+[+++]
+  - hosts:
+    - '*.ihc-dt.cluster-3.de'
+    port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      credentialName: wc-ihc-dt-cluster-3-de-tls
+      mode: SIMPLE
+```
+
+
+## patch api operator
+
+```
+kubectl patch configmap/canvas-controller-configmap -n canvas --type merge -p "{\"data\":{\"APIOPERATORISTIO_PUBLICHOSTNAME\":\"components.ihc-dt.cluster-3.de\"}}"
+kubectl rollout restart deployment -n canvas oda-controller-ingress
+```
+
+
+
+# install HashiCorp vault
+
+with WSL:
+
+```
+TEMP/installation/setup_CanvasVault.sh
+```
+
+with Windows:
+
+```
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+helm upgrade --install canvas-vault-hc --namespace canvas-vault --create-namespace --version 0.28.0 --values TEMP/installation/canvas-vault-hc/values.yaml hashicorp/vault --wait 
+
+kubectl apply -f TEMP\installation\canvas-vault-hc\canvas-vault-hc-vs-GCP.yaml
+
+kubectl exec -n canvas-vault canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-cv jwt
+
+kubectl create clusterrolebinding oidc-reviewer  --clusterrole=system:service-account-issuer-discovery --group=system:unauthenticated
+
+kubectl get --raw /.well-known/openid-configuration
+set ISSUER=https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt
+echo "ISSUER=%ISSUER%"
+kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=%ISSUER% 
+
+```
+
+
+
 
 # product catalog with component vault
 
