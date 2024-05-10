@@ -83,7 +83,7 @@ build_sidecar:
 build_operator:
   extends: .build_template
   variables:
-    BUILD_FOLDER: source/component-vault/operators/componentvaultoperator-hc/docker
+    BUILD_FOLDER: source/operators/componentvaultoperator-hc/docker
     DOCKERFILE: $BUILD_FOLDER/Dockerfile 
     MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
   rules:
@@ -91,7 +91,7 @@ build_operator:
       when: manual
       allow_failure: true
     - changes:
-      - "source/component-vault/operators/componentvaultoperator-hc/docker/**/*"
+      - "source/operators/componentvaultoperator-hc/docker/**/*"
     - when: manual
       allow_failure: true
 
