@@ -15,4 +15,6 @@ secrets_base_path_tpl: "sidecar"
 #audience: "https://kubernetes.default.svc.cluster.local"
 audience: "https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt"
 
+sidecarImage: "mtr.devops.telekom.de/magenta_canvas/public:componentvault-sidecar-0.1.0-rc"
+
 logLevel: 20

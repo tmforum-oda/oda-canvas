@@ -6,8 +6,8 @@ variables:
   COMPISTIOCTLR_VERSION: 0.4.0-compvault
   
   
-  SIDECAR_IMAGE_TAG: component-vault-sidecar-${SIDECAR_VERSION}
-  OPERATOR_IMAGE_TAG: component-vault-operator-${OPERATOR_VERSION}
+  SIDECAR_IMAGE_TAG: componentvault-sidecar-${SIDECAR_VERSION}
+  OPERATOR_IMAGE_TAG: componentvault-operator-${OPERATOR_VERSION}
   CODESERVER_IMAGE_TAG: code-server-with-helm-${CODESERVER_VERSION}
   COMPISTIOCTLR_IMAGE_TAG: component-istio-controller-${COMPISTIOCTLR_VERSION}
   MAGENTA_TRUSTED_REGISTRY: mtr.devops.telekom.de
@@ -22,10 +22,6 @@ variables:
   #DOCKER_REGISTRY_PASSWORD: "has to be defined in CICD variables"    
   
   SECRET_DETECTION_HISTORIC_SCAN: "true"
-
-  HTTP_PROXY: $http_proxy
-  HTTPS_PROXY: $https_proxy
-  NO_PROXY: $no_proxy
 
 
 include:
@@ -63,15 +59,14 @@ stages:
       --context $CI_PROJECT_DIR/$BUILD_FOLDER
       --dockerfile $DOCKERFILE 
       --destination $MTR_FULL_IMAGE
-      --build-arg http_proxy=$http_proxy
-      --build-arg https_proxy=$https_proxy
-      --build-arg no_proxy=$no_proxy
+      --build-arg "GIT_COMMIT_SHA=$CI_COMMIT_SHORT_SHA"
+      --build-arg "CICD_BUILD_TIME=$CI_JOB_STARTED_AT"
 
 
 build_sidecar:
   extends: .build_template
   variables:
-    BUILD_FOLDER: source/component-vault/sidecars/componentvaultsidecar-hc
+    BUILD_FOLDER: source/operators/componentvaultoperator-hc/sidecar/docker
     DOCKERFILE: $BUILD_FOLDER/Dockerfile 
     MTR_FULL_IMAGE: $MTR_FULL_SIDECAR_IMAGE
   rules:
@@ -79,7 +74,7 @@ build_sidecar:
       when: manual
       allow_failure: true
     - changes:
-      - "source/component-vault/sidecars/componentvaultsidecar-hc/**/*"
+      - "source/operators/componentvaultoperator-hc/sidecar/docker/**/*"
     - when: manual
       allow_failure: true
 
@@ -112,7 +107,10 @@ build_compistioctlr:
       when: manual
       allow_failure: true
     - changes:
+      - source/operators/component-IstioController-dockerfile
       - "source/operators/componentOperator/**/*"
+      - "source/operators/apiOperatorIstio/**/*"
+      - "source/operators/securityController/**/*"
     - when: manual
       allow_failure: true
 
@@ -133,14 +131,14 @@ build_compistioctlr:
   script:
     - docker login --username=$DOCKER_REGISTRY_USERNAME --password=$DOCKER_REGISTRY_PASSWORD $MAGENTA_TRUSTED_REGISTRY
     - cd $BUILD_FOLDER
-    - docker build -f $DOCKERFILE -t $MTR_FULL_IMAGE . 
+    - docker build -f $DOCKERFILE -t $MTR_FULL_IMAGE --build-arg "GIT_COMMIT_SHA=$CI_COMMIT_SHORT_SHA" --build-arg "CICD_BUILD_TIME=$CI_JOB_STARTED_AT" . 
     - docker push $MTR_FULL_IMAGE
 
 
 build_codeserver:
   extends: .build_template_docker
   variables:
-    BUILD_FOLDER: source/component-vault/custom/code-server/code-server-with-helm
+    BUILD_FOLDER: TEMP/code-server/code-server-with-helm
     DOCKERFILE: Dockerfile 
     MTR_FULL_IMAGE: $MTR_FULL_CODESERVER_IMAGE
   rules:
@@ -148,7 +146,7 @@ build_codeserver:
       when: manual
       allow_failure: true
     - changes:
-      - "source/component-vault/custom/code-server/code-server-with-helm/**/*"
+      - "TEMP/code-server/code-server-with-helm/**/*"
     - when: manual
       allow_failure: true
 

@@ -37,6 +37,8 @@ spec:
           value: "{{ .Values.secrets_base_path_tpl }}"
         - name: AUDIENCE
           value: "{{ .Values.audience }}"
+        - name: SIDECAR_IMAGE
+          value: "{{ .Values.sidecarImage }}"
           
         - name: WEBHOOK_SERVICE_NAME
           value: "{{ .Release.Name }}-compvaultop-svc"

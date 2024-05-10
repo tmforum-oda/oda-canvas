@@ -58,6 +58,7 @@ audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 
 hvac_token_enc = os.getenv('HVAC_TOKEN_ENC', "gAAAAABmOIdWCC1fkWaHnThsR45vWw3H-4cCq925h8Jdund9lbtsGLXHs8NjcKQHwdx5Cpoq270S-cDaIEFl9vP7SNXnuoLHEA==")
 
+sidecar_image = os.getenv('SIDECAR_IMAGE', "mtr.devops.telekom.de/magenta_canvas/public:componentvault-sidecar-0.1.0-rc")
 
 webhook_service_name = os.getenv('WEBHOOK_SERVICE_NAME', 'dummyservicename') 
 webhook_service_namespace = os.getenv('WEBHOOK_SERVICE_NAMESPACE', 'dummyservicenamespace') 
@@ -210,7 +211,7 @@ def inject_sidecar(body, patch):
 
     container_cvsidecar = {
             "name": "cvsidecar",
-            "image": "mtr.devops.telekom.de/magenta_canvas/public:component-vault-sidecar-0.1.0-rc",
+            "image": sidecar_image,
             "ports": [
                 {
                     "containerPort": sidecar_port,
