@@ -15,7 +15,7 @@ git pull
 cd ~
 cd git/oda-canvas-component-vault_ODAA26
 git pull
-./TEMP/build/build-component-operator.sh
+./TEMP/build/build-componentvault-operator.sh
 ```
 
 
