@@ -3,15 +3,29 @@
 ## Build Component Operator
 
 ```
+cd ~
+cd git/oda-canvas-component-vault_ODAA26
+git pull
 ./TEMP/build/build-component-operator.sh
 ```
 
 ## Build ComponentVault Operator
 
 ```
-cd ./git/oda-canvas-component-vault-ODAA26
+cd ~
+cd git/oda-canvas-component-vault_ODAA26
 git pull
-./source/operators/componentvaultoperator-hc/docker/build.sh
+./TEMP/build/build-component-operator.sh
+```
+
+
+## Build ComponentVault Sidecar
+
+```
+cd ~
+cd git/oda-canvas-component-vault_ODAA26
+git pull
+./TEMP/build/build-componentvault-sidecar.sh
 ```
 
 
