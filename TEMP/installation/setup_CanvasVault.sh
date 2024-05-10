@@ -2,6 +2,8 @@
 
 set -e
 
+cd $(dirname -- $0)
+
 Y='\033[0;33m'
 NC='\033[0m' # No Color
 
