@@ -1,8 +1,8 @@
 deployment:
   controllerName: oda-controller-ingress
   #compconImage: tmforumodacanvas/component-istio-controller:0.4.0
-  compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istiocontroller-0.4.0-compvault
-  compconImagePullPolicy: IfNotPresent
+  compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault 
+  imagePullPolicy: IfNotPresent
   istioGateway: true
   secconImage: tmforumodacanvas/security-listener:0.6.0
   monitoredNamespaces: 'components'           # comma separated list of namespaces

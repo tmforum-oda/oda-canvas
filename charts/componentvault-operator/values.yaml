@@ -1,5 +1,6 @@
-image: mtr.devops.telekom.de/magenta_canvas/public:componentvault-controller-0.1.0-rc
+image: mtr.devops.telekom.de/magenta_canvas/public:componentvault-operator-0.1.0-rc
 imagePullPolicy: Always
+sidecarImage: "mtr.devops.telekom.de/magenta_canvas/public:componentvault-sidecar-0.1.0-rc"
 
 vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
 
@@ -14,7 +15,5 @@ secrets_base_path_tpl: "sidecar"
 #   kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer'
 #audience: "https://kubernetes.default.svc.cluster.local"
 audience: "https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt"
-
-sidecarImage: "mtr.devops.telekom.de/magenta_canvas/public:componentvault-sidecar-0.1.0-rc"
 
 logLevel: 20
