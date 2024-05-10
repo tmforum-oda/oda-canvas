@@ -8,10 +8,16 @@
 kubectl config set-context --current --namespace=components
 ```
 
-### open CMD with componentoperator logfile
+### open CMD with Component-Operator logfile
 
 ```
-kubectl logs -n canvas deployment/componentvault-operator --tail 1 -f
+kubectl logs -n canvas deployment/oda-controller-ingress -f
+```
+
+### open CMD with ComponentVault-Operator logfile
+
+```
+kubectl logs -n canvas deployment/canvas-compvaultop -f
 ```
 
 ### show empty HashiCorp Vault GUI

@@ -20,4 +20,4 @@ ENV CICD_BUILD_TIME $CICD_BUILD_TIME
 ARG GIT_COMMIT_SHA
 ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
 
-CMD kopf run /src/componentvaultOperatorHC.py --verbose
+CMD kopf run --all-namespaces /src/componentvaultOperatorHC.py --verbose

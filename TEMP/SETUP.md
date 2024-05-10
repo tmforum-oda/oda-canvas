@@ -67,6 +67,16 @@ kubectl rollout restart deployment -n canvas oda-controller-ingress
 
 ## patch component gateway
 
+as patch
+
+
+```
+kubectl patch gateway/component-gateway -n components --type json -p '[{"op": "replace","path": "/spec/servers/0/hosts/0","value": "*.ihc-dt.cluster-3.de"}]'
+kubectl patch gateway/component-gateway -n components --type json -p '[{"op": "add","path": "/spec/servers/1","value": {"hosts": ["*.ihc-dt.cluster-3.de"],"port": {"name": "https","number": 443,"protocol": "HTTPS"},"tls": {"credentialName": "wc-ihc-dt-cluster-3-de-tls","mode": "SIMPLE"}}}]'
+```
+
+or manually
+
 ```
 kubectl edit gateway -n components component-gateway
 
@@ -88,19 +98,13 @@ spec:
       mode: SIMPLE
 ```
 
-alternative as patch:
-
-```
-kubectl patch gateway/component-gateway -n components --type json -p '[{"op": "replace","path": "/spec/servers/0/hosts/0","value": "*.ihc-dt.cluster-3.de"}]'
-kubectl patch gateway/component-gateway -n components --type json -p '[{"op": "add","path": "/spec/servers/1","value": {"hosts": ["*.ihc-dt.cluster-3.de"],"port": {"name": "https","number": 443,"protocol": "HTTPS"},"tls": {"credentialName": "wc-ihc-dt-cluster-3-de-tls","mode": "SIMPLE"}}}]'
-```
-
 
 # install HashiCorp vault
 
 with WSL:
 
 ```
+sudo apt-get install jq -y
 TEMP/installation/setup_CanvasVault.sh GCP
 ```
 
@@ -141,63 +145,19 @@ helm upgrade --install prodcat -n components --create-namespace feature-definiti
 helm uninstall prodcat -n components
 ```
 
-# ComponentVault Operator
-
-## deploy ComponentVault Operator
+## Uninstall Canvas
 
 ```
-helm upgrade --install componentvault-operator -n canvas --create-namespace --set=logLevel=10 source/operators/componentvaultoperator-hc/helmcharts/cvop
-```
+helm uninstall -n canvas canvas
 
-
-## undeploy ComponentVault Operator
-
-```
-helm uninstall -n canvas componentvault-operator
-```
-
-# HashiCorp Vault
-
-## install Vault
-
-```
-helm repo add hashicorp https://helm.releases.hashicorp.com
-helm repo update
-helm upgrade --install canvas-vault-hc --namespace canvas-vault --create-namespace --version 0.28.0 --values TEMP/canvas-vault/values.yaml hashicorp/vault --wait 
-
-kubectl apply -n canvas-vault -f TEMP/canvas-vault/canvas-vault-hc-vs.yaml
-
-kubectl create clusterrolebinding oidc-reviewer  --clusterrole=system:service-account-issuer-discovery --group=system:unauthenticated
-
-echo "wait 15 seconds for Vault to startup"
-sleep 15
-
-kubectl exec -n canvas-vault canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-cv jwt
-# see: https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/kubernetes#using-service-account-issuer-discovery
-
-ISSUER="$(kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer')"
-echo "ISSUER=$ISSUER"
-kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=$ISSUER oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+kubectl delete pvc -n canvas data-canvas-postgresql-0
+kubectl delete lease -n kube-system cert-manager-cainjector-leader-election
+kubectl delete lease -n kube-system cert-manager-controller
+kubectl delete ns components
 ```
 
 
-### install Vault WIN
-
-```
-helm repo add hashicorp https://helm.releases.hashicorp.com
-helm repo update
-helm upgrade --install canvas-vault-hc --namespace canvas-vault --create-namespace --version 0.28.0 --values TEMP/canvas-vault/values.yaml hashicorp/vault --wait 
-
-kubectl apply -n canvas-vault -f TEMP/canvas-vault/canvas-vault-hc-vs-VPS2.yaml
-
-kubectl create clusterrolebinding oidc-reviewer  --clusterrole=system:service-account-issuer-discovery --group=system:unauthenticated
-
-kubectl exec -n canvas-vault canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-cv jwt
-set ISSUER=https://kubernetes.default.svc.cluster.local
-kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=%ISSUER% oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-```
-
-## uninstall Vault
+## Uninstall Vault
 
 ```
 helm uninstall -n canvas-vault canvas-vault-hc
