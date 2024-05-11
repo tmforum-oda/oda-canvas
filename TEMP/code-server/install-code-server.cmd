@@ -13,7 +13,7 @@ cd ..
 
 kubectl create clusterrolebinding code-server-cluster-admin-rb --clusterrole=cluster-admin --serviceaccount=code-server:code-server --dry-run=client -oyaml | kubectl apply -f -
 
-kubectl apply -f ../virtualservices/code-server-vs.yaml
+kubectl apply -f virtualservice/code-server-vs.yaml
 
 
 
