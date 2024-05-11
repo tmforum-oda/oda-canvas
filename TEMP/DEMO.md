@@ -40,31 +40,27 @@ helm upgrade --install demo-a -n components --create-namespace feature-definitio
 ### show HashiCorp Vault GUI
 
 
-### restart prodcatapi
-
-```
-kubectl rollout restart deployment demo-a-prodcatapi
-```
-
-(15 sec to start sidecar)
-
 ### conenct to prodcatapi shell 
 
 ```
 kubectl get pods
-
-kubectl exec -it demo-a-prodcatapi-XXXXXXXXXXXXXX -- /bin/bash
+PRODCATAPI_POD=$(kubectl get pods -limpl=demo-a-prodcatapi -o=jsonpath="{.items[*].metadata.name}")
+echo $PRODCATAPI_POD
+kubectl exec -it $PRODCATAPI_POD -- /bin/bash
 ```
 
 ### Open Swagger GUI
 
 https://developer.telekom.de/swagger-editor/
 
+swagger file: https://raw.githubusercontent.com/ODA-CANVAS-FORK/oda-canvas-component-vault/odaa-26/TEMP/swagger/openapi.yaml
+
+
 --> Create Secret as CURL
 
 ```
 curl -X 'POST' \
-  'http://127.0.0.1:5000/secret' \
+  'http://localhost:5000/api/v3/secret' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -80,6 +76,16 @@ curl -X 'POST' \
 show new password
 
 --> get Secret as cURL
+
+```
+curl -X 'GET' \
+  'http://localhost:5000/api/v3/secret/password' \
+  -H 'accept: application/json'
+```
+
+```
+{"key":"password","value":"H37c5bza+d9.de89"}
+```
 
 ### paste into demo-a
 
@@ -103,6 +109,17 @@ kubectl exec -it demo-a-prodcatapi-XXXXXXXXXXXXXX -- /bin/bash
 
 ### copy curl command from swagger
 
+```
+curl -X 'GET' \
+  'http://localhost:5000/api/v3/secret/password' \
+  -H 'accept: application/json'
+```
+
+```
+{"key":"password","value":"H37c5bza+d9.de89"}
+```
+
+
 ### paste into 2nd demo-a window
 
 ### close demo-a window, start new cmd bottom right
@@ -110,37 +127,76 @@ kubectl exec -it demo-a-prodcatapi-XXXXXXXXXXXXXX -- /bin/bash
 ### install demo-b
 
 ```
-cd git/oda-canvas-component-vault
-helm upgrade --install demo-b -n components --create-namespace source/component-vault/custom/productcatalog-v1beta3-compvault
-```
-
-### restart demo-b prodcatapi 
-
-```
-kubectl rollout restart deployment demo-b-prodcatapi
+cd git/oda-canvas-component-vault-ODAA26
+helm upgrade --install demo-b -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1beta3-compvault
 ```
 
 ### log into demo-b prodcatapi
 
 ```
 kubectl get pods
-
-kubectl exec -it demo-a-prodcatapi-XXXXXXXXXXXXXX -- /bin/bash
+PRODCATAPI_B_POD=$(kubectl get pods -limpl=demo-b-prodcatapi -o=jsonpath="{.items[*].metadata.name}")
+echo $PRODCATAPI_B_POD
+kubectl exec -it $PRODCATAPI_B_POD -- /bin/bash
 ```
 
 ### copy curl from swagger
+
+
+```
+curl -X 'GET' \
+  'http://localhost:5000/api/v3/secret/password' \
+  -H 'accept: application/json'
+```
+
+```
+ERROR 404: key not found
+```
+
 
 ### explain X in PPT
 
 ### copy CREATE curl from swagger with other value
 
+```
+curl -X 'POST' \
+  'http://localhost:5000/api/v3/secret' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "key": "password",
+  "value": "DemoBPassword"
+}'
+```
+
 ### curl with get (arrow-up)
+
+```
+curl -X 'GET' \
+  'http://localhost:5000/api/v3/secret/password' \
+  -H 'accept: application/json'
+```
+
+```
+{"key":"password","value":"DemoBPassword"}
+```
 
 ### Explain demo-b arrow to own componentvault
 
 ### in demo-a curl with get --> other value
 
+```
+curl -X 'GET' \
+  'http://localhost:5000/api/v3/secret/password' \
+  -H 'accept: application/json'
+```
+
+```
+{"key":"password","value":"H37c5bza+d9.de89"}
+```
+
 ### open Vault, show new password
+
 
 
 ## undepoly demo-a
@@ -154,72 +210,3 @@ helm uninstall demo-a
 --> show in HC Vault
 
 
-
-
-
-
-
-## Canvas
-
-### deploy Canvas from modified charts
-
-```
-helm dependency update charts/cert-manager-init
-helm dependency update charts/canvas-oda
-
-# helm upgrade --install canvas -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault --set controller.deployment.imagePullPolicy=Always --set=controller.configmap.loglevel=10 --values=source/component-vault/custom/virtualservices/component-gateway-tls-values.yaml charts/canvas-oda
-
-helm upgrade --install canvas -n canvas --create-namespace --values source/component-vault/custom/patched-oda-canvas/values.yaml charts/canvas-oda
-```
-
-### deploy Canvas from public charts
-
-```
-helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
-helm repo update
-
-helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=controller.configmap.loglevel=10
-```
-
-### uninstall Canavs
-
-```
-helm uninstall canvas -n canvas 
-```
-
-## ODA Component ProducCatalogManagement
-
-### install prodcat component with component vault
-
-```
-helm upgrade --install prodcat -n components --create-namespace source/component-vault/custom/productcatalog-v1beta3-compvault
-```
-
-### install public prodcat component 
-
-```
-helm repo add oda-components https://tmforum-oda.github.io/reference-example-components
-helm repo update
-helm install prodcat -n components --create-namespace oda-components/productcatalog
-```
-
-### uninstall prodcat component 
-
-```
-helm uninstall prodcat -n components 
-```
-
-# ComponentVault Operator
-
-## deploy ComponentVault Operator
-
-```
-helm upgrade --install componentvault-operator -n canvas --create-namespace source/component-vault/operators/componentvaultoperator-hc/helmcharts/cvop
-```
-
-
-## undeploy ComponentVault Operator
-
-```
-helm uninstall -n canvas componentvault-operator
-```
