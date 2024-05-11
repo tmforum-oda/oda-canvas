@@ -1,5 +1,5 @@
-#FROM codercom/code-server:4.22.0
-FROM dockerhub.devops.telekom.de/codercom/code-server:4.22.0
+FROM codercom/code-server:4.22.0
+#FROM dockerhub.devops.telekom.de/codercom/code-server:4.22.0
 
 USER 0
 
