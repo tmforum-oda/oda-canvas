@@ -34,8 +34,7 @@ Explain what will be done next.
 ### deploy demo-a
 
 ```
-cd git/oda-canvas-component-vault
-helm upgrade --install demo-a -n components --create-namespace source/component-vault/custom/productcatalog-v1beta3-compvault
+helm upgrade --install demo-a -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1beta3-compvault
 ```
 
 ### show HashiCorp Vault GUI

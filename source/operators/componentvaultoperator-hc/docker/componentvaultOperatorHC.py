@@ -437,7 +437,7 @@ def setupComponentVault(cv_namespace:str, cv_name:str, pod_name:str, pod_namespa
             ## TODO[FH]: additional security checks to ensure no orphane vault is reused
             logger.info(f"  already exists")
         else:
-            client.sys.enable_secrets_engine("kv", secrets_mount, options={"version":"2"})
+            client.sys.enable_secrets_engine("kv", secrets_mount, options={"version":"2", "description":f"ODA ComponentVault for {cv_namespace}:{cv_name}"})
         
         ### create policy
         # https://hvac.readthedocs.io/en/stable/usage/system_backend/policy.html#create-or-update-policy
