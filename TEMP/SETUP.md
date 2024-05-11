@@ -54,7 +54,7 @@ cd ../../charts/canvas-oda
 helm dependency update
 helm dependency build
 cd ../..
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=20 --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istiocontroller-0.4.0-compvault --set=componentvault-operator.logLevel=20
+	helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=20 --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istiocontroller-0.4.0-compvault --set=componentvault-operator.logLevel=20
 ```
 
 ## patch api operator
