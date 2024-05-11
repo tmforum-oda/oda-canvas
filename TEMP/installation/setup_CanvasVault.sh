@@ -74,3 +74,4 @@ if [ "$1" == "VPS2" ]; then
 fi
 
 cd $BASEDIR
+
