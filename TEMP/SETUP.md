@@ -105,6 +105,7 @@ with WSL:
 
 ```
 sudo apt-get install jq -y
+cd ~/git/oda-canvas-component-vault-ODAA26
 TEMP/installation/setup_CanvasVault.sh GCP
 ```
 
