@@ -4,7 +4,7 @@
 
 ```
 cd ~
-cd git/oda-canvas-component-vault_ODAA26
+cd git/oda-canvas-component-vault-ODAA26
 git pull
 ./TEMP/build/build-component-operator.sh
 ```
@@ -13,7 +13,7 @@ git pull
 
 ```
 cd ~
-cd git/oda-canvas-component-vault_ODAA26
+cd git/oda-canvas-component-vault-ODAA26
 git pull
 ./TEMP/build/build-componentvault-operator.sh
 ```
@@ -23,9 +23,18 @@ git pull
 
 ```
 cd ~
-cd git/oda-canvas-component-vault_ODAA26
+cd git/oda-canvas-component-vault-ODAA26
 git pull
 ./TEMP/build/build-componentvault-sidecar.sh
+```
+
+## Build Code-Server with Helm und Node
+
+```
+cd ~
+cd git/oda-canvas-component-vault-ODAA26
+git pull
+./TEMP/build/build-code-server-with-helm-and-node.sh
 ```
 
 # Install

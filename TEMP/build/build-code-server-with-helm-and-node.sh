@@ -18,3 +18,4 @@ docker build -t mtr.devops.telekom.de/magenta_canvas/public:code-server-with-hel
 docker push mtr.devops.telekom.de/magenta_canvas/public:code-server-with-helm-and-node-4.22.0
 
 kubectl rollout restart deployment -n code-server code-server || true
+
