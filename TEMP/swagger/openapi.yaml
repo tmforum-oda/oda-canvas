@@ -16,8 +16,8 @@ externalDocs:
   description: Find out more about Private Vault
   url: http://.../
 servers:
-  #- url: https://privatevault.k8s.feri.ai/
-  - url: http://localhost/api/v3:5000/
+  #- url: https://canvas-vault-hc.ihc-dt.cluster-3.de/
+  - url: http://localhost:5000/api/v3/
 tags:
   - name: secret
     description: Secure Key-Value store
