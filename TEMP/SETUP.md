@@ -50,6 +50,7 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 
 ```
 cd ~/git/oda-canvas-component-vault-ODAA26
+
 cd charts/cert-manager-init
 helm dependency update
 helm dependency build
@@ -63,7 +64,8 @@ cd ../../charts/canvas-oda
 helm dependency update
 helm dependency build
 cd ../..
-	helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=20 --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istiocontroller-0.4.0-compvault --set=componentvault-operator.logLevel=20
+
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=20 --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault --set=componentvault-operator.logLevel=20
 ```
 
 ## patch api operator
@@ -138,6 +140,14 @@ kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-c
 ```
 
 
+## [optional] install code-server
+
+```
+# CODE_SERVER_PASSWORD=<Fill in secure password>
+cd ~/git/oda-canvas-component-vault-ODAA26
+TEMP/code-server/install-code-server.sh
+
+```
 
 
 ## Deploy Component with component vault
@@ -151,6 +161,14 @@ helm upgrade --install prodcat -n components --create-namespace feature-definiti
 
 ## Undeploy Component PRODCAT
 
+uninstall all components
+
+```
+helm list -n components
+```
+
+for example release "prodcat":
+
 ```
 helm uninstall prodcat -n components
 ```
@@ -163,6 +181,7 @@ helm uninstall -n canvas canvas
 kubectl delete pvc -n canvas data-canvas-postgresql-0
 kubectl delete lease -n kube-system cert-manager-cainjector-leader-election
 kubectl delete lease -n kube-system cert-manager-controller
+kubectl delete ns canvas
 kubectl delete ns components
 ```
 
@@ -175,3 +194,17 @@ kubectl delete -n canvas-vault -f TEMP/canvas-vault/canvas-vault-hc-vs.yaml
 kubectl delete clusterrolebinding oidc-reviewer  
 kubectl delete ns canvas-vault
 ```
+
+## Uninstall Code-Server
+
+```
+helm uninstall -n code-server code-server
+kubectl delete clusterrolebinding code-server-cluster-admin-rb 
+kubectl delete -f TEMP/code-server/virtualservice/code-server-vs.yaml
+kubectl delete ns code-server
+```
+
+# Others
+
+do not uninstall istio, because it removes the loadbalancer carrying the external IP.
+Redeployment would change the IP address.

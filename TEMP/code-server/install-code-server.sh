@@ -8,8 +8,9 @@ test -n "$CODE_SERVER_PASSWORD"
 kubectl create ns code-server || true
 kubectl create secret generic -n code-server code-server-secret --from-literal=password="$CODE_SERVER_PASSWORD" --dry-run=client -oyaml | kubectl apply -f - 
 
-git clone https://github.com/coder/code-server
-cd code-server
+rm-rf code-server-repo
+git clone https://github.com/coder/code-server code-server-repo
+cd code-server-repo
 helm upgrade --install -n code-server --create-namespace code-server --set existingSecret=code-server-secret ci/helm-chart \
     --set image.repository=mtr.devops.telekom.de/magenta_canvas/public \
     --set image.tag=code-server-with-helm-and-node-4.22.0
