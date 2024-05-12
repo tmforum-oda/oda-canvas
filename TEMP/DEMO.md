@@ -210,3 +210,11 @@ helm uninstall demo-a
 --> show in HC Vault
 
 
+## [optional]
+
+show logs of cvsidcar
+
+```
+PRODCATAPI_B_POD=$(kubectl get pods -limpl=demo-b-prodcatapi -o=jsonpath="{.items[*].metadata.name}")
+kubectl logs $PRODCATAPI_B_POD cvsidecar
+```
