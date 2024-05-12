@@ -109,6 +109,12 @@ spec:
       mode: SIMPLE
 ```
 
+## [optional] create keycloak route
+
+```
+kubectl apply -f TEMP/virtualservices/keycloak-vs.yaml
+```
+
 
 # install HashiCorp vault
 
