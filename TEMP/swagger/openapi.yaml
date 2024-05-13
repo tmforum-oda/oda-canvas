@@ -1,34 +1,34 @@
 openapi: 3.0.3
 info:
-  title: Private Vault - OpenAPI 3.0
+  title: Component Vault - OpenAPI 3.0
   description: |-
-    This is a simple key-value store 
+    "This is a simple key-value store
     Some useful links:
-    - [The sources](https://github.com/.../openapi.yaml)
+    - [The sources](https://github.com/.../openapi.yaml)"
   termsOfService: http://.../
   contact:
-    email: ferenc.hechler@gmail.com
+    email: ferenc.hechler@telekom.de
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 0.1.0
 externalDocs:
-  description: Find out more about Private Vault
+  description: Find out more about Component Vault
   url: http://.../
 servers:
-  #- url: https://canvas-vault-hc.ihc-dt.cluster-3.de/
-  - url: http://localhost:5000/api/v3/
+#- url: https://canvas-vault-hc.ihc-dt.cluster-3.de/
+- url: http://localhost:5000/api/v3/
 tags:
-  - name: secret
-    description: Secure Key-Value store
-    externalDocs:
-      description: Find out more
-      url: http://...
+- name: secret
+  description: Secure Key-Value store
+  externalDocs:
+    description: Find out more
+    url: http://...
 paths:
   /secret:
     post:
       tags:
-        - secret
+      - secret
       summary: Create secret
       description: auth needed.
       operationId: createSecret
@@ -45,8 +45,8 @@ paths:
             schema:
               $ref: '#/components/schemas/Secret'
       responses:
-        default:
-          description: successful operation
+        "201":
+          description: Successful created
           content:
             application/json:
               schema:
@@ -54,47 +54,51 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Secret'
-  /secret/{secretkey}:
+        default:
+          description: Unexpected error
+  /secret/{secretKey}:
     get:
       tags:
-        - secret
-      summary: Get secret by secretkey
-      description: ''
+      - secret
+      summary: Get secret by secretKey
+      description: ""
       operationId: getSecretByKey
       parameters:
-        - name: secretkey
-          in: path
-          description: 'The key of the secret. '
-          required: true
-          schema:
-            type: string
+      - name: secretKey
+        in: path
+        description: 'The key of the secret. '
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '200':
-          description: successful operation
+        "200":
+          description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Secret'          
+                $ref: '#/components/schemas/Secret'
             application/xml:
               schema:
                 $ref: '#/components/schemas/Secret'
-        '400':
-          description: Invalid secretkey supplied
-        '404':
-          description: Secret not found
+        default:
+          description: Unexpected error
     put:
       tags:
-        - secret
+      - secret
       summary: Update secret
       description: auth needed.
       operationId: updateSecret
       parameters:
-        - name: secretkey
-          in: path
-          description: key that need to be updated
-          required: true
-          schema:
-            type: string
+      - name: secretKey
+        in: path
+        description: key that need to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       requestBody:
         description: Update an existent secret in the store
         content:
@@ -108,26 +112,32 @@ paths:
             schema:
               $ref: '#/components/schemas/Secret'
       responses:
+        "201":
+          description: Successful created
+        "204":
+          description: Successful updated
         default:
-          description: successful operation
+          description: Unexpected error
     delete:
       tags:
-        - secret
+      - secret
       summary: Delete secret
-      description: auth needed.
+      description: auth needed
       operationId: deleteSecret
       parameters:
-        - name: secretkey
-          in: path
-          description: The key that needs to be deleted
-          required: true
-          schema:
-            type: string
+      - name: secretKey
+        in: path
+        description: The key that needs to be deleted
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '400':
-          description: Invalid secretkey supplied
-        '404':
-          description: Secret not found
+        "204":
+          description: Successful deleted
+        default:
+          description: Unexpected error
 components:
   schemas:
     Secret:
@@ -135,24 +145,13 @@ components:
       properties:
         key:
           type: string
-          example: password
         value:
           type: string
-          example: H37c5bza+d9.de89
+      example:
+        key: db-password
+        value: H37c5bza+d9.de89
       xml:
         name: secret
-    ApiResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        type:
-          type: string
-        message:
-          type: string
-      xml:
-        name: '##default'
   requestBodies:
     Secret:
       description: Secret object that needs to be added to the store
@@ -164,14 +163,14 @@ components:
           schema:
             $ref: '#/components/schemas/Secret'
   securitySchemes:
-    privatevault_auth:
+    componentvault_auth:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: https://privatevault.k8s.feri.ai/oauth/authorize
+          authorizationUrl: https://componentvault.ihc-dt.cluster-3.de/oauth/authorize
           scopes:
-            write:pets: modify secrets in your account
-            read:pets: read your secrets
+            write:secret: modify secrets in your account
+            read:secret: read your secrets
     api_key:
       type: apiKey
       name: api_key

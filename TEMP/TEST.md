@@ -7,6 +7,7 @@
 ```
 TEMP/code-server/install-code-server.sh
 ```
+
 in Browser open https://code-server.ihc-dt.cluster-3.de
 
 ## install helm and node 
@@ -19,13 +20,14 @@ Helm and node.js are preinstalled in the image, for details look here:
 ```
 mkdir ~/git
 cd ~/git
-git clone https://github.com/tmforum-oda/oda-canvas.git
+git clone -b odaa-26 https://github.com/ODA-CANVAS-FORK/oda-canvas-component-vault.git
 ```
 
 ## install npm packages
 
 ```
-cd ~/git/oda-canvas/feature-definition-and-test-kit
+cd ~/git/oda-canvas-component-vault/feature-definition-and-test-kit
+
 npm install cucumber
 
 cd identity-manager-utils-keycloak

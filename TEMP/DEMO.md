@@ -64,7 +64,7 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "key": "password",
+  "key": "db-password",
   "value": "H37c5bza+d9.de89"
 }'
 ```
@@ -79,12 +79,12 @@ show new password
 
 ```
 curl -X 'GET' \
-  'http://localhost:5000/api/v3/secret/password' \
+  'http://localhost:5000/api/v3/secret/db-password' \
   -H 'accept: application/json'
 ```
 
 ```
-{"key":"password","value":"H37c5bza+d9.de89"}
+{"key":"db-password","value":"H37c5bza+d9.de89"}
 ```
 
 ### paste into demo-a
@@ -111,12 +111,12 @@ kubectl exec -it demo-a-prodcatapi-XXXXXXXXXXXXXX -- /bin/bash
 
 ```
 curl -X 'GET' \
-  'http://localhost:5000/api/v3/secret/password' \
+  'http://localhost:5000/api/v3/secret/db-password' \
   -H 'accept: application/json'
 ```
 
 ```
-{"key":"password","value":"H37c5bza+d9.de89"}
+{"key":"db-password","value":"H37c5bza+d9.de89"}
 ```
 
 
@@ -145,7 +145,7 @@ kubectl exec -it $PRODCATAPI_B_POD -- /bin/bash
 
 ```
 curl -X 'GET' \
-  'http://localhost:5000/api/v3/secret/password' \
+  'http://localhost:5000/api/v3/secret/db-password' \
   -H 'accept: application/json'
 ```
 
@@ -164,7 +164,7 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "key": "password",
+  "key": "db-password",
   "value": "DemoBPassword"
 }'
 ```
@@ -173,12 +173,12 @@ curl -X 'POST' \
 
 ```
 curl -X 'GET' \
-  'http://localhost:5000/api/v3/secret/password' \
+  'http://localhost:5000/api/v3/secret/db-password' \
   -H 'accept: application/json'
 ```
 
 ```
-{"key":"password","value":"DemoBPassword"}
+{"key":"db-password","value":"DemoBPassword"}
 ```
 
 ### Explain demo-b arrow to own componentvault
@@ -187,12 +187,12 @@ curl -X 'GET' \
 
 ```
 curl -X 'GET' \
-  'http://localhost:5000/api/v3/secret/password' \
+  'http://localhost:5000/api/v3/secret/db-password' \
   -H 'accept: application/json'
 ```
 
 ```
-{"key":"password","value":"H37c5bza+d9.de89"}
+{"key":"db-password","value":"H37c5bza+d9.de89"}
 ```
 
 ### open Vault, show new password
