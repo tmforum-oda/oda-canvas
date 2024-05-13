@@ -1,0 +1,189 @@
+{
+	"apiVersion": "oda.tmforum.org/v1beta3",
+	"kind": "DependentAPI",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/dependentApiCreate": "{\"started\":\"2024-04-29T19:33:38.883113+00:00\",\"stopped\":\"2024-04-29T19:33:38.887478+00:00\",\"purpose\":\"update\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"apitype\":\"openapi\",\"name\":\"party\",\"specification\":\"https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json\"},\"metadata\":{\"labels\":{\"app.kubernetes.io/managed-by\":\"Helm\",\"oda.tmforum.org/componentName\":\"prodcat-productcatalogmanagement\"}}}\n",
+			"kopf.zalando.org/updateDepedentAPIReady.status.implementation": "{\"started\":\"2024-04-29T19:33:38.883139+00:00\",\"purpose\":\"update\",\"retries\":0,\"success\":false,\"failure\":false}"
+		},
+		"creationTimestamp": "2024-04-29T19:33:38Z",
+		"finalizers": [
+			"kopf.zalando.org/KopfFinalizerMarker"
+		],
+		"generateName": "prodcat-productcatalogmanagement-",
+		"generation": 3,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "prodcat-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"8a58c597-e3b5-4b02-953f-16dd98f98516\"}": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:apitype": {
+						},
+						"f:name": {
+						},
+						"f:specification": {
+						}
+					},
+					"f:status": {
+						".": {
+						},
+						"f:depapiStatus": {
+							".": {
+							},
+							"f:url": {
+							}
+						},
+						"f:implementation": {
+							".": {
+							},
+							"f:ready": {
+							}
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2024-04-29T19:33:38Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {
+							},
+							"f:kopf.zalando.org/dependentApiCreate": {
+							},
+							"f:kopf.zalando.org/last-handled-configuration": {
+							},
+							"f:kopf.zalando.org/updateDepedentAPIReady.status.implementation": {
+							}
+						},
+						"f:finalizers": {
+							".": {
+							},
+							"v:\"kopf.zalando.org/KopfFinalizerMarker\"": {
+							}
+						}
+					},
+					"f:status": {
+						"f:kopf": {
+							".": {
+							},
+							"f:progress": {
+								".": {
+								},
+								"f:dependentApiCreate": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:updateDepedentAPIReady/status.implementation": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:success": {
+									}
+								}
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2024-04-29T19:33:38Z"
+			}
+		],
+		"name": "prodcat-productcatalogmanagement-dapi-party",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "prodcat-productcatalogmanagement",
+				"uid": "8a58c597-e3b5-4b02-953f-16dd98f98516"
+			}
+		],
+		"resourceVersion": "51929806",
+		"uid": "1a0db088-3f36-4413-abeb-f2e1314adf3f"
+	},
+	"spec": {
+		"apitype": "openapi",
+		"name": "party",
+		"specification": "https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json"
+	},
+	"status": {
+		"depapiStatus": {
+			"url": "http://dummy.url/prodcat-productcatalogmanagement-dapi-party"
+		},
+		"implementation": {
+			"ready": true
+		},
+		"kopf": {
+			"progress": {
+				"dependentApiCreate": {
+					"failure": false,
+					"purpose": "update",
+					"retries": 1,
+					"started": "2024-04-29T19:33:38.883113+00:00",
+					"stopped": "2024-04-29T19:33:38.887478+00:00",
+					"success": true
+				},
+				"updateDepedentAPIReady/status.implementation": {
+					"failure": false,
+					"purpose": "update",
+					"retries": 0,
+					"started": "2024-04-29T19:33:38.883139+00:00",
+					"success": false
+				}
+			}
+		}
+	}
+}

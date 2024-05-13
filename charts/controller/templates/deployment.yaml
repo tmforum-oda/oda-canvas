@@ -21,7 +21,7 @@ spec:
       containers:
       - name: {{.Values.deployment.controllerName}}
         image: {{.Values.deployment.compconImage}}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{.Values.deployment.compconImagePullPolicy}}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap
