@@ -1,8 +1,17 @@
-FROM python:3.7
+FROM python:3.12
 RUN pip install kopf
-RUN pip install kubernetes==25.3.0
+RUN pip install kubernetes==27.2.0
 RUN pip install cloudevents
+
+ARG CICD_BUILD_TIME
+ENV CICD_BUILD_TIME $CICD_BUILD_TIME
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
+
 ADD . /
 ADD securityController/secconkeycloak.py /
-CMD kopf run --namespace=$COMPONENT_NAMESPACE --standalone componentOperator/componentOperator.py apiOperatorIstio/apiOperatorIstio.py securityController/securityControllerKeycloak.py
+###
+# remove --standalone option, because in combination with dependent api operator it leads to infinite loops.
+#CMD kopf run --namespace=$COMPONENT_NAMESPACE --standalone componentOperator/componentOperator.py apiOperatorIstio/apiOperatorIstio.py securityController/securityControllerKeycloak.py
+CMD kopf run --namespace=$COMPONENT_NAMESPACE componentOperator/componentOperator.py apiOperatorIstio/apiOperatorIstio.py securityController/securityControllerKeycloak.py
 # CMD kopf run --namespace=$COMPONENT_NAMESPACE --standalone componentOperator/componentOperator.py 

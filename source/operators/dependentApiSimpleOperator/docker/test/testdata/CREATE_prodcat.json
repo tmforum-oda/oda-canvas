@@ -1,0 +1,91 @@
+{
+	"apiVersion": "oda.tmforum.org/v1beta3",
+	"kind": "DependentAPI",
+	"metadata": {
+		"creationTimestamp": "2024-04-25T08:50:30Z",
+		"finalizers": [
+			"kopf.zalando.org/KopfFinalizerMarker"
+		],
+		"generateName": "prodcat-productcatalogmanagement-",
+		"generation": 1,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "prodcat-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"86aed6c6-6444-4a5f-80ce-2152ffc18b4b\"}": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:apitype": {
+						},
+						"f:name": {
+						},
+						"f:specification": {
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2024-04-25T08:50:30Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:finalizers": {
+							".": {
+							},
+							"v:\"kopf.zalando.org/KopfFinalizerMarker\"": {
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2024-04-25T08:50:30Z"
+			}
+		],
+		"name": "prodcat-productcatalogmanagement-dapi-party",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "prodcat-productcatalogmanagement",
+				"uid": "86aed6c6-6444-4a5f-80ce-2152ffc18b4b"
+			}
+		],
+		"resourceVersion": "48079484",
+		"uid": "ccb47476-909c-487c-96ed-f283b55cab8c"
+	},
+	"spec": {
+		"apitype": "openapi",
+		"name": "party",
+		"specification": "https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json"
+	}
+}

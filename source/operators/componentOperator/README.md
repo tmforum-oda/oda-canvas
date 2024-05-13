@@ -1,10 +1,12 @@
 # Component Operator - Introduction
 
-This is the reference implementaiton of a component controller that takes metadata from ODA Component and uses it to automatically configure the exposedAPIs, securityAPIs (and in the future other services). The diagram below shows how the component controller interacts with the different Kubernetes entities (via the Kubernetes API).
+This is the reference implementaiton of a component controller that takes metadata from ODA Component and uses it to automatically configure the exposedAPIs, securityAPIs ${\color{green}, dependentAPIs}$ (and in the future other services). The diagram below shows how the component controller interacts with the different Kubernetes entities (via the Kubernetes API).
 
 
 
 ![Sequence diagram](sequenceDiagrams/componentOperator.png)
+
+[plantUML code](sequenceDiagrams/componentOperator.puml)
 
 
 
