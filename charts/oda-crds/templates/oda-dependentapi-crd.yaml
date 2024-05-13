@@ -1,0 +1,80 @@
+# This is a CustomResourceDefinition for DependentAPIs.
+apiVersion: "apiextensions.k8s.io/v1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "dependentapis.oda.tmforum.org"
+spec:
+  group: "oda.tmforum.org"
+  scope: "Namespaced"
+  names:
+    plural: "dependentapis"
+    singular: "dependentapi"
+    shortNames:
+    - depapi
+    - depapis
+    kind: "DependentAPI"
+  versions:
+  - name: "v1beta3"
+    # Each version can be enabled/disabled by Served flag.
+    served: true
+    # One and only one version must be marked as the storage version.
+    storage: true
+    deprecated: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+            properties:
+              name:
+                type: string
+                description: Name of the API that this component is dependent on
+              specification:
+                type: string
+                format: url
+                description: url to the specification of the API. e.g. url to the swagger file
+              apitype:
+                type: string
+                enum:
+                - openapi
+                description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+              selector:
+                type: object
+                description: key value pairs for filtering the dependent API search, e.g. 'releaseName:demo-b'.
+                x-kubernetes-preserve-unknown-fields: true
+                properties:
+                  zone: 
+                    type: string
+                    description: zone(cluster-/canvas-/gateway-id) or 'SAME' for same as component
+                  releaseName: 
+                    type: string
+                    description: release name of the component
+                  namespace:
+                    type: string
+                    description: namespace of the exposedAPI custom resource
+              resources:
+                type: array
+                items:
+                  type: object
+                description: Resources is an optional list of resources that are consumed by the API.
+              required:
+                type: boolean
+                description: Required is a flag that indicates whether the API is required or not.
+            required:
+            - name
+            - apitype
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+    additionalPrinterColumns:
+    - name: DepAPI_endpoint
+      type: string
+      description: Dependent API endpoint Url
+      jsonPath: .status.depapiStatus.url
+    - name: DepAPI_ready
+      type: string
+      description: Dependent API configuration is ready - e.g. gateway configuration
+      jsonPath: .status.implementation.ready

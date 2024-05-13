@@ -88,6 +88,11 @@ rules:
     resources: [servicemonitors]
     verbs: [list, watch, patch, get, create, update, delete]
 
+  # DependentAPI Custom Resources
+  - apiGroups: [oda.tmforum.org]
+    resources: [dependentapis]
+    verbs: [list, watch, patch, get, create, update, delete]
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

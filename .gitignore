@@ -7,6 +7,7 @@ cabundle.pem.b64
 .settings/
 .project
 .pydevproject
+.pydevproject.bak
 keycloak-credentials.js
 canvas-portal/portal-core/target/
 canvas-portal/portal-helm/target/

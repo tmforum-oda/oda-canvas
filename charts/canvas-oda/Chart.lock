@@ -14,11 +14,11 @@ dependencies:
 - name: controller
   repository: file://../controller
   version: 1.0.0
-- name: componentvault-operator
-  repository: file://../componentvault-operator
+- name: dependentapi-simple-operator
+  repository: file://../dependentapi-simple-operator
   version: 0.1.0
 - name: oda-webhook
   repository: file://../oda-webhook
   version: 1.1.1
-digest: sha256:c4e54c812368f83b0c1959f05d0872e95961377dc03fb25b72f4508d62c0a544
-generated: "2024-05-10T11:45:15.062414+02:00"
+digest: sha256:8c3058d1df2b583d08777623c815e26c11db46a34a8a78a988e8d3028f5828aa
+generated: "2024-04-29T08:48:04.8513657+02:00"

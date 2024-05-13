@@ -1,0 +1,127 @@
+{
+	"apiVersion": "oda.tmforum.org/v1beta3",
+	"kind": "DependentAPI",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"apitype\":\"openapi\",\"name\":\"party\",\"specification\":\"https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json\"},\"metadata\":{\"labels\":{\"app.kubernetes.io/managed-by\":\"Helm\",\"oda.tmforum.org/componentName\":\"prodcat-productcatalogmanagement\"}}}\n"
+		},
+		"creationTimestamp": "2024-04-29T09:32:29Z",
+		"generateName": "prodcat-productcatalogmanagement-",
+		"generation": 22,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "prodcat-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"1b584ed8-1e42-4d70-bf20-913d89040f70\"}": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:apitype": {
+						},
+						"f:name": {
+						},
+						"f:specification": {
+						}
+					},
+					"f:status": {
+						".": {
+						},
+						"f:depapiStatus": {
+							".": {
+							},
+							"f:url": {
+							}
+						},
+						"f:implementation": {
+							".": {
+							},
+							"f:ready": {
+							}
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2024-04-29T09:32:29Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {
+							},
+							"f:kopf.zalando.org/last-handled-configuration": {
+							}
+						}
+					},
+					"f:status": {
+						"f:kopf": {
+							".": {
+							},
+							"f:progress": {
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2024-04-29T11:29:18Z"
+			}
+		],
+		"name": "prodcat-productcatalogmanagement-dapi-party",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1beta3",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "prodcat-productcatalogmanagement",
+				"uid": "1b584ed8-1e42-4d70-bf20-913d89040f70"
+			}
+		],
+		"resourceVersion": "51634568",
+		"uid": "360d183d-f644-452b-ad3a-b28e1f28369e"
+	},
+	"spec": {
+		"apitype": "openapi",
+		"name": "party",
+		"specification": "https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json"
+	},
+	"status": {
+		"depapiStatus": {
+			"url": "http://dummy.url/prodcat-productcatalogmanagement-dapi-party"
+		},
+		"implementation": {
+			"ready": true
+		},
+		"kopf": {
+			"progress": {
+			}
+		}
+	}
+}

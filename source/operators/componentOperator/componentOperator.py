@@ -4,7 +4,8 @@ Normally this module is deployed as part of an ODA Canvas. It uses the kopf kube
 It registers handler functions for:
 
 1. New ODA Components - to create, update or delete child API custom resources. see `coreAPIs <#componentOperator.componentOperator.coreAPIs>`_ and `securityAPIs <#componentOperator.componentOperator.securityAPIs>`_
-2. For status updates in the child API Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateAPIStatus <#componentOperator.componentOperator.updateAPIStatus>`_ and `updateAPIReady <#componentOperator.componentOperator.updateAPIReady>`_
+2a. For status updates in the child API Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateAPIStatus <#componentOperator.componentOperator.updateAPIStatus>`_ and `updateAPIReady <#componentOperator.componentOperator.updateAPIReady>`_
+2b. For status updates in the child DependentAPI Custom resources, so that the Component status reflects a summary of all the childrens status. see `updateDependentAPIStatus <#componentOperator.componentOperator.updateDependentAPIStatus>`_ and `updateDependentAPIReady <#componentOperator.componentOperator.updateDependentAPIReady>`_
 3. For new Services, Deployments, PersistentVolumeClaims and Jobs that have a oda.tmforum.org/componentName label. These resources are updated to become children of the ODA Component resource. see `adopt_deployment <#componentOperator.componentOperator.adopt_deployment>`_ , `adopt_persistentvolumeclaim <#componentOperator.componentOperator.adopt_persistentvolumeclaim>`_ , `adopt_job <#componentOperator.componentOperator.adopt_job>`_ and `adopt_service <#componentOperator.componentOperator.adopt_service>`_
 """
 import time
@@ -33,6 +34,15 @@ if GIT_COMMIT_SHA:
 
 
 
+CICD_BUILD_TIME = os.getenv('CICD_BUILD_TIME')
+GIT_COMMIT_SHA = os.getenv('GIT_COMMIT_SHA')
+if CICD_BUILD_TIME:
+    logger.info(f'CICD_BUILD_TIME=%s', CICD_BUILD_TIME)
+if GIT_COMMIT_SHA:
+    logger.info(f'GIT_COMMIT_SHA=%s', GIT_COMMIT_SHA)
+
+
+
 # get namespace to monitor
 component_namespace = os.environ.get('COMPONENT_NAMESPACE', 'components')
 logger.info(f'Monitoring namespace %s', component_namespace)
@@ -49,6 +59,11 @@ COMPONENTVAULT_GROUP = 'oda.tmforum.org'
 COMPONENTVAULT_VERSION = "v1beta3"
 COMPONENTVAULT_PLURAL = "componentvaults"
 COMPONENTVAULT_KIND = "ComponentVault" 
+
+DEPENDENTAPI_GROUP = 'oda.tmforum.org'
+DEPENDENTAPI_VERSION = "v1beta3"
+DEPENDENTAPI_PLURAL = "dependentapis"
+DEPENDENTAPI_KIND = "DependentAPI" 
 
 PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
@@ -162,6 +177,39 @@ async def deleteAPI(deleteAPIName, componentName, status, namespace, inHandler):
     except ApiException as e:
         logWrapper(logging.DEBUG, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
         logWrapper(logging.ERROR, 'deleteAPI', inHandler, 'component/' + componentName, componentName, "Exception", " when calling CustomObjectsApi->delete_namespaced_custom_object")
+
+
+async def deleteDependentAPI(dependentAPIName, componentName, status, namespace, inHandler):
+    """Helper function to delete DependentAPI Custom objects.
+    
+    Args:
+        * dependentAPIName (String): Name of the DependentAPI Custom Resource to delete 
+        * componentName (String): Name of the component the dependent API is linked to 
+        * status (Dict): The status from the yaml component envelope.
+        * namespace (String): The namespace for the component
+        * inHandler (String): The name of the handler that called this function
+
+    Returns:
+        No return value
+
+    :meta private:
+    """
+
+    logWrapper(logging.INFO, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "Deleting DependentAPI", f"Deleting DependentAPI {dependentAPIName}")
+    custom_objects_api = kubernetes.client.CustomObjectsApi()
+    try:
+        dependentapi_response = custom_objects_api.delete_namespaced_custom_object(
+            group = GROUP, 
+            version = DEPENDENTAPI_VERSION, 
+            namespace = namespace, 
+            plural = DEPENDENTAPI_PLURAL, 
+            name = dependentAPIName)
+        logWrapper(logging.DEBUG, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "DependentAPI response", dependentapi_response)
+    except ApiException as e:
+        logWrapper(logging.DEBUG, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
+        logWrapper(logging.ERROR, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "Exception", " when calling CustomObjectsApi->delete_namespaced_custom_object")
+
+
 
 
 async def deleteComponentVault(componentVaultName, componentName, status, namespace, inHandler):
@@ -387,6 +435,80 @@ def find_entry_by_name(entries, name):
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
+    """Handler function for **coreFunction** part new or updated components.
+    
+    Processes the **coreFunction.dependentAPIs** part of the component envelope and creates the child DependentAPI resources.
+
+    Args:
+        * meta (Dict): The metadata from the yaml component envelope 
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state) 
+        * status (Dict): The status from the yaml component envelope showing the actual state.
+        * body (Dict): The entire yaml component envelope
+        * namespace (String): The namespace for the component
+        * labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the component
+
+    Returns:
+        Dict: The coreDependentAPIs status that is put into the component envelope status field.
+
+    :meta public:
+    """
+    logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.DEBUG, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called with body", f"{body}")
+    dependentAPIChildren = []
+    dapi_base_name = f"{name}-dapi"
+
+    try:
+        oldCoreDependentAPIs = []
+        if status:  # if status exists (i.e. this is not a new component)
+            oldCoreDependentAPIs = safe_get([], status, 'coreDependentAPIs')
+        logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "--- OLD DEPENDENTAPI (from status) ---", f"{oldCoreDependentAPIs}, type={type(oldCoreDependentAPIs)}")
+            
+        newCoreDependentAPIs = safe_get([], spec, 'coreFunction', 'dependentAPIs')
+        logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "--- NEW DEPENDENTAPI ---", f"{newCoreDependentAPIs}")
+
+        # compare entries by name
+        for oldCoreDependentAPI in oldCoreDependentAPIs:
+            cr_name = oldCoreDependentAPI["name"] 
+            dapi_name = cr_name[len(dapi_base_name)+1:]
+            print(dapi_name)
+            newCoreDependentAPI = find_entry_by_name(newCoreDependentAPIs, dapi_name)
+            if not newCoreDependentAPI:
+                logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Deleting DependentAPIs", cr_name)
+                await deleteDependentAPI(cr_name, name, status, namespace, 'coreDependentAPIs')
+            else:
+                # TODO[FH] implement check for update
+                logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "TODO: Update DependentAPIs", cr_name)
+                dependentAPIChildren.append(oldCoreDependentAPI)                 
+        
+        for newCoreDependentAPI in newCoreDependentAPIs:
+            dapi_name = newCoreDependentAPI["name"] 
+            cr_name = f"{dapi_base_name}-{dapi_name}"
+            print(dapi_name)
+            oldCoreDependentAPI = find_entry_by_name(oldCoreDependentAPIs, cr_name)
+            if not oldCoreDependentAPI:
+                logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Calling createDependentAPI", cr_name)
+                resultStatus = await createDependentAPIResource(newCoreDependentAPI, namespace, name, cr_name, 'coreDependentAPIs')
+                dependentAPIChildren.append(resultStatus)                
+            # else: already handled above        
+
+            
+    except kopf.TemporaryError as e:
+        raise kopf.TemporaryError(e) # allow the operator to retry            
+    except Exception as e:
+        logWrapper(logging.ERROR, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+
+    logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "result for status ", f"{dependentAPIChildren}")
+        
+    # Update the parent's status.
+    return dependentAPIChildren
+
+
+
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 async def securityComponentVault(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function for **securityFunction** part new or updated components.
     
@@ -556,6 +678,32 @@ def constructAPIResourcePayload(inAPI):
         APIResource['spec']['developerUI'] = inAPI['developerUI']
     return APIResource
 
+def constructDependentAPIResourcePayload(inDependentAPI, cr_name):
+    """Helper function to create payloads for DependentAPI Custom objects.
+
+    Args:
+        * inDependentAPI (Dict): The DependentAPI spec 
+        * cr_name custom resource name of the dependent api 
+
+    Returns:
+        DependentAPI Custom object (Dict)
+
+    :meta private:
+    """
+    DependentAPIResource = {
+        "apiVersion": GROUP + "/" + DEPENDENTAPI_VERSION,
+        "kind": DEPENDENTAPI_KIND,
+        "metadata": {},
+        "spec": {}
+    }
+    # Make it our child: assign the namespace, name, labels, owner references, etc.
+    kopf.adopt(DependentAPIResource)
+    newName = (DependentAPIResource['metadata']['ownerReferences'][0]['name'])
+    #DependentAPIResource['metadata']['name'] = f"{newName}-{dapi_name}"
+    DependentAPIResource['metadata']['name'] = cr_name
+    DependentAPIResource['spec'] = inDependentAPI
+    return DependentAPIResource
+
 def constructComponentVaultResourcePayload(inComponentVault):
     """Helper function to create payloads for ComponentVault Custom objects.
 
@@ -687,6 +835,71 @@ async def createAPIResource(inAPI, namespace, name, inHandler):
         
         raise kopf.TemporaryError("Exception creating API custom resource.")
     return returnAPIObject
+
+
+async def createDependentAPIResource(inDependentAPI, namespace, comp_name, cr_name, inHandler):
+    """Helper function to create or update API Custom objects.
+
+    Args:
+        * inDependentAPI (Dict): The DependentAPI definition 
+        * namespace (String): The namespace for the Component and API
+        * cr_name (String): The name of the dependent API custom resource
+        * inHandler (String): The name of the handler calling this function
+
+    Returns:
+        Dict with DependentAPI definition including uuid of the DependentAPI resource and ready status.
+
+    :meta private:
+    """
+    logWrapper(logging.DEBUG, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "Create DependentAPI", inDependentAPI)
+
+    DependentAPIResource = constructDependentAPIResourcePayload(inDependentAPI, cr_name)
+    
+    dependentAPIReadyStatus = False
+    returnDependentAPIObject = {}
+
+    try:
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+        logWrapper(logging.INFO, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "Creating DependentAPI Custom Object", "")
+
+        dependentAPIObj = custom_objects_api.create_namespaced_custom_object(
+            group = GROUP,
+            version = DEPENDENTAPI_VERSION,
+            namespace = namespace,
+            plural = DEPENDENTAPI_PLURAL,
+            body = DependentAPIResource)
+
+        logWrapper(logging.DEBUG, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Resource created", dependentAPIObj)
+        logWrapper(logging.INFO, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI created", DependentAPIResource['metadata']['name'])
+
+    except ApiException as e:
+        if e.status != HTTP_CONFLICT:
+            logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, comp_name, "DependentAPI Exception creating", DependentAPIResource)
+            logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Exception creating", e)
+            raise kopf.TemporaryError("Exception creating DependentAPI custom resource.")
+        else:
+            # Conflict = try updating existing cr
+            logWrapper(logging.INFO, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI already exists", f"Error:{str(e.status)}")
+            try:
+                dependentAPIObj = custom_objects_api.patch_namespaced_custom_object(
+                    group = GROUP,
+                    version = DEPENDENTAPI_VERSION,
+                    namespace = namespace,
+                    plural = DEPENDENTAPI_PLURAL,
+                    name = cr_name,
+                    body = DependentAPIResource)
+                
+                logWrapper(logging.DEBUG, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Resource updated", dependentAPIObj)
+                logWrapper(logging.INFO, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI updated", DependentAPIResource['metadata']['name'])
+            
+            except ApiException as e:
+                logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, comp_name, "DependentAPI Exception updating", DependentAPIResource)
+                logWrapper(logging.WARNING, 'createDependentAPIResource', inHandler, 'component/' + comp_name, cr_name, "DependentAPI Exception updating", e)
+                raise kopf.TemporaryError("Exception creating DependentAPI custom resource.")
+            
+    returnDependentAPIObject = {"name": DependentAPIResource['metadata']['name'], "uid": dependentAPIObj['metadata']['uid'], "ready": dependentAPIReadyStatus}
+    return returnDependentAPIObject
+            
 
 
 async def createComponentVaultResource(inComponentVault, namespace, name, inHandler):
@@ -867,6 +1080,8 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
                         await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
                         return
 
+
+
 async def patchComponent(namespace, name, component, inHandler):
     """Helper function to patch a component.
 
@@ -1039,14 +1254,13 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Handler called", "")
 
     coreAPIsummary = ''
+    coreDependentAPIsummary = ''
     securityComponentVaultSummary = ''
     managementAPIsummary = ''
     securityAPIsummary = ''
     developerUIsummary = ''
     countOfCompleteAPIs = 0
     countOfDesiredAPIs = 0
-    countOfCompleteComponentVaults = 0
-    countOfDesiredComponentVaults = 0
     if 'coreAPIs' in status.keys():
         countOfDesiredAPIs = countOfDesiredAPIs + len(status['coreAPIs'])
         for api in status['coreAPIs']:
@@ -1058,6 +1272,14 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
                 if 'ready' in api.keys():
                     if api['ready'] == True:
                         countOfCompleteAPIs = countOfCompleteAPIs + 1
+    if 'coreDependentAPIs' in status.keys():
+        countOfDesiredDependentAPIs = countOfDesiredDependentAPIs + len(status['coreDependentAPIs'])
+        for depapi in status['coreDependentAPIs']:
+            if 'url' in depapi.keys():
+                coreDependentAPIsummary = coreDependentAPIsummary + depapi['url'] + ' '
+                if 'ready' in depapi.keys():
+                    if depapi['ready'] == True:
+                        countOfCompleteDependentAPIs = countOfCompleteDependentAPIs + 1
     if 'securityComponentVault' in status.keys():
         compvault = status['securityComponentVault']
         if compvault != {}:
@@ -1090,6 +1312,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     status_summary = {}
     status_summary['coreAPIsummary'] = coreAPIsummary
+    status_summary['coreDependentAPIsummary'] = coreDependentAPIsummary
     status_summary['securityComponentVaultSummary'] = securityComponentVaultSummary
     status_summary['managementAPIsummary'] = managementAPIsummary
     status_summary['securityAPIsummary'] = securityAPIsummary
@@ -1102,7 +1325,9 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
         if (('security_client_add/status.summary/status.deployment_status' in status.keys()) and (status['security_client_add/status.summary/status.deployment_status']['listenerRegistered'] == True)):
             status_summary['deployment_status'] = 'In-Progress-CompVault'
             if countOfCompleteComponentVaults == countOfDesiredComponentVaults:
-                status_summary['deployment_status'] = 'Complete'
+                status_summary['deployment_status'] = 'In-Progress-DepApi'
+                if countOfCompleteDependentAPIs == countOfDesiredDependentAPIs:
+                    status_summary['deployment_status'] = 'Complete'
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Creating summary - deployment status", status_summary['deployment_status'])
 
     return status_summary

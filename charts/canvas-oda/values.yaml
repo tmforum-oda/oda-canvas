@@ -111,8 +111,8 @@ keycloak:
 controller:
   deployment:
     controllerName: oda-controller-ingress
-    #compconImage: tmforumodacanvas/component-istio-controller:0.4.0 
-    compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault 
+    ##compconImage: tmforumodacanvas/component-istio-controller:0.4.0 
+    compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.1-compvault 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener:0.7.0
@@ -131,22 +131,5 @@ controller:
     kcrealm: myrealm
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
-
-componentvault-operator:
-  # audience can be queried with 
-  #   kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer'
-  #audience: "https://kubernetes.default.svc.cluster.local"
-  audience: "https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt"
-  logLevel: 20
-  image: mtr.devops.telekom.de/magenta_canvas/public:componentvault-operator-0.1.0-rc
-  imagePullPolicy: Always
-  sidecarImage: "mtr.devops.telekom.de/magenta_canvas/public:componentvault-sidecar-0.1.0-rc"
-  vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
-  auth_path: "jwt-k8s-cv"
-  policy_name_tpl: "cv-{0}-policy"
-  login_role_tpl: "cv-{0}-role"
-  secrets_mount_tpl: "kv-{0}"
-  secrets_base_path_tpl: "sidecar"
-
 webhooks:
   image: tmforumodacanvas/compcrdwebhook:0.6.2 
