@@ -58,7 +58,7 @@ def k8s_load_config(proxy=False):
 
 
 def test_securitySecretsManagement():
-    body_json_file = "testdata/CREATE-prodcat_cv.json"
+    body_json_file = "testdata/CREATE-prodcat_sman.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -177,7 +177,7 @@ def test_summary():
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=True)
+    k8s_load_config(proxy=False)
     test_kubeconfig()
-    #test_securitySecretsManagement()
-    test_summary()
+    test_securitySecretsManagement()
+    #test_summary()
