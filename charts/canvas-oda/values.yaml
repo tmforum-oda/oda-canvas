@@ -145,11 +145,11 @@ secretsmanagement-operator:
   # TODO: add TLS to canvas-vault-hc
   vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
   auth_path: "jwt-k8s-sman"
+  # the tempaltes can be used to generate cluster specific key-value stores, here 'sman'.
+  # component-name + namespace might not be unique in a multi-cluster setup sharing one Canvas-Vault 
+  secrets_mount_tpl: "kv-sman-{0}"
   policy_name_tpl: "sman-{0}-policy"
   login_role_tpl: "sman-{0}-role"
-  # the secrets mount tempalte can be used to generate cluster specific key-value stores.
-  # component-name + namespace might not be unique in a multi-cluster setup sharing one Canvas-Vault 
-  secrets_mount_tpl: "kv-{0}"
   secrets_base_path_tpl: "sidecar"
   # audience can be queried with 
   #   kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer'
