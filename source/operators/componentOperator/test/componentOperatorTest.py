@@ -5,7 +5,7 @@ import kopf
 import asyncio
 
 sys.path.append("..")
-from componentOperator import safe_get, securityComponentVault, summary
+from componentOperator import safe_get, securitySecretsManagement, summary
 
 
 # Setup logging
@@ -57,7 +57,7 @@ def k8s_load_config(proxy=False):
             print(f"set proxy to {proxy}")
 
 
-def test_securityComponentVault():
+def test_securitySecretsManagement():
     body_json_file = "testdata/CREATE-prodcat_cv.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
@@ -108,7 +108,7 @@ def test_securityComponentVault():
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(
-            securityComponentVault(meta, spec, status, body, namespace, labels, name)
+            securitySecretsManagement(meta, spec, status, body, namespace, labels, name)
         )
         loop.close()
         
@@ -179,5 +179,5 @@ if __name__ == "__main__":
     logging.info(f"main called")
     k8s_load_config(proxy=True)
     test_kubeconfig()
-    #test_securityComponentVault()
+    #test_securitySecretsManagement()
     test_summary()

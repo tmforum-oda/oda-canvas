@@ -15,16 +15,16 @@ vault write auth/$JWT_AUTH/config oidc_discovery_url=$ISSUER
 
 
 
-## setup component vault
+## setup secrets management
 
 ### Enable KV v2 engine
 
 ```
-export CV_NAME=demo
-export CV_SECRETBASE=sidecar
-export POLICY=cv-$CV_NAME-policy
-export ROLE=cv-$CV_NAME-role
-export KV=kv-$CV_NAME
+export SMAN_NAME=demo
+export SMAN_SECRETBASE=sidecar
+export POLICY=sman-$SMAN_NAME-policy
+export ROLE=sman-$SMAN_NAME-role
+export KV=kv-sman-$SMAN_NAME
 
 # enable KV v2 engine 
 # https://hvac.readthedocs.io/en/stable/source/hvac_api_system_backend.html?
@@ -41,7 +41,7 @@ vault read sys/mounts/$KV
 # create policy
 # https://hvac.readthedocs.io/en/stable/usage/system_backend/policy.html#create-or-update-policy
 vault policy write $POLICY -<<EOF
-path "$KV/data/$CV_SECRETBASE/*" {
+path "$KV/data/$SMAN_SECRETBASE/*" {
   capabilities = ["create", "read", "update", "delete", "patch"]
 }
 EOF
@@ -95,8 +95,8 @@ export VAULT_ADDR=https://canvas-vault-hc.ihc-dt.cluster-3.de
 export JWT=eyJ...e4g
 echo $JWT
 echo
-TEST_JWT_AUTH=jwt-k8s-cv
-TEST_ROLE=cv-demo-a-productcatalogmanagement-role
+TEST_JWT_AUTH=jwt-k8s-sman
+TEST_ROLE=sman-demo-a-productcatalogmanagement-role
 TEST_JWT_AUTH=$JWT_AUTH
 TEST_ROLE=$ROLE
 vault write auth/$TEST_JWT_AUTH/login role=$TEST_ROLE jwt=$JWT

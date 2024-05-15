@@ -1,6 +1,6 @@
-# Component Vault for Component
+# Secrets Management for Component
 
-This use-case describes how a component can manage its secrets in a component vault, which is exclusively accessible from the component.
+This use-case describes how a component can manage its secrets in a secrets management, which is exclusively accessible from the component.
 
 ## Problem
 
@@ -22,24 +22,24 @@ Maybe some steps are not 100% correct, but the general idea should get clear.
 * The canvas manages a central vault (Canvas-Vault).
 * When the Canvas-Vault is setup, a trust relation to the Kubernetes-Cluster CA is configured.
 * When a new component is deployed, the Component-Operator decides - based on the information 
-  provided in the component.yaml (envelope/manifest) - whether a component vault is requested or not.
-* If no component vault is requested, the workflow comes to an end here   :-)
+  provided in the component.yaml (envelope/manifest) - whether a secrets management is requested or not.
+* If no secrets management is requested, the workflow comes to an end here   :-)
 * For the next steps we need a unique string to identify the component instance.
   Therefore a step creating a Component-Instance-ID "&lt;CIID&gt;" was added in the 
   sequence diagram. Maybe there exists already something like this, 
   then this step can be skipped.
-* A dedicated Key-Value-Store named "componentvault-&lt;CIID&gt;" is created in the Canvas-Vault. 
-  This is the component vault for the component instance.
+* A dedicated Key-Value-Store named "secretsmanagement-&lt;CIID&gt;" is created in the Canvas-Vault. 
+  This is the secrets management for the component instance.
 * At the same time a dedicated Kubernetes ServiceAccount for this component, 
   named "sa-&lt;CIID&gt;", is created.
 * The Canvas-Vault is configured to grant the newly created ServiceAccount full permissions 
   to the newly created Key-Value-Store.
-* If a component POD is started, which requires access to the component vault, 
-  a Component-Vault-SideCar is injected. This is a container running in the same POD as the 
+* If a component POD is started, which requires access to the secrets management, 
+  a Secrets-Management-SideCar is injected. This is a container running in the same POD as the 
   Component-Implementation.
 * The SideCar is provided and configured by the Component-Operator to have all necessary 
-  information to login to the component vault. The SideCar gets a JWT mount identifying 
-  the ServiceAccount, the URL to the Canvas-Vault and the component vault name.
+  information to login to the secrets management. The SideCar gets a JWT mount identifying 
+  the ServiceAccount, the URL to the Canvas-Vault and the secrets management name.
 * The Component-Implementation communicates via localhost with the SideCar using a simple API.
   It needs no knowledge about JWT, &lt;CIID&gt; and Canvas-Vault-URL.
 * An optional token negotiation was added to secure the localhost communication.
@@ -50,10 +50,10 @@ Maybe some steps are not 100% correct, but the general idea should get clear.
 
 ## Sequence Diagram
 
-### Component Vault Initialization and Usage
+### Secrets Management Initialization and Usage
 
-![componentVaultBootstrapAndUsageA1](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ODA-CANVAS-FORK/oda-canvas-component-vault/odaa-26/usecase-library/pumlFiles/componentVault-bootstrap-and-usage-alternative-1.puml)
-[plantUML code](pumlFiles/componentVault-bootstrap-and-usage-alternative-1.puml)
+![secretsManagementBootstrapAndUsageA1](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ODA-CANVAS-FORK/oda-canvas-component-vault/odaa-26/usecase-library/pumlFiles/secretsManagement-bootstrap-and-usage-alternative-1.puml)
+[plantUML code](pumlFiles/secretsManagement-bootstrap-and-usage-alternative-1.puml)
 
 
 ## Technical Details
@@ -97,19 +97,19 @@ It is possible to use this additional information to sharpen the requirements fo
 
 # Alternative Workflows
 
-## With Component-Vault-Operator
+## With Secrets-Management-Operator
 
-Following the operator concept in the canvas, the Component-Vault-Operator is responsible for all communication with the Canvas-Vault.
+Following the operator concept in the canvas, the Secrets-Management-Operator is responsible for all communication with the Canvas-Vault.
 This decouples the Component-Operator from the Canvas-Vault implementation.
 
 
-![componentVaultBootstrapAndUsageA2](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ODA-CANVAS-FORK/oda-canvas-component-vault/odaa-26/usecase-library/pumlFiles/componentVault-bootstrap-and-usage-alternative-2.puml)
-[plantUML code](pumlFiles/componentVault-bootstrap-and-usage-alternative-2.puml)
+![secretsManagementBootstrapAndUsageA2](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ODA-CANVAS-FORK/oda-canvas-component-vault/odaa-26/usecase-library/pumlFiles/secretsManagement-bootstrap-and-usage-alternative-2.puml)
+[plantUML code](pumlFiles/secretsManagement-bootstrap-and-usage-alternative-2.puml)
 
 ```
 security:
   ...
-  componentVault:
+  secretsManagement:
   type: SideCar
 ```
 
@@ -120,15 +120,15 @@ Another option might be to only provide the Component-Instance access to the JWT
 I am not aware of a standard API for Security-Vaults. Therefore the Canvas-Vault is an adapter Which forwards all requests to 
 the chosen standard implementation in the canvas.
 
-![componentVaultBootstrapAndUsageA3](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ODA-CANVAS-FORK/oda-canvas-component-vault/odaa-26/usecase-library/pumlFiles/componentVault-bootstrap-and-usage-alternative-3.puml)
-[plantUML code](pumlFiles/componentVault-bootstrap-and-usage-alternative-3.puml)
+![secretsManagementBootstrapAndUsageA3](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ODA-CANVAS-FORK/oda-canvas-component-vault/odaa-26/usecase-library/pumlFiles/secretsManagement-bootstrap-and-usage-alternative-3.puml)
+[plantUML code](pumlFiles/secretsManagement-bootstrap-and-usage-alternative-3.puml)
 
 In the component.yaml there could be a section like this
 
 ```
 security:
   ...
-  componentVault:
+  secretsManagement:
     type: JWTOnly
     tokenPath: /var/run/secrets/kubernetes.io/serviceaccount/token
     canvasVaultURL: https://canvas-vault.canvas-system.svc.cluster.local
@@ -174,5 +174,5 @@ But, of course, we have to trust Amazon.
 
 ### Pragmatic View
 
-This is a reference for how to implement a component vault. It is not perfect.
+This is a reference for how to implement a secrets management. It is not perfect.
 But, as long as we have nothing better, it can be used.

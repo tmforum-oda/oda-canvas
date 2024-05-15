@@ -1,6 +1,6 @@
-# Component Vault for Component
+# Secrets Management for Component
 
-This use-case describes how a component can manage its secrets in a component vault, which is exclusively accessible from the component.
+This use-case describes how a component can manage its secrets in a secrets management, which is exclusively accessible from the component.
 
 
 ## Problem
@@ -22,13 +22,13 @@ Because the ODA Components can not rely on any specific infrastructure, it is up
 manage a Secrets Management software and ensure the security.
 There is no standard for accessing the differen implementations, so a very lean abstraction layer is needed.
 
-This abstraction are the Component Vault Supporting Functions. 
+This abstraction are the Secrets Management Supporting Functions. 
 The API can be requested by an ODA Component in its manifest.
 The API contains simple CRUD methods for secrets and can be used like any other REST API.
 
 Each ODA Component can only access its own secrets. 
 Secrets of other ODA Components are not accessible.
-So, the Component Vault of an ODA Component is isolated from each other ODA Components.
+So, the Secrets Management of an ODA Component is isolated from each other ODA Components.
 
 
 ## Workflow
@@ -47,22 +47,22 @@ which follow this generic Workflow.
   In this generic Workflow, it does not matter HOW the authentication happens, 
   it is only important THAT Pods are able to authenticate against the Canvas Vault.
 * When a new component is deployed, the Component-Operator decides - based on the information 
-  provided in the component.yaml (envelope/manifest) - whether a component vault is requested or not.
-* If no component vault is requested, the workflow comes to an end here   :-)
+  provided in the component.yaml (envelope/manifest) - whether a secrets management is requested or not.
+* If no secrets management is requested, the workflow comes to an end here   :-)
 * For the next steps we need a unique string to identify the component instance.
   Therefore a step creating a Component-Instance-ID "&lt;CIID&gt;" was added in the 
   sequence diagram. Maybe there exists already something like this, 
   then this step can be skipped.
-* To follow the Kubernetes Operator principle, for components, which request a Component-Vault 
-  a ComponentVault Custom-Resource is created.
-* The ComponentVaultOperator is triggered and creates a new component vault role inside the Canvas-Vault,
+* To follow the Kubernetes Operator principle, for components, which request a Secrets-Management 
+  a SecretsManagement Custom-Resource is created.
+* The SecretsManagementOperator is triggered and creates a new secrets management role inside the Canvas-Vault,
   which is only accessible for PODs which authenticate from this Component-Instance.
   For this role access to an exclusive secret store which is initially empty is granted.
-* If a component POD is started, which requires access to the component vault, 
-  a Component-Vault-SideCar is injected. This is a container running in the same POD as the 
+* If a component POD is started, which requires access to the secrets management, 
+  a Secrets-Management-SideCar is injected. This is a container running in the same POD as the 
   Component-Implementation.
-* The SideCar is provided and configured by the Component-Vault-Operator to have all necessary 
-  information to authenticate with the component-instance component-vault role against the Canvas-Vault.
+* The SideCar is provided and configured by the Secrets-Management-Operator to have all necessary 
+  information to authenticate with the component-instance secrets-management role against the Canvas-Vault.
 * The Component-Implementation communicates via localhost with the SideCar using a simple API.
   It needs no knowledge about the Canvas-Vault and the authentication process.
 * The localhost communication should be secured with a token, which is negotiated in the POD startup phase.
@@ -72,17 +72,17 @@ which follow this generic Workflow.
 
 ## Sequence Diagram
 
-### Component Vault Initialization and Usage
+### Secrets Management Initialization and Usage
 
-![componentVaultGenericWorkflow](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ODA-CANVAS-FORK/oda-canvas-component-vault/odaa-26/usecase-library/pumlFiles/componentVault-generic-workflow.puml)
-[plantUML code](pumlFiles/componentVault-generic-workflow.puml)
+![secretsManagementGenericWorkflow](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/ODA-CANVAS-FORK/oda-canvas-component-vault/odaa-26/usecase-library/pumlFiles/secretsManagement-generic-workflow.puml)
+[plantUML code](pumlFiles/secretsManagement-generic-workflow.puml)
 
 
-## Component-Vault Request
+## Secrets-Management Request
 
-The request for a component vault has to be defined in the component.yaml. 
-Not every POD of an ODA Component needs access to the component vault.
-A selector can be used to limit the number of PODs with access to the Component-Vault.
+The request for a secrets management has to be defined in the component.yaml. 
+Not every POD of an ODA Component needs access to the secrets management.
+A selector can be used to limit the number of PODs with access to the Secrets-Management.
 The Selector can be defined on "namespace", "pod-name", "service-account-name".
 > To be clarified: Is each ODA Component running in an own namespace?
 
@@ -92,7 +92,7 @@ For example:
 ```
 security:
   ...
-  componentVault:
+  secretsManagement:
     type: SideCar
     selector: 
       podnames:
@@ -102,7 +102,7 @@ security:
 
 # Reference Workflows
 
-* [UC0XX-Component-Vault-JWT-based.md](UC0XX-Component-Vault-JWT-based.md)
+* [UC0XX-Secrets-Management-JWT-based.md](UC0XX-Secrets-Management-JWT-based.md)
 
 
 # Feedback from ODA-Workshop 22.6.2023
@@ -116,14 +116,14 @@ Therefore other access methods should be possible:
 * `type: sidecar` the secrets are accessible via a local API as described above
 * `type: file` the secrets are injected into a memory filesystem by an init-container
 * `type: file-update` the secrets are injected and updated into a memory filesystem by a sidecar
-* `type: env` the secrets are injected and updated by the ComponentVault-Operator as Environment variables in the POD (POD manifest contains plain values)
+* `type: env` the secrets are injected and updated by the SecretsManagement-Operator as Environment variables in the POD (POD manifest contains plain values)
 * `type: env-entrypoint` the POD gets an entrypoint injected, which sets the environment variables (maybe technically difficult)
 * `type: k8s-secret` the secrets are made available in the namespace as kubernetes secrets at POD starting time 
 * `type: k8s-secret-update` the secrets are made available in the namespace and updated regularly
 
-## Allow to define PODS with readonly access to ComponentVault
+## Allow to define PODS with readonly access to SecretsManagement
 
-In the current concept, only one role with Full-Access to the ComponentVault Keystore is created.
+In the current concept, only one role with Full-Access to the SecretsManagement Keystore is created.
 It might be good to define more fine granular permissions, like PODs which are allowed to read, but not to write secrets.
 
 Thinking more about this, it could be solved by a generic definition of roles with own settings
@@ -131,7 +131,7 @@ Thinking more about this, it could be solved by a generic definition of roles wi
 ```
 securityFunction:
   ...
-  componentVault:
+  secretsManagement:
     - name: admin
       permissions: ["create", "read", "update", "delete", "patch"]
       selector: 

@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Component Vault - OpenAPI 3.0
+  title: Secrets Management - OpenAPI 3.0
   description: |-
     "This is a simple key-value store
     Some useful links:
@@ -13,7 +13,7 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 0.1.0
 externalDocs:
-  description: Find out more about Component Vault
+  description: Find out more about Secrets Management
   url: http://.../
 servers:
 #- url: https://canvas-vault-hc.ihc-dt.cluster-3.de/
@@ -163,11 +163,11 @@ components:
           schema:
             $ref: '#/components/schemas/Secret'
   securitySchemes:
-    componentvault_auth:
+    secretsmanagement_auth:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: https://componentvault.ihc-dt.cluster-3.de/oauth/authorize
+          authorizationUrl: https://secretsmanagement.ihc-dt.cluster-3.de/oauth/authorize
           scopes:
             write:secret: modify secrets in your account
             read:secret: read your secrets

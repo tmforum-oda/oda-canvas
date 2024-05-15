@@ -9,23 +9,23 @@ git pull
 ./TEMP/build/build-component-operator.sh
 ```
 
-## Build ComponentVault Operator
+## Build SecretsManagement Operator
 
 ```
 cd ~
 cd git/oda-canvas-component-vault-ODAA26
 git pull
-./TEMP/build/build-componentvault-operator.sh
+./TEMP/build/build-secretsmanagement-operator.sh
 ```
 
 
-## Build ComponentVault Sidecar
+## Build SecretsManagement Sidecar
 
 ```
 cd ~
 cd git/oda-canvas-component-vault-ODAA26
 git pull
-./TEMP/build/build-componentvault-sidecar.sh
+./TEMP/build/build-secretsmanagement-sidecar.sh
 ```
 
 ## Build Code-Server with Helm und Node
@@ -57,7 +57,7 @@ helm dependency build
 cd ../../charts/controller
 helm dependency update
 helm dependency build
-cd ../../charts/componentvault-operator
+cd ../../charts/secretsmanagement-operator
 helm dependency update
 helm dependency build
 cd ../../charts/canvas-oda
@@ -65,7 +65,7 @@ helm dependency update
 helm dependency build
 cd ../..
 
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=20 --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-compvault --set=componentvault-operator.logLevel=20
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=20 --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-sman --set=secretsmanagement-operator.logLevel=20
 ```
 
 ## patch api operator
@@ -156,10 +156,10 @@ TEMP/code-server/install-code-server.sh
 ```
 
 
-## Deploy Component with component vault
+## Deploy Component with secrets management
 
 ```
-helm upgrade --install prodcat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1beta3-compvault
+helm upgrade --install prodcat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1beta3-sman
 ```
 
 

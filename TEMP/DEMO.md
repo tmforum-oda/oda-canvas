@@ -19,10 +19,10 @@ kubectl config set-context --current --namespace=components
 kubectl logs -n canvas deployment/oda-controller-ingress -f
 ```
 
-### open CMD with ComponentVault-Operator logfile
+### open CMD with SecretsManagement-Operator logfile
 
 ```
-kubectl logs -n canvas deployment/canvas-compvaultop -f
+kubectl logs -n canvas deployment/canvas-smanop -f
 ```
 
 ### show empty HashiCorp Vault GUI
@@ -39,7 +39,7 @@ Explain what will be done next.
 ### deploy demo-a
 
 ```
-helm upgrade --install demo-a -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1beta3-compvault
+helm upgrade --install demo-a -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1beta3-sman
 ```
 
 ### show HashiCorp Vault GUI
@@ -133,7 +133,7 @@ curl -X 'GET' \
 
 ```
 cd git/oda-canvas-component-vault-ODAA26
-helm upgrade --install demo-b -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1beta3-compvault
+helm upgrade --install demo-b -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1beta3-sman
 ```
 
 ### log into demo-b prodcatapi
@@ -186,7 +186,7 @@ curl -X 'GET' \
 {"key":"db-password","value":"DemoBPassword"}
 ```
 
-### Explain demo-b arrow to own componentvault
+### Explain demo-b arrow to own secretsmanagement
 
 ### in demo-a curl with get --> other value
 
@@ -210,7 +210,7 @@ curl -X 'GET' \
 helm uninstall demo-a
 ```
 
---> show componentvault logs
+--> show secretsmanagement logs
 
 --> show in HC Vault
 

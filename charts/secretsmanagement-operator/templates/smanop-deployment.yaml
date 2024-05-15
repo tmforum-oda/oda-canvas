@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-compvaultop
+  name: {{ .Release.Name }}-smanop
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-compvaultop
+      app: {{ .Release.Name }}-smanop
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-compvaultop
+        app: {{ .Release.Name }}-smanop
     spec:
-      serviceAccountName: {{ .Release.Name }}-compvaultop-account
+      serviceAccountName: {{ .Release.Name }}-smanop-account
       containers:
-      - name: {{ .Release.Name }}-compvaultop
+      - name: {{ .Release.Name }}-smanop
         image: {{ .Values.image }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         env:
@@ -41,7 +41,7 @@ spec:
           value: "{{ .Values.sidecarImage }}"
           
         - name: WEBHOOK_SERVICE_NAME
-          value: "{{ .Release.Name }}-compvaultop-svc"
+          value: "{{ .Release.Name }}-smanop-svc"
         - name: WEBHOOK_SERVICE_NAMESPACE
           valueFrom:
             fieldRef:
