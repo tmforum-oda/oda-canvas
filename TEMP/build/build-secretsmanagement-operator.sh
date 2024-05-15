@@ -7,7 +7,7 @@ cd $(dirname -- $0)
 GIT_COMMIT_SHA=$(git rev-parse --short HEAD)
 NOW=$(date -Iseconds)
       
-cd ../../source/operators/secretsmanagementoperator-hc/docker
+cd ../../source/operators/secretsmanagementOperator-hc/docker
       
 docker build -t mtr.devops.telekom.de/magenta_canvas/public:secretsmanagement-operator-0.1.0-rc \
 	--build-arg "GIT_COMMIT_SHA=$GIT_COMMIT_SHA" \

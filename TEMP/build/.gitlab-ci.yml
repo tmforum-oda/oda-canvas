@@ -66,7 +66,7 @@ stages:
 build_sidecar:
   extends: .build_template
   variables:
-    BUILD_FOLDER: source/operators/secretsmanagementoperator-hc/sidecar/docker
+    BUILD_FOLDER: source/operators/secretsmanagementOperator-hc/sidecar/docker
     DOCKERFILE: $BUILD_FOLDER/Dockerfile 
     MTR_FULL_IMAGE: $MTR_FULL_SIDECAR_IMAGE
   rules:
@@ -74,7 +74,7 @@ build_sidecar:
       when: manual
       allow_failure: true
     - changes:
-      - "source/operators/secretsmanagementoperator-hc/sidecar/docker/**/*"
+      - "source/operators/secretsmanagementOperator-hc/sidecar/docker/**/*"
     - when: manual
       allow_failure: true
 
@@ -83,7 +83,7 @@ build_sidecar:
 build_operator:
   extends: .build_template
   variables:
-    BUILD_FOLDER: source/operators/secretsmanagementoperator-hc/docker
+    BUILD_FOLDER: source/operators/secretsmanagementOperator-hc/docker
     DOCKERFILE: $BUILD_FOLDER/Dockerfile 
     MTR_FULL_IMAGE: $MTR_FULL_OPERATOR_IMAGE
   rules:
@@ -91,7 +91,7 @@ build_operator:
       when: manual
       allow_failure: true
     - changes:
-      - "source/operators/secretsmanagementoperator-hc/docker/**/*"
+      - "source/operators/secretsmanagementOperator-hc/docker/**/*"
     - when: manual
       allow_failure: true
 
