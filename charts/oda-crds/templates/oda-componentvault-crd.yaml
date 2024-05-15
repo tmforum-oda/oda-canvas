@@ -8,9 +8,7 @@ spec:
   names:
     plural: "componentvaults"
     singular: "componentvault"
-    shortNames:
-    - compvault
-    - compvaults
+    shortNames: ["compvault", "compvaults"]
     kind: "ComponentVault"
   versions:
   - name: "v1beta3"
@@ -28,9 +26,42 @@ spec:
           spec:
             type: object
             x-kubernetes-preserve-unknown-fields: true
+            #required: ["type", "podSelector"]
+            properties:
+              type:
+                type: string
+                #enum: ["sideCar"]
+                description: defines, how Components access the Secrets, currently only sideCar is supported
+              sideCar:
+                type: object
+                description: sideCar parameters, required if type has value "sideCar"
+                #required: ["port"]
+                properties:
+                  port:
+                    type: integer
+                    description: The port where the API is exposed in the sideCar (localhost:<port>)
+              podSelector:
+                type: object
+                description: defines, which PODs are allowed to access the secrets (and logic)
+                properties:
+                  namespace:
+                    type: string
+                    description: glob patter matching the namespace of the POD
+                  name:
+                    type: string
+                    description: glob patter matching the name of the POD
+                  serviceaccount:
+                    type: string
+                    description: glob patter matching the serviceaccount od the POD
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
+            properties:
+              implementation:
+                type: object
+                properties:
+                  ready:
+                    type: boolean
     additionalPrinterColumns:
     - name: NAME_SEL
       type: string

@@ -1284,9 +1284,11 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
         compvault = status['securityComponentVault']
         if compvault != {}:
             countOfDesiredComponentVaults = 1
+            securityComponentVaultSummary = "initializing"
             if 'ready' in compvault:
                 if compvault['ready'] == True:
                     countOfCompleteComponentVaults = countOfCompleteComponentVaults + 1
+                    securityComponentVaultSummary = "ready"
     if 'managementAPIs' in status.keys():  
         countOfDesiredAPIs = countOfDesiredAPIs + len(status['managementAPIs'])                                    
         for api in status['managementAPIs']:
