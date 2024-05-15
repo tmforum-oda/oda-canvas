@@ -1261,6 +1261,10 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     developerUIsummary = ''
     countOfCompleteAPIs = 0
     countOfDesiredAPIs = 0
+    countOfDesiredDependentAPIs = 0
+    countOfCompleteDependentAPIs = 0
+    countOfDesiredComponentVaults = 0
+    countOfCompleteComponentVaults = 0
     if 'coreAPIs' in status.keys():
         countOfDesiredAPIs = countOfDesiredAPIs + len(status['coreAPIs'])
         for api in status['coreAPIs']:

@@ -177,7 +177,7 @@ def test_summary():
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=False)
+    k8s_load_config(proxy=True)
     test_kubeconfig()
     #test_securityComponentVault()
     test_summary()

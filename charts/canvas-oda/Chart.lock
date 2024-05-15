@@ -17,8 +17,11 @@ dependencies:
 - name: dependentapi-simple-operator
   repository: file://../dependentapi-simple-operator
   version: 0.1.0
+- name: componentvault-operator
+  repository: file://../componentvault-operator
+  version: 0.1.0
 - name: oda-webhook
   repository: file://../oda-webhook
   version: 1.1.1
-digest: sha256:8c3058d1df2b583d08777623c815e26c11db46a34a8a78a988e8d3028f5828aa
-generated: "2024-04-29T08:48:04.8513657+02:00"
+digest: sha256:46cd3d3087654aaccbd96c1e2c71c2f44c116401b0d7a89cee0a459a972889b4
+generated: "2024-05-15T09:15:02.5397924+02:00"
