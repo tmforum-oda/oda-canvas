@@ -56,7 +56,7 @@ secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'sidecar')
 
 audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 
-hvac_token_enc = os.getenv('HVAC_TOKEN_ENC', "gAAAAABmRUKp037fxemGeG3lLpAmLumlTWJeipJaIhMpqDzX4Sf1NdluiWd_jZ3vW6GwHq232qNQklWfc6raFrb82OML02Q9pQ==")
+hvac_token_enc = os.getenv('HVAC_TOKEN_ENC', "gAAAAABmRUPozPjsS5cd0_Sgw9wr1byjwwaMIC4dvCEwZKU5IfAvkZph5fYl3LL7JlHOw5tSjqpxldzhTmodvOADNGLr7Rgazw==")
 
 sidecar_image = os.getenv('SIDECAR_IMAGE', "mtr.devops.telekom.de/magenta_canvas/public:secretsmanagement-sidecar-0.1.0-rc")
 
@@ -733,5 +733,6 @@ async def updateSecretsManagementReady(
 
 
 
-if __name__ == "__main__":
-    print(encrypt("egalegal"))
+#if __name__ == "__main__":
+#    hvac_token=???  
+#    print(encrypt(hvac_token))    
