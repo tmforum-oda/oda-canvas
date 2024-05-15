@@ -4,6 +4,8 @@ set -e
 
 cd $(dirname -- $0)
 
+AUTH_PATH="jwt-k8s-sman"
+
 Y='\033[0;33m'
 NC='\033[0m' # No Color
 
@@ -39,12 +41,12 @@ kubectl apply -f canvas-vault-hc/canvas-vault-hc-vs-$1.yaml
 
 
 echo -e "${Y}Configuring HashiCorp Vault to accept K8S Service Account Issuer${NC}"
-X=`kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth list | grep "jwt-k8s-cv" || true`
+X=`kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth list | grep "$AUTH_PATH" || true`
 if [ "$X" == "" ] ; then
     echo -e "\t${Y}exec vault enable${NC}"
-    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path jwt-k8s-cv jwt
+    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path "$AUTH_PATH" jwt
 else
-	echo -e "\t${Y}auth method jwt-k8s-cv already enabled${NC}"
+	echo -e "\t${Y}auth method "$AUTH_PATH" already enabled${NC}"
 fi
 
 # see also: https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/kubernetes#using-service-account-issuer-discovery
@@ -59,18 +61,18 @@ fi
 echo -e "\t${Y}exec vault write oidc_discovery_url${NC}"
 if [ "$1" == "AWS" ]; then
 # setup on AWS
-    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    ##old kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/$AUTH_PATH/config oidc_discovery_url=https://kubernetes.default.svc.cluster.local oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    ##old kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/$AUTH_PATH/config oidc_discovery_url=https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 fi
 if [ "$1" == "GCP" ]; then
     # setup on GCP
     ISSUER="$(kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer')"
-    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=$ISSUER
+    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/$AUTH_PATH/config oidc_discovery_url=$ISSUER
 fi
 if [ "$1" == "VPS2" ]; then
     # setup on VPS2
     ISSUER="$(kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer')"
-    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-cv/config oidc_discovery_url=$ISSUER oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt 
+    kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/$AUTH_PATH/config oidc_discovery_url=$ISSUER oidc_discovery_ca_pem=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt 
 fi
 
 cd $BASEDIR
