@@ -149,7 +149,7 @@ kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault write auth/jwt-k8s-c
 ## [optional] install code-server
 
 ```
-# CODE_SERVER_PASSWORD=<Fill in secure password>
+# export CODE_SERVER_PASSWORD=<Fill in secure password>
 cd ~/git/oda-canvas-component-vault-ODAA26
 TEMP/code-server/install-code-server.sh
 

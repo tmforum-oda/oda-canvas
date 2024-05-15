@@ -30,14 +30,6 @@ To execute the tests, first you install the necessary packages and set the envir
 
 ## How to run the tests
 
-### Install testframework Cucumber
-
-```bash
-npm install cucumber
-```
-
-### Run the tests
-
 Run the test in the command line using the following command:
 
 ```bash
