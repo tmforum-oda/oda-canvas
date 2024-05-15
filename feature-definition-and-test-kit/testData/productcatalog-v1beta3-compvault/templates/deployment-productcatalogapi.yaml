@@ -15,8 +15,8 @@ spec:
         app: {{.Release.Name}}-{{.Values.component.name}}
         impl: {{.Release.Name}}-prodcatapi
         version: {{.Values.productcatalog.versionlabel}}
-        # added for ComponentVault
-        oda.tmforum.org/componentvault: sidecar
+        # added for SecretsManagement
+        oda.tmforum.org/secretsmanagement: sidecar
     spec:
       containers:
       - name: {{.Release.Name}}-prodcatapi

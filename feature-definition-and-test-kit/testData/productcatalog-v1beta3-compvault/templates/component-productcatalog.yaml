@@ -44,15 +44,15 @@ spec:
       port: 4000    
   securityFunction:
     controllerRole: {{ .Values.security.controllerRole }}
-    # added for ComponentVault
-    componentVault:
+    # added for SecretsManagement
+    secretsManagement:
       type: sideCar
       sideCar:
         port: 5000
       podSelector:
-        namespace: components
-        name: {{.Release.Name}}-*
-        serviceaccount: default    
+        namespace: "components"
+        name: "{{.Release.Name}}-*"
+        serviceaccount: "default"
     exposedAPIs: 
     - name: partyrole
       specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"]

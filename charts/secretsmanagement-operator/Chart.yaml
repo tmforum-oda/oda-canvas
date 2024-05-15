@@ -1,6 +1,6 @@
 apiVersion: v2
-name: componentvault-operator
-description: The Component Vault Operator
+name: secretsmanagement-operator
+description: The Secrets Management Operator
 
 # A chart can be either an 'application' or a 'library' chart.
 #

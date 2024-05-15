@@ -5,7 +5,7 @@ import kopf
 import asyncio
 
 sys.path.append("..")
-from componentvaultOperatorHC import safe_get, componentvaultDelete, componentvaultCreate
+from secretsmanagementOperatorHC import safe_get, secretsmanagementDelete, secretsmanagementCreate
 
 
 # Setup logging
@@ -70,7 +70,7 @@ def k8s_load_vps2_config(proxy=True):
         print(f"set proxy to {proxy}")
 
 
-def test_componentvaultDelete():
+def test_secretsmanagementDelete():
     body_json_file = "testdata/CREATE-prodcat_cv.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
@@ -121,13 +121,13 @@ def test_componentvaultDelete():
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(
-            componentvaultDelete(meta, spec, status, body, namespace, labels, name)
+            secretsmanagementDelete(meta, spec, status, body, namespace, labels, name)
         )
         loop.close()
     print(f"result: {result}")
 
 
-def test_componentvaultCreate():
+def test_secretsmanagementCreate():
     body_json_file = "testdata/CREATE-prodcat_cv.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
@@ -178,7 +178,7 @@ def test_componentvaultCreate():
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(
-            componentvaultCreate(meta, spec, status, body, namespace, labels, name)
+            secretsmanagementCreate(meta, spec, status, body, namespace, labels, name)
         )
         loop.close()
     print(f"finished")
@@ -190,5 +190,5 @@ if __name__ == "__main__":
     k8s_load_config(proxy=False)
     #k8s_load_vps2_config(proxy=True)
     test_kubeconfig()
-    #test_componentvaultDelete()
-    test_componentvaultCreate()
+    #test_secretsmanagementDelete()
+    test_secretsmanagementCreate()

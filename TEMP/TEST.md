@@ -28,8 +28,6 @@ git clone -b odaa-26 https://github.com/ODA-CANVAS-FORK/oda-canvas-component-vau
 ```
 cd ~/git/oda-canvas-component-vault/feature-definition-and-test-kit
 
-npm install cucumber
-
 cd identity-manager-utils-keycloak
 npm install
 cd ../package-manager-utils-helm
