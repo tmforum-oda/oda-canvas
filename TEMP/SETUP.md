@@ -44,6 +44,7 @@ git pull
 ```
 helm repo add jetstack https://charts.jetstack.io
 helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
 ```
 
 ## deploy canvas from local filesystem 
@@ -65,7 +66,7 @@ helm dependency update
 helm dependency build
 cd ../..
 
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=20 --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.0-sman --set=secretsmanagement-operator.logLevel=20
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=20 --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.1-sman --set=secretsmanagement-operator.logLevel=20
 ```
 
 ## patch api operator
