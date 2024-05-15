@@ -56,7 +56,7 @@ secrets_base_path_tpl = os.getenv('SECRETS_BASE_PATH_TPL', 'sidecar')
 
 audience = os.getenv('AUDIENCE', "https://kubernetes.default.svc.cluster.local")
 
-hvac_token_enc = os.getenv('HVAC_TOKEN_ENC', "gAAAAABmOIdWCC1fkWaHnThsR45vWw3H-4cCq925h8Jdund9lbtsGLXHs8NjcKQHwdx5Cpoq270S-cDaIEFl9vP7SNXnuoLHEA==")
+hvac_token_enc = os.getenv('HVAC_TOKEN_ENC', "gAAAAABmRUKp037fxemGeG3lLpAmLumlTWJeipJaIhMpqDzX4Sf1NdluiWd_jZ3vW6GwHq232qNQklWfc6raFrb82OML02Q9pQ==")
 
 sidecar_image = os.getenv('SIDECAR_IMAGE', "mtr.devops.telekom.de/magenta_canvas/public:secretsmanagement-sidecar-0.1.0-rc")
 
@@ -730,3 +730,8 @@ async def updateSecretsManagementReady(
                         raise kopf.TemporaryError(
                             f"updateSecretsManagementReady: Exception in patch_namespaced_custom_object: {e.body}"
                         )
+
+
+
+if __name__ == "__main__":
+    print(encrypt("egalegal"))
