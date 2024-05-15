@@ -26,16 +26,16 @@ spec:
           spec:
             type: object
             x-kubernetes-preserve-unknown-fields: true
-            #required: ["type", "podSelector"]
+            required: ["type", "podSelector"]
             properties:
               type:
                 type: string
-                #enum: ["sideCar"]
+                enum: ["sideCar"]
                 description: defines, how Components access the Secrets, currently only sideCar is supported
               sideCar:
                 type: object
                 description: sideCar parameters, required if type has value "sideCar"
-                #required: ["port"]
+                required: ["port"]
                 properties:
                   port:
                     type: integer
