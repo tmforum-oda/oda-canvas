@@ -29,20 +29,21 @@ This is a list of the Canvas operators (including status of whether this has bee
 
 The use-cases are named based on the [use case naming conventions](use-case-naming-conventions.md)
 
-| ID  |   use-case          | Description           |
-| --- | ------------------- | --------------------- |
-| UC001 | [Install Canvas](UC001-Install-Canvas.md) | Install, upgrade and uninstall the ODA Canvas. |
-| UC002 | [Manage Components](UC002-Manage-Components.md) | When an ODA Component is Installed, Updated or Uninstalled, create the sub-resources and update the status of the component. |
-| UC003 | [Configure Exposed APIs](UC003-Configure-Exposed-APIs.md) | Integrate with the Service Mesh and/or API Gateway to configure and expose the API Endpoints for a Component. |
-| UC004 | [Configure Published Events](UC004-Configure-Published-Events.md) | Integrate with the Eventing Service to configure and publish the Events for an ODA Component. |
-| UC004 | [Configure Users and Roles](UC005-Configure-Users-and-Roles.md) | Integrate with the Identity Management System to configure users and roles. |
-| UC006 | [Configure Observability](UC006-Configure-Observability.md) | Integrate with the Observability solution to configure technical and business observability. |
-| UC007 | [Configure Dependent APIs](UC007-Configure-Dependent-APIs.md) | Configure components to be able to call APIs (on other ODA Components or external APIs). |
-| UC008 | [Configure Subscribed Events](UC008-Configure-Subscribed-Events.md) | Configure components to be able to subscribe to events. |
-| UC009 | [Internal Authentication](UC009-Internal-Authentication.md) | Authenticate API calls within the Canvas. |
-| UC010 | [External Authentication](UC010-External-Authentication.md) | Authenticate API calls originating outside the Canvas. |
-| UC011 | [View Technical Observability](UC011-View-Technical-Observability.md) | Run-time view of technical observability data. |
-| UC012 | [View Business Observability](UC012-View-Business-Observability.md) | Run-time view of business observability data. |
-| UC013 | [Upgrade Canvas](UC013-Upgrade-Canvas.md) | Seamless in-life upgrade of the ODA Canvas. |
+
+- UC001: [Install Canvas](./UC001-Install-Canvas.md) - Install, upgrade and uninstall the ODA Canvas.
+- UC002: [Manage Components](./UC002-Manage-Components.md) - When an ODA Component is Installed, Updated or Uninstalled, create the sub-resources and update the status of the component.
+- UC003: [Configure Exposed APIs](./UC003-Configure-Exposed-APIs.md) - Integrate with the Service Mesh and/or API Gateway to configure and expose the API Endpoints for a Component.
+- UC004: [Configure Published Events](./UC004-Configure-Published-Events.md) - Integrate with the Eventing Service to configure and publish the Events for an ODA Component.
+- UC005: [Configure Users and Roles](./UC005-Configure-Users-and-Roles.md) - Integrate with the Identity Management System to configure users and roles.
+- UC006: [Configure Observability](./UC006-Configure-Observability.md) - Integrate with the Observability solution to configure technical and business observability.
+- UC007: [Configure Dependent APIs](./UC007-Configure-Dependent-APIs.md) - Configure components to be able to call APIs (on other ODA Components or external APIs).
+- UC008: [Configure Subscribed Events](./UC008-Configure-Subscribed-Events.md) - Configure components to be able to subscribe to events.
+- UC009: [Internal Authentication](./UC009-Internal-Authentication.md) - Authenticate API calls within the Canvas.
+- UC010: [External Authentication](./UC010-External-Authentication.md) - Authenticate API calls originating outside the Canvas.
+- UC011: [View Technical Observability](./UC011-View-Technical-Observability.md) - Run-time view of technical observability data.
+- UC012: [View Business Observability](./UC012-View-Business-Observability.md) - Run-time view of business observability data.
+- UC013: [Upgrade Canvas](./UC013-Upgrade-Canvas.md) - Seamless in-life upgrade of the ODA Canvas.
+
+
 
 The corresponding Behavour Driven Design (BDD) features and scenarious can be found here: [BDD Features and Scenarios](../feature-definition-and-test-kit/README.md)
