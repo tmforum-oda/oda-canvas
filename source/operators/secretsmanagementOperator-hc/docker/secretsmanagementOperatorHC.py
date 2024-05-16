@@ -132,6 +132,10 @@ def implementationReady(smanBody):
     return safe_get(None, smanBody, "status", "implementation", "ready")
 
 
+def toCIID(sman_namespace:str,sman_name:str):
+    return f"{sman_namespace}-{sman_name}"
+
+
 def get_comp_name(body):
     
     sman_name = safe_get(None, body, "metadata", "labels", componentname_label)
@@ -181,8 +185,10 @@ def inject_sidecar(body, patch):
     pod_serviceAccountName = safe_get("default", body, "spec", "serviceAccountName")
     logger.info(f"POD serviceaccount:{pod_namespace}:{pod_name}:{pod_serviceAccountName}")
 
-    
     # HIERWEITER deployment = find_deployment(pod_namespace, pod_name, pod-template-hash)
+    
+    # TODO: not really correct to use pod_namespace, if POD runs in a different namespace then the sman cr.
+    ciid = toCIID(pod_namespace, sman_name)   
     
     sman_cr_name = f"{sman_name}"
     logger.debug(f"getting secretsmanagement cr {sman_cr_name} from namespace {pod_namespace} k8s")
@@ -221,7 +227,7 @@ def inject_sidecar(body, patch):
             "env": [
                 {
                     "name": "SECRETSMANAGEMENT_NAME",
-                    "value": f"{smanname}"
+                    "value": f"{ciid}"
                 },
                 {
                     "name": "VAULT_ADDR",
@@ -233,15 +239,15 @@ def inject_sidecar(body, patch):
                 },
                 {
                     "name": "LOGIN_ROLE",
-                    "value": f"sman-{smanname}-role"
+                    "value": login_role_tpl.format(ciid)
                 },
                 {
                     "name": "SCRETS_MOUNT",
-                    "value": f"kv-{smanname}"
+                    "value": secrets_mount_tpl.format(ciid)
                 },
                 {
                     "name": "SCRETS_BASE_PATH",
-                    "value": "sidecar"
+                    "value": secrets_base_path_tpl.format(ciid)
                 }
             ],
             "resources": {
@@ -410,10 +416,11 @@ def setupSecretsManagement(sman_namespace:str, sman_name:str, pod_name:str, pod_
     try:
         logger.info(f"SETUP SECRETSMANAGEMENT sman_namespace={sman_namespace}, sman_name={sman_name}, pod={pod_name}, ns={pod_namespace}, sa={pod_service_account}")
         
-        policy_name = policy_name_tpl.format(sman_name)
-        login_role = login_role_tpl.format(sman_name)
-        secrets_mount = secrets_mount_tpl.format(sman_name)
-        secrets_base_path = secrets_base_path_tpl.format(sman_name)
+        ciid = toCIID(sman_namespace, sman_name)
+        policy_name = policy_name_tpl.format(ciid)
+        login_role = login_role_tpl.format(ciid)
+        secrets_mount = secrets_mount_tpl.format(ciid)
+        secrets_base_path = secrets_base_path_tpl.format(ciid)
 
         logger.info(f"policy_name: {policy_name}")
         logger.info(f"login_role: {login_role}")
@@ -504,13 +511,14 @@ def setupSecretsManagement(sman_namespace:str, sman_name:str, pod_name:str, pod_
         raise kopf.TemporaryError(e)
     
 
-def deleteSecretsManagement(sman_name:str):
+def deleteSecretsManagement(sman_namespace:str, sman_name:str):
     try:
-        logger.info(f"DELETE SECRETSMANAGEMENT sman_name={sman_name}")
+        logger.info(f"DELETE SECRETSMANAGEMENT {sman_namespace}:{sman_name}")
         
-        login_role = login_role_tpl.format(sman_name)
-        policy_name = policy_name_tpl.format(sman_name)
-        secrets_mount = secrets_mount_tpl.format(sman_name)
+        ciid = toCIID(sman_namespace, sman_name)
+        policy_name = policy_name_tpl.format(ciid)
+        login_role = login_role_tpl.format(ciid)
+        secrets_mount = secrets_mount_tpl.format(ciid)
         
         logger.info(f"policy_name: {policy_name}")
         logger.info(f"login_role: {login_role}")
@@ -619,9 +627,10 @@ async def secretsmanagementDelete(meta, spec, status, body, namespace, labels, n
     logger.info(f"Create/Update  called with name: {name}")
     logger.info(f"Create/Update  called with labels: {labels}")
     
-    sman_name = name    # spec['name']
+    sman_name = name              # spec['name']
+    sman_namespace = namespace
 
-    deleteSecretsManagement(sman_name)
+    deleteSecretsManagement(sman_namespace, sman_name)
 
 
 
