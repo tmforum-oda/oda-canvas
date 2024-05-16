@@ -248,12 +248,12 @@ scan_codeserver:
     - cosign sign --tlog-upload=false --key $COSIGN_PRIVATE_KEY $MTR_FULL_IMAGE
 
 
-sign_sidecar:
+sign_sman_sidecar:
   extends: .sign_template
   variables:
     MTR_FULL_IMAGE: $MTR_FULL_SMAN_SIDECAR_IMAGE
   needs:
-    - scan_sidecar
+    - scan_sman_sidecar
 
 sign_sman_operator:
   extends: .sign_template
