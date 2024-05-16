@@ -1,10 +1,10 @@
 #!/bin/bash
 
 
-AUTH_PATH="jwt-k8s-sman"
-VAULT_DEV_ROOT_TOKEN_ID="egalegal"
+export AUTH_PATH="jwt-k8s-sman"
+export VAULT_DEV_ROOT_TOKEN_ID="egalegal"
 # optional create istio ingress virtualservice when hostname is set
-CANVASVAULT_VS_HOSTNAME="canvas-vault-hc.ihc-dt.cluster-3.de"
+export CANVASVAULT_VS_HOSTNAME="canvas-vault-hc.ihc-dt.cluster-3.de"
 
 
 
