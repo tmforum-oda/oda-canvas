@@ -106,7 +106,7 @@ apiVersion: oda.tmforum.org/v1beta3
 kind: Component
 metadata:
   labels:
-    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+    oda.tmforum.org/componentName: demo-a-productcatalogmanagement
   namespace: components
 spec:
   ...
@@ -117,7 +117,7 @@ spec:
       sideCar:
         port: 5000
       podSelector:
-        name: "{{.Release.Name}}-*"
+        name: "demo-a-*"
         namespace: "components"
         serviceaccount: "default"
   ...
@@ -126,4 +126,7 @@ spec:
 If there exists a structure "spec.securityFunction.secretsManagement" the Secrets-Management-Operator will create 
 a KV-Store for this component. 
 
+## Limitations
 
+The current setup only allows one configuration for gaining full access (read & write) and only one set of POD selectors.
+In the future we should support multiple POD selectors with fine grained policies.
