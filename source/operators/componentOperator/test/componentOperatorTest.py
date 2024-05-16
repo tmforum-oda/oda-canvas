@@ -111,7 +111,7 @@ def test_securitySecretsManagement():
             securitySecretsManagement(meta, spec, status, body, namespace, labels, name)
         )
         loop.close()
-        
+
     logger.info(f"result: {result}")
     return result
 
@@ -180,4 +180,4 @@ if __name__ == "__main__":
     k8s_load_config(proxy=False)
     test_kubeconfig()
     test_securitySecretsManagement()
-    #test_summary()
+    # test_summary()

@@ -5,7 +5,11 @@ import kopf
 import asyncio
 
 sys.path.append("..")
-from secretsmanagementOperatorHC import safe_get, secretsmanagementDelete, secretsmanagementCreate
+from secretsmanagementOperatorHC import (
+    safe_get,
+    secretsmanagementDelete,
+    secretsmanagementCreate,
+)
 
 
 # Setup logging
@@ -55,6 +59,7 @@ def k8s_load_config(proxy=False):
             proxy = "http://sia-lb.telekom.de:8080"
             kubernetes.client.Configuration._default.proxy = proxy
             print(f"set proxy to {proxy}")
+
 
 def k8s_load_vps2_config(proxy=True):
     if kubernetes.client.Configuration._default:
@@ -184,11 +189,10 @@ def test_secretsmanagementCreate():
     print(f"finished")
 
 
-
 if __name__ == "__main__":
     logging.info(f"main called")
     k8s_load_config(proxy=False)
-    #k8s_load_vps2_config(proxy=True)
+    # k8s_load_vps2_config(proxy=True)
     test_kubeconfig()
-    #test_secretsmanagementDelete()
+    # test_secretsmanagementDelete()
     test_secretsmanagementCreate()
