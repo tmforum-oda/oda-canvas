@@ -2,7 +2,7 @@
 
 
 AUTH_PATH="jwt-k8s-sman"
-VAULT_DEV_ROOT_TOKEN_ID="egalegal
+VAULT_DEV_ROOT_TOKEN_ID="egalegal"
 # optional create istio ingress virtualservice when hostname is set
 CANVASVAULT_VS_HOSTNAME="canvas-vault-hc.ihc-dt.cluster-3.de"
 
@@ -18,8 +18,7 @@ Y='\033[0;33m'
 NC='\033[0m' # No Color
 
 TARGETENV="$1"
-if [ -z "$TARGETENV" ]
-then
+if [ -z "$TARGETENV" ]; then
 	echo "COMMAND [AWS|GCP|VPS]"
 	echo ""
     echo "  using GCP target as default"
@@ -54,10 +53,9 @@ echo "waiting up to 30 seconds for the vault to be ready"
 kubectl -n canvas-vault wait -l  statefulset.kubernetes.io/pod-name=canvas-vault-hc-0 --for=condition=ready pod --timeout=30s
 
 
-if [ -n "$CANVASVAULT_VS_HOSTNAME" ]
-then
+if [ -n "$CANVASVAULT_VS_HOSTNAME" ]; then
   echo -e "${Y}Creating public route to canvas vault${NC}"
-  cat kubectl canvas-vault-hc-vs.yaml.template | envsubst | kubectl apply -f -
+  cat canvas-vault-hc-vs.yaml.template | envsubst | kubectl apply -f -
 fi
 
 
@@ -67,7 +65,7 @@ if [ "$X" == "" ] ; then
     echo -e "\t${Y}exec vault enable${NC}"
     kubectl exec -n canvas-vault -it canvas-vault-hc-0 -- vault auth enable -path "$AUTH_PATH" jwt
 else
-	echo -e "\t${Y}auth method "$AUTH_PATH" already enabled${NC}"
+	echo -e "\t${Y}auth method $AUTH_PATH already enabled${NC}"
 fi
 
 # see also: https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/kubernetes#using-service-account-issuer-discovery
