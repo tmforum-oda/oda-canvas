@@ -10,8 +10,8 @@ RUN apk update && \
 WORKDIR /src
 
 ADD requirements.txt /src/
-RUN pip install -r requirements.txt
-RUN rm requirements.txt
+RUN pip install -r requirements.txt && \
+    rm requirements.txt
 
 ADD *.py /src/
 
@@ -20,4 +20,4 @@ ENV CICD_BUILD_TIME $CICD_BUILD_TIME
 ARG GIT_COMMIT_SHA
 ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
 
-CMD kopf run --all-namespaces /src/secretsmanagementOperatorHC.py --verbose
+CMD kopf run --all-namespaces --verbose /src/secretsmanagementOperatorHC.py
