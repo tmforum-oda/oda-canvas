@@ -2,8 +2,6 @@
 
 ## Setup JWT
 
-linux
-
 ```
 export VAULT_ADDR=https://canvas-vault-hc.ihc-dt.cluster-3.de
 export JWT_AUTH=jwtdemo
