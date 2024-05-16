@@ -3,7 +3,7 @@ variables:
   SMAN_SIDECAR_VERSION: 0.1.0-rc
   SMAN_OPERATOR_VERSION: 0.1.0-rc
   DEPAPI_OPERATOR_VERSION: 0.1.1-rc
-  COMPISTIOCTLR_VERSION: 0.4.1-sman
+  COMPISTIOCTLR_VERSION: 0.4.2-sman
   CODESERVER_VERSION: 4.22.0
   
   SMAN_SIDECAR_IMAGE_TAG: secretsmanagement-sidecar-${SMAN_SIDECAR_VERSION}
@@ -194,7 +194,7 @@ build_codeserver:
 scan_sman_sidecar:
   extends: .scan_template
   variables:
-    IMAGE_TAG: $SMAN_SMAN_SIDECAR_IMAGE_TAG
+    IMAGE_TAG: $SMAN_SIDECAR_IMAGE_TAG
   needs:
     - build_sman_sidecar
 
