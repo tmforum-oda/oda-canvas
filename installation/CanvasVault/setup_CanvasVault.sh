@@ -46,7 +46,7 @@ echo -e "${Y}Deploy and configure HashiCorp Vault (in DEV mode)${NC}"
 echo -e "${Y}Installing HashiCorp Vault in DEV mode${NC}"
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo update
-helm upgrade --install canvas-vault-hc hashicorp/vault --namespace canvas-vault --create-namespace --values canvas-vault-hc/values.yaml --set=server.dev.devRootToken=$VAULT_DEV_ROOT_TOKEN_ID --wait
+helm upgrade --install canvas-vault-hc hashicorp/vault --namespace canvas-vault --create-namespace --values ./values.yaml --set=server.dev.devRootToken=$VAULT_DEV_ROOT_TOKEN_ID --wait
              # --version 0.24.0
 
 echo "waiting up to 30 seconds for the vault to be ready"
