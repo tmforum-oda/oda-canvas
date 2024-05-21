@@ -15,7 +15,7 @@ A Helm of helm to orchestrate the ODA instalation
 | file://../oda-webhook | oda-webhook | 1.0.0 |
 | https://charts.bitnami.com/bitnami | keycloak | 13.0.2 |
 
-## Values
+### Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
