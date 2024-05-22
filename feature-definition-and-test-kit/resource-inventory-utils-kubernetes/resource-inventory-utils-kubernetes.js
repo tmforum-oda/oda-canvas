@@ -9,12 +9,32 @@ kc.loadFromDefault()
 const testDataFolder = './testData/'
 
 const GROUP = "oda.tmforum.org"
-const VERSION = "v1beta2"
+const VERSION = "v1beta3"
 const APIS_PLURAL = "apis"
 const COMPONENTS_PLURAL = "components"
 
 
 const resourceInventoryUtils = {
+
+  /**
+  * Function that returns the custom API resource 
+  * @param    {String} inCustomCRDPluralName  Plural name of the custom resource type
+  * @param    {String} inComponentInstance    Name of the component instance
+  * @param    {String} inResourceName         Name of the API that is requested
+  * @param    {String} inReleaseName          Release name of the component instance
+  * @param    {String} inNamespace            Namespace where the component instance is running
+  * @return   {Object}         The API resource object, or null if the API is not found
+  */
+  getCustomResource: async function (inCustomCRDPluralName, inResourceName, inComponentName, inReleaseName, inNamespace) {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+    const customResourceName = inReleaseName + '-' + inComponentName + '-' + inResourceName
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, inCustomCRDPluralName, undefined, undefined, 'metadata.name=' + customResourceName)
+    if (namespacedCustomObject.body.items.length === 0) {
+      return null // API not found
+    } 
+      
+    return namespacedCustomObject.body.items[0]
+  },  
 
   /**
   * Function that returns the custom API resource given API instance

@@ -10,7 +10,6 @@ const assert = require('assert');
 chai.use(chaiHttp)
 
 const NAMESPACE = 'components'
-const releaseName = 'ctk'
 const COMPONENT_DEPLOY_TIMEOUT = 100 * 1000 // 100 seconds
 
 setDefaultTimeout( 20 * 1000);
@@ -30,7 +29,7 @@ Then('I should see the predefined role assigned to the {string} user for the {st
 
   // wait until the component resource is found or the timeout is reached
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResource(releaseName + '-' + componentName, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResource(global.currentReleaseName + '-' + componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
@@ -41,7 +40,7 @@ Then('I should see the predefined role assigned to the {string} user for the {st
       componentResource = null // reset the componentResource to null so that we can try again
     } else {
       secconRole = componentResource.spec.securityFunction.controllerRole;
-      allUserRoles = await identityManagerUtils.getRolesForUser(operatorUserName, releaseName, componentName);
+      allUserRoles = await identityManagerUtils.getRolesForUser(operatorUserName, global.currentReleaseName, componentName);
       //return 'pending';
       assert.ok(allUserRoles.includes(secconRole), 'The predefine role for the security operator should be correctly assigned in the identity platform');
     }
