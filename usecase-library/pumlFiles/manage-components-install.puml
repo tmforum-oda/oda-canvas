@@ -2,15 +2,15 @@
 
 actor Operations
 entity "Component\nResource" as Component
-participant "Component\nManagement\nOperator" as ComponentOperator
+participant "Component\nLifecycle\nManagement\nOperator" as ComponentOperator
 entity "Exposed\nAPI\nResource" as ExposedAPI
 participant "API\nManagement\nOperator" as APIExposureOperator
 entity "Published\nNotification\nResource" as PublishedNotification
 participant "Event\nManagement\nOperator" as EventOperator
 entity "Identity\nResource" as Identity
-participant "Identity\nManagement\nOperator" as IdentityOperator
+participant "Identity\nConfig\nOperator" as IdentityOperator
 entity "Observability\nResource" as Observability
-participant "Observability\nManagement\nOperator" as ObservabilityOperator
+participant "Observability\nConfig\nOperator" as ObservabilityOperator
 entity "Secrets\nResource" as Secrets
 participant "Secrets\nManagement\nOperator" as SecretsOperator
 entity "DependentAPI\nResource" as DependentAPI
