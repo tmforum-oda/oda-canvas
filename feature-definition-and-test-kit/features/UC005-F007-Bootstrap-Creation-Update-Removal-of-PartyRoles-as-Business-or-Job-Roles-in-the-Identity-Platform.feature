@@ -4,19 +4,20 @@
  
 @UC005         # tagged as use case 5
 @UC005-F007    # tagged as use feature 7 within use case 5
-Feature: UC001-F007 Bootstrap: Create,Update and Delete PartyRoles as Businees/Job Roles in the Identity Platform
+Feature: UC005-F007 Bootstrap: Create,Update and Delete PartyRoles as Businees/Job Roles in the Identity Platform
  
     Scenario: Creation of PartyRoles as business/job roles in the identity platform 
         Given an installed package '<PackageName>' called '<ComponentName>'
-		    When I create a new permission specification set '<partyrole>' in the '<ComponentName>' component
-		    Then I should see '<partyroleName>' created in the identity platform
+	When I create a new permission specification set '<partyrole>' in the '<ComponentName>' component
+	Then I should see '<partyroleName>' created in the identity platform
 
     Scenario: Updation of PartyRoles as business/job roles in the identity platform 
         Given an installed package '<PackageName>' called '<ComponentName>'
-		    When I update a permission specification set '<partyrole>' in the '<ComponentName>' component
-		    Then I should see the updated '<partyroleName>' in the identity platform
+	When I update a permission specification set '<partyrole>' in the '<ComponentName>' component
+	Then I should see the updated '<partyroleName>' in the identity platform
 
     Scenario: Deletion of PartyRoles as business/job roles in the identity platform 
         Given an installed package '<PackageName>' called '<ComponentName>'
-		    When I Delte a  permission specification set '<partyrole>' in the '<ComponentName>' component
-		    Then I should not be able see '<partyroleName>' in the identity platform
+	When I Delte a  permission specification set '<partyrole>' in the '<ComponentName>' component
+	Then I should not be able see '<partyroleName>' in the identity platform
+
