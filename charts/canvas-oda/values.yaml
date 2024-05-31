@@ -131,7 +131,7 @@ controller:
     
 dependentapi-simple-operator:
   enabled: true
-  image: mtr.devops.telekom.de/magenta_canvas/public:dependentapi-simple-operator-0.1.0
+  image: ankursarkar/dependentapi-simple-operator:0.2.0
   imagePullPolicy: Always
   loglevel: '20'
 
