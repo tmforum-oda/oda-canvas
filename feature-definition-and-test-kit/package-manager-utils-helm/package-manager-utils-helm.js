@@ -89,6 +89,33 @@ const packageManagerUtils = {
     } 
   },
 
+
+  /**
+  * Function that upgrades a helm chart (after checking that it is already installed).
+  * @param    {String} componentPackage      Helm chart folder name
+  * @param    {String} releaseName           Helm release name
+  */  
+  upgradePackage: function(componentPackage, releaseName, namespace) {
+
+    // create an error if the helm chart is not already installed
+    const helmList = execSync('helm list -o json  -n ' + namespace, { encoding: 'utf-8' });    
+    var found = false
+    // look through the helm list and see if there is a chart with name releaseName
+    JSON.parse(helmList).forEach(chart => {
+      if (chart.name == releaseName) {
+        found = true
+      }
+    })
+    if (!found) {
+      // throw an error
+      assert.ok(false, "The package '" + componentPackage + "' is not installed, so cannot be upgraded")
+    }
+
+    // upgrade the helm chart
+    const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace, { encoding: 'utf-8' });   
+
+  },
+
   /**
    * Uninstall a specified package using the helm uninstall command.
    *  
