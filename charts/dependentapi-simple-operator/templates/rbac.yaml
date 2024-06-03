@@ -39,6 +39,10 @@ rules:
     resources: [components]
     verbs: [list, watch, get, patch]
 
+  - apiGroups: [oda.tmforum.org]
+    resources: [apis]
+    verbs: [list, watch, get]
+
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [""]
     resources: [pods]
@@ -91,6 +95,11 @@ rules:
   - apiGroups: [oda.tmforum.org]
     resources: [components]
     verbs: [list, watch, patch, get]
+
+  # Application: watching & handling for the custom resource we declare.
+  - apiGroups: [oda.tmforum.org]
+    resources: [apis]
+    verbs: [list, watch, get]
 
   # Application: watching & handling for the custom resource we declare.
   - apiGroups: [""]
