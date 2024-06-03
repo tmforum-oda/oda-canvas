@@ -204,7 +204,7 @@ def create_rate_limiting_policy(spec):
         identifier = rate_limit_config.get('identifier', 'remote_addr')
         limit = int(rate_limit_config.get('limit', '5'))  #Default to 5 if not specified
 
-        # Log a message about interval support
+        #Logging a message about interval support provided by Apisix
         logger.info("Note: Only per-second rate limiting is supported. Interval setting is ignored. Please be sure to pass rate in per second")
 
         rate_limiting_policy = {
@@ -212,9 +212,9 @@ def create_rate_limiting_policy(spec):
             'enable': True,
             'config': {
                 'rate': limit,  
-                'burst': 0,  # No extra burst by default
+                'burst': 0,  #No extra burst
                 'key': identifier,
-                'nodelay': True  # Process requests without delay if within burst limit
+                'nodelay': True  #Process requests without delay if within burst limit
             }
         }
         return rate_limiting_policy
@@ -243,7 +243,7 @@ def create_quota_policy(spec):
     - Default time window for the count limit is 60 seconds.
     - Default HTTP rejection code is 429.
     """
-    #if quota_config.get('enabled', False):    this check condition need to be updated in exposedapis crd and enabled after that.
+    #if quota_config.get('enabled', False):    this check condition need to be updated in exposedapis crd and enabled as primary condition for quota in CR after that.
     quota_config = spec.get('quota', {})
     identifier = quota_config.get('identifier')
     limit = quota_config.get('limit')
@@ -297,7 +297,7 @@ def create_oas_validation_policy(spec):
     request_enabled = oas_validation_config.get('requestEnabled', False)
     response_enabled = oas_validation_config.get('responseEnabled', False)
 
-    # Create the policy only if either is true
+    #Creating the policy only if either is true
     if request_enabled or response_enabled:
         logger.error("Note: This policy will not be created as oas-validator plugin is available through API7 only, a commercial extension of APISIX. Check - https://docs.api7.ai/hub/oas-validator")
         """
@@ -413,7 +413,7 @@ def check_url(url):
     """
     try:
         response = requests.head(url)
-        response.raise_for_status()  # This Raising HTTPError if the HTTP request returned an unsuccessful
+        response.raise_for_status()  #This Raising HTTPError if the HTTP request returned an unsuccessful
         return True
     except requests.RequestException as e:
         logger.error(f"Failed to reach the given URL in CR template: {url}. Error: {e}")
@@ -502,7 +502,7 @@ def combine_all_policies_with_plugins(spec, plugin_names, plugins):
     plugin_names += plugin_names_from_crd
     plugins += plugins_from_crd
 
-    #added this print plugins in more clear visible manner
+    #added this print plugins in more clearly visible manner
     plugins_complete_yaml = yaml.dump(plugins, sort_keys=False)
     plugins_name_yaml = yaml.dump(plugin_names, sort_keys=False)
     logger.info("Combined plugins from CR and Template URL.\nUpdated Plugin Names List:\n" + str(plugins_name_yaml) + "\nComplete details are as below:\n" + str(plugins_complete_yaml))
@@ -616,14 +616,14 @@ def patch_apisixroute_with_plugin_config(namespace, apisixroute_name, plugin_con
     plural = 'apisixroutes'
     namespace = "istio-ingress"
     
-    # Fetch the existing configuration first
+    #Fetching the existing configuration first
     try:
         existing_route = api_instance.get_namespaced_custom_object(group=group,version=version,namespace=namespace,plural=plural,name=apisixroute_name)
     except ApiException as e:
         logger.error(f"Failed to get ApisixRoute '{apisixroute_name}': {e}")
         return
 
-    # Update the plugin_config_name in the existing http block
+    #Updating the plugin_config_name in the existing http block
     try:
         if 'http' in existing_route['spec']:
             for http_block in existing_route['spec']['http']:
@@ -632,7 +632,7 @@ def patch_apisixroute_with_plugin_config(namespace, apisixroute_name, plugin_con
         logger.error(f"Key error while updating the plugin_config_name: {e}")
         return
 
-    # Using patch_namespaced_custom_object to apply a strategic merge patch
+    #Using patch_namespaced_custom_object to apply a strategic merge patch
     try:
         api_instance.patch_namespaced_custom_object(group=group,version=version,namespace=namespace,plural=plural,name=apisixroute_name,body=existing_route)
         logger.info(f"ApisixRoute '{apisixroute_name}' patched with plugin config '{plugin_config_name}' in namespace '{namespace}'.")
