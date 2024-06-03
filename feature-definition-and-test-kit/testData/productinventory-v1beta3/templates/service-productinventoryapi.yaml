@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name}}-productinventoryapi
+  labels:
+    app: {{.Release.Name}}-productinventoryapi
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: {{.Release.Name}}-productinventoryapi
+  type: NodePort
+  selector:
+    app: {{.Release.Name}}-productinventoryapi

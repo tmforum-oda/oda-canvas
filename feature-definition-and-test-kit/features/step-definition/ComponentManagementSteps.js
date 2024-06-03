@@ -11,13 +11,14 @@ const assert = require('assert');
 chai.use(chaiHttp)
 
 const NAMESPACE = 'components'
-const releaseName = 'ctk'
+const DEFAULT_RELEASE_NAME = 'ctk'
 const COMPONENT_DEPLOY_TIMEOUT = 100 * 1000 // 100 seconds
 const API_DEPLOY_TIMEOUT = 10 * 1000 // 10 seconds
 const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
 const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
 const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const CLEANUP_PACKAGE = true // set to true to uninstall the package after each test
+global.currentReleaseName = null;
 
 setDefaultTimeout( 20 * 1000);
 
@@ -36,13 +37,26 @@ Given('An example package {string} with a {string} component with {string} API i
 });
 
 /**
- * Install a specified package using the packageManagerUtils.installPackage function.
+ * Install a specified package using the packageManagerUtils.installPackage function. Use the default release name.
  *
  * @param {string} componentPackage - The name of the package to install.
  */
 When('I install the {string} package', function (componentPackage) {
-  packageManagerUtils.installPackage(componentPackage, releaseName, NAMESPACE)
+  global.currentReleaseName = DEFAULT_RELEASE_NAME
+  packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
+
+/**
+ * Install a specified package using the packageManagerUtils.installPackage function. Use the specified release name.
+ *
+ * @param {string} componentPackage - The name of the package to install.
+ * @param {string} releaseName - The name of the release name.
+ */
+When('I install the {string} package as release {string}', function (componentPackage, releaseName) {
+  global.currentReleaseName = releaseName
+  packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
 
 /**
  * Validate if a package has been installed (and install it if not) using the packageManagerUtils.installPackage function.
@@ -50,7 +64,8 @@ When('I install the {string} package', function (componentPackage) {
  * @param {string} componentPackage - The name of the example component package to install.
  */
 Given('An example package {string} has been installed', function (componentPackage) {
-  packageManagerUtils.installPackage(componentPackage, releaseName, NAMESPACE)
+  global.currentReleaseName = DEFAULT_RELEASE_NAME
+  packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
 /**
@@ -67,7 +82,7 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
 
   // wait until the component resource is found or the timeout is reached
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResource(releaseName + '-' + componentName, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResource(  global.currentReleaseName + '-' + componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
@@ -91,7 +106,7 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
  * @returns {void}
  */
 When('I upgrade the {string} package', function (componentPackage) {
-  packageManagerUtils.upgradePackage(componentPackage, releaseName, NAMESPACE)
+  packageManagerUtils.upgradePackage(componentPackage,   global.currentReleaseName, NAMESPACE)
 });
 
 /**
@@ -106,7 +121,7 @@ Then('I can query the {string} spec version of the {string} component', {timeout
   var endTime
   let componentResource = null
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResourceByVersion(releaseName + '-' + componentName, ComponentSpecVersion, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResourceByVersion(  global.currentReleaseName + '-' + componentName, ComponentSpecVersion, NAMESPACE)
     endTime = performance.now()
     // assert that the Component resource was found within COMPONENT_DEPLOY_TIMEOUT seconds
     assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The component should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
@@ -115,11 +130,12 @@ Then('I can query the {string} spec version of the {string} component', {timeout
   assert.ok(componentResource.hasOwnProperty('spec'), "The component resource should be found with a spec property")
 });
 
+
 /**
  * Uninstall the package associated with the release name and namespace.
  */
 AfterAll(function () {
   if (CLEANUP_PACKAGE) {
-    packageManagerUtils.uninstallPackage(releaseName, NAMESPACE)   
+    packageManagerUtils.uninstallPackage(  global.currentReleaseName, NAMESPACE)   
   }
 });

@@ -1,6 +1,6 @@
 # Manage Components use case
 
-This use-case describes the initial actions that take place when an ODA Component is Installed, Updated or Uninstalled.
+This use-case describes the Lifecycle Management when an ODA Component is Installed, Updated or Uninstalled.
 
 It uses the following assumptions:
 

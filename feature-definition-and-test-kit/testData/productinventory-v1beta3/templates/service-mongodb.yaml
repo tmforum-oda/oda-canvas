@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name}}-mongodb
+  labels:
+    app: {{.Release.Name}}-mongodb
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
+spec:
+  ports:
+  - port: 27017
+    targetPort: {{.Release.Name}}-mongodb
+    name: {{.Release.Name}}-mongodb
+  type: NodePort
+  selector:
+    app: {{.Release.Name}}-mongodb
