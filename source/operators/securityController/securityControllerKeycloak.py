@@ -89,6 +89,8 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
 
         # del unused-arguments for linting
         del meta, status, body, labels, kwargs
+
+        rooturl = ""
         
         try: # to authenticate and get a token
             token = kc.get_token(username, password)
@@ -99,7 +101,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             ))
 
         try: # to create the client in Keycloak
-            kc.create_client(name, token, kcRealm)
+            kc.create_client(name, rooturl, token, kcRealm)
         except RuntimeError as e:
             logger.error(format_cloud_event(
                 str(e),
