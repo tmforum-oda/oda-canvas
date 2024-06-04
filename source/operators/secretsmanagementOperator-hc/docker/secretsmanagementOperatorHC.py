@@ -436,10 +436,14 @@ def encrypt(plain_text):
 
 if hvac_token:
     hvac_token_enc = encrypt(hvac_token)
-    logger.warn(f"Environment variable HVAC_TOKEN given as plaintext. Please remove HVAC_TOKEN variable and use HVAC_TOKEN_ENC: {hvac_token_enc}")
+    logger.warn(
+        f"Environment variable HVAC_TOKEN given as plaintext. Please remove HVAC_TOKEN variable and use HVAC_TOKEN_ENC: {hvac_token_enc}"
+    )
 if not hvac_token_enc:
     logger.error("Missing environment variable HVAC_TOKEN for HashiCorp Vault token!")
-    raise ValueError("Missing environment variable HVAC_TOKEN for HashiCorp Vault token!")
+    raise ValueError(
+        "Missing environment variable HVAC_TOKEN for HashiCorp Vault token!"
+    )
 # check encrypted token
 decrypt(hvac_token_enc)
 
@@ -811,5 +815,3 @@ async def updateSecretsManagementReady(
                         raise kopf.TemporaryError(
                             f"updateSecretsManagementReady: Exception in patch_namespaced_custom_object: {e.body}"
                         )
-
-

@@ -1,0 +1,72 @@
+# changing the auth_path requires changing the encrypted token in secretsmanagement-operator
+auth_path: "jwt-k8s-sman"
+# if issuer is empty, it will be autodetected
+issuer:
+# if cacert is empty it will be autodetected
+cacert:
+virtualService:
+  enabled: true
+  #hostname: "canvas-vault-hc.ihc-dt.cluster-3.de"
+  #gateway: "components/component-gateway"
+  hostname: "canvas-vault-hc.k8s.cluster-1.de"
+  gateway: "istio-ingress/k8s-gateway"
+
+vault:
+  #fullnameOverride: "canvas-vault-hc"
+  nameOverride: "vault-hc"
+  global:
+    namespace: "canvas-vault"
+    
+  server:
+    #image:
+    #  repository: "dockerhub.devops.telekom.de/hashicorp/vault"
+  
+    # Run Vault in "dev" mode. This requires no further setup, no state management,
+    # and no initialization. This is useful for experimenting with Vault without
+    # needing to unseal, store keys, et. al. All data is lost on restart - do not
+    # use dev mode for anything other than experimenting.
+    # See https://www.vaultproject.io/docs/concepts/dev-server.html to know more
+    dev:
+      enabled: true
+  
+      # Set VAULT_DEV_ROOT_TOKEN_ID value
+      devRootToken: "egalegal"
+  
+  
+    # Settings for the statefulSet used to run Vault.
+    statefulSet:
+      # Set the pod and container security contexts.
+      # If not set, these will default to, and for *not* OpenShift:
+      # pod:
+      #   runAsNonRoot: true
+      #   runAsGroup: {{ .Values.server.gid | default 1000 }}
+      #   runAsUser: {{ .Values.server.uid | default 100 }}
+      #   fsGroup: {{ .Values.server.gid | default 1000 }}
+      # container:
+      #   allowPrivilegeEscalation: false
+      #
+      # If not set, these will default to, and for OpenShift:
+      # pod: {}
+      # container: {}
+      securityContext:
+        pod:
+          fsGroup: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
+          runAsUser: 100
+          supplementalGroups:
+          - 1000
+        container: 
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+    # Enables debug logging.
+    debug: true
+  
+  injector:
+    # True if you want to enable vault agent injection.
+    # @default: global.enabled
+    enabled: false

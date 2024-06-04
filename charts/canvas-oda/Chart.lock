@@ -20,8 +20,11 @@ dependencies:
 - name: secretsmanagement-operator
   repository: file://../secretsmanagement-operator
   version: 0.1.0
+- name: canvas-vault
+  repository: file://../canvas-vault
+  version: 0.1.0
 - name: oda-webhook
   repository: file://../oda-webhook
   version: 1.1.1
-digest: sha256:af4a81c150290461c6f1bcf0a4e18c8294aba14f7ecda1d6a94b1ce949c4ddc1
-generated: "2024-05-16T11:55:33.82626401+02:00"
+digest: sha256:dd8e8b7e62fe4f9e3520a36f9d7d2a0061dd187803a06ec6dfc52a0378594c0f
+generated: "2024-06-04T23:48:19.9696831+02:00"

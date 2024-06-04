@@ -52,6 +52,10 @@ dependencies:
   - name: secretsmanagement-operator
     version: "0.1.0"
     repository: 'file://../secretsmanagement-operator'
+  - name: canvas-vault
+    version: "0.1.0"
+    repository: 'file://../canvas-vault'
+    condition: canvas-vault.enabled
   - name: oda-webhook
     version: "1.1.1"
     repository: 'file://../oda-webhook'

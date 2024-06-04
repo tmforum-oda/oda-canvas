@@ -58,6 +58,9 @@ helm dependency build
 cd ../../charts/controller
 helm dependency update
 helm dependency build
+cd ../../charts/canvas-vault
+helm dependency update
+helm dependency build
 cd ../../charts/secretsmanagement-operator
 helm dependency update
 helm dependency build
