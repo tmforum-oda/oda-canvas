@@ -58,9 +58,14 @@ secrets_base_path_tpl = os.getenv("SECRETS_BASE_PATH_TPL", "sidecar")
 
 audience = os.getenv("AUDIENCE", "https://kubernetes.default.svc.cluster.local")
 
+hvac_token = os.getenv(
+    "HVAC_TOKEN",
+    None,
+)
+
 hvac_token_enc = os.getenv(
     "HVAC_TOKEN_ENC",
-    "gAAAAABmRUPozPjsS5cd0_Sgw9wr1byjwwaMIC4dvCEwZKU5IfAvkZph5fYl3LL7JlHOw5tSjqpxldzhTmodvOADNGLr7Rgazw==",
+    None,
 )
 
 sidecar_image = os.getenv(
@@ -414,7 +419,6 @@ async def deploymentmutate(
 
 
 def decrypt(encrypted_text):
-    print(f"a({auth_path}),e({encrypted_text})")
     return (
         Fernet(base64.b64encode((auth_path * 32)[:32].encode("ascii")).decode("ascii"))
         .decrypt(encrypted_text.encode("ascii"))
@@ -428,6 +432,16 @@ def encrypt(plain_text):
         .encrypt(plain_text.encode("ascii"))
         .decode("ascii")
     )
+
+
+if hvac_token:
+    hvac_token_enc = encrypt(hvac_token)
+    logger.warn(f"Environment variable HVAC_TOKEN given as plaintext. Please remove HVAC_TOKEN variable and use HVAC_TOKEN_ENC: {hvac_token_enc}")
+if not hvac_token_enc:
+    logger.error("Missing environment variable HVAC_TOKEN for HashiCorp Vault token!")
+    raise ValueError("Missing environment variable HVAC_TOKEN for HashiCorp Vault token!")
+# check encrypted token
+decrypt(hvac_token_enc)
 
 
 def setupSecretsManagement(
@@ -799,7 +813,3 @@ async def updateSecretsManagementReady(
                         )
 
 
-# if __name__ == "__main__":
-#    print(decrypt(hvac_token_enc))
-#    hvac_token=decrypt(hvac_token_enc)
-#    print(encrypt(hvac_token))

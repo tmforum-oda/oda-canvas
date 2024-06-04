@@ -1,0 +1,55 @@
+{{ if .Values.autodetectAudience -}}
+{{ if eq (len (lookup "v1" "ConfigMap" .Release.Namespace (printf "%s-sman-autodetect" .Release.Name))) 0 -}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-sm-preinst-sa
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-sm-preinst-role
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["namespaces"]
+    verbs: [list]
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["configmaps"]
+    verbs: [get, create, patch]
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["pods"]
+    verbs: [get, list, "watch"]   # "list" for kubectl wait
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["pods/exec"]
+    verbs: [create]
+  # https://github.com/kubernetes/kubectl/issues/580#issuecomment-489117173
+  #- apiGroups: [""]
+  #  resources: ["statefulsets", "deployments"]
+  #  verbs: ["get", "list", "watch", "patch"]    
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-sm-preinst-rolebinding
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-sm-preinst-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}-sm-preinst-sa
+{{- end }}
+{{- end }}

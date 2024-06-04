@@ -36,9 +36,24 @@ spec:
         - name: SECRETS_BASE_PATH_TPL
           value: "{{ .Values.secrets_base_path_tpl }}"
         - name: AUDIENCE
+          {{ if .Values.autodetectAudience -}}
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-sman-autodetect 
+              key: issuer
+          {{- else -}}
           value: "{{ .Values.audience }}"
+          {{- end }}
         - name: SIDECAR_IMAGE
           value: "{{ .Values.sidecarImage }}"
+        {{ if .Values.hvacTokenEnc -}}
+        - name: HVAC_TOKEN_ENC
+          value: "{{ .Values.hvacTokenEnc }}"
+        {{- end }}
+        {{ if .Values.hvacToken -}}
+        - name: HVAC_TOKEN
+          value: "{{ .Values.hvacToken }}"
+        {{- end }}
           
         - name: WEBHOOK_SERVICE_NAME
           value: "{{ .Release.Name }}-smanop-svc"

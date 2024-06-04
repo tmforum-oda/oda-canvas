@@ -4,9 +4,6 @@
     "title": "Component Vault - OpenAPI 3.0",
     "description": "\"This is a simple key-value store\nSome useful links:\n- [The sources](https://github.com/.../openapi.yaml)\"",
     "termsOfService": "http://.../",
-    "contact": {
-      "email": "ferenc.hechler@telekom.de"
-    },
     "license": {
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"

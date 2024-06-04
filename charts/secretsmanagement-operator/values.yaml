@@ -9,9 +9,19 @@ secrets_mount_tpl: "kv-sman-{0}"
 policy_name_tpl: "sman-{0}-policy"
 login_role_tpl: "sman-{0}-role"
 secrets_base_path_tpl: "sidecar"
-# audience can be queried with 
+
+# use autodetection to retreive the value for audience 
+autodetectAudience: true
+# as an alternative it can be set directly and retrieved manually using:  
 #   kubectl get --raw /.well-known/openid-configuration | jq -r '.issuer'
 #audience: "https://kubernetes.default.svc.cluster.local"
-audience: "https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt"
+#audience: "https://container.googleapis.com/v1/projects/tmforum-oda-component-cluster/locations/europe-west3/clusters/ihc-dt"
+
 # INFO=20, DEBUG=10
 logLevel: 20
+
+# plaintext token for HashiCorp Vault. 
+# In the log files a warning will be shown with the encrypted value, which should be used instead of this 
+hvacToken: egalegal
+# encrpyted token (can be found in logfile)
+# #hvacTokenEnc:
