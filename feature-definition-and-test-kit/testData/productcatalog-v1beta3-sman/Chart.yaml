@@ -1,6 +1,6 @@
 apiVersion: v2
 name: productcatalog
-description: A reference example TMFC001-ProductCatalogManagement ODA Component
+description: A reference example TMFC001-ProductCatalogManagement ODA Component with secrets management
 
 # A chart can be either an 'application' or a 'library' chart.
 #
