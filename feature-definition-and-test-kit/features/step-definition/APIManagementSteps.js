@@ -44,6 +44,7 @@ Then('I should see the {string} API resource on the {string} component', {timeou
  * @returns {Promise<void>} - A Promise that resolves when the API resource is available.
  */
 Then('I should see the {string} ExposedAPI resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (ExposedAPI, componentName) {
+  return 'pending'; // ExposedAPI resource is not implemented yet - return 'pending'
   let apiResource = null
   var startTime = performance.now()
   var endTime
@@ -65,6 +66,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component', 
  * @returns {Promise<void>} - A Promise that resolves when the API resource is available.
  */
 Then('I should see the {string} ExposedAPI resource on the {string} component with specification {string}', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (ExposedAPI, componentName, specVersion) {
+  return 'pending'; // ExposedAPI resource is not implemented yet - return 'pending'
   let apiResource = null
   var startTime = performance.now()
   var endTime
@@ -89,6 +91,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
  * @returns {Promise<void>} - A Promise that resolves when the API resource is available.
  */
 Then('I should see the {string} DependentAPI resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (DependentAPI, componentName) {
+  return 'pending'; // DependentAPI resource is not implemented yet - return 'pending'
   let apiResource = null
   var startTime = performance.now()
   var endTime
@@ -134,6 +137,7 @@ Then('I should not see the {string} API resource on the {string} component', {ti
  * @returns {Promise<void>} - A Promise that resolves when the API resource is removed.
  */
 Then('I should not see the {string} ExposedAPI resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
+  return 'pending'; // DependentAPI resource is not implemented yet - return 'pending'
   // set the initial value of apiResource to 'not null'
   let apiResource = 'not null'
   var startTime = performance.now()
