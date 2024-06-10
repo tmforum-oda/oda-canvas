@@ -69,6 +69,10 @@ helm dependency update
 helm dependency build
 cd ../..
 
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP
+```
+
+```
 helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP  --set=controller.configmap.loglevel=20  --set=controller.deployment.imagePullPolicy=Always --set=controller.deployment.compconImage=mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.2-sman --set=secretsmanagement-operator.logLevel=20 --set=secretsmanagement-operator.image=mtr.devops.telekom.de/magenta_canvas/public:secretsmanagement-operator-0.1.0-rc --set=secretsmanagement-operator.sidecarImage=mtr.devops.telekom.de/magenta_canvas/public:secretsmanagement-sidecar-0.1.0-rc
 ```
 
