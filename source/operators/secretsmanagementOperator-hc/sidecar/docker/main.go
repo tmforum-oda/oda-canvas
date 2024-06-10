@@ -24,8 +24,9 @@ import (
 )
 
 func main() {
-	fmt.Println("CICD_BUILD_TIME: ", getEnvVar("CICD_BUILD_TIME", "?"))
+	fmt.Println("SOURCE_DATE_EPOCH: ", getEnvVar("SOURCE_DATE_EPOCH", "?"))
 	fmt.Println("GIT_COMMIT_SHA: ", getEnvVar("GIT_COMMIT_SHA", "?"))
+	fmt.Println("CICD_BUILD_TIME: ", getEnvVar("CICD_BUILD_TIME", "?"))
 
 	init_vault()
 	
