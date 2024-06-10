@@ -1,1 +1,1 @@
-Change this file to trigger a docker build of secretsmanagements-operator!
+Change this file to trigger a docker build of secretsmanagements-operator!!
