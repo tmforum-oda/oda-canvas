@@ -1,2 +1,2 @@
-SMANOP
-change to trigger build!
+SMAN OPERATOR
+change to trigger build!!

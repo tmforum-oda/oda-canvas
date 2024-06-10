@@ -1,1 +1,2 @@
-Change this file to trigger a docker build of secretsmanagements-operator!!
+SMAN SIDECAR
+change to trigger build!!
