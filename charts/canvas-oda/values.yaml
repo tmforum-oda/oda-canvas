@@ -216,7 +216,11 @@ secretsmanagement-operator:
   prereleaseSuffix: odaa-26
   #imagePullPolicy: IfNotPresent
   imagePullPolicy: Always
-  sidecarImage: mtr.devops.telekom.de/magenta_canvas/public:secretsmanagement-sidecar-0.1.0
+  
+  sidecarImage: ocfork/secretsmanagement-sidecar
+  sidecarVersion: 0.1.0
+  sidecarPrereleaseSuffix: odaa-26
+  
   # TODO: add TLS to canvas-vault-hc
   vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
   # the tempaltes can be used to generate cluster specific authenticator and key-value stores, here 'sman'.
