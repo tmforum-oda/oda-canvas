@@ -17,7 +17,7 @@ spec:
       serviceAccountName: {{ .Release.Name }}-smanop-account
       containers:
       - name: {{ .Release.Name }}-smanop
-        image: {{ .Values.image }}
+        image: {{ include "secretsmanagementoperator.dockerimage" . }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         env:
         - name: LOGGING

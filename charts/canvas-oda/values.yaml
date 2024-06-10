@@ -211,8 +211,11 @@ canvas-vault:
       enabled: false
 
 secretsmanagement-operator:
-  image: mtr.devops.telekom.de/magenta_canvas/public:secretsmanagement-operator-0.1.0
-  imagePullPolicy: IfNotPresent
+  image: ocfork/secretsmanagement-operator
+  version: 0.1.0
+  prereleaseSuffix: odaa-26
+  #imagePullPolicy: IfNotPresent
+  imagePullPolicy: Always
   sidecarImage: mtr.devops.telekom.de/magenta_canvas/public:secretsmanagement-sidecar-0.1.0
   # TODO: add TLS to canvas-vault-hc
   vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
