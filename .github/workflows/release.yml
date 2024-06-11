@@ -26,6 +26,8 @@ jobs:
           helm repo update
           cd ./charts/cert-manager-init
           helm dependency update
+          cd ../canvas-vault
+          helm dependency update
           cd ../canvas-oda
           helm dependency update
 
