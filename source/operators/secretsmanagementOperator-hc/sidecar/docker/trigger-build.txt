@@ -1,2 +1,2 @@
-SMAN OPERATOR
+SMAN SIDECAR
 change to trigger build!!

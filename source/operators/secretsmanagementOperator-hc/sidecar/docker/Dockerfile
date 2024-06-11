@@ -17,9 +17,11 @@ COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /go/src/component-vault-service ./
 EXPOSE 5000/tcp
 
-ARG CICD_BUILD_TIME
-ENV CICD_BUILD_TIME $CICD_BUILD_TIME
+ARG SOURCE_DATE_EPOCH
+ENV SOURCE_DATE_EPOCH $SOURCE_DATE_EPOCH
 ARG GIT_COMMIT_SHA
 ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
+ARG CICD_BUILD_TIME
+ENV CICD_BUILD_TIME $CICD_BUILD_TIME
 
 ENTRYPOINT ["./component-vault-service"]

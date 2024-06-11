@@ -38,12 +38,15 @@ logger.setLevel(int(logging_level))
 logger.info(f"Logging set to %s", logging_level)
 logger.debug(f"debug logging active")
 
-CICD_BUILD_TIME = os.getenv("CICD_BUILD_TIME")
+SOURCE_DATE_EPOCH = os.getenv("SOURCE_DATE_EPOCH")
 GIT_COMMIT_SHA = os.getenv("GIT_COMMIT_SHA")
-if CICD_BUILD_TIME:
-    logger.info(f"CICD_BUILD_TIME=%s", CICD_BUILD_TIME)
+CICD_BUILD_TIME = os.getenv("CICD_BUILD_TIME")
+if SOURCE_DATE_EPOCH:
+    logger.info(f"SOURCE_DATE_EPOCH=%s", SOURCE_DATE_EPOCH)
 if GIT_COMMIT_SHA:
     logger.info(f"GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
+if CICD_BUILD_TIME:
+    logger.info(f"CICD_BUILD_TIME=%s", CICD_BUILD_TIME)
 
 # vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.ihc-dt.cluster-3.de')
 # vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.cluster-1.de')

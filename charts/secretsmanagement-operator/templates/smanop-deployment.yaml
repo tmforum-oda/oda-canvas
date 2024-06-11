@@ -45,7 +45,7 @@ spec:
           value: "{{ .Values.audience }}"
           {{- end }}
         - name: SIDECAR_IMAGE
-          value: "{{ .Values.sidecarImage }}"
+          value: "{{ include "secretsmanagementoperator.sidecarDockerimage" . }}"
         {{ if .Values.hvacTokenEnc -}}
         - name: HVAC_TOKEN_ENC
           value: "{{ .Values.hvacTokenEnc }}"
