@@ -208,7 +208,7 @@ async def deleteSecretsManagement(secretsManagementName, componentName, status, 
     
     Args:
         * secretsManagementName (String): Name of the SecretsManagement Custom Resource to delete 
-        * componentName (String): Name of the component the secrets management is linked to 
+        * componentName (String): Name of the component the SecretsManagement is linked to 
         * status (Dict): The status from the yaml component envelope.
         * namespace (String): The namespace for the component
         * inHandler (String): The name of the handler that called this function
