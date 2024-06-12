@@ -146,12 +146,6 @@ canvas-vault:
   issuer:
   # if cacert is empty it will be autodetected
   cacert:
-  virtualService:
-    enabled: true
-    #hostname: "canvas-vault-hc.ihc-dt.cluster-3.de"
-    #gateway: "components/component-gateway"
-    hostname: "canvas-vault-hc.k8s.cluster-1.de"
-    gateway: "istio-ingress/k8s-gateway"
   vault:
     #fullnameOverride: "canvas-vault-hc"
     nameOverride: "vault-hc"
@@ -213,13 +207,13 @@ canvas-vault:
 secretsmanagement-operator:
   image: ocfork/secretsmanagement-operator
   version: 0.1.0
-  prereleaseSuffix: odaa-26
+  prereleaseSuffix: ""
   #imagePullPolicy: IfNotPresent
   imagePullPolicy: Always
   
   sidecarImage: ocfork/secretsmanagement-sidecar
   sidecarVersion: 0.1.0
-  sidecarPrereleaseSuffix: odaa-26
+  sidecarPrereleaseSuffix: ""
   
   # TODO: add TLS to canvas-vault-hc
   vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
