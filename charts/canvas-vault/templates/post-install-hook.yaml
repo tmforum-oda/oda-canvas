@@ -26,6 +26,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: post-install-job
+        # TODO[FH]: switch to public docker image with kubectl or tmforum repo?
         image: "mtr.devops.telekom.de/magenta_canvas/public:alpine-helm"
         imagePullPolicy: Always
         command: ["/bin/bash"]
