@@ -1,2 +1,0 @@
-SMAN OPERATOR
-change to trigger build!!
