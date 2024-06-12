@@ -22,12 +22,6 @@ import json
 import kubernetes.client
 
 
-def set_proxy():
-    os.environ["HTTP_PROXY"] = "http://sia-lb.telekom.de:8080"
-    os.environ["HTTPS_PROXY"] = "http://sia-lb.telekom.de:8080"
-    os.environ["NO_PROXY"] = "10.0.0.0/8,.telekom.de"
-
-
 def test_kubeconfig():
     v1 = kubernetes.client.CoreV1Api()
     nameSpaceList = v1.list_namespace()
@@ -52,13 +46,13 @@ def k8s_load_config(proxy=False):
         except kubernetes.config.ConfigException:
             raise Exception("Could not configure kubernetes python client")
         if proxy:
-            proxy = "http://sia-lb.telekom.de:8080"
+            proxy = os.getenv('HTTPS_PROXY')
             kubernetes.client.Configuration._default.proxy = proxy
             print(f"set proxy to {proxy}")
 
 
 def test_securitySecretsManagement():
-    body_json_file = "testdata/CREATE-prodcat_sman.json"
+    body_json_file = "testdata_SMAN/CREATE-prodcat_sman.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -117,7 +111,7 @@ def test_securitySecretsManagement():
 
 
 def test_summary():
-    body_json_file = "testdata/CREATE-prodcat_cv.json"
+    body_json_file = "testdata_SMAN/CREATE-prodcat_cv.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
     meta = body["metadata"]
