@@ -2,8 +2,6 @@ name: Lint Python code
 on: 
   pull_request:
     branches:
-      # TODO[FH]: remove before PR is merged.
-      - testmain
       - master
 jobs:
   lint-python-code:
