@@ -10,17 +10,16 @@
 package main
 
 import (
-	"net/http"
+	"context"
+	"encoding/json"
 	"fmt"
+	vault "github.com/hashicorp/vault/api"
 	"io"
 	"log"
+	"net/http"
 	"os"
-    "regexp"
-    "encoding/json"
-	vault "github.com/hashicorp/vault/api"
-	"context"
+	"regexp"
 )
-
 
 var config *vault.Config
 var client *vault.Client
@@ -33,13 +32,13 @@ func getEnvVar(envVarName string, defaultValue string) string {
 	return result
 }
 
-func tok(path string) (string) {
-    b, err := os.ReadFile(path) 
-    if err != nil {
-        fmt.Print(err)
-    	log.Fatalf("unable to read token: %v", err)
-    }
-    token := string(b)
+func tok(path string) string {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Print(err)
+		log.Fatalf("unable to read token: %v", err)
+	}
+	token := string(b)
 	return token
 }
 func jwt_login(jwt_file string) (string, error) {
@@ -53,7 +52,7 @@ func jwt_login(jwt_file string) (string, error) {
 	log.Println(jwt)
 	// set auth info jwt and role
 	options := map[string]interface{}{
-		"jwt": jwt,
+		"jwt":  jwt,
 		"role": login_role,
 	}
 	log.Println(options)
@@ -61,7 +60,7 @@ func jwt_login(jwt_file string) (string, error) {
 	// PUT call to get a token
 	auth_secret, err := client.Logical().Write(path, options)
 	if err != nil {
-		return "", err 
+		return "", err
 	}
 	token := auth_secret.Auth.ClientToken
 	return token, nil
@@ -69,22 +68,22 @@ func jwt_login(jwt_file string) (string, error) {
 
 func init_vault() {
 	v_addr := getEnvVar("VAULT_ADDR", "https://vault.k8s.feri.ai")
-    log.Println("init vault ", v_addr)
+	log.Println("init vault ", v_addr)
 	config = vault.DefaultConfig()
 	config.Address = v_addr
 	var err error
 	client, err = vault.NewClient(config)
 	if err != nil {
-    	log.Fatalf("init vault %v failed: %v", v_addr, err)
+		log.Fatalf("init vault %v failed: %v", v_addr, err)
 	}
-	
+
 	jwt_file := getEnvVar("JWT_FILE", "/var/run/secrets/kubernetes.io/serviceaccount/token") // jwt_file = "jwt-encrypted.txt"
-    log.Println("jwt auth from ", jwt_file)
+	log.Println("jwt auth from ", jwt_file)
 	token, err := jwt_login(jwt_file)
 	if err != nil {
-    	log.Fatalf("init vault %v failed: %v", v_addr, err)
+		log.Fatalf("init vault %v failed: %v", v_addr, err)
 	}
-	
+
 	client.SetToken(token)
 }
 
@@ -99,24 +98,23 @@ func extractKey(r *http.Request) string {
 }
 
 func extractSecret(r *http.Request) Secret {
-    sec := Secret{}
-    reqBody, err := io.ReadAll(r.Body)
-    if err != nil {
-        return sec
-    }
-    err = json.Unmarshal(reqBody, &sec)
-    return sec
+	sec := Secret{}
+	reqBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		return sec
+	}
+	err = json.Unmarshal(reqBody, &sec)
+	return sec
 }
-
 
 func CreateOrUpdateSecret(w http.ResponseWriter, r *http.Request) {
 	screts_base_path := getEnvVar("SCRETS_BASE_PATH", "component/123")
 	screts_mount := getEnvVar("SCRETS_MOUNT", "comp-secrets")
 
-    sec := extractSecret(r)
-    fmt.Printf("(KEY=%s, VAL=%s)\n", sec.Key, sec.Value)
-    comppath := fmt.Sprintf("%s/%v", screts_base_path, sec.Key)
-   	secretData := map[string]interface{}{
+	sec := extractSecret(r)
+	fmt.Printf("(KEY=%s, VAL=%s)\n", sec.Key, sec.Value)
+	comppath := fmt.Sprintf("%s/%v", screts_base_path, sec.Key)
+	secretData := map[string]interface{}{
 		"value": sec.Value,
 	}
 	ctx := context.Background()
@@ -137,15 +135,15 @@ func DeleteSecret(w http.ResponseWriter, r *http.Request) {
 	screts_mount := getEnvVar("SCRETS_MOUNT", "comp-secrets")
 
 	key := extractKey(r)
-    fmt.Printf("KEY: '%s'\n", key)
-    comppath := fmt.Sprintf("%s/%v", screts_base_path, key)
-    ctx := context.Background()
-    err := client.KVv2(screts_mount).Delete(ctx, comppath)
-    if err != nil {
+	fmt.Printf("KEY: '%s'\n", key)
+	comppath := fmt.Sprintf("%s/%v", screts_base_path, key)
+	ctx := context.Background()
+	err := client.KVv2(screts_mount).Delete(ctx, comppath)
+	if err != nil {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ERROR 403: forbidden"))
 		return
-    }
+	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 }
@@ -155,11 +153,11 @@ func GetSecretByKey(w http.ResponseWriter, r *http.Request) {
 	screts_mount := getEnvVar("SCRETS_MOUNT", "comp-secrets")
 
 	key := extractKey(r)
-    fmt.Printf("KEY: '%s'\n", key)
-    ctx := context.Background()
-    log.Println("client get")
-    comppath := fmt.Sprintf("%s/%v", screts_base_path, key)
-    secret, err2 := client.KVv2(screts_mount).Get(ctx, comppath)
+	fmt.Printf("KEY: '%s'\n", key)
+	ctx := context.Background()
+	log.Println("client get")
+	comppath := fmt.Sprintf("%s/%v", screts_base_path, key)
+	secret, err2 := client.KVv2(screts_mount).Get(ctx, comppath)
 	if err2 != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("ERROR 404: key not found"))
@@ -170,7 +168,7 @@ func GetSecretByKey(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("ERROR 404: missing value"))
 		return
-	}	
+	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	sec := Secret{key, value}

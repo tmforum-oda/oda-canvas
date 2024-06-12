@@ -10,7 +10,6 @@
 package main
 
 type ApiResponse struct {
-
 	Code int32 `json:"code,omitempty"`
 
 	Type_ string `json:"type,omitempty"`

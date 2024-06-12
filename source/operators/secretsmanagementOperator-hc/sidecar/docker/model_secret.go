@@ -10,7 +10,6 @@
 package main
 
 type Secret struct {
-
 	Key string `json:"key,omitempty"`
 
 	Value string `json:"value,omitempty"`

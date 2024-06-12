@@ -10,10 +10,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"fmt"
-
 	// WARNING!
 	// Change this to a fully-qualified import path
 	// once you place this file into your project.
@@ -29,7 +28,7 @@ func main() {
 	fmt.Println("CICD_BUILD_TIME: ", getEnvVar("CICD_BUILD_TIME", "?"))
 
 	init_vault()
-	
+
 	log.Printf("Server started")
 
 	router := NewRouter()
@@ -38,6 +37,6 @@ func main() {
 	listenPort := getEnvVar("LISTEN_PORT", "5000")
 	listenIPPort := fmt.Sprintf("%s:%s", listenIP, listenPort)
 	fmt.Println("listening on ", listenIPPort)
-	
+
 	log.Fatal(http.ListenAndServe(listenIPPort, router))
 }
