@@ -10,7 +10,7 @@ sidecarPrereleaseSuffix:
   
 # TODO: add TLS to canvas-vault-hc
 vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
-# the tempaltes can be used to generate cluster specific authenticator and key-value stores, here 'sman'.
+# the templates can be used to generate cluster specific authenticator and key-value stores, here 'sman'.
 auth_path: "jwt-k8s-sman"
 secrets_mount_tpl: "kv-sman-{0}"
 policy_name_tpl: "sman-{0}-policy"
