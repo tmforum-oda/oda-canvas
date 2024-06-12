@@ -4,12 +4,6 @@ auth_path: "jwt-k8s-sman"
 issuer:
 # if cacert is empty it will be autodetected
 cacert:
-virtualService:
-  enabled: true
-  #hostname: "canvas-vault-hc.ihc-dt.cluster-3.de"
-  #gateway: "components/component-gateway"
-  hostname: "canvas-vault-hc.k8s.cluster-1.de"
-  gateway: "istio-ingress/k8s-gateway"
 
 vault:
   #fullnameOverride: "canvas-vault-hc"
