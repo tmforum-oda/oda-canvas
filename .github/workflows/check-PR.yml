@@ -1,0 +1,32 @@
+name: Check that PRs do not contain prereleaseSuffixes
+on: 
+  pull_request:
+    branches:
+      # TODO[FH]: remove before PR is merged.
+      - testmain
+      - master
+jobs:
+  check-pr-does-not-contain-prereleasesuffixes-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: check if there are nonempty version suffixes in values.yaml
+        id: values_yaml_contains_version_suffix
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/canvas-oda/values.yaml
+
+      - name: collect existing version suffixes in values.yaml for error reportfor 
+        id: version_suffixes
+        if: steps.values_yaml_contains_version_suffix.outputs.result=='true'
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/canvas-oda/values.yaml
+          
+      - name: report error
+        if: steps.values_yaml_contains_version_suffix.outputs.result=='true'
+        run: |
+          echo "::error file=charts/canvas-oda/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes.outputs.result }}]" && exit 1
+
