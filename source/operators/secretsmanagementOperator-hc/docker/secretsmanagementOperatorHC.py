@@ -71,10 +71,7 @@ hvac_token_enc = os.getenv(
     None,
 )
 
-sidecar_image = os.getenv(
-    "SIDECAR_IMAGE",
-    "mtr.devops.telekom.de/magenta_canvas/public:secretsmanagement-sidecar-0.1.0-rc",
-)
+sidecar_image = os.environ["SIDECAR_IMAGE"]
 
 webhook_service_name = os.getenv("WEBHOOK_SERVICE_NAME", "dummyservicename")
 webhook_service_namespace = os.getenv(

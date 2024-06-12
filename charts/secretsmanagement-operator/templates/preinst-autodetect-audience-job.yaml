@@ -27,8 +27,9 @@ spec:
       restartPolicy: Never
       containers:
       - name: autodetect-audience
-        # TODO[FH]: switch to public docker image with kubectl or tmforum repo?
-        image: "mtr.devops.telekom.de/magenta_canvas/public:alpine-helm"
+        # public image with kubectl and curl:
+        # https://github.com/projectsyn/component-cert-manager/pull/130
+        image: "quay.io/appuio/oc:v4.14"
         imagePullPolicy: Always
         command: ["/bin/bash"]
         args: ["-c", "echo starting autodetect audience pre install hook;
