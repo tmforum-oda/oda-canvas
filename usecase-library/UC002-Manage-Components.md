@@ -7,7 +7,7 @@ It uses the following assumptions:
 * The ODA Component describes the requirements (for its Core Function, Management and Security) in a machine-readible specification conforming to the [Component Design Guidelines](https://github.com/tmforum-oda/oda-ca-docs/blob/master/ODAComponentDesignGuidelines.md).
 * The ODA Component conforms to the latest [ODA Component API Specification](https://github.com/tmforum-oda/oda-canvas/blob/master/charts/oda-crds/templates/oda-component-crd.yaml) or the previous (N-1) or (N-2) version.
 * The Component Operator decomposes the ODA Component resource into multiple sub-resources (for Exposed APIs, Dependent APIs, Published Events, Subscribed Events, Observability, Identity etc). These sub-resources are processed by their corresponding operators.
-* The Component Operator summarises the status of the sub-resources and the overall status of the ODA Component.
+* The Component Operator summarises the status of the sub-resources and the overall status of the ODA Component. The component will have a status of 'In-Progress' until all the sub-resource updates are complete. The component will then have a status of 'Complete'. 
 
 ## Install component
 
@@ -31,6 +31,6 @@ The component deletion should clean-up all the resources created during the inst
 
 ## Error scenarios
 
-The component status should be set to one of the Error status codes (i.e. `Error-Configuring-APIs`, `Error-Configuring-Events`, `Error-Configuring-IDM`, `Error-Configuring-Observability`, `Error-Configuring-Secrets`, `Error-Configuring-Dependencies`) if any of the sub-resources fail to be created, updated or deleted. Each operator should re-try a configurable number of times before setting the relavant Error status.
-
+The component only creates the sub-resources and retrieves status updates from them. The component will have a status of 'In-Progress' until all the sub-resource updates are complete. The component will then have a status of 'Complete'. 
+For troubleshooting, you need to check each of the sub-resources. The sub-resources will also have an 'In-Progress' and 'Complete' statuses. The sub-resources may also implement a 'In-Progress-Retry-Backoff' state if it has failed multiple times. This state reflexts that it is retrying more infrequently and that there is likely an issue that needs to be resolved.
 
