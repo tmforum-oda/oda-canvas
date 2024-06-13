@@ -47,6 +47,18 @@ When('I install the {string} package', function (componentPackage) {
 });
 
 /**
+ * Install a specified package using the packageManagerUtils.installPackage function. Same as When('I install the {string} package as release {string}')
+ * but with language that reflects installing as a baseline for a test (Given).
+ *
+ * @param {string} componentPackage - The name of the package to install.
+ * @param {string} releaseName - The name of the release name.
+ */
+Given('A baseline {string} package installed as release {string}', function (componentPackage, releaseName) {
+  global.currentReleaseName = releaseName
+  packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
+/**
  * Install a specified package using the packageManagerUtils.installPackage function. Use the specified release name.
  *
  * @param {string} componentPackage - The name of the package to install.
@@ -55,6 +67,17 @@ When('I install the {string} package', function (componentPackage) {
 When('I install the {string} package as release {string}', function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
   packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
+/**
+ * Upgrade a specified package using the packageManagerUtils.upgradePackage function. Use the specified release name.
+ *
+ * @param {string} componentPackage - The name of the package to upgrade.
+ * @param {string} releaseName - The name of the release name.
+ */
+When('I upgrade the {string} package as release {string}', function (componentPackage, releaseName) {
+  global.currentReleaseName = releaseName
+  packageManagerUtils.upgradePackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
 

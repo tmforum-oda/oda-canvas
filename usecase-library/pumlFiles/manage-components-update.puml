@@ -19,7 +19,7 @@ participant "Dependency\nManagement\nOperator" as DependencyOperator
 
 Component <- Operations : Install
 Component -> ComponentOperator: on.update 
-Component <- ComponentOperator: set status to **Configuring-APIs** 
+Component <- ComponentOperator: set status to **In-Progress** 
 ComponentOperator -> ComponentOperator: Determine what Exposed APIs have been added, updated or deleted
 ComponentOperator -> ExposedAPI: create any added ExposedAPIs
 ComponentOperator -> ExposedAPI: update any updated ExposedAPIs
@@ -32,14 +32,8 @@ end note
 group For each exposed API
     ExposedAPI -> APIExposureOperator: on.update  
     APIExposureOperator -> APIExposureOperator: Process API
-    ExposedAPI <- APIExposureOperator: update
-    ComponentOperator <- ExposedAPI: on.update
-    Component <- ComponentOperator: update 
 end
-Component <- ComponentOperator: set status to **Configuring-Events** 
-note right
-    Once all APIs are configured successfully, change compoNEt status to Configuring-Events
-end note
+
 ComponentOperator -> ComponentOperator: Determine what Published Notifications have been added, updated or deleted
 ComponentOperator -> PublishedNotification: create any added Published Notifications
 ComponentOperator -> PublishedNotification: update any updated Published Notifications
@@ -54,39 +48,19 @@ end note
 group For each Published Notification
     PublishedNotification -> EventOperator: on.update 
     EventOperator -> EventOperator: Process Notification
-    PublishedNotification <- EventOperator: update
-    ComponentOperator <- PublishedNotification: on.update
-    Component <- ComponentOperator: update 
 end
-Component <- ComponentOperator: set status to **Configuring-IDM** 
-note right
-    Once all Events are configured successfully, change component status to Configuring-IDM
-end note
 
 ComponentOperator -> Identity: update
 Identity -> IdentityOperator: on.update
 IdentityOperator -> IdentityOperator: Manage roles and users
-Identity <- IdentityOperator: update
-ComponentOperator <- Identity: on.update
-Component <- ComponentOperator: update 
 
-Component <- ComponentOperator: set status to **Configuring-Observability** 
 ComponentOperator -> Observability: update
 Observability -> ObservabilityOperator: on.update
 ObservabilityOperator -> ObservabilityOperator: Configure Observability
-Observability <- ObservabilityOperator: update
-ComponentOperator <- Observability: on.update
-Component <- ComponentOperator: update 
 
-Component <- ComponentOperator: set status to **Configuring-Secrets** 
 ComponentOperator -> Secrets: update
 Secrets -> SecretsOperator: on.update
 SecretsOperator -> SecretsOperator: Configure secrets vault
-Secrets <- SecretsOperator: update
-ComponentOperator <- Secrets: on.update
-Component <- ComponentOperator: update 
-
-Component <- ComponentOperator: set status to **Configuring-Dependencies** 
 
 ComponentOperator -> ComponentOperator: Determine what Dependent APIs have been added, updated or deleted
 ComponentOperator -> DependentAPI: create any added ExposedAPIs
@@ -100,13 +74,46 @@ end note
 group For each dependent API
     DependentAPI -> DependencyOperator: on.update  
     DependencyOperator -> DependencyOperator: Process API
-    DependentAPI <- DependencyOperator: update
-    ComponentOperator <- DependentAPI: on.update
-    Component <- ComponentOperator: update 
 end
 
-Component <- ComponentOperator: set status to **Complete** 
-note right
-    Once all Dependent APIs are configured successfully, change component status to Complete
-end note
+
+
+group Updates - can arrive in any order
+    group For each exposed API
+        ExposedAPI <- APIExposureOperator: update
+        ComponentOperator <- ExposedAPI: on.update
+        Component <- ComponentOperator: update 
+        Component <- ComponentOperator: If all updates complete set status to **Complete** 
+    end
+
+    group For each Published Notification
+        PublishedNotification <- EventOperator: update
+        ComponentOperator <- PublishedNotification: on.update
+        Component <- ComponentOperator: update 
+        Component <- ComponentOperator: If all updates complete set status to **Complete** 
+    end
+
+    Identity <- IdentityOperator: update
+    ComponentOperator <- Identity: on.update
+    Component <- ComponentOperator: update
+    Component <- ComponentOperator: If all updates complete set status to **Complete** 
+
+    Observability <- ObservabilityOperator: update
+    ComponentOperator <- Observability: on.update
+    Component <- ComponentOperator: update 
+    Component <- ComponentOperator: If all updates complete set status to **Complete** 
+
+    Secrets <- SecretsOperator: update
+    ComponentOperator <- Secrets: on.update
+    Component <- ComponentOperator: update 
+    Component <- ComponentOperator: If all updates complete set status to **Complete** 
+
+    group For each dependent API
+        DependentAPI <- DependencyOperator: update
+        ComponentOperator <- DependentAPI: on.update
+        Component <- ComponentOperator: update 
+        Component <- ComponentOperator: If all updates complete set status to **Complete** 
+    end
+    
+End group
 @enduml
