@@ -1,0 +1,35 @@
+# Default values for productcatalog.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+component:
+  # Specifies whether a service account should be created
+  id: TMFC001
+  name: productcatalogmanagement
+  functionalBlock: CoreCommerce
+  publicationDate: 2023-08-18T00:00:00.000Z
+  version: "0.0.1"
+  storageClassName: default
+security:
+  controllerRole: Admin
+mongodb:
+  port: 27017
+  database: tmf
+productcatalog:
+  image: csotiriou/productcatalogapi:0.10
+  initializationimage: lesterthomas/productcataloginitialization:0.3
+  versionlabel: productcatalogapi-0.10
+  otlp:
+    console:
+      enabled: false
+    protobuffCollector:
+      enabled: true
+      url: http://datadog-agent.default.svc.cluster.local:4318/v1/traces
+partyrole:
+  image: lesterthomas/partyroleapi:1.0
+  initializationimage: lesterthomas/roleinitialization:0.3
+  versionlabel: partyroleapi-1.0
+metrics:
+  image: lesterthomas/registerallevents:0.2
+  versionlabel: lesterthomas-metricsapi-0.2

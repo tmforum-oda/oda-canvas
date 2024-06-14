@@ -67,7 +67,7 @@ def k8s_load_config(proxy=False):
         except kubernetes.config.ConfigException:
             raise Exception("Could not configure kubernetes python client")
         if proxy:
-            proxy = "http://sia-lb.telekom.de:8080"
+            proxy = os.environ["HTTPS_PROXY"]
             kubernetes.client.Configuration._default.proxy = proxy
             print(f"set proxy to {proxy}")
 

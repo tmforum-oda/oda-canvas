@@ -25,13 +25,13 @@ logger = logging.getLogger('ComponentOperator')
 logger.setLevel(int(logging_level))
 logger.info(f'Logging set to %s', logging_level)
 
+
 CICD_BUILD_TIME = os.getenv('CICD_BUILD_TIME')
 GIT_COMMIT_SHA = os.getenv('GIT_COMMIT_SHA')
 if CICD_BUILD_TIME:
     logger.info(f'CICD_BUILD_TIME=%s', CICD_BUILD_TIME)
 if GIT_COMMIT_SHA:
     logger.info(f'GIT_COMMIT_SHA=%s', GIT_COMMIT_SHA)
-
 
 
 # get namespace to monitor
@@ -45,6 +45,11 @@ GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
 APIS_PLURAL = "apis"
 COMPONENTS_PLURAL = "components"
+
+SECRETSMANAGEMENT_GROUP = 'oda.tmforum.org'
+SECRETSMANAGEMENT_VERSION = "v1beta3"
+SECRETSMANAGEMENT_PLURAL = "secretsmanagements"
+SECRETSMANAGEMENT_KIND = "SecretsManagement" 
 
 DEPENDENTAPI_GROUP = 'oda.tmforum.org'
 DEPENDENTAPI_VERSION = "v1beta3"
@@ -194,6 +199,39 @@ async def deleteDependentAPI(dependentAPIName, componentName, status, namespace,
     except ApiException as e:
         logWrapper(logging.DEBUG, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
         logWrapper(logging.ERROR, 'deleteDependentAPI', inHandler, 'component/' + componentName, componentName, "Exception", " when calling CustomObjectsApi->delete_namespaced_custom_object")
+
+
+
+
+async def deleteSecretsManagement(secretsManagementName, componentName, status, namespace, inHandler):
+    """Helper function to delete SecretsManagement Custom objects.
+    
+    Args:
+        * secretsManagementName (String): Name of the SecretsManagement Custom Resource to delete 
+        * componentName (String): Name of the component the SecretsManagement is linked to 
+        * status (Dict): The status from the yaml component envelope.
+        * namespace (String): The namespace for the component
+        * inHandler (String): The name of the handler that called this function
+
+    Returns:
+        No return value
+
+    :meta private:
+    """
+
+    logWrapper(logging.INFO, 'deleteSecretsManagement', inHandler, 'component/' + componentName, componentName, "Deleting SecretsManagement", f"Deleting SecretsManagement {secretsManagementName}")
+    custom_objects_api = kubernetes.client.CustomObjectsApi()
+    try:
+        secretsmanagement_response = custom_objects_api.delete_namespaced_custom_object(
+            group = GROUP, 
+            version = SECRETSMANAGEMENT_VERSION, 
+            namespace = namespace, 
+            plural = SECRETSMANAGEMENT_PLURAL, 
+            name = secretsManagementName)
+        logWrapper(logging.DEBUG, 'deleteSecretsManagement', inHandler, 'component/' + componentName, componentName, "SecretsManagement response", secretsmanagement_response)
+    except ApiException as e:
+        logWrapper(logging.DEBUG, 'deleteSecretsManagement', inHandler, 'component/' + componentName, componentName, "Exception when calling CustomObjectsApi->delete_namespaced_custom_object", e)
+        logWrapper(logging.ERROR, 'deleteSecretsManagement', inHandler, 'component/' + componentName, componentName, "Exception", " when calling CustomObjectsApi->delete_namespaced_custom_object")
 
 
 
@@ -457,6 +495,71 @@ async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, *
     # Update the parent's status.
     return dependentAPIChildren
 
+
+
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+async def securitySecretsManagement(meta, spec, status, body, namespace, labels, name, **kwargs):
+    """Handler function for **securityFunction** part new or updated components.
+    
+    Processes the **securityFunction.secretsManagement** part of the component envelope and creates, if requested, the child SecretsManagement resource.
+
+    Args:
+        * meta (Dict): The metadata from the yaml component envelope 
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state) 
+        * status (Dict): The status from the yaml component envelope showing the actual state.
+        * body (Dict): The entire yaml component envelope
+        * namespace (String): The namespace for the component
+        * labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the component
+
+    Returns:
+        Dict: The securitySecretsManagement status that is put into the component envelope status field.
+
+    :meta public:
+    """
+    logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Handler called with body", f"{body}")
+
+    logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Handler called", "")
+    secretsManagementStatus = {}
+    sman_name = f"sman_{name}"
+
+    try:
+        oldSecuritySecretsManagement = {}
+        if status:  # if status exists (i.e. this is not a new component)
+            oldSecuritySecretsManagement = safe_get({}, status, 'securitySecretsManagement')
+        logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "--- OLD SECRETSMANAGEMENT (from status) ---", f"{oldSecuritySecretsManagement}, type={type(oldSecuritySecretsManagement)}")
+            
+        newSecuritySecretsManagement = safe_get({}, spec, 'securityFunction', 'secretsManagement')
+        logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "--- NEW SECRETSMANAGEMENT ---", f"{newSecuritySecretsManagement}")
+        
+        if oldSecuritySecretsManagement != {} and newSecuritySecretsManagement == {}:
+            logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Deleting SecretsManagement", sman_name)
+            await deleteSecretsManagement(sman_name, name, status, namespace, 'securitySecretsManagement')
+
+        if oldSecuritySecretsManagement == {} and newSecuritySecretsManagement != {}:
+            logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Calling createSecretsManagement", sman_name)
+            resultStatus = await createSecretsManagementResource(newSecuritySecretsManagement, namespace, name, 'securitySecretsManagement')
+            secretsManagementStatus = resultStatus
+
+        if oldSecuritySecretsManagement != {} and newSecuritySecretsManagement != {}:
+            # TODO[FH] implement check for update
+            secretsManagementStatus = newSecuritySecretsManagement  
+
+            
+    except kopf.TemporaryError as e:
+        raise e # propagate
+    except Exception as e:
+        logWrapper(logging.ERROR, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Unhandled exception", f"{e}: {traceback.format_exc()}")
+        raise kopf.TemporaryError(e) # allow the operator to retry            
+
+    logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "result for status ", f"{secretsManagementStatus}")
+        
+    # Update the parent's status.
+    return secretsManagementStatus
+
+
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -591,6 +694,30 @@ def constructDependentAPIResourcePayload(inDependentAPI, cr_name):
     DependentAPIResource['metadata']['name'] = cr_name
     DependentAPIResource['spec'] = inDependentAPI
     return DependentAPIResource
+
+def constructSecretsManagementResourcePayload(inSecretsManagement):
+    """Helper function to create payloads for SecretsManagement Custom objects.
+
+    Args:
+        * inSecretsManagement (Dict): The SecretsManagement spec 
+
+    Returns:
+        SecretsManagement Custom object (Dict)
+
+    :meta private:
+    """
+    SecretsManagementResource = {
+        "apiVersion": GROUP + "/" + SECRETSMANAGEMENT_VERSION,
+        "kind": SECRETSMANAGEMENT_KIND,
+        "metadata": {},
+        "spec": {}
+    }
+    # Make it our child: assign the namespace, name, labels, owner references, etc.
+    kopf.adopt(SecretsManagementResource)
+    newName = (SecretsManagementResource['metadata']['ownerReferences'][0]['name'])
+    SecretsManagementResource['metadata']['name'] = newName
+    SecretsManagementResource['spec'] = inSecretsManagement
+    return SecretsManagementResource
 
 async def patchAPIResource(inAPI, namespace, name, inHandler):
     """Helper function to patch API Custom objects.
@@ -764,6 +891,50 @@ async def createDependentAPIResource(inDependentAPI, namespace, comp_name, cr_na
     returnDependentAPIObject = {"name": DependentAPIResource['metadata']['name'], "uid": dependentAPIObj['metadata']['uid'], "ready": dependentAPIReadyStatus}
     return returnDependentAPIObject
             
+
+
+async def createSecretsManagementResource(inSecretsManagement, namespace, name, inHandler):
+    """Helper function to create or update API Custom objects.
+
+    Args:
+        * inSecretsManagement (Dict): The SecretsManagement definition 
+        * namespace (String): The namespace for the Component and API
+        * name (String): The name of the API resource
+        * inHandler (String): The name of the handler calling this function
+
+    Returns:
+        Dict with SecretsManagement definition including uuid of the SecretsManagement resource and ready status.
+
+    :meta private:
+    """
+    logWrapper(logging.DEBUG, 'createSecretsManagementResource', inHandler, 'component/' + name, name, "Create SecretsManagement", inSecretsManagement)
+
+    SecretsManagementResource = constructSecretsManagementResourcePayload(inSecretsManagement)
+    
+    secretsManagementReadyStatus = False
+    returnSecretsManagementObject = {}
+
+    try:
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+        logWrapper(logging.INFO, 'createSecretsManagementResource', inHandler, 'component/' + name, name, "Creating SecretsManagement Custom Object", SecretsManagementResource)
+
+        secretsManagementObj = custom_objects_api.create_namespaced_custom_object(
+            group = GROUP,
+            version = SECRETSMANAGEMENT_VERSION,
+            namespace = namespace,
+            plural = SECRETSMANAGEMENT_PLURAL,
+            body = SecretsManagementResource)
+
+        logWrapper(logging.DEBUG, 'createSecretsManagementResource', inHandler, 'component/' + name, name, "SecretsManagement Resource created", secretsManagementObj)
+        logWrapper(logging.INFO, 'createSecretsManagementResource', inHandler, 'component/' + name, name, "SecretsManagement created", SecretsManagementResource['metadata']['name'])
+        returnSecretsManagementObject = {"name": SecretsManagementResource['metadata']['name'], "uid": secretsManagementObj['metadata']['uid'], "ready": secretsManagementReadyStatus}
+
+    except ApiException as e:
+        logWrapper(logging.WARNING, 'createSecretsManagementResource', inHandler, 'component/' + name, name, "SecretsManagement Exception creating", SecretsManagementResource)
+        logWrapper(logging.WARNING, 'createSecretsManagementResource', inHandler, 'component/' + name, name, "SecretsManagement Exception creating", e)
+        
+        raise kopf.TemporaryError("Exception creating SecretsManagement custom resource.")
+    return returnSecretsManagementObject
 
 
 # When api adds url address of where api is exposed, update parent Component object
@@ -1075,13 +1246,16 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     coreAPIsummary = ''
     coreDependentAPIsummary = ''
+    securitySecretsManagementSummary = ''
     managementAPIsummary = ''
     securityAPIsummary = ''
     developerUIsummary = ''
     countOfCompleteAPIs = 0
     countOfDesiredAPIs = 0
-    countOfCompleteDependentAPIs = 0
     countOfDesiredDependentAPIs = 0
+    countOfCompleteDependentAPIs = 0
+    countOfDesiredSecretsManagements = 0
+    countOfCompleteSecretsManagements = 0
     if 'coreAPIs' in status.keys():
         countOfDesiredAPIs = countOfDesiredAPIs + len(status['coreAPIs'])
         for api in status['coreAPIs']:
@@ -1101,6 +1275,15 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
                 if 'ready' in depapi.keys():
                     if depapi['ready'] == True:
                         countOfCompleteDependentAPIs = countOfCompleteDependentAPIs + 1
+    if 'securitySecretsManagement' in status.keys():
+        sman = status['securitySecretsManagement']
+        if sman != {}:
+            countOfDesiredSecretsManagements = 1
+            securitySecretsManagementSummary = "initializing"
+            if 'ready' in sman:
+                if sman['ready'] == True:
+                    countOfCompleteSecretsManagements = countOfCompleteSecretsManagements + 1
+                    securitySecretsManagementSummary = "ready"
     if 'managementAPIs' in status.keys():  
         countOfDesiredAPIs = countOfDesiredAPIs + len(status['managementAPIs'])                                    
         for api in status['managementAPIs']:
@@ -1127,6 +1310,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     status_summary = {}
     status_summary['coreAPIsummary'] = coreAPIsummary
     status_summary['coreDependentAPIsummary'] = coreDependentAPIsummary
+    status_summary['securitySecretsManagementSummary'] = securitySecretsManagementSummary
     status_summary['managementAPIsummary'] = managementAPIsummary
     status_summary['securityAPIsummary'] = securityAPIsummary
     status_summary['developerUIsummary'] = developerUIsummary
@@ -1136,9 +1320,11 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     if countOfCompleteAPIs == countOfDesiredAPIs:
         status_summary['deployment_status'] = 'In-Progress-SecCon'
         if (('security_client_add/status.summary/status.deployment_status' in status.keys()) and (status['security_client_add/status.summary/status.deployment_status']['listenerRegistered'] == True)):
-            status_summary['deployment_status'] = 'In-Progress-DepApi'
-            if countOfCompleteDependentAPIs == countOfDesiredDependentAPIs:
-                status_summary['deployment_status'] = 'Complete'
+            status_summary['deployment_status'] = 'In-Progress-SecretMan'
+            if countOfCompleteSecretsManagements == countOfDesiredSecretsManagements:
+                status_summary['deployment_status'] = 'In-Progress-DepApi'
+                if countOfCompleteDependentAPIs == countOfDesiredDependentAPIs:
+                    status_summary['deployment_status'] = 'Complete'
     logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Creating summary - deployment status", status_summary['deployment_status'])
 
     return status_summary

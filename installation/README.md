@@ -131,6 +131,15 @@ kubectl label namespace istio-ingress istio-injection=enabled
 helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway --wait
 ```
 
+### 4. HashiCorp Vault
+
+A setup script to deploy and configure HashiCorp Vault into the cluster and configure it to trust 
+the Service-Account-Issuer of this cluster is provided in CanvasVault/setup_CanvasVault.sh.
+
+If HashiCorp Vault is **NOT** installed, everything works fine, only if a component requests Secrets-Management,
+it will get stuck in state "InProgress-SecretsConfig".
+
+
 ### 4. Reference implementation
 
 1. Add oda-canvas helm repo
