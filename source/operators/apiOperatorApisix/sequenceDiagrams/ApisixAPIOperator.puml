@@ -1,0 +1,20 @@
+@startuml
+entity Component
+participant componentController
+entity API
+participant ApisixAPIController
+entity ApisixIngressController
+
+Component-> componentController: Create Component
+componentController -> API: Create exposedAPIs API resources
+API -> ApisixAPIController: ExposedAPI created
+ApisixAPIController-> ApisixIngressController: Create/Update Apisixproute&Plugins for ExposedAPI
+ApisixIngressController-> ApisixIngressController: Create/Update Apisixproute and add ApisixPlugins
+
+Component-> componentController: Delete Component
+componentController -> API: Remove exposedAPIs API resources
+API -> ApisixAPIController: ExposedAPI removed
+ApisixAPIController-> ApisixIngressController: Remove Apisixproute&Plugins for ExposedAPI
+ApisixIngressController-> ApisixIngressController: Remove Apisixproute and ApisixPlugins
+
+@enduml
