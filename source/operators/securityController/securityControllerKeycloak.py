@@ -235,20 +235,6 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                 ))
             else:
                 client = client_list[name]
-    
-        try:# to add list of roles exposed in component
-            # TODO find securityFunction.componentRole and add_role in {name}
-            # 1) GET securityFunction.componentRole from the component
-            # 2) Run for loop through list of roles present in securityFunction.componentRole
-            # 3) and execute add_role against component in every iteration
-            
-            for role in spec['securityFunction']['componentRole']:
-                kc.add_role(role, client, token, kcRealm)
-        except RuntimeError as e:
-            logging.error(format_cloud_event(
-                f'Keycloak add_role failed for roles present in componentRole in {name}: {e}',
-                'exposed list of roles in component: bootstrap add_role failed'
-            ))
             
         try: # to create the bootstrap role
             # TODO find securityFunction.controllerRole and add_role in {name}
