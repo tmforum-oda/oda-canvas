@@ -135,9 +135,8 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             # 4) create user for seccon
             # 5) add_role_to_user for secCon user
 
-            if ('securityFunction' in spec and 'controllerRole' in spec['securityFunction']):
-                for role in spec['securityFunction']['controllerRole']:
-                    kc.add_role(role, client, token, kcRealm)
+            seccon_role = spec['securityFunction']['controllerRole']
+            kc.add_role(seccon_role, client, token, kcRealm)
         except RuntimeError as e:
             logging.error(format_cloud_event(
                 f'Keycloak add_role failed for {seccon_role} in {name}: {e}',
@@ -159,17 +158,17 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                 # 3) and execute add_role against component in every iteration
                 
                 for role in spec['securityFunction']['componentRole']:
-                    kc.add_role(role, client, token, kcRealm)
+                    kc.add_role(role['name'], client, token, kcRealm)
             except RuntimeError as e:
                 logging.error(format_cloud_event(
                     f'Keycloak add_role failed for roles present in componentRole in {name}: {e}',
                     'exposed list of roles in component: bootstrap add_role failed'
                 ))
                 status_value = { 'identityProvider': 'Keycloak',
-                                'rolesAdded': False }
+                                'listenerRegistered': False }
             else:
                 status_value = { 'identityProvider': 'Keycloak',
-                                'rolesAdded': True }
+                                'listenerRegistered': True }
 
         # the return value is added to the status field of the k8s object
         # under securityRoles parameter (corresponds to function name)
