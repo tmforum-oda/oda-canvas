@@ -1,5 +1,5 @@
 {
-  "name": "ODA Canvas BDD tests",
+  "name": "oda-canvas-bdd-tests",
   "version": "0.0.1",
   "scripts": {
     "start": "cucumber-js  --publish",
