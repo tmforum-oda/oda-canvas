@@ -1,0 +1,8 @@
+{{ if eq (len (lookup "v1" "Namespace" "" (include "canvasvault.namespace" .))) 0 }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "canvasvault.namespace" . }}
+  annotations:
+    "helm.sh/resource-policy": "keep"
+{{- end }}

@@ -1,0 +1,16 @@
+{{ if eq (len (lookup "rbac.authorization.k8s.io/v1" "ClusterRoleBinding" "" "oidc-reviewer" )) 0 }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: oidc-reviewer
+  annotations:
+    "helm.sh/resource-policy": "keep"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:service-account-issuer-discovery
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:unauthenticated
+{{- end }}
