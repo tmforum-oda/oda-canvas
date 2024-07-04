@@ -15,13 +15,15 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.0
+version: 0.2.0
+# version: 0.2.0 - rollback to Vault version 1.14.8, which is the last under MPL
+# version: 0.1.0 - baseline version
 
 # This is the version number of the application being deployed. We are versioning the canvas as the
 # version of the latest component spec that it supports.
-appVersion: "0.28.0"
+appVersion: "0.25.0"
 
 dependencies:
   - name: vault
-    version: "0.28.0"
+    version: "0.25.0"
     repository: 'https://helm.releases.hashicorp.com'

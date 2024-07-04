@@ -46,8 +46,8 @@ echo -e "${Y}Deploy and configure HashiCorp Vault (in DEV mode)${NC}"
 echo -e "${Y}Installing HashiCorp Vault in DEV mode${NC}"
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo update
-helm upgrade --install canvas-vault-hc hashicorp/vault --namespace canvas-vault --create-namespace --values ./values.yaml --set=server.dev.devRootToken=$VAULT_DEV_ROOT_TOKEN_ID --wait
-             # --version 0.24.0
+helm upgrade --install canvas-vault-hc hashicorp/vault --version 0.25.0  --namespace canvas-vault --create-namespace --values ./values.yaml --set=server.dev.devRootToken=$VAULT_DEV_ROOT_TOKEN_ID --wait
+             
 
 echo "waiting up to 30 seconds for the vault to be ready"
 kubectl -n canvas-vault wait -l  statefulset.kubernetes.io/pod-name=canvas-vault-hc-0 --for=condition=ready pod --timeout=30s
