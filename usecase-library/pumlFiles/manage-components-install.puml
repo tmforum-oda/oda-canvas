@@ -19,7 +19,7 @@ participant "Dependency\nManagement\nOperator" as DependencyOperator
 
 Component <- Operations : Install
 Component -> ComponentOperator: on.create 
-Component <- ComponentOperator: set status to **Configuring-APIs** 
+Component <- ComponentOperator: set status to **In-Progress** 
 ComponentOperator -> ExposedAPI: create
 note right
     A separate ExposedAPI resource is created
@@ -29,14 +29,8 @@ end note
 group For each exposed API
     ExposedAPI -> APIExposureOperator: on.create 
     APIExposureOperator -> APIExposureOperator: Process API
-    ExposedAPI <- APIExposureOperator: update
-    ComponentOperator <- ExposedAPI: on.update
-    Component <- ComponentOperator: update 
 end
-Component <- ComponentOperator: set status to **Configuring-Events** 
-note right
-    Once all APIs are configured successfully, change compoNEt status to Configuring-Events
-end note
+
 
 ComponentOperator -> PublishedNotification: create
 note right
@@ -47,39 +41,20 @@ end note
 group For each Published Notification
     PublishedNotification -> EventOperator: on.create 
     EventOperator -> EventOperator: Process Notification
-    PublishedNotification <- EventOperator: update
-    ComponentOperator <- PublishedNotification: on.update
-    Component <- ComponentOperator: update 
 end
-Component <- ComponentOperator: set status to **Configuring-IDM** 
-note right
-    Once all Events are configured successfully, change component status to Configuring-IDM
-end note
 
 ComponentOperator -> Identity: create
 Identity -> IdentityOperator: on.create
 IdentityOperator -> IdentityOperator: Manage roles and users
-Identity <- IdentityOperator: update
-ComponentOperator <- Identity: on.update
-Component <- ComponentOperator: update 
 
-Component <- ComponentOperator: set status to **Configuring-Observability** 
 ComponentOperator -> Observability: create
 Observability -> ObservabilityOperator: on.create
 ObservabilityOperator -> ObservabilityOperator: Configure Observability
-Observability <- ObservabilityOperator: update
-ComponentOperator <- Observability: on.update
-Component <- ComponentOperator: update 
 
-Component <- ComponentOperator: set status to **Configuring-Secrets** 
 ComponentOperator -> Secrets: create
 Secrets -> SecretsOperator: on.create
 SecretsOperator -> SecretsOperator: Configure secrets vault
-Secrets <- SecretsOperator: update
-ComponentOperator <- Secrets: on.update
-Component <- ComponentOperator: update 
 
-Component <- ComponentOperator: set status to **Configuring-Dependencies** 
 ComponentOperator -> DependentAPI: create
 note right
     A separate DependentAPI resource is created
@@ -89,15 +64,46 @@ end note
 group For each dependent API
     DependentAPI -> DependencyOperator: on.create
     DependencyOperator -> DependencyOperator: Configure dependencies
-    DependentAPI <- DependencyOperator: update
-    ComponentOperator <- DependentAPI: on.update
-    Component <- ComponentOperator: update 
 end
-Component <- ComponentOperator: set status to **Configuring-Events** 
-note right
-    Once all dependent APIs are configured successfully, change component status to Complete
-end note
 
-Component <- ComponentOperator: set status to **Complete** 
 
+
+group Updates - can arrive in any order
+    group For each exposed API
+        ExposedAPI <- APIExposureOperator: update
+        ComponentOperator <- ExposedAPI: on.update
+        Component <- ComponentOperator: update 
+        Component <- ComponentOperator: If all updates complete set status to **Complete** 
+    end
+
+    group For each Published Notification
+        PublishedNotification <- EventOperator: update
+        ComponentOperator <- PublishedNotification: on.update
+        Component <- ComponentOperator: update 
+        Component <- ComponentOperator: If all updates complete set status to **Complete** 
+    end
+
+    Identity <- IdentityOperator: update
+    ComponentOperator <- Identity: on.update
+    Component <- ComponentOperator: update
+    Component <- ComponentOperator: If all updates complete set status to **Complete** 
+
+    Observability <- ObservabilityOperator: update
+    ComponentOperator <- Observability: on.update
+    Component <- ComponentOperator: update 
+    Component <- ComponentOperator: If all updates complete set status to **Complete** 
+
+    Secrets <- SecretsOperator: update
+    ComponentOperator <- Secrets: on.update
+    Component <- ComponentOperator: update 
+    Component <- ComponentOperator: If all updates complete set status to **Complete** 
+
+    group For each dependent API
+        DependentAPI <- DependencyOperator: update
+        ComponentOperator <- DependentAPI: on.update
+        Component <- ComponentOperator: update 
+        Component <- ComponentOperator: If all updates complete set status to **Complete** 
+    end
+    
+End group
 @enduml

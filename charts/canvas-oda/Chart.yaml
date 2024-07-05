@@ -15,7 +15,9 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.2
+version: 1.1.4
+# version: 1.1.4 - added secretsmanagement-operator
+# version: 1.1.3 - updated dependentApiSimpleOperator to tmforum docker repo
 # version: 1.1.2 - added dependentApiSimpleOperator
 # version: 1.1.1 - bug fix for empty specification property of exposedAPI
 # version: 1.1.0 - updated component CRD to support an array for the specification field in the exposed API (to support Gen5 APIs)
@@ -42,12 +44,19 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: controller
-    version: "1.0.0"
+    version: "1.1.0"
     repository: 'file://../controller'
   - name: dependentapi-simple-operator
-    version: "0.1.0"
+    version: "0.1.1"
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
+  - name: secretsmanagement-operator
+    version: "0.1.0"
+    repository: 'file://../secretsmanagement-operator'
+  - name: canvas-vault
+    version: "0.1.0"
+    repository: 'file://../canvas-vault'
+    condition: canvas-vault.enabled
   - name: oda-webhook
     version: "1.1.1"
     repository: 'file://../oda-webhook'

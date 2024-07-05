@@ -5,7 +5,7 @@ import kopf
 import asyncio
 
 sys.path.append("..")
-from componentOperator import coreDependentAPIs, safe_get, updateDepedentAPIReady
+from componentOperator import safe_get, securitySecretsManagement, summary
 
 
 # Setup logging
@@ -20,12 +20,6 @@ logger.info(f"Logging set to %s", logging_level)
 
 import json
 import kubernetes.client
-
-
-def set_proxy():
-    os.environ["HTTP_PROXY"] = "http://sia-lb.telekom.de:8080"
-    os.environ["HTTPS_PROXY"] = "http://sia-lb.telekom.de:8080"
-    os.environ["NO_PROXY"] = "10.0.0.0/8,.telekom.de"
 
 
 def test_kubeconfig():
@@ -52,14 +46,13 @@ def k8s_load_config(proxy=False):
         except kubernetes.config.ConfigException:
             raise Exception("Could not configure kubernetes python client")
         if proxy:
-            proxy = "http://sia-lb.telekom.de:8080"
+            proxy = os.getenv('HTTPS_PROXY')
             kubernetes.client.Configuration._default.proxy = proxy
             print(f"set proxy to {proxy}")
 
 
-def test_dependentAPI_extract():
-    # body_json_file = 'testdata/CREATE_prodcat_2depapis.json'
-    body_json_file = "testdata/CREATE_prodcat.json"
+def test_securitySecretsManagement():
+    body_json_file = "testdata_SMAN/CREATE-prodcat_sman.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -108,14 +101,17 @@ def test_dependentAPI_extract():
     )
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            coreDependentAPIs(meta, spec, status, body, namespace, labels, name)
+        result = loop.run_until_complete(
+            securitySecretsManagement(meta, spec, status, body, namespace, labels, name)
         )
         loop.close()
 
+    logger.info(f"result: {result}")
+    return result
 
-def test_dependentAPI_drop():
-    body_json_file = "testdata/UPDATE_prodcat_2to1depapi.json"
+
+def test_summary():
+    body_json_file = "testdata_SMAN/CREATE-prodcat_cv.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -164,129 +160,18 @@ def test_dependentAPI_drop():
     )
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            coreDependentAPIs(meta, spec, status, body, namespace, labels, name)
+        result = loop.run_until_complete(
+            summary(meta, spec, status, body, namespace, labels, name)
         )
         loop.close()
 
-
-def test_dependentAPI_keep():
-    body_json_file = "testdata/CREATE_prodcat.json"
-    with open(body_json_file, "r") as f:
-        body = json.load(f)
-    meta = body["metadata"]
-    spec = body["spec"]
-    status = safe_get(None, body, "status")
-    patch = kopf.Patch({})
-    warnings = []
-    labels = safe_get(None, meta, "labels")
-    namespace = meta["namespace"]
-    name = meta["name"]
-
-    from kopf._cogs.structs.bodies import Body, RawBody, RawEvent, RawMeta
-    from kopf._core.intents.causes import ChangingCause, Reason, WatchingCause
-    from kopf._core.actions.execution import cause_var
-    from kopf._core.engines.indexing import OperatorIndexers
-    from kopf._cogs.structs.ephemera import Memo
-    from kopf._core.actions.invocation import context
-
-    OWNER_API_VERSION = "owner-api-version"
-    OWNER_NAMESPACE = "owner-namespace"
-    OWNER_KIND = "OwnerKind"
-    OWNER_NAME = "owner-name"
-    OWNER_UID = "owner-uid"
-    OWNER_LABELS = {"label-1": "value-1", "label-2": "value-2"}
-    OWNER = RawBody(
-        apiVersion=OWNER_API_VERSION,
-        kind=OWNER_KIND,
-        metadata=RawMeta(
-            namespace=OWNER_NAMESPACE,
-            name=OWNER_NAME,
-            uid=OWNER_UID,
-            labels=OWNER_LABELS,
-        ),
-    )
-
-    resource = "?"
-    cause = ChangingCause(
-        logger=logging.getLogger("kopf.test.fake.logger"),
-        indices=OperatorIndexers().indices,
-        resource=resource,
-        patch=patch,
-        memo=Memo(),
-        body=body,
-        initial=False,
-        reason=Reason.NOOP,
-    )
-    with context([(cause_var, cause)]):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            coreDependentAPIs(meta, spec, status, body, namespace, labels, name)
-        )
-        loop.close()
-
-
-def test_updateDependentAPIready():
-    body_json_file = "testdata/UPDATE_dependentapi_ready.json"
-    with open(body_json_file, "r") as f:
-        body = json.load(f)
-    meta = body["metadata"]
-    spec = body["spec"]
-    status = safe_get(None, body, "status")
-    patch = kopf.Patch({})
-    warnings = []
-    labels = safe_get(None, meta, "labels")
-    namespace = meta["namespace"]
-    name = meta["name"]
-
-    from kopf._cogs.structs.bodies import Body, RawBody, RawEvent, RawMeta
-    from kopf._core.intents.causes import ChangingCause, Reason, WatchingCause
-    from kopf._core.actions.execution import cause_var
-    from kopf._core.engines.indexing import OperatorIndexers
-    from kopf._cogs.structs.ephemera import Memo
-    from kopf._core.actions.invocation import context
-
-    OWNER_API_VERSION = "owner-api-version"
-    OWNER_NAMESPACE = "owner-namespace"
-    OWNER_KIND = "OwnerKind"
-    OWNER_NAME = "owner-name"
-    OWNER_UID = "owner-uid"
-    OWNER_LABELS = {"label-1": "value-1", "label-2": "value-2"}
-    OWNER = RawBody(
-        apiVersion=OWNER_API_VERSION,
-        kind=OWNER_KIND,
-        metadata=RawMeta(
-            namespace=OWNER_NAMESPACE,
-            name=OWNER_NAME,
-            uid=OWNER_UID,
-            labels=OWNER_LABELS,
-        ),
-    )
-
-    resource = "?"
-    cause = ChangingCause(
-        logger=logging.getLogger("kopf.test.fake.logger"),
-        indices=OperatorIndexers().indices,
-        resource=resource,
-        patch=patch,
-        memo=Memo(),
-        body=body,
-        initial=False,
-        reason=Reason.NOOP,
-    )
-    with context([(cause_var, cause)]):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            updateDepedentAPIReady(meta, spec, status, body, namespace, labels, name)
-        )
-        loop.close()
+    logger.info(f"result: {result}")
+    return result
 
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=True)
-    # test_kubeconfig()
-    # test_dependentAPI_extract()
-    # test_dependentAPI_drop()
-    # test_dependentAPI_keep()
-    test_updateDependentAPIready()
+    k8s_load_config(proxy=False)
+    test_kubeconfig()
+    test_securitySecretsManagement()
+    # test_summary()
