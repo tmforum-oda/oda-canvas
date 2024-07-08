@@ -15,9 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.4
-# version: upcoming
-#          - ODAA-86: downgrade HashiCorp Vault to 1.14.8 (last version under MPL)
+version: 1.1.5
+# version: 1.1.5 - ODAA-86: downgrade HashiCorp Vault to 1.14.8 (last version under MPL)
 # version: 1.1.4 - added secretsmanagement-operator
 # version: 1.1.3 - updated dependentApiSimpleOperator to tmforum docker repo
 # version: 1.1.2 - added dependentApiSimpleOperator
