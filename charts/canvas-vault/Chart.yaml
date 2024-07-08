@@ -21,9 +21,9 @@ version: 0.2.0
 
 # This is the version number of the application being deployed. We are versioning the canvas as the
 # version of the latest component spec that it supports.
-appVersion: "0.25.0"
+appVersion: "1.14.8"
 
 dependencies:
   - name: vault
-    version: "0.25.0"
+    version: "0.26.1"
     repository: 'https://helm.releases.hashicorp.com'
