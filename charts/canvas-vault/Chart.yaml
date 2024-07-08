@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 version: 0.2.0
-# version: 0.2.0 - rollback to Vault version 1.14.8, which is the last under MPL
+# version: 0.2.0 - ODAA-86: downgrade HashiCorp Vault to 1.14.8. Last version under MPLv2, 
+#                  see https://www.hashicorp.com/license-faq#products-covered-by-bsl
 # version: 0.1.0 - baseline version
 
 # This is the version number of the application being deployed. We are versioning the canvas as the
