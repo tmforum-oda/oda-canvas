@@ -1497,7 +1497,7 @@ spec:
                 x-kubernetes-preserve-unknown-fields: true
                 properties:
                   secretsManagement:
-                    description: request access to secrets stored exclusively for this component.
+                    description: optional, request access to secrets stored exclusively for this component.
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                     required: ["type", "podSelector"]
