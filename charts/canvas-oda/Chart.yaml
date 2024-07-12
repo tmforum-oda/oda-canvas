@@ -15,7 +15,9 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.4
+version: 1.1.5-rc1
+# version: 1.1.5-r1 - ODAA-86: downgrade HashiCorp Vault to 1.14.8. Last version under MPLv2, 
+#                  see https://www.hashicorp.com/license-faq#products-covered-by-bsl
 # version: 1.1.4 - added secretsmanagement-operator
 # version: 1.1.3 - updated dependentApiSimpleOperator to tmforum docker repo
 # version: 1.1.2 - added dependentApiSimpleOperator
@@ -54,7 +56,7 @@ dependencies:
     version: "0.1.0"
     repository: 'file://../secretsmanagement-operator'
   - name: canvas-vault
-    version: "0.1.0"
+    version: "0.2.0"
     repository: 'file://../canvas-vault'
     condition: canvas-vault.enabled
   - name: oda-webhook

@@ -9,6 +9,10 @@ server:
 
     # Set VAULT_DEV_ROOT_TOKEN_ID value
     devRootToken: "egalegal"
+    
+  image:
+    # last version with MPL license
+    tag: "1.14.8"
 
 
   # Settings for the statefulSet used to run Vault.
@@ -48,3 +52,15 @@ injector:
   # True if you want to enable vault agent injection.
   # @default: global.enabled
   enabled: false
+
+    
+  agentImage:
+    # last version with MPL license
+    tag: "1.14.8"
+
+
+csi:
+  agent:
+    image:
+      # last version with MPL license
+      tag: "1.14.8"
