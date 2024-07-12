@@ -17,11 +17,11 @@ The security controller consists of two modules, both written in Python. The fir
 
 Keycloak setup
 
-Relm = whole organisation
-Client (within Relm) = 1 App or component
+Realm = whole organisation
+Client (within Realm) = 1 App or component
 
-Roles can be scoped at relm or client level
-Users can be scoped at relm or client level
+Roles can be scoped at realm or client level
+Users can be scoped at realm or client level
 
 
 
@@ -45,11 +45,11 @@ To run python module standalone:
 
 ```
 $env:KEYCLOAK_USER = "admin"
-$env:KEYCLOAK_PASSWORD = "admin"
+$env:KEYCLOAK_PASSWORD = "adpass"
 ```
 
-5. Configure a new relm `myrealm` in keycloak.
-6. Configure a new client `r1-productcatalog` in the `myrealm` relm.
+5. Configure a new realm `myrealm` in keycloak.
+6. Configure a new client `r1-productcatalog` in the `myrealm` realm.
 
 
 **Testing KOPF module**

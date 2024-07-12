@@ -35,11 +35,15 @@ class Keycloak:
 
         Returns nothing, or raises an exception for the caller to catch
         """
+        if url == "":
+            json_obj = {'clientId': client}
+        else:
+            json_obj = {'clientId': client, 'rootUrl': url}
 
         try: # to create the client in Keycloak
             r = requests.post(
                 self._url + '/admin/realms/'+ realm +'/clients',
-                json={'clientId': client, 'rootUrl': url},
+                json=json_obj,
                 headers={'Authorization': 'Bearer ' + token}
             )
             r.raise_for_status()
