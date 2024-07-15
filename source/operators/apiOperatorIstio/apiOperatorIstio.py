@@ -21,13 +21,13 @@ import os
 import re
 
 logging_level = os.environ.get('LOGGING',logging.INFO)
-print('Logging set to ',logging_level)
 
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.WARNING)
 
 logger = logging.getLogger('APIOperator')
 logger.setLevel(int(logging_level))
+logger.info(f'Logging set to %s', logging_level)
 
 HTTP_SCHEME = "http://"
 HTTP_K8s_LABELS = ['http', 'http2']
@@ -38,7 +38,7 @@ APIS_PLURAL = "apis"
 
 # get environment variables
 OPENMETRICS_IMPLEMENTATION = os.environ.get('OPENMETRICS_IMPLEMENTATION', 'ServiceMonitor') # could be ServiceMonitor or PrometheusAnnotation or DataDogAnnotation
-print('Prometheus pattern set to ',OPENMETRICS_IMPLEMENTATION)
+logger.info(f'OpenMetrics implementation pattern set to {OPENMETRICS_IMPLEMENTATION}')
 
 APIOPERATORISTIO_PUBLICHOSTNAME = os.environ.get('APIOPERATORISTIO_PUBLICHOSTNAME') # hostname to be used for calling public APIs. 
 publichostname_loadBalancer = None                                                  # Overwrites the LB ip/hostname retrieved from istioingress service.

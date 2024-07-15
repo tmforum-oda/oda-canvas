@@ -25,7 +25,6 @@ logger = logging.getLogger('ComponentOperator')
 logger.setLevel(int(logging_level))
 logger.info(f'Logging set to %s', logging_level)
 
-
 CICD_BUILD_TIME = os.getenv('CICD_BUILD_TIME')
 GIT_COMMIT_SHA = os.getenv('GIT_COMMIT_SHA')
 if CICD_BUILD_TIME:
@@ -454,10 +453,8 @@ async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, *
         oldCoreDependentAPIs = []
         if status:  # if status exists (i.e. this is not a new component)
             oldCoreDependentAPIs = safe_get([], status, 'coreDependentAPIs')
-        logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "--- OLD DEPENDENTAPI (from status) ---", f"{oldCoreDependentAPIs}, type={type(oldCoreDependentAPIs)}")
             
         newCoreDependentAPIs = safe_get([], spec, 'coreFunction', 'dependentAPIs')
-        logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "--- NEW DEPENDENTAPI ---", f"{newCoreDependentAPIs}")
 
         # compare entries by name
         for oldCoreDependentAPI in oldCoreDependentAPIs:
@@ -519,7 +516,7 @@ async def securitySecretsManagement(meta, spec, status, body, namespace, labels,
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Handler called with body", f"{body}")
+    logWrapper(logging.DEBUG, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Handler called with body", f"{body}")
 
     logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Handler called", "")
     secretsManagementStatus = {}
