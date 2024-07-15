@@ -51,7 +51,21 @@ $env:KEYCLOAK_PASSWORD = "adpass"
 5. Configure a new realm `myrealm` in keycloak.
 6. Configure a new client `r1-productcatalog` in the `myrealm` realm.
 
+**Interactive development and Testing of operator using KOPF**
 
-**Testing KOPF module**
+The production operator will execute inside a Kubernetes Pod. For development and testing, it is possible to run the operator on the command-line (or inside a debugger). Kopf includes a `--standalone` attribute to allow the operator to execute in a standalone mode. This means that the operator will run independently, without relying on any external controllers or frameworks. It is particularly useful for development and debugging purposes, as it allows you to run and test your operator locally on your machine.
 
-Run: `kopf run --namespace=components --standalone .\securityControllerKeycloak.py`
+Run locally in command-line: 
+```
+kopf run --namespace=components --standalone .\securityControllerKeycloak.py
+```
+
+This mode will use the kubeconfig file (typically located at `$HOME/.kube/config`) to as long as `kubectl` is correctly configured for your cluster, the operator should work. 
+
+You need to ensure you turn-off the operator execusing in Kubernetes (for example, by setting the replicas to 0 in the operator Deployment).
+
+The command above will execute just the Keycloak identity operator. You will also need to execute the other operators relavant for your Canvas implementation - these can be executed in separate terminal command-lines.
+
+**Note: The keycloak identity operator may have issues calling http services locally inside the cluster - for example it may try to call `http://seccon.canvas.svc.cluster.local` and fail as this can only be executed inside the Kubernetes cluster.**
+
+

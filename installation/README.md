@@ -183,7 +183,7 @@ canvas-keycloak-keycloak-config-cli-fq5ph   1/1     Running     0          30s
 canvas-postgresql-0                         1/1     Running     0          4m43s
 compcrdwebhook-658f4868b8-48cvx             1/1     Running     0          4m43s
 job-hook-postinstall-6bm99                  0/1     Completed   0          4m43s
-oda-controller-ingress-d5c495bbb-crt4t      2/2     Running     0          4m43s
+oda-controller-d5c495bbb-crt4t      2/2     Running     0          4m43s
 ```
 
 Checking the logs of the failed Job

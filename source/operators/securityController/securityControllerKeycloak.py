@@ -53,9 +53,9 @@ def format_cloud_event(message: str, subject: str) -> str:
 # Script setup --------------
 
 logging_level = os.environ.get('LOGGING', logging.INFO)
-print('Logging set to ', logging_level)
 logger = logging.getLogger('SecurityOperator')
 logger.setLevel(int(logging_level))
+logger.info(f'Logging set to %s', logging_level)
 
 username = os.environ.get('KEYCLOAK_USER')
 password = os.environ.get('KEYCLOAK_PASSWORD')
@@ -202,12 +202,15 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
     
         try: # to authenticate and get a token
             token = kc.get_token(username, password)
-        except RuntimeError as e:
+        except Exception as e:
             logger.error(format_cloud_event(
                 str(e),
                 'secCon could not GET Keycloak token'
             ))
-    
+            raise kopf.TemporaryError(
+                'Could not authenticate to Keycloak. Will retry.',
+                delay=10
+            )    
         try: # to create the client in Keycloak
             kc.create_client(name, rooturl, token, kcRealm)
         except RuntimeError as e:
@@ -290,12 +293,15 @@ def security_client_delete(meta, spec, status, body, namespace, labels, name, **
 
     try: # to authenticate and get a token
         token = kc.get_token(username, password)
-    except RuntimeError as e:
+    except Exception as e:
         logger.error(format_cloud_event(
             str(e),
             'secCon could not GET Keycloak token'
         ))
-
+        raise kopf.TemporaryError(
+            'Could not authenticate to Keycloak. Will retry.',
+            delay=10
+        )  
     try: # to delete the client from Keycloak
         kc.del_client(name, token, kcRealm)
     except RuntimeError as e:

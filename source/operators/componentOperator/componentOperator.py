@@ -25,7 +25,6 @@ logger = logging.getLogger('ComponentOperator')
 logger.setLevel(int(logging_level))
 logger.info(f'Logging set to %s', logging_level)
 
-
 CICD_BUILD_TIME = os.getenv('CICD_BUILD_TIME')
 GIT_COMMIT_SHA = os.getenv('GIT_COMMIT_SHA')
 if CICD_BUILD_TIME:
@@ -88,7 +87,7 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.DEBUG, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Handler called", "")
     apiChildren = [] # any existing API children of this component that have been patched
     oldCoreAPIs = [] # existing API children of this component (according to previous status)
     try:
@@ -108,7 +107,6 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
                     logWrapper(logging.DEBUG, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Comparing old and new APIs", f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
                     if oldAPI['name'] == name + '-' + newAPI['name'].lower():
                         found = True
-                        logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Patching API", newAPI['name'])
                         resultStatus = await patchAPIResource(newAPI, namespace, name, 'coreAPIs')
                         apiChildren.append(resultStatus)
                 if not found:
@@ -127,7 +125,7 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
                 if processedAPI['name'] == name + '-' + coreAPI['name'].lower():
                     alreadyProcessed = True
             if alreadyProcessed == False:
-                logWrapper(logging.INFO, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Calling createAPIResource", coreAPI['name'])
+                logWrapper(logging.DEBUG, 'coreAPIs', 'coreAPIs', 'component/' + name, name, "Calling createAPIResource", coreAPI['name'])
                 resultStatus = await createAPIResource(coreAPI, namespace, name, 'coreAPIs')
                 apiChildren.append(resultStatus)
 
@@ -257,7 +255,7 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.DEBUG, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Handler called", "")
     apiChildren = []
     oldManagementAPIs = []
     try:
@@ -278,7 +276,6 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
                     logWrapper(logging.DEBUG, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Comparing old and new APIs", f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
                     if oldAPI['name'] == name + '-' + newAPI['name'].lower():
                         found = True
-                        logWrapper(logging.INFO, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Patching API", newAPI['name'])
                         resultStatus = await patchAPIResource(newAPI, namespace, name, 'managementAPIs')
                         apiChildren.append(resultStatus)
                 if not found:
@@ -300,7 +297,7 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
                     alreadyProcessed = True
 
             if alreadyProcessed == False:
-                logWrapper(logging.INFO, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Calling createAPIResource", managementAPI['name'])
+                logWrapper(logging.DEBUG, 'managementAPIs', 'managementAPIs', 'component/' + name, name, "Calling createAPIResource", managementAPI['name'])
                 resultStatus = await createAPIResource(managementAPI, namespace, name, 'managementAPIs')
                 apiChildren.append(resultStatus)
 
@@ -334,7 +331,7 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Handler called", "")
     apiChildren = []
     oldSecurityAPIs = []
     try:
@@ -354,7 +351,6 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
                     logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Comparing old and new APIs", f"Comparing  {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
                     if oldAPI['name'] == name + '-' + newAPI['name'].lower():
                         found = True
-                        logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Patching API", newAPI['name'])
                         resultStatus = await patchAPIResource(newAPI, namespace, name, 'securityAPIs')
                         apiChildren.append(resultStatus)
                 if not found:
@@ -376,7 +372,7 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
                     alreadyProcessed = True
 
             if alreadyProcessed == False:
-                logWrapper(logging.INFO, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Calling createAPIResource", securityAPI['name'])
+                logWrapper(logging.DEBUG, 'securityAPIs', 'securityAPIs', 'component/' + name, name, "Calling createAPIResource", securityAPI['name'])
                 resultStatus = await createAPIResource(securityAPI, namespace, name, 'securityAPIs')
                 apiChildren.append(resultStatus)
 
@@ -445,7 +441,6 @@ async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, *
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called", "")
     logWrapper(logging.DEBUG, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "Handler called with body", f"{body}")
     dependentAPIChildren = []
     dapi_base_name = f"{name}-dapi"
@@ -454,10 +449,8 @@ async def coreDependentAPIs(meta, spec, status, body, namespace, labels, name, *
         oldCoreDependentAPIs = []
         if status:  # if status exists (i.e. this is not a new component)
             oldCoreDependentAPIs = safe_get([], status, 'coreDependentAPIs')
-        logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "--- OLD DEPENDENTAPI (from status) ---", f"{oldCoreDependentAPIs}, type={type(oldCoreDependentAPIs)}")
             
         newCoreDependentAPIs = safe_get([], spec, 'coreFunction', 'dependentAPIs')
-        logWrapper(logging.INFO, 'coreDependentAPIs', 'coreDependentAPIs', 'component/' + name, name, "--- NEW DEPENDENTAPI ---", f"{newCoreDependentAPIs}")
 
         # compare entries by name
         for oldCoreDependentAPI in oldCoreDependentAPIs:
@@ -519,9 +512,7 @@ async def securitySecretsManagement(meta, spec, status, body, namespace, labels,
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Handler called with body", f"{body}")
-
-    logWrapper(logging.INFO, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.DEBUG, 'securitySecretsManagement', 'securitySecretsManagement', 'component/' + name, name, "Handler called with body", f"{body}")
     secretsManagementStatus = {}
     sman_name = f"sman_{name}"
 
@@ -582,7 +573,7 @@ async def publishedEvents(meta, spec, status, body, namespace, labels, name, **k
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'publishedEvents', 'publishedEvents', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.DEBUG, 'publishedEvents', 'publishedEvents', 'component/' + name, name, "Handler called", "")
     pubChildren = []
     try:
 
@@ -622,7 +613,7 @@ async def subscribedEvents(meta, spec, status, body, namespace, labels, name, **
 
     :meta public:
     """
-    logWrapper(logging.INFO, 'subscribedEvents', 'subscribedEvents', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.DEBUG, 'subscribedEvents', 'subscribedEvents', 'component/' + name, name, "Handler called", "")
     subChildren = []
     try:
 
@@ -755,9 +746,8 @@ async def patchAPIResource(inAPI, namespace, name, inHandler):
 
         if not(APIResource['spec'] == apiObj['spec']):
             # log the difference
-            logWrapper(logging.INFO, 'patchAPIResource', inHandler, 'component/' + name, name, "Comparing new and existing API ", f"Old {APIResource['spec']}")
-            logWrapper(logging.INFO, 'patchAPIResource', inHandler, 'component/' + name, name, "Comparing new and existing API ", f"New {apiObj['spec']}")
-            logWrapper(logging.INFO, 'patchAPIResource', inHandler, 'component/' + name, name, "Comparing new and existing API ", f"New {(APIResource['spec'] == apiObj['spec'])}")
+            logWrapper(logging.DEBUG, 'patchAPIResource', inHandler, 'component/' + name, name, "Comparing new and existing API ", f"Old {APIResource['spec']}")
+            logWrapper(logging.DEBUG, 'patchAPIResource', inHandler, 'component/' + name, name, "Comparing new and existing API ", f"New {apiObj['spec']}")
 
             apiObj = custom_objects_api.patch_namespaced_custom_object(
                 group = GROUP,
@@ -768,7 +758,7 @@ async def patchAPIResource(inAPI, namespace, name, inHandler):
                 body = APIResource)
             apiReadyStatus = apiObj['status']['implementation']['ready']
             logWrapper(logging.DEBUG, 'patchAPIResource', inHandler, 'component/' + name, name, "API Resource patched", apiObj)
-            logWrapper(logging.INFO, 'patchAPIResource', inHandler, 'component/' + name, name, "API patched", APIResource['metadata']['name'])
+            logWrapper(logging.INFO, 'patchAPIResource', inHandler, 'component/' + name, name, "API Resource patched", APIResource['metadata']['name'])
 
         if 'status' in apiObj.keys() and 'apiStatus' in apiObj['status'].keys():       
             returnAPIObject = apiObj['status']['apiStatus']
@@ -981,7 +971,7 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
                         logger.error(
                             "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
 
-                logWrapper(logging.INFO, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
+                logWrapper(logging.DEBUG, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
 
                 # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
                 if 'coreAPIs' in parent_component['status'].keys():
@@ -1049,7 +1039,7 @@ async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kw
                         logger.error(
                             "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
 
-                logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
+                logWrapper(logging.DEBUG, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
 
                 # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
                 for key in range(len(parent_component['status']['coreAPIs'])):
@@ -1189,8 +1179,16 @@ def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resource
 
     if 'oda.tmforum.org/componentName' in labels.keys():
 
+        # check if the resource already has a parent with kind Component
+        # look in the metadata.ownerReferences for a reference to a Component
+        # if it exists, then we don't need to adopt it again
+        if 'ownerReferences' in meta.keys():
+            for owner in meta['ownerReferences']:
+                if owner['kind'] == 'Component':
+                    return
+
         component_name = labels['oda.tmforum.org/componentName']
-        logWrapper(logging.INFO, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Handler called", "")
+        logWrapper(logging.DEBUG, 'adopt_' + resourceType, 'adopt_' + resourceType, resourceType + '/' + name, component_name, "Handler called", "")
         try:
             parent_component = kubernetes.client.CustomObjectsApi().get_namespaced_custom_object(GROUP, VERSION, namespace, COMPONENTS_PLURAL, component_name)
         except ApiException as e:
@@ -1242,7 +1240,7 @@ def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resource
 @kopf.on.field(GROUP, VERSION, COMPONENTS_PLURAL, field='status', retries=5)
 async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
-    logWrapper(logging.INFO, 'summary', 'summary', 'component/' + name, name, "Handler called", "")
+    logWrapper(logging.DEBUG, 'summary', 'summary', 'component/' + name, name, "Handler called", "")
 
     coreAPIsummary = ''
     coreDependentAPIsummary = ''

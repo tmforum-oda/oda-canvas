@@ -115,7 +115,7 @@ describe("Mandatory non-functional capabilities", function () {
     */
 
     it("Canvas operator is running", function (done) {
-        k8sAppsAPI.readNamespacedDeploymentStatus('oda-controller-ingress', ReleaseNamespace).then((res) => {
+        k8sAppsAPI.readNamespacedDeploymentStatus('oda-controller', ReleaseNamespace).then((res) => {
             let unavailableReplicas = res.body.status.unavailableReplicas
             let readyReplicas = res.body.status.readyReplicas
             let replicas = res.body.status.replicas
