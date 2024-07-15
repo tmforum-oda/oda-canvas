@@ -1,5 +1,5 @@
 deployment:
-  controllerName: oda-controller-ingress
+  controllerName: oda-controller
   compconImage: tmforumodacanvas/component-istio-controller:0.5.0
   imagePullPolicy: IfNotPresent
   istioGateway: true

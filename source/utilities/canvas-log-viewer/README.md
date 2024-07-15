@@ -14,7 +14,7 @@ Then, to run plugin within kubectl:
 ```
 kubectl canvas-logs [component name] [component operator pod name]
 ```
-(in a future release, it should automatically find the component operator pod name, but for now, you can find it using `kubectl get pods --selector app=oda-controller-ingress -n canvas`)
+(in a future release, it should automatically find the component operator pod name, but for now, you can find it using `kubectl get pods --selector app=oda-controller -n canvas`)
 
 The utility will use the current kubeconfig to connect to the Kubernetes cluster. You should get a screen like the one below:
 

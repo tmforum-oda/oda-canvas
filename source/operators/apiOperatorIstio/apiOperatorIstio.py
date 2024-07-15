@@ -71,8 +71,7 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """
     componentName = labels['oda.tmforum.org/componentName']
 
-    logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Handler called", "")
-    logWrapper(logging.DEBUG, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "apiStatus called with ", spec)
+    logWrapper(logging.DEBUG, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "apiStatus handler called with ", spec)
 
     outputStatus = {}
     if status: # there is a status object
@@ -82,7 +81,7 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
             # check if there is a difference in the api we created previously
             if name == apiStatus['name'] and spec['path'] == apiStatus['path'] and spec['port'] == apiStatus['port'] and spec['implementation'] == apiStatus['implementation']:
                 # unchanged, so just return previous status
-                logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Unchanged", "Returning previous status")
+                logWrapper(logging.DEBUG, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Unchanged", "Returning previous status")
                 return apiStatus
             else:
                 logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Patching", "Istio Virtual Service")
