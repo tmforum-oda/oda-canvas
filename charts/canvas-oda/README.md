@@ -36,7 +36,7 @@ A Helm of helm to orchestrate the ODA instalation
 | controller.credentials.pass | string | `"adpass"` |  |
 | controller.credentials.user | string | `"admin"` |  |
 | controller.deployment.compconImage | string | `"tmforumodacanvas/component-istio-controller:0.2.6"` |  |
-| controller.deployment.controllerName | string | `"oda-controller-ingress"` |  |
+| controller.deployment.controllerName | string | `"oda-controller"` |  |
 | controller.deployment.dataDog.enabled | bool | `true` |  |
 | controller.deployment.ingressClass.enabled | bool | `false` |  |
 | controller.deployment.ingressClass.name | string | `"nginx"` |  |

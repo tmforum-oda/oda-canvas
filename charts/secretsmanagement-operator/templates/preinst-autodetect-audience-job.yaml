@@ -1,0 +1,68 @@
+{{ if .Values.autodetectAudience -}}
+{{ if eq (len (lookup "v1" "ConfigMap" .Release.Namespace (printf "%s-sman-autodetect" .Release.Name))) 0 -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-sm-preinst-autodetect-audience"
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}-sm-preinst-autodetect-audience"
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: autodetect-audience
+        # public image with kubectl and curl:
+        # https://github.com/projectsyn/component-cert-manager/pull/130
+        image: "quay.io/appuio/oc:v4.14"
+        imagePullPolicy: Always
+        command: ["/bin/bash"]
+        args: ["-c", "echo starting autodetect audience pre install hook;
+           date;
+           set -xev;
+           NAMESPACE={{ .Release.Namespace }};
+           CMNAME={{ .Release.Name }}-sman-autodetect;
+           echo NAMESPACE=$NAMESPACE;
+           echo CMNAME=$CMNAME;
+           cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt;
+           JWT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);
+           JWT_PL=$(echo $JWT | cut -d '.' -f2);
+           ISSUER=$(echo $JWT_PL==== | base64 -d 2>/dev/null | jq -r '.aud[0]');
+           echo $ISSUER;
+           kubectl create configmap -n $NAMESPACE $CMNAME --from-file=ca.crt=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt --from-literal=issuer=$ISSUER --dry-run=client -oyaml | kubectl apply -f -;
+           echo --- FINISHED ---"]
+        volumeMounts:
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: kube-api-access-pih
+          readOnly: true
+      serviceAccountName: {{ .Release.Name }}-sm-preinst-sa
+      volumes:
+      - name: kube-api-access-pih
+        projected:
+          defaultMode: 420
+          sources:
+          - serviceAccountToken:
+              expirationSeconds: 600
+              path: token
+          - configMap:
+              items:
+              - key: ca.crt
+                path: ca.crt
+              name: kube-root-ca.crt
+{{- end }}
+{{- end }}

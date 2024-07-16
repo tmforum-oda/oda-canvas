@@ -4,7 +4,7 @@ metadata:
   name: seccon
   namespace: {{ .Release.Namespace }}
   labels:
-    app: oda-controller-ingress #link service to Pod and not individual container
+    app: oda-controller #link service to Pod and not individual container
     {{- include "controller.labels" . | nindent 4 }}
 spec:
   ports:
@@ -13,4 +13,4 @@ spec:
     name: seccon
   type: NodePort
   selector:
-    app: oda-controller-ingress
+    app: oda-controller

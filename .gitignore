@@ -4,8 +4,8 @@ cabundle.pem.b64
 .DS_Store
 .vscode
 .env
+.settings/
 .project
-.settings
 .pydevproject
 .pydevproject.bak
 keycloak-credentials.js

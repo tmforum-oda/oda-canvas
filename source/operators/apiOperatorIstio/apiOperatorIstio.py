@@ -21,13 +21,13 @@ import os
 import re
 
 logging_level = os.environ.get('LOGGING',logging.INFO)
-print('Logging set to ',logging_level)
 
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.WARNING)
 
 logger = logging.getLogger('APIOperator')
 logger.setLevel(int(logging_level))
+logger.info(f'Logging set to %s', logging_level)
 
 HTTP_SCHEME = "http://"
 HTTP_K8s_LABELS = ['http', 'http2']
@@ -38,7 +38,7 @@ APIS_PLURAL = "apis"
 
 # get environment variables
 OPENMETRICS_IMPLEMENTATION = os.environ.get('OPENMETRICS_IMPLEMENTATION', 'ServiceMonitor') # could be ServiceMonitor or PrometheusAnnotation or DataDogAnnotation
-print('Prometheus pattern set to ',OPENMETRICS_IMPLEMENTATION)
+logger.info(f'OpenMetrics implementation pattern set to {OPENMETRICS_IMPLEMENTATION}')
 
 APIOPERATORISTIO_PUBLICHOSTNAME = os.environ.get('APIOPERATORISTIO_PUBLICHOSTNAME') # hostname to be used for calling public APIs. 
 publichostname_loadBalancer = None                                                  # Overwrites the LB ip/hostname retrieved from istioingress service.
@@ -71,8 +71,7 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """
     componentName = labels['oda.tmforum.org/componentName']
 
-    logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Handler called", "")
-    logWrapper(logging.DEBUG, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "apiStatus called with ", spec)
+    logWrapper(logging.DEBUG, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "apiStatus handler called with ", spec)
 
     outputStatus = {}
     if status: # there is a status object
@@ -82,7 +81,7 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
             # check if there is a difference in the api we created previously
             if name == apiStatus['name'] and spec['path'] == apiStatus['path'] and spec['port'] == apiStatus['port'] and spec['implementation'] == apiStatus['implementation']:
                 # unchanged, so just return previous status
-                logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Unchanged", "Returning previous status")
+                logWrapper(logging.DEBUG, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Unchanged", "Returning previous status")
                 return apiStatus
             else:
                 logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Patching", "Istio Virtual Service")
