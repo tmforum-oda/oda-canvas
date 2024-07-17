@@ -1,3 +1,5 @@
+#!/usr/bin/env -S node
+
 const k8s = require('@kubernetes/client-node');
 var treeify = require('treeify');
 const colors = require('colors');
