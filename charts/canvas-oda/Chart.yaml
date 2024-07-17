@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.5-rc1
+version: 1.1.5-rc2
+# version: 1.1.5-r2 - added dependentApiSimpleOperator functionality to fetch the defined dependent API ENDPOINT from apis custom resouce
 # version: 1.1.5-r1 - ODAA-86: downgrade HashiCorp Vault to 1.14.8. Last version under MPLv2, 
 #                  see https://www.hashicorp.com/license-faq#products-covered-by-bsl
 # version: 1.1.4 - added secretsmanagement-operator
@@ -49,7 +50,7 @@ dependencies:
     version: "1.1.0"
     repository: 'file://../controller'
   - name: dependentapi-simple-operator
-    version: "0.1.1"
+    version: "0.2.0"
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: secretsmanagement-operator

@@ -14,6 +14,8 @@ COMP_GROUP = "oda.tmforum.org"
 COMP_VERSION = "v1beta3"
 COMP_PLURAL = "components"
 
+API_PLURAL = "apis"
+
 HTTP_NOT_FOUND = 404
 HTTP_CONFLICT = 409
 
@@ -64,6 +66,57 @@ def implementationReady(depapiBody):
     return safe_get(None, depapiBody, "status", "implementation", "ready")
 
 
+def get_depapi_spec(depapi_name, depapi_namespace):
+    api_instance = kubernetes.client.CustomObjectsApi()
+    try:
+        depapi = api_instance.get_namespaced_custom_object(
+            DEPAPI_GROUP, DEPAPI_VERSION, depapi_namespace, DEPAPI_PLURAL, depapi_name
+        )
+        return depapi["spec"]
+    except ApiException as e:
+        if e.status == HTTP_NOT_FOUND:
+            logger.error(
+                f"setDependentAPIStatus: dependentapi {depapi_namespace}:{depapi_name} not found"
+            )
+        else:
+            raise kopf.TemporaryError(
+                f"setDependentAPIStatus: Exception in get_namespaced_custom_object: {e.body}"
+            )
+
+
+def get_expapi():
+    api_instance = kubernetes.client.CustomObjectsApi()
+    try:
+        exp_apis = api_instance.list_cluster_custom_object(
+            DEPAPI_GROUP, DEPAPI_VERSION, API_PLURAL, pretty="true"
+        )
+        return exp_apis
+    except ApiException as e:
+        if e.status == HTTP_NOT_FOUND:
+            logger.error(f"openAPIStatus: openapi not found")
+        else:
+            raise kopf.TemporaryError(
+                f"openAPIStatus: Exception in list_cluster_custom_object: {e.body}"
+            )
+
+
+def get_depapi_url(depapi_name, depapi_namespace):
+    dep_api = get_depapi_spec(depapi_name, depapi_namespace)
+    depapi_specification = dep_api["specification"]
+    exp_apis = get_expapi()
+    for exp_api in exp_apis["items"]:
+        if not ("specification" in exp_api["spec"].keys()):
+            continue
+        else:
+            if (
+                exp_api["spec"]["apitype"] == "openapi"
+                and exp_api["spec"]["specification"][0] == depapi_specification
+                and exp_api["status"]["implementation"]["ready"] == True
+            ):
+                return exp_api["status"]["apiStatus"]["url"]
+    return None
+
+
 # triggered when an oda.tmforum.org dependentapi resource is created or updated
 @kopf.on.resume(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, retries=5)
 @kopf.on.create(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, retries=5)
@@ -77,7 +130,9 @@ async def dependentApiCreate(
 
     # Dummy implementation set dummy url and ready status
     if not implementationReady(body):  # avoid recursion
-        setDependentAPIStatus(namespace, name, f"http://dummy.url/{name}")
+        url = get_depapi_url(name, namespace)
+        if url != None:
+            setDependentAPIStatus(namespace, name, url)
 
 
 # when an oda.tmforum.org api resource is deleted
