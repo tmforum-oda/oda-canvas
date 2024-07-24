@@ -42,8 +42,10 @@ HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
-APIS_PLURAL = "apis"
+APIS_PLURAL = "exposedapis"
+EXPOSEDAPI_KIND = "API"
 COMPONENTS_PLURAL = "components"
+
 
 SECRETSMANAGEMENT_GROUP = 'oda.tmforum.org'
 SECRETSMANAGEMENT_VERSION = "v1beta3"
@@ -647,7 +649,7 @@ def constructAPIResourcePayload(inAPI):
     """
     APIResource = {
         "apiVersion": GROUP + "/" + VERSION,
-        "kind": "API",
+        "kind": EXPOSEDAPI_KIND,
         "metadata": {},
         "spec": {}
     }
@@ -928,7 +930,7 @@ async def createSecretsManagementResource(inSecretsManagement, namespace, name, 
 
 
 # When api adds url address of where api is exposed, update parent Component object
-@kopf.on.field(GROUP, VERSION, 'apis', field='status.apiStatus', retries=5)
+@kopf.on.field(GROUP, VERSION, APIS_PLURAL, field='status.apiStatus', retries=5)
 async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     Processes status updates to the *apiStatus* in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
@@ -999,7 +1001,7 @@ async def updateAPIStatus(meta, spec, status, body, namespace, labels, name, **k
 
                 await patchComponent(namespace, name, parent_component, 'updateAPIStatus')
 
-@kopf.on.field(GROUP, VERSION, 'apis', field='status.implementation', retries=5)
+@kopf.on.field(GROUP, VERSION, APIS_PLURAL, field='status.implementation', retries=5)
 async def updateAPIReady(meta, spec, status, body, namespace, labels, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     
