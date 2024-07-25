@@ -1,5 +1,5 @@
-name: Build Component-Istio-Controller Prerelease Dockerimage
-run-name: Build Component-Istio-Controller Prerelease Dockerimage
+name: Build Security-Lsitener Prerelease Dockerimage
+run-name: Build Security-Lsitener Prerelease Dockerimage
 on: 
   workflow_dispatch:
   push:
@@ -7,13 +7,11 @@ on:
     - feature/*
     - odaa-*
     paths:
-    - source/operators/componentOperator/**/*
-    - source/operators/apiOperatorIstio/**/*
-    - source/operators/securityController/**/*
-    - source/operators/component-IstioController-dockerfile
+    - source/operators/securityListener-keycloak/**/*
+    - source/operators/securityControllerAPIserver-keycloak-dockerfile
     
 jobs:
-  build-component-istio-controller-prerelease-dockerfile-job:
+  build-security-listener-prerelease-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
     
@@ -26,26 +24,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of component-istio-controller from values.yaml
-        id: get_compistioctl_image
+      - name: read image of security-listener from values.yaml
+        id: get_seclist_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.controller.deployment.compconImage' charts/canvas-oda/values.yaml
+          cmd: yq '.controller.deployment.secconImage' charts/canvas-oda/values.yaml
           
-      - name: read versionnumber of component-istio-controller from values.yaml
-        id: get_compistioctl_version
+      - name: read versionnumber of security-listener from values.yaml
+        id: get_seclist_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.controller.deployment.compconVersion, .controller.deployment.compconPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.controller.deployment.secconVersion, .controller.deployment.secconPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
         run: |
           echo 
-          if [[ ${{ steps.get_compistioctl_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
-              echo "Version ${{ steps.get_compistioctl_version.outputs.result }} matches prerelease format <n>.<n>.<n>-<prerelease>"
+          if [[ ${{ steps.get_seclist_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
+              echo "Version ${{ steps.get_seclist_version.outputs.result }} matches prerelease format <n>.<n>.<n>-<prerelease>"
           else
-              echo "::error::Version ${{ steps.get_compistioctl_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
+              echo "::error::Version ${{ steps.get_seclist_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
           fi        
               
       - name: Set up Docker Buildx
@@ -67,7 +65,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: source/operators
-          file: source/operators/component-IstioController-dockerfile
+          file: source/operators/securityControllerAPIserver-keycloak-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
@@ -75,7 +73,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ steps.get_compistioctl_image.outputs.result }}:latest
-            ${{ steps.get_compistioctl_image.outputs.result }}:${{ steps.get_compistioctl_version.outputs.result }}
+            ${{ steps.get_seclist_image.outputs.result }}:latest
+            ${{ steps.get_seclist_image.outputs.result }}:${{ steps.get_seclist_version.outputs.result }}
         env:
           SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}

@@ -28,7 +28,7 @@ spec:
           - secretRef:
               name: {{ .Release.Name }}-controller-secret
       - name: seccon
-        image: {{.Values.deployment.secconImage}}
+        image: {{ include "controller.secconDockerimage" . }}
         imagePullPolicy: {{.Values.deployment.imagePullPolicy}}
         envFrom:
           - configMapRef:

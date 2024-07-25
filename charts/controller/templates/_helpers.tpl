@@ -62,12 +62,22 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-build the full docker image name from image + version + prereleaseSuffix
+build the full compcon docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "controller.compconDockerimage" -}}
   {{- .Values.compconImage -}}:{{- .Values.compconVersion -}}
   {{- if .Values.compconPrereleaseSuffix -}}
     -{{- .Values.compconPrereleaseSuffix -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+build the full seccon docker image name from image + version + prereleaseSuffix
+*/}}
+{{- define "controller.secconDockerimage" -}}
+  {{- .Values.secconImage -}}:{{- .Values.secconVersion -}}
+  {{- if .Values.secconPrereleaseSuffix -}}
+    -{{- .Values.secconPrereleaseSuffix -}}
   {{- end -}}
 {{- end -}}
 
