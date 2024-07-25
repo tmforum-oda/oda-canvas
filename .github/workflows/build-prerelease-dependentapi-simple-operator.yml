@@ -7,7 +7,7 @@ on:
     - feature/*
     - odaa-*
     paths:
-    - source/operators/dependentApiSimpleOperator/**/*
+    - source/operators/dependentApiSimpleOperator/docker/**/*
     
 jobs:
   build-depapisimpleop-prerelease-dockerfile-job:
