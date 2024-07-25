@@ -260,4 +260,8 @@ secretsmanagement-operator:
   # #hvacTokenEnc:
 
 webhooks:
-  image: tmforumodacanvas/compcrdwebhook:0.6.2 
+  #image: tmforumodacanvas/compcrdwebhook:0.6.2 
+  # TODO: replace with tmforumodacanvas repo.  
+  image: ocfork/compcrdwebhook
+  version: 0.6.2
+  prereleaseSuffix: odaa98

@@ -60,3 +60,15 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+build the full seccon docker image name from image + version + prereleaseSuffix
+*/}}
+{{- define "oda-webhook.dockerimage" -}}
+  {{- .Values.image -}}:{{- .Values.version -}}
+  {{- if .Values.prereleaseSuffix -}}
+    -{{- .Values.prereleaseSuffix -}}
+  {{- end -}}
+{{- end -}}
+
+
