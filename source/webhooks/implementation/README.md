@@ -49,4 +49,3 @@ The actual caBundle is added as a Helm value in the `oda-canvas-charts\canvas\va
 # Build and Release Dockerimage
 
 TODO[FH]: link to documentatino how to build and release the dockerimage.
-
