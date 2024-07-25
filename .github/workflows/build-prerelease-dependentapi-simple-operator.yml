@@ -1,5 +1,5 @@
-name: Build Component-CRD-Webhook Prerelease Dockerimage
-run-name: Build Component-CRD-Webhook Prerelease Dockerimage
+name: Build DependentAPI Simple Operator Prerelease Dockerimage
+run-name: Build DependentAPI Simple Operator Prerelease Dockerimage
 on: 
   workflow_dispatch:
   push:
@@ -7,11 +7,10 @@ on:
     - feature/*
     - odaa-*
     paths:
-    - source/webhooks/webhook-dockerfile
-    - source/webhooks/implementation/**/*
+    - source/operators/dependentApiSimpleOperator/**/*
     
 jobs:
-  build-compcrdwebhook-prerelease-dockerfile-job:
+  build-depapisimpleop-prerelease-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
     
@@ -24,14 +23,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of compcrdwebhook from values.yaml
-        id: get_compcrdwebhook_image
+      - name: read image of depapisimpleop from values.yaml
+        id: get_depapisimpleop_image
         uses: mikefarah/yq@master
         with:
           cmd: yq '.webhooks.image' charts/canvas-oda/values.yaml
           
-      - name: read versionnumber of compcrdwebhook from values.yaml
-        id: get_compcrdwebhook_version
+      - name: read versionnumber of depapisimpleop from values.yaml
+        id: get_depapisimpleop_version
         uses: mikefarah/yq@master
         with:
           cmd: yq '[.webhooks.version, .webhooks.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
@@ -40,10 +39,10 @@ jobs:
         id: check-tag
         run: |
           echo 
-          if [[ ${{ steps.get_compcrdwebhook_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
-              echo "Version ${{ steps.get_compcrdwebhook_version.outputs.result }} matches prerelease format <n>.<n>.<n>-<prerelease>"
+          if [[ ${{ steps.get_depapisimpleop_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
+              echo "Version ${{ steps.get_depapisimpleop_version.outputs.result }} matches prerelease format <n>.<n>.<n>-<prerelease>"
           else
-              echo "::error::Version ${{ steps.get_compcrdwebhook_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
+              echo "::error::Version ${{ steps.get_depapisimpleop_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
           fi        
               
       - name: Set up Docker Buildx
@@ -73,7 +72,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ steps.get_compcrdwebhook_image.outputs.result }}:latest
-            ${{ steps.get_compcrdwebhook_image.outputs.result }}:${{ steps.get_compcrdwebhook_version.outputs.result }}
+            ${{ steps.get_depapisimpleop_image.outputs.result }}:latest
+            ${{ steps.get_depapisimpleop_image.outputs.result }}:${{ steps.get_depapisimpleop_version.outputs.result }}
         env:
           SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}
