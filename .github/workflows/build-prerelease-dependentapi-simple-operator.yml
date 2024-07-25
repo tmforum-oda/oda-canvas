@@ -27,13 +27,13 @@ jobs:
         id: get_depapisimpleop_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.webhooks.image' charts/canvas-oda/values.yaml
+          cmd: yq '.dependentapi-simple-operator.image' charts/canvas-oda/values.yaml
           
       - name: read versionnumber of depapisimpleop from values.yaml
         id: get_depapisimpleop_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.webhooks.version, .webhooks.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.dependentapi-simple-operator.version, .dependentapi-simple-operator.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
