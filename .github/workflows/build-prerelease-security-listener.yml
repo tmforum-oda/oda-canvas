@@ -7,8 +7,9 @@ on:
     - feature/*
     - odaa-*
     paths:
-    - source/operators/securityListener-keycloak/**/*
     - source/operators/securityControllerAPIserver-keycloak-dockerfile
+    - source/operators/securityController/**/*
+    - source/operators/securityListener-keycloak/**/*
     
 jobs:
   build-security-listener-prerelease-dockerfile-job:

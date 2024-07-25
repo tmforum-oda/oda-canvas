@@ -7,10 +7,10 @@ on:
     - feature/*
     - odaa-*
     paths:
+    - source/operators/component-IstioController-dockerfile
     - source/operators/componentOperator/**/*
     - source/operators/apiOperatorIstio/**/*
     - source/operators/securityController/**/*
-    - source/operators/component-IstioController-dockerfile
     
 jobs:
   build-component-istio-controller-prerelease-dockerfile-job:
