@@ -1,3 +1,5 @@
-# How to build the Dockerfile
+# Secrets Management Operator HC
 
-The Dockerfile is automatically build by GitHub Actions...
+Implementation based on HashiCorp Vault.
+
+

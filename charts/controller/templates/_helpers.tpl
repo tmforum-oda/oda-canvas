@@ -60,3 +60,14 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+build the full docker image name from image + version + prereleaseSuffix
+*/}}
+{{- define "controller.compconDockerimage" -}}
+  {{- .Values.compconImage -}}:{{- .Values.compconVersion -}}
+  {{- if .Values.compconPrereleaseSuffix -}}
+    -{{- .Values.compconPrereleaseSuffix -}}
+  {{- end -}}
+{{- end -}}
+

@@ -20,7 +20,7 @@ spec:
       serviceAccountName: odacomponent-account
       containers:
       - name: {{.Values.deployment.controllerName}}
-        image: {{.Values.deployment.compconImage}}
+        image: {{ include "controller.compconDockerimage" . }}
         imagePullPolicy: {{.Values.deployment.imagePullPolicy}}
         envFrom:
           - configMapRef:

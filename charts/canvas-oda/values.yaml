@@ -113,7 +113,10 @@ controller:
     controllerName: oda-controller
     # compconImage: tmforumodacanvas/component-istio-controller:0.5.0
     # TODO: replace with tmforumodacanvas repo.  
-    compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.2
+    #compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.2
+    compconImage: ocfork/component-istio-controller
+    compconVersion: 0.4.2
+    compconPrereleaseSuffix: odaa98
     imagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener:0.7.0
@@ -220,13 +223,13 @@ canvas-vault:
 secretsmanagement-operator:
   image: ocfork/secretsmanagement-operator
   version: 0.1.0
-  prereleaseSuffix:
+  prereleaseSuffix: odaa98
   #imagePullPolicy: IfNotPresent
   imagePullPolicy: Always
   
   sidecarImage: ocfork/secretsmanagement-sidecar
   sidecarVersion: 0.1.0
-  sidecarPrereleaseSuffix:
+  sidecarPrereleaseSuffix: odaa98
   
   # TODO: add TLS to canvas-vault-hc
   vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
