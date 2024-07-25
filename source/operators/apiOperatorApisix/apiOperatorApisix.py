@@ -123,7 +123,7 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
     namespace = "istio-ingress" 
     service_name = "istio-ingress"
     service_namespace = "istio-ingress"
-    strip_path = "false"
+    #strip_path = "false"
     service_port = 80
 
     try:
@@ -131,7 +131,13 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
         if not path:
             logger.warning(f"Path not found  '{name}'. Apisixroute creation skipped.")
             return
-
+            
+            # Ensures the path matches the base and all subdirectories
+        paths = [
+            path,  # Exact path
+            f"{path}/*"  # Subpaths
+        ]
+        
         apisixroute_manifest = {
             "apiVersion": f"{group}/{version}",
             "kind": "ApisixRoute",
