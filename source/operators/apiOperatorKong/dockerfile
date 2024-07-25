@@ -1,0 +1,17 @@
+# Stage 1: Build stage
+FROM python:3.9 AS build
+RUN mkdir /app
+WORKDIR /app
+RUN pip install --no-cache-dir kopf kubernetes PyYAML requests
+# Copying the apiOperatorKong.py script to the /app directory
+COPY apiOperatorKong.py /app/
+
+# Stage 2: Runtime stage
+FROM python:3.9-slim
+# Create and set working directory
+RUN mkdir /app
+WORKDIR /app
+# Copying the necessary files from the build stage
+COPY --from=build /app /app
+#Run kopf when the container launches
+CMD ["kopf", "run", "/app/apiOperatorKong.py"]
