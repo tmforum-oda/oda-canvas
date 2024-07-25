@@ -150,7 +150,7 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
                     {
                         "name": "http-all",
                         "match": {
-                            "paths": [path]
+                            "paths": paths
                         },
                         "backends": [
                             {
