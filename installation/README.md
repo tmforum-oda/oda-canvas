@@ -156,6 +156,29 @@ it will get stuck in state "InProgress-SecretsConfig".
     ```bash
     helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
     ```
+### 5. Optionally Install APISIX or Kong Gateway
+
+For users seeking advanced API gateway capabilities, the ODA Canvas provides the option to install either the Kong Gateway or the APISIX Gateway. Additionally, the ODA Canvas includes a specially designed Gateway Operator tailored for seamless integration and management within the ODA Canvas environment. These gateways offer powerful features for managing APIs, including traffic management, security, load balancing, rate limiting, and observability.
+
+Install APISIX Gateway and Operator
+
+APISIX is an open-source, dynamic, real-time, high-performance API gateway. The Canvas Gateway Operator streamlines the deployment and operation of APISIX within the ODA Canvas environment, ensuring smooth integration and management.
+To install the APISIX Gateway along with the APISIX Operator, run the following command:
+
+    ```bash
+    helm install apisix oda-canvas/canvas-api-gateway -n ingress-apisix --create-namespace --set apisix-gateway-install.enabled=true
+    ```
+    
+or
+
+Install Kong Gateway and Operator
+
+Kong is a highly popular API gateway that provides a comprehensive range of features for managing APIs. The Canvas Gateway Operator simplifies the deployment and operation of the Kong Gateway within the ODA Canvas environment, ensuring efficient and reliable API management.
+To install the Kong Gateway along with the Kong Operator, run the following command:
+
+    ```bash
+    helm install kong oda-canvas/canvas-api-gateway -n kong --create-namespace --set kong-gateway-install.enabled=true
+    ```
 
 ## Troubleshooting
 
