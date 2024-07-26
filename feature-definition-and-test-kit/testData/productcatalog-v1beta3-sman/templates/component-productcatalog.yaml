@@ -31,7 +31,8 @@ spec:
     dependentAPIs: 
     - name: party 
       apitype: openapi     
-      specification: https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json  
+      #specification: https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json  
+      specification: https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json  
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
