@@ -173,8 +173,13 @@ or
 Install Kong Gateway and Operator
 
 Kong is a highly popular API gateway that provides a comprehensive range of features for managing APIs. The Canvas Gateway Operator simplifies the deployment and operation of the Kong Gateway within the ODA Canvas environment, ensuring efficient and reliable API management.
-To install the Kong Gateway along with the Kong Operator, run the following command:
 
+Prerequisite: Install the Gateway API CRDs if required to enable the advanced networking capabilities required by Kong Gateway:
+    ```
+    kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.0.0/standard-install.yaml
+    ```
+    
+To install the Kong Gateway along with the Kong Operator, run the following command:
 
     helm install kong oda-canvas/canvas-api-gateway -n kong --create-namespace --set kong-gateway-install.enabled=true
 
