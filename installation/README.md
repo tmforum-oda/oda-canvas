@@ -168,7 +168,6 @@ To install the APISIX Gateway along with the APISIX Operator, run the following 
     ```bash
     helm install apisix oda-canvas/canvas-api-gateway -n ingress-apisix --create-namespace --set apisix-gateway-install.enabled=true
     ```
-    
 or
 
 Install Kong Gateway and Operator
@@ -179,7 +178,6 @@ To install the Kong Gateway along with the Kong Operator, run the following comm
     ```bash
     helm install kong oda-canvas/canvas-api-gateway -n kong --create-namespace --set kong-gateway-install.enabled=true
     ```
-
 ## Troubleshooting
 
 ### Error instaling: BackoffLimitExceeded
