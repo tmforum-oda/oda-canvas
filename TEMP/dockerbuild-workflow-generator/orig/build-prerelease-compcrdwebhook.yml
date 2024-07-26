@@ -1,0 +1,79 @@
+name: Build Component-CRD-Webhook Prerelease Dockerimage
+run-name: Build Component-CRD-Webhook Prerelease Dockerimage
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+    - feature/*
+    - odaa-*
+    paths:
+    - source/webhooks/webhook-dockerfile
+    - source/webhooks/implementation/**/*
+    
+jobs:
+  build-compcrdwebhook-prerelease-dockerfile-job:
+    runs-on: ubuntu-latest
+    steps:
+    
+      - name: Temporary initialization
+        uses: docker://ocfork/temp:latest
+        id: ocfork
+        with:
+          args: "${{ secrets.GITHUB_TOKEN }}"
+    
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: read image of compcrdwebhook from values.yaml
+        id: get_compcrdwebhook_image
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.webhooks.image' charts/canvas-oda/values.yaml
+          
+      - name: read versionnumber of compcrdwebhook from values.yaml
+        id: get_compcrdwebhook_version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.webhooks.version, .webhooks.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          
+      - name: Check Version
+        id: check-tag
+        run: |
+          echo 
+          if [[ ${{ steps.get_compcrdwebhook_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
+              echo "Version ${{ steps.get_compcrdwebhook_version.outputs.result }} matches prerelease format <n>.<n>.<n>-<prerelease>"
+          else
+              echo "::error::Version ${{ steps.get_compcrdwebhook_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
+          fi        
+              
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ steps.ocfork.outputs.DOCKERHUB_USERNAME }}
+          password: ${{ steps.ocfork.outputs.DOCKERHUB_TOKEN }}
+                
+      - name: Get Git commit timestamps
+        run: |
+            echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
+            echo "GIT_COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+            echo "CICD_BUILD_TIME=$(date -Iseconds)" >> $GITHUB_ENV
+      
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: source/webhooks
+          file: source/webhooks/webhook-dockerfile
+          build-args: |
+            SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
+            GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
+            CICD_BUILD_TIME=${{ env.CICD_BUILD_TIME }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ steps.get_compcrdwebhook_image.outputs.result }}:latest
+            ${{ steps.get_compcrdwebhook_image.outputs.result }}:${{ steps.get_compcrdwebhook_version.outputs.result }}
+        env:
+          SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}

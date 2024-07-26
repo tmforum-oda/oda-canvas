@@ -1,0 +1,51 @@
+secretsmanagement-operator:  
+  displayName: SecretsManagement-Operator
+  fileName: secretsmanagement-operator
+  shortName: smanop
+  dockerImage: secretsmanagement-operator
+  valuesPathImage: .secretsmanagement-operator.image
+  valuesPathVersion: .secretsmanagement-operator.version
+  valuesPathPrereleaseSuffix: .secretsmanagement-operator.prereleaseSuffix
+  paths:
+  - source/operators/secretsmanagementOperator-hc/docker/**/*
+  buildContext: source/operators/secretsmanagementOperator-hc/docker
+  # default is "Dockerfile"" in buildContext
+  #buildDockerfile:
+  # default is "linux/amd64,linux/arm64"
+  platforms: linux/amd64 # linux/arm64 has problems building cffi python wheel
+
+
+compcrdwebhook:
+  displayName: Component-CRD-Webhook
+  fileName: compcrdwebhook
+  shortName: _shortName_
+  dockerImage: _dockerImage_
+  valuesPathImage: .webhooks.image
+  valuesPathVersion: .webhooks.version
+  valuesPathPrereleaseSuffix: .webhooks.prereleaseSuffix
+  paths:
+    - source/webhooks/webhook-dockerfile
+    - source/webhooks/implementation/**/*
+  buildContext: source/webhooks
+  # default is "Dockerfile"" in buildContext
+  buildDockerfile: source/webhooks/webhook-dockerfile  
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+  
+_name_:
+  displayName: _displayName_
+  fileName: _fileName_
+  shortName: _shortName_
+  dockerImage: _dockerImage_
+  valuesPathImage: _valuesPathImage_
+  valuesPathVersion: _valuesPathVersion_
+  valuesPathPrereleaseSuffix: _valuesPathPrereleaseSuffix_
+  paths:
+  - _path1_
+  - _path2_
+  buildContext: _buildContext_
+  # default is "Dockerfile"" in buildContext
+  buildDockerfile: _buildDockerfile_
+  # default is "linux/amd64,linux/arm64"
+  platforms: _platforms_
