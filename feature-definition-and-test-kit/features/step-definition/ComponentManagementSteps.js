@@ -4,7 +4,7 @@ const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 const packageManagerUtils = require('package-manager-utils-helm');
 const identityManagerUtils = require('identity-manager-utils-keycloak');
 
-const { Given, When, Then, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
+const { Given, When, Then, After, setDefaultTimeout } = require('@cucumber/cucumber');
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const assert = require('assert');
@@ -17,10 +17,14 @@ const API_DEPLOY_TIMEOUT = 10 * 1000 // 10 seconds
 const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
 const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
 const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
-const CLEANUP_PACKAGE = true // set to true to uninstall the package after each test
+const CLEANUP_PACKAGE = false // set to true to uninstall the package after each Scenario
 global.currentReleaseName = null;
 
 setDefaultTimeout( 20 * 1000);
+
+
+
+
 
 /**
  * Verify the given package includes a component that has a specified number of APIs in a specific segment.
@@ -41,9 +45,9 @@ Given('An example package {string} with a {string} component with {string} API i
  *
  * @param {string} componentPackage - The name of the package to install.
  */
-When('I install the {string} package', function (componentPackage) {
+When('I install the {string} package', async function (componentPackage) {
   global.currentReleaseName = DEFAULT_RELEASE_NAME
-  packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
 /**
@@ -53,9 +57,9 @@ When('I install the {string} package', function (componentPackage) {
  * @param {string} componentPackage - The name of the package to install.
  * @param {string} releaseName - The name of the release name.
  */
-Given('A baseline {string} package installed as release {string}', function (componentPackage, releaseName) {
+Given('A baseline {string} package installed as release {string}', async function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
-  packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
 /**
@@ -64,9 +68,9 @@ Given('A baseline {string} package installed as release {string}', function (com
  * @param {string} componentPackage - The name of the package to install.
  * @param {string} releaseName - The name of the release name.
  */
-When('I install the {string} package as release {string}', function (componentPackage, releaseName) {
+When('I install the {string} package as release {string}', async function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
-  packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
 /**
@@ -75,9 +79,9 @@ When('I install the {string} package as release {string}', function (componentPa
  * @param {string} componentPackage - The name of the package to upgrade.
  * @param {string} releaseName - The name of the release name.
  */
-When('I upgrade the {string} package as release {string}', function (componentPackage, releaseName) {
+When('I upgrade the {string} package as release {string}', async function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
-  packageManagerUtils.upgradePackage(componentPackage, global.currentReleaseName, NAMESPACE)
+  await packageManagerUtils.upgradePackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
 
@@ -86,9 +90,9 @@ When('I upgrade the {string} package as release {string}', function (componentPa
  *
  * @param {string} componentPackage - The name of the example component package to install.
  */
-Given('An example package {string} has been installed', function (componentPackage) {
+Given('An example package {string} has been installed', async function (componentPackage) {
   global.currentReleaseName = DEFAULT_RELEASE_NAME
-  packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
 /**
@@ -128,8 +132,8 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
  * @param {string} componentPackage - The name of the package to upgrade.
  * @returns {void}
  */
-When('I upgrade the {string} package', function (componentPackage) {
-  packageManagerUtils.upgradePackage(componentPackage,   global.currentReleaseName, NAMESPACE)
+When('I upgrade the {string} package', async function (componentPackage) {
+  await packageManagerUtils.upgradePackage(componentPackage,   global.currentReleaseName, NAMESPACE)
 });
 
 /**
@@ -157,8 +161,8 @@ Then('I can query the {string} spec version of the {string} component', {timeout
 /**
  * Uninstall the package associated with the release name and namespace.
  */
-AfterAll(function () {
+After(async function () {
   if (CLEANUP_PACKAGE) {
-    packageManagerUtils.uninstallPackage(  global.currentReleaseName, NAMESPACE)   
+    await packageManagerUtils.uninstallPackage(  global.currentReleaseName, NAMESPACE)   
   }
 });

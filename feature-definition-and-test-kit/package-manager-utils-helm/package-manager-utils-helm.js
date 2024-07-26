@@ -1,10 +1,25 @@
 const execSync = require('child_process').execSync;
 const YAML = require('yaml')
 const assert = require('assert');
+const { exec } = require('child_process');
 
 const testDataFolder = './testData/'
+HELM_COMMAND_DELAY = 1000
+
+function pause(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function executeHelmCommand(command) {
+  console.log(command, { encoding: 'utf-8' });
+  const output = execSync(command, { encoding: 'utf-8' });
+  console.log('helm output: ' + output)
+  await pause(HELM_COMMAND_DELAY); // pause for a second to allow the helm command to complete to avoid race condition.
+}
+
 
 const packageManagerUtils = {
+
 
 
   /**
@@ -68,7 +83,7 @@ const packageManagerUtils = {
   * @param    {String} componentPackage      Helm chart folder name
   * @param    {String} releaseName           Helm release name
   */  
-  installPackage: function(componentPackage, releaseName, namespace) {
+  installPackage: async function(componentPackage, releaseName, namespace) {
 
     // only install the helm chart if it is not already installed
     const helmList = execSync('helm list -o json  -n ' + namespace, { encoding: 'utf-8' });    
@@ -81,11 +96,11 @@ const packageManagerUtils = {
     })
 
     if (found) {
-      const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace, { encoding: 'utf-8' });   
+      await executeHelmCommand('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace);   
     }
     else {
       // install the helm template command to generate the component envelope
-      const output = execSync('helm install ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace, { encoding: 'utf-8' });   
+      await executeHelmCommand('helm install ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace);   
     } 
   },
 
@@ -95,7 +110,7 @@ const packageManagerUtils = {
   * @param    {String} componentPackage      Helm chart folder name
   * @param    {String} releaseName           Helm release name
   */  
-  upgradePackage: function(componentPackage, releaseName, namespace) {
+  upgradePackage: async function(componentPackage, releaseName, namespace) {
 
     // create an error if the helm chart is not already installed
     const helmList = execSync('helm list -o json  -n ' + namespace, { encoding: 'utf-8' });    
@@ -112,8 +127,7 @@ const packageManagerUtils = {
     }
 
     // upgrade the helm chart
-    const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace, { encoding: 'utf-8' });   
-
+    await executeHelmCommand('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace);   
   },
 
   /**
@@ -122,7 +136,7 @@ const packageManagerUtils = {
    * @param {string} releaseName - The name of the release to uninstall.
    * @param {string} namespace - The namespace of the release to uninstall.
    */
-    uninstallPackage: function(releaseName, namespace) {
+    uninstallPackage: async function(releaseName, namespace) {
 
       // only uninstall the helm chart if it is already installed
       const helmList = execSync('helm list -o json  -n ' + namespace, { encoding: 'utf-8' });    
@@ -135,7 +149,7 @@ const packageManagerUtils = {
       })
 
       if (found) {
-        const output = execSync('helm uninstall ' + releaseName + ' -n ' + namespace, { encoding: 'utf-8' });
+        await executeHelmCommand('helm uninstall ' + releaseName + ' -n ' + namespace);
       }
     },
 
@@ -146,11 +160,9 @@ const packageManagerUtils = {
    * @param {string} releaseName - The name of the release to upgrade.
    * @param {string} namespace - The namespace of the release to upgrade.
    */
-  upgradePackage: function(componentPackage, releaseName, namespace) {
-    const output = execSync('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace, { encoding: 'utf-8' });   
+  upgradePackage: async function(componentPackage, releaseName, namespace) {
+    await executeHelmCommand('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace);   
   }
-
-
 
 }
 

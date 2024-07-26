@@ -30,7 +30,7 @@ spec:
       port: 8080
     - name: promotionmanagement
       specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF671_Promotion/master/TMF671-Promotion-v4.0.0.swagger.json"]
-      implementation: {{.Release.Name}}-promotionapi
+      implementation: {{.Release.Name}}-promgmtapi
       apitype: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4/docs
