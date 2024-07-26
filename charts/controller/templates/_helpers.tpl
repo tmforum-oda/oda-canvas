@@ -65,19 +65,20 @@ Create the name of the service account to use
 build the full compcon docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "controller.compconDockerimage" -}}
-  {{- .Values.compconImage -}}:{{- .Values.compconVersion -}}
-  {{- if .Values.compconPrereleaseSuffix -}}
-    -{{- .Values.compconPrereleaseSuffix -}}
+  {{- .Values.deployment.compconImage -}}:{{- .Values.deployment.compconVersion -}}
+  {{- if .Values.deployment.compconPrereleaseSuffix -}}
+    -{{- .Values.deployment.compconPrereleaseSuffix -}}
   {{- end -}}
 {{- end -}}
+
 
 {{/*
 build the full seccon docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "controller.secconDockerimage" -}}
-  {{- .Values.secconImage -}}:{{- .Values.secconVersion -}}
-  {{- if .Values.secconPrereleaseSuffix -}}
-    -{{- .Values.secconPrereleaseSuffix -}}
+  {{- .Values.deployment.secconImage -}}:{{- .Values.deployment.secconVersion -}}
+  {{- if .Values.deployment.secconPrereleaseSuffix -}}
+    -{{- .Values.deployment.secconPrereleaseSuffix -}}
   {{- end -}}
 {{- end -}}
 
