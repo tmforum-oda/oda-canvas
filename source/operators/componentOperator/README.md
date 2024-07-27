@@ -30,4 +30,4 @@ The command above will execute just the component operator. You will also need t
 
 # Buildautomation and Versioning
 
-TODO[FH]: add description.
+TODO[FH]: link to description how build and release process works.

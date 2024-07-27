@@ -46,6 +46,6 @@ The `oda-component-crd.yaml` file has an section that refers to the webhook stra
 The actual caBundle is added as a Helm value in the `oda-canvas-charts\canvas\values.yaml` file.
 
 
-# Build and Release Dockerimage
+# Buildautomation and Versioning
 
-TODO[FH]: link to documentatino how to build and release the dockerimage.
+TODO[FH]: link to description how build and release process works.

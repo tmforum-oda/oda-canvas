@@ -2,9 +2,6 @@
 
 implementation for security-listener dockerfile.
 
-## Build and Realesing
+# Buildautomation and Versioning
 
-TODO[FH]: link to documentation of build and release strategy.
-
-
-
+TODO[FH]: link to description how build and release process works.

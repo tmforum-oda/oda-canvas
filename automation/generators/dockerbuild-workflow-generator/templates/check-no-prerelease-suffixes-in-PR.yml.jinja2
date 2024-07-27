@@ -1,0 +1,36 @@
+name: Check that PRs do not contain prereleaseSuffixes
+on: 
+  pull_request:
+    branches:
+      - master
+      - testmaster
+jobs:
+  check-pr-does-not-contain-prereleasesuffixes-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      {%- for unique_vyf in config.values() | map(attribute="valuesYamlFile") | unique() -%}
+      {%- set listPrereleaseSuffixPaths = config.values() | selectattr('valuesYamlFile', "equalto", unique_vyf) | map(attribute='valuesPathPrereleaseSuffix') | join(', ') %}
+      
+      - name: check if there are nonempty version suffixes in {{ unique_vyf }}
+        id: values_yaml_contains_version_suffix_{{ loop.index }}
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[{{ listPrereleaseSuffixPaths }}] | filter(.!=null and .!="")  | length | . != "0"' {{ unique_vyf }}
+
+      - name: collect existing version suffixes in {{ unique_vyf }} for error report
+        id: version_suffixes_{{ loop.index }}
+        if: steps.values_yaml_contains_version_suffix_{{ loop.index }}.outputs.result=='true'
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[{{ listPrereleaseSuffixPaths }}] | filter(.!=null and .!="") | join(", ")' {{ unique_vyf }}
+          
+      - name: report error in {{ unique_vyf }}
+        if: steps.values_yaml_contains_version_suffix_{{ loop.index }}.outputs.result=='true'
+        run: |
+          echo "::error file={{ unique_vyf }}::values.yaml contains prereleaseSuffixes: [{% raw %}${{{% endraw %} steps.version_suffixes_{{ loop.index }}.outputs.result {% raw %}}}{% endraw %}]" && exit 1
+
+      {%- endfor %}
+
