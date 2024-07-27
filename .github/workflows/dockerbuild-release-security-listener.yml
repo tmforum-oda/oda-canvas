@@ -5,7 +5,6 @@ on:
   push:
     branches:
     - master
-    - testmaster
     paths: 
       - source/operators/securityControllerAPIserver-keycloak-dockerfile
       - source/operators/securityController/**/*
