@@ -1,19 +1,19 @@
-name: Build DependentAPI Simple Operator Prerelease Dockerimage
-run-name: Build DependentAPI Simple Operator Prerelease Dockerimage
-on: 
+name: Build DependentAPI-Simple-Operator Release Dockerimage
+run-name: Build DependentAPI-Simple-Operator Release Dockerimage
+on:
   workflow_dispatch:
   push:
     branches:
-    - feature/*
-    - odaa-*
-    paths:
-    - source/operators/dependentApiSimpleOperator/docker/**/*
-    
+    - master
+    - testmaster
+    paths: 
+      - source/operators/dependentApiSimpleOperator/docker/**/*
+
 jobs:
-  build-depapisimpleop-prerelease-dockerfile-job:
+  build-dependentapi-simple-operator-release-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
-    
+
       - name: Temporary initialization
         uses: docker://ocfork/temp:latest
         id: ocfork
@@ -23,14 +23,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of depapisimpleop from values.yaml
-        id: get_depapisimpleop_image
+      - name: read image of dependentapi-simple-operator from values.yaml
+        id: get_values_image
         uses: mikefarah/yq@master
         with:
           cmd: yq '.dependentapi-simple-operator.image' charts/canvas-oda/values.yaml
           
-      - name: read versionnumber of depapisimpleop from values.yaml
-        id: get_depapisimpleop_version
+      - name: read versionnumber of dependentapi-simple-operator from values.yaml
+        id: get_values_version
         uses: mikefarah/yq@master
         with:
           cmd: yq '[.dependentapi-simple-operator.version, .dependentapi-simple-operator.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
@@ -39,14 +39,27 @@ jobs:
         id: check-tag
         run: |
           echo 
-          if [[ ${{ steps.get_depapisimpleop_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
-              echo "Version ${{ steps.get_depapisimpleop_version.outputs.result }} matches prerelease format <n>.<n>.<n>-<prerelease>"
+          if [[ ${{ steps.get_values_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Version ${{ steps.get_values_version.outputs.result }} matches release format <n>.<n>.<n>"
           else
-              echo "::error::Version ${{ steps.get_depapisimpleop_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
+              echo "::error::Version ${{ steps.get_values_version.outputs.result }} does not match release format <n>.<n>.<n>" && exit 1
           fi        
               
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Check for already existing image tag 
+        id: check_docker_image
+        uses: KerberosMorphy/docker-exist-action@v1.1.1
+        with:
+          registry: docker.io
+          username: ${{ steps.ocfork.outputs.DOCKERHUB_USERNAME }}
+          password: ${{ steps.ocfork.outputs.DOCKERHUB_TOKEN }}
+          image: ${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
+      - name: error if tag already exists
+        if: steps.check_docker_image.outputs.image_exist==1
+        run: |
+          echo  "::error::image tag ${{ steps.get_values_version.outputs.result }} already exists in repo ${{ steps.get_values_image.outputs.result }}, exiting!" && exit 2 
       
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -71,7 +84,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ steps.get_depapisimpleop_image.outputs.result }}:latest
-            ${{ steps.get_depapisimpleop_image.outputs.result }}:${{ steps.get_depapisimpleop_version.outputs.result }}
+            ${{ steps.get_values_image.outputs.result }}:latest
+            ${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
         env:
           SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}

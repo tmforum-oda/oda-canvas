@@ -1,5 +1,5 @@
-name: Build SecretsManagement-Operator Prerelease Dockerimage
-run-name: Build SecretsManagement-Operator Prerelease Dockerimage
+name: Build DependentAPI-Simple-Operator Prerelease Dockerimage
+run-name: Build DependentAPI-Simple-Operator Prerelease Dockerimage
 on:
   workflow_dispatch:
   push:
@@ -7,10 +7,11 @@ on:
     - feature/*
     - odaa-*
     - odaa-98-automate-docker-builds
-    paths:
-    - source/operators/secretsmanagementOperator-hc/docker/**/*
+    paths: 
+      - source/operators/dependentApiSimpleOperator/docker/**/*
+
 jobs:
-  build-secrets-management-operator-prerelease-dockerfile-job:
+  build-dependentapi-simple-operator-prerelease-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -23,26 +24,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of secretsmanagement-operator from values.yaml
-        id: get_smanop_image
+      - name: read image of dependentapi-simple-operator from values.yaml
+        id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.secretsmanagement-operator.image' charts/canvas-oda/values.yaml
+          cmd: yq '.dependentapi-simple-operator.image' charts/canvas-oda/values.yaml
           
-      - name: read versionnumber of secretsmanagement-operator from values.yaml
-        id: get_smanop_version
+      - name: read versionnumber of dependentapi-simple-operator from values.yaml
+        id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.secretsmanagement-operator.version, .secretsmanagement-operator.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.dependentapi-simple-operator.version, .dependentapi-simple-operator.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
         run: |
           echo 
-          if [[ ${{ steps.get_smanop_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
-              echo "Version ${{ steps.get_smanop_version.outputs.result }} matches featurebranch format <n>.<n>.<n>-<prerelease>"
+          if [[ ${{ steps.get_values_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
+              echo "Version ${{ steps.get_values_version.outputs.result }} matches featurebranch format <n>.<n>.<n>-<prerelease>"
           else
-              echo "::error::Version ${{ steps.get_smanop_version.outputs.result }} does not match featurebranch format <n>.<n>.<n>-<prerelease>" && exit 1
+              echo "::error::Version ${{ steps.get_values_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
           fi        
               
       - name: Set up Docker Buildx
@@ -63,17 +64,15 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: source/operators/secretsmanagementOperator-hc/docker
+          context: source/operators/dependentApiSimpleOperator/docker
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
             CICD_BUILD_TIME=${{ env.CICD_BUILD_TIME }}
-          # arm64 has problems building cffi python wheel 
-          #platforms: linux/amd64,linux/arm64
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ steps.get_smanop_image.outputs.result }}:latest
-            ${{ steps.get_smanop_image.outputs.result }}:${{ steps.get_smanop_version.outputs.result }}
+            ${{ steps.get_values_image.outputs.result }}:latest
+            ${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
         env:
           SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}

@@ -27,13 +27,13 @@ jobs:
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '{{ valuesPathImage }}' charts/canvas-oda/values.yaml
+          cmd: yq '{{ valuesPathImage }}' {{ valuesYamlFile }}
           
       - name: read versionnumber of {{ fileName }} from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[{{ valuesPathVersion }}, {{ valuesPathPrereleaseSuffix }}] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[{{ valuesPathVersion }}, {{ valuesPathPrereleaseSuffix }}] | filter(.!=null and .!="") | join("-")' {{ valuesYamlFile }}
           
       - name: Check Version
         id: check-tag
