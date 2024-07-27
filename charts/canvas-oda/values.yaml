@@ -115,14 +115,14 @@ controller:
     # TODO: replace with tmforumodacanvas repo.  
     compconImage: ocfork/component-istio-controller
     compconVersion: 0.4.2
-    compconPrereleaseSuffix: odaa98
+    compconPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     #secconImage: tmforumodacanvas/security-listener:0.7.0
     # TODO: replace with tmforumodacanvas repo.  
     secconImage: ocfork/security-listener
     secconVersion: 0.7.0
-    secconPrereleaseSuffix: odaa98
+    secconPrereleaseSuffix: 
     monitoredNamespaces: 'components'           # comma separated list of namespaces
     ingressClass:
       enabled: false
@@ -145,7 +145,7 @@ dependentapi-simple-operator:
   # TODO[FH]: replace with tmforumodacanvas repo.  
   image: ocfork/dependentapi-simple-operator
   version: 0.2.0
-  prereleaseSuffix: odaa98
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
 
@@ -229,13 +229,13 @@ canvas-vault:
 secretsmanagement-operator:
   image: ocfork/secretsmanagement-operator
   version: 0.1.0
-  prereleaseSuffix: odaa98
+  prereleaseSuffix: 
   #imagePullPolicy: IfNotPresent
   imagePullPolicy: Always
   
   sidecarImage: ocfork/secretsmanagement-sidecar
   sidecarVersion: 0.1.0
-  sidecarPrereleaseSuffix: odaa98
+  sidecarPrereleaseSuffix: 
   
   # TODO: add TLS to canvas-vault-hc
   vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
@@ -267,4 +267,4 @@ webhooks:
   # TODO: replace with tmforumodacanvas repo.  
   image: ocfork/compcrdwebhook
   version: 0.6.2
-  prereleaseSuffix: odaa98
+  prereleaseSuffix: 
