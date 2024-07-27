@@ -15,18 +15,27 @@ def run(config_filename:str):
     )
     env.filters.update({'to_yaml': to_yaml})
 
-    
+    with open(config_filename, 'r') as f:
+        config = yaml.safe_load(f)
+
     template_names = ["dockerbuild-prerelease", "dockerbuild-release"]
     for template_name in template_names:
         template = env.get_template(f"{template_name}.yml.jinja2")
-        with open(config_filename, 'r') as f:
-            cfgs = yaml.safe_load(f)
-        for filename,cfg in cfgs.items():
+        for filename,cfg in config.items():
             if "fileName" not in cfg:
                 cfg["filename"] = name
             output_filename = f"{output_folder}/{template_name}-{filename}.yml"
             print(f"generating {output_filename}")
             template.stream(cfg).dump(output_filename)
+
+    template_names = ["check-no-prerelease-suffixes-in-PR"]
+    for template_name in template_names:
+        template = env.get_template(f"{template_name}.yml.jinja2")
+        output_filename = f"{output_folder}/{template_name}.yml"
+        print(f"generating {output_filename}")
+        template.stream(config=config).dump(output_filename)
+        #print(template.render(config=config))
+
 
 if __name__ == '__main__':
     run("dockerbuild-config.yaml")
