@@ -6,7 +6,8 @@ def to_yaml(data):
     return yaml.dump(data)
 
 def run(config_filename:str):
-    output_folder = "output"
+    #output_folder = "output"
+    output_folder = "../../../.github/workflows"
     os.makedirs(output_folder, exist_ok=True)   
 
     env = Environment(
