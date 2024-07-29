@@ -18,7 +18,7 @@ spec:
       containers:
       - name: {{ .Release.Name }}-smanop
         image: {{ include "secretsmanagementoperator.dockerimage" . }}
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ include "secretsmanagementoperator.imagePullPolicy }}
         env:
         - name: LOGGING
           value: "{{ .Values.logLevel }}"

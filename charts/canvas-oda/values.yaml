@@ -268,3 +268,5 @@ webhooks:
   image: ocfork/compcrdwebhook
   version: 0.6.2
   prereleaseSuffix: 
+  imagePullPolicy: IfNotPresent
+

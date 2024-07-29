@@ -6,5 +6,5 @@ image: tmforumodacanvas/compcrdwebhook:0.8.1
 image: ocfork/compcrdwebhook
 version: 0.6.2
 prereleaseSuffix: odaa98
-  
+imagePullPolicy: IfNotPresent
 
