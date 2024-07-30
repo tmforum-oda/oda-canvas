@@ -369,22 +369,96 @@ $ kubectl logs -n canvas deployment/canvas-smanop
 ```
 
 Now it is as expected. The changed code is active.
-As the GIT_COMMIT_SHA ...
+
+As we can see the GIT_COMMIT_SHA (short version, only the first 8 digits) we can verify, if the version deployed is realy the version we pushed.
+You can verify the GIT_COMMIT_SHA using git cli:
+
+```
+$ git rev-parse --short HEAD
+  462b37e
+```
+
+Another possibility to force the repull is to delete the running PODs of the deployment. The newly created will then have the new image.
+
+### Creating a Pull-Request
+
+Now we have tested our code changes and can merge the feature back into the "master" branch.
+
+*HERE IS THE GAP: how to test the prerelease versions in the PR but avoid having prerelease versions merged into master*
+
+Therefore a PR is created from our feature branch "feature/issue-3456" into "master".
+
+#### Automatically Run Tests
+
+Now the automatic tests of the PR can be run and the result should be green.
+
+#### Check for release versions
+
+Additionally there is a check, that no prereleaseSuffixes are set in the values.yaml.
+This fails now, because secretsmanagement-operator has suffix "issue3456":
+
+![image](https://github.com/user-attachments/assets/41a329e2-7b8b-4373-bd05-58cb2883ca72)
+
+![image](https://github.com/user-attachments/assets/30099789-3643-4b49-909a-0b3af1ae9081)
+
+This can be solved by clearing the prereleaseSuffix in the values.yaml:
+
+```
+...
+secretsmanagement-operator:
+    image: ocfork/secretsmanagement-operator
+    version: 0.1.1
+[*] prereleaseSuffix:
+    ...
+```
+
+After pushing this change, the two checks (Linting and Release version check) are triggered again:
+
+![image](https://github.com/user-attachments/assets/e687ec09-df02-4eea-b347-d09cbbb72f32)
+
+A docker build was not triggered again, because there was no change in the relevant source files ("paths:" for dockerimage-config.yaml).
+Now all preconditions are green:
+
+![image](https://github.com/user-attachments/assets/9842c0b2-f353-4c42-bc23-bcd47f7d426c)
 
 
+### Merging the feature branch
 
+A code review can now be done and then the branch can be merged The branch can now be reviewed be merged after beeing reviwed.
 
+When Merging the PR, the Release build of the changed docker image is triggered:
 
+![image](https://github.com/user-attachments/assets/3e0ffa45-cb22-413b-8135-6e9aa360708b)
 
+There is a check, that the release version does not already exists.
+If this is the case, the build pipeline will fail.
 
+But here, everything is fine and the build is successful:
 
+![image](https://github.com/user-attachments/assets/754e2284-31d1-42f6-ad3f-315f68663fd8)
 
-## How-To add a new Dockerimage
+In the Docker registry there is now a release version 0.1.1:
 
-TODO[FH]: Describe
+![image](https://github.com/user-attachments/assets/afbe328e-9492-44e3-93c0-ac6ae4879774)
 
-Edit `automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml`
+# Summary
 
-Execute `automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py`
+Overview about the steps to do:
 
+* Create feature branch "feature/..." and do all work in this branch
+* Increment version number and set prereleaseSuffix for Dockerimage to modify in [charts/canvas-oda/values.yaml](charts/canvas-oda/values.yaml)
+* Modify code triggers rebuild of prerelease docker image
+* For the first time do a `helm upgrade` to redeploy the prerelease version
+* For any further modifications to a `kubectl scale deployment ... ---replicas 0` and then `kubectl scale deployment ... ---replicas 1` (or delete running PODs)
+* Finally create PR and make BDD tests green
+* Remove prereleaseSuffixes from values.yaml
+* Merge the PR
 
+# How-To add a new Dockerimage
+
+Currently there are 6 Docker images which are built automatically.
+New Docker images can be added by editing the file `automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml`.
+There the docker build specific configurations and the relevant source paths have to be set.
+
+After the configuration is finished, the GitHub Actions have to be regenerated 
+by executing `automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py`
