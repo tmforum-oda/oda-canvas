@@ -229,13 +229,13 @@ canvas-vault:
 secretsmanagement-operator:
   image: ocfork/secretsmanagement-operator
   version: 0.1.0
-  prereleaseSuffix: 
-  #imagePullPolicy: IfNotPresent
-  imagePullPolicy: Always
+  prereleaseSuffix:
+  imagePullPolicy: IfNotPresent
   
   sidecarImage: ocfork/secretsmanagement-sidecar
   sidecarVersion: 0.1.0
   sidecarPrereleaseSuffix: 
+  sidecarImagePullPolicy: IfNotPresent
   
   # TODO: add TLS to canvas-vault-hc
   vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
@@ -262,11 +262,11 @@ secretsmanagement-operator:
   # encrpyted token (can be found in logfile)
   # #hvacTokenEnc:
 
-webhooks:
+oda-webhook:
   #image: tmforumodacanvas/compcrdwebhook:0.6.2 
   # TODO: replace with tmforumodacanvas repo.  
   image: ocfork/compcrdwebhook
   version: 0.6.2
-  prereleaseSuffix: 
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
 

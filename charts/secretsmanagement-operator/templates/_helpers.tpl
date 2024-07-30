@@ -23,11 +23,11 @@ build the full sidecar docker image name from image + version + prereleaseSuffix
 {{/*
 overwrite imagePullSecret with "Always" if prereleaseSuffix is set
 */}}
-{{- define "secretsmanagementoperator.sidecarImagePullPolicy" -}}
-  {{- if .Values.sidecarPrereleaseSuffix -}}
+{{- define "secretsmanagementoperator.imagePullPolicy" -}}
+  {{- if .Values.prereleaseSuffix -}}
     Always
   {{- else -}}
-    {{- .Values.sidecarImagePullPolicy -}}
+    {{- .Values.imagePullPolicy -}}
   {{- end -}}
 {{- end -}}
 
@@ -35,10 +35,10 @@ overwrite imagePullSecret with "Always" if prereleaseSuffix is set
 {{/*
 overwrite sidecar imagePullSecret with "Always" if prereleaseSuffix is set
 */}}
-{{- define "secretsmanagementoperator.imagePullPolicy" -}}
-  {{- if .Values.prereleaseSuffix -}}
+{{- define "secretsmanagementoperator.sidecarImagePullPolicy" -}}
+  {{- if .Values.sidecarPrereleaseSuffix -}}
     Always
   {{- else -}}
-    {{- .Values.imagePullPolicy -}}
+    {{- .Values.sidecarImagePullPolicy -}}
   {{- end -}}
 {{- end -}}

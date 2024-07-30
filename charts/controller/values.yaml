@@ -3,14 +3,15 @@ deployment:
   #compconImage: tmforumodacanvas/component-istio-controller:0.5.0
   compconImage: ocfork/component-istio-controller
   compconVersion: 0.4.2
-  compconPrereleaseSuffix: odaa98  
-  imagePullPolicy: IfNotPresent
+  compconPrereleaseSuffix: odaa-98
+  compconImagePullPolicy: IfNotPresent
   istioGateway: true
   #secconImage: tmforumodacanvas/security-listener:0.6.0
   # TODO: replace with tmforumodacanvas repo.  
   secconImage: ocfork/security-listener
   secconVersion: 0.7.0
-  secconPrereleaseSuffix: odaa98
+  secconPrereleaseSuffix: odaa-98
+  secconImagePullPolicy: IfNotPresent
   monitoredNamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false

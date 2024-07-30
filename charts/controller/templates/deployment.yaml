@@ -21,7 +21,7 @@ spec:
       containers:
       - name: {{.Values.deployment.controllerName}}
         image: {{ include "controller.compconDockerimage" . }}
-        imagePullPolicy: {{.Values.deployment.imagePullPolicy}}
+        imagePullPolicy: {{ include "controller.compconImagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap
@@ -29,7 +29,7 @@ spec:
               name: {{ .Release.Name }}-controller-secret
       - name: seccon
         image: {{ include "controller.secconDockerimage" . }}
-        imagePullPolicy: {{.Values.deployment.imagePullPolicy}}
+        imagePullPolicy: {{ include "controller.secconImagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap

@@ -2,6 +2,6 @@
 # TODO[FH]: replace with tmforumodacanvas repo.  
 image: ocfork/dependentapi-simple-operator
 version: 0.2.0
-#prereleaseSuffix: odaa98
+prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 loglevel: '20'

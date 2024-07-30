@@ -82,3 +82,26 @@ build the full seccon docker image name from image + version + prereleaseSuffix
   {{- end -}}
 {{- end -}}
 
+
+{{/*
+overwrite compcon imagePullSecret with "Always" if prereleaseSuffix is set
+*/}}
+{{- define "controller.compconImagePullPolicy" -}}
+  {{- if .Values.deployment.compconPrereleaseSuffix -}}
+    Always
+  {{- else -}}
+    {{- .Values.deployment.compconImagePullPolicy -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{/*
+overwrite seccon imagePullSecret with "Always" if prereleaseSuffix is set
+*/}}
+{{- define "controller.secconImagePullPolicy" -}}
+  {{- if .Values.deployment.secconPrereleaseSuffix -}}
+    Always
+  {{- else -}}
+    {{- .Values.deployment.secconImagePullPolicy -}}
+  {{- end -}}
+{{- end -}}
