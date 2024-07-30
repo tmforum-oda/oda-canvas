@@ -5,10 +5,10 @@ To successfully collaborate in the same repository some rules have to be followe
 
 ## Global Rules
 
-* Release versions (image tags) follow the semantic versioning format "<major>.<minor>.increment>" and are built only from the master branch
+* Release versions (image tags) follow the semantic versioning format "\<major\>.\<minor\>.\<increment\>" and are built only from the master branch
 * Release versions are immutable and can not be overwritten 
-* Prerelease versions have the format "<major>.<minor>.<increment>-<prerelease-suffix>" and are built from feature branches
-* Feature branches have the format "feature/*" or "odaa-*"
+* Prerelease versions have the format "\<major\>.\<minor\>.\<increment\>-\<prerelease-suffix\>" and are built from feature branches
+* Feature branches have the format "feature/\*" or "odaa-\*"
 * Release versions are overwritten every time the source code changed
 * The prerelease suffix should be unique for each feature branch, otherwise the same image will be built from different branches and the last build wins
 * Versions are stored in the charts/canvas-oda/values.yaml file which is also used for deploying the canvas-oda chart (single source of truth)
