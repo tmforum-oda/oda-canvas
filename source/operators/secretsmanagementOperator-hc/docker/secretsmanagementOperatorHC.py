@@ -36,7 +36,7 @@ kopf_logger.setLevel(logging.WARNING)
 logger = logging.getLogger("SecretsmanagementOperator")
 logger.setLevel(int(logging_level))
 logger.info(f"Logging set to %s", logging_level)
-logger.info(f"GitHub ISSUE #3456 was added here")
+logger.info(f"GitHub ISSUE #3456 WAS FIXED!!!")
 logger.debug(f"debug logging active")
 
 SOURCE_DATE_EPOCH = os.getenv("SOURCE_DATE_EPOCH")
