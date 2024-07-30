@@ -18,7 +18,7 @@ spec:
       containers:
       - name: {{ .Release.Name }}-smanop
         image: {{ include "secretsmanagementoperator.dockerimage" . }}
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ include "secretsmanagementoperator.imagePullPolicy" . }}
         env:
         - name: LOGGING
           value: "{{ .Values.logLevel }}"
@@ -46,6 +46,8 @@ spec:
           {{- end }}
         - name: SIDECAR_IMAGE
           value: "{{ include "secretsmanagementoperator.sidecarDockerimage" . }}"
+        - name: SIDECAR_IMAGEPULLPOLICY
+          value: "{{ include "secretsmanagementoperator.sidecarImagePullPolicy" . }}"
         {{ if .Values.hvacTokenEnc -}}
         - name: HVAC_TOKEN_ENC
           value: "{{ .Values.hvacTokenEnc }}"
