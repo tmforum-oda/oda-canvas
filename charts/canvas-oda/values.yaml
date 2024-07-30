@@ -228,8 +228,8 @@ canvas-vault:
 
 secretsmanagement-operator:
   image: ocfork/secretsmanagement-operator
-  version: 0.1.0
-  prereleaseSuffix:
+  version: 0.1.1
+  prereleaseSuffix: issue3456
   imagePullPolicy: IfNotPresent
   
   sidecarImage: ocfork/secretsmanagement-sidecar
