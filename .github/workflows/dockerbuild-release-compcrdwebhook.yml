@@ -34,13 +34,13 @@ jobs:
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.webhooks.image' charts/canvas-oda/values.yaml
+          cmd: yq '.oda-webhook.image' charts/canvas-oda/values.yaml
           
       - name: read versionnumber of compcrdwebhook from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.webhooks.version, .webhooks.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.oda-webhook.version, .oda-webhook.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
