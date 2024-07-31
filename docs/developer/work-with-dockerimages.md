@@ -9,13 +9,13 @@ To successfully collaborate in the same repository some rules have to be followe
 * Release versions are immutable and can not be overwritten 
 * Prerelease versions have the format "\<major\>.\<minor\>.\<increment\>-\<prerelease-suffix\>" and are built from feature branches
 * Feature branches have the format "feature/\*" or "odaa-\*"
-* Release versions are overwritten every time the source code changed
+* Prerelease versions are overwritten every time the source code changed
 * The prerelease suffix should be unique for each feature branch, otherwise the same image will be built from different branches and the last build wins
 * Versions are stored in the charts/canvas-oda/values.yaml file which is also used for deploying the canvas-oda chart (single source of truth)
 
 ## Versions in values.yaml
 
-Dockerimages are versioned in the [values.yaml](charts/canvas-oda/values.yaml) file of the canva-oda chart. 
+Dockerimages are versioned in the [charts/canvas-oda/values.yaml](../../charts/canvas-oda/values.yaml) file of the canva-oda chart and consist of three parts. 
 E.g. for oda-webhook:
 
 ```
@@ -26,7 +26,7 @@ oda-webhook:
   prereleaseSuffix: issue123
 ```
 
-The full dockerimage is set together to "tmforumodacanvas/compcrdwebhook:0.6.3-issue123".
+The full dockerimage is put together as "tmforumodacanvas/compcrdwebhook:0.6.3-issue123".
 
 If there is no prereleaseSuffix, the seperator "-" is ommitted: 
 
@@ -41,7 +41,7 @@ oda-webhook:
 The full docker image is "tmforumodacanvas/compcrdwebhook:0.6.2"
 
 The advantage of using the values.yaml as source for the dockerimage names is,
-that when deploying the canvas-oda chart from the filesystem all docker images are automatically build:
+that when deploying the canvas-oda chart from the filesystem all docker images exist, because they are automatically build on code changes.
 
 A prerelease version is semantically smaller than the release version:
 
@@ -49,24 +49,26 @@ A prerelease version is semantically smaller than the release version:
 0.6.2 < 0.6.3-issue-123 < 0.6.3
 ```
 
+How this can be used to implement a workflow is shown in the following example updating the secretsmanagement-operator.
 
-## Example change code in Secretsmanagement-Operator
+## Example: Update code of Secretsmanagement-Operator
 
-To cover the development lifecycle with Dockerimages an example change will be described.
-
-### Create a feature branch 
+### Step 1: Create a feature branch 
 
 To do your code changes a feature branch is needed.
-Feature branches have to follow the naming convention "feature/..." or "odaa-...".
+Feature branches have the naming convention "feature/..." or "odaa-...".
 Let´s assume we are working on the GitHub issue 3456, 
 so a good name for the feature branch would be "feature/issue3456"
 
 Create this new branch in GitHub from the master branch.
 
+### Step 2: Configure Prerelease Version in feature branch
 
-### Look at the Docker image configuration
+First get an overview, how the Dockerfile for the secretsmanagement-operator is built
 
-All dependencies of a Docker image are configured in the file [dockerbuild-config.yaml](automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
+#### Look at the Docker build configuration
+
+All dependencies of a Docker image are configured in the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](../../automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
 
 For the Secretsmanagement-Operator this is:
 
@@ -91,10 +93,10 @@ secretsmanagement-operator:
 ```
 
 The relevant information for us now are the location and names in the values YAML file and the location of the source paths.
-Whenever a file/folder which is referenced in "paths:" is changed a docker build is triggered on pushing the changes to github.
+Whenever a file/folder, which is referenced in "paths", is changed a docker build is triggered when pushing changes to github.
 
 
-### Configure Prerelease-Version in values.yaml
+#### Configure Prerelease-Version in values.yaml
 
 Currently the values.yaml file has the following entries:
 
@@ -109,7 +111,7 @@ secretsmanagement-operator:
 
 The corresponding dockerfile is `tmforumodacanvas/secretsmanagement-operator:0.1.0`.
 We want to do a small change, so just increment the patch level and add a prereleaseSuffix: `tmforumodacanvas/secretsmanagement-operator:0.1.1-issue3456`
-The version and prereleaseSuffix entries have to be changed accordingly:
+The "version" and "prereleaseSuffix" entries have to be changed in the feature branch accordingly:
 
 ```
 ...
@@ -123,10 +125,10 @@ secretsmanagement-operator:
 (Make sure, no one else uses the same prerelease version otherwise You will overwrite each others docker image)
 
 
-### Change the code in the feature branch
+### Step 3: Change the code in the feature branch
 
-From the configuration, we can see, that the sources are in the folder `source/operators/secretsmanagementOperator-hc/docker`.
-Any change in this folder will trigger a new build of the dockerimage with tag 0.1.1-issue3456.
+From the docker build configuration above, we can see, that the sources are in the folder `source/operators/secretsmanagementOperator-hc/docker`.
+Any change in this folder will trigger a new build of the dockerimage with tag "0.1.1-issue3456".
 
 For now just let´s add one print line on startup of the SecretsManagement-Operator:
 
@@ -148,25 +150,30 @@ So, two files were changed, the values.yaml with the version number and an addit
 
 ![image](https://github.com/user-attachments/assets/419d3e5f-d593-47b1-88a4-c83f76715779)
 
-Pushing the changes to github triggeres the docker build of the prerelease image.
+### Step 4: Push changed feature branch to GitHub
 
-![Screenshot 2024-07-30 143203](https://github.com/user-attachments/assets/46a6cc5a-9de8-44dc-a45e-5919bcdff093)
+Comitting the changes in the feature branch locally and pushing them to the GitHub repository triggeres a GitHub Action, which builds the docker prerelease image.
 
-If we would not have added a prereleaseSuffix, then the build will fail with an error message, that release versions can only be built from the master branch.
+![image](https://github.com/user-attachments/assets/d264d6c5-6933-4932-9e31-16323d87aa69)
 
-But as we set a prereleaseSuffix a new image was created:
+If we had not set a prereleaseSuffix, then the build woudld have fail with the error message, that release versions can only be built from the "master" branch.
 
-![image](https://github.com/user-attachments/assets/2bfff74b-d0fc-4c43-a472-3cac75d66d74)
+But as we set a prereleaseSuffix a new image with tag "0.1.1-issue3456" was created and uploaded to dockerhub:
 
-Now we can upgrade our deployed canvas.
+| ![image](https://github.com/user-attachments/assets/2bfff74b-d0fc-4c43-a472-3cac75d66d74) |
+|-|
 
-### Upgrade Canvas
+Now we have an up to date dockerimage and can upgrade the canvas.
 
-The Canvas can now be upgraded (or installed new) using the helm chart.
+### Step 5: Upgrade Canvas
+
+We will deploy the canvas update from the helm chart oda-canvas in the filesystem.
+
+If it was not done before, thechart  dependencies have to be updated.
 
 #### Update chart dependencies
 
-If this was not done before, all dependencies of the canvas-oda chart have to be updated:
+From the command line in the root of the locally checked out repository execute the following commands:
 
 ```
 cd charts/cert-manager-init
@@ -187,7 +194,11 @@ helm dependency build
 cd ../..
 ```
 
-Now we can install/upgrade the canvas using helm:
+Now we are ready to install/upgrade the canvas
+
+#### Install/Upgrade canvas
+
+Again from the root of the local git repository execute the following command:
 
 ```
 $ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace 
@@ -200,9 +211,9 @@ $ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace
   REVISION: 2
 ```
 
-The next time, when an upgrade has to be deployed, the dependencies do not have to be updated/built again.
+The next time when an upgrade has to be deployed the dependencies do not have to be updated/built again.
 
-### Check the changed code is active
+### Step 5: Test that changed code is active
 
 Let´s take a look at the SecretsManagement-Operator logfile:
 
@@ -218,12 +229,14 @@ $ kubectl logs -n canvas deployment/canvas-smanop
     Please remove HVAC_TOKEN variable and use HVAC_TOKEN_ENC: gAAAAABmqPeU7O_WFBHu8UcBL1dA7FOmujM1UZocV23PxB9ka4SEszb3dYokUkJUc40BbZUB2Qyi_tDkEd3bc3IHJJZsz7hmhQ==
 ```
 
-So, our changes are already active!
+So, our change is active, the line "GitHub ISSUE #3456 was added here" is logged out on startup of the secretsmanagement-operator.
 
-### Changing the code a second time
+Most of the time you need more than one iteration to get your code functional.
+So an iterative process of code changes is neccessary
 
-Now we tested our changes and decided to once again change the code in the feature branch.
-Modify the code again in source/operators/secretsmanagementOperator-hc/docker/secretsmanagementOperatorHC.py:
+### Step 5a..5n: Modify code multiple times
+
+In our example we will modify the same file again source/operators/secretsmanagementOperator-hc/docker/secretsmanagementOperatorHC.py:
 
 ```
     # Setup logging
@@ -237,7 +250,7 @@ Modify the code again in source/operators/secretsmanagementOperator-hc/docker/se
     logger.debug(f"debug logging active")
 ```
 
-Committing and pushing the code triggers again the GitHub Action to build the Docker file.
+Committing and pushing the new code changes in the feature branch triggers again the GitHub Action to build the Docker file.
 
 ![image](https://github.com/user-attachments/assets/9427ac1e-f0c8-4aed-b9e9-1792e942a07d)
 
