@@ -234,7 +234,7 @@ So, our change is active, the line "GitHub ISSUE #3456 was added here" is logged
 Most of the time you need more than one iteration to get your code functional.
 So an iterative process of code changes is neccessary
 
-### Step 5a..5n: Modify code multiple times
+### Step 6a..6n: Modify code multiple times
 
 In our example we will modify the same file again source/operators/secretsmanagementOperator-hc/docker/secretsmanagementOperatorHC.py:
 
@@ -254,9 +254,9 @@ Committing and pushing the new code changes in the feature branch triggers again
 
 ![image](https://github.com/user-attachments/assets/9427ac1e-f0c8-4aed-b9e9-1792e942a07d)
 
-Wait until the build was successfully finished (green bullet), then update the canvas deployment:
+Wait until the build was successfully finished (green hook), then update the canvas deployment:
 
-### update canvas deployment 2nd time
+#### Update canvas deployment
 
 We do not need to update all the dependency again, so just calling `helm upgrade ...` is sufficient:
 
@@ -271,7 +271,7 @@ $ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace
   REVISION: 3
 ```
 
-### Look for the changes in the logfile
+#### Look for the changes in the logfile
 
 ```
 kubectl logs -n canvas deployment/canvas-smanop
@@ -286,14 +286,16 @@ kubectl logs -n canvas deployment/canvas-smanop
     gAAAAABmqPeU7O_WFBHu8UcBL1dA7FOmujM1UZocV23PxB9ka4SEszb3dYokUkJUc40BbZUB2Qyi_tDkEd3bc3IHJJZsz7hmhQ==
 ```
 
-*Our change is not visible!!!*
+_*Our change is not visible!!!*_
 
-We can see in the Logfile, the CICD_BUILD_TIME, the GIT_COMMIT_SHA and also the timestamp of the log. 
-This is not our latest build and also the time of the log is the same as before the canvas redeployment.
-Because our deployment did not change and the dockerimage name also is still the same `tmforumodacanvas/secretsmanagement-operator:0.1.1-issue3456`
-Kubernetes had no need to redeploy the SecretsManagement-Operator.
+We can see in the Logfile, the CICD_BUILD_TIME, the GIT_COMMIT_SHA and also the timestamp when the log was written. 
+This is not our latest build and also the time when the log was written is the same as before the canvas redeployment.
+This means, the secretsmanagement-operator was not updated.
 
-Last time the docker image changed from "...:0.1.0" to "...:0.1.1-issue3456" and that triggered a redeployment of the secretsmanagement-operator.
+Our deployment did not change and the dockerimage name also not, it is still `tmforumodacanvas/secretsmanagement-operator:0.1.1-issue3456`.
+
+So, Kubernetes did not see any reason to redeploy the SecretsManagement-Operator.
+When we did the first upgrade, the docker image changed from "...:0.1.0" to "...:0.1.1-issue3456" and that triggered a redeployment of the secretsmanagement-operator.
 Now the image did not change, it is still "...:0.1.1-issue3456".
 
 But we can trigger a redeployment manually:
@@ -304,7 +306,7 @@ $ kubectl rollout restart deployment -n canvas canvas-smanop
   deployment.apps/canvas-smanop restarted
 ```
 
-Waiting a few seconds to give the old POD time to gracefully terminate and the new POD time to startup:
+Waiting a few seconds to give the old POD (running instance of the deployment) time to gracefully terminate and the new POD time to startup:
 
 ```
 $ kubectl get pods -n canvas
@@ -315,9 +317,7 @@ $ kubectl get pods -n canvas
   ...
 ```
 
-Age 8 seconds means, the POD was just started
-
-Again a look into the logfile:
+Age 8 seconds means, the POD was just started. Now we can take a look into the logfile:
 
 ```
 $ kubectl logs -n canvas canvas-smanop-7d4c875878-xdlts
@@ -332,8 +332,11 @@ $ kubectl logs -n canvas canvas-smanop-7d4c875878-xdlts
     gAAAAABmqQUa2nvJFaSX27nAhyflGSnmnvA5Aw0gwLa0NjsnK9bbjx-RPPBexroeYHKiCoHUmd0pxiFyHRgtJBkzuw3w8b4_Jw==
 ```
 
-This really came as a surprise for me. I expected the image to be repulled, 
-because the imagePullPolicy for prerelease versions is automatically set to "Always".
+The log timestamps are updated, so the log was newly written, but the second line is still the old one!
+
+This really came as a surprise for me. I expected the docker image to be repulled.
+In the charts we have configured the deployments in a way, that prerelease images automatically get the imagePullPolicy "Always".
+This means, even if a  docker image with the same name already exists it is looking for updates in the remote docker registry.
 
 Check:
 
@@ -358,10 +361,8 @@ spec:
       ...
 ```
 
-My understanding was, that with imagePullPolicy "Always", the image tage is repulled every time if there were changes (new SHA).
-Maybe someone can explain this to me.
-
-I found a workaround: Scaling the deployment down to 0 instances and then scaling up to 1 again:
+I have no explanation, why this did not work, but found a workaround:
+Scaling the deployment down to 0 instances (PODs) and then scaling up to 1 again:
 
 ```
 $ kubectl scale deployment -n canvas canvas-smanop --replicas=0
@@ -369,8 +370,13 @@ $ kubectl scale deployment -n canvas canvas-smanop --replicas=0
 
 $ kubectl scale deployment -n canvas canvas-smanop --replicas=1
   deployment.apps/canvas-smanop scaled
+```
 
+Wait a few seconds for the new POD to come up and look at the logfile:
+
+```
 $ kubectl logs -n canvas deployment/canvas-smanop
+
     [2024-07-30 15:31:14,306] SecretsmanagementOpe [INFO    ] Logging set to 20
 [*] [2024-07-30 15:31:14,306] SecretsmanagementOpe [INFO    ] GitHub ISSUE #3456 WAS FIXED!!!
     [2024-07-30 15:31:14,306] SecretsmanagementOpe [INFO    ] SOURCE_DATE_EPOCH=1722351400
@@ -383,38 +389,39 @@ $ kubectl logs -n canvas deployment/canvas-smanop
 
 Now it is as expected. The changed code is active.
 
-As we can see the GIT_COMMIT_SHA (short version, only the first 8 digits) we can verify, if the version deployed is realy the version we pushed.
-You can verify the GIT_COMMIT_SHA using git cli:
+As we can see the GIT_COMMIT_SHA (short version, only the first 7 digits of the complete GIT SHA) we can verify, 
+if the version deployed is realy the version we pushed.
+To verify the GIT_COMMIT_SHA you can use the git cli command:
 
 ```
 $ git rev-parse --short HEAD
   462b37e
 ```
 
-Another possibility to force the repull is to delete the running PODs of the deployment. The newly created will then have the new image.
+Sidenote: instead of scaling the deployment to zero and up again, it is also possible to delete the running PODs. 
+Then the new docker image is also pullled.
 
-### Creating a Pull-Request
+### Step 7: Creating a Pull-Request
 
-Now we have tested our code changes and can merge the feature back into the "master" branch.
+After the iterative process of doing code changes, and testing the image, we are ready to contribute our changes back to the "master" branch.
 
-*HERE IS THE GAP: how to test the prerelease versions in the PR but avoid having prerelease versions merged into master*
-
-Therefore a PR is created from our feature branch "feature/issue-3456" into "master".
+Therefore a Pull-Request (PR) is created from our feature branch "feature/issue-3456" into "master" using GitHub UI.
 
 #### Automatically Run Tests
 
-Now the automatic tests of the PR can be run and the result should be green.
+Now the automatic tests of the PR are triggered and the result should be green. (WIP)
 
 #### Check for release versions
 
 Additionally there is a check, that no prereleaseSuffixes are set in the values.yaml.
-This fails now, because secretsmanagement-operator has suffix "issue3456":
+For our PR this check fails, because secretsmanagement-operator has prereleaseSuffix "issue3456".
 
 ![image](https://github.com/user-attachments/assets/41a329e2-7b8b-4373-bd05-58cb2883ca72)
 
-![image](https://github.com/user-attachments/assets/30099789-3643-4b49-909a-0b3af1ae9081)
+| ![image](https://github.com/user-attachments/assets/30099789-3643-4b49-909a-0b3af1ae9081) |
+|-|
 
-This can be solved by clearing the prereleaseSuffix in the values.yaml:
+This can be solved by removing the prereleaseSuffix in the values.yaml:
 
 ```
 ...
@@ -429,17 +436,17 @@ After pushing this change, the two checks (Linting and Release version check) ar
 
 ![image](https://github.com/user-attachments/assets/e687ec09-df02-4eea-b347-d09cbbb72f32)
 
-A docker build was not triggered again, because there was no change in the relevant source files ("paths:" for dockerimage-config.yaml).
+A docker build was not triggered again, because there was no change in the docker source files.
 Now all preconditions are green:
 
 ![image](https://github.com/user-attachments/assets/9842c0b2-f353-4c42-bc23-bcd47f7d426c)
 
 
-### Merging the feature branch
+### Step 8: Code-Review and Merging the PR
 
-A code review can now be done and then the branch can be merged The branch can now be reviewed be merged after beeing reviwed.
+A code review can now be done and after appoval the branch can be merged into the "master" branch.
 
-When Merging the PR, the Release build of the changed docker image is triggered:
+When the PR is merged, the release build of the docker image is triggered:
 
 ![image](https://github.com/user-attachments/assets/3e0ffa45-cb22-413b-8135-6e9aa360708b)
 
@@ -452,15 +459,16 @@ But here, everything is fine and the build is successful:
 
 In the Docker registry there is now a release version 0.1.1:
 
-![image](https://github.com/user-attachments/assets/afbe328e-9492-44e3-93c0-ac6ae4879774)
+| ![image](https://github.com/user-attachments/assets/afbe328e-9492-44e3-93c0-ac6ae4879774) |
+|-|
 
 # Summary
 
 Overview about the steps to do:
 
 * Create feature branch "feature/..." and do all work in this branch
-* Increment version number and set prereleaseSuffix for Dockerimage to modify in [charts/canvas-oda/values.yaml](charts/canvas-oda/values.yaml)
-* Modify code triggers rebuild of prerelease docker image
+* Increment version number and set prereleaseSuffix for Dockerimage to modify in [charts/canvas-oda/values.yaml](../../charts/canvas-oda/values.yaml)
+* Modify code, push triggers rebuild of prerelease docker image
 * For the first time do a `helm upgrade` to redeploy the prerelease version
 * For any further modifications to a `kubectl scale deployment ... ---replicas 0` and then `kubectl scale deployment ... ---replicas 1` (or delete running PODs)
 * Finally create PR and make BDD tests green
@@ -470,8 +478,8 @@ Overview about the steps to do:
 # How-To add a new Dockerimage
 
 Currently there are 6 Docker images which are built automatically.
-New Docker images can be added by editing the file `automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml`.
-There the docker build specific configurations and the relevant source paths have to be set.
+New Docker images can be added by editing the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](../../automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
+In this file the docker build specific configurations and the relevant source paths have to be set.
 
 After the configuration is finished, the GitHub Actions have to be regenerated 
-by executing `automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py`
+by executing [automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py](../../automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py). For executing the python script, the packages "pyyaml" and "jinja2" have to be installed (see requirements.txt).
