@@ -11,10 +11,13 @@
 apiVersion: oda.tmforum.org/v1beta3
 kind: API
 metadata:
-  labels:
-    oda.tmforum.org/componentName: odaa-114-fake-party-api
   name: odaa-114-fake-party-api
   namespace: {{ .Values.deployment.monitoredNamespaces }}
+  annotations:
+    # avoid problems with CRDs not beeing deployed before this
+    "helm.sh/hook": post-install,post-upgrade
+  labels:
+    oda.tmforum.org/componentName: odaa-114-fake-party-api
 spec:
   apitype: openapi
   developerUI: /odaa-114-fake-party-api/v4/docs
