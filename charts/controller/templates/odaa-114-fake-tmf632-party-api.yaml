@@ -1,0 +1,41 @@
+{{ if .Values.deployment.fakeTMF632api }}
+# ========================================================== #
+# this file is a workaround to fix the BDD issues            #
+# waiting for components to reach state "Complete"           # 
+# but beeing stuck in waiting for the dependent-api TMF632   #
+#                                                            #
+# for more details see                                       #
+# https://projects.tmforum.org/jira/browse/ODAA-114          #
+# ========================================================== #
+
+apiVersion: oda.tmforum.org/v1beta3
+kind: API
+metadata:
+  labels:
+    oda.tmforum.org/componentName: odaa-114-fake-party-api
+  name: odaa-114-fake-party-api
+  namespace: {{ .Values.deployment.monitoredNamespaces }}
+spec:
+  apitype: openapi
+  developerUI: /odaa-114-fake-party-api/v4/docs
+  implementation: odaa-114-fake-party-api
+  name: odaa-114-fake-party-api
+  path: /odaa-114-fake-party-api/v4
+  port: 8080
+  specification: 
+  - https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json
+status:
+  apiStatus:
+    developerUI: http://odaa-114-fake-party-api.example.com/odaa-114-fake-party-api/v4/docs
+    implementation: odaa-114-fake-party-api
+    ip: odaa-114-fake-party-api.example.com
+    name: odaa-114-fake-party-api
+    path: /odaa-114-fake-party-api/v4
+    port: 8080
+    uid: 11111111-2222-3333-4444-555555555555
+    url: http://odaa-114-fake-party-api.example.com/odaa-114-fake-party-api/v4
+  implementation:
+    ready: true
+  kopf:
+    progress: {}
+{{ end }}

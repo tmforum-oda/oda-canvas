@@ -1,3 +1,4 @@
-image: ankursarkar/dependentapi-simple-operator:0.2.0
+#image: ankursarkar/dependentapi-simple-operator:0.2.0
+image: ocfork/dependentapi-simple-operator:0.2.1-odaa114
 imagePullPolicy: IfNotPresent
 loglevel: '20'
