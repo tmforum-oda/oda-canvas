@@ -3,9 +3,9 @@ compcrdwebhook:
   fileName: compcrdwebhook
   
   valuesYamlFile: charts/canvas-oda/values.yaml
-  valuesPathImage: .webhooks.image
-  valuesPathVersion: .webhooks.version
-  valuesPathPrereleaseSuffix: .webhooks.prereleaseSuffix
+  valuesPathImage: .oda-webhook.image
+  valuesPathVersion: .oda-webhook.version
+  valuesPathPrereleaseSuffix: .oda-webhook.prereleaseSuffix
   
   paths:
     - source/webhooks/webhook-dockerfile
