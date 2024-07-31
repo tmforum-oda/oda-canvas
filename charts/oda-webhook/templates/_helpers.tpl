@@ -62,7 +62,7 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-build the full seccon docker image name from image + version + prereleaseSuffix
+build the full oda-webhook docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "oda-webhook.dockerimage" -}}
   {{- .Values.image -}}:{{- .Values.version -}}
