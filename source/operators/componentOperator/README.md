@@ -28,6 +28,8 @@ You need to ensure you turn-off the operator execusing in Kubernetes (for exampl
 
 The command above will execute just the component operator. You will also need to execute the other operators relavant for your Canvas implementation - these can be executed in separate terminal command-lines.
 
+
 # Buildautomation and Versioning
 
-TODO[FH]: link to description how build and release process works.
+The build and release process for docker images is described here:
+[docs/developer/work-with-dockerimages.md](../../../docs/developer/work-with-dockerimages.md)

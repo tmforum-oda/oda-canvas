@@ -48,4 +48,5 @@ The actual caBundle is added as a Helm value in the `oda-canvas-charts\canvas\va
 
 # Buildautomation and Versioning
 
-TODO[FH]: link to description how build and release process works.
+The build and release process for docker images is described here:
+[docs/developer/work-with-dockerimages.md](../../../../docs/developer/work-with-dockerimages.md)

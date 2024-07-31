@@ -5,4 +5,6 @@ Implementation based on HashiCorp Vault.
 
 # Buildautomation and Versioning
 
-TODO[FH]: link to description how build and release process works.
+The build and release process for docker images is described here:
+[docs/developer/work-with-dockerimages.md](../../../../docs/developer/work-with-dockerimages.md)
+
