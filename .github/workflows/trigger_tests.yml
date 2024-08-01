@@ -1,5 +1,5 @@
 
-name: trigger_test
+name: branch_test
 
 on:
   workflow_dispatch:
