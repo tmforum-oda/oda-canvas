@@ -113,7 +113,21 @@ jobs:
         kubectl get apis -n components
         CANVAS_POD=$(kubectl get pods -n canvas -l app=oda-controller-ingress -o jsonpath='{.items[*].metadata.name}')
         kubectl -n canvas logs $CANVAS_POD |tee /tmp/canvas_logs.json
-
+        CUCUMBER_REPORT=$(cat /tmp/test_results.json |grep reports.cucumber)
+        
+    - name: Comment on PR
+      uses: actions/github-script@v5
+      with:
+        script: |
+          const issue_number = context.issue.number;
+          const octokit = github.getOctokit(core.getInput('token'));
+          await octokit.rest.issues.createComment({
+            ...context.repo,
+            issue_number,
+            body: 'Please find the cucumber report $CUCUMBER_REPORT'
+          });
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               
     - name: Upload JSON Report
       uses: actions/upload-artifact@v4
