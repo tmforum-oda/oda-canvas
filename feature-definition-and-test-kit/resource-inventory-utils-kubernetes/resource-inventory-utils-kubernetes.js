@@ -87,6 +87,22 @@ const resourceInventoryUtils = {
       
     return namespacedCustomObject.body.items[0]
   },
+
+  /**
+   * Function that returns the logs from the ODA Controller pod
+   */
+  getControllerLogs: async function () {
+    // use the kubernetes API to get the logs from the ODA Controller pod
+    const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api)
+    const podList = await k8sCoreApi.listNamespacedPod('canvas', undefined, undefined, undefined, undefined, 'app=oda-controller')
+    const controllerPod = podList.body.items[0]
+    const controllerPodName = controllerPod.metadata.name
+    const controllerPodNamespace = controllerPod.metadata.namespace
+
+    const controllerLogs = await k8sCoreApi.readNamespacedPodLog(controllerPodName, controllerPodNamespace, container='oda-controller')
+    console.log(controllerLogs.body)
+    return controllerLogs.body
+  }
 }
 
 module.exports = resourceInventoryUtils
