@@ -3,7 +3,7 @@ name: branch_test
 
 on:
   workflow_dispatch:
-  pull_request:
+  push:
     branches:
     - odaa-114-fix-tests
 
