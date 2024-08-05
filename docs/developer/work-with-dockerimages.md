@@ -86,10 +86,7 @@ secretsmanagement-operator:
   paths:
   - source/operators/secretsmanagementOperator-hc/docker/**/*
   buildContext: source/operators/secretsmanagementOperator-hc/docker
-  # default is "Dockerfile" in buildContext
-  #buildDockerfile:
-  # default is "linux/amd64,linux/arm64"
-  platforms: linux/amd64 # linux/arm64 has problems building cffi python wheel
+  platforms: linux/amd64 
 ```
 
 The relevant information for us now are the location and names in the values YAML file and the location of the source paths.
@@ -109,8 +106,8 @@ secretsmanagement-operator:
   ...
 ```
 
-The corresponding dockerfile is `tmforumodacanvas/secretsmanagement-operator:0.1.0`.
-We want to do a small change, so just increment the patch level and add a prereleaseSuffix: `tmforumodacanvas/secretsmanagement-operator:0.1.1-issue3456`
+The corresponding docker image name is `tmforumodacanvas/secretsmanagement-operator:0.1.0`.
+We want to do a small change, so just increment the patch level and add a prereleaseSuffix.
 The "version" and "prereleaseSuffix" entries have to be changed in the feature branch accordingly:
 
 ```
@@ -121,14 +118,15 @@ secretsmanagement-operator:
   prereleaseSuffix: issue3456
   ...
 ```
+This would result in a docker image named: `tmforumodacanvas/secretsmanagement-operator:0.1.1-issue3456`
 
-(Make sure, no one else uses the same prerelease version otherwise You will overwrite each others docker image)
+(Make sure, no one else uses the same prerelease version otherwise you will overwrite each others docker image.)
 
 
 ### Step 3: Change the code in the feature branch
 
 From the docker build configuration above, we can see, that the sources are in the folder `source/operators/secretsmanagementOperator-hc/docker`.
-Any change in this folder will trigger a new build of the dockerimage with tag "0.1.1-issue3456".
+Any change in this folder will trigger a new build of the dockerimage with tag `0.1.1-issue3456`.
 
 For now just let´s add one print line on startup of the SecretsManagement-Operator:
 
@@ -146,19 +144,19 @@ https://github.com/tmforum-oda/oda-canvas/blob/32e89708912b2fb170f268efccdccb432
     logger.debug(f"debug logging active")
 ```
 
-So, two files were changed, the values.yaml with the version number and an additional log line in the secretsmanagementOperatorHC.py:
+So, two files were changed, the `values.yaml` with the version number and an additional log line in the `secretsmanagementOperatorHC.py`:
 
 ![image](https://github.com/user-attachments/assets/419d3e5f-d593-47b1-88a4-c83f76715779)
 
 ### Step 4: Push changed feature branch to GitHub
 
-Comitting the changes in the feature branch locally and pushing them to the GitHub repository triggeres a GitHub Action, which builds the docker prerelease image.
+Comitting the changes in the feature branch locally and pushing them to the GitHub repository triggers a GitHub Action, which builds the docker prerelease image.
 
 ![image](https://github.com/user-attachments/assets/d264d6c5-6933-4932-9e31-16323d87aa69)
 
-If we had not set a prereleaseSuffix, then the build woudld have fail with the error message, that release versions can only be built from the "master" branch.
+If we had not set a prereleaseSuffix, then the build would have fail with the error message, that release versions can only be built from the "master" branch.
 
-But as we set a prereleaseSuffix a new image with tag "0.1.1-issue3456" was created and uploaded to dockerhub:
+But as we set a prereleaseSuffix a new image with tag `0.1.1-issue3456` was created and uploaded to dockerhub:
 
 | ![image](https://github.com/user-attachments/assets/2bfff74b-d0fc-4c43-a472-3cac75d66d74) |
 |-|
@@ -167,11 +165,11 @@ Now we have an up to date dockerimage and can upgrade the canvas.
 
 ### Step 5: Upgrade Canvas
 
-We will deploy the canvas update from the helm chart oda-canvas in the filesystem.
-
-If it was not done before, thechart  dependencies have to be updated.
+We will deploy the canvas update from the helm chart `oda-canvas` in the filesystem.
 
 #### Update chart dependencies
+
+If it was not done before, the chart dependencies have to be updated.
 
 From the command line in the root of the locally checked out repository execute the following commands:
 
@@ -194,7 +192,7 @@ helm dependency build
 cd ../..
 ```
 
-Now we are ready to install/upgrade the canvas
+Now we are ready to install/upgrade the canvas.
 
 #### Install/Upgrade canvas
 
@@ -229,10 +227,10 @@ $ kubectl logs -n canvas deployment/canvas-smanop
     Please remove HVAC_TOKEN variable and use HVAC_TOKEN_ENC: gAAAAABmqPeU7O_WFBHu8UcBL1dA7FOmujM1UZocV23PxB9ka4SEszb3dYokUkJUc40BbZUB2Qyi_tDkEd3bc3IHJJZsz7hmhQ==
 ```
 
-So, our change is active, the line "GitHub ISSUE #3456 was added here" is logged out on startup of the secretsmanagement-operator.
+So, our change is active, the line `GitHub ISSUE #3456 was added here` is logged out on startup of the secretsmanagement-operator.
 
 Most of the time you need more than one iteration to get your code functional.
-So an iterative process of code changes is neccessary
+So an iterative process of code changes is neccessary.
 
 ### Step 6a..6n: Modify code multiple times
 
@@ -288,15 +286,15 @@ kubectl logs -n canvas deployment/canvas-smanop
 
 _*Our change is not visible!!!*_
 
-We can see in the Logfile, the CICD_BUILD_TIME, the GIT_COMMIT_SHA and also the timestamp when the log was written. 
+We can see in the Logfile, the `CICD_BUILD_TIME`, the `GIT_COMMIT_SHA` and also the timestamp when the log was written. 
 This is not our latest build and also the time when the log was written is the same as before the canvas redeployment.
 This means, the secretsmanagement-operator was not updated.
 
 Our deployment did not change and the dockerimage name also not, it is still `tmforumodacanvas/secretsmanagement-operator:0.1.1-issue3456`.
 
 So, Kubernetes did not see any reason to redeploy the SecretsManagement-Operator.
-When we did the first upgrade, the docker image changed from "...:0.1.0" to "...:0.1.1-issue3456" and that triggered a redeployment of the secretsmanagement-operator.
-Now the image did not change, it is still "...:0.1.1-issue3456".
+When we did the first upgrade, the docker image changed from `...:0.1.0` to `...:0.1.1-issue3456` and that triggered a redeployment of the secretsmanagement-operator.
+Now the image did not change, it is still `...:0.1.1-issue3456`.
 
 But we can trigger a redeployment manually:
 
@@ -389,9 +387,9 @@ $ kubectl logs -n canvas deployment/canvas-smanop
 
 Now it is as expected. The changed code is active.
 
-As we can see the GIT_COMMIT_SHA (short version, only the first 7 digits of the complete GIT SHA) we can verify, 
+As we can see the `GIT_COMMIT_SHA` (short version, only the first 7 digits of the complete GIT SHA) we can verify, 
 if the version deployed is realy the version we pushed.
-To verify the GIT_COMMIT_SHA you can use the git cli command:
+To verify the `GIT_COMMIT_SHA` you can use the git cli command:
 
 ```
 $ git rev-parse --short HEAD
@@ -405,7 +403,7 @@ Then the new docker image is also pullled.
 
 After the iterative process of doing code changes, and testing the image, we are ready to contribute our changes back to the "master" branch.
 
-Therefore a Pull-Request (PR) is created from our feature branch "feature/issue-3456" into "master" using GitHub UI.
+Therefore a Pull-Request (PR) is created from our feature branch `feature/issue-3456` into "master" using GitHub UI.
 
 #### Automatically Run Tests
 
