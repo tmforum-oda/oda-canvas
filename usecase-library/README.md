@@ -18,8 +18,8 @@ This is a list of the Canvas operators (including status of whether this has bee
 | Identity Config  | Configures an Identity Management Service based on requirements defined in ODA Components. |
 | Observability Config | Configures observabiliy services for both technical and business metrics and events. Enables alarming, tracing and root-cause analysis of issues.|
 | Secrets Management   | Configures a secrets vault to enable ODA Components to store secrets in a secure way |
-| Carbon Management    | Configures a services to analyze carbon (and energy) usage of ODA Components and to provide API services to enable components to make intelligent decisions to minimise Carbon usage.  |
-| Cost Management      | Configures services for cost control for both cloud consumption and license costs.  |
+| Carbon Control    | Configures a services to analyze carbon (and energy) usage of ODA Components and to provide API services to enable components to make intelligent decisions to minimise Carbon usage.  |
+| Cost Control      | Configures services for cost control for both cloud consumption and license costs.  |
 | Other                | Additional operators will be added over time.  |
 
 

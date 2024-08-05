@@ -28,7 +28,10 @@ spec:
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4/docs
       port: 8080
-    dependentAPIs: []
+    dependentAPIs: 
+    - name: party 
+      apitype: openapi     
+      specification: https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json  
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
@@ -41,12 +44,11 @@ spec:
       port: 4000    
   securityFunction:
     controllerRole: {{ .Values.security.controllerRole }}
-    exposedAPIs: []
-    dependantAPIs: []
-    componentRole:
-    - name: pcadmin
-      description: Product Catalogue Administrator
-    - name: cat1owner
-      description: Catalogue Owner for catalogue 1
-    - name: cat2owner
-      description: Catalogue Owner for catalogue 2
+    exposedAPIs: 
+    - name: partyrole
+      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"]
+      implementation: {{.Release.Name}}-partyroleapi
+      apitype: openapi
+      path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4
+      developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4/docs
+      port: 8080
