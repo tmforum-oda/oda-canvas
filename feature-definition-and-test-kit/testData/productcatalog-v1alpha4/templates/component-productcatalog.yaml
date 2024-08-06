@@ -33,10 +33,7 @@ spec:
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4/docs
       port: 8080
-    dependentAPIs: 
-    - name: party 
-      apitype: openapi     
-      specification: https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json  
+    dependentAPIs: [] 
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
