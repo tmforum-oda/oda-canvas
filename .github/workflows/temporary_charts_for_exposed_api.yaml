@@ -3,7 +3,7 @@ name: Release Charts
 on:
   push:
     branches:
-      - feature-exposed-apis
+      - feature-exposed-dependent-apis
 
 jobs:
   release:
