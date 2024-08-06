@@ -1326,7 +1326,7 @@ spec:
                           type: string
                           format: url
                           description: url to the specification of the API. e.g. url to the swagger file
-                        apiType:
+                        apitype:
                           type: string
                           enum:
                           - openapi
@@ -1341,7 +1341,7 @@ spec:
                           description: Required is a flag that indicates whether the API is required or not.
                       required:
                       - name
-                      - apiType
+                      - apitype
               eventNotification:
                 type: object
                 properties:
