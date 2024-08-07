@@ -114,7 +114,7 @@ controller:
     # compconImage: tmforumodacanvas/component-istio-controller:0.5.0
     # TODO: replace with tmforumodacanvas repo.  
     # compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.2
-    compconImage: ravijangra92/canvas:2.0
+    compconImage: ravijangra92/canvas:3.0
     imagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener:0.7.0
