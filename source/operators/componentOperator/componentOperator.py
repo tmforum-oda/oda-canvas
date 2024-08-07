@@ -43,7 +43,7 @@ HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
 APIS_PLURAL = "exposedapis"
-EXPOSEDAPI_KIND = "API"
+EXPOSEDAPI_KIND = "ExposedAPI"
 COMPONENTS_PLURAL = "components"
 
 
