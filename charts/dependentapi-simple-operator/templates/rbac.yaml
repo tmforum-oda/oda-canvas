@@ -40,10 +40,6 @@ rules:
     verbs: [list, watch, get, patch]
 
   - apiGroups: [oda.tmforum.org]
-    resources: [apis]
-    verbs: [list, watch, get]
-
-  - apiGroups: [oda.tmforum.org]
     resources: [exposedapis]
     verbs: [list, watch, get]
 
@@ -101,9 +97,6 @@ rules:
     verbs: [list, watch, patch, get]
 
   # Application: watching & handling for the custom resource we declare.
-  - apiGroups: [oda.tmforum.org]
-    resources: [apis]
-    verbs: [list, watch, get]
   
   - apiGroups: [oda.tmforum.org]
     resources: [exposedapis]
