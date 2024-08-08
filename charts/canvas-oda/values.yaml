@@ -227,7 +227,8 @@ canvas-vault:
           tag: "1.14.8"
 
 secretsmanagement-operator:
-  image: ocfork/secretsmanagement-operator
+  #image: ocfork/secretsmanagement-operator
+  image: tmforumodacanvas/secretsmanagement-operator
   version: 0.1.0
   prereleaseSuffix: odaa98
   imagePullPolicy: IfNotPresent
