@@ -1,7 +1,7 @@
 #image: ocfork/secretsmanagement-operator
 image: tmforumodacanvas/secretsmanagement-operator
 version: 0.1.0
-prereleaseSuffix:
+prereleaseSuffix: odaa98
 imagePullPolicy: IfNotPresent
 
 sidecarImage: ocfork/secretsmanagement-sidecar
