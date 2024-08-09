@@ -1,9 +1,7 @@
 
 # Declare variables to be passed into your templates.
 
-image: tmforumodacanvas/compcrdwebhook:0.8.1
-# TODO: replace with tmforumodacanvas repo.  
-image: ocfork/compcrdwebhook
+image: tmforumodacanvas/compcrdwebhook
 version: 0.6.2
 prereleaseSuffix:
 imagePullPolicy: IfNotPresent

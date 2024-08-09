@@ -1,6 +1,4 @@
-#image: ankursarkar/dependentapi-simple-operator:0.2.0
-# TODO[FH]: replace with tmforumodacanvas repo.  
-image: ocfork/dependentapi-simple-operator
+image: tmforumodacanvas/dependentapi-simple-operator
 version: 0.2.0
 prereleaseSuffix:
 imagePullPolicy: IfNotPresent
