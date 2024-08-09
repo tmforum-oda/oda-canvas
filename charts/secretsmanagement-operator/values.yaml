@@ -1,6 +1,6 @@
 image: tmforumodacanvas/secretsmanagement-operator
 version: 0.1.0
-prereleaseSuffix: odaa98
+prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 
 sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
