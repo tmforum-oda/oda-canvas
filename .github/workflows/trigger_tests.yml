@@ -1,0 +1,129 @@
+
+name: trigger_test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+        kubectl version --client
+        uname -m
+
+    - name: Install kind
+      run: |
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+        chmod +x ./kind
+        sudo mv ./kind /usr/local/bin/kind
+
+    - name: Create kind cluster
+      run: |
+        kind create cluster
+        kubectl get nodes --show-labels
+        
+    - name: Download Kind LB Cloud Provider
+      run: |
+       git clone https://github.com/kubernetes-sigs/cloud-provider-kind.git
+       cd cloud-provider-kind && make
+       bin/cloud-provider-kind &
+
+    - name: Install Helm
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+        kubectl get ns
+
+    - name: Install helm-git
+      run: |
+        helm plugin install https://github.com/aslafy-z/helm-git.git
+
+    - name: Install istio Helm chart
+      run: |
+       helm repo add istio https://istio-release.storage.googleapis.com/charts
+       helm repo update
+       kubectl create namespace istio-system
+       helm install istio-base istio/base -n istio-system
+       helm install istiod istio/istiod -n istio-system --wait
+       kubectl create namespace istio-ingress
+       kubectl label namespace istio-ingress istio-injection=enabled
+       helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
+
+    - name: Install Helm chart from Git repo
+      run: |
+        helm dependency update ./charts/cert-manager-init
+        helm dependency update ./charts/api-gateway
+        helm dependency update ./charts/canvas-vault
+        helm dependency update ./charts/canvas-oda
+        helm install canvas -n canvas --create-namespace ./charts/canvas-oda
+
+    - name: Port Forwarding Keycloak Service
+      run: |
+        sleep 30
+        kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083 &
+
+    - name: Installing components PC & PI
+      run: |
+        helm repo add oda-components https://tmforum-oda.github.io/reference-example-components/
+        helm install pc oda-components/productcatalog -n components
+
+    - name: Check status of deployments
+      run: |
+        sleep 90
+        kubectl get all -n canvas
+        kubectl get all -n components
+        kubectl get all -n istio-ingress
+        kubectl get all -n istio-system
+        kubectl get apis -n components
+        kubectl get components -n components
+        
+    - name: Install test Kit
+      continue-on-error: true
+      run: |
+        cd feature-definition-and-test-kit/identity-manager-utils-keycloak
+        npm install
+        cd ../package-manager-utils-helm
+        npm install
+        cd ../resource-inventory-utils-kubernetes
+        npm install
+        cd ..
+        npm install
+        export KEYCLOAK_USER=admin 
+        export KEYCLOAK_PASSWORD=adpass 
+        export KEYCLOAK_BASE_URL="http://localhost:8083/auth/"
+        export KEYCLOAK_REALM=myrealm
+        export CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
+        npm start  |tee /tmp/test_results.json
+        kubectl get apis -n components
+        CANVAS_POD=$(kubectl get pods -n canvas -l app=oda-controller-ingress -o jsonpath='{.items[*].metadata.name}')
+        kubectl -n canvas logs $CANVAS_POD |tee /tmp/canvas_logs.json
+
+              
+    - name: Upload JSON Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: json-report
+        path: |
+         /tmp/canvas_logs.json
+         /tmp/test_results.json
+  
+    - name: Delete kind cluster
+      if: always()
+      run: |
+        kind delete cluster

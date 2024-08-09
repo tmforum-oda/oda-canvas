@@ -4,7 +4,7 @@ const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 const packageManagerUtils = require('package-manager-utils-helm');
 const identityManagerUtils = require('identity-manager-utils-keycloak');
 
-const { Given, When, Then, After, setDefaultTimeout } = require('@cucumber/cucumber');
+const { Given, When, Then, After, setDefaultTimeout, Before } = require('@cucumber/cucumber');
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const assert = require('assert');
@@ -18,6 +18,7 @@ const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
 const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
 const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const CLEANUP_PACKAGE = false // set to true to uninstall the package after each Scenario
+const DEBUG_LOGS = true // set to true to log the controller logs after each failed Scenario
 global.currentReleaseName = null;
 
 setDefaultTimeout( 20 * 1000);
@@ -157,12 +158,39 @@ Then('I can query the {string} spec version of the {string} component', {timeout
   assert.ok(componentResource.hasOwnProperty('spec'), "The component resource should be found with a spec property")
 });
 
+/**
+ * Code executed before each scenario.
+ */
+Before(async function () {
+  if (DEBUG_LOGS) {
+    console.log()
+    console.log('==================================================================')
+    console.log('Scenario started at: ' + new Date().toISOString())
+  }
+});
 
 /**
- * Uninstall the package associated with the release name and namespace.
+ * Code executed After each scenario
+ * Optionally Uninstall the package associated with the release name and namespace.
+ * Optionally Log the Canvas controller
  */
-After(async function () {
+After(async function (scenario) {
+  
   if (CLEANUP_PACKAGE) {
     await packageManagerUtils.uninstallPackage(  global.currentReleaseName, NAMESPACE)   
   }
+
+  if (DEBUG_LOGS) {
+    console.log()
+    console.log('Scenario status: ' + scenario.result.status)
+    if (scenario.result.status === 'FAILED') {
+      console.log('------------------------------------------------------------------')
+      console.log('Controller logs:')
+      console.log(await resourceInventoryUtils.getControllerLogs())  
+      console.log('------------------------------------------------------------------')
+    } 
+    console.log()
+    console.log('Scenario ended at: ' + new Date().toISOString())
+  }
+
 });

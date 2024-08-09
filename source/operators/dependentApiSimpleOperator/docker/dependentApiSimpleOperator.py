@@ -111,7 +111,7 @@ def get_depapi_url(depapi_name, depapi_namespace):
             if (
                 exp_api["spec"]["apitype"] == "openapi"
                 and exp_api["spec"]["specification"][0] == depapi_specification
-                and exp_api["status"]["implementation"]["ready"] == True
+                and safe_get(False, exp_api,"status","implementation","ready") == True
             ):
                 return exp_api["status"]["apiStatus"]["url"]
     return None
