@@ -10,5 +10,5 @@ ingress-controller:
 
 apisixoperatorreplicaCount: 1
 apisixoperatorimage:
-  repository: ravijangra92/apisix-operator:1.0
+  repository: ravijangra92/apisix-operator:1.3
   pullPolicy: IfNotPresent
