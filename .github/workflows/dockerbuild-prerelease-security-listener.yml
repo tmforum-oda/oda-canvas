@@ -51,16 +51,18 @@ jobs:
               echo "::error::Version ${{ steps.get_values_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
           fi        
               
-      - name: Version History
-        run: |
-          docker run -e REPO=$PWD -e TOK=$GITHUB_TOKEN -v$HOME:/SHOME ocfork/version-history
-    
       - name: Get Git commit timestamps
         run: |
             echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
             echo "GIT_COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
             echo "CICD_BUILD_TIME=$(date -Iseconds)" >> $GITHUB_ENV
       
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+                
       - name: Build and push
         uses: docker/build-push-action@v5
         with:

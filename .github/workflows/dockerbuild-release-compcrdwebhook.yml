@@ -49,10 +49,12 @@ jobs:
               echo "::error::Version ${{ steps.get_values_version.outputs.result }} does not match release format <n>.<n>.<n>" && exit 1
           fi        
               
-      - name: Version History
-        run: |
-          docker run -e REPO=$PWD -e TOK=$GITHUB_TOKEN -v$HOME:/SHOME ocfork/version-history
-    
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+                
       - name: Check for already existing image tag 
         id: check_docker_image
         uses: KerberosMorphy/docker-exist-action@v1.1.1
