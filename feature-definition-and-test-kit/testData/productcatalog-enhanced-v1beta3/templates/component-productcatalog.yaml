@@ -24,14 +24,14 @@ spec:
     - name: productcatalogmanagement
       specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"]
       implementation: {{.Release.Name}}-prodcatapi
-      apitype: openapi
+      apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4/docs
       port: 8080
     - name: promotionmanagement
       specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF671_Promotion/master/TMF671-Promotion-v4.0.0.swagger.json"]
       implementation: {{.Release.Name}}-promgmtapi
-      apitype: openapi
+      apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4/docs
       port: 8080
@@ -42,7 +42,7 @@ spec:
   managementFunction: 
     exposedAPIs: 
     - name: metrics
-      apitype: prometheus
+      apiType: prometheus
       implementation: {{.Release.Name}}-{{.Values.component.name}}-sm
       path: /{{.Release.Name}}-{{.Values.component.name}}/metrics
       port: 4000    
@@ -52,7 +52,7 @@ spec:
     - name: partyrole
       specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"]
       implementation: {{.Release.Name}}-partyroleapi
-      apitype: openapi
+      apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4/docs
       port: 8080
