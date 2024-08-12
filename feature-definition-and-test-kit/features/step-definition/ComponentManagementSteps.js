@@ -23,10 +23,6 @@ global.currentReleaseName = null;
 
 setDefaultTimeout( 20 * 1000);
 
-
-
-
-
 /**
  * Verify the given package includes a component that has a specified number of ExposedAPIs in a specific segment.
  *
@@ -108,6 +104,41 @@ When('I upgrade the {string} package as release {string}', async function (compo
 Given('an example package {string} has been installed', async function (componentPackage) {
   global.currentReleaseName = DEFAULT_RELEASE_NAME
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
+/**
+ * Wait for a specified component with the given release to have a deployment status of a specified value.
+ *
+ * @param {string} componentName - The name of the component to check.
+ * @param {string} releaseName - The name of the release name.
+ * @param {string} deploymentStatus - The expected deployment status of the component.
+ * @returns {Promise<void>} - A Promise that resolves when the component has the expected deployment status.
+ */
+When('the {string} component for release {string} has the deployment status of {string}', {timeout : COMPONENT_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (componentName, releaseName, deploymentStatus) {
+  
+  // TODO: Refactor duplication 
+
+  let componentResource = null
+  var startTime = performance.now()
+  var endTime
+
+  // wait until the component resource is found or the timeout is reached
+  while (componentResource == null) {
+    componentResource = await resourceInventoryUtils.getComponentResource(releaseName + '-' + componentName, NAMESPACE)
+    endTime = performance.now()
+
+    // assert that the component resource was found within the timeout
+    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
+
+    // check if the component deployment status is deploymentStatus
+    if ((!componentResource) || (!componentResource.hasOwnProperty('status')) || (!componentResource.status.hasOwnProperty('summary/status')) || (!componentResource.status['summary/status'].hasOwnProperty('deployment_status'))) {
+      componentResource = null // reset the componentResource to null so that we can try again
+    } else {
+      if (!(componentResource.status['summary/status']['deployment_status'] == deploymentStatus)) {
+        componentResource = null // reset the componentResource to null so that we can try again
+      }
+    }
+  }
 });
 
 /**

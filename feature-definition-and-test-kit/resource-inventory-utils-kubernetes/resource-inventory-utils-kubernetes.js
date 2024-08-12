@@ -32,10 +32,10 @@ const resourceInventoryUtils = {
     const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, inCustomCRDPluralName, undefined, undefined, 'metadata.name=' + customResourceName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
-    } 
-      
+    }
+
     return namespacedCustomObject.body.items[0]
-  },  
+  },
 
   /**
   * Function that returns the custom ExposedAPI resource given ExposedAPI name
@@ -68,8 +68,8 @@ const resourceInventoryUtils = {
     const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, DEPENDENT_APIS_PLURAL, undefined, undefined, 'metadata.name=' + DependentAPIResourceName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
-    } 
-      
+    }
+
     return namespacedCustomObject.body.items[0]
   },
 
@@ -85,8 +85,8 @@ const resourceInventoryUtils = {
     const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, COMPONENTS_PLURAL, undefined, undefined, 'metadata.name=' + inComponentName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
-    } 
-      
+    }
+
     return namespacedCustomObject.body.items[0]
   },
 
@@ -102,8 +102,8 @@ const resourceInventoryUtils = {
     const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, inComponentVersion, inNamespace, COMPONENTS_PLURAL, undefined, undefined, 'metadata.name=' + inComponentName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // Component not found
-    } 
-      
+    }
+
     return namespacedCustomObject.body.items[0]
   },
 
@@ -118,10 +118,14 @@ const resourceInventoryUtils = {
     const controllerPodName = controllerPod.metadata.name
     const controllerPodNamespace = controllerPod.metadata.namespace
 
-    const controllerLogs = await k8sCoreApi.readNamespacedPodLog(controllerPodName, controllerPodNamespace, container='oda-controller')
+    const controllerLogs = await k8sCoreApi.readNamespacedPodLog(controllerPodName, controllerPodNamespace, container = 'oda-controller')
     console.log(controllerLogs.body)
     return controllerLogs.body
-  }
+  },
+
+  execCommand: function (podName, namespace, cmdline) {
+    return execSync('kubectl exec -n ' + namespace + ' ' + podName + ' -- ' + cmdline, { encoding: 'utf-8' });
+  },
 }
 
 module.exports = resourceInventoryUtils
