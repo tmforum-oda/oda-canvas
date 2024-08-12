@@ -451,7 +451,7 @@ spec:
                       properties:
                         name:
                           type: string
-                        apitype:
+                        apiType:
                           type: string
                         specification:
                           type: string
@@ -1283,7 +1283,7 @@ spec:
                             url to the specification of the API, if required. e.g. url to the swagger file for Open API.
                             This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
                           minItems: 1
-                        apitype:
+                        apiType:
                           type: string
                           enum:
                           - openapi
@@ -1310,7 +1310,7 @@ spec:
                           description: Required is a flag that indicates whether the API is required or not.
                       required:
                       - name
-                      - apitype
+                      - apiType
                       - implementation
                       - path
                       - port
@@ -1326,7 +1326,7 @@ spec:
                           type: string
                           format: url
                           description: url to the specification of the API. e.g. url to the swagger file
-                        apitype:
+                        apiType:
                           type: string
                           enum:
                           - openapi
@@ -1341,7 +1341,7 @@ spec:
                           description: Required is a flag that indicates whether the API is required or not.
                       required:
                       - name
-                      - apitype
+                      - apiType
               eventNotification:
                 type: object
                 properties:
@@ -1356,7 +1356,7 @@ spec:
                         description:
                           type: string
                           description: (Optional) Description
-                        apitype:
+                        apiType:
                           type: string
                           enum:
                           - openapi
@@ -1388,7 +1388,7 @@ spec:
                         description:
                           type: string
                           description: (Optional) Description
-                        apitype:
+                        apiType:
                           type: string
                           enum:
                           - openapi
@@ -1432,7 +1432,7 @@ spec:
                             url to the specification of the API, if required. e.g. url to the swagger file for Open API.
                             This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
                           minItems: 1
-                        apitype:
+                        apiType:
                           type: string
                           enum:
                           - openapi
@@ -1460,7 +1460,7 @@ spec:
                           description: Required is a flag that indicates whether the API is required or not.
                       required:
                       - name
-                      - apitype
+                      - apiType
                       - implementation
                       - path
                       - port
@@ -1476,7 +1476,7 @@ spec:
                           type: string
                           format: url
                           description: url to the specification of the API. e.g. url to the swagger file
-                        apitype:
+                        apiType:
                           type: string
                           enum:
                           - openapi
@@ -1491,7 +1491,7 @@ spec:
                           description: Required is a flag that indicates whether the API is required or not.
                       required:
                       - name
-                      - apitype
+                      - apiType
               securityFunction:
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
@@ -1544,7 +1544,7 @@ spec:
                             url to the specification of the API, if required. e.g. url to the swagger file for Open API.
                             This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
                           minItems: 1
-                        apitype:
+                        apiType:
                           type: string
                           enum:
                           - openapi
@@ -1571,7 +1571,7 @@ spec:
                           description: Required is a flag that indicates whether the API is required or not.
                       required:
                       - name
-                      - apitype
+                      - apiType
                       - implementation
                       - path
                       - port
@@ -1587,7 +1587,7 @@ spec:
                           type: string
                           format: url
                           description: url to the specification of the API. e.g. url to the swagger file
-                        apitype:
+                        apiType:
                           type: string
                           enum:
                           - openapi
@@ -1602,7 +1602,7 @@ spec:
                           description: Required is a flag that indicates whether the API is required or not.
                       required:
                       - name
-                      - apitype
+                      - apiType
                   controllerRole:
                     description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
                       It must exist in the roles exposed by the partyRole API.
