@@ -34,7 +34,7 @@ HTTP_K8s_LABELS = ['http', 'http2']
 HTTP_STANDARD_PORTS = [80, 443]
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
-APIS_PLURAL = "apis"
+APIS_PLURAL = "exposedapis"
 
 # get environment variables
 OPENMETRICS_IMPLEMENTATION = os.environ.get('OPENMETRICS_IMPLEMENTATION', 'ServiceMonitor') # could be ServiceMonitor or PrometheusAnnotation or DataDogAnnotation
