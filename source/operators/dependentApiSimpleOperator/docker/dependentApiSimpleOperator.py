@@ -14,7 +14,7 @@ COMP_GROUP = "oda.tmforum.org"
 COMP_VERSION = "v1beta3"
 COMP_PLURAL = "components"
 
-API_PLURAL = "apis"
+API_PLURAL = "exposedapis"
 
 HTTP_NOT_FOUND = 404
 HTTP_CONFLICT = 409
@@ -109,7 +109,7 @@ def get_depapi_url(depapi_name, depapi_namespace):
             continue
         else:
             if (
-                exp_api["spec"]["apitype"] == "openapi"
+                exp_api["spec"]["apiType"] == "openapi"
                 and exp_api["spec"]["specification"][0] == depapi_specification
                 and safe_get(False, exp_api,"status","implementation","ready") == True
             ):

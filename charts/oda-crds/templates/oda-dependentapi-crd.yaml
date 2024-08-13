@@ -36,7 +36,7 @@ spec:
                 type: string
                 format: url
                 description: url to the specification of the API. e.g. url to the swagger file
-              apitype:
+              apiType:
                 type: string
                 enum:
                 - openapi
@@ -65,7 +65,7 @@ spec:
                 description: Required is a flag that indicates whether the API is required or not.
             required:
             - name
-            - apitype
+            - apiType
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
