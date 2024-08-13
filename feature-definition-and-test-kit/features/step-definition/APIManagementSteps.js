@@ -11,7 +11,7 @@ chai.use(chaiHttp)
 const NAMESPACE = 'components'
 const API_DEPLOY_TIMEOUT = 10 * 1000 // 10 seconds
 const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
-const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
+const API_READY_TIMEOUT = 120 * 1000 // 120 seconds
 const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
 
 setDefaultTimeout( 20 * 1000);
@@ -33,7 +33,7 @@ Then('I should see the {string} API resource on the {string} component', {timeou
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The API resource should be found within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The API resource should be found within " + API_DEPLOY_TIMEOUT/1000 + " seconds")
   }
 });
 
@@ -55,7 +55,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component', 
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT/1000 + " seconds")
   }
 });
 
@@ -77,7 +77,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT/1000 + " seconds")
   }
 
   // test for specification not implemented yet, so return pending
@@ -102,7 +102,7 @@ Then('I should see the {string} DependentAPI resource on the {string} component'
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The DependentAPI resource should be found within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The DependentAPI resource should be found within " + API_DEPLOY_TIMEOUT/1000 + " seconds")
   }
 });
 
@@ -125,7 +125,7 @@ Then('I should not see the {string} API resource on the {string} component', {ti
     endTime = performance.now()
 
     // assert that the API resource was removed within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The API resource should be removed within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The API resource should be removed within " + API_DEPLOY_TIMEOUT/1000 + " seconds")
   }
 
 });
@@ -149,7 +149,7 @@ Then('I should not see the {string} ExposedAPI resource on the {string} componen
     endTime = performance.now()
 
     // assert that the API resource was removed within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be removed within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be removed within " + API_DEPLOY_TIMEOUT/1000 + " seconds")
   }
 
 });
@@ -172,7 +172,7 @@ Then('I should see the {string} API resource on the {string} component with a ur
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_URL_TIMEOUT, "The url should be found within " + API_URL_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_URL_TIMEOUT, "The url should be found within " + API_URL_TIMEOUT/1000 + " seconds")
 
     // check if there is a url on the API resource status
     if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('apiStatus')) || (!apiResource.status.apiStatus.hasOwnProperty('url'))) {
@@ -194,7 +194,7 @@ Then('I should see the {string} API resource on the {string} component with an i
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_READY_TIMEOUT, "The ready status should be found within " + API_READY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_READY_TIMEOUT, "The ready status should be found within " + API_READY_TIMEOUT/1000 + " seconds")
 
     // check if there is a url on the API resource status
     if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('implementation')) || (!apiResource.status.implementation.hasOwnProperty('ready'))) {
