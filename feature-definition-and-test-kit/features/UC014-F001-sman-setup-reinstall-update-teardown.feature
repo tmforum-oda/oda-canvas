@@ -2,21 +2,22 @@
 @UC014-F001
 Feature: Secrets Management - setup, reinstall, update, and teardown
 
-    # tear down?
+    Background: Canvas without productcatalog-v1beta3-sman
+        Given the 'alice' release is not installed
 
     Scenario: Create component and check if role and policy are created in vault
         Given a baseline 'productcatalog-v1beta3-sman' package installed as release 'alice'
         When the 'productcatalogmanagement' component for release 'alice' has the deployment status of 'Complete'
         Then in the vault a role for 'alice-productcatalogmanagement' does exist
-        And in the vault a policy for 'alice-productcatalogmanagement' does exists
+        And in the vault a policy for 'alice-productcatalogmanagement' does exist
         And in the vault a secret store for 'alice-productcatalogmanagement' does exist
 
-    # Scenario: Uninstall and reinstall compoment will clear assigned secrets
-    #     Given a baseline 'productcatalog-v1beta3-sman' package installed as release 'alice'
-    #     And the secret 'foo' with value 'bar' does exist
-    #     When the 'alice-productcatalog' component is uninstalled
-    #     And the package 'productcatalog-v1beta3-sman' with release name 'alice' has been installed again
-    #     Then the secret 'foo' with value 'bar' does not exist
+    Scenario: Uninstall and reinstall compoment will clear assigned secrets
+        Given a baseline 'productcatalog-v1beta3-sman' package installed as release 'alice'
+        And the secret 'foo' with value 'bar' in the secret store for 'alice-productcatalogmanagement' was created
+        When the 'alice-productcatalog' component is uninstalled
+        And a baseline 'productcatalog-v1beta3-sman' package installed as release 'alice'
+        Then the secret 'foo' with value 'bar' does not exist
  
     # Scenario: Updateing a component will keep secrets
     #     Given a baseline 'productcatalog-v1beta3-sman' package installed as release 'alice'

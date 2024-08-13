@@ -23,6 +23,10 @@ global.currentReleaseName = null;
 
 setDefaultTimeout( 20 * 1000);
 
+Given('the {string} release is not installed', async function (releaseName) {
+  await packageManagerUtils.uninstallPackage(releaseName, NAMESPACE)
+});
+
 /**
  * Verify the given package includes a component that has a specified number of ExposedAPIs in a specific segment.
  *
