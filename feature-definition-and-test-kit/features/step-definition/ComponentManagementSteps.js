@@ -175,10 +175,12 @@ Then('I can query the {string} spec version of the {string} component', {timeout
 /**
  * Code executed before each scenario.
  */
-Before(async function () {
+Before(async function (scenario) {
   if (DEBUG_LOGS) {
     console.log()
     console.log('==================================================================')
+    const scenarioName = scenario.pickle.name;
+    console.log(`Running scenario: ${scenarioName}`);
     console.log('Scenario started at: ' + new Date().toISOString())
   }
 });
