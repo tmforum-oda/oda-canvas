@@ -17,7 +17,8 @@ type: application
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 version: 1.1.5-rc5
 # version: 1.1.5-rc5 - ODAA-98: automte docker builds
-# version: 1.1.5-rc4 0 update component operator/istio operator/dependentapi operator with exposedapis and changing v1beta3 crds of these with camelcase apiType
+# version: 1.1.5-lt1 - Updated conversion webhook
+# version: 1.1.5-rc4 - update component operator/istio operator/dependentapi operator with exposedapis and changing v1beta3 crds of these with camelcase apiType
 # version: 1.1.5-rc3 - ODAA-114: fix exception in DependentAPI-Operator
 # version: 1.1.5-rc2 - added dependentApiSimpleOperator functionality to fetch the defined dependent API ENDPOINT from apis custom resouce
 # version: 1.1.5-rc1 - ODAA-86: downgrade HashiCorp Vault to 1.14.8. Last version under MPLv2, 
@@ -64,6 +65,6 @@ dependencies:
     repository: 'file://../canvas-vault'
     condition: canvas-vault.enabled
   - name: oda-webhook
-    version: "1.1.1"
+    version: "1.1.2"
     repository: 'file://../oda-webhook'
 

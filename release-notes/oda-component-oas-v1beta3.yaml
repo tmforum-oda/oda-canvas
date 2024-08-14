@@ -1,0 +1,413 @@
+# Open API schema for v1beta3 of the ODA Component API - from master at https://github.com/tmforum-oda/oda-canvas/blob/master/charts/oda-crds/templates/oda-component-crd.yaml
+openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              id:
+                type: string
+                description: This is the id of functional component and must refer to the id of a TM Forum published golden component.
+                example: TMFC001
+              name:
+                type: string
+                description: This is the name of functional component and must refer to the name of a TM Forum published golden component.
+                example: ProductCatalogManagement
+              version:
+                type: string
+                description: This is the version of the component (it is specific to the vendor of this component and not the type).
+              description:
+                type: string
+                description: This is a short description of the component's purpose.
+              functionalBlock:   
+                type: string
+                description: This is the functional block of the component with the Open Digital Architecture.
+                example: CoreCommerce 
+              publicationDate:
+                type: string
+                format: date-time
+                description: This is the date that the golden component was published.
+              status:
+                type: string
+                description: This is the status of the golden component.
+              maintainers:
+                type: array
+                description: Maintainers is an optional list of maintainers of
+                  the component. The maintainers in this list maintain the the
+                  source code, images, and package for the component.
+                items:
+                  description: ContactData contains information about an individual or organization.
+                  type: object
+                  properties:
+                    email:
+                      description: Email is the email address.
+                      type: string
+                    name:
+                      description: Name is the descriptive name.
+                      type: string
+                    url:
+                      description: Website address of maintaining organization.
+                      type: string
+              owners:
+                type: array
+                description: Owners is an optional list of the owners of the installed component.
+                items:
+                  type: object
+                  description: ContactData contains information about an individual or organization.
+                  properties:
+                    email:
+                      description: Email is the email address.
+                      type: string
+                    name:
+                      description: Name is the descriptive name.
+                      type: string
+                    url:
+                      description: Website address of owning organization.
+                      type: string
+              coreFunction:
+                type: object
+                properties:
+                  exposedAPIs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the API
+                        specification:  
+                          type: array
+                          items:
+                            type: string
+                            format: url
+                          description: >
+                            url to the specification of the API, if required. e.g. url to the swagger file for Open API.
+                            This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                          minItems: 1
+                        apiType:
+                          type: string
+                          enum:
+                          - openapi
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        implementation:
+                          type: string
+                          description: The name of the service where the implementation of the API is found
+                        path:
+                          type: string
+                          description: The path to the root of the API
+                        developerUI:
+                          type: string
+                          description: (optional) The path to the developer User Interface for the API
+                        port:
+                          type: integer
+                          description: The port where the API is exposed
+                        resources:
+                          type: array
+                          items:
+                            type: object
+                          description: Resources is an optional list of resources that are exposed by the API.
+                        required:
+                          type: boolean
+                          description: Required is a flag that indicates whether the API is required or not.
+                      required:
+                      - name
+                      - apiType
+                      - implementation
+                      - path
+                      - port
+                  dependentAPIs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the API that this component is dependent on
+                        specification:
+                          type: string
+                          format: url
+                          description: url to the specification of the API. e.g. url to the swagger file
+                        apiType:
+                          type: string
+                          enum:
+                          - openapi
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        resources:
+                          type: array
+                          items:
+                            type: object
+                          description: Resources is an optional list of resources that are consumed by the API.
+                        required:
+                          type: boolean
+                          description: Required is a flag that indicates whether the API is required or not.
+                      required:
+                      - name
+                      - apiType
+              eventNotification:
+                type: object
+                properties:
+                  publishedEvents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the Topic that this Component is going to push events into
+                        description:
+                          type: string
+                          description: (Optional) Description
+                        apiType:
+                          type: string
+                          enum:
+                          - openapi
+                          description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
+                        specification:
+                          type: string
+                          format: url
+                          description: (optional) url to the specification of the API. e.g. url to the swagger file
+                        implementation:
+                          type: string
+                          description: The name of the service receiving the notifications
+                        developerUI:
+                          type: string
+                          description: (optional) The path to the developer User Interface for the API
+                        hub:
+                          type: string
+                          description: The path to the root of the API
+                        port:
+                          type: integer
+                          description: The port where the API is exposed
+                  subscribedEvents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the Topic that this Component is interested in listening to
+                        description:
+                          type: string
+                          description: (Optional) Description
+                        apiType:
+                          type: string
+                          enum:
+                          - openapi
+                          description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
+                        specification:
+                          type: string
+                          format: url
+                          description: (optional) url to the specification of the API. e.g. url to the swagger file
+                        implementation:
+                          type: string
+                          description: The name of the service receiving the notifications
+                        developerUI:
+                          type: string
+                          description: (optional) The path to the developer User Interface for the API
+                        callback:
+                          type: string
+                          description: The path to the callback endpoint
+                        port:
+                          type: integer
+                          description: The port to which the callback listens to
+                        query:
+                          type: string
+                          description: (optional) Filter the events that will be sent to callback endpoint
+              managementFunction:
+                type: object
+                properties:
+                  exposedAPIs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the API
+                        specification:
+                          type: array
+                          items:
+                            type: string
+                            format: url
+                          description: >
+                            url to the specification of the API, if required. e.g. url to the swagger file for Open API.
+                            This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                          minItems: 1
+                        apiType:
+                          type: string
+                          enum:
+                          - openapi
+                          - prometheus
+                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                        implementation:
+                          type: string
+                          description: The name of the service where the implementation of the API is found
+                        path:
+                          type: string
+                          description: The path to the root of the API
+                        developerUI:
+                          type: string
+                          description: (optional) The path to the developer User Interface for the API
+                        port:
+                          type: integer
+                          description: The port where the API is exposed
+                        resources:
+                          type: array
+                          items:
+                            type: object
+                          description: Resources is an optional list of resources that are exposed by the API.
+                        required:
+                          type: boolean
+                          description: Required is a flag that indicates whether the API is required or not.
+                      required:
+                      - name
+                      - apiType
+                      - implementation
+                      - path
+                      - port
+                  dependentAPIs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the API that this component is dependent on
+                        specification:
+                          type: string
+                          format: url
+                          description: url to the specification of the API. e.g. url to the swagger file
+                        apiType:
+                          type: string
+                          enum:
+                          - openapi
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        resources:
+                          type: array
+                          items:
+                            type: object
+                          description: Resources is an optional list of resources that are consumed by the API.
+                        required:
+                          type: boolean
+                          description: Required is a flag that indicates whether the API is required or not.
+                      required:
+                      - name
+                      - apiType
+              securityFunction:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+                properties:
+                  secretsManagement:
+                    description: optional, request access to secrets stored exclusively for this component.
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                    required: ["type", "podSelector"]
+                    properties:
+                      type:
+                        type: string
+                        enum: ["sideCar"]
+                        description: defines, how components access the secrets, currently only sideCar is supported
+                      sideCar:
+                        type: object
+                        description: sideCar parameters, required if type has value "sideCar"
+                        required: ["port"]
+                        properties:
+                          port:
+                            type: integer
+                            description: The port where the API is exposed in the sideCar (localhost:<port>)
+                      podSelector:
+                        type: object
+                        description: defines, which PODs are allowed to access the secrets (and logic)
+                        properties:
+                          namespace:
+                            type: string
+                            description: glob patter matching the namespace of the POD
+                          name:
+                            type: string
+                            description: glob patter matching the name of the POD
+                          serviceaccount:
+                            type: string
+                            description: glob patter matching the serviceaccount od the POD
+                  exposedAPIs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the API
+                        specification:
+                          type: array
+                          items:
+                            type: string
+                            format: url
+                          description: >
+                            url to the specification of the API, if required. e.g. url to the swagger file for Open API.
+                            This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                          minItems: 1
+                        apiType:
+                          type: string
+                          enum:
+                          - openapi
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        implementation:
+                          type: string
+                          description: The name of the service where the implementation of the API is found
+                        path:
+                          type: string
+                          description: The path to the root of the API
+                        developerUI:
+                          type: string
+                          description: (optional) The path to the developer User Interface for the API
+                        port:
+                          type: integer
+                          description: The port where the API is exposed
+                        resources:
+                          type: array
+                          items:
+                            type: object
+                          description: Resources is an optional list of resources that are exposed by the API.
+                        required:
+                          type: boolean
+                          description: Required is a flag that indicates whether the API is required or not.
+                      required:
+                      - name
+                      - apiType
+                      - implementation
+                      - path
+                      - port
+                  dependentAPIs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the API that this component is dependent on
+                        specification:
+                          type: string
+                          format: url
+                          description: url to the specification of the API. e.g. url to the swagger file
+                        apiType:
+                          type: string
+                          enum:
+                          - openapi
+                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        resources:
+                          type: array
+                          items:
+                            type: object
+                          description: Resources is an optional list of resources that are consumed by the API.
+                        required:
+                          type: boolean
+                          description: Required is a flag that indicates whether the API is required or not.
+                      required:
+                      - name
+                      - apiType
+                  controllerRole:
+                    description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
+                      It must exist in the roles exposed by the partyRole API.
+                    type: string
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
