@@ -10,7 +10,8 @@ const testDataFolder = './testData/'
 
 const GROUP = "oda.tmforum.org"
 const VERSION = "v1beta3"
-const APIS_PLURAL = "apis"
+const EXPOSED_APIS_PLURAL = "exposedapis"
+const DEPENDENT_APIS_PLURAL = "dependentapis"
 const COMPONENTS_PLURAL = "components"
 
 
@@ -37,16 +38,34 @@ const resourceInventoryUtils = {
   },  
 
   /**
-  * Function that returns the custom API resource given API instance
+  * Function that returns the custom ExposedAPI resource given ExposedAPI name
   * @param    {String} inComponentInstance    Name of the component instance
-  * @param    {String} inAPIName              Name of the API that is requested
+  * @param    {String} inExposedAPIName       Name of the ExposedAPI that is requested
   * @param    {String} inNamespace            Namespace where the component instance is running
-  * @return   {Object}         The API resource object, or null if the API is not found
+  * @return   {Object}        The ExposedAPI resource object, or null if the ExposedAPI is not found
   */
-  getAPIResource: async function (inAPIName, inComponentName, inReleaseName, inNamespace) {
+  getExposedAPIResource: async function (inExposedAPIName, inComponentName, inReleaseName, inNamespace) {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
-    const APIResourceName = inReleaseName + '-' + inComponentName + '-' + inAPIName
-    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, APIS_PLURAL, undefined, undefined, 'metadata.name=' + APIResourceName)
+    const ExposedAPIResourceName = inReleaseName + '-' + inComponentName + '-' + inExposedAPIName
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, EXPOSED_APIS_PLURAL, undefined, undefined, 'metadata.name=' + ExposedAPIResourceName)
+    if (namespacedCustomObject.body.items.length === 0) {
+      return null // API not found
+    } 
+      
+    return namespacedCustomObject.body.items[0]
+  },
+
+  /**
+  * Function that returns the custom DependentAPI resource given DependentAPI name
+  * @param    {String} inComponentInstance    Name of the component instance
+  * @param    {String} inDependentAPIName     Name of the API that is requested
+  * @param    {String} inNamespace            Namespace where the component instance is running
+  * @return   {Object}          The DependentAPI resource object, or null if the DependentAPI is not found
+  */
+  getDependentAPIResource: async function (inDependentAPIName, inComponentName, inReleaseName, inNamespace) {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+    const DependentAPIResourceName = inReleaseName + '-' + inComponentName + '-' + inDependentAPIName
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, DEPENDENT_APIS_PLURAL, undefined, undefined, 'metadata.name=' + DependentAPIResourceName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
     } 

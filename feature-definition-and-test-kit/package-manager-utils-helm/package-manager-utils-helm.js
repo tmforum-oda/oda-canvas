@@ -18,65 +18,86 @@ async function executeHelmCommand(command) {
 }
 
 
+/**
+* Helper Function that gets the exposedAPIs/dependentAPIs from the given segment of a helm chart.
+* @param    {String} componentPackage      Helm chart folder name
+* @param    {String} releaseName           Helm release name
+* @param    {String} componentSegmentName  segment of the component (coreFunction, management, security)
+* @return   {Array}          The array of 0 or more exposedAPIs/dependentAPIs
+*/  
+function getAPIsFromPackage(exposedOrDependent, componentPackage, releaseName, componentSegmentName) {
+  try {
+    // run the helm template command to generate the component envelope
+    const output = execSync('helm template ' + releaseName + ' ' + testDataFolder + componentPackage, { encoding: 'utf-8' });  
+      
+    // parse the template
+    documentArray = YAML.parseAllDocuments(output)
+
+    // assert that the documentArray is an array
+    assert.equal(Array.isArray(documentArray), true, "The file should contain at least one YAML document")
+
+    // assert that the file contains at least one YAML document
+    assert.ok(documentArray.length > 0, "File should contain at least one YAML document")
+
+    // get the document with kind: component
+    const componentDocument = documentArray.find(document => document.get('kind') === 'Component')
+
+    // get the spec of the component
+    const componentSpec = componentDocument.get('spec')
+
+    // Find the componentSegment with the name componentSegmentName
+    let componentSegment
+    componentSpec.items.forEach(item => {
+      if (item.key == componentSegmentName) {
+        componentSegment = item.value
+      }
+    })
+
+    let APIs = []
+
+    if (componentSegmentName == 'coreFunction') {
+      APIs = componentSegment.items.filter(item => item.key == exposedOrDependent)[0].value.items
+    } else if (componentSegmentName == 'managementFunction') {
+      APIs = componentSegment.items
+    } else if (componentSegmentName == 'securityFunction') {
+      APIs = [componentSegment.items]
+    } else {
+      assert.ok(false, "componentSegmentName should be one of 'coreFunction', 'managementFunction' or 'securityFunction'")
+    }
+
+    return APIs
+  } catch (error) {
+    // Handle the error here
+    assert.ok(false, "Exception thrown when trying to get " + exposedOrDependent + " from package: " + error.message)
+
+    return []; // or return a default value
+  }
+}
+
 const packageManagerUtils = {
-
-
 
   /**
   * Function that gets the exposedAPIs from the given segment of a helm chart.
   * @param    {String} componentPackage      Helm chart folder name
   * @param    {String} releaseName           Helm release name
   * @param    {String} componentSegmentName  segment of the component (coreFunction, management, security)
-  * @return   {Array}          The array of 0 or more exposed APIs
+  * @return   {Array}          The array of 0 or more exposedAPIs
   */  
   getExposedAPIsFromPackage: function(componentPackage, releaseName, componentSegmentName) {
-    try {
-      // run the helm template command to generate the component envelope
-      const output = execSync('helm template ' + releaseName + ' ' + testDataFolder + componentPackage, { encoding: 'utf-8' });  
-        
-      // parse the template
-      documentArray = YAML.parseAllDocuments(output)
-
-      // assert that the documentArray is an array
-      assert.equal(Array.isArray(documentArray), true, "The file should contain at least one YAML document")
-
-      // assert that the file contains at least one YAML document
-      assert.ok(documentArray.length > 0, "File should contain at least one YAML document")
-
-      // get the document with kind: component
-      const componentDocument = documentArray.find(document => document.get('kind') === 'Component')
-
-      // get the spec of the component
-      const componentSpec = componentDocument.get('spec')
-
-      // Find the componentSegment with the name componentSegmentName
-      let componentSegment
-      componentSpec.items.forEach(item => {
-        if (item.key == componentSegmentName) {
-          componentSegment = item.value
-        }
-      })
-
-      let exposedAPIs = []
-
-      if (componentSegmentName == 'coreFunction') {
-        exposedAPIs = componentSegment.items.filter(item => item.key == 'exposedAPIs')[0].value.items
-      } else if (componentSegmentName == 'managementFunction') {
-        exposedAPIs = componentSegment.items
-      } else if (componentSegmentName == 'securityFunction') {
-        exposedAPIs = [componentSegment.items]
-      } else {
-        assert.ok(false, "componentSegmentName should be one of 'coreFunction', 'managementFunction' or 'securityFunction'")
-      }
-
-      return exposedAPIs
-    } catch (error) {
-      // Handle the error here
-      assert.ok(false, "Exception thrown when trying to get exposedAPIs from package: " + error.message)
-
-      return []; // or return a default value
-    }
+    return getAPIsFromPackage('exposedAPIs', componentPackage, releaseName, componentSegmentName)
   },
+  
+  /**
+  * Function that gets the dependentAPIs from the given segment of a helm chart.
+  * @param    {String} componentPackage      Helm chart folder name
+  * @param    {String} releaseName           Helm release name
+  * @param    {String} componentSegmentName  segment of the component (coreFunction, management, security)
+  * @return   {Array}          The array of 0 or more dependentAPIs
+  */  
+    getDependentAPIsFromPackage: function(componentPackage, releaseName, componentSegmentName) {
+      return getAPIsFromPackage('dependentAPIs', componentPackage, releaseName, componentSegmentName)
+    },
+
 
   /**
   * Function that checks if a helm chart is already installed, and installs it if not.

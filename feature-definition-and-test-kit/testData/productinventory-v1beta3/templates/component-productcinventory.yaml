@@ -29,7 +29,7 @@ spec:
     - name: productinventorymanagement
       specification: https://raw.githubusercontent.com/tmforum-apis/TMF637_ProductInventory/master/TMF637-ProductInventory-v4.0.0.swagger.json
       implementation: {{.Release.Name}}-productinventoryapi
-      apitype: openapi
+      apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.type}}/tmf-api/productInventory/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.type}}/tmf-api/productInventory/v4/docs
       port: 8080
@@ -48,7 +48,7 @@ spec:
     partyrole:
       specification: https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
       implementation: {{.Release.Name}}-partyroleapi
-      apitype: openapi
+      apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.type}}/tmf-api/partyRoleManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.type}}/tmf-api/partyRoleManagement/v4/docs
       port: 8080

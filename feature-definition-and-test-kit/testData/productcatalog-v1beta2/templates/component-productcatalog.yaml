@@ -12,7 +12,6 @@ spec:
   status: specified
   version: {{.Values.component.version}}
   description: "Simple Product Catalog ODA-Component from Open-API reference implementation."
-
   maintainers:
   - name: Lester Thomas
     email: lester.thomas@vodafone.com
