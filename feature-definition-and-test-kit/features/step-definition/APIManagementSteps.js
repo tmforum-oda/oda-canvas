@@ -17,47 +17,48 @@ const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeout
 setDefaultTimeout( 20 * 1000);
 
 /**
- * Wait for a specified API resource to be available and assert that it was found within a specified timeout.
+ * Wait for a specified ExposedAPI resource to be available and assert that it was found within a specified timeout.
  *
- * @param {string} APINamspece - The name of the API resource to check.
- * @returns {Promise<void>} - A Promise that resolves when the API resource is available.
+ * @param {string} APIName - The name of the ExposedAPI resource to check.
+ * @returns {Promise<void>} - A Promise that resolves when the ExposedAPI resource is available.
  */
-Then('I should see the {string} API resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
+Then('I should see the {string} ExposedAPI resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
   let apiResource = null
   var startTime = performance.now()
   var endTime
 
-  // wait until the API resource is found or the timeout is reached
+  // wait until the ExposedAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getAPIResource(APIName, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getExposedAPIResource(APIName, componentName, global.currentReleaseName, NAMESPACE)
     endTime = performance.now()
 
-    // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The API resource should be found within " + API_DEPLOY_TIMEOUT + " seconds")
+    // assert that the ExposedAPI resource was found within the timeout
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT + " milliseconds")
   }
 });
 
 /**
- * Wait for a specified ExposedAPI resource to be available and assert that it was found within a specified timeout.
+ * Wait for a specified DependentAPI resource to be available and assert that it was found within a specified timeout.
  *
- * @param {string} APINamspece - The name of the ExposedAPI resource to check.
- * @returns {Promise<void>} - A Promise that resolves when the API resource is available.
+ * @param {string} APIName - The name of the DependentAPI resource to check.
+ * @returns {Promise<void>} - A Promise that resolves when the DependentAPI resource is available.
  */
-Then('I should see the {string} ExposedAPI resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (ExposedAPI, componentName) {
-  return 'pending'; // ExposedAPI resource is not implemented yet - return 'pending'
+Then('I should see the {string} DependentAPI resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
   let apiResource = null
   var startTime = performance.now()
   var endTime
 
-  // wait until the API resource is found or the timeout is reached
+  // wait until the DependentAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getCustomResource('exposedapis', ExposedAPI, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getDependentAPIResource(APIName, componentName, global.currentReleaseName, NAMESPACE)
     endTime = performance.now()
 
-    // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT + " seconds")
+    // assert that the DependentAPI resource was found within the timeout
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The DependentAPI resource should be found within " + API_DEPLOY_TIMEOUT + " milliseconds")
   }
 });
+
+
 
 /**
  * Wait for a specified ExposedAPI resource to be available and assert that it was found within a specified timeout.
@@ -77,7 +78,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT + " milliseconds")
   }
 
   // test for specification not implemented yet, so return pending
@@ -102,7 +103,7 @@ Then('I should see the {string} DependentAPI resource on the {string} component'
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The DependentAPI resource should be found within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The DependentAPI resource should be found within " + API_DEPLOY_TIMEOUT + " milliseconds")
   }
 });
 
@@ -125,7 +126,7 @@ Then('I should not see the {string} API resource on the {string} component', {ti
     endTime = performance.now()
 
     // assert that the API resource was removed within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The API resource should be removed within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The API resource should be removed within " + API_DEPLOY_TIMEOUT + " milliseconds")
   }
 
 });
@@ -149,7 +150,7 @@ Then('I should not see the {string} ExposedAPI resource on the {string} componen
     endTime = performance.now()
 
     // assert that the API resource was removed within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be removed within " + API_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be removed within " + API_DEPLOY_TIMEOUT + " milliseconds")
   }
 
 });
@@ -172,7 +173,7 @@ Then('I should see the {string} API resource on the {string} component with a ur
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_URL_TIMEOUT, "The url should be found within " + API_URL_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_URL_TIMEOUT, "The url should be found within " + API_URL_TIMEOUT + " milliseconds")
 
     // check if there is a url on the API resource status
     if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('apiStatus')) || (!apiResource.status.apiStatus.hasOwnProperty('url'))) {
@@ -194,7 +195,7 @@ Then('I should see the {string} API resource on the {string} component with an i
     endTime = performance.now()
 
     // assert that the API resource was found within the timeout
-    assert.ok(endTime - startTime < API_READY_TIMEOUT, "The ready status should be found within " + API_READY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < API_READY_TIMEOUT, "The ready status should be found within " + API_READY_TIMEOUT + " milliseconds")
 
     // check if there is a url on the API resource status
     if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('implementation')) || (!apiResource.status.implementation.hasOwnProperty('ready'))) {
