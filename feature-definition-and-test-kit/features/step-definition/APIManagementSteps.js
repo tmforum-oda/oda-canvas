@@ -113,26 +113,26 @@ Then('I should not see the {string} ExposedAPI resource on the {string} componen
 
 
 /**
- * Wait for a specified API resource to have a URL on the Service Mesh or Gateway and assert that it was found within a specified timeout.
+ * Wait for a specified ExposedAPI resource to have a URL on the Service Mesh or Gateway and assert that it was found within a specified timeout.
  *
- * @param {string} APIName - The name of the API resource to check.
- * @returns {Promise<void>} - A Promise that resolves when the API resource has a URL on the Service Mesh or Gateway.
+ * @param {string} ExposedAPIName - The name of the ExposedAPI resource to check.
+ * @returns {Promise<void>} - A Promise that resolves when the ExposedAPI resource has a URL on the Service Mesh or Gateway.
  */
-Then('I should see the {string} API resource on the {string} component with a url on the Service Mesh or Gateway', {timeout : API_URL_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
-  // get the API resource
+Then('I should see the {string} ExposedAPI resource on the {string} component with a url on the Service Mesh or Gateway', {timeout : API_URL_TIMEOUT + TIMEOUT_BUFFER}, async function (ExposedAPIName, componentName) {
+  // get the ExposedAPI resource
   let apiResource = null
   var startTime = performance.now()
   var endTime
 
-  // wait until the API resource is found or the timeout is reached
+  // wait until the ExposedAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getAPIResource(APIName, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, NAMESPACE)
     endTime = performance.now()
 
-    // assert that the API resource was found within the timeout
+    // assert that the ExposedAPI resource was found within the timeout
     assert.ok(endTime - startTime < API_URL_TIMEOUT, "The url should be found within " + API_URL_TIMEOUT + " milliseconds")
 
-    // check if there is a url on the API resource status
+    // check if there is a url on the ExposedAPI resource status
     if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('apiStatus')) || (!apiResource.status.apiStatus.hasOwnProperty('url'))) {
       apiResource = null // reset the apiResource to null so that we can try again
     }
@@ -140,21 +140,21 @@ Then('I should see the {string} API resource on the {string} component with a ur
 
 });
 
-Then('I should see the {string} API resource on the {string} component with an implementation ready status on the Service Mesh or Gateway', {timeout : API_READY_TIMEOUT + TIMEOUT_BUFFER}, async function (APIName, componentName) {
-  // get the API resource
+Then('I should see the {string} ExposedAPI resource on the {string} component with an implementation ready status on the Service Mesh or Gateway', {timeout : API_READY_TIMEOUT + TIMEOUT_BUFFER}, async function (ExposedAPIName, componentName) {
+  // get the ExposedAPI resource
   let apiResource = null
   var startTime = performance.now()
   var endTime
 
-  // wait until the API resource is found or the timeout is reached
+  // wait until the ExposedAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getAPIResource(APIName, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, NAMESPACE)
     endTime = performance.now()
 
-    // assert that the API resource was found within the timeout
+    // assert that the ExposedAPI resource was found within the timeout
     assert.ok(endTime - startTime < API_READY_TIMEOUT, "The ready status should be found within " + API_READY_TIMEOUT + " milliseconds")
 
-    // check if there is a url on the API resource status
+    // check if there is a url on the ExposedAPI resource status
     if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('implementation')) || (!apiResource.status.implementation.hasOwnProperty('ready'))) {
       apiResource = null // reset the apiResource to null so that we can try again
     } else if (!(apiResource.status.implementation.ready == true)) {
