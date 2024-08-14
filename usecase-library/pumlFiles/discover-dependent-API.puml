@@ -2,14 +2,17 @@
 
 actor Operations
 entity Component
+participant ComponentImplementation
 participant ComponentOperator
 entity DependentAPI
-Component <- Operations : Configure dependencies
-note right
-    Configure the 'values.yaml' file with the URL
-    and role of the dependent API
-end note
-Component <- Operations : Install
+participant DependentAPIOperator
+participant "Identity Management System"
+participant "Canvas.Info service"
+boundary "Dependent API Endpoint"
+
+
+Operations -> Component : Install
+Operations -> ComponentImplementation : Install
 Component -> ComponentOperator: on.create 
 ComponentOperator -> DependentAPI: create
 note right
@@ -18,11 +21,19 @@ note right
     security and management sections
 end note
 group For each dependent API
-    DependentAPI -> IdentityOperator: on.create
-    IdentityOperator -> "Identity Management System" : Provision access
-    DependentAPI <- IdentityOperator: update
+    DependentAPI -> DependentAPIOperator: on.create
+    DependentAPIOperator -> "Identity Management System" : Grant to a role on the downstraem API(s)
+    DependentAPIOperator -> "Canvas.Info service" : Register the availability of the downstraem API(s)
+    DependentAPI <- DependentAPIOperator: update
     Component <- ComponentOperator: update 
 end
+group During Component runtime execution
+    ComponentImplementation -> "Canvas.Info service": query for APIs matching declared dependencies using Component Client ID and secret
+    note right
+        The component can query with a GET on the Canvas.Info service or register for callback notifications.
+        There could be more than 1 API available for a given dependency.
+    end note
+    ComponentImplementation -> "Dependent API Endpoint": Call using Component Client ID and secret
 
-
+end
 @enduml
