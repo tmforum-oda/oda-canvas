@@ -113,12 +113,12 @@ controller:
     controllerName: oda-controller
     compconImage: tmforumodacanvas/component-istio-controller
     compconVersion: 0.5.1
-    compconPrereleaseSuffix: odaa98
+    compconPrereleaseSuffix:
     imagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener
     secconVersion: 0.7.1
-    secconPrereleaseSuffix: odaa98
+    secconPrereleaseSuffix:
     monitoredNamespaces: 'components'           # comma separated list of namespaces
     ingressClass:
       enabled: false
@@ -139,7 +139,7 @@ dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 0.2.1
-  prereleaseSuffix: odaa98
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   loglevel: '20'
 
@@ -223,12 +223,12 @@ canvas-vault:
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator
   version: 0.1.0
-  prereleaseSuffix: odaa98
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
   sidecarVersion: 0.1.0
-  sidecarPrereleaseSuffix: odaa98
+  sidecarPrereleaseSuffix:
   sidecarImagePullPolicy: IfNotPresent
   
   # TODO: add TLS to canvas-vault-hc
@@ -259,6 +259,6 @@ secretsmanagement-operator:
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
   version: 0.8.2
-  prereleaseSuffix: odaa98
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
 
