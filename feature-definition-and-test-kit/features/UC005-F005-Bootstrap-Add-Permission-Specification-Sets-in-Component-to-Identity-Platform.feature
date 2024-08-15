@@ -7,7 +7,7 @@
 Feature: UC005-F005 Bootstrap: Add Permission Specification Sets in Component to Identity Platform
 
     Scenario Outline: Add Permission Specification Sets in Component to Identity Platform
-        Given An example package '<PackageName>' with a '<ComponentName>' component with '<Number>' existing roles
+        Given an example package '<PackageName>' with a '<ComponentName>' component with '<Number>' existing roles
         And '<PackageName>' exposes permission specification sets using '<Type>'
         When I install the '<PackageName>' package
         Then I should see all '<Number>' roles listed against the client '<PackageName>' in the Identity Platform
