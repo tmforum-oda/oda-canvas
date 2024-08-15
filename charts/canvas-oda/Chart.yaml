@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.5-rc5
+version: 1.1.5-rc6
+# version: 1.1.5-rc6 - Issue #302: remove "-dapi-" infix for dependentapi custom resources
 # version: 1.1.5-rc5 - ODAA-98: automte docker builds
 # version: 1.1.5-lt1 - Updated conversion webhook
 # version: 1.1.5-rc4 - update component operator/istio operator/dependentapi operator with exposedapis and changing v1beta3 crds of these with camelcase apiType
