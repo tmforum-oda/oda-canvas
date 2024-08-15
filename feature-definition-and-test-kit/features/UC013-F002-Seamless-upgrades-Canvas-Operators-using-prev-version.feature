@@ -7,12 +7,12 @@
 Feature: UC013-F002 Seamless upgrade: Canvas operators using previous version
 
     Scenario: Installing a component and testing access using a previous (N-1) version
-        Given An example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
+        Given an example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
         When I install the 'productcatalog-v1beta3' package
         Then I can query the 'v1beta2' spec version of the 'productcatalogmanagement' component
     
     Scenario: Installing a component and testing access using a previous (N-2) version
-        Given An example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
+        Given an example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
         When I install the 'productcatalog-v1beta3' package
         Then I can query the 'v1beta1' spec version of the 'productcatalogmanagement' component
 
