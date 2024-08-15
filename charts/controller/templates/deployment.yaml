@@ -20,16 +20,16 @@ spec:
       serviceAccountName: odacomponent-account
       containers:
       - name: {{.Values.deployment.controllerName}}
-        image: {{.Values.deployment.compconImage}}
-        imagePullPolicy: {{.Values.deployment.imagePullPolicy}}
+        image: {{ include "controller.compconDockerimage" . }}
+        imagePullPolicy: {{ include "controller.compconImagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap
           - secretRef:
               name: {{ .Release.Name }}-controller-secret
       - name: seccon
-        image: {{.Values.deployment.secconImage}}
-        imagePullPolicy: {{.Values.deployment.imagePullPolicy}}
+        image: {{ include "controller.secconDockerimage" . }}
+        imagePullPolicy: {{ include "controller.secconImagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap
