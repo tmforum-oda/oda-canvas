@@ -8,9 +8,35 @@ on:
     - master
 
 jobs:
-  build:
+
+  check_commit_message_job:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip tests]')"
+    if: "!contains(github.event.pull_request.title, '[skip tests]')"
+    outputs:
+      SKIPTESTS: ${{ steps.check_skiptests_msg.outputs.SKIPTESTS }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+    - name: Check for [skip tests] in Message
+      id: check_skiptests_msg
+      run: |
+        message=$(git log -1 --format=oneline --pretty=format:"%s")
+        echo "GIT COMMIT MESSAGE: $message"
+        if echo $message | grep "\[skip tests\]" >/dev/null
+        then
+          echo "SKIPPING TESTS"
+          echo "SKIPTESTS=1" >> $GITHUB_OUTPUT
+        else
+          echo "SKIPTESTS=" >> $GITHUB_OUTPUT
+        fi
+
+  run_tests_job:
+    runs-on: ubuntu-latest
+    needs: check_commit_message_job    
+    if: "!needs.check_commit_message_job.outputs.SKIPTESTS"
 
     steps:
     - name: Checkout code
