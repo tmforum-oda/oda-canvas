@@ -9,7 +9,7 @@ on:
 
 jobs:
 
-  check_commit_message_job:
+  check_skip_tests_job:
     runs-on: ubuntu-latest
     if: "!contains(github.event.pull_request.title, '[skip tests]')"
     outputs:
@@ -30,13 +30,14 @@ jobs:
           echo "SKIPPING TESTS"
           echo "SKIPTESTS=1" >> $GITHUB_OUTPUT
         else
+          echo "EXECUTING TESTS"
           echo "SKIPTESTS=" >> $GITHUB_OUTPUT
         fi
 
   run_tests_job:
     runs-on: ubuntu-latest
     needs: check_commit_message_job    
-    if: "!needs.check_commit_message_job.outputs.SKIPTESTS"
+    if: "!needs.check_skip_tests_job.outputs.SKIPTESTS"
 
     steps:
     - name: Checkout code
