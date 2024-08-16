@@ -131,7 +131,7 @@ jobs:
     - name: check test success
       run: |
         tail -10 /tmp/test_results.log
-        if tail -10 /tmp/test_results.log | grep --color=always failed
+        tail -10 /tmp/test_results.log | grep --color=always failed
         if tail -10 /tmp/test_results.log | grep failed >/dev/null
         then 
           echo There are failed tests!
