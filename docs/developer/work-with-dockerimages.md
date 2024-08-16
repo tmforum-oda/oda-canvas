@@ -3,6 +3,26 @@
 The project oda-canvas is configured to automatically build docker images, when their source code is changed.
 To successfully collaborate in the same repository some rules have to be followed.
 
+## TL;DR;
+
+Example PR:
+https://github.com/tmforum-oda/oda-canvas/pull/305/files
+
+![steps for building docker images in a feature branch](images/autobuild-dockerimages-steps.png)
+
+Step | Description |
+--- | ---
+branch | create a branch, naming has to follow "feature/..." or "odaa-..." otherwise the automated docker builds are not active
+1 | Increment the version number of the dockerfile which will be updated and and set the prereleaseSuffix, e.g to the issue number
+2 | change the source code. This triggers the docker build of the prerelease version
+3 | adjust the tests to cover the changed code (steps 2 and 3 might iterate multiple times)
+4 | prepare everything for the Pull-Request. Set chart-version numbers, document changes, also update the version number in the dependent charts
+PR | create Pull-Request -> BDD Tests are executed and should be successfull 
+5 | before merging, remove all prereleaseSuffixes. This will make the  "no-prerelease-suffixes"-check in the PR green
+Merge | the merge into the master branch triggers the build of the release docker images 
+
+
+
 ## Global Rules
 
 * Release versions (image tags) follow the semantic versioning format "\<major\>.\<minor\>.\<increment\>" and are built only from the master branch
