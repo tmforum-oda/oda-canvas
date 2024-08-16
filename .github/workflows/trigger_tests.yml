@@ -112,7 +112,7 @@ jobs:
         export CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
         npm start 2>&1 | tee /tmp/test_results.log
         kubectl get exposedapis -n components
-        kubectl -n canvas logs deployment/oda-controller | tee /tmp/oda-controller.logs
+        kubectl -n canvas logs deployment/oda-controller | tee /tmp/oda-controller.log
 
               
     - name: Upload Test Report
@@ -120,7 +120,7 @@ jobs:
       with:
         name: test-report
         path: |
-         /tmp/oda-controller.logs
+         /tmp/oda-controller.log
          /tmp/test_results.log
   
     - name: Delete kind cluster
