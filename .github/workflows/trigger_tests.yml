@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip test]')"
+    if: "!contains(github.event.head_commit.message, '[skip tests]')"
 
     steps:
     - name: Checkout code
@@ -132,7 +132,7 @@ jobs:
     - name: check test success
       run: |
         tail -10 /tmp/test_results.log
-        tail -10 /tmp/test_results.log | grep --color=always failed
+        tail -10 /tmp/test_results.log | grep --color=always failed || true
         if tail -10 /tmp/test_results.log | grep failed >/dev/null
         then 
           echo There are failed tests!
