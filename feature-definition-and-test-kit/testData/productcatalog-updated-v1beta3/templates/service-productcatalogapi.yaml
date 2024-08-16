@@ -8,8 +8,8 @@ metadata:
 spec:
   ports:
   - port: 8080
-    targetPort: {{.Release.Name}}-pcapi
-    name: http-{{.Release.Name}}-prodcatapi
+    targetPort: pcapi
+    name: http-prodcatapi
   type: NodePort
   selector:
     impl: {{.Release.Name}}-prodcatapi
