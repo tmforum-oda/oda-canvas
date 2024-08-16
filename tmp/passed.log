@@ -1,0 +1,1112 @@
+
+> oda-canvas-bdd-tests@0.0.1 start
+> cucumber-js  --publish
+
+
+==================================================================
+Running scenario: Create ExposedAPI resources for each segment
+Scenario started at: 2024-08-16T12:37:23.836Z
+..helm upgrade pc ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:24 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:26.049Z
+.
+==================================================================
+Running scenario: Create ExposedAPI resources for each segment
+Scenario started at: 2024-08-16T12:37:26.050Z
+..helm upgrade pc ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:26 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 3
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:28.021Z
+.
+==================================================================
+Running scenario: Create ExposedAPI resources for each segment
+Scenario started at: 2024-08-16T12:37:28.022Z
+..helm upgrade pc ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:28 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 4
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:30.280Z
+.
+==================================================================
+Running scenario: Create DependentAPI resources for each segment
+Scenario started at: 2024-08-16T12:37:30.280Z
+..helm upgrade pc ./testData/productcatalog-dependendent-API-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:30 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 5
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:32.571Z
+.
+==================================================================
+Running scenario: Updated component with added ExposedAPI resources
+Scenario started at: 2024-08-16T12:37:32.574Z
+.helm upgrade pc ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:32 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 6
+TEST SUITE: None
+
+..helm upgrade pc ./testData/productcatalog-enhanced-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:35 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 7
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:37.232Z
+.
+==================================================================
+Running scenario: Updated component with removed ExposedAPI resources
+Scenario started at: 2024-08-16T12:37:37.234Z
+.helm upgrade pc ./testData/productcatalog-enhanced-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:37 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 8
+TEST SUITE: None
+
+..helm upgrade pc ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:39 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 9
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:41.796Z
+.
+==================================================================
+Running scenario: Updated component with updated ExposedAPI resources
+Scenario started at: 2024-08-16T12:37:41.797Z
+.helm upgrade pc ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:41 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 10
+TEST SUITE: None
+
+..helm upgrade pc ./testData/productcatalog-updated-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "pc" has been upgraded. Happy Helming!
+NAME: pc
+LAST DEPLOYED: Fri Aug 16 12:37:43 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 11
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:45.554Z
+.
+==================================================================
+Running scenario: Create API Resource for API
+Scenario started at: 2024-08-16T12:37:45.555Z
+..helm install ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:37:45 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:47.228Z
+.
+==================================================================
+Running scenario: Create API Resource for API
+Scenario started at: 2024-08-16T12:37:47.229Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:37:47 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:49.542Z
+.
+==================================================================
+Running scenario: Create API Resource for API
+Scenario started at: 2024-08-16T12:37:49.543Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:37:49 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 3
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:52.583Z
+.
+==================================================================
+Running scenario: Test API Resource URL for Core API
+Scenario started at: 2024-08-16T12:37:52.585Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:37:53 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 4
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:54.933Z
+.
+==================================================================
+Running scenario: Test API Resource URL for Management API
+Scenario started at: 2024-08-16T12:37:54.934Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:37:55 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 5
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:56.863Z
+.
+==================================================================
+Running scenario: Test API Resource URL for Security API
+Scenario started at: 2024-08-16T12:37:56.864Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:37:57 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 6
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:37:58.726Z
+.
+==================================================================
+Running scenario: Verify ExposedAPI Resource is ready for Core ExposedAPI
+Scenario started at: 2024-08-16T12:37:58.726Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:37:58 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 7
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:01.987Z
+.
+==================================================================
+Running scenario: Verify ExposedAPI Resource is ready for Management ExposedAPI
+Scenario started at: 2024-08-16T12:38:01.987Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:02 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 8
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:03.987Z
+.
+==================================================================
+Running scenario: Verify ExposedAPI Resource is ready for Security ExposedAPI
+Scenario started at: 2024-08-16T12:38:03.988Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:04 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 9
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:06.212Z
+.
+==================================================================
+Running scenario: Upgrade component with additional ExposedAPI in coreFunction
+Scenario started at: 2024-08-16T12:38:06.212Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:06 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 10
+TEST SUITE: None
+
+...helm upgrade ctk ./testData/productcatalog-enhanced-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:08 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 11
+TEST SUITE: None
+
+...
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:10.366Z
+.
+==================================================================
+Running scenario: Upgrade component with removed ExposedAPI in coreFunction
+Scenario started at: 2024-08-16T12:38:10.367Z
+..helm upgrade ctk ./testData/productcatalog-enhanced-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:10 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 12
+TEST SUITE: None
+
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:12 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 13
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:14.908Z
+.
+==================================================================
+Running scenario: Create role for security user in the identity platform
+Scenario started at: 2024-08-16T12:38:14.909Z
+.helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:15 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 14
+TEST SUITE: None
+
+...
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:17.106Z
+.
+==================================================================
+Running scenario: Add Permission Specification Sets in Component to Identity Platform
+Scenario started at: 2024-08-16T12:38:17.107Z
+.UU-U
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.108Z
+.
+==================================================================
+Running scenario: Add Permission Specification Sets in Component to Identity Platform
+Scenario started at: 2024-08-16T12:38:17.108Z
+.UU-U
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.109Z
+.
+==================================================================
+Running scenario: Add Permission Specification Set in Component
+Scenario started at: 2024-08-16T12:38:17.110Z
+.UUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.110Z
+.
+==================================================================
+Running scenario: Change Permission Specification Set in Component
+Scenario started at: 2024-08-16T12:38:17.111Z
+.UUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.111Z
+.
+==================================================================
+Running scenario: Delete Permission Specification Set from Component
+Scenario started at: 2024-08-16T12:38:17.112Z
+.UUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.112Z
+.
+==================================================================
+Running scenario: Delete Permission Specification Set from Component
+Scenario started at: 2024-08-16T12:38:17.112Z
+.UUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.113Z
+.
+==================================================================
+Running scenario: Creation of PartyRoles as Business Roles in the Identity Platform
+Scenario started at: 2024-08-16T12:38:17.113Z
+.UUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.114Z
+.
+==================================================================
+Running scenario: Updation of PartyRoles as Business Roles in the Identity Platform
+Scenario started at: 2024-08-16T12:38:17.114Z
+.UUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.115Z
+.
+==================================================================
+Running scenario: Deletion of PartyRoles as Business Roles in the Identity Platform
+Scenario started at: 2024-08-16T12:38:17.115Z
+.UUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.116Z
+.
+==================================================================
+Running scenario: Mapping of Technical roles to Business Roles in the Identity Platform
+Scenario started at: 2024-08-16T12:38:17.116Z
+.UUUUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.117Z
+.
+==================================================================
+Running scenario: Update Mapping of Technical roles to Business Roles in the Identity Platform
+Scenario started at: 2024-08-16T12:38:17.117Z
+.UUUUUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.118Z
+.
+==================================================================
+Running scenario: Delete Mapping of Technical roles to Business Roles in the Identity Platform
+Scenario started at: 2024-08-16T12:38:17.118Z
+.UUUUUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.119Z
+.
+==================================================================
+Running scenario: Install component and test Observability config
+Scenario started at: 2024-08-16T12:38:17.120Z
+.UUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.120Z
+.
+==================================================================
+Running scenario: Uninstall component and test Observability config is cleaned up
+Scenario started at: 2024-08-16T12:38:17.121Z
+.UUUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.121Z
+.
+==================================================================
+Running scenario: Install component and view Observability metrics
+Scenario started at: 2024-08-16T12:38:17.122Z
+.UUUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.122Z
+.
+==================================================================
+Running scenario: Install component and view Observability metrics
+Scenario started at: 2024-08-16T12:38:17.123Z
+.UUUU
+Scenario status: UNDEFINED
+
+Scenario ended at: 2024-08-16T12:38:17.123Z
+.
+==================================================================
+Running scenario: Installing a component using a previous (N-1) version
+Scenario started at: 2024-08-16T12:38:17.124Z
+..helm upgrade ctk ./testData/productcatalog-v1beta2 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:17 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 15
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:19.156Z
+.
+==================================================================
+Running scenario: Installing a component using a previous (N-2) version
+Scenario started at: 2024-08-16T12:38:19.158Z
+..helm upgrade ctk ./testData/productcatalog-v1beta1 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:19 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 16
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:21.327Z
+.
+==================================================================
+Running scenario: Installing a component and testing access using a previous (N-1) version
+Scenario started at: 2024-08-16T12:38:21.328Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:21 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 17
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:23.284Z
+.
+==================================================================
+Running scenario: Installing a component and testing access using a previous (N-2) version
+Scenario started at: 2024-08-16T12:38:23.285Z
+..helm upgrade ctk ./testData/productcatalog-v1beta3 -n components { encoding: 'utf-8' }
+helm output: Release "ctk" has been upgraded. Happy Helming!
+NAME: ctk
+LAST DEPLOYED: Fri Aug 16 12:38:23 2024
+NAMESPACE: components
+STATUS: deployed
+REVISION: 18
+TEST SUITE: None
+
+..
+Scenario status: PASSED
+
+Scenario ended at: 2024-08-16T12:38:25.465Z
+.
+
+Failures:
+
+1) Scenario: Add Permission Specification Sets in Component to Identity Platform # features/UC005-F005-Bootstrap-Add-Permission-Specification-Sets-in-Component-to-Identity-Platform.feature:17
+   ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+   ? Given an example package 'productcatalog-static-roles-v1beta3' with a 'productcatalogmanagement' component with '3' existing roles
+       Undefined. Implement with the following snippet:
+
+         Given('an example package {string} with a {string} component with {string} existing roles', function (string, string2, string3) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? And 'productcatalog-static-roles-v1beta3' exposes permission specification sets using 'static'
+       Undefined. Implement with the following snippet:
+
+         Given('{string} exposes permission specification sets using {string}', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   - When I install the 'productcatalog-static-roles-v1beta3' package # features/step-definition/ComponentManagementSteps.js:63
+   ? Then I should see all '3' roles listed against the client 'productcatalog-static-roles-v1beta3' in the Identity Platform
+       Undefined. Implement with the following snippet:
+
+         Then('I should see all {string} roles listed against the client {string} in the Identity Platform', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+2) Scenario: Add Permission Specification Sets in Component to Identity Platform # features/UC005-F005-Bootstrap-Add-Permission-Specification-Sets-in-Component-to-Identity-Platform.feature:18
+   ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+   ? Given an example package 'productcatalog-enhanced-v1beta3' with a 'productcatalogmanagement' component with '3' existing roles
+       Undefined. Implement with the following snippet:
+
+         Given('an example package {string} with a {string} component with {string} existing roles', function (string, string2, string3) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? And 'productcatalog-enhanced-v1beta3' exposes permission specification sets using 'partyrole'
+       Undefined. Implement with the following snippet:
+
+         Given('{string} exposes permission specification sets using {string}', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   - When I install the 'productcatalog-enhanced-v1beta3' package # features/step-definition/ComponentManagementSteps.js:63
+   ? Then I should see all '3' roles listed against the client 'productcatalog-enhanced-v1beta3' in the Identity Platform
+       Undefined. Implement with the following snippet:
+
+         Then('I should see all {string} roles listed against the client {string} in the Identity Platform', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+3) Scenario: Add Permission Specification Set in Component # features/UC005-F006-Bootstrap-Creation-Update-Removal-of-Technical-Roles-in-the-Identity-Platform.feature:9
+   ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+   ? Given An installed package '<PackageName>' with a '<ComponentName>' component
+       Undefined. Implement with the following snippet:
+
+         Given('An installed package {string} with a {string} component', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? When I create a new permission specification set '<RoleName>' in the '<ComponentName>' component
+       Undefined. Implement with the following snippet:
+
+         When('I create a new permission specification set {string} in the {string} component', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? Then I should see '<RoleName>' created in the identity platform
+       Undefined. Implement with the following snippet:
+
+         Then('I should see {string} created in the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+4) Scenario: Change Permission Specification Set in Component # features/UC005-F006-Bootstrap-Creation-Update-Removal-of-Technical-Roles-in-the-Identity-Platform.feature:14
+   ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+   ? Given An installed package '<PackageName>' with a '<ComponentName>' component
+       Undefined. Implement with the following snippet:
+
+         Given('An installed package {string} with a {string} component', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? When I change a permission specification set '<RoleName>' in the '<ComponentName>' component
+       Undefined. Implement with the following snippet:
+
+         When('I change a permission specification set {string} in the {string} component', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? Then I should see '<RoleName>' changed in the identity platform
+       Undefined. Implement with the following snippet:
+
+         Then('I should see {string} changed in the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+5) Scenario: Delete Permission Specification Set from Component # features/UC005-F006-Bootstrap-Creation-Update-Removal-of-Technical-Roles-in-the-Identity-Platform.feature:26
+   ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+   ? Given An installed package 'productcatalog-static-roles-v1beta3' with a 'productcatalogmanagement' component
+       Undefined. Implement with the following snippet:
+
+         Given('An installed package {string} with a {string} component', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? When I delete a permission specification set 'cat1owner' from the 'productcatalogmanagement' component
+       Undefined. Implement with the following snippet:
+
+         When('I delete a permission specification set {string} from the {string} component', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? Then I should see 'cat1owner' deleted from the identity platform
+       Undefined. Implement with the following snippet:
+
+         Then('I should see {string} deleted from the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+6) Scenario: Delete Permission Specification Set from Component # features/UC005-F006-Bootstrap-Creation-Update-Removal-of-Technical-Roles-in-the-Identity-Platform.feature:27
+   ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+   ? Given An installed package 'productcatalog-enhanced-v1beta3' with a 'productcatalogmanagement' component
+       Undefined. Implement with the following snippet:
+
+         Given('An installed package {string} with a {string} component', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? When I delete a permission specification set 'cat2owner' from the 'productcatalogmanagement' component
+       Undefined. Implement with the following snippet:
+
+         When('I delete a permission specification set {string} from the {string} component', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? Then I should see 'cat2owner' deleted from the identity platform
+       Undefined. Implement with the following snippet:
+
+         Then('I should see {string} deleted from the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+7) Scenario: Creation of PartyRoles as Business Roles in the Identity Platform # features/UC005-F007-Bootstrap-Creation-Update-Removal-of-PartyRoles-as-Business-Roles-and-Mapping-with-Technical-Roles-in-the-Identity-Platform.feature:9
+   ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+   ? Given An installed package '<PackageName>' called '<ComponentName>'
+       Undefined. Implement with the following snippet:
+
+         Given('An installed package {string} called {string}', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? When I create a new business role '<businessrole>' in the identity platform
+       Undefined. Implement with the following snippet:
+
+         When('I create a new business role {string} in the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? Then I should see '<businessrole>' created in the identity platform
+       Undefined. Implement with the following snippet:
+
+         Then('I should see {string} created in the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+8) Scenario: Updation of PartyRoles as Business Roles in the Identity Platform # features/UC005-F007-Bootstrap-Creation-Update-Removal-of-PartyRoles-as-Business-Roles-and-Mapping-with-Technical-Roles-in-the-Identity-Platform.feature:14
+   ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+   ? Given An installed package '<PackageName>' called '<ComponentName>'
+       Undefined. Implement with the following snippet:
+
+         Given('An installed package {string} called {string}', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? When I update a business role '<businessrole>' in the identity platform
+       Undefined. Implement with the following snippet:
+
+         When('I update a business role {string} in the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? Then I should see the updated '<businessrole>' in the identity platform
+       Undefined. Implement with the following snippet:
+
+         Then('I should see the updated {string} in the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+9) Scenario: Deletion of PartyRoles as Business Roles in the Identity Platform # features/UC005-F007-Bootstrap-Creation-Update-Removal-of-PartyRoles-as-Business-Roles-and-Mapping-with-Technical-Roles-in-the-Identity-Platform.feature:19
+   ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+   ? Given An installed package '<PackageName>' called '<ComponentName>'
+       Undefined. Implement with the following snippet:
+
+         Given('An installed package {string} called {string}', function (string, string2) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? When I delete a  business role '<businessrole>' in the identity platform
+       Undefined. Implement with the following snippet:
+
+         When('I delete a  business role {string} in the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ? Then I should not be able to see '<businessrole>' in the identity platform
+       Undefined. Implement with the following snippet:
+
+         Then('I should not be able to see {string} in the identity platform', function (string) {
+           // Write code here that turns the phrase above into concrete actions
+           return 'pending';
+         });
+
+   ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+10) Scenario: Mapping of Technical roles to Business Roles in the Identity Platform # features/UC005-F007-Bootstrap-Creation-Update-Removal-of-PartyRoles-as-Business-Roles-and-Mapping-with-Technical-Roles-in-the-Identity-Platform.feature:24
+    ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+    ? Given An installed package '<PackageName>' called '<ComponentName>'
+        Undefined. Implement with the following snippet:
+
+          Given('An installed package {string} called {string}', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And Technical role '<RoleName>' is present in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Given('Technical role {string} is present in the identity platform', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And Business role '<businessrole>' is present in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Given('Business role {string} is present in the identity platform', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? When I map a '<RoleName>' to '<businessrole>' in the identity platform
+        Undefined. Implement with the following snippet:
+
+          When('I map a {string} to {string} in the identity platform', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? Then I should be able to see the mapping between '<RoleName>' & '<businessrole>' in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Then('I should be able to see the mapping between {string} & {string} in the identity platform', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+11) Scenario: Update Mapping of Technical roles to Business Roles in the Identity Platform # features/UC005-F007-Bootstrap-Creation-Update-Removal-of-PartyRoles-as-Business-Roles-and-Mapping-with-Technical-Roles-in-the-Identity-Platform.feature:31
+    ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+    ? Given an installed package '<PackageName>' called '<ComponentName>'
+        Undefined. Implement with the following snippet:
+
+          Given('an installed package {string} called {string}', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And Technical roles '<RoleName>' and '<RoleName1>' is present in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Given('Technical roles {string} and {string} is present in the identity platform', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And Business role '<businessrole>' is present in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Given('Business role {string} is present in the identity platform', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And '<RoleName>' is mapped with '<businessrole>' in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Given('{string} is mapped with {string} in the identity platform', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? When I update the mapping with new '<RoleName1>' to '<businessrole>' in the identity platform
+        Undefined. Implement with the following snippet:
+
+          When('I update the mapping with new {string} to {string} in the identity platform', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? Then I should be able see the updated mapping between '<RoleName1>' & '<businessrole>' in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Then('I should be able see the updated mapping between {string} & {string} in the identity platform', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+12) Scenario: Delete Mapping of Technical roles to Business Roles in the Identity Platform # features/UC005-F007-Bootstrap-Creation-Update-Removal-of-PartyRoles-as-Business-Roles-and-Mapping-with-Technical-Roles-in-the-Identity-Platform.feature:49
+    ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+    ? Given An installed package 'productcatalog-static-roles-v1beta3' called 'productcatalogmanagement'
+        Undefined. Implement with the following snippet:
+
+          Given('An installed package {string} called {string}', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And Technical role 'cat2owner' is present in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Given('Technical role {string} is present in the identity platform', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And Business role 'Brole' is present in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Given('Business role {string} is present in the identity platform', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And 'cat2owner' is mapped with 'Brole' in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Given('{string} is mapped with {string} in the identity platform', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? When I delete a mapping with 'cat2owner' to 'Brole' in the identity platform
+        Undefined. Implement with the following snippet:
+
+          When('I delete a mapping with {string} to {string} in the identity platform', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? Then I should not be able see the mapping between 'cat2owner' & 'Brole' in the identity platform
+        Undefined. Implement with the following snippet:
+
+          Then('I should not be able see the mapping between {string} & {string} in the identity platform', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+13) Scenario: Install component and test Observability config # features/UC012-F001-View-Functional-Observability.feature:9
+    ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+    ? Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
+        Undefined. Implement with the following snippet:
+
+          Given('I install a package {string} with a metrics API {string} and release name {string}', function (string, string2, string3) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? When the component 'ctk-productcatalog' has a deployment status of 'Complete'
+        Undefined. Implement with the following snippet:
+
+          When('the component {string} has a deployment status of {string}', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? Then the Observability platform monitors the 'metrics' endpoint
+        Undefined. Implement with the following snippet:
+
+          Then('the Observability platform monitors the {string} endpoint', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+14) Scenario: Uninstall component and test Observability config is cleaned up # features/UC012-F001-View-Functional-Observability.feature:14
+    ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+    ? Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
+        Undefined. Implement with the following snippet:
+
+          Given('I install a package {string} with a metrics API {string} and release name {string}', function (string, string2, string3) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And the component 'ctk-productcatalog' has a deployment status of 'Complete'
+        Undefined. Implement with the following snippet:
+
+          Given('the component {string} has a deployment status of {string}', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? When I uninstall the package with release 'ctk'
+        Undefined. Implement with the following snippet:
+
+          When('I uninstall the package with release {string}', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? Then the Observability platform does not monitor the 'metrics' endpoint
+        Undefined. Implement with the following snippet:
+
+          Then('the Observability platform does not monitor the {string} endpoint', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+15) Scenario: Install component and view Observability metrics # features/UC012-F001-View-Functional-Observability.feature:28
+    ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+    ? Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
+        Undefined. Implement with the following snippet:
+
+          Given('I install a package {string} with a metrics API {string} and release name {string}', function (string, string2, string3) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And the component 'ctk-productcatalog' has a deployment status of 'Complete'
+        Undefined. Implement with the following snippet:
+
+          Given('the component {string} has a deployment status of {string}', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? When A user creates a 'category' in the 'productcatalog' component
+        Undefined. Implement with the following snippet:
+
+          When('A user creates a {string} in the {string} component', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? Then the Observability platform shows the 'createCategory' metrics
+        Undefined. Implement with the following snippet:
+
+          Then('the Observability platform shows the {string} metrics', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+16) Scenario: Install component and view Observability metrics # features/UC012-F001-View-Functional-Observability.feature:29
+    ✔ Before # features/step-definition/ComponentManagementSteps.js:178
+    ? Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
+        Undefined. Implement with the following snippet:
+
+          Given('I install a package {string} with a metrics API {string} and release name {string}', function (string, string2, string3) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? And the component 'ctk-productcatalog' has a deployment status of 'Complete'
+        Undefined. Implement with the following snippet:
+
+          Given('the component {string} has a deployment status of {string}', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? When A user creates a 'catalog' in the 'productcatalog' component
+        Undefined. Implement with the following snippet:
+
+          When('A user creates a {string} in the {string} component', function (string, string2) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ? Then the Observability platform shows the 'createCatalog' metrics
+        Undefined. Implement with the following snippet:
+
+          Then('the Observability platform shows the {string} metrics', function (string) {
+            // Write code here that turns the phrase above into concrete actions
+            return 'pending';
+          });
+
+    ✔ After # features/step-definition/ComponentManagementSteps.js:193
+
+39 scenarios (16 undefined, 23 passed)
+139 steps (59 undefined, 2 skipped, 78 passed)
+1m01.709s (executing steps: 1m01.595s)
