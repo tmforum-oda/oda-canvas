@@ -3,7 +3,7 @@
 	"kind": "DependentAPI",
 	"metadata": {
 		"annotations": {
-			"kopf.zalando.org/dependentApiCreate": "{\"started\":\"2024-04-28T19:58:53.584084+00:00\",\"delayed\":\"2024-04-28T19:59:53.647708+00:00\",\"purpose\":\"create\",\"retries\":1,\"success\":false,\"failure\":false,\"message\":\"setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {\\\"kind\\\":\\\"Status\\\",\\\"apiVersion\\\":\\\"v1\\\",\\\"metadata\\\":{},\\\"status\\\":\\\"Failure\\\",\\\"message\\\":\\\"Operation cannot be fulfilled on dependentapis.oda.tmforum.org \\\\\\\"prodcat-productcatalogmanagement-dapi-party\\\\\\\": the object has been modified; please apply your changes to the latest version and try again\\\",\\\"reason\\\":\\\"Conflict\\\",\\\"details\\\":{\\\"name\\\":\\\"prodcat-productcatalogmanagement-dapi-party\\\",\\\"group\\\":\\\"oda.tmforum.org\\\",\\\"kind\\\":\\\"dependentapis\\\"},\\\"code\\\":409}\\n\"}"
+			"kopf.zalando.org/dependentApiCreate": "{\"started\":\"2024-04-28T19:58:53.584084+00:00\",\"delayed\":\"2024-04-28T19:59:53.647708+00:00\",\"purpose\":\"create\",\"retries\":1,\"success\":false,\"failure\":false,\"message\":\"setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {\\\"kind\\\":\\\"Status\\\",\\\"apiVersion\\\":\\\"v1\\\",\\\"metadata\\\":{},\\\"status\\\":\\\"Failure\\\",\\\"message\\\":\\\"Operation cannot be fulfilled on dependentapis.oda.tmforum.org \\\\\\\"prodcat-productcatalogmanagement-party\\\\\\\": the object has been modified; please apply your changes to the latest version and try again\\\",\\\"reason\\\":\\\"Conflict\\\",\\\"details\\\":{\\\"name\\\":\\\"prodcat-productcatalogmanagement-party\\\",\\\"group\\\":\\\"oda.tmforum.org\\\",\\\"kind\\\":\\\"dependentapis\\\"},\\\"code\\\":409}\\n\"}"
 		},
 		"creationTimestamp": "2024-04-28T19:58:53Z",
 		"finalizers": [
@@ -107,7 +107,7 @@
 				"time": "2024-04-28T19:59:53Z"
 			}
 		],
-		"name": "prodcat-productcatalogmanagement-dapi-party",
+		"name": "prodcat-productcatalogmanagement-party",
 		"namespace": "components",
 		"ownerReferences": [
 			{
@@ -133,7 +133,7 @@
 				"dependentApiCreate": {
 					"delayed": "2024-04-28T19:59:53.647708+00:00",
 					"failure": false,
-					"message": "setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"Operation cannot be fulfilled on dependentapis.oda.tmforum.org \\\"prodcat-productcatalogmanagement-dapi-party\\\": the object has been modified; please apply your changes to the latest version and try again\",\"reason\":\"Conflict\",\"details\":{\"name\":\"prodcat-productcatalogmanagement-dapi-party\",\"group\":\"oda.tmforum.org\",\"kind\":\"dependentapis\"},\"code\":409}\n",
+					"message": "setDependentAPIImplementationStatusReady: Exception in patch_namespaced_custom_object: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"Operation cannot be fulfilled on dependentapis.oda.tmforum.org \\\"prodcat-productcatalogmanagement-party\\\": the object has been modified; please apply your changes to the latest version and try again\",\"reason\":\"Conflict\",\"details\":{\"name\":\"prodcat-productcatalogmanagement-party\",\"group\":\"oda.tmforum.org\",\"kind\":\"dependentapis\"},\"code\":409}\n",
 					"purpose": "create",
 					"retries": 1,
 					"started": "2024-04-28T19:58:53.584084+00:00",

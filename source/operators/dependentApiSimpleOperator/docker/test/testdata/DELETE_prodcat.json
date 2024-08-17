@@ -79,7 +79,7 @@
 				"time": "2024-04-25T08:50:30Z"
 			}
 		],
-		"name": "prodcat-productcatalog-dapi-party",
+		"name": "prodcat-productcatalog-party",
 		"namespace": "components",
 		"ownerReferences": [
 			{
