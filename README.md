@@ -41,4 +41,4 @@ The design (including ongoing work) of the ODA Canvas is documented in [ODA Canv
 
 How to work with this repository:
 
-* [How-To work with Dockerimages](docs/developer/work-with-dockerimages.md)
+* [How-To work with Dockerimages](https://github.com/tmforum-oda/oda-canvas/blob/master/docs/developer/work-with-dockerimages.md)

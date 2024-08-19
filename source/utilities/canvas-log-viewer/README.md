@@ -18,7 +18,7 @@ kubectl canvas-logs [component name] [component operator pod name]
 
 The utility will use the current kubeconfig to connect to the Kubernetes cluster. You should get a screen like the one below:
 
-![Screenshot](Screenshot.png)
+![canvas-log-viewer](canvas-log-viewer.png)
 
 To exit the utility, type `CTRL-C`
 
