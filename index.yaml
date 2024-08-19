@@ -24,6 +24,49 @@ entries:
   canvas-oda:
   - apiVersion: v2
     appVersion: v1beta3
+    created: "2024-08-19T07:12:19.445652669Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.0.0
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.0
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.1.0
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: controller
+      repository: file://../controller
+      version: 1.1.1
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 0.2.0
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 0.1.0
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 0.2.0
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.1.2
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 532851b39ba1259a86df72d2883fc18e4ea3cf87e0c633a958c431ee3917188d
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.1.5-rc6/canvas-oda-1.1.5-rc6.tgz
+    version: 1.1.5-rc6
+  - apiVersion: v2
+    appVersion: v1beta3
     created: "2024-08-14T14:18:45.857053649Z"
     dependencies:
     - name: cert-manager-init
@@ -231,6 +274,16 @@ entries:
   controller:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2024-08-19T07:12:19.574891907Z"
+    description: A helm chart to deploy the component controller
+    digest: b485323d58ae0236315d5e6e34dd8902674cfada36434c0eef835dda966e2b08
+    name: controller
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/controller-1.1.1/controller-1.1.1.tgz
+    version: 1.1.1
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2024-06-13T19:03:59.689636211Z"
     description: A helm chart to deploy the component controller
     digest: ead5531c7debb94c5b6d23c61230b8e76b32123823ec135bc36c289201f25bf2
@@ -260,6 +313,16 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/controller-0.1.0/controller-0.1.0.tgz
     version: 0.1.0
   dependentapi-simple-operator:
+  - apiVersion: v2
+    appVersion: 0.2.0"
+    created: "2024-08-19T07:12:19.684335344Z"
+    description: The DependentAPI Simple Operator
+    digest: 9ea1bf0923e8b748019ee02f9647eb4fb36c4774cb1719893cc9a1cbada2cc52
+    name: dependentapi-simple-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/dependentapi-simple-operator-0.2.0/dependentapi-simple-operator-0.2.0.tgz
+    version: 0.2.0
   - apiVersion: v2
     appVersion: 0.1.0"
     created: "2024-06-13T19:03:59.871556713Z"
@@ -369,4 +432,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-0.1.0/oda-webhook-0.1.0.tgz
     version: 0.1.0
-generated: "2024-08-14T14:18:45.950320588Z"
+generated: "2024-08-19T07:12:19.684399373Z"
