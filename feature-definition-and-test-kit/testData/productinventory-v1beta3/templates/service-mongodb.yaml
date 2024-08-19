@@ -8,8 +8,8 @@ metadata:
 spec:
   ports:
   - port: 27017
-    targetPort: {{.Release.Name}}-mongodb
-    name: {{.Release.Name}}-mongodb
+    targetPort: mongodb
+    name: mongodb
   type: NodePort
   selector:
     app: {{.Release.Name}}-mongodb

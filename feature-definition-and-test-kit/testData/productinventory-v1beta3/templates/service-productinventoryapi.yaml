@@ -9,7 +9,7 @@ spec:
   ports:
   - port: 8080
     targetPort: 8080
-    name: {{.Release.Name}}-productinventoryapi
+    name: prodinvapi
   type: NodePort
   selector:
     app: {{.Release.Name}}-productinventoryapi
