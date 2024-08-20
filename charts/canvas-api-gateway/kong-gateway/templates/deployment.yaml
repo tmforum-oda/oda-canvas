@@ -15,7 +15,7 @@ spec:
     spec:
       serviceAccountName: {{ .Release.Name }}-operator
       initContainers:
-        - name: wait-apisix-admin
+        - name: wait-kong-admin
           image: busybox:1.28
           command:
             - sh
