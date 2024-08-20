@@ -9,6 +9,7 @@ spec:
   ports:
   - port: 8080
     targetPort: 8080
+    # switched port name from "productinventoryapi" to "prodinvapi" to match the name used in the deployment
     name: prodinvapi
   type: NodePort
   selector:
