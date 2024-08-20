@@ -3,7 +3,6 @@ on:
   pull_request:
     branches:
       - master
-      - testmaster
 jobs:
   lint-python-code:
     runs-on: ubuntu-latest
@@ -11,4 +10,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: psf/black@stable
         with: 
-          src: "./source/operators/secretsmanagementOperator-hc"
+          src: |
+            ./source/operators/secretsmanagementOperator-hc
+            ./source/operators/apiOperatorApisix
+            ./source/operators/apiOperatorKong
