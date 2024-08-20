@@ -101,7 +101,7 @@
 				"time": "2024-04-29T11:32:26Z"
 			}
 		],
-		"name": "prodcat-productcatalogmanagement-dapi-party",
+		"name": "prodcat-productcatalogmanagement-party",
 		"namespace": "components",
 		"ownerReferences": [
 			{
@@ -123,7 +123,7 @@
 	},
 	"status": {
 		"depapiStatus": {
-			"url": "http://dummy.url/prodcat-productcatalogmanagement-dapi-party"
+			"url": "http://dummy.url/prodcat-productcatalogmanagement-party"
 		},
 		"implementation": {
 			"ready": true

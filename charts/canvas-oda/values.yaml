@@ -112,8 +112,8 @@ controller:
   deployment:
     controllerName: oda-controller
     compconImage: tmforumodacanvas/component-istio-controller
-    compconVersion: 0.5.1
-    compconPrereleaseSuffix:
+    compconVersion: 0.5.2
+    compconPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener
@@ -138,8 +138,8 @@ controller:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 0.2.1
-  prereleaseSuffix:
+  version: 0.2.2
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
 
