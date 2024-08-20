@@ -14,6 +14,14 @@ spec:
         app: {{ .Release.Name }}-operator
     spec:
       serviceAccountName: {{ .Release.Name }}-operator
+      initContainers:
+        - name: wait-apisix-admin
+          image: busybox:1.28
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z kong-kong-admin.kong.svc.cluster.local 8001; do echo waiting for kong-admin; sleep 2; done;
       containers:
       - name: {{ .Release.Name }}-operator
         image: {{ .Values.kongoperatorimage.repository }}
