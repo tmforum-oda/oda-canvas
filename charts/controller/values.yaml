@@ -1,9 +1,14 @@
 deployment:
   controllerName: oda-controller
-  compconImage: tmforumodacanvas/component-istio-controller:0.5.0
-  imagePullPolicy: IfNotPresent
+  compconImage: tmforumodacanvas/component-istio-controller
+  compconVersion: 0.5.2
+  compconPrereleaseSuffix:
+  compconImagePullPolicy: IfNotPresent
   istioGateway: true
-  secconImage: tmforumodacanvas/security-listener:0.6.0
+  secconImage: tmforumodacanvas/security-listener
+  secconVersion: 0.7.1
+  secconPrereleaseSuffix:
+  secconImagePullPolicy: IfNotPresent
   monitoredNamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false

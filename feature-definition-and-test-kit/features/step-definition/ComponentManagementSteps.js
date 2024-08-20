@@ -28,17 +28,31 @@ setDefaultTimeout( 20 * 1000);
 
 
 /**
- * Verify the given package includes a component that has a specified number of APIs in a specific segment.
+ * Verify the given package includes a component that has a specified number of ExposedAPIs in a specific segment.
  *
  * @param {string} componentPackage - The name of the example package.
  * @param {string} componentName - The name of the component.
- * @param {string} numberOfAPIs - The expected number of APIs in the component segment.
+ * @param {string} numberOfAPIs - The expected number of ExposedAPIs in the component segment.
  * @param {string} componentSegmentName - The name of the component segment.
  */
-Given('An example package {string} with a {string} component with {string} API in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
+Given('an example package {string} with a {string} component with {string} ExposedAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
   exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
-  // assert that there are the correct number of APIs in the componentSegment
-  assert.ok(exposedAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " API")
+  // assert that there are the correct number of ExposedAPIs in the componentSegment
+  assert.ok(exposedAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " ExposedAPI")
+});
+
+/**
+ * Verify the given package includes a component that has a specified number of DependentAPIs in a specific segment.
+ *
+ * @param {string} componentPackage - The name of the example package.
+ * @param {string} componentName - The name of the component.
+ * @param {string} numberOfAPIs - The expected number of DependentAPIs in the component segment.
+ * @param {string} componentSegmentName - The name of the component segment.
+ */
+Given('an example package {string} with a {string} component with {string} DependentAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
+  dependentAPIs = packageManagerUtils.getDependentAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
+  // assert that there are the correct number of DependentAPI in the componentSegment
+  assert.ok(dependentAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " DependentAPI")
 });
 
 /**
@@ -58,7 +72,7 @@ When('I install the {string} package', async function (componentPackage) {
  * @param {string} componentPackage - The name of the package to install.
  * @param {string} releaseName - The name of the release name.
  */
-Given('A baseline {string} package installed as release {string}', async function (componentPackage, releaseName) {
+Given('a baseline {string} package installed as release {string}', async function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
@@ -91,7 +105,7 @@ When('I upgrade the {string} package as release {string}', async function (compo
  *
  * @param {string} componentPackage - The name of the example component package to install.
  */
-Given('An example package {string} has been installed', async function (componentPackage) {
+Given('an example package {string} has been installed', async function (componentPackage) {
   global.currentReleaseName = DEFAULT_RELEASE_NAME
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
@@ -161,10 +175,12 @@ Then('I can query the {string} spec version of the {string} component', {timeout
 /**
  * Code executed before each scenario.
  */
-Before(async function () {
+Before(async function (scenario) {
   if (DEBUG_LOGS) {
     console.log()
     console.log('==================================================================')
+    const scenarioName = scenario.pickle.name;
+    console.log(`Running scenario: ${scenarioName}`);
     console.log('Scenario started at: ' + new Date().toISOString())
   }
 });
@@ -186,7 +202,11 @@ After(async function (scenario) {
     if (scenario.result.status === 'FAILED') {
       console.log('------------------------------------------------------------------')
       console.log('Controller logs:')
+      try {
       console.log(await resourceInventoryUtils.getControllerLogs())  
+      } catch (error) {
+        console.log('Error getting controller logs: ' + error)
+      }
       console.log('------------------------------------------------------------------')
     } 
     console.log()

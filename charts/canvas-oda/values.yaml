@@ -111,13 +111,14 @@ keycloak:
 controller:
   deployment:
     controllerName: oda-controller
-    # compconImage: tmforumodacanvas/component-istio-controller:0.5.0
-    # TODO: replace with tmforumodacanvas repo.  
-    # compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.2
-    compconImage: ravijangra92/canvas:3.0
+    compconImage: tmforumodacanvas/component-istio-controller
+    compconVersion: 0.5.2
+    compconPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    secconImage: tmforumodacanvas/security-listener:0.7.0
+    secconImage: tmforumodacanvas/security-listener
+    secconVersion: 0.7.1
+    secconPrereleaseSuffix:
     monitoredNamespaces: 'components'           # comma separated list of namespaces
     ingressClass:
       enabled: false
@@ -136,10 +137,9 @@ controller:
     
 dependentapi-simple-operator:
   enabled: true
-  # TODO: replace with tmforumodacanvas repo.  
-  #image: ankursarkar/dependentapi-simple-operator:0.2.0
-  #image: ocfork/dependentapi-simple-operator:0.2.1-odaa114
-  image: ravijangra92/dependentapisimpleoperator:1.0
+  image: tmforumodacanvas/dependentapi-simple-operator
+  version: 0.2.2
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
 
@@ -221,15 +221,15 @@ canvas-vault:
           tag: "1.14.8"
 
 secretsmanagement-operator:
-  image: ocfork/secretsmanagement-operator
+  image: tmforumodacanvas/secretsmanagement-operator
   version: 0.1.0
   prereleaseSuffix:
-  #imagePullPolicy: IfNotPresent
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   
-  sidecarImage: ocfork/secretsmanagement-sidecar
+  sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
   sidecarVersion: 0.1.0
   sidecarPrereleaseSuffix:
+  sidecarImagePullPolicy: IfNotPresent
   
   # TODO: add TLS to canvas-vault-hc
   vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
@@ -256,5 +256,9 @@ secretsmanagement-operator:
   # encrpyted token (can be found in logfile)
   # #hvacTokenEnc:
 
-webhooks:
-  image: tmforumodacanvas/compcrdwebhook:0.6.2 
+oda-webhook:
+  image: tmforumodacanvas/compcrdwebhook
+  version: 0.8.2
+  prereleaseSuffix:
+  imagePullPolicy: IfNotPresent
+
