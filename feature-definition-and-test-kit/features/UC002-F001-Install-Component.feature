@@ -24,4 +24,4 @@ Feature: UC002-F001 Install Component
 
     Examples:
     | Name           | PackageName                              | ReleaseName | DependentAPIName         | ComponentName                | SegmentName        | DependentApiCount |
-    | Core API       | productcatalog-dependendent-API-v1beta3  |      pc     | dapi-downstreamproductcatalog | productcatalogmanagement     | coreFunction       | 1                 |
+    | Core API       | productcatalog-dependendent-API-v1beta3  |      pc     | downstreamproductcatalog | productcatalogmanagement     | coreFunction       | 1                 |
