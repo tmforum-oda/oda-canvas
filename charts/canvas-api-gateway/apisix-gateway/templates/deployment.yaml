@@ -14,6 +14,14 @@ spec:
         app: {{ .Release.Name }}-operator
     spec:
       serviceAccountName: {{ .Release.Name }}-operator
+      initContainers:
+        - name: wait-apisix-admin
+          image: busybox:1.28
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z apisix-admin.ingress-apisix.svc.cluster.local 9180; do echo waiting for apisix-admin; sleep 2; done;
       containers:
       - name: {{ .Release.Name }}-operator
         image: {{ .Values.apisixoperatorimage.repository }}
