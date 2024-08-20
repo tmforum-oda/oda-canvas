@@ -20,7 +20,7 @@ spec:
       - name: {{.Release.Name}}-mongodb
         image: mongo:5.0.1
         ports:
-        - name: {{.Release.Name}}-mongodb
+        - name: mongodb
           containerPort: {{.Values.mongodb.port}}
         volumeMounts:
         - name: {{.Release.Name}}-mongodb-pv-storage
