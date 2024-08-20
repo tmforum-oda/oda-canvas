@@ -15,7 +15,7 @@ To successfully collaborate in the same repository some rules have to be followe
 
 ## Versions in values.yaml
 
-Dockerimages are versioned in the [charts/canvas-oda/values.yaml](../../charts/canvas-oda/values.yaml) file of the canva-oda chart and consist of three parts. 
+Dockerimages are versioned in the [charts/canvas-oda/values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/master/charts/canvas-oda/values.yaml) file of the canva-oda chart and consist of three parts. 
 E.g. for oda-webhook:
 
 ```
@@ -68,7 +68,7 @@ First get an overview, how the Dockerfile for the secretsmanagement-operator is 
 
 #### Look at the Docker build configuration
 
-All dependencies of a Docker image are configured in the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](../../automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
+All dependencies of a Docker image are configured in the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](https://github.com/tmforum-oda/oda-canvas/blob/master/automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
 
 For the Secretsmanagement-Operator this is:
 
@@ -465,7 +465,7 @@ In the Docker registry there is now a release version 0.1.1:
 Overview about the steps to do:
 
 * Create feature branch "feature/..." and do all work in this branch
-* Increment version number and set prereleaseSuffix for Dockerimage to modify in [charts/canvas-oda/values.yaml](../../charts/canvas-oda/values.yaml)
+* Increment version number and set prereleaseSuffix for Dockerimage to modify in [charts/canvas-oda/values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/master/charts/canvas-oda/values.yaml)
 * Modify code, push triggers rebuild of prerelease docker image
 * For the first time do a `helm upgrade` to redeploy the prerelease version
 * For any further modifications to a `kubectl scale deployment ... ---replicas 0` and then `kubectl scale deployment ... ---replicas 1` (or delete running PODs)
@@ -476,8 +476,8 @@ Overview about the steps to do:
 # How-To add a new Dockerimage
 
 Currently there are 6 Docker images which are built automatically.
-New Docker images can be added by editing the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](../../automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
+New Docker images can be added by editing the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](https://github.com/tmforum-oda/oda-canvas/blob/master/automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
 In this file the docker build specific configurations and the relevant source paths have to be set.
 
 After the configuration is finished, the GitHub Actions have to be regenerated 
-by executing [automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py](../../automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py). For executing the python script, the packages "pyyaml" and "jinja2" have to be installed (see requirements.txt).
+by executing [automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py](https://github.com/tmforum-oda/oda-canvas/blob/master/automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py). For executing the python script, the packages "pyyaml" and "jinja2" have to be installed (see requirements.txt).
