@@ -7,7 +7,7 @@
 @UC014-F0001    # tagged as use feature 01 within use case 14
 Feature: UC014-F0001 : Create API Resource
 
-    Scenario : Create or Update HTTPRoute for an API Resource
+    Scenario: Create or Update HTTPRoute for an API Resource
         Given an API resource with path '<Path>'
         When the API resource is created or updated
         Then an HTTPRoute should be created or updated in the 'components' namespace
@@ -19,51 +19,51 @@ Feature: UC014-F0001 : Create API Resource
        | /api/v1/resource1  |
        | /api/v1/resource2  |
 
-    Scenario : Apply Rate Limiting Plugin
+     Scenario: Apply Rate Limiting Plugin
         Given an API resource with rate limiting enabled and a limit of <Limit> requests per minute
         When the API resource is created or updated
         Then a rate limiting plugin should be created or updated in the 'components' namespace
         And the plugin should be associated with the correct API resource
 
-    Examples:
+     Examples:
        | Limit |
        | 100   |
        | 200   |
 
-    Scenario : Apply API Key Verification Plugin
+     Scenario: Apply API Key Verification Plugin
         Given an API resource with API key verification enabled
         When the API resource is created or updated
         Then an API key verification plugin should be created or updated in the 'components' namespace
         And the plugin should be associated with the correct API resource
 
-    Scenario : Apply CORS Plugin
+     Scenario: Apply CORS Plugin
         Given an API resource with CORS enabled and configuration '<Config>'
         When the API resource is created or updated
         Then a CORS plugin should be created or updated in the 'components' namespace
         And the plugin should be associated with the correct API resource
 
-    Examples:
+     Examples:
        | Config                                                                                            |
        | "allowOrigins: '*', handlePreflightRequests: {allowMethods: 'GET, POST', allowHeaders: 'Origin'}" |
 
-    Scenario : Manage Plugins from URL Template
-        Given an API resource with a URL template for plugins '<URL>'
-        When the API resource is created or updated
-        Then plugins should be downloaded and applied from the URL template
-        And the applied plugins should be associated with the correct API resource
+     Scenario: Manage Plugins from URL Template
+         Given an API resource with a URL template for plugins '<URL>'
+         When the API resource is created or updated
+         Then plugins should be downloaded and applied from the URL template
+         And the applied plugins should be associated with the correct API resource
 
-    Examples:
-       | URL                        |
+     Examples:
+       |          Name              |
        | http://example.com/plugin1 |
        | http://example.com/plugin2 |
 
-    Scenario : Delete API Resource
+     Scenario: Delete API Resource
         Given an API resource with path '<Path>' is deleted
         When the deletion event is triggered
         Then the associated HTTPRoute should be automatically deleted
         And the deletion should be logged
 
-    Examples:
+     Examples:
        | Path               |
        | /api/v1/resource1  |
        | /api/v1/resource2  |
