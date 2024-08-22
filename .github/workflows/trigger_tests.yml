@@ -42,6 +42,7 @@ jobs:
       run: |
         echo "---- CHANGED FILES ----"
         git diff --name-only HEAD~1
+        echo "---- ------------- ----"
         export CHANGED_FILES=$(git diff --name-only HEAD~1)
         if [ "$CHANGED_FILES" == "charts/canvas-oda/values.yaml" ]
         then
@@ -80,6 +81,8 @@ jobs:
               echo "SKIPTESTS=1" >> $GITHUB_OUTPUT
             fi
           fi
+        else
+          echo "changes to other files than values.yaml detected, not skipping tests"
         fi 
 
 
