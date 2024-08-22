@@ -58,13 +58,13 @@ jobs:
           export NEW_LINES_WITH_EMPTY_PRS=$(cat gitdiff.txt | grep -i "^+ .*prereleasesuffix:\s*$" | wc -l)
 
           echo "OLD LINES ($OLD_LINES)"
-          cat gitdiff.txt | grep -i "^- "
+          cat gitdiff.txt | grep -i "^- " || true
           echo "---- -------------------- ----"
           echo "NEW LINES ($NEW_LINES)"
-          cat gitdiff.txt | grep -i "^+ "
+          cat gitdiff.txt | grep -i "^+ " || true
           echo "---- -------------------- ----"
           echo "NEW LINES WITH EMPTY PRERELEASESUFFIX ($NEW_LINES_WITH_EMPTY_PRS)"
-          cat gitdiff.txt | grep -i "^+ .*prereleasesuffix:\s*$" 
+          cat gitdiff.txt | grep -i "^+ .*prereleasesuffix:\s*$" || true
           echo "---- -------------------- ----"
           
           if [ "$OLD_LINES" != "$NEW_LINES" ]
