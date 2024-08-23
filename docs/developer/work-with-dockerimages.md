@@ -3,6 +3,26 @@
 The project oda-canvas is configured to automatically build docker images, when their source code is changed.
 To successfully collaborate in the same repository some rules have to be followed.
 
+## TL;DR;
+
+Example PR:
+https://github.com/tmforum-oda/oda-canvas/pull/305/files
+
+![steps for building docker images in a feature branch](images/autobuild-dockerimages-steps.png)
+
+Step | Description |
+--- | ---
+branch | create a branch, naming has to follow "feature/..." or "odaa-..." otherwise the automated docker builds are not active
+1 | Increment the version number of the dockerfile which will be updated and and set the prereleaseSuffix, e.g to the issue number
+2 | change the source code. This triggers the docker build of the prerelease version
+3 | adjust the tests to cover the changed code (steps 2 and 3 might iterate multiple times)
+4 | prepare everything for the Pull-Request. Set chart-version numbers, document changes, also update the version number in the dependent charts
+PR | create Pull-Request -> BDD Tests are executed and should be successfull 
+5 | before merging, remove all prereleaseSuffixes. This will make the  "no-prerelease-suffixes"-check in the PR green. Start the commit message with "\[skip tests\] ..." this will skip running the BDD tests (which would fail, because of the missing release images)
+Merge | the merge into the master branch triggers the build of the release docker images 
+
+
+
 ## Global Rules
 
 * Release versions (image tags) follow the semantic versioning format "\<major\>.\<minor\>.\<increment\>" and are built only from the master branch
@@ -430,7 +450,7 @@ secretsmanagement-operator:
     ...
 ```
 
-After pushing this change, the two checks (Linting and Release version check) are triggered again:
+Start the commit message with "\[skip tests\] ..." which will skip running the BDD tests. After pushing this change, the two checks (Linting and Release version check) are triggered again:
 
 ![image](https://github.com/user-attachments/assets/e687ec09-df02-4eea-b347-d09cbbb72f32)
 
@@ -470,7 +490,7 @@ Overview about the steps to do:
 * For the first time do a `helm upgrade` to redeploy the prerelease version
 * For any further modifications to a `kubectl scale deployment ... ---replicas 0` and then `kubectl scale deployment ... ---replicas 1` (or delete running PODs)
 * Finally create PR and make BDD tests green
-* Remove prereleaseSuffixes from values.yaml
+* Remove prereleaseSuffixes from values.yaml, add "\[skip tests\]" to the commit message
 * Merge the PR
 
 # How-To add a new Dockerimage

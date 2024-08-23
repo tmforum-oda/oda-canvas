@@ -8,8 +8,8 @@ metadata:
 spec:
   ports:
   - port: 8080
-    targetPort: {{.Release.Name}}-pmapi
-    name: http-{{.Release.Name}}-promgmtapi
+    targetPort: pmapi
+    name: http-promgmtapi
   type: NodePort
   selector:
     impl: {{.Release.Name}}-promgmtapi
