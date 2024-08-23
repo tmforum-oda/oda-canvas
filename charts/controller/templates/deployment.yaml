@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oda-controller-ingress
+  name: oda-controller
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "controller.labels" . | nindent 4 }}
@@ -20,16 +20,16 @@ spec:
       serviceAccountName: odacomponent-account
       containers:
       - name: {{.Values.deployment.controllerName}}
-        image: {{.Values.deployment.compconImage}}
-        imagePullPolicy: {{.Values.deployment.compconImagePullPolicy}}
+        image: {{ include "controller.compconDockerimage" . }}
+        imagePullPolicy: {{ include "controller.compconImagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap
           - secretRef:
               name: {{ .Release.Name }}-controller-secret
       - name: seccon
-        image: {{.Values.deployment.secconImage}}
-        imagePullPolicy: IfNotPresent
+        image: {{ include "controller.secconDockerimage" . }}
+        imagePullPolicy: {{ include "controller.secconImagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap

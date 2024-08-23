@@ -1,14 +1,20 @@
 deployment:
-  controllerName: oda-controller-ingress
-  #compconImage: tmforumodacanvas/component-istio-controller:0.4.0
-  compconImage: mtr.devops.telekom.de/magenta_canvas/public:component-istio-controller-0.4.1
+  controllerName: oda-controller
+  compconImage: tmforumodacanvas/component-istio-controller
+  compconVersion: 0.5.2
+  compconPrereleaseSuffix:
   compconImagePullPolicy: IfNotPresent
   istioGateway: true
-  secconImage: tmforumodacanvas/security-listener:0.6.0
+  secconImage: tmforumodacanvas/security-listener
+  secconVersion: 0.7.1
+  secconPrereleaseSuffix:
+  secconImagePullPolicy: IfNotPresent
   monitoredNamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false
     name: nginx
+  dataDog:
+    enabled: false
   keycloak:
     port: 8080
 #We reuse the admin user created on keycloak instalation

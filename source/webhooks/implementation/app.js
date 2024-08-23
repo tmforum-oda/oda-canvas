@@ -197,7 +197,7 @@ app.post("/", (req, res, next) => {
         }
       } 
 
-      // update the eventNotification segments and change exposedAPI specification to an array of 1
+      // update the eventNotification segments and change exposedAPI specification to an array of 1 and apitype to apiType
       if (apiVersion.mapOldToNew(["v1alpha4","v1beta1", "v1beta2"], ["v1beta3"])) {
         console.log("Update eventNotification segments");
         
@@ -211,7 +211,7 @@ app.post("/", (req, res, next) => {
                 var parts = new URL(event.href);
                 delete event.href;
                 event.description = "";
-                event.apitype = "openapi";
+                event.apiType = "openapi";
                 event.specification = "";
                 event.implementation = parts.hostname;
                 event.developerUI = "";
@@ -233,7 +233,7 @@ app.post("/", (req, res, next) => {
                 var parts = new URL(event.href);
                 delete event.href;
                 event.description = "";
-                event.apitype = "openapi";
+                event.apiType = "openapi";
                 event.specification = "";
                 event.implementation = parts.hostname;
                 event.developerUI = "";
@@ -248,21 +248,33 @@ app.post("/", (req, res, next) => {
           }
         }
 
-        console.log("Change exposedAPI specification to an array of 1");
+        console.log("Change exposedAPI specification to an array of 1 and apitype to apiType");
         for (api in objectsArray[key].spec.coreFunction.exposedAPIs) {
           if (objectsArray[key].spec.coreFunction.exposedAPIs[api].specification) {
             objectsArray[key].spec.coreFunction.exposedAPIs[api].specification = [objectsArray[key].spec.coreFunction.exposedAPIs[api].specification];
+          }
+          if (objectsArray[key].spec.coreFunction.exposedAPIs[api].apitype) {
+            objectsArray[key].spec.coreFunction.exposedAPIs[api].apiType = objectsArray[key].spec.coreFunction.exposedAPIs[api].apitype;
+            delete objectsArray[key].spec.coreFunction.exposedAPIs[api].apitype;
           }
         }
         for (api in objectsArray[key].spec.managementFunction.exposedAPIs) {
           if (objectsArray[key].spec.managementFunction.exposedAPIs[api].specification) {
             objectsArray[key].spec.managementFunction.exposedAPIs[api].specification = [objectsArray[key].spec.managementFunction.exposedAPIs[api].specification];
           }
+          if (objectsArray[key].spec.managementFunction.exposedAPIs[api].apitype) {
+            objectsArray[key].spec.managementFunction.exposedAPIs[api].apiType = objectsArray[key].spec.managementFunction.exposedAPIs[api].apitype;
+            delete objectsArray[key].spec.managementFunction.exposedAPIs[api].apitype;
+          }
         }
         for (api in objectsArray[key].spec.securityFunction.exposedAPIs) {
           if (objectsArray[key].spec.securityFunction.exposedAPIs[api].specification) {
             objectsArray[key].spec.securityFunction.exposedAPIs[api].specification = [objectsArray[key].spec.securityFunction.exposedAPIs[api].specification];
           } 
+          if (objectsArray[key].spec.securityFunction.exposedAPIs[api].apitype) {
+            objectsArray[key].spec.securityFunction.exposedAPIs[api].apiType = objectsArray[key].spec.securityFunction.exposedAPIs[api].apitype;
+            delete objectsArray[key].spec.securityFunction.exposedAPIs[api].apitype;
+          }
         }
       }
 
@@ -310,10 +322,14 @@ app.post("/", (req, res, next) => {
           }
         }
 
-        console.log("Change exposedAPI specification from an array of 1 to a string");
+        console.log("Change exposedAPI specification from an array of 1 to a string and apiType to apitype");
         for (api in objectsArray[key].spec.coreFunction.exposedAPIs) {
           if ((objectsArray[key].spec.coreFunction.exposedAPIs[api].specification ) && (objectsArray[key].spec.coreFunction.exposedAPIs[api].specification.length > 0)) {
             objectsArray[key].spec.coreFunction.exposedAPIs[api].specification = objectsArray[key].spec.coreFunction.exposedAPIs[api].specification[0];
+          }
+          if (objectsArray[key].spec.coreFunction.exposedAPIs[api].apiType) {
+            objectsArray[key].spec.coreFunction.exposedAPIs[api].apitype = objectsArray[key].spec.coreFunction.exposedAPIs[api].apiType;
+            delete objectsArray[key].spec.coreFunction.exposedAPIs[api].apiType;
           }
         }
 
@@ -321,11 +337,19 @@ app.post("/", (req, res, next) => {
           if ((objectsArray[key].spec.managementFunction.exposedAPIs[api].specification ) && (objectsArray[key].spec.managementFunction.exposedAPIs[api].specification.length > 0)) {
             objectsArray[key].spec.managementFunction.exposedAPIs[api].specification = objectsArray[key].spec.managementFunction.exposedAPIs[api].specification[0];
           }
+          if (objectsArray[key].spec.managementFunction.exposedAPIs[api].apiType) {
+            objectsArray[key].spec.managementFunction.exposedAPIs[api].apitype = objectsArray[key].spec.managementFunction.exposedAPIs[api].apiType;
+            delete objectsArray[key].spec.managementFunction.exposedAPIs[api].apiType;
+          }
         }
 
         for (api in objectsArray[key].spec.securityFunction.exposedAPIs) {
           if ((objectsArray[key].spec.securityFunction.exposedAPIs[api].specification ) && (objectsArray[key].spec.securityFunction.exposedAPIs[api].specification.length > 0)) {
             objectsArray[key].spec.securityFunction.exposedAPIs[api].specification = objectsArray[key].spec.securityFunction.exposedAPIs[api].specification[0];
+          }
+          if (objectsArray[key].spec.securityFunction.exposedAPIs[api].apiType) {
+            objectsArray[key].spec.securityFunction.exposedAPIs[api].apitype = objectsArray[key].spec.securityFunction.exposedAPIs[api].apiType;
+            delete objectsArray[key].spec.securityFunction.exposedAPIs[api].apiType;
           }
         }    
       }  

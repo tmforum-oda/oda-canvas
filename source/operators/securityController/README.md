@@ -17,11 +17,11 @@ The security controller consists of two modules, both written in Python. The fir
 
 Keycloak setup
 
-Relm = whole organisation
-Client (within Relm) = 1 App or component
+Realm = whole organisation
+Client (within Realm) = 1 App or component
 
-Roles can be scoped at relm or client level
-Users can be scoped at relm or client level
+Roles can be scoped at realm or client level
+Users can be scoped at realm or client level
 
 
 
@@ -45,13 +45,27 @@ To run python module standalone:
 
 ```
 $env:KEYCLOAK_USER = "admin"
-$env:KEYCLOAK_PASSWORD = "admin"
+$env:KEYCLOAK_PASSWORD = "adpass"
 ```
 
-5. Configure a new relm `myrealm` in keycloak.
-6. Configure a new client `r1-productcatalog` in the `myrealm` relm.
+5. Configure a new realm `myrealm` in keycloak.
+6. Configure a new client `r1-productcatalog` in the `myrealm` realm.
+
+**Interactive development and Testing of operator using KOPF**
+
+The production operator will execute inside a Kubernetes Pod. For development and testing, it is possible to run the operator on the command-line (or inside a debugger). Kopf includes a `--standalone` attribute to allow the operator to execute in a standalone mode. This means that the operator will run independently, without relying on any external controllers or frameworks. It is particularly useful for development and debugging purposes, as it allows you to run and test your operator locally on your machine.
+
+Run locally in command-line: 
+```
+kopf run --namespace=components --standalone .\securityControllerKeycloak.py
+```
+
+This mode will use the kubeconfig file (typically located at `$HOME/.kube/config`) to as long as `kubectl` is correctly configured for your cluster, the operator should work. 
+
+You need to ensure you turn-off the operator execusing in Kubernetes (for example, by setting the replicas to 0 in the operator Deployment).
+
+The command above will execute just the Keycloak identity operator. You will also need to execute the other operators relavant for your Canvas implementation - these can be executed in separate terminal command-lines.
+
+**Note: The keycloak identity operator may have issues calling http services locally inside the cluster - for example it may try to call `http://seccon.canvas.svc.cluster.local` and fail as this can only be executed inside the Kubernetes cluster.**
 
 
-**Testing KOPF module**
-
-Run: `kopf run --namespace=components --standalone .\securityControllerKeycloak.py`

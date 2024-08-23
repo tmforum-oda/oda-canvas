@@ -60,3 +60,48 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+build the full compcon docker image name from image + version + prereleaseSuffix
+*/}}
+{{- define "controller.compconDockerimage" -}}
+  {{- .Values.deployment.compconImage -}}:{{- .Values.deployment.compconVersion -}}
+  {{- if .Values.deployment.compconPrereleaseSuffix -}}
+    -{{- .Values.deployment.compconPrereleaseSuffix -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{/*
+build the full seccon docker image name from image + version + prereleaseSuffix
+*/}}
+{{- define "controller.secconDockerimage" -}}
+  {{- .Values.deployment.secconImage -}}:{{- .Values.deployment.secconVersion -}}
+  {{- if .Values.deployment.secconPrereleaseSuffix -}}
+    -{{- .Values.deployment.secconPrereleaseSuffix -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{/*
+overwrite compcon imagePullSecret with "Always" if prereleaseSuffix is set
+*/}}
+{{- define "controller.compconImagePullPolicy" -}}
+  {{- if .Values.deployment.compconPrereleaseSuffix -}}
+    Always
+  {{- else -}}
+    {{- .Values.deployment.compconImagePullPolicy -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{/*
+overwrite seccon imagePullSecret with "Always" if prereleaseSuffix is set
+*/}}
+{{- define "controller.secconImagePullPolicy" -}}
+  {{- if .Values.deployment.secconPrereleaseSuffix -}}
+    Always
+  {{- else -}}
+    {{- .Values.deployment.secconImagePullPolicy -}}
+  {{- end -}}
+{{- end -}}

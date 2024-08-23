@@ -37,7 +37,7 @@ spec:
                   url to the specification of the API, if required. e.g. url to the swagger file for Open API.
                   This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
                 minItems: 1
-              apitype:
+              apiType:
                 type: string
                 enum:
                 - openapi

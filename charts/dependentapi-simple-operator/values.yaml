@@ -1,3 +1,5 @@
-image: mtr.devops.telekom.de/magenta_canvas/public:dependentapi-simple-operator-0.1.0
+image: tmforumodacanvas/dependentapi-simple-operator
+version: 0.2.2
+prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 loglevel: '20'

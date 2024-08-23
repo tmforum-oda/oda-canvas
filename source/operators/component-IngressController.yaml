@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oda-controller-ingress
+  name: oda-controller
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: oda-controller-ingress
+      app: oda-controller
   template:
     metadata:
       labels:
-        app: oda-controller-ingress
+        app: oda-controller
     spec:
       serviceAccountName: odacomponent-account
       containers:
-      - name: oda-controller-ingress
+      - name: oda-controller
         image: lesterthomas/odacomponentcontroller-ingress:latest
         env:
         - name: LOGGING

@@ -60,3 +60,25 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+build the full oda-webhook docker image name from image + version + prereleaseSuffix
+*/}}
+{{- define "oda-webhook.dockerimage" -}}
+  {{- .Values.image -}}:{{- .Values.version -}}
+  {{- if .Values.prereleaseSuffix -}}
+    -{{- .Values.prereleaseSuffix -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{/*
+overwrite imagePullSecret with "Always" if prereleaseSuffix is set
+*/}}
+{{- define "oda-webhook.imagePullPolicy" -}}
+  {{- if .Values.prereleaseSuffix -}}
+    Always
+  {{- else -}}
+    {{- .Values.imagePullPolicy -}}
+  {{- end -}}
+{{- end -}}

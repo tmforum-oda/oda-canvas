@@ -1,0 +1,22 @@
+# Default values for productcatalog.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+component:
+  type: productinventory
+  name: productinventory
+  functionalBlock: CoreCommerce
+  publicationDate: 2023-08-18T00:00:00.000Z
+  version: "0.0.1"
+service:
+  type: ClusterIP
+  port: 80
+security:
+  controllerRole: Admin
+mongodb:
+  port: 27017
+  database: tmf
+partyrole:
+  image: lesterthomas/partyroleapi:1.0
+  versionlabel: partyroleapi-1.0

@@ -4,53 +4,110 @@ const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 const packageManagerUtils = require('package-manager-utils-helm');
 const identityManagerUtils = require('identity-manager-utils-keycloak');
 
-const { Given, When, Then, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
+const { Given, When, Then, After, setDefaultTimeout, Before } = require('@cucumber/cucumber');
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const assert = require('assert');
 chai.use(chaiHttp)
 
 const NAMESPACE = 'components'
-const releaseName = 'ctk'
+const DEFAULT_RELEASE_NAME = 'ctk'
 const COMPONENT_DEPLOY_TIMEOUT = 100 * 1000 // 100 seconds
 const API_DEPLOY_TIMEOUT = 10 * 1000 // 10 seconds
 const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
 const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
 const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
-const CLEANUP_PACKAGE = true // set to true to uninstall the package after each test
+const CLEANUP_PACKAGE = false // set to true to uninstall the package after each Scenario
+const DEBUG_LOGS = true // set to true to log the controller logs after each failed Scenario
+global.currentReleaseName = null;
 
 setDefaultTimeout( 20 * 1000);
 
+
+
+
+
 /**
- * Verify the given package includes a component that has a specified number of APIs in a specific segment.
+ * Verify the given package includes a component that has a specified number of ExposedAPIs in a specific segment.
  *
  * @param {string} componentPackage - The name of the example package.
  * @param {string} componentName - The name of the component.
- * @param {string} numberOfAPIs - The expected number of APIs in the component segment.
+ * @param {string} numberOfAPIs - The expected number of ExposedAPIs in the component segment.
  * @param {string} componentSegmentName - The name of the component segment.
  */
-Given('An example package {string} with a {string} component with {string} API in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
+Given('an example package {string} with a {string} component with {string} ExposedAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
   exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
-  // assert that there are the correct number of APIs in the componentSegment
-  assert.ok(exposedAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " API")
+  // assert that there are the correct number of ExposedAPIs in the componentSegment
+  assert.ok(exposedAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " ExposedAPI")
 });
 
 /**
- * Install a specified package using the packageManagerUtils.installPackage function.
+ * Verify the given package includes a component that has a specified number of DependentAPIs in a specific segment.
+ *
+ * @param {string} componentPackage - The name of the example package.
+ * @param {string} componentName - The name of the component.
+ * @param {string} numberOfAPIs - The expected number of DependentAPIs in the component segment.
+ * @param {string} componentSegmentName - The name of the component segment.
+ */
+Given('an example package {string} with a {string} component with {string} DependentAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
+  dependentAPIs = packageManagerUtils.getDependentAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
+  // assert that there are the correct number of DependentAPI in the componentSegment
+  assert.ok(dependentAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " DependentAPI")
+});
+
+/**
+ * Install a specified package using the packageManagerUtils.installPackage function. Use the default release name.
  *
  * @param {string} componentPackage - The name of the package to install.
  */
-When('I install the {string} package', function (componentPackage) {
-  packageManagerUtils.installPackage(componentPackage, releaseName, NAMESPACE)
+When('I install the {string} package', async function (componentPackage) {
+  global.currentReleaseName = DEFAULT_RELEASE_NAME
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
+
+/**
+ * Install a specified package using the packageManagerUtils.installPackage function. Same as When('I install the {string} package as release {string}')
+ * but with language that reflects installing as a baseline for a test (Given).
+ *
+ * @param {string} componentPackage - The name of the package to install.
+ * @param {string} releaseName - The name of the release name.
+ */
+Given('a baseline {string} package installed as release {string}', async function (componentPackage, releaseName) {
+  global.currentReleaseName = releaseName
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
+/**
+ * Install a specified package using the packageManagerUtils.installPackage function. Use the specified release name.
+ *
+ * @param {string} componentPackage - The name of the package to install.
+ * @param {string} releaseName - The name of the release name.
+ */
+When('I install the {string} package as release {string}', async function (componentPackage, releaseName) {
+  global.currentReleaseName = releaseName
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
+/**
+ * Upgrade a specified package using the packageManagerUtils.upgradePackage function. Use the specified release name.
+ *
+ * @param {string} componentPackage - The name of the package to upgrade.
+ * @param {string} releaseName - The name of the release name.
+ */
+When('I upgrade the {string} package as release {string}', async function (componentPackage, releaseName) {
+  global.currentReleaseName = releaseName
+  await packageManagerUtils.upgradePackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
 
 /**
  * Validate if a package has been installed (and install it if not) using the packageManagerUtils.installPackage function.
  *
  * @param {string} componentPackage - The name of the example component package to install.
  */
-Given('An example package {string} has been installed', function (componentPackage) {
-  packageManagerUtils.installPackage(componentPackage, releaseName, NAMESPACE)
+Given('an example package {string} has been installed', async function (componentPackage) {
+  global.currentReleaseName = DEFAULT_RELEASE_NAME
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
 /**
@@ -67,7 +124,7 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
 
   // wait until the component resource is found or the timeout is reached
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResource(releaseName + '-' + componentName, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResource(  global.currentReleaseName + '-' + componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
@@ -90,8 +147,8 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
  * @param {string} componentPackage - The name of the package to upgrade.
  * @returns {void}
  */
-When('I upgrade the {string} package', function (componentPackage) {
-  packageManagerUtils.upgradePackage(componentPackage, releaseName, NAMESPACE)
+When('I upgrade the {string} package', async function (componentPackage) {
+  await packageManagerUtils.upgradePackage(componentPackage,   global.currentReleaseName, NAMESPACE)
 });
 
 /**
@@ -106,7 +163,7 @@ Then('I can query the {string} spec version of the {string} component', {timeout
   var endTime
   let componentResource = null
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResourceByVersion(releaseName + '-' + componentName, ComponentSpecVersion, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResourceByVersion(  global.currentReleaseName + '-' + componentName, ComponentSpecVersion, NAMESPACE)
     endTime = performance.now()
     // assert that the Component resource was found within COMPONENT_DEPLOY_TIMEOUT seconds
     assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The component should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
@@ -116,10 +173,44 @@ Then('I can query the {string} spec version of the {string} component', {timeout
 });
 
 /**
- * Uninstall the package associated with the release name and namespace.
+ * Code executed before each scenario.
  */
-AfterAll(function () {
-  if (CLEANUP_PACKAGE) {
-    packageManagerUtils.uninstallPackage(releaseName, NAMESPACE)   
+Before(async function (scenario) {
+  if (DEBUG_LOGS) {
+    console.log()
+    console.log('==================================================================')
+    const scenarioName = scenario.pickle.name;
+    console.log(`Running scenario: ${scenarioName}`);
+    console.log('Scenario started at: ' + new Date().toISOString())
   }
+});
+
+/**
+ * Code executed After each scenario
+ * Optionally Uninstall the package associated with the release name and namespace.
+ * Optionally Log the Canvas controller
+ */
+After(async function (scenario) {
+  
+  if (CLEANUP_PACKAGE) {
+    await packageManagerUtils.uninstallPackage(  global.currentReleaseName, NAMESPACE)   
+  }
+
+  if (DEBUG_LOGS) {
+    console.log()
+    console.log('Scenario status: ' + scenario.result.status)
+    if (scenario.result.status === 'FAILED') {
+      console.log('------------------------------------------------------------------')
+      console.log('Controller logs:')
+      try {
+      console.log(await resourceInventoryUtils.getControllerLogs())  
+      } catch (error) {
+        console.log('Error getting controller logs: ' + error)
+      }
+      console.log('------------------------------------------------------------------')
+    } 
+    console.log()
+    console.log('Scenario ended at: ' + new Date().toISOString())
+  }
+
 });

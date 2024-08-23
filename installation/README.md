@@ -131,6 +131,15 @@ kubectl label namespace istio-ingress istio-injection=enabled
 helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway --wait
 ```
 
+### 4. HashiCorp Vault
+
+A setup script to deploy and configure HashiCorp Vault into the cluster and configure it to trust 
+the Service-Account-Issuer of this cluster is provided in CanvasVault/setup_CanvasVault.sh.
+
+If HashiCorp Vault is **NOT** installed, everything works fine, only if a component requests Secrets-Management,
+it will get stuck in state "InProgress-SecretsConfig".
+
+
 ### 4. Reference implementation
 
 1. Add oda-canvas helm repo
@@ -174,7 +183,7 @@ canvas-keycloak-keycloak-config-cli-fq5ph   1/1     Running     0          30s
 canvas-postgresql-0                         1/1     Running     0          4m43s
 compcrdwebhook-658f4868b8-48cvx             1/1     Running     0          4m43s
 job-hook-postinstall-6bm99                  0/1     Completed   0          4m43s
-oda-controller-ingress-d5c495bbb-crt4t      2/2     Running     0          4m43s
+oda-controller-d5c495bbb-crt4t      2/2     Running     0          4m43s
 ```
 
 Checking the logs of the failed Job

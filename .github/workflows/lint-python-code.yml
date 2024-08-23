@@ -1,0 +1,14 @@
+name: Lint Python code
+on: 
+  pull_request:
+    branches:
+      - master
+      - testmaster
+jobs:
+  lint-python-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: psf/black@stable
+        with: 
+          src: "./source/operators/secretsmanagementOperator-hc"

@@ -7,9 +7,9 @@
 Feature: UC003-F001 Expose APIs: Create API Resource
 
     Scenario Outline: Create API Resource for API
-        Given An example package '<PackageName>' with a '<ComponentName>' component with '<ApiCount>' API in its '<SegmentName>' segment
+        Given an example package '<PackageName>' with a '<ComponentName>' component with '<ApiCount>' ExposedAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package
-        Then I should see the '<ResourceName>' API resource on the '<ComponentName>' component
+        Then I should see the '<ResourceName>' ExposedAPI resource on the '<ComponentName>' component
 
     Examples:
        | Name           | PackageName            | ResourceName             | ComponentName            | SegmentName        | ApiCount |

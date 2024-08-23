@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
       - name: compcrdwebhook
-        image: {{ .Values.image }}
-        imagePullPolicy: IfNotPresent
+        image: {{ include "oda-webhook.dockerimage" . }}
+        imagePullPolicy: {{ include "oda-webhook.imagePullPolicy" .	 }}
         ports:
         - containerPort: 8443
         volumeMounts:
