@@ -15,7 +15,7 @@ Feature: UC014-F0001 : Create API Resource
         And the HTTPRoute should have the appropriate annotations
 
     Examples:
-       | Path               |
+       | Path                                                             |
        | /pc-productcatalogmanagement/tmf-api/productCatalogManagement/v4 |
        
      Scenario: Apply Rate Limiting Plugin
