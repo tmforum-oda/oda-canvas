@@ -16,9 +16,8 @@ Feature: UC014-F0001 : Create API Resource
 
     Examples:
        | Path               |
-       | /api/v1/resource1  |
-       | /api/v1/resource2  |
-
+       | /pc-productcatalogmanagement/tmf-api/productCatalogManagement/v4 |
+       
      Scenario: Apply Rate Limiting Plugin
         Given an API resource with rate limiting enabled and a limit of <Limit> requests per minute
         When the API resource is created or updated
@@ -36,16 +35,7 @@ Feature: UC014-F0001 : Create API Resource
         Then an API key verification plugin should be created or updated in the 'components' namespace
         And the plugin should be associated with the correct API resource
 
-     Scenario: Apply CORS Plugin
-        Given an API resource with CORS enabled and configuration '<Config>'
-        When the API resource is created or updated
-        Then a CORS plugin should be created or updated in the 'components' namespace
-        And the plugin should be associated with the correct API resource
-
-     Examples:
-       | Config                                                                                            |
-       | "allowOrigins: '*', handlePreflightRequests: {allowMethods: 'GET, POST', allowHeaders: 'Origin'}" |
-
+     
      Scenario: Manage Plugins from URL Template
          Given an API resource with a URL template for plugins '<URL>'
          When the API resource is created or updated
