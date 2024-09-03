@@ -60,8 +60,3 @@ And the cucumber report will look like this:
 ![CTK Cucumber report](images/CTK-cucumber-report.png)
 
 
-
-
-## ODA Canvas - Phase 1 (MVP) CTK
-
-For details of the work done in Phase 1 for a MVP of a Canvas test kit, see [Phase 1 MVP Canvas CTK](phase-1-tests/Phase-1-CTK.md)

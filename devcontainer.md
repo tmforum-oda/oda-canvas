@@ -85,4 +85,4 @@ CURRENT   NAME                                             CLUSTER              
 $ kubectl config rename-context gke_tmforum-oda-component-cluster_europe-west4-b_innovation-hub-cluster tmf-ihc
 ```
 
-8. Now follow the [CTK readme](compliance-test-kit/BDD-and-TDD/README.md#how-to-run-the-tests)
+8. Now follow the [CTK readme](feature-definition-and-test-kit/Executing-tests.md)

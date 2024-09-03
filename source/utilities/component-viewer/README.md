@@ -18,7 +18,7 @@ kubectl component-info
 
 The utility will use the current kubeconfig to connect to the Kubernetes cluster. It will show 'No ODA Components to view' if there are no components being deployed. If there are components, you will get a screen like the one below:
 
-![Screenshot](Screenshot.png)
+![Screenshot](component-viewer.png)
 
 To exit the utility, type `CTRL-C`
 

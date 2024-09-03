@@ -32,6 +32,6 @@ The command above will execute just the component operator. You will also need t
 # Buildautomation and Versioning
 
 The build and release process for docker images is described here:
-[docs/developer/work-with-dockerimages.md](../../../docs/developer/work-with-dockerimages.md)
+[/docs/developer/work-with-dockerimages.md](/docs/developer/work-with-dockerimages.md)
 
 

@@ -5,9 +5,9 @@ This module is part of the ODA Canvas, specifically tailored for environments ad
 The operator is designed to seamlessly integrate with the Kong API Gateway, facilitating the creation and management of HTTPRoute configurations to expose APIs.
 
 Key Features:
-- Automatically handles the lifecycle of ODA APIs including creation, update, and deletion of corresponding HTTPRoute resources to expose APIs through Kong.
-- Manages KongPlugin resources to apply and enforce various plugins and policies on APIs routed through Kong.
-- Configures an API gateway to act as a front aligning with recommended production architectures.
+* Automatically handles the lifecycle of ODA APIs including creation, update, and deletion of corresponding HTTPRoute resources to expose APIs through Kong.
+* Manages KongPlugin resources to apply and enforce various plugins and policies on APIs routed through Kong.
+* Configures an API gateway to act as a front aligning with recommended production architectures.
 
 Usage:
 This operator can be deployed as part of the ODA Canvas in Kubernetes clusters where the Kong API Gateway is used to expose APIs. It simplifies the management of API exposure and security by interfacing directly with Kong, 
@@ -55,7 +55,7 @@ def manage_api_lifecycle(spec, name, namespace, status, meta, logger, **kwargs):
         namespace (str): The Kubernetes namespace where the resource resides.
         meta (dict): Metadata dictionary containing information eg. uid which is useful for managing resources.
         logger (logging.Logger): Logger instance for logging information or errors.
-        **kwargs: Arbitrary keyword arguments which might include additional context needed for plugins.
+        kwargs: Arbitrary keyword arguments which might include additional context needed for plugins.
 
     Returns:
         Nothing
@@ -109,7 +109,7 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
         name (str): The name of the resource.
         namespace (str): The namespace where the HTTPRoute will be created or updated.
         meta (dict): Metadata about the resource, used to set ownership in Kubernetes.
-        **kwargs: Arbitrary keyword arguments, typically unused but available for future extensions.
+        kwargs: Arbitrary keyword arguments, typically unused but available for future extensions.
 
     Returns:
         True if the HTTPRoute was successfully created or updated, False otherwise.
@@ -212,7 +212,7 @@ def manage_ratelimit(spec, name, namespace, meta, **kwargs):
         name (str): The name of the API resource.
         namespace (str): The Kubernetes namespace where the plugin will be configured.
         meta (dict): Metadata containing information eg. uid .
-        **kwargs: Arbitrary keyword arguments, used for logging or other contextual operations.
+        kwargs: Arbitrary keyword arguments, used for logging or other contextual operations.
 
     Returns:
         str or None: The name of the authentication plugin on success, or None if the setup is skipped
@@ -282,7 +282,7 @@ def manage_apiauthentication(spec, name, namespace, meta, **kwargs):
         name (str): The name of the API resource.
         namespace (str): The Kubernetes namespace where the plugin will be configured.
         meta (dict): Metadata about the resource.
-        **kwargs: Arbitrary keyword arguments, primarily used for additional logging or context.
+        kwargs: Arbitrary keyword arguments, primarily used for additional logging or context.
 
     Returns:
         str or None: The name of the authentication plugin on success, or None if the setup is skipped.
@@ -356,7 +356,7 @@ def manage_cors(spec, name, namespace, meta, **kwargs):
         name (str): The name of the API resource.
         namespace (str): The Kubernetes namespace where the plugin will be configured.
         meta (dict): Metadata about the resource, used for managing ownership in Kubernetes.
-        **kwargs: Arbitrary keyword arguments, primarily used for additional logging or context.
+        kwargs: Arbitrary keyword arguments, primarily used for additional logging or context.
 
     Returns:
         str or None: The name of the CORS plugin on success, or None if CORS is not enabled.
@@ -487,7 +487,25 @@ def check_url(url):
         return False
 
 
+@kopf.on.delete(GROUP, VERSION, APIS_PLURAL, retries=1)
+def delete_api_lifecycle(meta, name, namespace, **kwargs):
+    """
+    Handles the deletion event of an API resource and logs the expected cascading deletions.
+    This function logs the deletion of an 'ExposedAPI' resource and the expected automatic deletion of its associated
+    'HTTPRoute' due to Kubernetes ownership links that were created using kopf.adopt().
 
+    Parameters:
+        meta (dict): Metadata about the resource, which includes details like the resource's unique identifier.
+        name (str): The name of the API resource that was deleted.
+        namespace (str): The Kubernetes namespace from which the resource was deleted.
+        kwargs: Arbitrary keyword arguments, primarily used for additional logging or context.
+
+    Returns:
+        None
+    """
+    logger.info(f"ExposedAPI '{name}' deleted from namespace '{namespace}'.")
+    ingress_name = f"kong-api-route-{name}"
+    logger.info(f"HTTPRoute '{ingress_name}' to be automatically deleted as a child resource of ExposedAPI '{name}'.")
 
 def download_template(url):
     """
@@ -527,7 +545,6 @@ def apply_plugins_from_template(templates, namespace, owner_references):
         list: A list of names of the plugins that were successfully created or updated.
     """
     # Applying the configurations from the template to the Kubernetes cluster
-    namespace = "components"
     plugin_names = []
     api_instance = kubernetes.client.CustomObjectsApi()
 
@@ -616,7 +633,7 @@ def delete_api_lifecycle(meta, name, namespace, **kwargs):
         meta (dict): Metadata about the resource, which includes details like the resource's unique identifier.
         name (str): The name of the API resource that was deleted.
         namespace (str): The Kubernetes namespace from which the resource was deleted.
-        **kwargs: Arbitrary keyword arguments, primarily used for additional logging or context.
+        kwargs: Arbitrary keyword arguments, primarily used for additional logging or context.
 
     Returns:
         None
