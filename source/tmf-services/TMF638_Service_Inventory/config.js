@@ -6,8 +6,7 @@ const jsonConfig = JSON.parse(contents)
 
 const config = {
   ROOT_DIR: __dirname,
-  // URL_PORT: 8638,
-  URL_PORT: 443,
+  URL_PORT: 8638,
   // URL_PATH: 'http://localhost:8638/tmf-api/serviceInventoryManagement/v5',
   URL_PATH: 'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5',
   
