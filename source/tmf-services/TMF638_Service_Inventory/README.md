@@ -69,3 +69,9 @@ Currently a concept awaiting feedback. The idea is to have the objects defined i
 
 
 
+# Buildautomation and Versioning
+
+The build and release process for docker images is described here:
+[docs/developer/work-with-dockerimages.md](../../../docs/developer/work-with-dockerimages.md)
+
+
