@@ -142,6 +142,11 @@ dependentapi-simple-operator:
   prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
+  serviceInfoAPI:
+    enabled: true
+    image: tmforumodacanvas/tmf638-service-info-api
+    version: 0.1.0
+    prereleaseSuffix: issue289
 
 canvas-vault:
   enabled: true
