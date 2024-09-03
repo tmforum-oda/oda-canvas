@@ -5,8 +5,8 @@
 # automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml #
 ################################################################################
 
-name: Build TMF-638 Service Info API Prerelease Dockerimage
-run-name: Build TMF-638 Service Info API Prerelease Dockerimage
+name: Build TMF-638 Service Inventory API Prerelease Dockerimage
+run-name: Build TMF-638 Service Inventory API Prerelease Dockerimage
 on:
   workflow_dispatch:
   push:
@@ -17,7 +17,7 @@ on:
       - source/tmf-services/TMF638_Service_Inventory/**/*
 
 jobs:
-  build-tmf638-service-info-api-prerelease-dockerfile-job:
+  build-tmf638-service-inventory-api-prerelease-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -27,17 +27,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of tmf638-service-info-api from values.yaml
+      - name: read image of tmf638-service-inventory-api from values.yaml
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.dependentapi-simple-operator.serviceInfoAPI.image' charts/canvas-oda/values.yaml
+          cmd: yq '.dependentapi-simple-operator.serviceInventoryAPI.image' charts/canvas-oda/values.yaml
           
-      - name: read versionnumber of tmf638-service-info-api from values.yaml
+      - name: read versionnumber of tmf638-service-inventory-api from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.dependentapi-simple-operator.serviceInfoAPI.version, .dependentapi-simple-operator.serviceInfoAPI.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.dependentapi-simple-operator.serviceInventoryAPI.version, .dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
