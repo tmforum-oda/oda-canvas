@@ -1,0 +1,14 @@
+{{ if .Values.serviceInventoryAPI.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: info
+  labels:
+    app: canvas-info-service
+spec:
+  ports:
+  - name: http
+    port: 8638
+  selector:
+    impl: canvas-info-service
+{{- end }}

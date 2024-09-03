@@ -21,7 +21,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+
+# changed from lib/ but it caused problems with '.../json-schema-ref-parser/lib/index.js'
+/lib/
+
 lib64/
 parts/
 sdist/

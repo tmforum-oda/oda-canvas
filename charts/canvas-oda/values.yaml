@@ -139,7 +139,7 @@ dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 0.2.2
-  prereleaseSuffix: 
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   serviceInventoryAPI:
@@ -147,6 +147,7 @@ dependentapi-simple-operator:
     image: tmforumodacanvas/tmf638-service-inventory-api
     version: 0.1.0
     prereleaseSuffix: issue289
+    imagePullPolicy: IfNotPresent
 
 canvas-vault:
   enabled: true

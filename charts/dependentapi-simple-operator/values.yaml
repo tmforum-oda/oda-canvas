@@ -3,3 +3,10 @@ version: 0.2.2
 prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 loglevel: '20'
+
+serviceInventoryAPI:
+  enabled: true
+  image: tmforumodacanvas/tmf638-service-inventory-api
+  version: 0.1.0
+  prereleaseSuffix: issue289
+  imagePullPolicy: IfNotPresent
