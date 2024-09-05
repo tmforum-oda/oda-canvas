@@ -4,16 +4,16 @@ kind: Deployment
 metadata:
   name: {{.Release.Name}}-svcinv-mongodb
   labels:
-    app: {{ .Release.Name }}-svcinv-mongodb
+    app: {{.Release.Name}}-svcinv-mongodb
 spec:
   replicas: 1
   selector:
     matchLabels:
-      impl: {{.Release.Name}}-svcinv-mongodb
+      app: {{.Release.Name}}-svcinv-mongodb
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-svcinv-mongodb
+        app: {{.Release.Name}}-svcinv-mongodb
     spec:
       containers:
       - name: {{.Release.Name}}-svcinv-mongodb

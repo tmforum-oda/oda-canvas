@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.5-rc6
+version: 1.1.5-rc7
+# version: 1.1.5-rc7 - Issue #289: add canvas info service
 # version: 1.1.5-rc6 - Issue #302: remove "-dapi-" infix from dependentapi custom resource name
 # version: 1.1.5-rc5 - ODAA-98: automte docker builds
 # version: 1.1.5-lt1 - Updated conversion webhook
@@ -55,7 +56,7 @@ dependencies:
     version: "1.1.1"
     repository: 'file://../controller'
   - name: dependentapi-simple-operator
-    version: "0.2.0"
+    version: "0.2.1"
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: secretsmanagement-operator
