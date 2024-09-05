@@ -4,9 +4,9 @@
   "db_prot": "mongodb",
   "db_user": "mongodb",
   "db_password": "mongodb",
-  "db_host": "localhost",
+  "db_host": "canvas-svcinv-mongodb",
   "db_port": 27017,
-  "db_name": "tmf",
+  "db_name": "svcinv",
 
   "alarm_host": "http://localhost:10011",
   "alarm_url_hal": "/api/",

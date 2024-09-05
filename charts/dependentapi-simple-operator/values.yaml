@@ -10,3 +10,6 @@ serviceInventoryAPI:
   version: 0.1.0
   prereleaseSuffix: issue289
   imagePullPolicy: IfNotPresent
+  mongodb:
+    port: 27017
+    database: svcinv 

@@ -2,19 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: canvas-info-service
+  name: {{ .Release.Name }}-canvas-info-service
+  labels:
+    app: {{ .Release.Name }}-canvas-info-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: canvas-info-service
+      app: {{ .Release.Name }}-canvas-info-service
   template:
     metadata:
       labels:
-        app: canvas-info-service
+        app: {{ .Release.Name }}-canvas-info-service
     spec:
       containers:
-      - name: canvas-info-service
+      - name: {{ .Release.Name }}-canvas-info-service
         image: {{ include "dependentapi-serviceinventoryapi.dockerimage" . }}
         imagePullPolicy: {{ include "dependentapi-serviceinventoryapi.imagePullPolicy" . }}
         ports:
