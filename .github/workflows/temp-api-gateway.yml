@@ -1,0 +1,41 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+      - feature-gateway-helm
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Configure Helm
+        run: |
+          cd ./charts/canvas-api-gateway
+          helm dependency update
+          # Update dependencies for API gateways
+          cd ../canvas-api-gateway/apisix-gateway
+          helm dependency update
+          cd ../kong-gateway
+          helm dependency update
+          cd ..
+          helm dependency update
+
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
+        with:
+          charts_dir: ./charts
+          skip_existing: true
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
