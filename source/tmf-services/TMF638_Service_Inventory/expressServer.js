@@ -105,6 +105,19 @@ class ExpressServer {
     
     try {
       
+      const SOURCE_DATE_EPOCH = process.env.SOURCE_DATE_EPOCH
+      const GIT_COMMIT_SHA = process.env.GIT_COMMIT_SHA
+      const CICD_BUILD_TIME = process.env.CICD_BUILD_TIME
+      if (SOURCE_DATE_EPOCH) {
+          logger.info(`SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}`)
+      }
+      if (GIT_COMMIT_SHA) {
+          logger.info(`GIT_COMMIT_SHA=${GIT_COMMIT_SHA}`)
+      }
+      if (CICD_BUILD_TIME) {
+          logger.info(`CICD_BUILD_TIME=${CICD_BUILD_TIME}`)
+      }
+      
       this.app.use( OpenApiValidator.middleware({
             apiSpec: this.openApiPath,
             operationHandlers: path.join(__dirname),
