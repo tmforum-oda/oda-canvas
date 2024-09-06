@@ -2,7 +2,8 @@
 
 const plugins = {}
 plugins.db = require('./mongo')
-plugins.queue = require('./kafka')
+// deactivate kafka, as it is not used in the canvas reference implementation
+// plugins.queue = require('./kafka')
 
 const { waitForPlugins } = require('./wait')
 
