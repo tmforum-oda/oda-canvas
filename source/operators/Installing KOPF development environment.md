@@ -1,6 +1,4 @@
-
-
-Installing KOPF (tested in GKE)
+# Installing KOPF (tested in GKE)
 
 
 sudo pip3 install -r requirements.txt

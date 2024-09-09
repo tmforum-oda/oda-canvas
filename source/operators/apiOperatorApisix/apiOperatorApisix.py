@@ -56,7 +56,7 @@ def manage_api_lifecycle(spec, name, namespace, status, meta, logger, **kwargs):
     status (str): The current status of the API lifecycle management.
     meta (dict): Metadata related to the API lifecycle management.
     logger (logging.Logger): Logger for logging messages about the process.
-    **kwargs: Arbitrary keyword arguments that may be used for additional configurations.
+    kwargs: Arbitrary keyword arguments that may be used for additional configurations.
 
     Returns:
     None: This function does not return any value
@@ -102,7 +102,7 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
     name (str): Name of the API for which the ingress is being managed.
     namespace (str): The initial namespace passed to the function.
     meta (dict): Metadata information used during the creation or update process.
-    **kwargs: Arbitrary keyword arguments for potential future use or custom extensions.
+    kwargs: Arbitrary keyword arguments for potential future use or custom extensions.
 
     Returns:
     bool: True if the ApisixRoute is successfully created or updated, False otherwise.
@@ -715,7 +715,7 @@ def delete_api_lifecycle(meta, name, namespace, **kwargs):
     meta (dict): Metadata associated with the API lifecycle resources.
     name (str): The name of the API whose lifecycle resources are to be deleted.
     namespace (str): The Kubernetes namespace where the resources are located. Though provided, not directly used due to predefined 'istio-ingress'.
-    **kwargs: Arbitrary keyword arguments that can be used for additional configurations or extensions.
+    kwargs: Arbitrary keyword arguments that can be used for additional configurations or extensions.
 
     Returns:
     None: This function does not return a value but logs the outcome of the deletion operations.
