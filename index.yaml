@@ -1,5 +1,25 @@
 apiVersion: v1
 entries:
+  canvas-api-gateway:
+  - apiVersion: v2
+    appVersion: v1beta3
+    created: "2024-09-09T09:20:51.357664554Z"
+    dependencies:
+    - condition: kong-gateway-install.enabled
+      name: kong-gateway
+      repository: file://../canvas-api-gateway/kong-gateway
+      version: 0.1.0
+    - condition: apisix-gateway-install.enabled
+      name: apisix-gateway
+      repository: file://../canvas-api-gateway/apisix-gateway
+      version: 0.1.0
+    description: A Helm of helm to orchestrate the ODA API Gateway installation
+    digest: ec8a926841ed2267f4203c039d0f9d91ee4dbcdc1cb94c17826ec6f10244f2af
+    name: canvas-api-gateway
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-api-gateway-0.1.0/canvas-api-gateway-0.1.0.tgz
+    version: 0.1.0
   canvas-namespaces:
   - apiVersion: v2
     appVersion: v1beta3
@@ -432,4 +452,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-0.1.0/oda-webhook-0.1.0.tgz
     version: 0.1.0
-generated: "2024-08-19T07:12:19.684399373Z"
+generated: "2024-09-09T09:20:51.357700451Z"
