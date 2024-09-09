@@ -8,7 +8,7 @@ serviceInventoryAPI:
   enabled: true
   image: tmforumodacanvas/tmf638-service-inventory-api
   version: 0.1.0
-  prereleaseSuffix: issue289
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   mongodb:
     port: 27017
