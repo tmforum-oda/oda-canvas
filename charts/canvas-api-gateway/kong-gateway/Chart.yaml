@@ -27,6 +27,4 @@ dependencies:
 - name: kong
   version: "2.34.0"  #chart version.
   repository: "https://charts.konghq.com"
-  condition: kong.enabled
   alias: kong  
-
