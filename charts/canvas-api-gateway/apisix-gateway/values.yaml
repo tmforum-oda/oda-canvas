@@ -1,0 +1,14 @@
+gateway:
+  type: LoadBalancer  # Override the service type
+
+ingress-controller:
+  config:
+    apisix:
+      adminAPIVersion: v3
+  serviceNamespace: ingress-apisix
+  enabled: true   # Explicitly enable the ingress controller
+
+apisixoperatorreplicaCount: 1
+apisixoperatorimage:
+  repository: ravijangra92/apisix-operator:1.3
+  pullPolicy: IfNotPresent

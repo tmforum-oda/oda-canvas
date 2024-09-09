@@ -14,8 +14,7 @@ This operator can be deployed as part of the ODA Canvas in Kubernetes clusters w
 providing a robust and scalable API management solution.
 """
 
-
-import yaml 
+import yaml
 import kopf
 import kubernetes.client
 import logging
@@ -23,23 +22,26 @@ from kubernetes.client.rest import ApiException
 import os
 import requests
 
-logging_level = os.environ.get('LOGGING',logging.INFO)
-print('Logging set to ',logging_level)
+logging_level = os.environ.get("LOGGING", logging.INFO)
+print("Logging set to ", logging_level)
 
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.WARNING)
 
-logger = logging.getLogger('APIOperator')
+logger = logging.getLogger("APIOperator")
 logger.setLevel(int(logging_level))
 
 
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
-APIS_PLURAL = "exposedapis" 
+APIS_PLURAL = "exposedapis"
 
 group = "apisix.apache.org"  # API group for Gateway API
-version = "v2"   
-plural = "apisixroutes"  # The plural name of the Apisix route CRD - ApisixRoute resource 
+version = "v2"
+plural = (
+    "apisixroutes"  # The plural name of the Apisix route CRD - ApisixRoute resource
+)
+
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
@@ -57,7 +59,7 @@ def manage_api_lifecycle(spec, name, namespace, status, meta, logger, **kwargs):
     kwargs: Arbitrary keyword arguments that may be used for additional configurations.
 
     Returns:
-    None: This function does not return any value 
+    None: This function does not return any value
 
     Description:
     - First, attempts to create or update an ApisixRoute based on the provided 'spec', 'name', 'namespace', and 'meta'.
@@ -68,22 +70,25 @@ def manage_api_lifecycle(spec, name, namespace, status, meta, logger, **kwargs):
     - Throughout the function, various informational and error logs are generated based on the operations performed.
 
     """
-    
 
     Apisixroute_created = create_or_update_ingress(spec, name, namespace, meta)
     if not Apisixroute_created:
-        logger.info("ApisixRoute creation/update failed. Skipping plugin/policy management.")
+        logger.info(
+            "ApisixRoute creation/update failed. Skipping plugin/policy management."
+        )
         return
 
-    template_url = spec.get('template', '')
+    template_url = spec.get("template", "")
     if template_url:
         if not check_url(template_url):
-            logger.error(f"Invalid or inaccessible URL in template: {template_url}")   
+            logger.error(f"Invalid or inaccessible URL in template: {template_url}")
 
     applied_plugins = apply_plugins_from_template(namespace, name, spec, template_url)
     if applied_plugins:
         logger.info(f"Plugins applied: {applied_plugins}")
-        patch_apisixroute_with_plugin_config(namespace, f"apisix-api-route-{name}", applied_plugins[0])
+        patch_apisixroute_with_plugin_config(
+            namespace, f"apisix-api-route-{name}", applied_plugins[0]
+        )
     else:
         logger.error("Failed to apply plugins from template.")
 
@@ -120,17 +125,22 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
 
     api_instance = kubernetes.client.CustomObjectsApi()
     ingress_name = f"apisix-api-route-{name}"
-    namespace = "istio-ingress" 
+    namespace = "istio-ingress"
     service_name = "istio-ingress"
     service_namespace = "istio-ingress"
-    strip_path = "false"
+    # strip_path = "false"
     service_port = 80
 
     try:
-        path = spec.get('path') # it will find if the path exists or not , will skip if no path
+        path = spec.get(
+            "path"
+        )  # it will find if the path exists or not , will skip if no path
         if not path:
             logger.warning(f"Path not found  '{name}'. Apisixroute creation skipped.")
             return
+
+            # Ensures the path matches the base and all subdirectories
+        paths = [path, f"{path}/*"]  # Exact path  # Subpaths
 
         apisixroute_manifest = {
             "apiVersion": f"{group}/{version}",
@@ -143,40 +153,59 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
                 "http": [
                     {
                         "name": "http-all",
-                        "match": {
-                            "paths": [path]
-                        },
+                        "match": {"paths": paths},
                         "backends": [
-                            {
-                                "serviceName": service_name,
-                                "servicePort": service_port
-                            }
-                        ]
+                            {"serviceName": service_name, "servicePort": service_port}
+                        ],
                     }
                 ]
-            }
+            },
         }
-        #Kopf adoption is disabled as referencegrant is still pending for apisix api gateway. will enable adoption once this api gaetway feature enabled for apisix.
-        #kopf.adopt(apisixroute_manifest)
+        # Kopf adoption is disabled as referencegrant is still pending for apisix api gateway. will enable adoption once this api gaetway feature enabled for apisix.
+        # kopf.adopt(apisixroute_manifest)
 
         try:
-            existing_route = api_instance.get_namespaced_custom_object(group=group, version=version, namespace=namespace, plural=plural, name=ingress_name)
-            resource_version = existing_route['metadata']['resourceVersion']
-            apisixroute_manifest['metadata']['resourceVersion'] = resource_version
-            response = api_instance.replace_namespaced_custom_object(group=group, version=version, namespace=namespace, name=ingress_name, plural=plural, body=apisixroute_manifest)
-            logger.info(f"ApisixRoute '{ingress_name}' updated successfully in namespace '{namespace}'.")
+            existing_route = api_instance.get_namespaced_custom_object(
+                group=group,
+                version=version,
+                namespace=namespace,
+                plural=plural,
+                name=ingress_name,
+            )
+            resource_version = existing_route["metadata"]["resourceVersion"]
+            apisixroute_manifest["metadata"]["resourceVersion"] = resource_version
+            response = api_instance.replace_namespaced_custom_object(
+                group=group,
+                version=version,
+                namespace=namespace,
+                name=ingress_name,
+                plural=plural,
+                body=apisixroute_manifest,
+            )
+            logger.info(
+                f"ApisixRoute '{ingress_name}' updated successfully in namespace '{namespace}'."
+            )
             return True
         except ApiException as e:
             if e.status == 404:
-                response = api_instance.create_namespaced_custom_object(group=group, version=version, namespace=namespace, plural=plural, body=apisixroute_manifest)
-                logger.info(f"ApisixRoute '{ingress_name}' created successfully in namespace '{namespace}'.")
-                return True 
+                response = api_instance.create_namespaced_custom_object(
+                    group=group,
+                    version=version,
+                    namespace=namespace,
+                    plural=plural,
+                    body=apisixroute_manifest,
+                )
+                logger.info(
+                    f"ApisixRoute '{ingress_name}' created successfully in namespace '{namespace}'."
+                )
+                return True
             else:
                 logger.error(f"API exception when accessing ApisixRoute: {e}")
                 return False
     except ApiException as e:
         logger.error(f"Failed to create or update ApisixRoute '{ingress_name}': {e}")
         return False
+
 
 def create_rate_limiting_policy(spec):
     """
@@ -199,23 +228,27 @@ def create_rate_limiting_policy(spec):
     - Default limit is set to 5 requests per second if not specified.
     - The default identifier is 'remote_addr'.
     """
-    rate_limit_config = spec.get('rateLimit', {})
-    if rate_limit_config.get('enabled', False):
-        identifier = rate_limit_config.get('identifier', 'remote_addr')
-        limit = int(rate_limit_config.get('limit', '5'))  #Default to 5 if not specified
+    rate_limit_config = spec.get("rateLimit", {})
+    if rate_limit_config.get("enabled", False):
+        identifier = rate_limit_config.get("identifier", "remote_addr")
+        limit = int(
+            rate_limit_config.get("limit", "5")
+        )  # Default to 5 if not specified
 
-        #Logging a message about interval support provided by Apisix
-        logger.info("Note: Only per-second rate limiting is supported. Interval setting is ignored. Please be sure to pass rate in per second")
+        # Logging a message about interval support provided by Apisix
+        logger.info(
+            "Note: Only per-second rate limiting is supported. Interval setting is ignored. Please be sure to pass rate in per second"
+        )
 
         rate_limiting_policy = {
-            'name': 'limit-req',
-            'enable': True,
-            'config': {
-                'rate': limit,  
-                'burst': 0,  #No extra burst
-                'key': identifier,
-                'nodelay': True  #Process requests without delay if within burst limit
-            }
+            "name": "limit-req",
+            "enable": True,
+            "config": {
+                "rate": limit,
+                "burst": 0,  # No extra burst
+                "key": identifier,
+                "nodelay": True,  # Process requests without delay if within burst limit
+            },
         }
         return rate_limiting_policy
     else:
@@ -243,10 +276,10 @@ def create_quota_policy(spec):
     - Default time window for the count limit is 60 seconds.
     - Default HTTP rejection code is 429.
     """
-    #if quota_config.get('enabled', False):    this check condition need to be updated in exposedapis crd and enabled as primary condition for quota in CR after that.
-    quota_config = spec.get('quota', {})
-    identifier = quota_config.get('identifier')
-    limit = quota_config.get('limit')
+    # if quota_config.get('enabled', False):    this check condition need to be updated in exposedapis crd and enabled as primary condition for quota in CR after that.
+    quota_config = spec.get("quota", {})
+    identifier = quota_config.get("identifier")
+    limit = quota_config.get("limit")
 
     if identifier and limit:
         try:
@@ -255,23 +288,24 @@ def create_quota_policy(spec):
             logger.error(f"Invalid limit value provided for quota policy: {limit}")
             return None
 
-        time_window = 60  #Default time window to 60 seconds if not specified
-        rejected_code = 429  #Default for HTTP status code on rejection
+        time_window = 60  # Default time window to 60 seconds if not specified
+        rejected_code = 429  # Default for HTTP status code on rejection
 
         quota_policy = {
-            'name': 'limit-count',  
-            'enable': True,
-            'config': {
-                'count': count,
-                'time_window': time_window,
-                'key': identifier,  
-                'rejected_code': rejected_code
-            }
+            "name": "limit-count",
+            "enable": True,
+            "config": {
+                "count": count,
+                "time_window": time_window,
+                "key": identifier,
+                "rejected_code": rejected_code,
+            },
         }
         return quota_policy
     else:
         # Either 'identifier' or 'limit' was not provided, or they were empty
         return None
+
 
 def create_oas_validation_policy(spec):
     """
@@ -293,13 +327,15 @@ def create_oas_validation_policy(spec):
     Note:
     - The function currently acts to inform about the commercial availability of the feature in enterprise version and does not return a policy configuration.
     """
-    oas_validation_config = spec.get('OASValidation', {})
-    request_enabled = oas_validation_config.get('requestEnabled', False)
-    response_enabled = oas_validation_config.get('responseEnabled', False)
+    oas_validation_config = spec.get("OASValidation", {})
+    request_enabled = oas_validation_config.get("requestEnabled", False)
+    response_enabled = oas_validation_config.get("responseEnabled", False)
 
-    #Creating the policy only if either is true
+    # Creating the policy only if either is true
     if request_enabled or response_enabled:
-        logger.error("Note: This policy will not be created as oas-validator plugin is available through API7 only, a commercial extension of APISIX. Check - https://docs.api7.ai/hub/oas-validator")
+        logger.error(
+            "Note: This policy will not be created as oas-validator plugin is available through API7 only, a commercial extension of APISIX. Check - https://docs.api7.ai/hub/oas-validator"
+        )
         """
         oas_validation_policy = {
             'name': 'oas-validation',
@@ -316,7 +352,6 @@ def create_oas_validation_policy(spec):
         return oas_validation_policy
         """
     return None
-
 
 
 def create_cors_policy(spec):
@@ -339,23 +374,26 @@ def create_cors_policy(spec):
     Note:
     - Default settings include allowing all origins, a standard set of headers and methods for preflight requests, and a default max age of 3600 seconds for preflight caching.
     """
-    cors_config = spec.get('CORS', {})
-    if cors_config.get('enabled', False):
-        preflight_config = cors_config.get('handlePreflightRequests', {})
-        
+    cors_config = spec.get("CORS", {})
+    if cors_config.get("enabled", False):
+        preflight_config = cors_config.get("handlePreflightRequests", {})
+
         cors_policy = {
-            'name': 'cors',
-            'enable': True,
-            'config': {
-                'allowCredentials': cors_config.get('allowCredentials', False),
-                'allowOrigins': cors_config.get('allowOrigins', '*').split(','),
-                'handlePreflightRequests': {
-                    'enabled': preflight_config.get('enabled', False),
-                    'allowHeaders': preflight_config.get('allowHeaders', 'Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'),
-                    'allowMethods': preflight_config.get('allowMethods', 'GET, POST'),
-                    'maxAge': int(preflight_config.get('maxAge', 3600)) 
-                }
-            }
+            "name": "cors",
+            "enable": True,
+            "config": {
+                "allowCredentials": cors_config.get("allowCredentials", False),
+                "allowOrigins": cors_config.get("allowOrigins", "*").split(","),
+                "handlePreflightRequests": {
+                    "enabled": preflight_config.get("enabled", False),
+                    "allowHeaders": preflight_config.get(
+                        "allowHeaders",
+                        "Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers",
+                    ),
+                    "allowMethods": preflight_config.get("allowMethods", "GET, POST"),
+                    "maxAge": int(preflight_config.get("maxAge", 3600)),
+                },
+            },
         }
         return cors_policy
     return None
@@ -380,18 +418,16 @@ def create_api_key_verification_policy(spec):
     Note:
     - The 'location' field specifies where the API key is expected to be found in the request, typically in headers.
     """
-    api_key_config = spec.get('apiKeyVerification', {})
-    if api_key_config.get('enabled', False):
+    api_key_config = spec.get("apiKeyVerification", {})
+    if api_key_config.get("enabled", False):
         api_key_policy = {
-            'name': 'key-auth',
-            'enable': True,
-            'config': {
-                'key': api_key_config.get('location')
-            }
+            "name": "key-auth",
+            "enable": True,
+            "config": {"key": api_key_config.get("location")},
         }
         return api_key_policy
     return None
- 
+
 
 def check_url(url):
     """
@@ -413,7 +449,7 @@ def check_url(url):
     """
     try:
         response = requests.head(url)
-        response.raise_for_status()  #This Raising HTTPError if the HTTP request returned an unsuccessful
+        response.raise_for_status()  # This Raising HTTPError if the HTTP request returned an unsuccessful
         return True
     except requests.RequestException as e:
         logger.error(f"Failed to reach the given URL in CR template: {url}. Error: {e}")
@@ -442,19 +478,21 @@ def download_and_append_plugin_names(url, plugin_names):
     - This function is useful for dynamically configuring API gateways by downloading and integrating external plugin configurations.
     """
     try:
-        headers = {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
+        headers = {"Cache-Control": "no-cache", "Pragma": "no-cache"}
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         content = yaml.safe_load(response.text)
-        plugins = content.get('spec', {}).get('plugins', [])
+        plugins = content.get("spec", {}).get("plugins", [])
 
         for plugin in plugins:
-            if 'name' in plugin:
-                plugin_names.append(plugin['name'])
+            if "name" in plugin:
+                plugin_names.append(plugin["name"])
 
         return plugin_names, plugins
     except requests.RequestException as e:
-        logger.error(f"Failed to download or parse the ApisixPluginConfig from URL: {url}. Error: {e}")
+        logger.error(
+            f"Failed to download or parse the ApisixPluginConfig from URL: {url}. Error: {e}"
+        )
         return None, None
 
 
@@ -489,25 +527,29 @@ def combine_all_policies_with_plugins(spec, plugin_names, plugins):
         create_quota_policy,
         create_oas_validation_policy,
         create_cors_policy,
-        create_api_key_verification_policy
+        create_api_key_verification_policy,
     ]
-    
+
     for creator in policy_creators:
         policy = creator(spec)
         if policy:
-            plugin_names_from_crd.append(policy['name'])
+            plugin_names_from_crd.append(policy["name"])
             plugins_from_crd.append(policy)
 
     # Combine CRD derived plugins with those potentially derived from the template
     plugin_names += plugin_names_from_crd
     plugins += plugins_from_crd
 
-    #added this print plugins in more clearly visible manner
+    # added this print plugins in more clearly visible manner
     plugins_complete_yaml = yaml.dump(plugins, sort_keys=False)
     plugins_name_yaml = yaml.dump(plugin_names, sort_keys=False)
-    logger.info("Combined plugins from CR and Template URL.\nUpdated Plugin Names List:\n" + str(plugins_name_yaml) + "\nComplete details are as below:\n" + str(plugins_complete_yaml))
+    logger.info(
+        "Combined plugins from CR and Template URL.\nUpdated Plugin Names List:\n"
+        + str(plugins_name_yaml)
+        + "\nComplete details are as below:\n"
+        + str(plugins_complete_yaml)
+    )
     return plugin_names, plugins
-
 
 
 def apply_plugins_from_template(namespace, api_name, spec, url):
@@ -540,55 +582,62 @@ def apply_plugins_from_template(namespace, api_name, spec, url):
     if url:
         plugin_names, plugins = download_and_append_plugin_names(url, plugin_names)
 
-    #Combines CRD-based policies with those downloaded from the templatex
-    plugin_names, plugins = combine_all_policies_with_plugins(spec, plugin_names, plugins)
+    # Combines CRD-based policies with those downloaded from the templatex
+    plugin_names, plugins = combine_all_policies_with_plugins(
+        spec, plugin_names, plugins
+    )
 
     modified_name = f"combined-apisixpluginconfig-{api_name}"
     if plugins:
         plugin_config = {
             "apiVersion": "apisix.apache.org/v2",
             "kind": "ApisixPluginConfig",
-            "metadata": {
-                "name": modified_name,
-                "namespace": namespace
-            },
-            "spec": {
-                "plugins": plugins
-            }
+            "metadata": {"name": modified_name, "namespace": namespace},
+            "spec": {"plugins": plugins},
         }
     else:
         plugin_config = {
             "apiVersion": "apisix.apache.org/v2",
             "kind": "ApisixPluginConfig",
-            "metadata": {
-                "name": modified_name,
-                "namespace": namespace
-            },
+            "metadata": {"name": modified_name, "namespace": namespace},
         }
         logger.warning("No plugins found; applying plugin config with an empty 'spec'.")
 
-    #kopf.adopt(plugin_config)Kopf adoption is disabled as referencegrant is still pending for apisix api gateway. will enable adoption once this api gaetway feature enabled for apisix.
+    # kopf.adopt(plugin_config)Kopf adoption is disabled as referencegrant is still pending for apisix api gateway. will enable adoption once this api gaetway feature enabled for apisix.
     api_instance = kubernetes.client.CustomObjectsApi()
-    group, version = plugin_config['apiVersion'].split('/')
-    plural = 'apisixpluginconfigs'
+    group, version = plugin_config["apiVersion"].split("/")
+    plural = "apisixpluginconfigs"
 
     try:
-        existing_plugin = api_instance.get_namespaced_custom_object(group, version, namespace, plural, name=modified_name)
-        resource_version = existing_plugin['metadata']['resourceVersion']
-        plugin_config['metadata']['resourceVersion'] = resource_version
-        api_instance.replace_namespaced_custom_object(group, version, namespace, plural, name=modified_name, body=plugin_config)
-        logger.info(f"Plugin config '{modified_name}' updated successfully in namespace '{namespace}'.")
+        existing_plugin = api_instance.get_namespaced_custom_object(
+            group, version, namespace, plural, name=modified_name
+        )
+        resource_version = existing_plugin["metadata"]["resourceVersion"]
+        plugin_config["metadata"]["resourceVersion"] = resource_version
+        api_instance.replace_namespaced_custom_object(
+            group, version, namespace, plural, name=modified_name, body=plugin_config
+        )
+        logger.info(
+            f"Plugin config '{modified_name}' updated successfully in namespace '{namespace}'."
+        )
         return [modified_name]
     except kubernetes.client.exceptions.ApiException as e:
         if e.status == 404:
-            api_instance.create_namespaced_custom_object(group, version, namespace, plural, body=plugin_config)
-            logger.info(f"Plugin config '{modified_name}' created successfully in namespace '{namespace}'.")
+            api_instance.create_namespaced_custom_object(
+                group, version, namespace, plural, body=plugin_config
+            )
+            logger.info(
+                f"Plugin config '{modified_name}' created successfully in namespace '{namespace}'."
+            )
             return [modified_name]
         else:
             logger.error(f"Failed to apply plugin config '{modified_name}': {e}")
             return None
 
-def patch_apisixroute_with_plugin_config(namespace, apisixroute_name, plugin_config_name):
+
+def patch_apisixroute_with_plugin_config(
+    namespace, apisixroute_name, plugin_config_name
+):
     """
     Updates an existing ApisixRoute to include a specific plugin configuration.
 
@@ -611,35 +660,52 @@ def patch_apisixroute_with_plugin_config(namespace, apisixroute_name, plugin_con
     - The strategic merge patch method is used to ensure that changes are applied correctly without replacing the entire route configuration.
     """
     api_instance = kubernetes.client.CustomObjectsApi()
-    group = 'apisix.apache.org'
-    version = 'v2'
-    plural = 'apisixroutes'
+    group = "apisix.apache.org"
+    version = "v2"
+    plural = "apisixroutes"
     namespace = "istio-ingress"
-    
-    #Fetching the existing configuration first
+
+    # Fetching the existing configuration first
     try:
-        existing_route = api_instance.get_namespaced_custom_object(group=group,version=version,namespace=namespace,plural=plural,name=apisixroute_name)
+        existing_route = api_instance.get_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=namespace,
+            plural=plural,
+            name=apisixroute_name,
+        )
     except ApiException as e:
         logger.error(f"Failed to get ApisixRoute '{apisixroute_name}': {e}")
         return
 
-    #Updating the plugin_config_name in the existing http block
+    # Updating the plugin_config_name in the existing http block
     try:
-        if 'http' in existing_route['spec']:
-            for http_block in existing_route['spec']['http']:
-                http_block['plugin_config_name'] = plugin_config_name
+        if "http" in existing_route["spec"]:
+            for http_block in existing_route["spec"]["http"]:
+                http_block["plugin_config_name"] = plugin_config_name
     except KeyError as e:
         logger.error(f"Key error while updating the plugin_config_name: {e}")
         return
 
-    #Using patch_namespaced_custom_object to apply a strategic merge patch
+    # Using patch_namespaced_custom_object to apply a strategic merge patch
     try:
-        api_instance.patch_namespaced_custom_object(group=group,version=version,namespace=namespace,plural=plural,name=apisixroute_name,body=existing_route)
-        logger.info(f"ApisixRoute '{apisixroute_name}' patched with plugin config '{plugin_config_name}' in namespace '{namespace}'.")
+        api_instance.patch_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=namespace,
+            plural=plural,
+            name=apisixroute_name,
+            body=existing_route,
+        )
+        logger.info(
+            f"ApisixRoute '{apisixroute_name}' patched with plugin config '{plugin_config_name}' in namespace '{namespace}'."
+        )
     except ApiException as e:
-        logger.error(f"Failed to patch ApisixRoute '{apisixroute_name}' with plugin config '{plugin_config_name}': {e}")
+        logger.error(
+            f"Failed to patch ApisixRoute '{apisixroute_name}' with plugin config '{plugin_config_name}': {e}"
+        )
 
- 
+
 @kopf.on.delete(GROUP, VERSION, APIS_PLURAL, retries=1)
 def delete_api_lifecycle(meta, name, namespace, **kwargs):
     """
@@ -668,30 +734,44 @@ def delete_api_lifecycle(meta, name, namespace, **kwargs):
     """
     logger.info(f"ExposedAPI '{name}' deleted from namespace '{namespace}'.")
 
-    #Defining the names of the resources to delete
+    # Defining the names of the resources to delete
     apisix_route_name = f"apisix-api-route-{name}"
     apisix_plugin_name = f"combined-apisixpluginconfig-{name}"
     apisix_plugin_namespace = "istio-ingress"
-    apisixroute_namespace = "istio-ingress" 
-    group = 'apisix.apache.org'
-    version = 'v2'
-    plural_ar = 'apisixroutes'
-    plural_apc = 'apisixpluginconfigs'
+    apisixroute_namespace = "istio-ingress"
+    group = "apisix.apache.org"
+    version = "v2"
+    plural_ar = "apisixroutes"
+    plural_apc = "apisixpluginconfigs"
 
     api_instance = kubernetes.client.CustomObjectsApi()
 
-    #Deleting the ApisixRoute
+    # Deleting the ApisixRoute
     try:
-        api_instance.delete_namespaced_custom_object(group=group,version=version,namespace=apisixroute_namespace,plural=plural_ar,name=apisix_route_name)
-        logger.info(f"ApisixRoute '{apisix_route_name}' deleted successfully from namespace '{namespace}'.")
+        api_instance.delete_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=apisixroute_namespace,
+            plural=plural_ar,
+            name=apisix_route_name,
+        )
+        logger.info(
+            f"ApisixRoute '{apisix_route_name}' deleted successfully from namespace '{namespace}'."
+        )
     except ApiException as e:
         logger.error(f"Failed to delete ApisixRoute '{apisix_route_name}': {e}")
 
-    #Deleting the ApisixPluginConfig
+    # Deleting the ApisixPluginConfig
     try:
-        api_instance.delete_namespaced_custom_object(group=group,version=version,namespace=apisixroute_namespace,plural=plural_apc,name=apisix_plugin_name)
-        logger.info(f"ApisixPluginConfig '{apisix_plugin_name}' deleted successfully from namespace '{apisix_plugin_namespace}'.")
+        api_instance.delete_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=apisixroute_namespace,
+            plural=plural_apc,
+            name=apisix_plugin_name,
+        )
+        logger.info(
+            f"ApisixPluginConfig '{apisix_plugin_name}' deleted successfully from namespace '{apisix_plugin_namespace}'."
+        )
     except ApiException as e:
         logger.error(f"Failed to delete ApisixPluginConfig '{apisix_plugin_name}': {e}")
-
-
