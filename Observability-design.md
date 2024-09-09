@@ -6,10 +6,9 @@ This document describes the design artefacts for the Observability part of the [
 
 The observability use cases are documented in the [use case library](usecase-library/README.md) as follows:
 
-* [UC004-Configure-Observability](usecase-library/UC004-Configure-Observability.md)
-* [UC005-Technical-Observability](usecase-library/UC005-Technical-Observability.md)
-* [UC006-Business-Observability](usecase-library/UC006-Business-Observability.md)
-* [UC011-License-Metrics-Observability](usecase-library/UC011-License-Metrics-Observability.md)
+* [UC006-Configure-Observability](usecase-library/UC006-Configure-Observability.md)
+* [UC011-View-Technical-Observability](usecase-library/UC011-View-Technical-Observability.md)
+* [UC012-View-Business-Observability](usecase-library/UC012-View-Business-Observability.md)
 
 
 ## BDD Features (WIP)

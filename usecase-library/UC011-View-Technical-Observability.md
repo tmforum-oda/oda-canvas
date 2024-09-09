@@ -6,7 +6,7 @@ The use case uses the following assumptions:
 
 * As part of the Canvas installation, the Service Mesh is configured to capture the technical observability metrics and make them available to the observability service. 
 * As part of the Canvas installation, the the cloud platform is configured to make the underlying compute metrics (CPU, Memory etc.) available to the observability service. 
-* The requirement si for the ODA Canvas to correctly configure the Service Mesh and the cloud platform to based on the meta-data described in the Component specification. This is described in use case [UC002-Expose-APIs-for-Component](UC002-Expose-APIs-for-Component.md)
+* The requirement si for the ODA Canvas to correctly configure the Service Mesh and the cloud platform to based on the meta-data described in the Component specification. This is described in use case [UC003](UC003-Configure-Exposed-APIs.md)
 
 
 
