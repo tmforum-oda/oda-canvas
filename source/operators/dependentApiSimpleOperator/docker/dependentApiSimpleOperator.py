@@ -1,3 +1,5 @@
+from utils import safe_get
+
 import kopf
 import logging
 import os
@@ -45,21 +47,6 @@ def configure(settings: kopf.OperatorSettings, **_):
     settings.peering.priority = 110
     settings.peering.name = "dependentapi"
     settings.watching.server_timeout = 1 * 60
-
-
-# -------------------------------------------------- HELPER FUNCTIONS -------------------------------------------------- #
-
-
-def safe_get(default_value, dictionary, *paths):
-    result = dictionary
-    for path in paths:
-        if path not in result:
-            return default_value
-        result = result[path]
-    return result
-
-
-# -------------------------------------------------- ---------------- -------------------------------------------------- #
 
 
 def implementationReady(depapiBody):
