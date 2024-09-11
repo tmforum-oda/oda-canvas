@@ -115,6 +115,70 @@ class ServiceInventoryAPI:
         return result
 
 
+    def get_service(self, id):
+        """
+        curl -X 'GET' \
+          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
+          -H 'accept: application/json'
+        """
+        # TODO[FH]: check format of id
+        url = f"{self.endpoint}/service/{id}"
+        header = {
+            'accept': 'application/json'
+        }
+        response = requests.get(url, headers=header)
+        if response.status_code != 200:
+            raise ValueError(f"Unexpected http status code {response.status_code}")
+        svc = json.loads(response.content)
+        result = self.shorten(svc)
+        return result
+
+
+    def update_service(self, id, componentName, dependencyName, url, specification, state):
+        """
+        curl -X 'PATCH' \
+          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/82beee12-21ab-48fa-9530-dece75c378dc' \
+          -H 'accept: application/json' \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "serviceType": "API",
+            ...
+          }'
+        """
+
+        template = self.env.get_template("create-service-payload.json.jinja2")
+        payload = template.render(componentName=componentName, dependencyName=dependencyName, url=url, specification=specification, state=state)
+        payload_dict = json.loads(payload)
+
+        url = f"{self.endpoint}/service/{id}"
+        header = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+        response = requests.patch(url, headers=header, json=payload_dict)
+        if response.status_code != 200:
+            raise ValueError(f"Unexpected http status code {response.status_code} - {response.content.decode()}")
+        svc = json.loads(response.content)
+        result = self.shorten(svc)
+        return result
+
+
+    def delete_service(self, id):
+        """
+        curl -X 'DELETE' \
+          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
+          -H 'accept: */*'
+        """
+        # TODO[FH]: check format of id
+        url = f"{self.endpoint}/service/{id}"
+        header = {
+            'accept': '*/*'
+        }
+        response = requests.delete(url, headers=header)
+        if response.status_code != 204:
+            raise ValueError(f"Unexpected http status code {response.status_code}")
+
+
 if __name__ == "__main__":
     svc_inv = ServiceInventoryAPI("https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5")
     #===========================================================================
@@ -138,9 +202,33 @@ if __name__ == "__main__":
         specification="https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
         state="inactive")
     print(f"\nCREATED SERVICE:\n{json.dumps(svc,indent=2)}\n")
+ 
+    svc_list = svc_inv.list_services(svc["componentName"], svc["dependencyName"], state=svc["state"])
+    print(f"\nFOUND inactive SERVICES:\n{json.dumps(svc_list,indent=2)}\n")
+  
+    svc_list = svc_inv.list_services(svc["componentName"], svc["dependencyName"])
+    print(f"\nFOUND active SERVICES:\n{json.dumps(svc_list,indent=2)}\n")
 
-    svc2 = svc_inv.list_services(svc["componentName"], svc["dependencyName"], state=svc["state"])
-    print(f"\nFOUND SERVICES:\n{json.dumps(svc2,indent=2)}\n")
+    svc2 = svc_inv.update_service(
+        id=svc["id"],
+        componentName=svc["componentName"], 
+        dependencyName=svc["dependencyName"], 
+        url=svc["url"],
+        specification=svc["OASSpecification"],
+        state="active")
+    print(f"\nUPDATED SERVICE STATE:\n{json.dumps(svc2,indent=2)}\n")
 
-    svc2 = svc_inv.list_services(svc["componentName"], svc["dependencyName"])
-    print(f"\nFOUND active SERVICES:\n{json.dumps(svc2,indent=2)}\n")
+    svc_list = svc_inv.list_services(svc["componentName"], svc["dependencyName"])
+    print(f"\nFOUND active SERVICES:\n{json.dumps(svc_list,indent=2)}\n")
+
+    svc4 = svc_inv.get_service(svc["id"])
+    print(f"SERVICE by id\n{json.dumps(svc4,indent=2)}")
+    
+    svc_inv.delete_service(svc["id"])
+    print(f'DELETED SERVICE {svc["id"]}')
+
+    try:
+        svc4 = svc_inv.get_service(svc["id"])
+        raise Exception(f'GET AFTER DELETE WAS SUCCESSFUL FOR {svc["id"]}')
+    except ValueError as e:
+        print(f"GET SERVICE expected error: {e}")
