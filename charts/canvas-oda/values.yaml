@@ -138,8 +138,8 @@ controller:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 0.2.2
-  prereleaseSuffix: 
+  version: 0.2.3
+  prereleaseSuffix: issue289b 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
 
