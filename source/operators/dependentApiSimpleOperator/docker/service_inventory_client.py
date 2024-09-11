@@ -41,10 +41,103 @@ class ServiceInventoryAPI:
             raise ValueError(f"Unexpected http status code {response.status_code} - {response.content.decode()}")
         
         svc = json.loads(response.content)
-        result = self.shorten(svc)
+        result = self._shorten(svc)
         return result
 
-    def shorten(self, svc:dict) -> dict:
+    def list_services(self, component_name=None, dependency_name=None, state='active'):
+        """
+        curl -X 'GET' \
+          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service' \
+          -H 'accept: application/json'
+        """
+        
+        url = f"{self.endpoint}/service"
+        header = {
+            'accept': 'application/json'
+        }
+        params = {}
+        if state:
+            params['state'] = state
+        if component_name:
+            params['serviceCharacteristic.value'] = component_name
+        elif dependency_name:
+            params['serviceCharacteristic.value'] = dependency_name
+        response = requests.get(url, headers=header, params=params)    # , auth=HTTPBasicAuth(be_auth_user, be_auth_pw))
+        if response.status_code != 200:
+            raise ValueError(f"Unexpected http status code {response.status_code}")
+        svc_list = json.loads(response.content)
+        result = [self._shorten(svc) for svc in svc_list]
+        if component_name:
+            result = [shortsvc for shortsvc in result if safe_get(None, shortsvc, "componentName")==component_name]
+        if dependency_name:
+            result = [shortsvc for shortsvc in result if safe_get(None, shortsvc, "dependencyName")==dependency_name]
+        return result
+
+
+    def get_service(self, id):
+        """
+        curl -X 'GET' \
+          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
+          -H 'accept: application/json'
+        """
+        # TODO[FH]: check format of id
+        url = f"{self.endpoint}/service/{id}"
+        header = {
+            'accept': 'application/json'
+        }
+        response = requests.get(url, headers=header)
+        if response.status_code != 200:
+            raise ValueError(f"Unexpected http status code {response.status_code}")
+        svc = json.loads(response.content)
+        result = self._shorten(svc)
+        return result
+
+
+    def update_service(self, id, componentName, dependencyName, url, specification, state):
+        """
+        curl -X 'PATCH' \
+          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/82beee12-21ab-48fa-9530-dece75c378dc' \
+          -H 'accept: application/json' \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "serviceType": "API",
+            ...
+          }'
+        """
+
+        template = self.env.get_template("create-service-payload.json.jinja2")
+        payload = template.render(componentName=componentName, dependencyName=dependencyName, url=url, specification=specification, state=state)
+        payload_dict = json.loads(payload)
+
+        url = f"{self.endpoint}/service/{id}"
+        header = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+        response = requests.patch(url, headers=header, json=payload_dict)
+        if response.status_code != 200:
+            raise ValueError(f"Unexpected http status code {response.status_code} - {response.content.decode()}")
+        svc = json.loads(response.content)
+        result = self._shorten(svc)
+        return result
+
+
+    def delete_service(self, id):
+        """
+        curl -X 'DELETE' \
+          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
+          -H 'accept: */*'
+        """
+        # TODO[FH]: check format of id
+        url = f"{self.endpoint}/service/{id}"
+        header = {
+            'accept': '*/*'
+        }
+        response = requests.delete(url, headers=header)
+        if response.status_code != 204:
+            raise ValueError(f"Unexpected http status code {response.status_code}")
+
+    def _shorten(self, svc:dict) -> dict:
         """
         convert this:
         
@@ -85,98 +178,6 @@ class ServiceInventoryAPI:
         return result
 
 
-    def list_services(self, component_name=None, dependency_name=None, state='active'):
-        """
-        curl -X 'GET' \
-          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service' \
-          -H 'accept: application/json'
-        """
-        
-        url = f"{self.endpoint}/service"
-        header = {
-            'accept': 'application/json'
-        }
-        params = {}
-        if state:
-            params['state'] = state
-        if component_name:
-            params['serviceCharacteristic.value'] = component_name
-        elif dependency_name:
-            params['serviceCharacteristic.value'] = dependency_name
-        response = requests.get(url, headers=header, params=params)    # , auth=HTTPBasicAuth(be_auth_user, be_auth_pw))
-        if response.status_code != 200:
-            raise ValueError(f"Unexpected http status code {response.status_code}")
-        svc_list = json.loads(response.content)
-        result = [self.shorten(svc) for svc in svc_list]
-        if component_name:
-            result = [shortsvc for shortsvc in result if safe_get(None, shortsvc, "componentName")==component_name]
-        if dependency_name:
-            result = [shortsvc for shortsvc in result if safe_get(None, shortsvc, "dependencyName")==dependency_name]
-        return result
-
-
-    def get_service(self, id):
-        """
-        curl -X 'GET' \
-          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
-          -H 'accept: application/json'
-        """
-        # TODO[FH]: check format of id
-        url = f"{self.endpoint}/service/{id}"
-        header = {
-            'accept': 'application/json'
-        }
-        response = requests.get(url, headers=header)
-        if response.status_code != 200:
-            raise ValueError(f"Unexpected http status code {response.status_code}")
-        svc = json.loads(response.content)
-        result = self.shorten(svc)
-        return result
-
-
-    def update_service(self, id, componentName, dependencyName, url, specification, state):
-        """
-        curl -X 'PATCH' \
-          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/82beee12-21ab-48fa-9530-dece75c378dc' \
-          -H 'accept: application/json' \
-          -H 'Content-Type: application/json' \
-          -d '{
-            "serviceType": "API",
-            ...
-          }'
-        """
-
-        template = self.env.get_template("create-service-payload.json.jinja2")
-        payload = template.render(componentName=componentName, dependencyName=dependencyName, url=url, specification=specification, state=state)
-        payload_dict = json.loads(payload)
-
-        url = f"{self.endpoint}/service/{id}"
-        header = {
-            'accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-        response = requests.patch(url, headers=header, json=payload_dict)
-        if response.status_code != 200:
-            raise ValueError(f"Unexpected http status code {response.status_code} - {response.content.decode()}")
-        svc = json.loads(response.content)
-        result = self.shorten(svc)
-        return result
-
-
-    def delete_service(self, id):
-        """
-        curl -X 'DELETE' \
-          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
-          -H 'accept: */*'
-        """
-        # TODO[FH]: check format of id
-        url = f"{self.endpoint}/service/{id}"
-        header = {
-            'accept': '*/*'
-        }
-        response = requests.delete(url, headers=header)
-        if response.status_code != 204:
-            raise ValueError(f"Unexpected http status code {response.status_code}")
 
 
 if __name__ == "__main__":
