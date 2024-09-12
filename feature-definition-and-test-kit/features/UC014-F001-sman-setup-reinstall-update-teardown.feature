@@ -1,9 +1,8 @@
-@UC014
-@UC014-F001
+@UC014 @UC014-F001 @SECRET-MANAGEMENT
 Feature: Secrets Management - setup, reinstall, update, and teardown
 
     Background: Canvas without productcatalog-v1beta3-sman
-        Given the 'alice' release is not installed
+        # Given the 'alice' release is not installed
 
     Scenario: Create component and check if role and policy are created in vault
         Given a baseline 'productcatalog-v1beta3-sman' package installed as release 'alice'
@@ -20,9 +19,9 @@ Feature: Secrets Management - setup, reinstall, update, and teardown
         And the secret 'foo' with value 'bar' in the secret store for 'alice-productcatalogmanagement' was created
        
         When the package with release name 'alice' is uninstalled
-       
         And a baseline 'productcatalog-v1beta3-sman' package installed as release 'alice'
-        Then the secret 'foo' with value 'bar' does not exist
+
+        Then the secret 'foo' in the secret store for 'alice-productcatalogmanagement' does not exist
  
     Scenario: Updateing a component will keep secrets
         Given a baseline 'productcatalog-v1beta3-sman' package installed as release 'alice'
@@ -30,9 +29,10 @@ Feature: Secrets Management - setup, reinstall, update, and teardown
         And the secret 'foo' with value 'bar' in the secret store for 'alice-productcatalogmanagement' was created
        
         # we need to trigger an side car restart, e.g. changing a env var
-        When the 'alice-productcatalog' component is updated 
+        When the 'productcatalog-v1beta3-sman' package for release 'alice' is updated 
        
-        Then the secret 'foo' with value 'bar' does exist
+        Then the secret 'foo' in the secret store for 'alice-productcatalogmanagement' does exist
+        And the secret 'foo' in the secret store for 'alice-productcatalogmanagement' has the value 'bar'
 
     Scenario: Uninstall component and check if role and policy are removed
         Given a baseline 'productcatalog-v1beta3-sman' package installed as release 'alice'

@@ -1,5 +1,4 @@
-@UC014
-@UC014-F003
+@UC014 @UC014-F003 @SECRET-MANAGEMENT
 Feature: Secrets Management - Alice-2 can access Alice-1 secrets
 
     Background:

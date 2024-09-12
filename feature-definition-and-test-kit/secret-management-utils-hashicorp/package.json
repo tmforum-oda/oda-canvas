@@ -1,0 +1,14 @@
+{
+  "name": "secret-management-utils-hashicorp",
+  "version": "1.0.0",
+  "description": "Utilities for interacting with Hashicorp Vault to support BDD tests in a Kubernetes implementation",
+  "main": "secret-management-utils-hashicorp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Thomas Mohaupt",
+  "license": "Apache-2.0",
+  "dependencies": {
+
+  }
+}

@@ -1,5 +1,4 @@
-@UC014
-@UC014-F002
+@UC014 @UC014-F002 @SECRET-MANAGEMENT
 Feature: Secrets Management - CRUD secrets
 
     Background: Canvas with fresh productcatalog-v1beta3-sman catalog

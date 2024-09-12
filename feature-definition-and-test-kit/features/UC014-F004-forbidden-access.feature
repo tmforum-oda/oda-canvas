@@ -1,5 +1,4 @@
-@UC014
-@UC014-F004
+@UC014 @UC014-F004 @SECRET-MANAGEMENT
 Feature: Secrets Management - Bobs secrets are isolated from Alice secrets
 
     Background:

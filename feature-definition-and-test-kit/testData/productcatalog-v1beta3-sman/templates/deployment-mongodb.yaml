@@ -27,5 +27,4 @@ spec:
           mountPath: "/data/db"
       volumes:
       - name: {{.Release.Name}}-mongodb-pv-storage
-        persistentVolumeClaim:
-          claimName: {{.Release.Name}}-mongodb-pv-claim
+        emptyDir: {}
