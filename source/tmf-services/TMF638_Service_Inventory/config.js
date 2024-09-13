@@ -7,8 +7,7 @@ const jsonConfig = JSON.parse(contents)
 const config = {
   ROOT_DIR: __dirname,
   URL_PORT: 8638,
-  // URL_PATH: 'http://localhost:8638/tmf-api/serviceInventoryManagement/v5',
-  URL_PATH: 'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5',
+  URL_PATH: 'http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5',
   
   BASE_VERSION: 'v5',
   CONTROLLER_DIRECTORY: path.join(__dirname, 'controllers'),

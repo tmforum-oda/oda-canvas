@@ -30,7 +30,7 @@
   "injectListenerPostings": true,
 
   "notExternal": true,
-  "servers" : [ { "url": "https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5" } ], 
+  "servers" : [ { "url": "http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5" } ], 
   "SCHEMA_URL" : "http://localhost:8080/openapi",
 
 

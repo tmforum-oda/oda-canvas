@@ -146,7 +146,7 @@ dependentapi-simple-operator:
     enabled: true
     image: tmforumodacanvas/tmf638-service-inventory-api
     version: 0.1.0
-    prereleaseSuffix:
+    prereleaseSuffix: issue289
     imagePullPolicy: IfNotPresent
 
 canvas-vault:

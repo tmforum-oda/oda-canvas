@@ -39,8 +39,7 @@ info:
   title: Service Inventory Management
   version: 5.0.0
 servers:
-  - url: 'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5'
-  #- url: 'http://localhost:8638/tmf-api/serviceInventoryManagement/v5'
+  - url: 'http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5'
 tags:
   - description: Operations for Service Resource
     name: service
