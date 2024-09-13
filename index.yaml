@@ -44,6 +44,49 @@ entries:
   canvas-oda:
   - apiVersion: v2
     appVersion: v1beta3
+    created: "2024-09-13T08:31:15.57134662Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.0.0
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.0
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.1.0
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: controller
+      repository: file://../controller
+      version: 1.1.1
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 0.2.1
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 0.1.0
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 0.2.0
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.1.2
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: a42b22e8592eacfbad6ad20acaf294b1b21a474950b157211632e28d12935288
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.1.6-rc1/canvas-oda-1.1.6-rc1.tgz
+    version: 1.1.6-rc1
+  - apiVersion: v2
+    appVersion: v1beta3
     created: "2024-09-09T15:37:38.62727473Z"
     dependencies:
     - name: cert-manager-init
@@ -378,6 +421,16 @@ entries:
   dependentapi-simple-operator:
   - apiVersion: v2
     appVersion: 0.2.0"
+    created: "2024-09-13T08:31:15.719009014Z"
+    description: The DependentAPI Simple Operator
+    digest: b34a23c7d3c3a92c7c285788fb233311c3bcc93e63ffc46bc5d66584d5ee1619
+    name: dependentapi-simple-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/dependentapi-simple-operator-0.2.1/dependentapi-simple-operator-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: 0.2.0"
     created: "2024-08-19T07:12:19.684335344Z"
     description: The DependentAPI Simple Operator
     digest: 9ea1bf0923e8b748019ee02f9647eb4fb36c4774cb1719893cc9a1cbada2cc52
@@ -495,4 +548,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-0.1.0/oda-webhook-0.1.0.tgz
     version: 0.1.0
-generated: "2024-09-09T15:37:38.627329833Z"
+generated: "2024-09-13T08:31:15.719081148Z"
