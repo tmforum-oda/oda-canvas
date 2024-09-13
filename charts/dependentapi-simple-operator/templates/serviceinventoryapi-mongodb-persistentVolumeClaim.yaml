@@ -1,0 +1,14 @@
+{{ if .Values.serviceInventoryAPI.enabled -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{.Release.Name}}-svcinv-mongodb-pv-claim
+  labels:
+    app: {{ .Release.Name }}-svcinv-mongodb
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 128Mi 
+{{- end }}
