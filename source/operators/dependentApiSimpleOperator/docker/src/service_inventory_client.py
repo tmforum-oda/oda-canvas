@@ -1,7 +1,8 @@
-from jinja2 import Template, Environment, PackageLoader, select_autoescape
+from jinja2 import Template, Environment, PackageLoader, FileSystemLoader, select_autoescape
 
 import requests
 import json
+import os
 
 from utils import safe_get
 
@@ -11,10 +12,16 @@ from utils import safe_get
 class ServiceInventoryAPI:
     def __init__(self, endpoint):
         self.endpoint = endpoint
-        self.env = Environment(
-            loader=PackageLoader("service_inventory_client"),
-            autoescape=select_autoescape()
-        )
+        template_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates")
+        print(template_dir)
+        loader = FileSystemLoader(template_dir)
+        self.env = Environment(loader=loader, autoescape=select_autoescape())        
+        #=======================================================================
+        # self.env = Environment(
+        #     loader=PackageLoader("service_inventory_client"),
+        #     autoescape=select_autoescape()
+        # )
+        #=======================================================================
 
     def create_service(self, componentName, dependencyName, url, specification, state):
         """
