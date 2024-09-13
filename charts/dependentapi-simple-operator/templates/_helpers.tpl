@@ -22,7 +22,7 @@ overwrite imagePullSecret with "Always" if prereleaseSuffix is set
 
 
 {{/*
-build the full seccon docker image name from image + version + prereleaseSuffix
+build the full dependent api docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "dependentapi-serviceinventoryapi.dockerimage" -}}
   {{- .Values.serviceInventoryAPI.image -}}:{{- .Values.serviceInventoryAPI.version -}}
