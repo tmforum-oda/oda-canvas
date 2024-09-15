@@ -126,8 +126,8 @@ def test_service_inventory_api():
     print(f"\nLIST active bcme downstream SERVICES -:\n{json.dumps(svcs, indent=2)}")
     assert_ids(svcs, [])
 
-    rfmock.mock_get(f'service/{svc2["id"]}', 'id-svc2', 200)
-    svc2b = svc_inv.get_service(svc2["id"])
+    rfmock.mock_get(f'service/{id2}', 'id-svc2', 200)
+    svc2b = svc_inv.get_service(id2)
     print(f"\nGET service-2 BY ID:\n{json.dumps(svc2b, indent=2)}")
     assert svc2b == {
       "id": id2,
@@ -138,9 +138,9 @@ def test_service_inventory_api():
       "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
     }
 
-    rfmock.mock_patch(f'service/{svc2["id"]}', 'update-svc2-active', 200)
+    rfmock.mock_patch(f'service/{id2}', 'update-svc2-active', 200)
     svc2c = svc_inv.update_service(
-        id=svc2["id"],
+        id=id2,
         componentName=svc2["componentName"], 
         dependencyName=svc2["dependencyName"], 
         url=svc2["url"],
@@ -166,12 +166,12 @@ def test_service_inventory_api():
     print(f"\nLIST active bcme downstream SERVICES 2:\n{json.dumps(svcs, indent=2)}")
     assert_ids(svcs, [id2])
 
-    rfmock.mock_delete(f'service/{svc1["id"]}', 'svc1', 204)
-    svc_inv.delete_service(svc1["id"])
+    rfmock.mock_delete(f'service/{id1}', 'svc1', 204)
+    svc_inv.delete_service(id1)
     print(f"\ndeleted service-1")
 
-    rfmock.mock_delete(f'service/{svc2["id"]}', 'svc2', 204)
-    svc_inv.delete_service(svc2["id"])
+    rfmock.mock_delete(f'service/{id2}', 'svc2', 204)
+    svc_inv.delete_service(id2)
     print(f"\ndeleted service-2")
 
     rfmock.mock_get('service', 'del12-list-active', 200)
@@ -179,8 +179,8 @@ def test_service_inventory_api():
     print(f"\n[DEL12] ALL active SERVICES 3:\n{json.dumps(svcs, indent=2)}")
     assert_ids(svcs, [id3])
 
-    rfmock.mock_delete(f'service/{svc3["id"]}', 'svc3', 204)
-    svc_inv.delete_service(svc3["id"])
+    rfmock.mock_delete(f'service/{id3}', 'svc3', 204)
+    svc_inv.delete_service(id3)
     print(f"\ndeleted service-3")
 
     rfmock.mock_get('service', 'del123-list-allstates', 200)
@@ -189,9 +189,9 @@ def test_service_inventory_api():
     assert_ids(svcs, [])
 
     try:
-        rfmock.mock_get(f'service/{svc3["id"]}', 'id-unknown', 500)
-        _ = svc_inv.get_service(svc3["id"])
-        raise Exception(f'GET AFTER DELETE WAS SUCCESSFUL FOR {svc3["id"]}')
+        rfmock.mock_get(f'service/{id3}', 'id-unknown', 500)
+        _ = svc_inv.get_service(id3)
+        raise Exception(f'GET AFTER DELETE WAS SUCCESSFUL FOR {id3}')
     except ValueError as e:
         print(f"GET SERVICE expected error: {e}")
 
