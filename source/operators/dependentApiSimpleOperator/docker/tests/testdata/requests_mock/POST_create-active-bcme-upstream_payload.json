@@ -2,18 +2,18 @@
   "serviceType": "API",
   "name": "unknown",
   "description": "Implementation of unknown Open API",
-  "state": "inactive",
+  "state": "active",
   "serviceCharacteristic": [
     {
       "name": "componentName",
       "valueType": "string",
-      "value": "alice-pc-consumer",
+      "value": "bcme-productinventory",
       "@type": "StringCharacteristic"
     },
     {
       "name": "dependencyName",
       "valueType": "string",
-      "value": "downstreamproductcatalog",
+      "value": "upstreamproductcatalog",
       "@type": "StringCharacteristic"
     },
     {
@@ -63,7 +63,5 @@
   },
   "@type": "Service",
   "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
-  "@baseType": "Service",
-  "id": "63568b0a-11a8-468c-9c59-5dee8d385131",
-  "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/63568b0a-11a8-468c-9c59-5dee8d385131"
+  "@baseType": "Service"
 }
