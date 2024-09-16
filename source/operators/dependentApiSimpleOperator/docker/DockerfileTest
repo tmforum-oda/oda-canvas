@@ -1,0 +1,16 @@
+ARG FROM_IMAGE
+FROM $FROM_IMAGE
+
+COPY requirementsTest.txt /tests/requirementsTest.txt
+RUN pip install -r /tests/requirementsTest.txt --no-cache-dir -U \
+        && rm /tests/requirementsTest.txt
+
+COPY ./tests /tests
+
+RUN export PYTHONPATH=/src:/tests \
+    && cd /tests \
+    && pytest --junitxml=report.xml \
+    && echo "\n\n[----- TESTREPORT -----]\n\n" \
+    && cat report.xml
+
+CMD ["cat","/tests/report.xml"]

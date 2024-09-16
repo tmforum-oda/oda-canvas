@@ -1,0 +1,3 @@
+pytest
+jinja2
+requests_mock

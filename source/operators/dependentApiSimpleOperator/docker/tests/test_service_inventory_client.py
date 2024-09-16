@@ -32,9 +32,10 @@ def assert_ids(svc_list, id_list):
 
 def test_service_inventory_api():
     svc_inv = ServiceInventoryAPI(BASE_URL)
+    
     #clean_all(svc_inv)
-
-    rfmock = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL, recording=False)
+    #rfmock = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL, recording=True, allow_overwrite=True)
+    rfmock = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
 
     rfmock.mock_get('service', 'list-all-initial-empty', 200)
     svcs = svc_inv.list_services(state=None)

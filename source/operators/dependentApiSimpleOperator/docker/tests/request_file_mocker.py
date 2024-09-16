@@ -15,8 +15,9 @@ def assert_equals(expected, actual):
 
 
 class Testdata:
-    def __init__(self, base_folder:str):
+    def __init__(self, base_folder:str, allow_overwrite:bool=False):
         self.base_path = Path(base_folder)
+        self.allow_overwrite = allow_overwrite
 
     def filepath(self, *name_parts:str):
         filtered_name_parts = [name_part for name_part in name_parts if name_part is not None]
@@ -27,6 +28,8 @@ class Testdata:
     def write(self, content:str, *name_parts:str):
         path = self.filepath(*name_parts)
         os.makedirs(path.parent, exist_ok=True)
+        if not self.allow_overwrite and path.is_file():
+            raise ValueError(f"file already exists '{str(path)}'")
         with path.open("w") as f:
             f.write(content)
     
@@ -55,8 +58,8 @@ class Testdata:
     
 
 class RequestFileMocker:
-    def __init__(self, mockfiles_folder, base_url, inital_on=True, recording=False):
-        self.testdata = Testdata(mockfiles_folder)
+    def __init__(self, mockfiles_folder, base_url, inital_on=True, recording=False, allow_overwrite=False):
+        self.testdata = Testdata(mockfiles_folder, allow_overwrite=allow_overwrite)
         self.base_url = base_url
         self.recording = recording
         self.mock_info = {}
