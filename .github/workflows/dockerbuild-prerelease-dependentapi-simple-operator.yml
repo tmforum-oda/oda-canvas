@@ -73,7 +73,6 @@ jobs:
           tags: |
             ${{ steps.get_values_image.outputs.result }}:latest
             ${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
-            local-img
         env:
           SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}
       
@@ -84,7 +83,7 @@ jobs:
           context: source/operators/dependentApiSimpleOperator/docker
           file: source/operators/dependentApiSimpleOperator/docker/DockerfileTest
           build-args: |
-            FROM_IMAGE=local-img
+            FROM_IMAGE=${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
           load: true
           push: false
           tags: local-test-img
