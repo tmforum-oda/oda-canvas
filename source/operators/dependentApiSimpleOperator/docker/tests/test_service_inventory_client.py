@@ -135,12 +135,12 @@ def delete_service_3(svc_inv, rfmock, id3, name):
     print(f"\ndeleted service-3")
 
 
-def test_service_inventory_create_and_delete_service(svc_inv, rfmock):
+def test_create_and_delete_service(svc_inv, rfmock):
     id1 = create_service_1(svc_inv, rfmock, "createdelete")
     delete_service_1(svc_inv, rfmock, id1, "createdelete")
 
 
-def test_service_inventory_create_invalid_state(svc_inv, rfmock):
+def test_create_invalid_state(svc_inv, rfmock):
     rfmock.mock_post('service', "create-invalid-state", 400)
     try:
         svc1 = svc_inv.create_service(
@@ -155,7 +155,7 @@ def test_service_inventory_create_invalid_state(svc_inv, rfmock):
         assert "request.body.state should be equal to one of the allowed values" in e.args[0]
 
 
-def test_service_inventory_get_service(svc_inv, rfmock):
+def test_get_service(svc_inv, rfmock):
     id1 = create_service_1(svc_inv, rfmock, "getsvc")
 
     rfmock.mock_get(f'service/{id1}', 'id-svc1', 200)
@@ -173,7 +173,7 @@ def test_service_inventory_get_service(svc_inv, rfmock):
     delete_service_1(svc_inv, rfmock, id1, "getsvc")
     
 
-def test_service_inventory_get_unknown_service(svc_inv, rfmock):
+def test_get_unknown_service(svc_inv, rfmock):
     try:
         rfmock.mock_get(f'service/unknown', 'id-unknown', 500)
         _ = svc_inv.get_service("unknown")
@@ -182,7 +182,7 @@ def test_service_inventory_get_unknown_service(svc_inv, rfmock):
         print(f"GET SERVICE expected error: {e}")
 
 
-def test_service_inventory_list_services(svc_inv, rfmock):
+def test_list_services(svc_inv, rfmock):
     rfmock.mock_get('service', 'list-all-initial-empty', 200)
     svcs = svc_inv.list_services(state=None)
     print(f"\nLIST ALL SERVICES:\n{json.dumps(svcs, indent=2)}")
@@ -257,7 +257,7 @@ def test_service_inventory_list_services(svc_inv, rfmock):
     delete_service_3(svc_inv, rfmock, id3, "listsvc")
 
 
-def test_service_inventory_update_service(svc_inv, rfmock):
+def test_update_service(svc_inv, rfmock):
     id2 = create_service_2(svc_inv, rfmock, "updatesvc")
     
     rfmock.mock_get(f'service/{id2}', 'upsv-get-svc2', 200)
