@@ -82,6 +82,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: source/operators/dependentApiSimpleOperator/docker
+          file: source/operators/dependentApiSimpleOperator/docker/DockerfileTest
           build-args: |
             FROM_IMAGE=${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
           load: true
