@@ -70,8 +70,54 @@ jobs:
             echo "GIT_COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
             echo "CICD_BUILD_TIME=$(date -Iseconds)" >> $GITHUB_ENV
       
+      {%- if testDockerfile %}
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: {{ buildContext }}
+          {%- if buildDockerfile %}
+          file: {{ buildDockerfile }}
+          {%- endif %}
+          build-args: |
+            SOURCE_DATE_EPOCH=${% raw %}{{ env.SOURCE_DATE_EPOCH }}{% endraw %}
+            GIT_COMMIT_SHA=${% raw %}{{ env.GIT_COMMIT_SHA }}{% endraw %}
+            CICD_BUILD_TIME=${% raw %}{{ env.CICD_BUILD_TIME }}{% endraw %}
+          load: true
+          tags: |
+            ${% raw %}{{ steps.get_values_image.outputs.result }}{% endraw %}:latest
+            ${% raw %}{{ steps.get_values_image.outputs.result }}{% endraw %}:${% raw %}{{ steps.get_values_version.outputs.result }}{% endraw %}
+        env:
+          SOURCE_DATE_EPOCH: ${% raw %}{{ env.SOURCE_DATE_EPOCH }}{% endraw %}
+      
+      # test
+      - name: Run Unit Tests
+        uses: docker/build-push-action@v6
+        with:
+          context: {{ buildContext }}
+          file: {{ testDockerfile }}
+          build-args: |
+            FROM_IMAGE=${% raw %}{{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}{% endraw %}
+          load: true
+          push: false
+          tags: local-test-img
+      
+      - name: Get Test Results
+        run: |
+          docker run --rm local-test-img > junit-report.xml
+          cat junit-report.xml
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        #if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: 'junit-report.xml'
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+      {%- endif %}
+                
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: {{ buildContext }}
           {%- if buildDockerfile %}

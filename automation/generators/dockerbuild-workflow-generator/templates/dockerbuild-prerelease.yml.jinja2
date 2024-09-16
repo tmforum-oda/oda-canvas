@@ -47,6 +47,12 @@ jobs:
           else
               echo "::error::Version ${% raw %}{{ steps.get_values_version.outputs.result }}{% endraw %} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
           fi        
+
+      - name: read release versionnumber of {{ fileName }} from values.yaml
+        id: get_values_release_version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '{{ valuesPathVersion }}' {{ valuesYamlFile }}
               
       - name: Get Git commit timestamps
         run: |
@@ -59,7 +65,18 @@ jobs:
         with:
           username: ${% raw %}{{ secrets.DOCKERHUB_USERNAME }}{% endraw %}
           password: ${% raw %}{{ secrets.DOCKERHUB_TOKEN }}{% endraw %}
-                
+
+      - name: Check that release image (after removing prereleasesuffix) does not yet exist 
+        id: check_release_docker_image
+        uses: KerberosMorphy/docker-exist-action@v1.1.1
+        with:
+          registry: docker.io
+          image: ${% raw %}{{ steps.get_values_image.outputs.result }}{% endraw %}:${% raw %}{{ steps.get_values_release_version.outputs.result }}{% endraw %}
+      - name: error if release tag (without prerelease suffix) already exists
+        if: steps.check_release_docker_image.outputs.image_exist==1
+        run: |
+          echo  "::error::image tag ${% raw %}{{ steps.get_values_release_version.outputs.result }}{% endraw %} already exists in repo ${% raw %}{{ steps.get_values_image.outputs.result }}{% endraw %}, exiting!" && exit 2 
+
       {%- if testDockerfile %}
       - name: Build and export to Docker
         uses: docker/build-push-action@v6

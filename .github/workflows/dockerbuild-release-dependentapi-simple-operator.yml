@@ -70,9 +70,49 @@ jobs:
             echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
             echo "GIT_COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
             echo "CICD_BUILD_TIME=$(date -Iseconds)" >> $GITHUB_ENV
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: source/operators/dependentApiSimpleOperator/docker
+          build-args: |
+            SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
+            GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
+            CICD_BUILD_TIME=${{ env.CICD_BUILD_TIME }}
+          load: true
+          tags: |
+            ${{ steps.get_values_image.outputs.result }}:latest
+            ${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
+        env:
+          SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}
       
+      # test
+      - name: Run Unit Tests
+        uses: docker/build-push-action@v6
+        with:
+          context: source/operators/dependentApiSimpleOperator/docker
+          file: source/operators/dependentApiSimpleOperator/docker/DockerfileTest
+          build-args: |
+            FROM_IMAGE=${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
+          load: true
+          push: false
+          tags: local-test-img
+      
+      - name: Get Test Results
+        run: |
+          docker run --rm local-test-img > junit-report.xml
+          cat junit-report.xml
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        #if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: 'junit-report.xml'
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+                
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: source/operators/dependentApiSimpleOperator/docker
           build-args: |
