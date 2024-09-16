@@ -88,11 +88,10 @@ jobs:
           push: false
           tags: local-test-img
       
-      - name: Test
+      - name: Get Test Results
         run: |
           docker run --rm local-test-img > junit-report.xml
           cat junit-report.xml
-          
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
@@ -101,6 +100,7 @@ jobs:
           report_paths: 'junit-report.xml'
           fail_on_failure: true
           include_passed: true
+          detailed_summary: true
 
       - name: Build and push
         uses: docker/build-push-action@v6
