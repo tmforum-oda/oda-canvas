@@ -105,6 +105,8 @@ class ExpressServer {
     
     try {
       
+      logger.info(`+--> Welcome to the DemoX change <--|`)
+      
       const SOURCE_DATE_EPOCH = process.env.SOURCE_DATE_EPOCH
       const GIT_COMMIT_SHA = process.env.GIT_COMMIT_SHA
       const CICD_BUILD_TIME = process.env.CICD_BUILD_TIME
