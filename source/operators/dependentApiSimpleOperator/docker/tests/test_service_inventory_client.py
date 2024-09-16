@@ -40,7 +40,7 @@ def test_service_inventory_api():
     rfmock.mock_get('service', 'list-all-initial-empty', 200)
     svcs = svc_inv.list_services(state=None)
     print(f"\nLIST ALL SERVICES:\n{json.dumps(svcs, indent=2)}")
-    assert svcs != []
+    assert svcs == []
     
     rfmock.mock_post('service', "create-active-acme-downstream", 201)
     svc1 = svc_inv.create_service(
