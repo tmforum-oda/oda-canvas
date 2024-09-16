@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - master
+    - testmaster
     paths: 
       - source/webhooks/webhook-dockerfile
       - source/webhooks/implementation/**/*

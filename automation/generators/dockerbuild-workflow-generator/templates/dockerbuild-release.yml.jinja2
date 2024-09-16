@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - master
+    - testmaster
     paths: 
       {{ paths | to_yaml |indent(6) }}
 jobs:
