@@ -10,7 +10,7 @@ COPY ./tests /tests
 
 RUN export PYTHONPATH=/src:/tests \
     && cd /tests \
-    && pytest --junitxml=report.xml \
+    && pytest --junitxml=report.xml || true \
     && echo "\n\n[----- TESTREPORT -----]\n\n" \
     && cat report.xml
 

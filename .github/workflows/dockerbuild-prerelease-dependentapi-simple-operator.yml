@@ -61,6 +61,35 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
                 
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v6
+        with:
+          load: true
+          tags: ${{ env.TEST_TAG }}
+      
+      # test
+      - name: Run Unit Tests
+        uses: docker/build-push-action@v6
+        with:
+          context: source/operators/dependentApiSimpleOperator/docker
+          file: source/operators/dependentApiSimpleOperator/docker/DockerfileTest
+          build-args: |
+            FROM_IMAGE=${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
+          load: true
+          push: false
+          tags: local-test-img
+      
+      - name: Test
+        run: |
+          docker run --rm local-test-img > junit-report.xml
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        #if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: 'junit-report.xml'
+          fail_on_failure: true
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -77,18 +106,3 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}
 
-      # test
-      - name: Run Unit Tests
-        uses: docker/build-push-action@v6
-        with:
-          context: source/operators/dependentApiSimpleOperator/docker
-          file: source/operators/dependentApiSimpleOperator/docker/DockerfileTest
-          build-args: |
-            FROM_IMAGE=${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
-          load: true
-          push: false
-          tags: local-test-img
-      
-      - name: Test
-        run: |
-          docker run --rm local-test-img
