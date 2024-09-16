@@ -1,0 +1,10 @@
+{
+  "message": "request.body.state should be equal to one of the allowed values: feasibilityChecked, designed, reserved, inactive, active, terminated, suspended",
+  "errors": [
+    {
+      "path": ".body.state",
+      "message": "should be equal to one of the allowed values: feasibilityChecked, designed, reserved, inactive, active, terminated, suspended",
+      "errorCode": "enum.openapi.validation"
+    }
+  ]
+}

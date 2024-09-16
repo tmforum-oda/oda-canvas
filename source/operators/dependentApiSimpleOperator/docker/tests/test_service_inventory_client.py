@@ -18,20 +18,23 @@ import json
 BASE_URL="https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5"
 RM_TESTDATA_FOLDER = "testdata/requests_mock"
 
+INSTANCES = {}
+
+@pytest.fixture
+def rfmock()->RequestFileMocker:
+    if "rfm" not in INSTANCES:
+        #INSTANCES["rfm"] = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL, recording=True, allow_overwrite=True)
+        INSTANCES["rfm"] = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
+    return INSTANCES["rfm"]
 
 
 @pytest.fixture
-def svc_inv():
+def svc_inv()->ServiceInventoryAPI:
     return ServiceInventoryAPI(BASE_URL)
 
 
-@pytest.fixture
-def rfmock():
-    return RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
-
-
-
-def clean_all(svc_inv:ServiceInventoryAPI):
+def _clean_all():
+    svc_inv = ServiceInventoryAPI(BASE_URL)
     svcs = svc_inv.list_services(state=None)
     ids = [svc["id"] for svc in svcs]
     for id in ids:
@@ -45,32 +48,11 @@ def assert_ids(svc_list, id_list):
     assert expected_id_list == actual_id_list, f"objects not equal:\nEXPECTED: {expected_id_list}\nACTUAL:   {actual_id_list}"
 
 
-
-def test_service_inventory_get_service_exception(svc_inv, rfmock):
-    #svc_inv = ServiceInventoryAPI(BASE_URL)
-    #rfmock = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
-    try:
-        rfmock.mock_get(f'service/unknown', 'id-unknown', 500)
-        _ = svc_inv.get_service("unknown")
-        assert false, 'get for "unknown" id did not throw exception'
-    except ValueError as e:
-        print(f"GET SERVICE expected error: {e}")
-
-
-
-def test_service_inventory_api():
-    svc_inv = ServiceInventoryAPI(BASE_URL)
-    
-    #clean_all(svc_inv)
-    #rfmock = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL, recording=True, allow_overwrite=True)
-    rfmock = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
-
-    rfmock.mock_get('service', 'list-all-initial-empty', 200)
-    svcs = svc_inv.list_services(state=None)
-    print(f"\nLIST ALL SERVICES:\n{json.dumps(svcs, indent=2)}")
-    assert svcs == []
-    
-    rfmock.mock_post('service', "create-active-acme-downstream", 201)
+def create_service_1(svc_inv, rfmock, name):
+    """
+    service 1: active acme downstream
+    """ 
+    rfmock.mock_post('service', f"create-svc1-{name}", 201)
     svc1 = svc_inv.create_service(
         componentName="acme-productinventory", 
         dependencyName="downstreamproductcatalog", 
@@ -87,8 +69,13 @@ def test_service_inventory_api():
       "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
       "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
     }
+    return id1
 
-    rfmock.mock_post('service', "create-inactive-bcme-downstream", 201)
+def create_service_2(svc_inv, rfmock, name):
+    """
+    service 2: inactive bcme downstream
+    """ 
+    rfmock.mock_post('service', f"create-svc2-{name}", 201)
     svc2 = svc_inv.create_service(
         componentName="bcme-productinventory", 
         dependencyName="downstreamproductcatalog", 
@@ -105,9 +92,14 @@ def test_service_inventory_api():
       "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
       "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
     }
+    return id2
 
 
-    rfmock.mock_post('service', "create-active-bcme-upstream", 201)
+def create_service_3(svc_inv, rfmock, name):
+    """
+    service 3: active bcme upstream
+    """ 
+    rfmock.mock_post('service', f"create-svc3-{name}", 201)
     svc3 = svc_inv.create_service(
         componentName="bcme-productinventory",
         dependencyName="upstreamproductcatalog",
@@ -124,108 +116,178 @@ def test_service_inventory_api():
       "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
       "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
     }
-    
-    rfmock.mock_get('service', 'list-all', 200)
-    svcs = svc_inv.list_services(state=None)
-    print(f"\nALL SERVICES 123:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [id1, id2, id3])
+    return id3 
+   
 
-    rfmock.mock_get('service', 'list-active', 200)
-    svcs = svc_inv.list_services()
-    print(f"\nALL active SERVICES 13:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [id1, id3])
+def delete_service_1(svc_inv, rfmock, id1, name):
+    rfmock.mock_delete(f'service/{id1}', f'svc1-{name}', 204)
+    svc_inv.delete_service(id1)
+    print(f"\ndeleted service-1")
 
-    rfmock.mock_get('service', 'list-active-bcme', 200)
-    svcs = svc_inv.list_services(component_name="bcme-productinventory")
-    print(f"\nLIST active bcme SERVICES 3:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [id3])
+def delete_service_2(svc_inv, rfmock, id2, name):
+    rfmock.mock_delete(f'service/{id2}', f'svc2-{name}', 204)
+    svc_inv.delete_service(id2)
+    print(f"\ndeleted service-2")
 
-    rfmock.mock_get('service', 'list-active-downstream', 200)
-    svcs = svc_inv.list_services(dependency_name="downstreamproductcatalog")
-    print(f"\nLIST active downstream SERVICES 1:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [id1])
+def delete_service_3(svc_inv, rfmock, id3, name):
+    rfmock.mock_delete(f'service/{id3}', f'svc3-{name}', 204)
+    svc_inv.delete_service(id3)
+    print(f"\ndeleted service-3")
 
-    rfmock.mock_get('service', 'list-bcme', 200)
-    svcs = svc_inv.list_services(component_name="bcme-productinventory", state=None)
-    print(f"\nLIST bcme SERVICES 23:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [id2, id3])
 
-    rfmock.mock_get('service', 'list-active-bcme-downstream', 200)
-    svcs = svc_inv.list_services(component_name="bcme-productinventory", dependency_name="downstreamproductcatalog")
-    print(f"\nLIST active bcme downstream SERVICES -:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [])
+def test_service_inventory_create_and_delete_service(svc_inv, rfmock):
+    id1 = create_service_1(svc_inv, rfmock, "createdelete")
+    delete_service_1(svc_inv, rfmock, id1, "createdelete")
 
-    rfmock.mock_get(f'service/{id2}', 'id-svc2', 200)
-    svc2b = svc_inv.get_service(id2)
-    print(f"\nGET service-2 BY ID:\n{json.dumps(svc2b, indent=2)}")
-    assert svc2b == {
-      "id": id2,
-      "state": "inactive",
-      "componentName": "bcme-productinventory",
+
+def test_service_inventory_create_invalid_state(svc_inv, rfmock):
+    rfmock.mock_post('service', "create-invalid-state", 400)
+    try:
+        svc1 = svc_inv.create_service(
+            componentName="acme-productinventory", 
+            dependencyName="downstreamproductcatalog", 
+            url="http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+            specification="https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
+            state="fictitious")
+        assert False, "service was created with invalid state"
+    except ValueError as e:
+        assert "Unexpected http status code 400" in e.args[0]
+        assert "request.body.state should be equal to one of the allowed values" in e.args[0]
+
+
+def test_service_inventory_get_service(svc_inv, rfmock):
+    id1 = create_service_1(svc_inv, rfmock, "getsvc")
+
+    rfmock.mock_get(f'service/{id1}', 'id-svc1', 200)
+    svc1b = svc_inv.get_service(id1)
+    print(f"\nGET service-1 BY ID:\n{json.dumps(svc1b, indent=2)}")
+    assert svc1b == {
+      "id": id1,
+      "state": "active",
+      "componentName": "acme-productinventory",
       "dependencyName": "downstreamproductcatalog",
       "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
       "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
     }
 
+    delete_service_1(svc_inv, rfmock, id1, "getsvc")
+    
+
+def test_service_inventory_get_unknown_service(svc_inv, rfmock):
+    try:
+        rfmock.mock_get(f'service/unknown', 'id-unknown', 500)
+        _ = svc_inv.get_service("unknown")
+        assert false, 'get for "unknown" id did not throw exception'
+    except ValueError as e:
+        print(f"GET SERVICE expected error: {e}")
+
+
+def test_service_inventory_list_services(svc_inv, rfmock):
+    rfmock.mock_get('service', 'list-all-initial-empty', 200)
+    svcs = svc_inv.list_services(state=None)
+    print(f"\nLIST ALL SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert svcs == []
+
+    id1 = create_service_1(svc_inv, rfmock, "listsvc")
+    
+    rfmock.mock_get('service', 'list-svc1', 200)
+    svcs = svc_inv.list_services(state=None)
+    print(f"\nALL SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [id1])
+    assert svcs == [{
+      "id": id1,
+      "state": "active",
+      "componentName": "acme-productinventory",
+      "dependencyName": "downstreamproductcatalog",
+      "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+      "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+    }]
+
+    id2 = create_service_2(svc_inv, rfmock, "listsvc")
+    id3 = create_service_3(svc_inv, rfmock, "listsvc")
+
+    rfmock.mock_get('service', 'list-svc123', 200)
+    svcs = svc_inv.list_services(state=None)
+    print(f"\nALL SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [id1, id2, id3])
+    
+    rfmock.mock_get('service', 'list-active', 200)
+    svcs = svc_inv.list_services()
+    print(f"\nactive SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [id1, id3])
+    
+    rfmock.mock_get('service', 'list-inactive', 200)
+    svcs = svc_inv.list_services(state="inactive")
+    print(f"\ninactive SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [id2])
+    
+    rfmock.mock_get('service', 'list-bcme', 200)
+    svcs = svc_inv.list_services(component_name="bcme-productinventory", state=None)
+    print(f"\nbcme SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [id2, id3])
+    
+    rfmock.mock_get('service', 'list-downstream', 200)
+    svcs = svc_inv.list_services(dependency_name="downstreamproductcatalog", state=None)
+    print(f"\ndownstream SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [id1, id2])
+    
+    rfmock.mock_get('service', 'list-active-bcme', 200)
+    svcs = svc_inv.list_services(component_name="bcme-productinventory")
+    print(f"\nactive bcme SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [id3])
+    
+    rfmock.mock_get('service', 'list-active-downstream', 200)
+    svcs = svc_inv.list_services(dependency_name="downstreamproductcatalog")
+    print(f"\nactive downstream SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [id1])
+    
+    rfmock.mock_get('service', 'list-active-acme-downstream', 200)
+    svcs = svc_inv.list_services(component_name="acme-productinventory", dependency_name="downstreamproductcatalog")
+    print(f"\nactive acme downstream SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [id1])
+    
+    rfmock.mock_get('service', 'list-active-bcme-downstream', 200)
+    svcs = svc_inv.list_services(component_name="bcme-productinventory", dependency_name="downstreamproductcatalog")
+    print(f"\nactive bcme downstream SERVICES:\n{json.dumps(svcs, indent=2)}")
+    assert_ids(svcs, [])
+    
+
+    delete_service_1(svc_inv, rfmock, id1, "listsvc")
+    delete_service_2(svc_inv, rfmock, id2, "listsvc")
+    delete_service_3(svc_inv, rfmock, id3, "listsvc")
+
+
+def test_service_inventory_update_service(svc_inv, rfmock):
+    id2 = create_service_2(svc_inv, rfmock, "updatesvc")
+    
+    rfmock.mock_get(f'service/{id2}', 'upsv-get-svc2', 200)
+    svc2 = svc_inv.get_service(id2)
+    print(f"\nGET service-2 BY ID:\n{json.dumps(svc2, indent=2)}")
+    assert svc2["state"] == "inactive"
+    
     rfmock.mock_patch(f'service/{id2}', 'update-svc2-active', 200)
-    svc2c = svc_inv.update_service(
+    svc2b = svc_inv.update_service(
         id=id2,
         componentName=svc2["componentName"], 
         dependencyName=svc2["dependencyName"], 
         url=svc2["url"],
         specification=svc2["OASSpecification"],
         state="active")
-    print(f"\nUPDATED service-2 state to active:\n{json.dumps(svc2c,indent=2)}\n")
-    assert svc2c == {
+    print(f"\nUPDATED service-2 state to active:\n{json.dumps(svc2b,indent=2)}\n")
+    assert svc2b == {
       "id": id2,
       "state": "active",
-      "componentName": "bcme-productinventory",
-      "dependencyName": "downstreamproductcatalog",
-      "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
-      "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+      "componentName": svc2["componentName"],
+      "dependencyName": svc2["dependencyName"],
+      "url": svc2["url"],
+      "OASSpecification": svc2["OASSpecification"]
     }
     
-    rfmock.mock_get('service', 'update-list-active-downstream', 200)
-    svcs = svc_inv.list_services(dependency_name="downstreamproductcatalog")
-    print(f"\nLIST active downstream SERVICES 12:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [id1, id2])
-
-    rfmock.mock_get('service', 'update-list-active-bcme-downstream', 200)
-    svcs = svc_inv.list_services(component_name="bcme-productinventory", dependency_name="downstreamproductcatalog")
-    print(f"\nLIST active bcme downstream SERVICES 2:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [id2])
-
-    rfmock.mock_delete(f'service/{id1}', 'svc1', 204)
-    svc_inv.delete_service(id1)
-    print(f"\ndeleted service-1")
-
-    rfmock.mock_delete(f'service/{id2}', 'svc2', 204)
-    svc_inv.delete_service(id2)
-    print(f"\ndeleted service-2")
-
-    rfmock.mock_get('service', 'del12-list-active', 200)
-    svcs = svc_inv.list_services()
-    print(f"\n[DEL12] ALL active SERVICES 3:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [id3])
-
-    rfmock.mock_delete(f'service/{id3}', 'svc3', 204)
-    svc_inv.delete_service(id3)
-    print(f"\ndeleted service-3")
-
-    rfmock.mock_get('service', 'del123-list-allstates', 200)
-    svcs = svc_inv.list_services(state=None)
-    print(f"\n[DEL123] ALL active SERVICES 3:\n{json.dumps(svcs, indent=2)}")
-    assert_ids(svcs, [])
-
-    try:
-        rfmock.mock_get(f'service/{id3}', 'id-unknown', 500)
-        _ = svc_inv.get_service(id3)
-        raise Exception(f'GET AFTER DELETE WAS SUCCESSFUL FOR {id3}')
-    except ValueError as e:
-        print(f"GET SERVICE expected error: {e}")
+    delete_service_2(svc_inv, rfmock, id2, "listsvc")
+    
 
 
 
 if __name__ == "__main__":
-    pytest.main(["test_Service_inventory_client.py", "-W", "ignore:Module already imported so cannot be rewritten:pytest.PytestAssertRewriteWarning"])
-    #test_service_inventory_api()
+    #_clean_all()
+    pytest.main(["test_service_inventory_client.py", "-s", "-W", "ignore:Module already imported so cannot be rewritten:pytest.PytestAssertRewriteWarning"])

@@ -1,7 +1,4 @@
 {
-  "state": [
-    "active"
-  ],
   "serviceCharacteristic.value": [
     "downstreamproductcatalog"
   ]

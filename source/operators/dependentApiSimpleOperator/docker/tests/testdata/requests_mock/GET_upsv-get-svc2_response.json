@@ -2,7 +2,7 @@
   "serviceType": "API",
   "name": "unknown",
   "description": "Implementation of unknown Open API",
-  "state": "active",
+  "state": "inactive",
   "serviceCharacteristic": [
     {
       "name": "componentName",

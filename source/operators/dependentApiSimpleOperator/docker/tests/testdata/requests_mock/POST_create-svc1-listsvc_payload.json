@@ -7,7 +7,7 @@
     {
       "name": "componentName",
       "valueType": "string",
-      "value": "bcme-productinventory",
+      "value": "acme-productinventory",
       "@type": "StringCharacteristic"
     },
     {
@@ -63,7 +63,5 @@
   },
   "@type": "Service",
   "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
-  "@baseType": "Service",
-  "id": "617d46ff-2ef6-4544-a9b7-c6964883d871",
-  "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/617d46ff-2ef6-4544-a9b7-c6964883d871"
+  "@baseType": "Service"
 }

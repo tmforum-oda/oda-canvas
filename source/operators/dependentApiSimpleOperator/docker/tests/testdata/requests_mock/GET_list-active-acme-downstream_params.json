@@ -3,6 +3,6 @@
     "active"
   ],
   "serviceCharacteristic.value": [
-    "bcme-productinventory"
+    "acme-productinventory"
   ]
 }

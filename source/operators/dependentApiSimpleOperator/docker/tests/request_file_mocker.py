@@ -6,7 +6,6 @@ import sys
 import os
 
 from urllib import parse
-from pip._internal.cli import status_codes
 
 
 def assert_equals(expected, actual):
@@ -64,20 +63,28 @@ class RequestFileMocker:
         self.recording = recording
         self.mock_info = {}
         self.mock = requests_mock.Mocker()
+        self.is_on = False
         if inital_on:
             self.on()
 
+    def __del__(self):
+        self.off()
+        
     def on(self):
         """
         reactivate mocking
         """
-        self.mock.__enter__()
+        if not self.is_on:
+            self.mock.__enter__()
+            self.is_on = True
         
     def off(self):
         """
         deactivate mocking
         """
-        self.mock.__exit__(None, None, None)
+        if self.is_on:
+            self.mock.__exit__(None, None, None)
+            self.is_on = False
         
     def url(self, path):
         if path == None:
@@ -199,9 +206,12 @@ class RequestFileMocker:
             status_code = response.status_code
             assert expected_status_code is None or assert_equals(expected_status_code, status_code)
 
-            response_json = response.json()
-            if response_json:
-                self.testdata.write_json(response_json, method, name, "response")
+            try:
+                response_json = response.json()
+                if response_json:
+                    self.testdata.write_json(response_json, method, name, "response")
+            except Exception:
+                pass
                 
             print(f"RECORDED: rfmock.mock_{method.lower()}('{path}', '{name}', {status_code})")
             self.mock_info.pop("*")        
