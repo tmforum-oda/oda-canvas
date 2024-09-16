@@ -145,8 +145,8 @@ dependentapi-simple-operator:
   serviceInventoryAPI:
     enabled: true
     image: tmforumodacanvas/tmf638-service-inventory-api
-    version: 0.1.1
-    prereleaseSuffix: demox
+    version: 0.1.0
+    prereleaseSuffix:
     imagePullPolicy: IfNotPresent
 
 canvas-vault:
@@ -228,8 +228,8 @@ canvas-vault:
 
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator
-  version: 0.1.0
-  prereleaseSuffix:
+  version: 0.1.1
+  prereleaseSuffix: demo-20240916
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar

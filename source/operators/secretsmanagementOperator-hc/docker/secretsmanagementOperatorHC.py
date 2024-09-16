@@ -38,6 +38,8 @@ logger.setLevel(int(logging_level))
 logger.info(f"Logging set to %s", logging_level)
 logger.debug(f"debug logging active")
 
+logger.info(f"DEMO 2024 09 16")
+
 SOURCE_DATE_EPOCH = os.getenv("SOURCE_DATE_EPOCH")
 GIT_COMMIT_SHA = os.getenv("GIT_COMMIT_SHA")
 CICD_BUILD_TIME = os.getenv("CICD_BUILD_TIME")
