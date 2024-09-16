@@ -1,3 +1,4 @@
+import pytest
 import sys
 import os
 
@@ -18,6 +19,18 @@ BASE_URL="https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManage
 RM_TESTDATA_FOLDER = "testdata/requests_mock"
 
 
+
+@pytest.fixture
+def svc_inv():
+    return ServiceInventoryAPI(BASE_URL)
+
+
+@pytest.fixture
+def rfmock():
+    return RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
+
+
+
 def clean_all(svc_inv:ServiceInventoryAPI):
     svcs = svc_inv.list_services(state=None)
     ids = [svc["id"] for svc in svcs]
@@ -25,10 +38,25 @@ def clean_all(svc_inv:ServiceInventoryAPI):
         print(f"deleting service {id}")
         svc_inv.delete_service(id)
     
+    
 def assert_ids(svc_list, id_list):
     expected_id_list = sorted(id_list)
     actual_id_list = sorted([svc["id"] for svc in svc_list])
     assert expected_id_list == actual_id_list, f"objects not equal:\nEXPECTED: {expected_id_list}\nACTUAL:   {actual_id_list}"
+
+
+
+def test_service_inventory_get_service_exception(svc_inv, rfmock):
+    #svc_inv = ServiceInventoryAPI(BASE_URL)
+    #rfmock = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
+    try:
+        rfmock.mock_get(f'service/unknown', 'id-unknown', 500)
+        _ = svc_inv.get_service("unknown")
+        assert false, 'get for "unknown" id did not throw exception'
+    except ValueError as e:
+        print(f"GET SERVICE expected error: {e}")
+
+
 
 def test_service_inventory_api():
     svc_inv = ServiceInventoryAPI(BASE_URL)
@@ -199,4 +227,5 @@ def test_service_inventory_api():
 
 
 if __name__ == "__main__":
-    test_service_inventory_api()
+    pytest.main(["test_Service_inventory_client.py", "-W", "ignore:Module already imported so cannot be rewritten:pytest.PytestAssertRewriteWarning"])
+    #test_service_inventory_api()
