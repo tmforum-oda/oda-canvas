@@ -55,6 +55,23 @@ dependentapi-simple-operator:
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
+tmf638-service-inventory-api:
+  displayName: TMF-638 Service Inventory API
+  fileName: tmf638-service-inventory-api
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .dependentapi-simple-operator.serviceInventoryAPI.image
+  valuesPathVersion: .dependentapi-simple-operator.serviceInventoryAPI.version
+  valuesPathPrereleaseSuffix: .dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix
+  
+  paths:
+    - source/tmf-services/TMF638_Service_Inventory/**/*
+  buildContext: source/tmf-services/TMF638_Service_Inventory
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile: 
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
   
 secretsmanagement-operator:  
   displayName: SecretsManagement-Operator
