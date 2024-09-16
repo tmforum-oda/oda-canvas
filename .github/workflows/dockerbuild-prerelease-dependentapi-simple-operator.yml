@@ -60,7 +60,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-                
       - name: Build and export to Docker
         uses: docker/build-push-action@v6
         with:
@@ -101,7 +100,7 @@ jobs:
           fail_on_failure: true
           include_passed: true
           detailed_summary: true
-
+                
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -117,4 +116,3 @@ jobs:
             ${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
         env:
           SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}
-
