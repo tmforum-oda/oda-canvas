@@ -228,7 +228,7 @@ canvas-vault:
 
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator
-  version: 0.1.1
+  version: 0.1.2
   prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   
