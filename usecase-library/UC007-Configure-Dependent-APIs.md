@@ -16,64 +16,68 @@ The Service Inventory payload for a dependent API with name `downstreamproductca
 
 ``` JSON
 {
-"serviceType": "API",
-"name": "partner catalog",
-"description": "Implementation of TMF620 Product Catalog Management Open API",
-"state": "active",
-"serviceCharacteristic": [
-
-{
-"name": "dependencyName",
-"valueType": "string",
-"value": "downstreamproductcatalog",
-"@type": "StringCharacteristic"
-},
-
-{
-"name": "url",
-"valueType": "string",
-"value": "http://localhost/acme-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
-"@type": "StringCharacteristic"
-},
-
-{
-"name": "OAS Specification",
-"valueType": "string",
-"value": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
-"@type": "StringCharacteristic"
-}
-],
-
-"serviceSpecification": {
-"id": "1",
-"name": "API",
-"version": "1.0.0",
-"@type": "ServiceSpecification",
-
-"specCharacteristic": [
-
-{
-"name": "dependencyName",
-"valueType": "string",
-"description": "The dependency name that this API service matches. The dependency name is set in the Component Specification",
-"@type": "StringCharacteristic"
-},
-
-{
-"name": "url",
-"valueType": "string",
-"description": "The url the the API root endpoint",
-"@type": "StringCharacteristic"
-},
-
-{
-"name": "OAS Specification",
-"valueType": "string",
-"description": "The url to the Open API Speciofication for this API",
-"@type": "StringCharacteristic"
-}
-]
-},
-"@type": "Service"
+	"serviceType": "API",
+	"name": "Acme partner catalog",
+	"description": "Implementation of TMF620 Product Catalog Management Open API",
+	"state": "active",
+	"serviceCharacteristic": [
+		{
+			"name": "componentName",
+			"valueType": "string",
+			"value": "acme-productinventory",
+			"@type": "StringCharacteristic"
+		},
+		{
+			"name": "dependencyName",
+			"valueType": "string",
+			"value": "downstreamproductcatalog",
+			"@type": "StringCharacteristic"
+		},
+		{
+			"name": "url",
+			"valueType": "string",
+			"value": "http://localhost/acme-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+			"@type": "StringCharacteristic"
+		},
+		{
+			"name": "OAS Specification",
+			"valueType": "string",
+			"value": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
+			"@type": "StringCharacteristic"
+		}
+	],
+	"serviceSpecification": {
+		"id": "1",
+		"name": "API",
+		"version": "1.0.0",
+		"@type": "ServiceSpecification",
+		"specCharacteristic": [
+			{
+				"name": "componentName",
+				"valueType": "string",
+				"description": "The name of the component which wants to consume the API service. The component name is normally available in the environment vaiable COMPONENT_NAME",
+				"@type": "StringCharacteristic"
+			},
+			{
+				"name": "dependencyName",
+				"valueType": "string",
+				"description": "The dependency name that this API service matches. The dependency name is set in the Component Specification",
+				"@type": "StringCharacteristic"
+			},
+			{
+				"name": "url",
+				"valueType": "string",
+				"description": "The url the the API root endpoint",
+				"@type": "StringCharacteristic"
+			},
+			{
+				"name": "OAS Specification",
+				"valueType": "string",
+				"description": "The url to the Open API Speciofication for this API",
+				"@type": "StringCharacteristic"
+			}
+		]
+	},
+	"@type": "Service"
 }
 ```
