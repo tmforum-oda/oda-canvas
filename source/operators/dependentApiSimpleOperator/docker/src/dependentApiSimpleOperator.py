@@ -129,6 +129,15 @@ async def dependentApiCreate(
             setDependentAPIStatus(namespace, name, url)
 
 
+
+def removeServiceInventory(svc_id):
+    svc_info = cavas_info_instance()
+    ok = svc_info.delete_service(svc_id, ignore_not_found=True)
+    if ok:
+        logger.debug(f"deleted ServiceInventory entry: {svc_id}")
+    return ok
+
+
 # when an oda.tmforum.org api resource is deleted
 @kopf.on.delete(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, retries=5)
 async def dependentApiDelete(
@@ -137,6 +146,9 @@ async def dependentApiDelete(
 
     logger.info(f"Delete         called with name {name} in namespace {namespace}")
     logger.debug(f"Delete         called with body: {body}")
+    svc_id = safe_get(None, status, "depapiStatus", "svcInvID")
+    if svc_id:
+        removeServiceInventory(svc_id)
 
 
 def cavas_info_instance()->ServiceInventoryAPI:

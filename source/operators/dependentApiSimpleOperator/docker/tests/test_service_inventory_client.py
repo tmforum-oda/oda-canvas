@@ -121,23 +121,39 @@ def create_service_3(svc_inv, rfmock, name):
 
 def delete_service_1(svc_inv, rfmock, id1, name):
     rfmock.mock_delete(f'service/{id1}', f'svc1-{name}', 204)
-    svc_inv.delete_service(id1)
+    ok = svc_inv.delete_service(id1)
+    assert ok == True
     print(f"\ndeleted service-1")
 
 def delete_service_2(svc_inv, rfmock, id2, name):
     rfmock.mock_delete(f'service/{id2}', f'svc2-{name}', 204)
-    svc_inv.delete_service(id2)
+    ok = svc_inv.delete_service(id2)
+    assert ok == True
     print(f"\ndeleted service-2")
 
 def delete_service_3(svc_inv, rfmock, id3, name):
     rfmock.mock_delete(f'service/{id3}', f'svc3-{name}', 204)
-    svc_inv.delete_service(id3)
+    ok = svc_inv.delete_service(id3)
+    assert ok == True
     print(f"\ndeleted service-3")
 
 
 def test_create_and_delete_service(svc_inv, rfmock):
     id1 = create_service_1(svc_inv, rfmock, "createdelete")
     delete_service_1(svc_inv, rfmock, id1, "createdelete")
+
+
+def test_delete_non_existent_service(svc_inv, rfmock):
+    rfmock.mock_delete(f'service/unknown', f'unknown', 500)
+    ok = svc_inv.delete_service("unknown", ignore_not_found=True)
+    assert ok == False
+
+    try:
+        rfmock.mock_delete(f'service/unknown', f'unknown', 500)
+        svc_inv.delete_service("unknown")
+        assert False, "delete did not fail with ignore_not_found=False"
+    except ValueError as e:
+        assert "Unexpected http status code" in e.args[0]
 
 
 def test_create_invalid_state(svc_inv, rfmock):
@@ -285,6 +301,18 @@ def test_update_service(svc_inv, rfmock):
     
     delete_service_2(svc_inv, rfmock, id2, "listsvc")
     
+    try:
+        rfmock.mock_patch(f'service/unknown', 'update-unknown', 500)
+        svc2b = svc_inv.update_service(
+            id="unknown",
+            componentName=svc2["componentName"], 
+            dependencyName=svc2["dependencyName"], 
+            url=svc2["url"],
+            specification=svc2["OASSpecification"],
+            state="active")
+        assert False, "update did not fail for unknown id"
+    except ValueError as e:
+        assert "Unexpected http status code" in e.args[0]
 
 
 

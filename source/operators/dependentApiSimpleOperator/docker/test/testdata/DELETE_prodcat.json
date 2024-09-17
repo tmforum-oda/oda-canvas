@@ -98,5 +98,17 @@
 		"apitype": "openapi",
 		"name": "party",
 		"specification": "https://open-api.tmforum.org/TMF632-Party-v4.0.0.swagger.json"
+	},
+    "status": {
+        "depapiStatus": {
+            "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+            "svcInvID": "dbdb893f-7aa2-48f4-96ff-e0e0abde7428"
+        },
+        "implementation": {
+            "ready": true
+		},
+        "kopf": {
+            "progress": {}
+        }
 	}
 }

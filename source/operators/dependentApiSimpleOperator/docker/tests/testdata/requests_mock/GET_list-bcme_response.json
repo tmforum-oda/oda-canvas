@@ -65,8 +65,8 @@
     "@type": "Service",
     "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
     "@baseType": "Service",
-    "id": "ebe60932-6c11-482c-9fc4-22a9401782bd",
-    "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/ebe60932-6c11-482c-9fc4-22a9401782bd"
+    "id": "2f96a358-e97d-4b6d-a3fc-64050eb03637",
+    "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/2f96a358-e97d-4b6d-a3fc-64050eb03637"
   },
   {
     "serviceType": "API",
@@ -134,7 +134,7 @@
     "@type": "Service",
     "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
     "@baseType": "Service",
-    "id": "a12c46a1-6efe-4e3d-9151-f0196846719b",
-    "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/a12c46a1-6efe-4e3d-9151-f0196846719b"
+    "id": "03a3fe9f-d241-458f-982b-f51743d6fc0e",
+    "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/03a3fe9f-d241-458f-982b-f51743d6fc0e"
   }
 ]

@@ -64,6 +64,6 @@
   "@type": "Service",
   "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
   "@baseType": "Service",
-  "id": "ebe60932-6c11-482c-9fc4-22a9401782bd",
-  "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/ebe60932-6c11-482c-9fc4-22a9401782bd"
+  "id": "2f96a358-e97d-4b6d-a3fc-64050eb03637",
+  "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/2f96a358-e97d-4b6d-a3fc-64050eb03637"
 }

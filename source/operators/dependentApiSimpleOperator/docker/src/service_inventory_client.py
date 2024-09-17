@@ -129,7 +129,7 @@ class ServiceInventoryAPI:
         return result
 
 
-    def delete_service(self, id):
+    def delete_service(self, id, ignore_not_found=False)->bool:
         """
         curl -X 'DELETE' \
           'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
@@ -141,8 +141,12 @@ class ServiceInventoryAPI:
             'accept': '*/*'
         }
         response = requests.delete(url, headers=header)
-        if response.status_code != 204:
-            raise ValueError(f"Unexpected http status code {response.status_code}")
+        if response.status_code == 204:
+            return True
+        if ignore_not_found:
+            return False
+        raise ValueError(f"Unexpected http status code {response.status_code}")
+
 
     def _shorten(self, svc:dict) -> dict:
         """

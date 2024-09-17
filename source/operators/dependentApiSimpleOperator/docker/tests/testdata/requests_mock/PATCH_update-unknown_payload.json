@@ -2,7 +2,7 @@
   "serviceType": "API",
   "name": "unknown",
   "description": "Implementation of unknown Open API",
-  "state": "inactive",
+  "state": "active",
   "serviceCharacteristic": [
     {
       "name": "componentName",
@@ -63,7 +63,5 @@
   },
   "@type": "Service",
   "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
-  "@baseType": "Service",
-  "id": "9a0d6836-a2a0-4239-950a-45b8e4ffdf16",
-  "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/9a0d6836-a2a0-4239-950a-45b8e4ffdf16"
+  "@baseType": "Service"
 }
