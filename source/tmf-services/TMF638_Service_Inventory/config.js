@@ -4,6 +4,11 @@ const fs   = require('fs')
 const contents = fs.readFileSync(__dirname + "/config.json")
 const jsonConfig = JSON.parse(contents)
 
+const SERVER_URL = process.env.SERVER_URL
+if (SERVER_URL) {
+  jsonConfig["servers"][0]["url"] = SERVER_URL
+}
+
 const config = {
   ROOT_DIR: __dirname,
   URL_PORT: 8638,
