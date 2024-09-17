@@ -83,20 +83,21 @@ jobs:
             GIT_COMMIT_SHA=${% raw %}{{ env.GIT_COMMIT_SHA }}{% endraw %}
             CICD_BUILD_TIME=${% raw %}{{ env.CICD_BUILD_TIME }}{% endraw %}
           load: true
+          push: true
           tags: |
             ${% raw %}{{ steps.get_values_image.outputs.result }}{% endraw %}:latest
-            ${% raw %}{{ steps.get_values_image.outputs.result }}{% endraw %}:${% raw %}{{ steps.get_values_version.outputs.result }}{% endraw %}
         env:
           SOURCE_DATE_EPOCH: ${% raw %}{{ env.SOURCE_DATE_EPOCH }}{% endraw %}
       
       # test
+      # problem using local image: https://github.com/docker/build-push-action/issues/1015
       - name: Run Unit Tests
         uses: docker/build-push-action@v6
         with:
           context: {{ buildContext }}
           file: {{ testDockerfile }}
           build-args: |
-            FROM_IMAGE=${% raw %}{{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}{% endraw %}
+            FROM_IMAGE=${% raw %}{{ steps.get_values_image.outputs.result }}{% endraw %}:latest
           load: true
           push: false
           tags: local-test-img
