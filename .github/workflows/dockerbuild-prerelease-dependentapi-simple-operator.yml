@@ -77,6 +77,7 @@ jobs:
         if: steps.check_release_docker_image.outputs.image_exist==1
         run: |
           echo  "::error::image tag ${{ steps.get_values_release_version.outputs.result }} already exists in repo ${{ steps.get_values_image.outputs.result }}, exiting!" && exit 2
+      
       - name: Build and export to Docker
         uses: docker/build-push-action@v6
         with:
@@ -86,9 +87,8 @@ jobs:
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
             CICD_BUILD_TIME=${{ env.CICD_BUILD_TIME }}
           load: true
-          tags: |
-            ${{ steps.get_values_image.outputs.result }}:latest
-            ${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
+          push: false
+          tags: local-img
         env:
           SOURCE_DATE_EPOCH: ${{ env.SOURCE_DATE_EPOCH }}
       
@@ -99,7 +99,7 @@ jobs:
           context: source/operators/dependentApiSimpleOperator/docker
           file: source/operators/dependentApiSimpleOperator/docker/DockerfileTest
           build-args: |
-            FROM_IMAGE=${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
+            FROM_IMAGE=local-img
           load: true
           push: false
           tags: local-test-img
