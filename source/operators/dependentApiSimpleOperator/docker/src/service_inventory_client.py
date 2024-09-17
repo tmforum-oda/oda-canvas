@@ -13,7 +13,7 @@ class ServiceInventoryAPI:
     def __init__(self, endpoint):
         self.endpoint = endpoint
         template_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates")
-        print(template_dir)
+        #print(template_dir)
         loader = FileSystemLoader(template_dir)
         self.env = Environment(loader=loader, autoescape=select_autoescape())        
         #=======================================================================

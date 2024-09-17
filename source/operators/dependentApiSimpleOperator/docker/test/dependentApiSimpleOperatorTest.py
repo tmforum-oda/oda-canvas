@@ -4,7 +4,9 @@ import logging
 import kopf
 import asyncio
 
-sys.path.append("..")
+os.environ["CANVAS_INFO_ENDPOINT"] = "https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5"
+
+sys.path.append("../src")
 from dependentApiSimpleOperator import (
     dependentApiCreate,
     dependentApiDelete,
@@ -300,7 +302,7 @@ if __name__ == "__main__":
     logging.info(f"main called")
     k8s_load_config(proxy=True)
     test_kubeconfig()
-    # test_dependentApiCreate()
+    test_dependentApiCreate()
     # test_dependentApiUpdate()
     # test_dependentApiDelete()
-    test_updateDepedentAPIReady()
+    # test_updateDepedentAPIReady()
