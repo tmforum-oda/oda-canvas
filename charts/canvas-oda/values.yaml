@@ -145,7 +145,7 @@ dependentapi-simple-operator:
   serviceInventoryAPI:
     enabled: true
     image: tmforumodacanvas/tmf638-service-inventory-api
-    version: 0.1.0
+    version: 0.1.1
     prereleaseSuffix: issue289b
     imagePullPolicy: IfNotPresent
     serverUrl: http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5
