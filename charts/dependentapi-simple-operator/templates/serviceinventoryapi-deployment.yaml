@@ -21,7 +21,7 @@ spec:
         imagePullPolicy: {{ include "dependentapi-serviceinventoryapi.imagePullPolicy" . }}
         env:
         - name: SERVER_URL
-          value {{ .Values.serviceInventoryAPI.serverUrl }}
+          value: {{ .Values.serviceInventoryAPI.serverUrl }}
         ports:
         - containerPort: 8638
 {{- end }}
