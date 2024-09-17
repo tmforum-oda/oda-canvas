@@ -1,4 +1,15 @@
-#image: ankursarkar/dependentapi-simple-operator:0.2.0
-image: ocfork/dependentapi-simple-operator:0.2.1-odaa114
+image: tmforumodacanvas/dependentapi-simple-operator
+version: 0.2.2
+prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 loglevel: '20'
+
+serviceInventoryAPI:
+  enabled: true
+  image: tmforumodacanvas/tmf638-service-inventory-api
+  version: 0.1.0
+  prereleaseSuffix:
+  imagePullPolicy: IfNotPresent
+  mongodb:
+    port: 27017
+    database: svcinv 

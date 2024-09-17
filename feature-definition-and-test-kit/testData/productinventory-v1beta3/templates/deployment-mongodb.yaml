@@ -19,7 +19,7 @@ spec:
       - name: {{.Release.Name}}-mongodb
         image: mongo:latest
         ports:
-        - name: {{.Release.Name}}-mongodb
+        - name: mongodb
           containerPort: 27017
         volumeMounts:
         - name: {{.Release.Name}}-mongodb-pv-storage

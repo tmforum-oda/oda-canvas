@@ -36,3 +36,9 @@ The design (including ongoing work) of the ODA Canvas is documented in [ODA Canv
 | 1.1.0      | Added support for multiple specifications of each Open-API. The v1beta3 `exposedAPI` object defines its `specification` property as an array. This is specifically designed to allow TM Forum Gen5 Open-APIs (which can be specified alongside Gen4 APIs).  <BR/> The [Webhook](./source/webhooks) will automatically convert v1beta2 and v1beta1 specifications to v1beta3 with an array of 1.          |
 | 1.0.0      | First tracked release for component version v1beta3 (also supports N-2 versions i.e. v1beta2 and v1beta1).
 
+
+## For Developers
+
+How to work with this repository:
+
+* [How-To work with Dockerimages](/docs/developer/work-with-dockerimages.md)

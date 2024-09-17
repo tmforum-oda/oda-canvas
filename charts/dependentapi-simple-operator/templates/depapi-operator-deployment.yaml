@@ -17,8 +17,8 @@ spec:
       serviceAccountName: {{ .Release.Name }}-depapi-op-account
       containers:
       - name: {{ .Release.Name }}-depapi-op
-        image: {{ .Values.image }}
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        image: {{ include "dependentapi-simple-operator.dockerimage" . }}
+        imagePullPolicy: {{ include "dependentapi-simple-operator.imagePullPolicy" . }}
         env:
         - name: LOGGING
           value: "{{ .Values.loglevel }}"

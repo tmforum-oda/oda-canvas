@@ -35,7 +35,7 @@ setDefaultTimeout( 20 * 1000);
  * @param {string} numberOfAPIs - The expected number of ExposedAPIs in the component segment.
  * @param {string} componentSegmentName - The name of the component segment.
  */
-Given('An example package {string} with a {string} component with {string} ExposedAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
+Given('an example package {string} with a {string} component with {string} ExposedAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
   exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
   // assert that there are the correct number of ExposedAPIs in the componentSegment
   assert.ok(exposedAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " ExposedAPI")
@@ -49,7 +49,7 @@ Given('An example package {string} with a {string} component with {string} Expos
  * @param {string} numberOfAPIs - The expected number of DependentAPIs in the component segment.
  * @param {string} componentSegmentName - The name of the component segment.
  */
-Given('An example package {string} with a {string} component with {string} DependentAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
+Given('an example package {string} with a {string} component with {string} DependentAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
   dependentAPIs = packageManagerUtils.getDependentAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
   // assert that there are the correct number of DependentAPI in the componentSegment
   assert.ok(dependentAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " DependentAPI")
@@ -72,7 +72,7 @@ When('I install the {string} package', async function (componentPackage) {
  * @param {string} componentPackage - The name of the package to install.
  * @param {string} releaseName - The name of the release name.
  */
-Given('A baseline {string} package installed as release {string}', async function (componentPackage, releaseName) {
+Given('a baseline {string} package installed as release {string}', async function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
@@ -105,7 +105,7 @@ When('I upgrade the {string} package as release {string}', async function (compo
  *
  * @param {string} componentPackage - The name of the example component package to install.
  */
-Given('An example package {string} has been installed', async function (componentPackage) {
+Given('an example package {string} has been installed', async function (componentPackage) {
   global.currentReleaseName = DEFAULT_RELEASE_NAME
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });

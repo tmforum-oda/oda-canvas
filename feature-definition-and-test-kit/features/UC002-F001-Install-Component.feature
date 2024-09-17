@@ -7,7 +7,7 @@
 Feature: UC002-F001 Install Component
 
     Scenario Outline: Create ExposedAPI resources for each segment
-        Given An example package '<PackageName>' with a '<ComponentName>' component with '<ExposedApiCount>' ExposedAPI in its '<SegmentName>' segment
+        Given an example package '<PackageName>' with a '<ComponentName>' component with '<ExposedApiCount>' ExposedAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package as release '<ReleaseName>'
         Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
 
@@ -18,10 +18,10 @@ Feature: UC002-F001 Install Component
     | Security API   | productcatalog-v1beta3 |      pc     | partyrole                | productcatalogmanagement | securityFunction   | 1               |
 
     Scenario Outline: Create DependentAPI resources for each segment
-        Given An example package '<PackageName>' with a '<ComponentName>' component with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
+        Given an example package '<PackageName>' with a '<ComponentName>' component with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package as release '<ReleaseName>'
         Then I should see the '<DependentAPIName>' DependentAPI resource on the '<ComponentName>' component
 
     Examples:
     | Name           | PackageName                              | ReleaseName | DependentAPIName         | ComponentName                | SegmentName        | DependentApiCount |
-    | Core API       | productcatalog-dependendent-API-v1beta3  |      pc     | dapi-downstreamproductcatalog | productcatalogmanagement     | coreFunction       | 1                 |
+    | Core API       | productcatalog-dependendent-API-v1beta3  |      pc     | downstreamproductcatalog | productcatalogmanagement     | coreFunction       | 1                 |

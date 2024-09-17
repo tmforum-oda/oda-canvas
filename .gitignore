@@ -14,3 +14,4 @@ canvas-portal/portal-helm/target/
 canvas-portal/portal-service/target/
 canvas-portal/portal-web/package-lock.json
 canvas-portal/portal-service/src/main/resources/static/
+/ignore/

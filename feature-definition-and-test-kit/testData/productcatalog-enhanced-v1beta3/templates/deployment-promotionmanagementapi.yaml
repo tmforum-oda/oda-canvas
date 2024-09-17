@@ -40,7 +40,7 @@ spec:
           value: production
         imagePullPolicy: Always
         ports:
-        - name: {{.Release.Name}}-pmapi
+        - name: pmapi
           containerPort: 8080
         startupProbe:
           httpGet:

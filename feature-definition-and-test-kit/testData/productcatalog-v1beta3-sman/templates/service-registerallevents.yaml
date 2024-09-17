@@ -9,7 +9,7 @@ metadata:
 spec:
   ports:
   - port: 4000
-    name: http-{{.Release.Name}}-{{.Values.component.name}}-sm
+    name: http-{{.Values.component.name}}-sm
   type: NodePort
   selector:
     impl: {{.Release.Name}}-metricsapi

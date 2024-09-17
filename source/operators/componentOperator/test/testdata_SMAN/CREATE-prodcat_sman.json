@@ -310,7 +310,7 @@
 		],
 		"coreDependentAPIs": [
 			{
-				"name": "prodcat-productcatalogmanagement-dapi-party",
+				"name": "prodcat-productcatalogmanagement-party",
 				"ready": false,
 				"uid": "dbe81d7f-cdd8-445b-91fa-7b8f68c8b0d9"
 			}
