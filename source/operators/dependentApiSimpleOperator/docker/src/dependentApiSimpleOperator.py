@@ -6,7 +6,7 @@ import os
 
 import kubernetes.client
 from kubernetes.client.rest import ApiException
- 
+
 from service_inventory_client import ServiceInventoryAPI
 
 
@@ -44,10 +44,14 @@ if GIT_COMMIT_SHA:
     logger.info(f"GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
 
 # for local testing set environment variable $CANVAS_INFO_ENDPOINT to "https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5"
-CANVAS_INFO_ENDPOINT = os.getenv("CANVAS_INFO_ENDPOINT", "https://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5")
+CANVAS_INFO_ENDPOINT = os.getenv(
+    "CANVAS_INFO_ENDPOINT",
+    "https://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5",
+)
 logger.info(f"CANVAS_INFO_ENDPOINT=%s", CANVAS_INFO_ENDPOINT)
 
 INSTANCES = {}
+
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
@@ -105,7 +109,8 @@ def get_depapi_url(depapi_name, depapi_namespace):
             if (
                 exp_api["spec"]["apiType"] == "openapi"
                 and exp_api["spec"]["specification"][0] == depapi_specification
-                and safe_get(False, exp_api,"status","implementation","ready") == True
+                and safe_get(False, exp_api, "status", "implementation", "ready")
+                == True
             ):
                 return exp_api["status"]["apiStatus"]["url"]
     return None
@@ -129,7 +134,6 @@ async def dependentApiCreate(
             setDependentAPIStatus(namespace, name, url)
 
 
-
 def removeServiceInventory(svc_id):
     svc_info = cavas_info_instance()
     ok = svc_info.delete_service(svc_id, ignore_not_found=True)
@@ -151,32 +155,39 @@ async def dependentApiDelete(
         removeServiceInventory(svc_id)
 
 
-def cavas_info_instance()->ServiceInventoryAPI:
+def cavas_info_instance() -> ServiceInventoryAPI:
     if "svc_inv" not in INSTANCES:
         INSTANCES["svc_inv"] = ServiceInventoryAPI(CANVAS_INFO_ENDPOINT)
     return INSTANCES["svc_inv"]
 
+
 def updateServiceInventory(component_name, dependency_name, specification, url):
     svc_info = cavas_info_instance()
-    svcs = svc_info.list_services(component_name=component_name, dependency_name=dependency_name, state=None)
+    svcs = svc_info.list_services(
+        component_name=component_name, dependency_name=dependency_name, state=None
+    )
     assert len(svcs) <= 1
     if len(svcs) == 0:
-        svc = svc_info.create_service(componentName=component_name, 
-                                dependencyName=dependency_name, 
-                                url=url,
-                                specification=specification,
-                                state="active")
+        svc = svc_info.create_service(
+            componentName=component_name,
+            dependencyName=dependency_name,
+            url=url,
+            specification=specification,
+            state="active",
+        )
         logger.debug(f"ServiceInventory: created {str(svc)}")
     else:
-        svc = svc_info.update_service(id=svcs[0]["id"],
-                                componentName=component_name, 
-                                dependencyName=dependency_name, 
-                                url=url,
-                                specification=specification,
-                                state="active")
+        svc = svc_info.update_service(
+            id=svcs[0]["id"],
+            componentName=component_name,
+            dependencyName=dependency_name,
+            url=url,
+            specification=specification,
+            state="active",
+        )
         logger.debug(f"ServiceInventory: updated {str(svc)}")
     return svc["id"]
-        
+
 
 def setDependentAPIStatus(namespace, name, url):
     """Helper function to update the url and implementation Ready status on the DependentAPI custom resource.
@@ -214,9 +225,11 @@ def setDependentAPIStatus(namespace, name, url):
         depapi["status"]["depapiStatus"] = {}
     depapi["status"]["depapiStatus"]["url"] = url
     depapi["status"]["implementation"] = {"ready": True}
-    
+
     try:
-        component_name = safe_get(None, depapi, "metadata", "labels", "oda.tmforum.org/componentName")
+        component_name = safe_get(
+            None, depapi, "metadata", "labels", "oda.tmforum.org/componentName"
+        )
         specification = safe_get(None, depapi, "spec", "specification")
         svc_id = updateServiceInventory(component_name, da_name, specification, url)
         depapi["status"]["depapiStatus"]["svcInvID"] = svc_id
@@ -224,7 +237,7 @@ def setDependentAPIStatus(namespace, name, url):
         raise kopf.TemporaryError(
             f"setDependentAPIStatus: Exception in updateServiceInventory: {str(e)}"
         )
-    
+
     try:
         api_response = api_instance.patch_namespaced_custom_object(
             DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, name, depapi
