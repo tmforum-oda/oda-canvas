@@ -501,3 +501,24 @@ In this file the docker build specific configurations and the relevant source pa
 
 After the configuration is finished, the GitHub Actions have to be regenerated 
 by executing [automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py](https://github.com/tmforum-oda/oda-canvas/blob/master/automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py). For executing the python script, the packages "pyyaml" and "jinja2" have to be installed (see requirements.txt).
+
+# How-To define unit tests
+
+If the parameter testDockerfile is set, then after building the dockerfile to release in the same context the test Dockerfile is built and run.
+The output of the run should be a test report in junit xml format.
+
+Here is an Example:
+
+Definition in dockerbuild-workflow-generator (Line 55 is the testDockerfile config):
+
+https://github.com/tmforum-oda/oda-canvas/blob/2d6268346c215c6dedb7afb2862765679da5c23c/automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml#L41-L57
+
+And the DockerfileTest looks like this:
+
+https://github.com/tmforum-oda/oda-canvas/blob/2d6268346c215c6dedb7afb2862765679da5c23c/source/operators/dependentApiSimpleOperator/docker/DockerfileTest#L1-L17
+
+There will be a warning, that it is bad practice to define a FROM solely from an argument, but I don´t know how to do it in another way.
+
+So, the test dockerfile uses the previously built image as "$FROM_IMAGE" and during the build process the unit tests are executed. The build itself should not fail, instead of the test report is analyzed afterwards. Running the test dockerfile just outputs the test report.
+
+On Failure, the docker build of the version is canceled and the broken tests are visible in the GitHub action.
