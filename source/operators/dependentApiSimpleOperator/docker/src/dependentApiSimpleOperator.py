@@ -138,7 +138,7 @@ def removeServiceInventory(svc_id):
     svc_info = cavas_info_instance()
     ok = svc_info.delete_service(svc_id, ignore_not_found=True)
     if ok:
-        logger.debug(f"deleted ServiceInventory entry: {svc_id}")
+        logger.info(f"deleted ServiceInventory entry: {svc_id}")
     return ok
 
 
@@ -175,6 +175,7 @@ def updateServiceInventory(component_name, dependency_name, specification, url):
             specification=specification,
             state="active",
         )
+        logger.info(f'ServiceInventory: created {svc["id"]}')
         logger.debug(f"ServiceInventory: created {str(svc)}")
     else:
         svc = svc_info.update_service(
@@ -185,6 +186,7 @@ def updateServiceInventory(component_name, dependency_name, specification, url):
             specification=specification,
             state="active",
         )
+        logger.info(f'ServiceInventory: updated {svc["id"]}')
         logger.debug(f"ServiceInventory: updated {str(svc)}")
     return svc["id"]
 
