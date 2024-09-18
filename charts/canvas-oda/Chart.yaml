@@ -48,7 +48,7 @@ dependencies:
     repository: 'file://../canvas-namespaces'
     condition: canvas-namespaces.enabled
   - name: oda-crds
-    version: "1.1.0"
+    version: "1.1.1"
     repository: 'file://../oda-crds'
     condition: oda-crds.enabled
   - name: keycloak
