@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.2.1
+version: 0.2.3
+# version: 0.2.3 - Issue #289: fill canvas info service from DependentAPI operator
 # version: 0.2.1 - added canvas info service
 # version: 0.2.0 - added dependentApiSimpleOperator functionality to fetch the defined dependent API ENDPOINT from apis custom resouce
 # version: 0.1.1 - updated dependentApiSimpleOperator to tmforum docker repo
@@ -25,4 +26,4 @@ version: 0.2.1
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: 0.2.0"
+appVersion: 0.2.3"
