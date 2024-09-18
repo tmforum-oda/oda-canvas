@@ -70,11 +70,15 @@ spec:
             type: object
             x-kubernetes-preserve-unknown-fields: true
     additionalPrinterColumns:
-    - name: DepAPI_endpoint
-      type: string
-      description: Dependent API endpoint Url
-      jsonPath: .status.depapiStatus.url
-    - name: DepAPI_ready
+    - name: ready
       type: string
       description: Dependent API configuration is ready - e.g. gateway configuration
       jsonPath: .status.implementation.ready
+    - name: svcInvID
+      type: string
+      description: ID published in the Canvas Info Service
+      jsonPath: .status.depapiStatus.svcInvID
+    - name: url
+      type: string
+      description: Dependent API endpoint Url
+      jsonPath: .status.depapiStatus.url
