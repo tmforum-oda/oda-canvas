@@ -12,7 +12,7 @@ if (SERVER_URL) {
 const config = {
   ROOT_DIR: __dirname,
   URL_PORT: 8638,
-  URL_PATH: 'http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5',
+  URL_PATH: 'http://info.canvas.svc.cluster.local',
   
   BASE_VERSION: 'v5',
   CONTROLLER_DIRECTORY: path.join(__dirname, 'controllers'),

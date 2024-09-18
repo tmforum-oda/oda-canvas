@@ -21,7 +21,7 @@ import json
 
 ## for local tests to the cluster use:
 ## kubectl port-forward -n canvas svc/info 8638:80
-BASE_URL = "http://localhost:8638/tmf-api/serviceInventoryManagement/v5"
+BASE_URL = "http://localhost:8638"
 RM_TESTDATA_FOLDER = "testdata/requests_mock"
 
 INSTANCES = {}

@@ -65,8 +65,8 @@
     "@type": "Service",
     "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
     "@baseType": "Service",
-    "id": "eb607774-cef3-49a0-adae-cfe3f9757e02",
-    "href": "http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/eb607774-cef3-49a0-adae-cfe3f9757e02"
+    "id": "e4ca8651-91bd-4717-a7c1-3ec4352ab818",
+    "href": "http://localhost:8638/service/e4ca8651-91bd-4717-a7c1-3ec4352ab818"
   },
   {
     "serviceType": "API",
@@ -134,7 +134,7 @@
     "@type": "Service",
     "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
     "@baseType": "Service",
-    "id": "59eeb1c6-3641-4634-a1db-d13766ededdd",
-    "href": "http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/59eeb1c6-3641-4634-a1db-d13766ededdd"
+    "id": "122860c8-ea25-464a-af79-95fa1afcdd34",
+    "href": "http://localhost:8638/service/122860c8-ea25-464a-af79-95fa1afcdd34"
   }
 ]

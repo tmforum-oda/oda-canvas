@@ -64,6 +64,6 @@
   "@type": "Service",
   "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
   "@baseType": "Service",
-  "id": "59eeb1c6-3641-4634-a1db-d13766ededdd",
-  "href": "http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/59eeb1c6-3641-4634-a1db-d13766ededdd"
+  "id": "122860c8-ea25-464a-af79-95fa1afcdd34",
+  "href": "http://localhost:8638/service/122860c8-ea25-464a-af79-95fa1afcdd34"
 }

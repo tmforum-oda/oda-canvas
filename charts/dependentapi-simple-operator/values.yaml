@@ -10,7 +10,7 @@ serviceInventoryAPI:
   version: 0.1.1
   prereleaseSuffix:
   imagePullPolicy: IfNotPresent
-  serverUrl: http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5
+  serverUrl: http://info.canvas.svc.cluster.local
   mongodb:
     port: 27017
     database: svcinv 

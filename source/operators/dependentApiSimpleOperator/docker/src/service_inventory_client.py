@@ -32,7 +32,7 @@ class ServiceInventoryAPI:
     def create_service(self, componentName, dependencyName, url, specification, state):
         """
         curl -X 'POST' \
-          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service' \
+          'http://localhost:8638/service' \
           -H 'accept: application/json' \
           -H 'Content-Type: application/json' \
           -d '{
@@ -65,7 +65,7 @@ class ServiceInventoryAPI:
     def list_services(self, component_name=None, dependency_name=None, state="active"):
         """
         curl -X 'GET' \
-          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service' \
+          'http://localhost:8638/service' \
           -H 'accept: application/json'
         """
 
@@ -102,7 +102,7 @@ class ServiceInventoryAPI:
     def get_service(self, id):
         """
         curl -X 'GET' \
-          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
+          'http://localhost:8638/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
           -H 'accept: application/json'
         """
         # TODO[FH]: check format of id
@@ -120,7 +120,7 @@ class ServiceInventoryAPI:
     ):
         """
         curl -X 'PATCH' \
-          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/82beee12-21ab-48fa-9530-dece75c378dc' \
+          'http://localhost:8638/service/82beee12-21ab-48fa-9530-dece75c378dc' \
           -H 'accept: application/json' \
           -H 'Content-Type: application/json' \
           -d '{
@@ -153,7 +153,7 @@ class ServiceInventoryAPI:
     def delete_service(self, id, ignore_not_found=False) -> bool:
         """
         curl -X 'DELETE' \
-          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
+          'http://localhost:8638/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
           -H 'accept: */*'
         """
         # TODO[FH]: check format of id

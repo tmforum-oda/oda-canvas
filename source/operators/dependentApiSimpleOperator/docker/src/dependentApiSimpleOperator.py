@@ -43,10 +43,10 @@ if CICD_BUILD_TIME:
 if GIT_COMMIT_SHA:
     logger.info(f"GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
 
-# for local testing set environment variable $CANVAS_INFO_ENDPOINT to "http://localhost:8638/tmf-api/serviceInventoryManagement/v5"
+# for local testing set environment variable $CANVAS_INFO_ENDPOINT to "http://localhost:8638"
 CANVAS_INFO_ENDPOINT = os.getenv(
     "CANVAS_INFO_ENDPOINT",
-    "http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5",
+    "http://info.canvas.svc.cluster.local",
 )
 logger.info(f"CANVAS_INFO_ENDPOINT=%s", CANVAS_INFO_ENDPOINT)
 
