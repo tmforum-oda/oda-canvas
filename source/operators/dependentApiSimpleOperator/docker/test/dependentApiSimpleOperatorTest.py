@@ -5,7 +5,7 @@ import kopf
 import asyncio
 
 os.environ["CANVAS_INFO_ENDPOINT"] = (
-    "https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5"
+    "http://localhost:8638/tmf-api/serviceInventoryManagement/v5"
 )
 
 sys.path.append("../src")

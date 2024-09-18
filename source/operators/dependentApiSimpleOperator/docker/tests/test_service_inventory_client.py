@@ -19,9 +19,9 @@ from service_inventory_client import ServiceInventoryAPI
 import json
 
 
-BASE_URL = (
-    "https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5"
-)
+## for local tests to the cluster use:
+## kubectl port-forward -n canvas svc/info 8638:80
+BASE_URL = "http://localhost:8638/tmf-api/serviceInventoryManagement/v5"
 RM_TESTDATA_FOLDER = "testdata/requests_mock"
 
 INSTANCES = {}
@@ -65,7 +65,7 @@ def create_service_1(svc_inv, rfmock, name):
     svc1 = svc_inv.create_service(
         componentName="acme-productinventory",
         dependencyName="downstreamproductcatalog",
-        url="http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        url="http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
         specification="https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
         state="active",
     )
@@ -76,7 +76,7 @@ def create_service_1(svc_inv, rfmock, name):
         "state": "active",
         "componentName": "acme-productinventory",
         "dependencyName": "downstreamproductcatalog",
-        "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        "url": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
         "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
     }
     return id1
@@ -90,7 +90,7 @@ def create_service_2(svc_inv, rfmock, name):
     svc2 = svc_inv.create_service(
         componentName="bcme-productinventory",
         dependencyName="downstreamproductcatalog",
-        url="http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        url="http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
         specification="https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
         state="inactive",
     )
@@ -103,7 +103,7 @@ def create_service_2(svc_inv, rfmock, name):
         "state": "inactive",
         "componentName": "bcme-productinventory",
         "dependencyName": "downstreamproductcatalog",
-        "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        "url": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
         "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
     }
     return id2
@@ -117,7 +117,7 @@ def create_service_3(svc_inv, rfmock, name):
     svc3 = svc_inv.create_service(
         componentName="bcme-productinventory",
         dependencyName="upstreamproductcatalog",
-        url="http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        url="http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
         specification="https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
         state="active",
     )
@@ -128,7 +128,7 @@ def create_service_3(svc_inv, rfmock, name):
         "state": "active",
         "componentName": "bcme-productinventory",
         "dependencyName": "upstreamproductcatalog",
-        "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        "url": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
         "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
     }
     return id3
@@ -179,7 +179,7 @@ def test_create_invalid_state(svc_inv, rfmock):
         svc1 = svc_inv.create_service(
             componentName="acme-productinventory",
             dependencyName="downstreamproductcatalog",
-            url="http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+            url="http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
             specification="https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
             state="fictitious",
         )
@@ -203,7 +203,7 @@ def test_get_service(svc_inv, rfmock):
         "state": "active",
         "componentName": "acme-productinventory",
         "dependencyName": "downstreamproductcatalog",
-        "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        "url": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
         "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
     }
 
@@ -237,7 +237,7 @@ def test_list_services(svc_inv, rfmock):
             "state": "active",
             "componentName": "acme-productinventory",
             "dependencyName": "downstreamproductcatalog",
-            "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+            "url": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
             "OASSpecification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
         }
     ]

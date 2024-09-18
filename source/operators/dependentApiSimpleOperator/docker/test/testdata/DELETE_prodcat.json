@@ -101,7 +101,7 @@
 	},
     "status": {
         "depapiStatus": {
-            "url": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+            "url": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
             "svcInvID": "dbdb893f-7aa2-48f4-96ff-e0e0abde7428"
         },
         "implementation": {

@@ -301,11 +301,11 @@
 	"status": {
 		"coreAPIs": [
 			{
-				"developerUI": "http://components.ihc-dt.cluster-3.de/prodcat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
+				"developerUI": "http://localhost:8080/prodcat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
 				"name": "prodcat-productcatalogmanagement-productcatalogmanagement",
 				"ready": false,
 				"uid": "13030877-6e75-4a2d-87a8-0142c4aba50a",
-				"url": "http://components.ihc-dt.cluster-3.de/prodcat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+				"url": "http://localhost:8080/prodcat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
 			}
 		],
 		"coreDependentAPIs": [

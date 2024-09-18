@@ -19,7 +19,7 @@
     {
       "name": "url",
       "valueType": "string",
-      "value": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+      "value": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
       "@type": "StringCharacteristic"
     },
     {

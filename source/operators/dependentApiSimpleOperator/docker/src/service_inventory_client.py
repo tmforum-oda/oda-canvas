@@ -32,7 +32,7 @@ class ServiceInventoryAPI:
     def create_service(self, componentName, dependencyName, url, specification, state):
         """
         curl -X 'POST' \
-          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service' \
+          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service' \
           -H 'accept: application/json' \
           -H 'Content-Type: application/json' \
           -d '{
@@ -65,7 +65,7 @@ class ServiceInventoryAPI:
     def list_services(self, component_name=None, dependency_name=None, state="active"):
         """
         curl -X 'GET' \
-          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service' \
+          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service' \
           -H 'accept: application/json'
         """
 
@@ -102,7 +102,7 @@ class ServiceInventoryAPI:
     def get_service(self, id):
         """
         curl -X 'GET' \
-          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
+          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
           -H 'accept: application/json'
         """
         # TODO[FH]: check format of id
@@ -120,7 +120,7 @@ class ServiceInventoryAPI:
     ):
         """
         curl -X 'PATCH' \
-          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/82beee12-21ab-48fa-9530-dece75c378dc' \
+          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/82beee12-21ab-48fa-9530-dece75c378dc' \
           -H 'accept: application/json' \
           -H 'Content-Type: application/json' \
           -d '{
@@ -153,7 +153,7 @@ class ServiceInventoryAPI:
     def delete_service(self, id, ignore_not_found=False) -> bool:
         """
         curl -X 'DELETE' \
-          'https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
+          'http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/5406c1d2-8df8-4e35-bdfc-73548b8bffac' \
           -H 'accept: */*'
         """
         # TODO[FH]: check format of id
@@ -205,64 +205,3 @@ class ServiceInventoryAPI:
         for entry in svc["serviceCharacteristic"]:
             result[entry["name"]] = entry["value"]
         return result
-
-
-if __name__ == "__main__":
-    svc_inv = ServiceInventoryAPI(
-        "https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5"
-    )
-    # ===========================================================================
-    # svcs = svc_inv.list_services()
-    # print(f"SERVICES FOR *.*\n{json.dumps(svcs, indent=2)}")
-    # svcs = svc_inv.list_services(component_name="bcme-productinventory")
-    # print(f"SERVICES FOR bcme-productinventory.*\n{json.dumps(svcs, indent=2)}")
-    # svcs = svc_inv.list_services(dependency_name="downstreamproductcatalog")
-    # print(f"SERVICES FOR *.downstreamproductcatalog\n{json.dumps(svcs, indent=2)}")
-    # svcs = svc_inv.list_services(component_name="bcme-productinventory", dependency_name="downstreamproductcatalog")
-    # print(f"SERVICES FOR COMPONENT bcme-productinventory.downstreamproductcatalog\n{json.dumps(svcs, indent=2)}")
-    # svcs = svc_inv.list_services(component_name="bcme-productinventory", dependency_name="x")
-    # print(f"SERVICES FOR COMPONENT bcme-productinventory.x\n{json.dumps(svcs, indent=2)}")
-    # svcs = svc_inv.list_services(component_name="x", dependency_name="downstreamproductcatalog")
-    # print(f"SERVICES FOR COMPONENT x.downstreamproductcatalog\n{json.dumps(svcs, indent=2)}")
-    # ===========================================================================
-    svc = svc_inv.create_service(
-        componentName="alice-pc-consumer",
-        dependencyName="upstreamproductcatalog6",
-        url="http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
-        specification="https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
-        state="inactive",
-    )
-    print(f"\nCREATED SERVICE:\n{json.dumps(svc,indent=2)}\n")
-
-    svc_list = svc_inv.list_services(
-        svc["componentName"], svc["dependencyName"], state=svc["state"]
-    )
-    print(f"\nFOUND inactive SERVICES:\n{json.dumps(svc_list,indent=2)}\n")
-
-    svc_list = svc_inv.list_services(svc["componentName"], svc["dependencyName"])
-    print(f"\nFOUND active SERVICES:\n{json.dumps(svc_list,indent=2)}\n")
-
-    svc2 = svc_inv.update_service(
-        id=svc["id"],
-        componentName=svc["componentName"],
-        dependencyName=svc["dependencyName"],
-        url=svc["url"],
-        specification=svc["OASSpecification"],
-        state="active",
-    )
-    print(f"\nUPDATED SERVICE STATE:\n{json.dumps(svc2,indent=2)}\n")
-
-    svc_list = svc_inv.list_services(svc["componentName"], svc["dependencyName"])
-    print(f"\nFOUND active SERVICES:\n{json.dumps(svc_list,indent=2)}\n")
-
-    svc4 = svc_inv.get_service(svc["id"])
-    print(f"SERVICE by id\n{json.dumps(svc4,indent=2)}")
-
-    svc_inv.delete_service(svc["id"])
-    print(f'DELETED SERVICE {svc["id"]}')
-
-    try:
-        svc4 = svc_inv.get_service(svc["id"])
-        raise Exception(f'GET AFTER DELETE WAS SUCCESSFUL FOR {svc["id"]}')
-    except ValueError as e:
-        print(f"GET SERVICE expected error: {e}")

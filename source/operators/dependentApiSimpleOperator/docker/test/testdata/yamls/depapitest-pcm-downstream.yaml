@@ -29,7 +29,7 @@ spec:
   specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
 status:
   depapiStatus:
-    url: http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+    url: http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4
   implementation:
     ready: true
   kopf:

@@ -20,7 +20,7 @@
       {
         "name": "url",
         "valueType": "string",
-        "value": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        "value": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
         "@type": "StringCharacteristic"
       },
       {
@@ -65,8 +65,8 @@
     "@type": "Service",
     "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
     "@baseType": "Service",
-    "id": "34556c06-9ea9-4e87-822e-747d67e6a812",
-    "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/34556c06-9ea9-4e87-822e-747d67e6a812"
+    "id": "edbffe4f-c2ab-46d8-a6f9-6349c02b7918",
+    "href": "http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/edbffe4f-c2ab-46d8-a6f9-6349c02b7918"
   },
   {
     "serviceType": "API",
@@ -89,7 +89,7 @@
       {
         "name": "url",
         "valueType": "string",
-        "value": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        "value": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
         "@type": "StringCharacteristic"
       },
       {
@@ -134,7 +134,7 @@
     "@type": "Service",
     "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
     "@baseType": "Service",
-    "id": "03a3fe9f-d241-458f-982b-f51743d6fc0e",
-    "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/03a3fe9f-d241-458f-982b-f51743d6fc0e"
+    "id": "59eeb1c6-3641-4634-a1db-d13766ededdd",
+    "href": "http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/59eeb1c6-3641-4634-a1db-d13766ededdd"
   }
 ]

@@ -19,7 +19,7 @@
     {
       "name": "url",
       "valueType": "string",
-      "value": "http://components.ihc-dt.cluster-3.de/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+      "value": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
       "@type": "StringCharacteristic"
     },
     {
@@ -64,6 +64,6 @@
   "@type": "Service",
   "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
   "@baseType": "Service",
-  "id": "9a0d6836-a2a0-4239-950a-45b8e4ffdf16",
-  "href": "http://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5/service/9a0d6836-a2a0-4239-950a-45b8e4ffdf16"
+  "id": "46c9f65e-cd23-48e9-a5a1-55e2805cbfac",
+  "href": "http://localhost:8638/tmf-api/serviceInventoryManagement/v5/service/46c9f65e-cd23-48e9-a5a1-55e2805cbfac"
 }
