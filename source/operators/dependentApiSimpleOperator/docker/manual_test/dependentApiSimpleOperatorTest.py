@@ -4,9 +4,7 @@ import logging
 import kopf
 import asyncio
 
-os.environ["CANVAS_INFO_ENDPOINT"] = (
-    "http://localhost:8638"
-)
+os.environ["CANVAS_INFO_ENDPOINT"] = "http://localhost:8638"
 
 sys.path.append("../src")
 from dependentApiSimpleOperator import (
