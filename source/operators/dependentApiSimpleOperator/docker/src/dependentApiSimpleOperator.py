@@ -46,7 +46,7 @@ if GIT_COMMIT_SHA:
 # for local testing set environment variable $CANVAS_INFO_ENDPOINT to "https://canvas-info.ihc-dt.cluster-3.de/tmf-api/serviceInventoryManagement/v5"
 CANVAS_INFO_ENDPOINT = os.getenv(
     "CANVAS_INFO_ENDPOINT",
-    "https://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5",
+    "http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5",
 )
 logger.info(f"CANVAS_INFO_ENDPOINT=%s", CANVAS_INFO_ENDPOINT)
 
