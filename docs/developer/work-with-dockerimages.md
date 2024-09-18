@@ -522,3 +522,6 @@ There will be a warning, that it is bad practice to define a FROM solely from an
 So, the test dockerfile uses the previously built image as "$FROM_IMAGE" and during the build process the unit tests are executed. The build itself should not fail, instead of the test report is analyzed afterwards. Running the test dockerfile just outputs the test report.
 
 On Failure, the docker build of the version is canceled and the broken tests are visible in the GitHub action.
+
+![failed tests in GitHub Action](images/failed-tests-in-github-action.png)
+
