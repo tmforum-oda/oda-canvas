@@ -39,7 +39,7 @@ info:
   title: Service Inventory Management
   version: 5.0.0
 servers:
-  - url: 'http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5'
+  - url: 'http://info.canvas.svc.cluster.local'
 tags:
   - description: Operations for Service Resource
     name: service

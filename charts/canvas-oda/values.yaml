@@ -138,16 +138,20 @@ controller:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 0.2.2
-  prereleaseSuffix:
+  version: 0.2.3
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   serviceInventoryAPI:
     enabled: true
     image: tmforumodacanvas/tmf638-service-inventory-api
-    version: 0.1.0
+    version: 0.1.1
     prereleaseSuffix:
     imagePullPolicy: IfNotPresent
+    serverUrl: http://info.canvas.svc.cluster.local
+    mongodb:
+      port: 27017
+      database: svcinv
 
 canvas-vault:
   enabled: true

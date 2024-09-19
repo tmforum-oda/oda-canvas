@@ -1,0 +1,69 @@
+{
+  "serviceType": "API",
+  "name": "unknown",
+  "description": "Implementation of unknown Open API",
+  "state": "active",
+  "serviceCharacteristic": [
+    {
+      "name": "componentName",
+      "valueType": "string",
+      "value": "acme-productinventory",
+      "@type": "StringCharacteristic"
+    },
+    {
+      "name": "dependencyName",
+      "valueType": "string",
+      "value": "downstreamproductcatalog",
+      "@type": "StringCharacteristic"
+    },
+    {
+      "name": "url",
+      "valueType": "string",
+      "value": "http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+      "@type": "StringCharacteristic"
+    },
+    {
+      "name": "OASSpecification",
+      "valueType": "string",
+      "value": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
+      "@type": "StringCharacteristic"
+    }
+  ],
+  "serviceSpecification": {
+    "id": "1",
+    "name": "API",
+    "version": "1.0.0",
+    "@type": "ServiceSpecification",
+    "specCharacteristic": [
+      {
+        "name": "componentName",
+        "valueType": "string",
+        "description": "The name of the component which wants to consume the API service. The component name is normally available in the environment vaiable COMPONENT_NAME",
+        "@type": "StringCharacteristic"
+      },
+      {
+        "name": "dependencyName",
+        "valueType": "string",
+        "description": "The dependency name that this API service matches. The dependency name is set in the Component Specification",
+        "@type": "StringCharacteristic"
+      },
+      {
+        "name": "url",
+        "valueType": "string",
+        "description": "The url the the API root endpoint",
+        "@type": "StringCharacteristic"
+      },
+      {
+        "name": "OASSpecification",
+        "valueType": "string",
+        "description": "The url to the Open API Specification for this API",
+        "@type": "StringCharacteristic"
+      }
+    ]
+  },
+  "@type": "Service",
+  "@schemaLocation": "http://info.cavas.svc.cluster.local/openapi#/components.schemas.Service",
+  "@baseType": "Service",
+  "id": "5d6fa890-d27d-4b15-b535-9200b9edaef7",
+  "href": "http://localhost:8638/service/5d6fa890-d27d-4b15-b535-9200b9edaef7"
+}

@@ -9,11 +9,11 @@ RUN apk update && \
 
 WORKDIR /src
 
-ADD requirements.txt /src/
+ADD requirements.txt .
 RUN pip install -r requirements.txt && \
     rm requirements.txt
 
-ADD *.py /src/
+ADD src .
 
 ARG CICD_BUILD_TIME
 ENV CICD_BUILD_TIME $CICD_BUILD_TIME
