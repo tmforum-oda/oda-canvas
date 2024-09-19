@@ -44,6 +44,49 @@ entries:
   canvas-oda:
   - apiVersion: v2
     appVersion: v1beta3
+    created: "2024-09-19T19:11:06.943602957Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.0.0
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.0
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.1.1
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: controller
+      repository: file://../controller
+      version: 1.1.1
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 0.2.3
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 0.1.0
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 0.2.0
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.1.2
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 7bf5ad3642fcb78d16f9879debd2f45245a630746626328c37c1a81dbef344c3
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.1.6-rc2/canvas-oda-1.1.6-rc2.tgz
+    version: 1.1.6-rc2
+  - apiVersion: v2
+    appVersion: v1beta3
     created: "2024-09-13T08:31:15.57134662Z"
     dependencies:
     - name: cert-manager-init
@@ -420,6 +463,16 @@ entries:
     version: 0.1.0
   dependentapi-simple-operator:
   - apiVersion: v2
+    appVersion: 0.2.3"
+    created: "2024-09-19T19:11:07.150611309Z"
+    description: The DependentAPI Simple Operator
+    digest: 875763520e1f8519c01eb51925b0c4f15d49ca2bacf6310fe7363aef997b7b3e
+    name: dependentapi-simple-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/dependentapi-simple-operator-0.2.3/dependentapi-simple-operator-0.2.3.tgz
+    version: 0.2.3
+  - apiVersion: v2
     appVersion: 0.2.0"
     created: "2024-09-13T08:31:15.719009014Z"
     description: The DependentAPI Simple Operator
@@ -467,6 +520,16 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/kong-gateway-0.1.0/kong-gateway-0.1.0.tgz
     version: 0.1.0
   oda-crds:
+  - apiVersion: v2
+    appVersion: v1beta3
+    created: "2024-09-19T19:11:07.344993523Z"
+    description: A helm chart to deploy the Canvas CRDs
+    digest: 443ad35def0223e50b25eb1a5accc7681ff5dcf0bf39b25dc7a319663ffad222
+    name: oda-crds
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-crds-1.1.1/oda-crds-1.1.1.tgz
+    version: 1.1.1
   - apiVersion: v2
     appVersion: v1beta3
     created: "2024-03-11T16:31:29.46657909Z"
@@ -548,4 +611,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-0.1.0/oda-webhook-0.1.0.tgz
     version: 0.1.0
-generated: "2024-09-13T08:31:15.719081148Z"
+generated: "2024-09-19T19:11:07.34511448Z"
