@@ -139,14 +139,14 @@ dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 0.2.3
-  prereleaseSuffix: issue289b 
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   serviceInventoryAPI:
     enabled: true
     image: tmforumodacanvas/tmf638-service-inventory-api
     version: 0.1.1
-    prereleaseSuffix: issue289b
+    prereleaseSuffix:
     imagePullPolicy: IfNotPresent
     serverUrl: http://info.canvas.svc.cluster.local
     mongodb:
