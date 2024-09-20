@@ -6,7 +6,7 @@ participant ComponentImplementation
 participant ComponentOperator
 entity DependentAPI
 participant DependentAPIOperator
-participant IdentityManagementOperator
+participant IdentityConfigOperator
 participant "Identity Management System"
 participant "Canvas.Info service"
 boundary "Dependent API Endpoint"
@@ -24,8 +24,8 @@ end note
 group For each dependent API
     DependentAPI -> DependentAPIOperator: on.create
     DependentAPIOperator -> "Canvas.Info service" : Register the availability of the downstraem API(s)
-    DependentAPI -> IdentityManagementOperator: on.create
-    IdentityManagementOperator -> "Identity Management System" : Grant to a role on the downstraem API(s)
+    DependentAPI -> IdentityConfigOperator: on.create
+    IdentityConfigOperator -> "Identity Management System" : Grant to a role on the downstraem API(s)
 
     DependentAPI <- DependentAPIOperator: update
     Component <- ComponentOperator: update 
