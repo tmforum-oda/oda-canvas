@@ -4,7 +4,9 @@ import logging
 import kopf
 import asyncio
 
-sys.path.append("..")
+os.environ["CANVAS_INFO_ENDPOINT"] = "http://localhost:8638"
+
+sys.path.append("../src")
 from dependentApiSimpleOperator import (
     dependentApiCreate,
     dependentApiDelete,
@@ -185,7 +187,7 @@ def test_dependentApiUpdate():
 
 
 def test_dependentApiDelete():
-    body_json_file = "testdata/CREATE_prodcat.json"
+    body_json_file = "testdata/DELETE_prodcat.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -302,5 +304,5 @@ if __name__ == "__main__":
     test_kubeconfig()
     # test_dependentApiCreate()
     # test_dependentApiUpdate()
-    # test_dependentApiDelete()
-    test_updateDepedentAPIReady()
+    test_dependentApiDelete()
+    # test_updateDepedentAPIReady()

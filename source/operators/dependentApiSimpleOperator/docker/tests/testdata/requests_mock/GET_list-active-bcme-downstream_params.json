@@ -1,0 +1,8 @@
+{
+  "state": [
+    "active"
+  ],
+  "serviceCharacteristic.value": [
+    "bcme-productinventory"
+  ]
+}

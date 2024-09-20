@@ -11,6 +11,8 @@ jobs:
       - uses: psf/black@stable
         with: 
           src: |
-            ./source/operators/secretsmanagementOperator-hc
+            ./automation/generators/dockerbuild-workflow-generator
             ./source/operators/apiOperatorApisix
             ./source/operators/apiOperatorKong
+            ./source/operators/dependentApiSimpleOperator
+            ./source/operators/secretsmanagementOperator-hc

@@ -1,0 +1,10 @@
+{
+  "message": ".response should have required property '@type'",
+  "errors": [
+    {
+      "path": ".response.@type",
+      "message": "should have required property '@type'",
+      "errorCode": "required.openapi.validation"
+    }
+  ]
+}

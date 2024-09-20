@@ -4,10 +4,15 @@ const fs   = require('fs')
 const contents = fs.readFileSync(__dirname + "/config.json")
 const jsonConfig = JSON.parse(contents)
 
+const SERVER_URL = process.env.SERVER_URL
+if (SERVER_URL) {
+  jsonConfig["servers"][0]["url"] = SERVER_URL
+}
+
 const config = {
   ROOT_DIR: __dirname,
   URL_PORT: 8638,
-  URL_PATH: 'http://info.canvas.svc.cluster.local/tmf-api/serviceInventoryManagement/v5',
+  URL_PATH: 'http://info.canvas.svc.cluster.local',
   
   BASE_VERSION: 'v5',
   CONTROLLER_DIRECTORY: path.join(__dirname, 'controllers'),
