@@ -1,0 +1,41 @@
+name: Publish Helm Chart
+
+on:
+  push:
+    branches:
+      - helm-chart-fix  # or the branch you want to trigger the action on
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Install Helm
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        helm-version: 'v3.16.1'  # Use your preferred Helm version
+
+    # Package the Helm chart
+    - name: Package Helm chart
+      run: helm package ./charts/rev-chart  # Adjust the path to your chart directory
+
+    # Create or update Helm repo index
+    - name: Create Helm repo index
+      run: |
+        helm repo index . --url https://rsivaji-tmforum.github.io/oda-canvas
+
+    # Push to GitHub Pages branch (gh-pages)
+    - name: Push changes to helm-chart-fix
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout helm-chart-fix || git checkout -b helm-chart-fix
+        mv *.tgz index.yaml .
+        git add .
+        git commit -m "Publish new Helm chart"
+        git push origin helm-chart-fix
