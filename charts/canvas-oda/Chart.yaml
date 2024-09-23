@@ -1,7 +1,6 @@
 apiVersion: v2
 name: canvas-oda
 description: A Helm of helm to orchestrate the ODA installation
-BDD test report - https://github.com/tmforum-oda/oda-canvas/actions/runs/10991028081/artifacts/1965266467
 
 # A chart can be either an 'application' or a 'library' chart.
 #
