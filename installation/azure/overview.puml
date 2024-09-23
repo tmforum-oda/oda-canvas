@@ -1,0 +1,43 @@
+@startuml
+
+skinparam wrapWidth 200
+skinparam defaultFontSize 14
+skinparam componentStyle rectangle
+
+title TM Forum ODA Canvas Architecture Overview
+
+' Define External Systems
+cloud "Users" as Users
+cloud "Azure Entra ID (Azure AD)" as AAD
+cloud "Azure API Management (APIM)" as APIM
+cloud "Azure Key Vault" as KeyVault
+cloud "Azure Database for PostgreSQL" as PostgreSQL
+cloud "Azure Managed Grafana\nand Azure Monitor" as Monitoring
+
+' Define AKS Cluster
+node "Azure Kubernetes Service (AKS)" as AKS {
+    component "apiOperatorAzureAPIM" as Operator
+    component "TMF620 Product Catalog\nComponent" as ProductCatalog
+    component "Istio Service Mesh" as Istio
+}
+
+' Relationships between External Systems and AKS
+Users --> AAD : Authenticate
+Users --> APIM : API Requests
+APIM --> AAD : Validates JWT Tokens
+APIM <--> Operator : Configures APIs
+Operator --> KeyVault : Retrieves Secrets
+ProductCatalog --> KeyVault : Retrieves Secrets
+ProductCatalog --> PostgreSQL : Database Access
+APIM --> AKS : Forwards API Calls
+AKS --> Monitoring : Sends Metrics and Logs
+Monitoring --> AKS : Collects Data
+
+' Internal Relationships within AKS
+APIM --> Istio : Routes Traffic
+Istio --> ProductCatalog : mTLS Communication
+Operator --> APIM : Manages API Exposure
+ProductCatalog <--> Istio : Service Mesh
+AKS --> KeyVault : Accesses Secrets
+
+@enduml
