@@ -66,6 +66,8 @@ seccon_user = 'seccon'
 
 kc = Keycloak(kcBaseURL)
 
+status_listener = False
+
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
 COMPONENTS_PLURAL = "components"
@@ -253,7 +255,10 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                 f'Keycloak add_role failed for {seccon_role} in {name}: {e}',
                 'secCon: bootstrap add_role failed'
             ))
-    
+
+        #To store status of listener registered
+        global status_listener
+        
         try: # to assign the role to the seccon user
             kc.add_role_to_user(seccon_user, seccon_role, name, token, kcRealm)
         except RuntimeError as e:
@@ -263,7 +268,12 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             ))
         else:
             try: # to register with the partyRoleManagement API
-                register_listener(rooturl + '/hub')
+                if(status_listener == False) :
+                    register_listener(rooturl + '/hub')
+                else:
+                    raise kopf.TemporaryError(
+                    'Could not register listener. Will retry.', delay=10
+                )
             except RuntimeError as e:
                 logger.warning(format_cloud_event(
                     str(e),
