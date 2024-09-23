@@ -1,0 +1,48 @@
+@startuml
+actor User
+participant "Kubernetes API Server" as K8sAPI
+participant Operator
+participant "Ingress Controller" as IngressCtrl
+participant "Azure API Management" as AzureAPIM
+participant "Azure Key Vault" as KeyVault
+
+box "Initialization Phase" #LightBlue
+    Operator -> KeyVault : Retrieve secrets (APIM config, AAD info)
+    Operator -> AzureAPIM : Configure OpenID Connect Provider
+end box
+
+== Create/Update ExposedAPI Resource ==
+
+User -> K8sAPI : Apply ExposedAPI manifest
+K8sAPI ->> Operator : Emit create/update event
+
+Operator -> Operator : manage_api_lifecycle()
+Operator -> Operator : Extract API spec from resource
+Operator -> K8sAPI : Check resource status
+Operator -> K8sAPI : Create/Update Ingress resource
+K8sAPI ->> IngressCtrl : Notify about Ingress changes
+Operator -> IngressCtrl : Get Ingress external URL
+
+Operator -> AzureAPIM : Get existing API (to obtain ETag)
+alt API exists
+    Operator -> AzureAPIM : Update API configuration with ETag
+else API does not exist
+    Operator -> AzureAPIM : Create new API configuration
+end
+Operator -> AzureAPIM : Configure API policies (JWT, CORS, Rate Limiting)
+Operator -> K8sAPI : Update ExposedAPI status
+
+== Delete ExposedAPI Resource ==
+
+User -> K8sAPI : Delete ExposedAPI resource
+K8sAPI ->> Operator : Emit delete event
+
+Operator -> Operator : manage_api_deletion()
+Operator -> K8sAPI : Delete Ingress resource
+Operator -> AzureAPIM : Get existing API (to obtain ETag)
+alt API exists
+    Operator -> AzureAPIM : Delete API configuration with ETag
+else API does not exist
+    Operator -> Operator : Skip deletion (API already deleted)
+end
+@enduml
