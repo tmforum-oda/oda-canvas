@@ -1,0 +1,47 @@
+apiVersion: v1
+entries:
+  rev-chart:
+  - apiVersion: v2
+    appVersion: v1beta3
+    created: "2024-09-23T19:12:02.568224+01:00"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.0.0
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.0
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.1.1
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: controller
+      repository: file://../controller
+      version: 1.1.1
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 0.2.3
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 0.1.0
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 0.2.0
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.1.2
+    description: A Helm chart for Kubernetes
+    digest: 1023abddfe785af9d6a1d99607049be4c37bc69b359a89e109b8d5d89df020d7
+    name: rev-chart
+    type: application
+    urls:
+    - https://rsivaji-tmforum.github.io/oda-canvas/rev-chart-1.1.6-rc2.tgz
+    version: 1.1.6-rc2
+generated: "2024-09-23T19:12:02.560078+01:00"

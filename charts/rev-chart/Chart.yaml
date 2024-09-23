@@ -1,0 +1,75 @@
+apiVersion: v2
+name: rev-chart
+description: A Helm chart for Kubernetes
+
+# A chart can be either an 'application' or a 'library' chart.
+#
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
+#
+# Library charts provide useful utilities or functions for the chart developer. They're included as
+# a dependency of application charts to inject those utilities and functions into the rendering
+# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 1.1.6-rc2
+# version: 1.1.6-rc2 - follow up Issue #289: fill canvas info service from DependentAPI operator
+#                      Issue #338: support Unit tests in Docker build template
+# version: 1.1.6-rc1 - Issue #289: add canvas info service
+# version: 1.1.5     - released 9.9.2024
+# version: 1.1.5-rc6 - Issue #302: remove "-dapi-" infix from dependentapi custom resource name
+# version: 1.1.5-rc5 - ODAA-98: automte docker builds
+# version: 1.1.5-lt1 - Updated conversion webhook
+# version: 1.1.5-rc4 - update component operator/istio operator/dependentapi operator with exposedapis and changing v1beta3 crds of these with camelcase apiType
+# version: 1.1.5-rc3 - ODAA-114: fix exception in DependentAPI-Operator
+# version: 1.1.5-rc2 - added dependentApiSimpleOperator functionality to fetch the defined dependent API ENDPOINT from apis custom resouce
+# version: 1.1.5-rc1 - ODAA-86: downgrade HashiCorp Vault to 1.14.8. Last version under MPLv2, 
+#                  see https://www.hashicorp.com/license-faq#products-covered-by-bsl
+# version: 1.1.4 - added secretsmanagement-operator
+# version: 1.1.3 - updated dependentApiSimpleOperator to tmforum docker repo
+# version: 1.1.2 - added dependentApiSimpleOperator
+# version: 1.1.1 - bug fix for empty specification property of exposedAPI
+# version: 1.1.0 - updated component CRD to support an array for the specification field in the exposed API (to support Gen5 APIs)
+# version: 1.0.0 - baseline version
+
+# This is the version number of the application being deployed. We are versioning the canvas as the
+# version of the latest component spec that it supports.
+appVersion: "v1beta3"
+
+dependencies:
+  - name: cert-manager-init
+    version: "1.0.0"
+    repository: 'file://../cert-manager-init'
+  - name: canvas-namespaces
+    version: "1.0.0"
+    repository: 'file://../canvas-namespaces'
+    condition: canvas-namespaces.enabled
+  - name: oda-crds
+    version: "1.1.1"
+    repository: 'file://../oda-crds'
+    condition: oda-crds.enabled
+  - name: keycloak
+    version: "13.0.2"
+    repository: 'https://charts.bitnami.com/bitnami'
+    condition: keycloak.enabled
+  - name: controller
+    version: "1.1.1"
+    repository: 'file://../controller'
+  - name: dependentapi-simple-operator
+    version: "0.2.3"
+    repository: 'file://../dependentapi-simple-operator'
+    condition: dependentapi-simple-operator.enabled
+  - name: secretsmanagement-operator
+    version: "0.1.0"
+    repository: 'file://../secretsmanagement-operator'
+  - name: canvas-vault
+    version: "0.2.0"
+    repository: 'file://../canvas-vault'
+    condition: canvas-vault.enabled
+  - name: oda-webhook
+    version: "1.1.2"
+    repository: 'file://../oda-webhook'
+
