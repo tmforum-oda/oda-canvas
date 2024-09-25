@@ -21,7 +21,7 @@ metadata:
   name: {{ .Release.Name }}-operator-role-istio-ingress
 rules:
 - apiGroups: ["gateway.networking.k8s.io"]
-  resources: ["httproutes"]
+  resources: ["httproutes","ingresses"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: ["networking.k8s.io"]
   resources: ["httproutes","ingresses"]
@@ -42,8 +42,15 @@ rules:
   resources: ["exposedapis"]
   verbs: ["get", "list", "watch", "patch"]
 - apiGroups: ["gateway.networking.k8s.io"]
-  resources: ["httproutes"]
+  resources: ["httproutes","ingresses"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]  
+  resources: ["services"]
+  verbs: ["get", "list", "patch", "update"]
+  resourceNames: ["istio-ingress"]
+- apiGroups: ["networking.istio.io"]
+  resources: ["gateways"]
+  verbs: ["get", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

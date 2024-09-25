@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: operator-command
+  namespace: canvas
+  annotations:
+    "helm.sh/hook": post-install
+    #"helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-failed
+data:
+  run-command: |
+    apiOperatorKong
