@@ -1,0 +1,11 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/resource-policy": keep
+  name: istio-ingress-issuer
+  namespace: istio-ingress
+spec:
+  selfSigned: {}
