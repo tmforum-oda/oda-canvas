@@ -5,6 +5,12 @@ global:
  certificate:
    appName: "compcrdwebhook"
 
+istioCert:
+  namespace: "istio-ingress"
+  certificate:
+    duration: 21600h
+    renewBefore: 360h 
+
 nameOverride: ""
 fullnameOverride: ""
 namespace: canvas

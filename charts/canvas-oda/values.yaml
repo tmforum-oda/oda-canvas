@@ -9,6 +9,12 @@ global:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
 
+istioCert:
+  namespace: "istio-ingress"
+  certificate:
+    duration: 21600h
+    renewBefore: 360h 
+
 oda-crds:
   enabled: true
 

@@ -147,6 +147,8 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
                 "namespace": namespace,
                 "annotations": {
                     "konghq.com/strip-path": strip_path,
+                    "konghq.com/protocols": "https",  
+                    "konghq.com/https-redirect-status-code": "301", 
                 },
             },
             "spec": {
