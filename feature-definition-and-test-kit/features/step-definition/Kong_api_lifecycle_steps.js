@@ -1,6 +1,6 @@
 const { Given, When, Then, setDefaultTimeout } = require('@cucumber/cucumber');
 const assert = require('assert');
-const api_operator_utils_kong = require('api-operator-utils-kong');
+const apiOperatorUtilsKong = require('api-operator-utils-kong');
  
 const NAMESPACE = 'components';
 const TIMEOUT = 20 * 1000; // 20 seconds timeout buffer
@@ -15,21 +15,21 @@ Given('an API resource with path "{string}"', async function (path) {
 });
  
 When('the API resource is created or updated', async function () {
-  this.response = await apioperatorutilskong.createOrUpdateAPIResource(this.apiResource, NAMESPACE);
+  this.response = await apiOperatorUtilsKong.createOrUpdateAPIResource(this.apiResource, NAMESPACE);
 });
  
 Then('an HTTPRoute should be created or updated in the "components" namespace', async function () {
-  const httpRoute = await apioperatorutilskong.getHTTPRoute(this.apiResource.path, NAMESPACE);
+  const httpRoute = await apiOperatorUtilsKong.getHTTPRoute(this.apiResource.path, NAMESPACE);
   assert(httpRoute, `HTTPRoute for path ${this.apiResource.path} not found`);
 });
  
 Then('the HTTPRoute should be associated with the correct service', async function () {
-  const httpRoute = await apioperatorutilskong.getHTTPRoute(this.apiResource.path, NAMESPACE);
+  const httpRoute = await apiOperatorUtilsKong.getHTTPRoute(this.apiResource.path, NAMESPACE);
   assert(httpRoute.spec.rules[0].backendRefs[0].name === this.apiResource.path, 'HTTPRoute is not associated with the correct service');
 });
  
 Then('the HTTPRoute should have the appropriate annotations', async function () {
-  const httpRoute = await apioperatorutilskong.getHTTPRoute(this.apiResource.path, NAMESPACE);
+  const httpRoute = await apiOperatorUtilsKong.getHTTPRoute(this.apiResource.path, NAMESPACE);
   assert(httpRoute.metadata.annotations['konghq.com/plugins'], 'HTTPRoute annotations not found');
 });
  
@@ -41,11 +41,11 @@ Given('an API resource with rate limiting enabled and a limit of {int} requests 
 });
  
 When('the API resource is created or updated', async function () {
-  this.response = await apioperatorutilskong.createOrUpdateAPIResource(this.apiResource, NAMESPACE);
+  this.response = await apiOperatorUtilsKong.createOrUpdateAPIResource(this.apiResource, NAMESPACE);
 });
  
 Then('a rate limiting plugin should be created or updated in the "components" namespace', async function () {
-  const plugin = await apioperatorutilskong.getPlugin('rate-limit', this.apiResource.path, NAMESPACE);
+  const plugin = await apiOperatorUtilsKong.getPlugin('rate-limit', this.apiResource.path, NAMESPACE);
   assert(plugin, `Rate limiting plugin for path ${this.apiResource.path} not found`);
 });
  
@@ -57,7 +57,7 @@ Given('an API resource with API key verification enabled', function () {
 });
  
 Then('an API key verification plugin should be created or updated in the "components" namespace', async function () {
-  const plugin = await apioperatorutilskong.getPlugin('api-key-auth', this.apiResource.path, NAMESPACE);
+  const plugin = await apiOperatorUtilsKong.getPlugin('api-key-auth', this.apiResource.path, NAMESPACE);
   assert(plugin, `API key verification plugin for path ${this.apiResource.path} not found`);
 });
  
@@ -67,7 +67,7 @@ Given('an API resource with a URL template for plugins "{string}"', function (ur
 });
  
 When('the API resource is created or updated', async function () {
-  this.pluginsApplied = await apioperatorutilskong.applyPluginsFromURL(this.apiResource.template, NAMESPACE);
+  this.pluginsApplied = await apiOperatorUtilsKong.applyPluginsFromURL(this.apiResource.template, NAMESPACE);
 });
  
 Then('plugins should be downloaded and applied from the URL template', function () {
@@ -75,7 +75,7 @@ Then('plugins should be downloaded and applied from the URL template', function 
 });
  
 Then('the applied plugins should be associated with the correct API resource', async function () {
-  const plugins = await apioperatorutilskong.getAppliedPlugins(this.apiResource.path, NAMESPACE);
+  const plugins = await apiOperatorUtilsKong.getAppliedPlugins(this.apiResource.path, NAMESPACE);
   assert(plugins.length > 0, 'No plugins associated with the API resource');
 });
  
@@ -84,11 +84,11 @@ Given('an API resource with path "{string}" is deleted', function (path) {
 });
  
 When('the deletion event is triggered', async function () {
-  await apioperatorutilskong.deleteAPIResource(this.apiResourcePath, NAMESPACE);
+  await apiOperatorUtilsKong.deleteAPIResource(this.apiResourcePath, NAMESPACE);
 });
  
 Then('the associated HTTPRoute should be automatically deleted', async function () {
-  const httpRoute = await apioperatorutilskong.getHTTPRoute(this.apiResourcePath, NAMESPACE);
+  const httpRoute = await apiOperatorUtilsKong.getHTTPRoute(this.apiResourcePath, NAMESPACE);
   assert(!httpRoute, `HTTPRoute for path ${this.apiResourcePath} still exists`);
 });
  
