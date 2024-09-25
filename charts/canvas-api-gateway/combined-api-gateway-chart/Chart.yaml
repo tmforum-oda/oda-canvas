@@ -25,11 +25,11 @@ appVersion: "v1beta3"
 dependencies:
   - name: kong-gateway
     version: "0.1.0"
-    repository: 'file://../canvas-api-gateway/kong-gateway'
+    repository: 'file://../combined-api-gateway-chart/kong-gateway'
     condition: kong-gateway-install.enabled
   - name: apisix-gateway
     version: "0.1.0"
-    repository: 'file://../canvas-api-gateway/apisix-gateway'
+    repository: 'file://../combined-api-gateway-chart/apisix-gateway'
     condition: apisix-gateway-install.enabled
 
 
