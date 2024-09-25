@@ -35,6 +35,13 @@ rules:
 - apiGroups: ["oda.tmforum.org"]
   resources: ["exposedapis"]
   verbs: ["get", "list", "watch", "patch"]
+- apiGroups: [""]  
+  resources: ["services"]
+  verbs: ["get", "list", "patch", "update"]
+  resourceNames: ["istio-ingress"] 
+- apiGroups: ["networking.istio.io"]
+  resources: ["gateways"]
+  verbs: ["get", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
