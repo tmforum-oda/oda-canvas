@@ -2,6 +2,12 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "5"
+    "helm.sh/resource-policy": keep
   name: component-gateway
   namespace: {{ .Values.deployment.monitoredNamespaces }}
 spec:
@@ -12,6 +18,17 @@ spec:
       number: 80
       name: http
       protocol: HTTP
+    tls:
+      httpsRedirect: true
+    hosts:
+    - "*"
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: istio-ingress-cert  
     hosts:
     - "*"
 {{ end }}
