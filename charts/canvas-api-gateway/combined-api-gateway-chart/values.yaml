@@ -44,8 +44,12 @@ kong-gateway:
 # Configuration for apisix-gateway installation
 apisix-gateway-install:
   enabled: false  # Enable apisix-gateway if needed
+
 apisix-gateway:
   apisix:
+    apisix:
+      ssl:
+        enabled: true
     gateway:
       type: LoadBalancer  # Override the service type
     ingress-controller:
