@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.6-rc2
+
+version: 1.1.6 - updated kong and apisix installation to change istio-ingress behaviour , ssl enabled on istio-ingress for api-gateway, updated component crds,added test to check once helm charts are published
 # version: 1.1.6-rc2 - follow up Issue #289: fill canvas info service from DependentAPI operator
 #                      Issue #338: support Unit tests in Docker build template
 # version: 1.1.6-rc1 - Issue #289: add canvas info service
