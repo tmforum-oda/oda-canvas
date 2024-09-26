@@ -3,7 +3,7 @@ name: API Gateway and Helm Chart Release Workflow
 on:
   push:
     branches:
-      - feature-update-istio-apigateway
+      - feature-istio-apigateway-update
 
 concurrency:
   group: chart-release
