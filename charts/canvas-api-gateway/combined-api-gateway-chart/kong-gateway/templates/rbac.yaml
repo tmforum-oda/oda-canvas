@@ -42,7 +42,7 @@ rules:
   resources: ["exposedapis"]
   verbs: ["get", "list", "watch", "patch"]
 - apiGroups: ["gateway.networking.k8s.io"]
-  resources: ["httproutes","ingresses"]
+  resources: ["httproutes"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: [""]  
   resources: ["services"]
@@ -51,6 +51,9 @@ rules:
 - apiGroups: ["networking.istio.io"]
   resources: ["gateways"]
   verbs: ["get", "patch", "update"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

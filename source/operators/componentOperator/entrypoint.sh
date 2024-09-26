@@ -17,7 +17,7 @@ run_command() {
   if echo "$CONFIG_CONTENT" | grep -q "apiOperatorKong"; then
     CMD="kopf run --namespace=$COMPONENT_NAMESPACE componentOperator/componentOperator.py apiOperatorIstio/apiOperatorIstiowithKong.py securityController/securityControllerKeycloak.py apiOperatorKong/apiOperatorKong.py"
   elif echo "$CONFIG_CONTENT" | grep -q "apiOperatorApisix"; then
-    CMD="kopf run --namespace=$COMPONENT_NAMESPACE componentOperator/componentOperator.py apiOperatorIstio/apiOperatorIstiowithApisix.py securityController/securityControllerKeycloak.py apiOperatorKong/apiOperatorApisix.py"
+    CMD="kopf run --namespace=$COMPONENT_NAMESPACE componentOperator/componentOperator.py apiOperatorIstio/apiOperatorIstiowithApisix.py securityController/securityControllerKeycloak.py apiOperatorApisix/apiOperatorApisix.py"
   else
     CMD="kopf run --namespace=$COMPONENT_NAMESPACE componentOperator/componentOperator.py apiOperatorIstio/apiOperatorIstio.py securityController/securityControllerKeycloak.py"
   fi

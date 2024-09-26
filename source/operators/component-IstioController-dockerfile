@@ -13,10 +13,13 @@ RUN pip install kopf \
 
 #Copy the componentOperator  apiOperatorIstio  securityControllerKeycloak  secconkeycloak.py code
 COPY apiOperatorIstio/apiOperatorIstio.py /apiOperatorIstio/
+COPY apiOperatorIstio/apiOperatorIstiowithApisix.py /apiOperatorIstio/
+COPY apiOperatorIstio/apiOperatorIstiowithKong.py /apiOperatorIstio/
 COPY componentOperator/componentOperator.py /componentOperator/
 COPY securityController/securityControllerKeycloak.py /securityController/
 COPY securityController/secconkeycloak.py /securityController/
 COPY apiOperatorKong/apiOperatorKong.py /apiOperatorKong/
+COPY apiOperatorApisix/apiOperatorApisix.py /apiOperatorApisix/
 COPY componentOperator/entrypoint.sh /componentOperator/
 
 RUN chmod +x componentOperator/entrypoint.sh
