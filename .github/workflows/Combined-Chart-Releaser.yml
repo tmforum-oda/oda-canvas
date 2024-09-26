@@ -3,7 +3,7 @@ name: API Gateway and Helm Chart Release Workflow
 on:
   push:
     branches:
-      - feature-istio-apigateway-update
+      - master
 
 concurrency:
   group: chart-release
@@ -58,11 +58,11 @@ jobs:
       - name: Confirm new release was done properly
         run: |
           # Add the required Helm repository
-          helm repo add oda-canvas-api-gateway https://rj-acc.github.io/oda-canvas-api-gateway
+          helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
           helm repo update
 
           # Checking for the latest version of the cert-manager-init chart
-          latest_cert_manager=$(helm search repo oda-canvas-api-gateway/cert-manager-init --versions | awk 'NR==2 {print $2}')
+          latest_cert_manager=$(helm search repo oda-canvas/cert-manager-init --versions | awk 'NR==2 {print $2}')
           if [ -z "$latest_cert_manager" ]; then
             echo "Error: cert-manager-init chart release was not successful."
             exit 1
@@ -71,7 +71,7 @@ jobs:
           fi
 
           # Checking for the latest version of the canvas-vault chart
-          latest_canvas_vault=$(helm search repo oda-canvas-api-gateway/canvas-vault --versions | awk 'NR==2 {print $2}')
+          latest_canvas_vault=$(helm search repo oda-canvas/canvas-vault --versions | awk 'NR==2 {print $2}')
           if [ -z "$latest_canvas_vault" ]; then
             echo "Error: canvas-vault chart release was not successful."
             exit 1
@@ -80,7 +80,7 @@ jobs:
           fi
 
           # Checking for the latest version of the canvas-oda chart
-          latest_canvas_oda=$(helm search repo oda-canvas-api-gateway/canvas-oda --versions | awk 'NR==2 {print $2}')
+          latest_canvas_oda=$(helm search repo oda-canvas/canvas-oda --versions | awk 'NR==2 {print $2}')
           if [ -z "$latest_canvas_oda" ]; then
             echo "Error: canvas-oda chart release was not successful."
             exit 1
@@ -178,10 +178,10 @@ jobs:
 
       - name: Install Helm chart from Git repo
         run: |
-          helm repo add oda-canvas-api-gateway https://rj-acc.github.io/oda-canvas-api-gateway
+          helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
           helm repo update
           # This below --devel ensure we are checking current release not only stable release
-          helm install canvas oda-canvas-api-gateway/canvas-oda -n canvas --create-namespace --devel
+          helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --devel
 
       - name: Check if deployment was successful
         run: |
