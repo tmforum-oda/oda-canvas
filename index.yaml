@@ -44,6 +44,49 @@ entries:
   canvas-oda:
   - apiVersion: v2
     appVersion: v1beta3
+    created: "2024-09-30T13:27:07.42512465Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.0.1
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.0
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.1.2
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: controller
+      repository: file://../controller
+      version: 1.1.2
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 0.2.3
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 0.1.0
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 0.2.0
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.1.2
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: ece2ba65a11a54b7ed4dce00caea0060307a70b3a4411ab0d89337f8450ccc6f
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.1.6/canvas-oda-1.1.6.tgz
+    version: 1.1.6
+  - apiVersion: v2
+    appVersion: v1beta3
     created: "2024-09-19T19:11:06.943602957Z"
     dependencies:
     - name: cert-manager-init
@@ -392,6 +435,21 @@ entries:
   cert-manager-init:
   - apiVersion: v2
     appVersion: v1beta3
+    created: "2024-09-30T13:27:07.624054691Z"
+    dependencies:
+    - condition: cert-manager.enabled
+      name: cert-manager
+      repository: https://charts.jetstack.io
+      version: 1.11.0
+    description: A Helm chart for installing the cert manager
+    digest: ae4c1ba7ab97c0bbf7252fe485d76699e4a80681c6ae2cf93861b8eac671b5c1
+    name: cert-manager-init
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/cert-manager-init-1.0.1/cert-manager-init-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
+    appVersion: v1beta3
     created: "2024-02-02T13:27:10.417644407Z"
     dependencies:
     - condition: cert-manager.enabled
@@ -421,6 +479,16 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/cert-manager-init-0.1.0/cert-manager-init-0.1.0.tgz
     version: 0.1.0
   controller:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-09-30T13:27:07.798832218Z"
+    description: A helm chart to deploy the component controller
+    digest: 322c1864a3192a8d5337c18dec155eb7b216db5c1b925d447785fa6748fc4a6f
+    name: controller
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/controller-1.1.2/controller-1.1.2.tgz
+    version: 1.1.2
   - apiVersion: v2
     appVersion: 1.0.0
     created: "2024-08-19T07:12:19.574891907Z"
@@ -522,6 +590,16 @@ entries:
   oda-crds:
   - apiVersion: v2
     appVersion: v1beta3
+    created: "2024-09-30T13:27:07.983796974Z"
+    description: A helm chart to deploy the Canvas CRDs
+    digest: 020dd608e22cbb12af6294ed5753272d2355c68bb60b7a919cb954063f64d60b
+    name: oda-crds
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-crds-1.1.2/oda-crds-1.1.2.tgz
+    version: 1.1.2
+  - apiVersion: v2
+    appVersion: v1beta3
     created: "2024-09-19T19:11:07.344993523Z"
     description: A helm chart to deploy the Canvas CRDs
     digest: 443ad35def0223e50b25eb1a5accc7681ff5dcf0bf39b25dc7a319663ffad222
@@ -611,4 +689,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-0.1.0/oda-webhook-0.1.0.tgz
     version: 0.1.0
-generated: "2024-09-19T19:11:07.34511448Z"
+generated: "2024-09-30T13:27:07.983941894Z"
