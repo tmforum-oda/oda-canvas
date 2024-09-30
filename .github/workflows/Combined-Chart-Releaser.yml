@@ -70,15 +70,6 @@ jobs:
             echo "cert-manager-init chart released successfully. Version: $latest_cert_manager"
           fi
 
-          # Checking for the latest version of the canvas-vault chart
-          latest_canvas_vault=$(helm search repo oda-canvas/canvas-vault --versions | awk 'NR==2 {print $2}')
-          if [ -z "$latest_canvas_vault" ]; then
-            echo "Error: canvas-vault chart release was not successful."
-            exit 1
-          else
-            echo "canvas-vault chart released successfully. Version: $latest_canvas_vault"
-          fi
-
           # Checking for the latest version of the canvas-oda chart
           latest_canvas_oda=$(helm search repo oda-canvas/canvas-oda --versions | awk 'NR==2 {print $2}')
           if [ -z "$latest_canvas_oda" ]; then
