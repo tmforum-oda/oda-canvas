@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-patch-istio-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    "helm.sh/hook": post-install
+    #"helm.sh/hook-weight": "2"
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .Release.Name }}-operator
+      containers:
+      - name: patch-istio-ingress
+        image: bitnami/kubectl:latest
+        command:
+          - /bin/sh
+          - -c
+          - |
+            kubectl patch svc istio-ingress -n istio-ingress -p '{"spec": {"type": "ClusterIP", "externalIPs": null}}'
+      restartPolicy: Never
+  backoffLimit: 3

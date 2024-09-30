@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.6-rc2
+version: 1.1.6
+# version: 1.1.6 - updated kong and apisix installation to change istio-ingress behaviour , ssl enabled on istio-ingress for api-gateway, updated component crds,added test to check latest chart once helm charts are published on github
 # version: 1.1.6-rc2 - follow up Issue #289: fill canvas info service from DependentAPI operator
 #                      Issue #338: support Unit tests in Docker build template
 # version: 1.1.6-rc1 - Issue #289: add canvas info service
@@ -41,14 +42,14 @@ appVersion: "v1beta3"
 
 dependencies:
   - name: cert-manager-init
-    version: "1.0.0"
+    version: "1.0.1"
     repository: 'file://../cert-manager-init'
   - name: canvas-namespaces
     version: "1.0.0"
     repository: 'file://../canvas-namespaces'
     condition: canvas-namespaces.enabled
   - name: oda-crds
-    version: "1.1.1"
+    version: "1.1.2"
     repository: 'file://../oda-crds'
     condition: oda-crds.enabled
   - name: keycloak
@@ -56,7 +57,7 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: controller
-    version: "1.1.1"
+    version: "1.1.2"
     repository: 'file://../controller'
   - name: dependentapi-simple-operator
     version: "0.2.3"

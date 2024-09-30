@@ -27,6 +27,9 @@ spec:
               name: {{ .Release.Name }}-controller-configmap
           - secretRef:
               name: {{ .Release.Name }}-controller-secret
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config/run-command
       - name: seccon
         image: {{ include "controller.secconDockerimage" . }}
         imagePullPolicy: {{ include "controller.secconImagePullPolicy" . }}
@@ -38,3 +41,9 @@ spec:
         ports:
         - name: seccon
           containerPort: 5000
+      volumes:
+      - name: config-volume
+        configMap:
+          name: operator-command
+          defaultMode: 420
+          optional: true 

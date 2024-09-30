@@ -51,7 +51,7 @@ rules:
     resources: ["services", "services/status", "pods", "persistentvolumeclaims", "persistentvolumeclaims/status", "namespaces", "configmaps", "configmaps/status", "secrets", "secrets/status", "serviceaccounts", "serviceaccounts/status"]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: ["networking.k8s.io"]
-    resources: ["ingresses", "ingresses/status"]
+    resources: ["ingresses", "ingresses/status", "httproutes"]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: ["extensions", "apps"]
     resources: ["deployments", "deployments/status", "statefulsets", "statefulsets/status"]
@@ -68,6 +68,19 @@ rules:
   - apiGroups: [oda.tmforum.org]
     resources: [publishednotifications, publishednotifications/status, subscribednotifications, subscribednotifications/status]
     verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["configuration.konghq.com"]
+    resources: ["kongplugins"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apisix.apache.org"]
+    resources: ["apisixroutes", "apisixpluginconfigs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
 
   # Application: other resources it produces and manipulates.
   # Here, we create Jobs+PVCs+Pods, but we do not patch/update/delete them ever.
@@ -129,10 +142,10 @@ rules:
   - apiGroups: [wso2.com]
     resources: [apis]
     verbs: [list, watch, patch, get, create, update, delete]
-  - apiGroups: [""] # "" indicates the core API group
+  - apiGroups: [""] 
     resources: ["services", "services/status", "pods", "persistentvolumeclaims", "persistentvolumeclaims/status", "namespaces", "configmaps", "configmaps/status", "secret", "secret/status", "serviceaccounts", "serviceaccounts/status"]
     verbs: [list, watch, patch, get, create, update, delete]
-  - apiGroups: ["networking.k8s.io"]
+  - apiGroups: ["ingresses", "ingresses/status", "httproutes"]
     resources: ["ingresses", "ingresses/status"]
     verbs: [list, watch, patch, get, create, update, delete]
   - apiGroups: ["extensions", "apps"]
@@ -147,6 +160,19 @@ rules:
   - apiGroups: ["discovery.k8s.io"]
     resources: ["endpointslices"]
     verbs: [list, watch, get, patch]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["configuration.konghq.com"]
+    resources: ["kongplugins"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apisix.apache.org"]
+    resources: ["apisixroutes", "apisixpluginconfigs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
 
   # Application: other resources it produces and manipulates.
   # Here, we create Jobs+PVCs+Pods, but we do not patch/update/delete them ever.
