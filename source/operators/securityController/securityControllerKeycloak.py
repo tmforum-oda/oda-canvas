@@ -256,7 +256,9 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                 'secCon: bootstrap add_role failed'
             ))
 
-        #To store status of listener registered
+        #To store value of status of listener registered
+        #At some point we need to replace this with calling CRDs rather than 
+        #storing this as a global variable
         global status_listener
         
         try: # to assign the role to the seccon user
@@ -267,24 +269,24 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                 'secCon: bootstrap failed'
             ))
         else:
-            try: # to register with the partyRoleManagement API
-                if(status_listener == False) :
-                    register_listener(rooturl + '/hub')
-                else:
+            if(status_listener == False) :
+                try: # to register with the partyRoleManagement API
+                    register_listener(rooturl + '/hub')    
+                except RuntimeError as e:
+                    logger.warning(format_cloud_event(
+                        str(e),
+                        'secCon could not register partyRoleManagement listener'
+                    ))
+                    status_value = { 'identityProvider': 'Keycloak',
+                                    'listenerRegistered': False }
                     raise kopf.TemporaryError(
-                    'Could not register listener. Will retry.', delay=10
-                )
-            except RuntimeError as e:
-                logger.warning(format_cloud_event(
-                    str(e),
-                    'secCon could not register partyRoleManagement listener'
-                ))
-                status_value = { 'identityProvider': 'Keycloak',
-                                'listenerRegistered': False }
-                raise kopf.TemporaryError(
-                    'Could not register listener. Will retry.', delay=10
-                )
-            else:
+                        'Could not register listener. Will retry.', delay=10
+                    )
+                else:
+                    status_listener = True
+                    status_value = { 'identityProvider': 'Keycloak',
+                                    'listenerRegistered': True }
+            else :
                 status_value = { 'identityProvider': 'Keycloak',
                                 'listenerRegistered': True }
     
