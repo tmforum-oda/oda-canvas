@@ -1,0 +1,8 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: rate-limiting-example
+plugin: rate-limiting
+config:
+  minute: 150
+  policy: local
