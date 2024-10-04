@@ -9,6 +9,12 @@ global:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
 
+istioCert:
+  namespace: "istio-ingress"
+  certificate:
+    duration: 21600h
+    renewBefore: 360h 
+
 oda-crds:
   enabled: true
 
@@ -111,8 +117,8 @@ keycloak:
 controller:
   deployment:
     controllerName: oda-controller
-    compconImage: tmforumodacanvas/component-istio-controller
-    compconVersion: 0.5.2
+    compconImage: ravijangra92/canvas
+    compconVersion: 0.5.5
     compconPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true

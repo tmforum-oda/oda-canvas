@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "0"
+    "helm.sh/resource-policy": keep
+  name: istio-ingress-cert
+  namespace: {{ .Values.istioCert.namespace }}  
+spec:
+  secretName: istio-ingress-cert
+  duration: {{ .Values.istioCert.certificate.duration }}  
+  renewBefore: {{ .Values.istioCert.certificate.renewBefore }} 
+  commonName: tmf-canvas-env
+  dnsNames:
+    - "*"
+  issuerRef:
+    name: istio-ingress-issuer
+    kind: Issuer

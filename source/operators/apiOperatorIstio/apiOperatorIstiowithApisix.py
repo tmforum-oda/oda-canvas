@@ -29,7 +29,7 @@ logger = logging.getLogger('APIOperator')
 logger.setLevel(int(logging_level))
 logger.info(f'Logging set to %s', logging_level)
 
-HTTP_SCHEME = "https://"
+HTTP_SCHEME = "http://"
 HTTP_K8s_LABELS = ['http', 'http2']
 HTTP_STANDARD_PORTS = [80, 443]
 GROUP = "oda.tmforum.org"
@@ -368,7 +368,7 @@ def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, co
             logWrapper(logging.INFO, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Virtual Service patched", inAPIName)
             updateImplementationStatus(namespace, spec['implementation'], inHandler, componentName)
             # update parent apiStatus
-            istioStatus = getIstioIngressStatus(inHandler, 'api/' + inAPIName, componentName)
+            istioStatus = getApisixIngressStatus(inHandler, 'api/' + inAPIName, componentName)
             loadBalancer = istioStatus['loadBalancer']
             ports = istioStatus['ports']
             apistatus = {'apiStatus': {"name": inAPIName, "uid": virtualServiceResource['metadata']['uid'], "path": spec['path'], "port": spec['port'], "implementation": spec['implementation']}}
@@ -388,7 +388,7 @@ def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, co
             logWrapper(logging.INFO, 'createOrPatchVirtualService', inHandler, 'api/' + inAPIName, componentName, "Virtual Service created", inAPIName)
             updateImplementationStatus(namespace, spec['implementation'], inHandler, componentName)
             # update parent apiStatus
-            istioStatus = getIstioIngressStatus(inHandler, 'api/' + inAPIName, componentName)
+            istioStatus = getApisixIngressStatus(inHandler, 'api/' + inAPIName, componentName)
             loadBalancer = istioStatus['loadBalancer']
             ports = istioStatus['ports']
             apistatus = {'apiStatus': {"name": inAPIName, "uid": virtualServiceResource['metadata']['uid'], "path": spec['path'], "port": spec['port'], "implementation": spec['implementation']}}
@@ -434,21 +434,20 @@ def updateImplementationStatus(namespace, name, inHandler, componentName):
         logWrapper(logging.WARNING, 'updateImplementationStatus', inHandler, 'api/' + name, componentName, "ApiException", " calling list_namespaced_endpoint_slice")
 
 
-# helper function to get Istio Ingress status
-def getIstioIngressStatus(inHandler, name, componentName):
-    # get ip or hostname where ingress is exposed from the istio-ingressgateway service
+#  function to get APISIX Ingress status
+def getApisixIngressStatus(inHandler, name, componentName):
+    # Get the Apisix Gateway status
     core_api_instance = kubernetes.client.CoreV1Api()
-    ISTIO_INGRESSGATEWAY_LABEL = "istio=ingressgateway" 
+    APISIX_GATEWAY_LABEL = "app.kubernetes.io/service=apisix-gateway"  # Label for the Apisix Gateway service
+    APISIX_NAMESPACE = "ingress-apisix"
 
-    ## should get this by label (as this is what the gareway defines)
     try:
-        # get the istio-ingressgateway service by label 'istio: ingressgateway'
-        api_response = core_api_instance.list_service_for_all_namespaces(label_selector=ISTIO_INGRESSGATEWAY_LABEL)
-        
-        # api_response = core_api_instance.read_namespaced_service(ISTIO_INGRESSGATEWAY, ISTIO_NAMESPACE)
+        api_response = core_api_instance.list_namespaced_service(APISIX_NAMESPACE, label_selector=APISIX_GATEWAY_LABEL)
+
+        # If no service is found, raising an error
         if len(api_response.items) == 0:
-            logWrapper(logging.WARNING, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Can not find", "Istio Ingress Gateway")
-            raise kopf.TemporaryError("Can not find Istio Ingress Gateway.")
+            logWrapper(logging.WARNING, 'getApisixIngressStatus', inHandler, 'api/' + name, componentName, "Can not find", "Apisix Gateway")
+            raise kopf.TemporaryError("Can not find Apisix Gateway.")
 
         serviceStatus = api_response.items[0].status
         serviceSpec = api_response.items[0].spec
@@ -456,13 +455,12 @@ def getIstioIngressStatus(inHandler, name, componentName):
         if serviceStatus.load_balancer is not None:
             loadBalancer = serviceStatus.load_balancer.to_dict()
         ports = serviceSpec.ports
-        if publichostname_loadBalancer:
-            loadBalancer = publichostname_loadBalancer
+        
         response = {'loadBalancer': loadBalancer, 'ports': ports}
-        logWrapper(logging.INFO, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Istio Ingress Gateway", "Received ingress status.")
+        logWrapper(logging.INFO, 'getApisixIngressStatus', inHandler, 'api/' + name, componentName, "Apisix Gateway", "Received ingress status.")
     except Exception as e:
-        logWrapper(logging.WARNING, 'getIstioIngressStatus', inHandler, 'api/' + name, componentName, "Exception in getIstioIngressStatus", str(e))
-        raise kopf.TemporaryError("Exception getting IstioIngressStatus.")
+        logWrapper(logging.WARNING, 'getApisixIngressStatus', inHandler, 'api/' + name, componentName, "Exception in getApisixIngressStatus", str(e))
+        raise kopf.TemporaryError("Exception getting ApisixIngressStatus.")
     return response
 
 def buildAPIStatus(parent_api_spec, parent_api_status, ingressTarget, ports, inAPIName, inHandler, componentName):
@@ -609,4 +607,3 @@ def logWrapper(logLevel, functionName, handlerName, resourceName, componentName,
     """
     logger.log(logLevel, f"[{componentName}|{resourceName}|{handlerName}|{functionName}] {subject}: {message}")
     return
-

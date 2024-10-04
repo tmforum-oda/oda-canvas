@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-preuninstall-patch-istio-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    "helm.sh/hook": pre-delete 
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .Release.Name }}-operator
+      containers:
+      - name: patch-istio-ingress
+        image: bitnami/kubectl:latest  # Using kubectl image
+        command:
+          - /bin/sh
+          - -c
+          - |
+            kubectl patch svc istio-ingress -n istio-ingress -p '{"spec": {"type": "LoadBalancer", "externalIPs": null}}'
+      restartPolicy: Never
+  backoffLimit: 3

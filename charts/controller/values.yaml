@@ -1,7 +1,7 @@
 deployment:
   controllerName: oda-controller
-  compconImage: tmforumodacanvas/component-istio-controller
-  compconVersion: 0.5.2
+  compconImage: ravijangra92/canvas
+  compconVersion: 0.5.5
   compconPrereleaseSuffix:
   compconImagePullPolicy: IfNotPresent
   istioGateway: true
