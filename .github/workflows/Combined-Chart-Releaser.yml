@@ -256,7 +256,25 @@ jobs:
           else
             echo "Helm installation completed successfully with no failures."
           fi
-
+          
+      - name: Install trivy scanner and perform security scan
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo tee /etc/apt/trusted.gpg.d/aquasecurity.asc
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+          export TRIVY_DISABLE_VEX_NOTICE=true
+          log_file="/tmp/trivy_scan.log"
+          
+          images=$(kubectl get deployments -n canvas -o=jsonpath='{range .items[*]}{range .spec.template.spec.containers[*]}{.image}{"\n"}{end}')
+          
+          for image in $images; do
+            echo "Scanning image:$image" | tee -a $log_file
+            trivy image --quiet $image >> $log_file 2>&1
+            trivy image --quiet $image | grep -m 1 'Total:'
+          done
+          
       - name: Upload Helm Installation Reports
         uses: actions/upload-artifact@v4
         with:
@@ -264,6 +282,7 @@ jobs:
           path: |
             /tmp/helm_installation.log
             /tmp/kubernetes_status.log
+            /tmp/trivy_scan.log
           
       - name: Delete kind cluster
         if: always()
