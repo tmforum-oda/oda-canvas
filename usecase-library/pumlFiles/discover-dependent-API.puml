@@ -24,9 +24,9 @@ end note
 group For each dependent API
     DependentAPI -> DependentAPIOperator: on.create
     DependentAPIOperator -> "Canvas.Info service" : Register the availability of the downstraem API(s)
-    DependentAPI -> IdentityConfigOperator: on.create
+    "Canvas.Info service" -> IdentityConfigOperator: listen for new Service in state 'inactive'
     IdentityConfigOperator -> "Identity Management System" : Grant to a role on the downstraem API(s)
-
+    IdentityConfigOperator -> "Canvas.Info service": Update state to 'active'
     DependentAPI <- DependentAPIOperator: update
     Component <- ComponentOperator: update 
 end
