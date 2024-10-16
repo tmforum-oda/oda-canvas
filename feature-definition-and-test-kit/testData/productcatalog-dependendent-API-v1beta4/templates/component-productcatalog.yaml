@@ -1,4 +1,4 @@
-apiVersion: oda.tmforum.org/v1beta3
+apiVersion: oda.tmforum.org/v1beta4
 kind: Component
 metadata:
   name: {{.Release.Name}}-{{.Values.component.name}}
@@ -22,13 +22,16 @@ spec:
   coreFunction:
     exposedAPIs: 
     - name: productcatalogmanagement
-      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.1.swagger.json"]
+      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"]
       implementation: {{.Release.Name}}-prodcatapi
       apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4/docs
       port: 8080
-    dependentAPIs: []
+    dependentAPIs: 
+    - name: downstreamproductcatalog
+      apiType: openapi     
+      specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json  
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
