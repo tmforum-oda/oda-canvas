@@ -60,7 +60,7 @@ var httpsServer, httpServer;
 // get command line arguments
 var args = process.argv.slice(2);
 
-const supportedAPIVersions = ["oda.tmforum.org/v1alpha4", "oda.tmforum.org/v1beta1", "oda.tmforum.org/v1beta2", "oda.tmforum.org/v1beta3"]
+const supportedAPIVersions = ["oda.tmforum.org/v1beta1", "oda.tmforum.org/v1beta2", "oda.tmforum.org/v1beta4"]
 
 // reference data to support functional block mapping
 const PartyManagementComponents = ["TMFC020", "TMFC022", "TMFC023", "TMFC024", "TMFC025"]
@@ -115,11 +115,11 @@ app.post("/", (req, res, next) => {
       // upgrade previous versions to the latest versions
       // ****************************************************
 
-      // if the oldAPIVersion is v1alph4a or v1beta1 and newVersion is v1beta2 or v1beta3 then:
+      // if the oldAPIVersion is v1beta1 and newVersion is v1beta2 or v1beta3 or v1beta4 then:
       // - add the metadata for functionalBlock
       // - rename security and management segments to securityFunction and managementFunction
       // - split type into two fields id and name
-      if (apiVersion.mapOldToNew(["v1alpha4", "v1beta1"], ["v1beta2", "v1beta3"])) {
+      if (apiVersion.mapOldToNew(["v1beta1"], ["v1beta2", "v1beta3", "v1beta4"])) {
 
         console.log("rename security and management segments to securityFunction and managementFunction")
         objectsArray[key].spec.managementFunction = objectsArray[key].spec.management
@@ -146,59 +146,8 @@ app.post("/", (req, res, next) => {
         }
       }
 
-      // if the oldAPIVersion is v1alpha4 and newVersion is v1beta1 or v1beta2 then remove the componentKinds and selector
-      // and add dependentAPIs to the management and security segments
-      if (apiVersion.mapOldToNew(["v1alpha4"], ["v1beta1", "v1beta2", "v1beta3"])) {
-        console.log("remove componentKinds")
-        if (objectsArray[key].spec.componentKinds) {
-          delete objectsArray[key].spec.componentKinds
-        }
-        console.log("remove selector")
-        if (objectsArray[key].spec.selector) {
-          delete objectsArray[key].spec.selector
-        }
-
-        console.log("add dependentAPIs to management (or managementFunction) segment")
-        if (objectsArray[key].spec.management) {
-          managementArray = objectsArray[key].spec.management
-          delete objectsArray[key].spec.management
-          objectsArray[key].spec.management = {dependentAPIs: []}
-          objectsArray[key].spec.management.exposedAPIs = managementArray
-        } else {
-          managementArray = objectsArray[key].spec.managementFunction
-          delete objectsArray[key].spec.managementFunction
-          objectsArray[key].spec.managementFunction = {dependentAPIs: []}
-          objectsArray[key].spec.managementFunction.exposedAPIs = managementArray
-        }
-
-        console.log("add exposedAPIs and dependentAPIs to security (or securityFunction) segment")
-        if (objectsArray[key].spec.security) {
-          objectsArray[key].spec.security.dependentAPIs = []
-          objectsArray[key].spec.security.exposedAPIs = []
-
-          if (objectsArray[key].spec.security.partyrole) {
-            console.log("move the partyrole to the exposedAPIs")
-            // add the partyrole to the exposedAPIs
-            objectsArray[key].spec.security.partyrole.name = "partyrole"
-            objectsArray[key].spec.security.exposedAPIs.push(objectsArray[key].spec.security.partyrole)
-            delete objectsArray[key].spec.security.partyrole
-          } 
-        } else {
-          objectsArray[key].spec.securityFunction.dependentAPIs = []
-          objectsArray[key].spec.securityFunction.exposedAPIs = []
-
-          if (objectsArray[key].spec.securityFunction.partyrole) {
-            console.log("move the partyrole to the exposedAPIs")
-            // add the partyrole to the exposedAPIs
-            objectsArray[key].spec.securityFunction.partyrole.name = "partyrole"
-            objectsArray[key].spec.securityFunction.exposedAPIs.push(objectsArray[key].spec.securityFunction.partyrole)
-            delete objectsArray[key].spec.securityFunction.partyrole
-          }
-        }
-      } 
-
       // update the eventNotification segments and change exposedAPI specification to an array of 1 and apitype to apiType
-      if (apiVersion.mapOldToNew(["v1alpha4","v1beta1", "v1beta2"], ["v1beta3"])) {
+      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2"], ["v1beta3", "v1beta4"])) {
         console.log("Update eventNotification segments");
         
         if (objectsArray[key].spec.eventNotification) {
@@ -286,7 +235,7 @@ app.post("/", (req, res, next) => {
       // ****************************************************
 
       // change the eventNotification segments and change exposedAPI specification from an array to string
-      if (apiVersion.mapOldToNew(["v1beta3"], ["v1alpha4", "v1beta1", "v1beta2"])) {
+      if (apiVersion.mapOldToNew(["v1beta3", "v1beta4"], ["v1beta1", "v1beta2"])) {
         if (objectsArray[key].spec.eventNotification) {
           if (objectsArray[key].spec.eventNotification.publishedEvents && 
             Array.isArray(objectsArray[key].spec.eventNotification.publishedEvents) && 
@@ -354,11 +303,11 @@ app.post("/", (req, res, next) => {
         }    
       }  
 
-            // if the oldAPIVersion is v1beta2,v1beta3 and newVersion is v1alph4 or v1beta1 then:
+      // if the oldAPIVersion is v1beta2, v1beta3, v1beta4 and newVersion is v1beta1 then:
       // - remove the metadata for functionalBlock
       // - rename securityFunction and managementFunction segments to security and management  
       // - join id and name fields to create type 
-      if (apiVersion.mapOldToNew(["v1beta2", "v1beta3"], ["v1alpha4", "v1beta1"])) {
+      if (apiVersion.mapOldToNew(["v1beta2", "v1beta3", "v1beta4"], ["v1beta1"])) {
         console.log("rename securityFunction and managementFunction segments to security and management")
         objectsArray[key].spec.management = objectsArray[key].spec.managementFunction
         delete objectsArray[key].spec.managementFunction
@@ -373,35 +322,6 @@ app.post("/", (req, res, next) => {
         console.log("remove the metadata for functionalBlock")
         delete objectsArray[key].spec.functionalBlock
       }   
-      
-      // if the oldAPIVersion is v1beta1 or v1beta2 and newVersion is v1alpha4 then add the componentKinds
-      // and remove dependentAPIs from the management and security segments
-      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2", "v1beta3"], ["v1alpha4"])) {
-        console.log("add componentKinds")
-        objectsArray[key].spec.componentKinds = []
-
-        console.log("add selector")
-        objectsArray[key].spec.selector = {}
-
-        console.log("remove dependentAPIs from management segment")
-        managementArray = objectsArray[key].spec.management.exposedAPIs
-        delete objectsArray[key].spec.management
-        objectsArray[key].spec.management = managementArray
-
-        // find the partyrole in the exposedAPIs and add it to the security
-        for (var i = 0; i < objectsArray[key].spec.security.exposedAPIs.length; i++) {
-          if (objectsArray[key].spec.security.exposedAPIs[i].name === "partyrole") {
-            console.log("move the partyrole from the exposedAPIs")
-            objectsArray[key].spec.security.partyrole = objectsArray[key].spec.security.exposedAPIs[i]
-          }
-        }
-        delete objectsArray[key].spec.security.exposedAPIs
-
-        console.log("remove dependentAPIs from security segment")
-        delete objectsArray[key].spec.security.dependentAPIs
-      }
-
-         
       
       objectsArray[key].apiVersion = desiredAPIVersion;
     }
