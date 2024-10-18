@@ -60,7 +60,7 @@ var httpsServer, httpServer;
 // get command line arguments
 var args = process.argv.slice(2);
 
-const supportedAPIVersions = ["oda.tmforum.org/v1beta1", "oda.tmforum.org/v1beta2", "oda.tmforum.org/v1beta4"]
+const supportedAPIVersions = ["oda.tmforum.org/v1beta1", "oda.tmforum.org/v1beta2", "oda.tmforum.org/v1beta3", "oda.tmforum.org/v1beta4"]
 
 // reference data to support functional block mapping
 const PartyManagementComponents = ["TMFC020", "TMFC022", "TMFC023", "TMFC024", "TMFC025"]
