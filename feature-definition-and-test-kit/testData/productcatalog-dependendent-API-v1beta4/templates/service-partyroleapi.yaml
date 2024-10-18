@@ -8,8 +8,8 @@ metadata:
 spec:
   ports:
   - port: 8080
-    targetPort: prapi
-    name: http-partyroleapi
+    targetPort: {{.Release.Name}}-prapi
+    name: http-{{.Release.Name}}-partyroleapi
   type: NodePort
   selector:
     impl: {{.Release.Name}}-partyroleapi

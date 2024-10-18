@@ -17,9 +17,9 @@ mongodb:
   port: 27017
   database: tmf
 productcatalog:
-  image: csotiriou/productcatalogapi:0.10
+  image: lesterthomas/productcatalogapi:0.23
   initializationimage: lesterthomas/productcataloginitialization:0.3
-  versionlabel: productcatalogapi-0.10
+  versionlabel: productcatalogapi-0.23
   otlp:
     console:
       enabled: false

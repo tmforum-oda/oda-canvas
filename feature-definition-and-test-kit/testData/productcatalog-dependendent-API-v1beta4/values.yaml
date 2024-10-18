@@ -8,18 +8,20 @@ component:
   id: TMFC001
   name: productcatalogmanagement
   functionalBlock: CoreCommerce
-  publicationDate: 2023-08-18T00:00:00.000Z
+  publicationDate: 2024-09-17T00:00:00.000Z
   version: "0.0.1"
   storageClassName: default
+  dependentAPIs:
+    enabled: true
+    rejectUnauthorizedCertificates: false
 security:
   controllerRole: Admin
 mongodb:
   port: 27017
   database: tmf
-productcatalog:
-  image: csotiriou/productcatalogapi:0.10
-  initializationimage: lesterthomas/productcataloginitialization:0.3
-  versionlabel: productcatalogapi-0.10
+api:
+  image: lesterthomas/productcatalogapi:0.23
+  versionlabel: productcatalogapi-0.21
   otlp:
     console:
       enabled: false
@@ -28,8 +30,16 @@ productcatalog:
       url: http://datadog-agent.default.svc.cluster.local:4318/v1/traces
 partyrole:
   image: lesterthomas/partyroleapi:1.0
-  initializationimage: lesterthomas/roleinitialization:0.3
   versionlabel: partyroleapi-1.0
-metrics:
-  image: lesterthomas/registerallevents:0.2
-  versionlabel: lesterthomas-metricsapi-0.2
+promotionmgmt:
+  image: lesterthomas/promotionmgmtapi:0.5
+  versionlabel: promotionmgmtapi-0.5
+  otlp:
+    console:
+      enabled: false
+    protobuffCollector:
+      enabled: true
+      url: http://datadog-agent.default.svc.cluster.local:4318/v1/traces
+canvasinfo:
+  host: info.canvas.svc.cluster.local
+  basepath: /

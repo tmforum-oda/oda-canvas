@@ -1,4 +1,4 @@
-apiVersion: oda.tmforum.org/v1beta4
+apiVersion: oda.tmforum.org/v1beta3
 kind: Component
 metadata:
   name: {{.Release.Name}}-{{.Values.component.name}}
@@ -28,10 +28,21 @@ spec:
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4/docs
       port: 8080
+    - name: promotionmanagement
+      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF671_Promotion/master/TMF671-Promotion-v4.0.0.swagger.json"]
+      implementation: {{.Release.Name}}-promgmtapi
+      apiType: openapi
+      path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4
+      developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4/docs
+      port: 8080      
     dependentAPIs: 
-    - name: downstreamproductcatalog
+    {{- if .Values.component.dependentAPIs.enabled }}
+    - name: downstreamproductcatalog 
       apiType: openapi     
-      specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json  
+      specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+    {{- else }}
+      []
+    {{- end }}
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
