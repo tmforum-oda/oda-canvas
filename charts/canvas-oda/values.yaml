@@ -274,7 +274,7 @@ secretsmanagement-operator:
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
-  version: 0.8.2
-  prereleaseSuffix:
+  version: 0.9.0
+  prereleaseSuffix: 262-1beta4  
   imagePullPolicy: IfNotPresent
 
