@@ -19,4 +19,4 @@ version: 1.0.0
 
 # This is the version number of the application being deployed. We are versioning the canvas as the
 # version of the latest component spec that it supports.
-appVersion: "v1beta3"
+appVersion: "v1beta4"

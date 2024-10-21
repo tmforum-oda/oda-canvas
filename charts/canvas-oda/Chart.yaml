@@ -15,8 +15,9 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.6
-# version: 1.1.6 - updated kong and apisix installation to change istio-ingress behaviour , ssl enabled on istio-ingress for api-gateway, updated component crds,added test to check latest chart once helm charts are published on github
+version: 1.1.7
+# version: 1.1.7     - updated to v1beta4 crds
+# version: 1.1.6     - updated kong and apisix installation to change istio-ingress behaviour , ssl enabled on istio-ingress for api-gateway, updated component crds,added test to check latest chart once helm charts are published on github
 # version: 1.1.6-rc2 - follow up Issue #289: fill canvas info service from DependentAPI operator
 #                      Issue #338: support Unit tests in Docker build template
 # version: 1.1.6-rc1 - Issue #289: add canvas info service
@@ -38,7 +39,7 @@ version: 1.1.6
 
 # This is the version number of the application being deployed. We are versioning the canvas as the
 # version of the latest component spec that it supports.
-appVersion: "v1beta3"
+appVersion: "v1beta4"
 
 dependencies:
   - name: cert-manager-init
@@ -49,7 +50,7 @@ dependencies:
     repository: 'file://../canvas-namespaces'
     condition: canvas-namespaces.enabled
   - name: oda-crds
-    version: "1.1.2"
+    version: "1.1.3"
     repository: 'file://../oda-crds'
     condition: oda-crds.enabled
   - name: keycloak
@@ -57,7 +58,7 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: controller
-    version: "1.1.2"
+    version: "1.1.3"
     repository: 'file://../controller'
   - name: dependentapi-simple-operator
     version: "0.2.3"
@@ -71,6 +72,6 @@ dependencies:
     repository: 'file://../canvas-vault'
     condition: canvas-vault.enabled
   - name: oda-webhook
-    version: "1.1.2"
+    version: "1.1.3"
     repository: 'file://../oda-webhook'
 

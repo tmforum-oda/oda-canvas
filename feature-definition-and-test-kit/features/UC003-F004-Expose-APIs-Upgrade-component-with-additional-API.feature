@@ -7,12 +7,12 @@
 Feature: UC003-F004 Expose APIs: Upgrade component with additional ExposedAPI
 
     Background:
-        Given an example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
-        When I install the 'productcatalog-v1beta3' package
+        Given an example package 'productcatalog-v1beta4' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
+        When I install the 'productcatalog-v1beta4' package
         And the 'productcatalogmanagement' component has a deployment status of 'Complete'
      
     Scenario: Upgrade component with additional ExposedAPI in coreFunction
-        Given an example package 'productcatalog-enhanced-v1beta3' with a 'productcatalogmanagement' component with '2' ExposedAPI in its 'coreFunction' segment
-        When I upgrade the 'productcatalog-enhanced-v1beta3' package
+        Given an example package 'productcatalog-enhanced-v1beta4' with a 'productcatalogmanagement' component with '2' ExposedAPI in its 'coreFunction' segment
+        When I upgrade the 'productcatalog-enhanced-v1beta4' package
         And the 'productcatalogmanagement' component has a deployment status of 'Complete'
         Then I should see the 'promotionmanagement' ExposedAPI resource on the 'productcatalogmanagement' component

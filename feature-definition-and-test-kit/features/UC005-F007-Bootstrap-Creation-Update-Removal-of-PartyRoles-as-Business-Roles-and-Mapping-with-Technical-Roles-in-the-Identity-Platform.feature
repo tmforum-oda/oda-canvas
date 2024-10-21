@@ -46,4 +46,4 @@ Feature: UC005-F007 Bootstrap: Create,Update and Delete PartyRoles as Businees/J
    
     Examples:
        | Type   | PackageName                         | ComponentName            | RoleName  | businessrole | RoleName1 |
-       | static | productcatalog-static-roles-v1beta3 | productcatalogmanagement | cat1owner | Brole        | cat2owner |
+       | static | productcatalog-static-roles-v1beta4 | productcatalogmanagement | cat1owner | Brole        | cat2owner |

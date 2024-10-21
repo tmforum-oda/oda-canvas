@@ -7,14 +7,14 @@
 Feature: UC013-F001 Seamless upgrade: Installing component using previous version
 
     Scenario: Installing a component using a previous (N-1) version
-        Given an example package 'productcatalog-v1beta2' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
-        When I install the 'productcatalog-v1beta2' package
-        Then I can query the 'v1beta3' spec version of the 'productcatalogmanagement' component
+        Given an example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
+        When I install the 'productcatalog-v1beta3' package
+        Then I can query the 'v1beta4' spec version of the 'productcatalogmanagement' component
 
     Scenario: Installing a component using a previous (N-2) version
-        Given an example package 'productcatalog-v1beta1' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
-        When I install the 'productcatalog-v1beta1' package
-        Then I can query the 'v1beta3' spec version of the 'productcatalogmanagement' component
+        Given an example package 'productcatalog-v1beta2' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
+        When I install the 'productcatalog-v1beta2' package
+        Then I can query the 'v1beta4' spec version of the 'productcatalogmanagement' component
     
     
     

@@ -14,5 +14,5 @@ Feature: UC005-F005 Bootstrap: Add Permission Specification Sets in Component to
 
     Examples:
        | Type      | PackageName                         | ComponentName            | Number |
-       | static    | productcatalog-static-roles-v1beta3 | productcatalogmanagement | 3      |
-       | partyrole | productcatalog-enhanced-v1beta3     | productcatalogmanagement | 3      |
+       | static    | productcatalog-static-roles-v1beta4 | productcatalogmanagement | 3      |
+       | partyrole | productcatalog-enhanced-v1beta4     | productcatalogmanagement | 3      |

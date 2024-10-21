@@ -23,5 +23,5 @@ Feature: UC005-F006 Bootstrap: Create,Update and Delete Corresponding Technical 
         
     Examples:
        | Type      | PackageName                         | ComponentName            | RoleName  |
-       | static    | productcatalog-static-roles-v1beta3 | productcatalogmanagement | cat1owner |
-       | partyrole | productcatalog-enhanced-v1beta3     | productcatalogmanagement | cat2owner |
+       | static    | productcatalog-static-roles-v1beta4 | productcatalogmanagement | cat1owner |
+       | partyrole | productcatalog-enhanced-v1beta4     | productcatalogmanagement | cat2owner |
