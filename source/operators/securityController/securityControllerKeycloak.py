@@ -66,6 +66,8 @@ seccon_user = 'seccon'
 
 kc = Keycloak(kcBaseURL)
 
+status_listener = False
+
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
 COMPONENTS_PLURAL = "components"
@@ -253,7 +255,12 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                 f'Keycloak add_role failed for {seccon_role} in {name}: {e}',
                 'secCon: bootstrap add_role failed'
             ))
-    
+
+        #To store value of status of listener registered
+        #At some point we need to replace this with calling CRDs rather than 
+        #storing this as a global variable
+        global status_listener
+        
         try: # to assign the role to the seccon user
             kc.add_role_to_user(seccon_user, seccon_role, name, token, kcRealm)
         except RuntimeError as e:
@@ -262,19 +269,24 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                 'secCon: bootstrap failed'
             ))
         else:
-            try: # to register with the partyRoleManagement API
-                register_listener(rooturl + '/hub')
-            except RuntimeError as e:
-                logger.warning(format_cloud_event(
-                    str(e),
-                    'secCon could not register partyRoleManagement listener'
-                ))
-                status_value = { 'identityProvider': 'Keycloak',
-                                'listenerRegistered': False }
-                raise kopf.TemporaryError(
-                    'Could not register listener. Will retry.', delay=10
-                )
-            else:
+            if(status_listener == False) :
+                try: # to register with the partyRoleManagement API
+                    register_listener(rooturl + '/hub')    
+                except RuntimeError as e:
+                    logger.warning(format_cloud_event(
+                        str(e),
+                        'secCon could not register partyRoleManagement listener'
+                    ))
+                    status_value = { 'identityProvider': 'Keycloak',
+                                    'listenerRegistered': False }
+                    raise kopf.TemporaryError(
+                        'Could not register listener. Will retry.', delay=10
+                    )
+                else:
+                    status_listener = True
+                    status_value = { 'identityProvider': 'Keycloak',
+                                    'listenerRegistered': True }
+            else :
                 status_value = { 'identityProvider': 'Keycloak',
                                 'listenerRegistered': True }
     
