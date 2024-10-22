@@ -34,3 +34,21 @@ jobs:
         if: steps.values_yaml_contains_version_suffix_1.outputs.result=='true'
         run: |
           echo "::error file=charts/canvas-oda/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_1.outputs.result }}]" && exit 1
+      
+      - name: check if there are nonempty version suffixes in baseimages/kubectl_curl/version.yaml
+        id: values_yaml_contains_version_suffix_2
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' baseimages/kubectl_curl/version.yaml
+
+      - name: collect existing version suffixes in baseimages/kubectl_curl/version.yaml for error report
+        id: version_suffixes_2
+        if: steps.values_yaml_contains_version_suffix_2.outputs.result=='true'
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' baseimages/kubectl_curl/version.yaml
+          
+      - name: report error in baseimages/kubectl_curl/version.yaml
+        if: steps.values_yaml_contains_version_suffix_2.outputs.result=='true'
+        run: |
+          echo "::error file=baseimages/kubectl_curl/version.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_2.outputs.result }}]" && exit 1
