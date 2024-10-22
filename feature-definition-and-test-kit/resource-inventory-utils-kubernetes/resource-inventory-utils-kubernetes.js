@@ -9,7 +9,7 @@ kc.loadFromDefault()
 const testDataFolder = './testData/'
 
 const GROUP = "oda.tmforum.org"
-const VERSION = "v1beta3"
+const VERSION = "v1beta4"
 const EXPOSED_APIS_PLURAL = "exposedapis"
 const DEPENDENT_APIS_PLURAL = "dependentapis"
 const COMPONENTS_PLURAL = "components"

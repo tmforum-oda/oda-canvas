@@ -4,6 +4,10 @@ This page shows the ODA Component specification for each release version, with a
 
 
 
+## v1beta4 - October 16th 2024
+
+Version v1beta4 has been created to capture new features. At present it is identical to v1beta3.
+
 ## v1beta3 - August 12th 2024
 
 The OAS Specification can be found at [oda-component-oas-v1beta3.yaml](oda-component-oas-v1beta3.yaml).
