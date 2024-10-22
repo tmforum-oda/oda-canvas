@@ -30,13 +30,13 @@ jobs:
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.image' baseimages/kubectl_curl/version.yaml
+          cmd: yq '.image' baseimages/kubectl-curl/version.yaml
           
       - name: read versionnumber of baseimage-kubectl-curl from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.version, .prereleaseSuffix] | filter(.!=null and .!="") | join("-")' baseimages/kubectl_curl/version.yaml
+          cmd: yq '[.version, .prereleaseSuffix] | filter(.!=null and .!="") | join("-")' baseimages/kubectl-curl/version.yaml
           
       - name: Check Version
         id: check-tag

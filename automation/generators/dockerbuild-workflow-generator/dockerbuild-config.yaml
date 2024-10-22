@@ -134,7 +134,7 @@ baseimage-kubectl-curl:
   displayName: Baseimage-Kubectl-cURL
   fileName: baseimage-kubectl-curl
   
-  valuesYamlFile: baseimages/kubectl_curl/version.yaml
+  valuesYamlFile: baseimages/kubectl-curl/version.yaml
   valuesPathImage: .image
   valuesPathVersion: .version
   valuesPathPrereleaseSuffix: .prereleaseSuffix
