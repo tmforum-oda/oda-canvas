@@ -2,7 +2,7 @@ deployment:
   controllerName: oda-controller
   compconImage: tmforumodacanvas/component-controller
   compconVersion: 0.5.6
-  compconPrereleaseSuffix: 262-1beta4
+  compconPrereleaseSuffix:
   compconImagePullPolicy: IfNotPresent
   istioGateway: true
   secconImage: tmforumodacanvas/security-listener
