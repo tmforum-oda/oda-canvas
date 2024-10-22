@@ -14,7 +14,7 @@ on:
     - feature/*
     - odaa-*
     paths: 
-      - baseimages/kubectl-curl
+      - baseimages/kubectl-curl/**/*
 
 jobs:
   build-baseimage-kubectl-curl-prerelease-dockerfile-job:

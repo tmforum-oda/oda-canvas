@@ -140,7 +140,7 @@ baseimage-kubectl-curl:
   valuesPathPrereleaseSuffix: .prereleaseSuffix
   
   paths:
-    - baseimages/kubectl-curl
+    - baseimages/kubectl-curl/**/*
   buildContext: baseimages/kubectl-curl
   # default is "Dockerfile" in buildContext
   #buildDockerfile:   
