@@ -43,10 +43,10 @@ appVersion: "v1beta4"
 
 dependencies:
   - name: cert-manager-init
-    version: "1.0.1"
+    version: "1.0.2"
     repository: 'file://../cert-manager-init'
   - name: canvas-namespaces
-    version: "1.0.0"
+    version: "1.0.1"
     repository: 'file://../canvas-namespaces'
     condition: canvas-namespaces.enabled
   - name: oda-crds
