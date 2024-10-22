@@ -117,9 +117,9 @@ keycloak:
 controller:
   deployment:
     controllerName: oda-controller
-    compconImage: ravijangra92/canvas
-    compconVersion: 0.5.5
-    compconPrereleaseSuffix: 
+    compconImage: tmforumodacanvas/component-controller
+    compconVersion: 0.5.6
+    compconPrereleaseSuffix: 262-1beta4
     imagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener
