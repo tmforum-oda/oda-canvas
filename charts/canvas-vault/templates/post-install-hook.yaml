@@ -69,7 +69,7 @@ spec:
              fi;
            else
              echo Vault already initialized;
-           fi           
+           fi;
            echo waiting up to 60 seconds for the vault to be ready;
            kubectl -n $NAMESPACE wait -l  statefulset.kubernetes.io/pod-name=$VAULTPOD --for=condition=ready pod --timeout=60s;
            echo ready;
