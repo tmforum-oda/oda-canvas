@@ -41,6 +41,8 @@ spec:
            JWT_PL=$(echo $JWT | cut -d '.' -f2);
            ISSUER=$(echo $JWT_PL==== | base64 -d 2>/dev/null | jq -r '.aud[0]');
            VAULT_ADDR=https://{{ .Release.Name }}-vault-hc.$NAMESPACE.svc.cluster.local:8200;
+           echo requesting certificate;
+           kubectl apply -f /cert-configmap/canvas-vault-certificate.yaml;
            echo configuring authenticator \"$AUTH_PATH\" for issuer \"$ISSUER\";
            date;
            echo waiting up to 60 seconds for the vault to be running;
@@ -76,8 +78,8 @@ spec:
            echo ready;
            date;
            echo reading secret;
-           ROOT_TOKEN=$(kubectl get secret -n canvas-vault canvas-vault-hc-secrets -ojsonpath='{.data.rootToken}' | base64 -d);
-           UNSEAL_KEY1=$( kubectl get secret -n canvas-vault canvas-vault-hc-secrets -ojsonpath='{.data.unsealKey1}' | base64 -d);
+           ROOT_TOKEN=$(kubectl get secret -n $NAMESPACE $SECRET_NAME -ojsonpath='{.data.rootToken}' | base64 -d);
+           UNSEAL_KEY1=$( kubectl get secret -n $NAMESPACE $SECRET_NAME -ojsonpath='{.data.unsealKey1}' | base64 -d);
            echo getting issuer;
            if [ -z \"$ISSUER\" ];then
              JSON=$(kubectl exec -n $NAMESPACE -i $VAULTPOD -- sh -c 'wget -O- --no-check-certificate https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT_HTTPS/.well-known/openid-configuration 2>/dev/null');
@@ -102,28 +104,35 @@ spec:
                fi;
              fi;
            fi;
-           kubectl exec -it -n $NAMESPACE $VAULTPOD -- /bin/sh -c \"echo $ROOT_TOKEN | vault login -no-print -\";
-           X=$(kubectl exec -n $NAMESPACE -i $VAULTPOD -- vault auth list | grep \"$AUTH_PATH\" || true);
+           echo kubectl exec -i -n $NAMESPACE $VAULTPOD -- /bin/sh -c \"echo $ROOT_TOKEN | vault login -tls-skip-verify -non-interactive -no-print -\";
+           kubectl exec -i -n $NAMESPACE $VAULTPOD -- /bin/sh -c \"echo $ROOT_TOKEN | vault login -tls-skip-verify -non-interactive -no-print -\";
+           X=$(kubectl exec -n $NAMESPACE -i $VAULTPOD -- vault auth list -tls-skip-verify -non-interactive | grep \"$AUTH_PATH\" || true);
            echo X=$X;
            if [ -z \"$X\" ]; then
              echo enable $AUTH_PATH in vault;
-             kubectl exec -n $NAMESPACE -i $VAULTPOD -- vault auth enable -path \"$AUTH_PATH\" jwt;
+             kubectl exec -n $NAMESPACE -i $VAULTPOD -- vault auth enable -tls-skip-verify -non-interactive -path \"$AUTH_PATH\" jwt;
            else
              echo auth method $AUTH_PATH already enabled;
            fi;
            echo vault write oidc_discovery_url;
            if [ -z \"$CACERT\" ]; then
-             kubectl exec -n $NAMESPACE -i $VAULTPOD -- vault write auth/$AUTH_PATH/config oidc_discovery_url=$ISSUER;
+             kubectl exec -n $NAMESPACE -i $VAULTPOD -- vault write -tls-skip-verify -non-interactive auth/$AUTH_PATH/config oidc_discovery_url=$ISSUER;
            else
-             kubectl exec -n $NAMESPACE -i $VAULTPOD -- vault write auth/$AUTH_PATH/config oidc_discovery_url=$ISSUER oidc_discovery_ca_pem=@$CACERT;
+             kubectl exec -n $NAMESPACE -i $VAULTPOD -- vault write -tls-skip-verify -non-interactive auth/$AUTH_PATH/config oidc_discovery_url=$ISSUER oidc_discovery_ca_pem=@$CACERT;
            fi;
            echo --- FINISHED ---"]
         volumeMounts:
         - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
           name: kube-api-access-pih
           readOnly: true
+        - mountPath: /cert-configmap
+          name: cert-configmap
+          readOnly: true
       serviceAccountName: {{ .Release.Name }}-vault-hc-pih-sa
       volumes:
+      - name: cert-configmap
+        configMap:
+          name: {{ .Release.Name }}-canvasvault-cert-cm 
       - name: kube-api-access-pih
         projected:
           defaultMode: 420
