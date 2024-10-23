@@ -35,24 +35,25 @@ spec:
            set -xev;
            NAMESPACE={{ include "canvasvault.namespace" . }};
            VAULTPOD={{ .Release.Name }}-vault-hc-0;
+           SECRET_NAME={{ .Release.Name }}-vault-hc-secrets;
            AUTH_PATH={{ .Values.auth_path }};
            JWT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);
            JWT_PL=$(echo $JWT | cut -d '.' -f2);
            ISSUER=$(echo $JWT_PL==== | base64 -d 2>/dev/null | jq -r '.aud[0]');
-           VAULT_ADDR=http://{{ .Release.Name }}-vault-hc.$NAMESPACE.svc.cluster.local:8200;
+           VAULT_ADDR=https://{{ .Release.Name }}-vault-hc.$NAMESPACE.svc.cluster.local:8200;
            echo configuring authenticator \"$AUTH_PATH\" for issuer \"$ISSUER\";
            date;
            echo waiting up to 60 seconds for the vault to be running;
            kubectl -n $NAMESPACE wait -l  statefulset.kubernetes.io/pod-name=$VAULTPOD --for jsonpath=\"{.status.conditions[?(@.type=='Initialized')]['status']}\"=True pod --timeout=60s;
            echo running;
            date;
-           export STATUS_JSON=$(curl -s -H 'X-Vault-Request:true' $VAULT_ADDR/v1/sys/seal-status || true);
+           export STATUS_JSON=$(curl -k -s -H 'X-Vault-Request:true' $VAULT_ADDR/v1/sys/seal-status || true);
            echo --- STATUS ---;
            echo $STATUS_JSON | jq .;
            if echo $STATUS_JSON | jq -e '.initialized == false' >/dev/null;
            then
              echo --- init ---;
-             export JSON_RESULT=$(curl -s -X PUT -H 'X-Vault-Request:true' -d '{\"secret_shares\":1,\"secret_threshold\":1}' $VAULT_ADDR/v1/sys/init);
+             export JSON_RESULT=$(curl -k -s -X PUT -H 'X-Vault-Request:true' -d '{\"secret_shares\":1,\"secret_threshold\":1}' $VAULT_ADDR/v1/sys/init);
              echo $JSON_RESULT;
              echo $JSON_RESULT | jq .;
              if echo $JSON_RESULT | jq -e '.root_token != null';
@@ -60,9 +61,9 @@ spec:
                export ROOT_TOKEN=$(echo $JSON_RESULT | jq -r '.root_token');
                export UNSEAL_KEY1=$(echo $JSON_RESULT | jq -r '.keys[0]');
                echo CREATE SECRET;
-               kubectl create secret -n canvas-vault generic canvas-vault-hc-secrets --from-literal=rootToken=$ROOT_TOKEN --from-literal=unsealKey1=$UNSEAL_KEY1;
+               kubectl create secret -n $NAMESPACE generic $SECRET_NAME  --from-literal=rootToken=$ROOT_TOKEN --from-literal=unsealKey1=$UNSEAL_KEY1 --dry-run=client -o yaml | kubectl apply -f -;
                echo UNSEALING;
-               curl -s -X PUT -H 'X-Vault-Request:true' -d \"{\\\"key\\\":\\\"$UNSEAL_KEY1\\\",\\\"reset\\\":false,\\\"migrate\\\":false}\" $VAULT_ADDR/v1/sys/unseal | jq .;
+               curl -k -s -X PUT -H 'X-Vault-Request:true' -d \"{\\\"key\\\":\\\"$UNSEAL_KEY1\\\",\\\"reset\\\":false,\\\"migrate\\\":false}\" $VAULT_ADDR/v1/sys/unseal | jq .;
              else
                echo ERROR initializing Vault $JSON_RESULT;
                exit 2;
@@ -74,6 +75,9 @@ spec:
            kubectl -n $NAMESPACE wait -l  statefulset.kubernetes.io/pod-name=$VAULTPOD --for=condition=ready pod --timeout=60s;
            echo ready;
            date;
+           echo reading secret;
+           ROOT_TOKEN=$(kubectl get secret -n canvas-vault canvas-vault-hc-secrets -ojsonpath='{.data.rootToken}' | base64 -d);
+           UNSEAL_KEY1=$( kubectl get secret -n canvas-vault canvas-vault-hc-secrets -ojsonpath='{.data.unsealKey1}' | base64 -d);
            echo getting issuer;
            if [ -z \"$ISSUER\" ];then
              JSON=$(kubectl exec -n $NAMESPACE -i $VAULTPOD -- sh -c 'wget -O- --no-check-certificate https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT_HTTPS/.well-known/openid-configuration 2>/dev/null');
@@ -84,16 +88,16 @@ spec:
            fi;
            echo ISSUER=$ISSUER;
            if [ -z \"$CACERT\" ]; then
-             if curl $ISSUER/.well-known/openid-configuration >/dev/null 2>&1; then
+             if curl -k $ISSUER/.well-known/openid-configuration >/dev/null 2>&1; then
                echo no CACERT needed;
              else
                CACERT=/run/secrets/kubernetes.io/serviceaccount/ca.crt;
-               if curl $ISSUER/.well-known/openid-configuration --cacert $CACERT >/dev/null 2>&1;then
+               if curl -k $ISSUER/.well-known/openid-configuration --cacert $CACERT >/dev/null 2>&1;then
                  echo CACERT=$CACERT;
                else
-                 echo could not curl $ISSUER/.well-known/openid-configuration --cacert $CACERT; 
+                 echo could not curl -k $ISSUER/.well-known/openid-configuration --cacert $CACERT; 
                  ls -la $CACERT;
-                 curl -v $ISSUER/.well-known/openid-configuration --cacert $CACERT;
+                 curl -k -v $ISSUER/.well-known/openid-configuration --cacert $CACERT;
                  exit 60;
                fi;
              fi;

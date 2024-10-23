@@ -33,7 +33,7 @@ rules:
     verbs: [create]
   - apiGroups: [""] # "" indicates the core API group
     resources: ["secrets"]
-    verbs: [create]
+    verbs: [create, get, delete, patch]
   # https://github.com/kubernetes/kubectl/issues/580#issuecomment-489117173
   #- apiGroups: [""]
   #  resources: ["statefulsets", "deployments"]
