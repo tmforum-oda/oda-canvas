@@ -4,7 +4,7 @@ const assert = require('assert');
 const { exec } = require('child_process');
 
 const testDataFolder = './testData/'
-HELM_COMMAND_DELAY = 1000
+HELM_COMMAND_DELAY = 2000
 
 function pause(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

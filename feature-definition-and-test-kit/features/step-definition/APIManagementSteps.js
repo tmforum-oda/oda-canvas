@@ -163,3 +163,26 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
   }
 });
 
+Then('I should see the {string} DependentAPI resource on the {string} component with a ready status', {timeout : API_READY_TIMEOUT + TIMEOUT_BUFFER},  async function (DependentAPIName, componentName) {
+  // get the DependentAPI resource
+  let apiResource = null
+  var startTime = performance.now()
+  var endTime
+  // wait until the DependentAPI resource is found or the timeout is reached
+  while (apiResource == null) {
+    apiResource = await resourceInventoryUtils.getDependentAPIResource(DependentAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    endTime = performance.now()
+
+    // assert that the ExposedAPI resource was found within the timeout
+    assert.ok(endTime - startTime < API_READY_TIMEOUT, "The ready status should be found within " + API_READY_TIMEOUT + " milliseconds")
+
+    // check if there is a url on the ExposedAPI resource status
+    if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('implementation')) || (!apiResource.status.implementation.hasOwnProperty('ready'))) {
+      apiResource = null // reset the apiResource to null so that we can try again
+    } else if (!(apiResource.status.implementation.ready == true)) {
+      apiResource = null // reset the apiResource to null so that we can try again
+    }
+  }
+
+
+});

@@ -173,6 +173,16 @@ Then('I can query the {string} spec version of the {string} component', {timeout
 });
 
 /**
+ * Uninstall the specified package.
+ *
+ * @param {string} releaseName - The release name of the package to be uninstalled.
+ */
+Given('the release {string} is not installed', async function (releaseName) {
+  await packageManagerUtils.uninstallPackage(releaseName, NAMESPACE)
+});
+
+
+/**
  * Code executed before each scenario.
  */
 Before(async function (scenario) {
