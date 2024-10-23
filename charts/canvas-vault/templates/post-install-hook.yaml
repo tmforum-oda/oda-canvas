@@ -39,7 +39,7 @@ spec:
            JWT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);
            JWT_PL=$(echo $JWT | cut -d '.' -f2);
            ISSUER=$(echo $JWT_PL==== | base64 -d 2>/dev/null | jq -r '.aud[0]');
-           VAULT_ADDR=http://{{ .Release.Name }}-vault-hc.$NAMESPACE.svc.cluster.local;
+           VAULT_ADDR=http://{{ .Release.Name }}-vault-hc.$NAMESPACE.svc.cluster.local:8200;
            echo configuring authenticator \"$AUTH_PATH\" for issuer \"$ISSUER\";
            date;
            echo waiting up to 60 seconds for the vault to be running;
