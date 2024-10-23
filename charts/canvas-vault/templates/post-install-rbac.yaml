@@ -31,6 +31,9 @@ rules:
   - apiGroups: [""] # "" indicates the core API group
     resources: ["pods/exec"]
     verbs: [create]
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["secrets"]
+    verbs: [create]
   # https://github.com/kubernetes/kubectl/issues/580#issuecomment-489117173
   #- apiGroups: [""]
   #  resources: ["statefulsets", "deployments"]

@@ -60,7 +60,7 @@ spec:
                export ROOT_TOKEN=$(echo $JSON_RESULT | jq -r '.root_token');
                export UNSEAL_KEY1=$(echo $JSON_RESULT | jq -r '.keys[0]');
                echo CREATE SECRET;
-               kubectl create secret -n canvas-vault generic canvas-vault-hc-hcv-secrets --from-literal=rootToken=$ROOT_TOKEN --from-literal=unsealKey1=$UNSEAL_KEY1 --dry-run=client -oyaml | kubectl apply -f -;
+               kubectl create secret -n canvas-vault generic canvas-vault-hc-hcv-secrets --from-literal=rootToken=$ROOT_TOKEN --from-literal=unsealKey1=$UNSEAL_KEY1;
                echo UNSEALING;
                curl -s -X PUT -H 'X-Vault-Request:true' -d \"{\\\"key\\\":\\\"$UNSEAL_KEY1\\\",\\\"reset\\\":false,\\\"migrate\\\":false}\" $VAULT_ADDR/v1/sys/unseal | jq .;
              else
