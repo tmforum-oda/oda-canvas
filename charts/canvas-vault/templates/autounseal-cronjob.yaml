@@ -25,7 +25,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-vault-hc-secrets
-                  key: unsealKey1          
+                  key: unsealKey1
             command: ["/bin/sh"]
             args: ["-c", "echo Vault Autounseal Job starting for $VAULT_ADDR;
             date -Iseconds;
