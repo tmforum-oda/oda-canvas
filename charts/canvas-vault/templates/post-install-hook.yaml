@@ -26,10 +26,9 @@ spec:
       restartPolicy: Never
       containers:
       - name: post-install-job
-        # public image with kubectl and curl:
-        # https://github.com/projectsyn/component-cert-manager/pull/130
-        image: "quay.io/appuio/oc:v4.14"
-        imagePullPolicy: Always
+        # TODO[FH] remove suffix before merging to master/main
+        image: tmforumodacanvas/baseimage-kubectl-curl:1.30.5-issue372
+        imagePullPolicy: IfNotPresent
         command: ["/bin/bash"]
         args: ["-c", "echo starting canvas vault post install hook;
            date;
@@ -40,10 +39,39 @@ spec:
            JWT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);
            JWT_PL=$(echo $JWT | cut -d '.' -f2);
            ISSUER=$(echo $JWT_PL==== | base64 -d 2>/dev/null | jq -r '.aud[0]');
+           VAULT_ADDR=http://{{ .Release.Name }}-vault-hc.$NAMESPACE.svc.cluster.local;
            echo configuring authenticator \"$AUTH_PATH\" for issuer \"$ISSUER\";
            date;
-           echo waiting up to 120 seconds for the vault to be ready;
-           kubectl -n $NAMESPACE wait -l  statefulset.kubernetes.io/pod-name=$VAULTPOD --for=condition=ready pod --timeout=120s;
+           echo waiting up to 60 seconds for the vault to be running;
+           kubectl -n $NAMESPACE wait -l  statefulset.kubernetes.io/pod-name=$VAULTPOD --for jsonpath=\"{.status.conditions[?(@.type=='Initialized')]['status']}\"=True pod --timeout=60s;
+           echo running;
+           date;
+           export STATUS_JSON=$(curl -s -H 'X-Vault-Request:true' $VAULT_ADDR/v1/sys/seal-status || true);
+           echo --- STATUS ---;
+           echo $STATUS_JSON | jq .;
+           if echo $STATUS_JSON | jq -e '.initialized == false' >/dev/null;
+           then
+             echo --- init ---;
+             export JSON_RESULT=$(curl -s -X PUT -H 'X-Vault-Request:true' -d '{\"secret_shares\":1,\"secret_threshold\":1}' $VAULT_ADDR/v1/sys/init);
+             echo $JSON_RESULT;
+             echo $JSON_RESULT | jq .;
+             if echo $JSON_RESULT | jq -e '.root_token != null';
+             then
+               export ROOT_TOKEN=$(echo $JSON_RESULT | jq -r '.root_token');
+               export UNSEAL_KEY1=$(echo $JSON_RESULT | jq -r '.keys[0]');
+               echo CREATE SECRET;
+               kubectl create secret -n canvas-vault generic canvas-vault-hc-hcv-secrets --from-literal=rootToken=$ROOT_TOKEN --from-literal=unsealKey1=$UNSEAL_KEY1 --dry-run=client -oyaml | kubectl apply -f -;
+               echo UNSEALING;
+               curl -s -X PUT -H 'X-Vault-Request:true' -d \"{\\\"key\\\":\\\"$UNSEAL_KEY1\\\",\\\"reset\\\":false,\\\"migrate\\\":false}\" $VAULT_ADDR/v1/sys/unseal | jq .;
+             else
+               echo ERROR initializing Vault $JSON_RESULT;
+               exit 2;
+             fi;
+           else
+             echo Vault already initialized;
+           fi           
+           echo waiting up to 60 seconds for the vault to be ready;
+           kubectl -n $NAMESPACE wait -l  statefulset.kubernetes.io/pod-name=$VAULTPOD --for=condition=ready pod --timeout=60s;
            echo ready;
            date;
            echo getting issuer;

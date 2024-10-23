@@ -17,7 +17,7 @@ spec:
           - name: autounsealvault
             # TODO[FH] remove suffix before merging to master/main
             image: tmforumodacanvas/baseimage-kubectl-curl:1.30.5-issue372
-            imagePullPolicy: Always
+            imagePullPolicy: IfNotPresent
             env:
             - name: VAULT_ADDR
               value: "http://{{ .Release.Name }}-vault-hc.{{ include "canvasvault.namespace" . }}.svc.cluster.local:8200"
