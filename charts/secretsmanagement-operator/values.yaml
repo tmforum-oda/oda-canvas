@@ -27,8 +27,15 @@ autodetectAudience: true
 # INFO=20, DEBUG=10
 logLevel: 20
 
-# plaintext token for HashiCorp Vault. 
+### only one of the following three methods must be used
+## plaintext token for HashiCorp Vault.
 # In the log files a warning will be shown with the encrypted value, which should be used instead of this 
-hvacToken: egalegal
-# encrpyted token (can be found in logfile)
-# #hvacTokenEnc:
+#hvacToken: egalegal
+
+## encrpyted token (can be found in logfile)
+#hvacTokenEnc: "03fb..."
+
+## secret key ref
+hvacTokenSecret:
+  name: canvas-vault-hc-secrets
+  key: unsealKey1

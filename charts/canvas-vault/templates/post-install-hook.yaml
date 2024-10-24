@@ -62,8 +62,9 @@ spec:
              then
                export ROOT_TOKEN=$(echo $JSON_RESULT | jq -r '.root_token');
                export UNSEAL_KEY1=$(echo $JSON_RESULT | jq -r '.keys[0]');
-               echo CREATE SECRET;
+               echo CREATE SECRETS;
                kubectl create secret -n $NAMESPACE generic $SECRET_NAME  --from-literal=rootToken=$ROOT_TOKEN --from-literal=unsealKey1=$UNSEAL_KEY1 --dry-run=client -o yaml | kubectl apply -f -;
+               kubectl create secret -n {{ .Release.Namespace }} generic $SECRET_NAME  --from-literal=rootToken=$ROOT_TOKEN --from-literal=unsealKey1=$UNSEAL_KEY1 --dry-run=client -o yaml | kubectl apply -f -;
                echo UNSEALING;
                curl -k -s -X PUT -H 'X-Vault-Request:true' -d \"{\\\"key\\\":\\\"$UNSEAL_KEY1\\\",\\\"reset\\\":false,\\\"migrate\\\":false}\" $VAULT_ADDR/v1/sys/unseal | jq .;
              else
@@ -80,6 +81,8 @@ spec:
            echo reading secret;
            ROOT_TOKEN=$(kubectl get secret -n $NAMESPACE $SECRET_NAME -ojsonpath='{.data.rootToken}' | base64 -d);
            UNSEAL_KEY1=$( kubectl get secret -n $NAMESPACE $SECRET_NAME -ojsonpath='{.data.unsealKey1}' | base64 -d);
+           echo removethis;
+           kubectl create secret -n {{ .Release.Namespace }} generic $SECRET_NAME  --from-literal=rootToken=$ROOT_TOKEN --from-literal=unsealKey1=$UNSEAL_KEY1 --dry-run=client -o yaml | kubectl apply -f -;
            echo getting issuer;
            if [ -z \"$ISSUER\" ];then
              JSON=$(kubectl exec -n $NAMESPACE -i $VAULTPOD -- sh -c 'wget -O- --no-check-certificate https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT_HTTPS/.well-known/openid-configuration 2>/dev/null');

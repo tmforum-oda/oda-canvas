@@ -56,7 +56,13 @@ spec:
         - name: HVAC_TOKEN
           value: "{{ .Values.hvacToken }}"
         {{- end }}
-          
+        {{ if .Values.hvacTokenSecret.name -}}
+        - name: HVAC_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.hvacTokenSecret.name }}"
+              key: "{{ .Values.hvacTokenSecret.key }}"
+        {{- end }}
         - name: WEBHOOK_SERVICE_NAME
           value: "{{ .Release.Name }}-smanop-svc"
         - name: WEBHOOK_SERVICE_NAMESPACE
