@@ -25,6 +25,8 @@ spec:
 
         - name: VAULT_ADDR
           value: "{{ .Values.vault_addr }}"
+        - name: VAULT_SKIP_VERIFY
+          value: "{{ .Values.vault_skip_verify }}"
         - name: AUTH_PATH
           value: "{{ .Values.auth_path }}"
         - name: LOGIN_ROLE_TPL

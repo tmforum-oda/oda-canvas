@@ -480,7 +480,7 @@ def setupSecretsManagement(
         # Authentication
         client = hvac.Client(
             url=vault_addr,
-            verify=vault_skip_verify,
+            verify=not vault_skip_verify,
             token=token,
             strict_http=True,  # workaround BadRequest for LIST method (https://github.com/hvac/hvac/issues/773)
         )
@@ -584,7 +584,7 @@ def deleteSecretsManagement(sman_namespace: str, sman_name: str):
         # Authentication
         client = hvac.Client(
             url=vault_addr,
-            verify=vault_skip_verify,
+            verify=not vault_skip_verify,
             token=token,
         )
     except Exception as e:
