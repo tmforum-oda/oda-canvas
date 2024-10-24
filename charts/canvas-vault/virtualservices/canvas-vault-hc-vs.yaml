@@ -1,0 +1,34 @@
+---
+# https://github.com/istio/istio/issues/38683
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  namespace: canvas-vault
+  name: canvas-vault-hc-dr
+spec:
+  host: canvas-vault-hc.canvas-vault.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+      insecureSkipVerify: true
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  namespace: canvas-vault
+  name: canvas-vault-hc-vs
+  labels:
+    app: canvas-vault-hc
+spec:
+  gateways:
+  - components/component-gateway
+  hosts:
+  - canvas-vault-hc.ihc-dt.cluster-3.de
+  http:
+  - match:
+    - port: 443
+    route:
+    - destination:
+        host: canvas-vault-hc.canvas-vault.svc.cluster.local
+        port:
+          number: 8200

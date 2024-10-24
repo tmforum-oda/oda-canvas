@@ -285,18 +285,25 @@ secretsmanagement-operator:
   # INFO=20, DEBUG=10
   logLevel: 20
 
-  ### only one of the following three methods must be used
-  ## plaintext token for HashiCorp Vault.
+  ### only one of the following four methods must be used
+  
+  ## 1) plaintext token for HashiCorp Vault.
   # In the log files a warning will be shown with the encrypted value, which should be used instead of this 
   #hvacToken: egalegal
   
-  ## encrpyted token (can be found in logfile)
+  ## 2) encrpyted token (can be found in logfile)
   #hvacTokenEnc: "03fb..."
 
-  ## secret key ref
+  ## 3) secret key ref
+  # In the log files a warning will be shown with the encrypted value, which should be used instead of this
   hvacTokenSecret:
     name: canvas-vault-hc-secrets
     key: unsealKey1
+
+  ## 4) encrypted secret key ref
+  #hvacTokenEncSecret:
+  #  name: enc-secrets
+  #  key: hvacTokenEnc
 
 
 oda-webhook:
