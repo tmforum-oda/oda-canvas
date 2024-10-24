@@ -67,10 +67,11 @@ func jwt_login(jwt_file string) (string, error) {
 }
 
 func init_vault() {
-	v_addr := getEnvVar("VAULT_ADDR", "https://vault.k8s.feri.ai")
+	v_addr := getEnvVar("VAULT_ADDR", "https://canvas-vault-hc.canvas-vault.svc.cluster.local:8200")
 	log.Println("init vault ", v_addr)
 	config = vault.DefaultConfig()
 	config.Address = v_addr
+	config.clientTLSConfig.Insecure = true
 	var err error
 	client, err = vault.NewClient(config)
 	if err != nil {

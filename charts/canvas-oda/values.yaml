@@ -258,13 +258,13 @@ canvas-vault:
 
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator
-  version: 0.1.0
-  prereleaseSuffix:
+  version: 0.1.1
+  prereleaseSuffix: issue372
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
-  sidecarVersion: 0.1.0
-  sidecarPrereleaseSuffix:
+  sidecarVersion: 0.1.1
+  sidecarPrereleaseSuffix: issue372
   sidecarImagePullPolicy: IfNotPresent
   
   vault_addr: "https://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
