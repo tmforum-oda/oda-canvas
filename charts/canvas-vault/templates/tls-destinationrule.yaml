@@ -1,0 +1,13 @@
+---
+# https://github.com/istio/istio/issues/38683
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  namespace: {{ include "canvasvault.namespace" . }}
+  name: {{ .Release.Name }}-vault-hc-tlsdestination
+spec:
+  host: {{ .Release.Name }}-vault-hc.{{ include "canvasvault.namespace" . }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+      insecureSkipVerify: true
