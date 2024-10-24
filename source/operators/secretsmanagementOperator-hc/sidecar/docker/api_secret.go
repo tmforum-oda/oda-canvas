@@ -71,7 +71,6 @@ func init_vault() {
 	log.Println("init vault ", v_addr)
 	config = vault.DefaultConfig()
 	config.Address = v_addr
-	config.clientTLSConfig.Insecure = true
 	var err error
 	client, err = vault.NewClient(config)
 	if err != nil {
