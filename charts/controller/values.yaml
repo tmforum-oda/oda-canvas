@@ -17,6 +17,9 @@ deployment:
     enabled: false
   keycloak:
     port: 8080
+  hostName: "*"
+  httpsRedirect: true
+  credentialName: istio-ingress-cert    
 #We reuse the admin user created on keycloak instalation
 credentials:
   user: admin
