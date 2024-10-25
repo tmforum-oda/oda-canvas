@@ -56,6 +56,10 @@ vault_addr = os.getenv(
 
 vault_skip_verify = bool(os.getenv("VAULT_SKIP_VERIFY", "true"))
 
+if vault_skip_verify:
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 auth_path = os.getenv("AUTH_PATH", "jwt-k8s-sman")
 policy_name_tpl = os.getenv("POLICY_NAME_TPL", "sman-{0}-policy")
