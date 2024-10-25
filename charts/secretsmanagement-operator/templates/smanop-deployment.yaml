@@ -50,20 +50,27 @@ spec:
           value: "{{ include "secretsmanagementoperator.sidecarDockerimage" . }}"
         - name: SIDECAR_IMAGEPULLPOLICY
           value: "{{ include "secretsmanagementoperator.sidecarImagePullPolicy" . }}"
-        {{ if .Values.hvacTokenEnc -}}
-        - name: HVAC_TOKEN_ENC
-          value: "{{ .Values.hvacTokenEnc }}"
-        {{- end }}
         {{ if .Values.hvacToken -}}
         - name: HVAC_TOKEN
           value: "{{ .Values.hvacToken }}"
         {{- end }}
-        {{ if .Values.hvacTokenSecret.name -}}
+        {{ if .Values.hvacTokenEnc -}}
+        - name: HVAC_TOKEN_ENC
+          value: "{{ .Values.hvacTokenEnc }}"
+        {{- end }}
+        {{ if .Values.hvacTokenSecret -}}
         - name: HVAC_TOKEN
           valueFrom:
             secretKeyRef:
               name: "{{ .Values.hvacTokenSecret.name }}"
               key: "{{ .Values.hvacTokenSecret.key }}"
+        {{- end }}
+        {{ if .Values.hvacTokenEncSecret -}}
+        - name: HVAC_TOKEN_ENC
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.hvacTokenEncSecret.name }}"
+              key: "{{ .Values.hvacTokenEncSecret.key }}"
         {{- end }}
         - name: WEBHOOK_SERVICE_NAME
           value: "{{ .Release.Name }}-smanop-svc"

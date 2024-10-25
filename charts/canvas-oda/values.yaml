@@ -263,8 +263,8 @@ secretsmanagement-operator:
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
-  sidecarVersion: 0.1.1
-  sidecarPrereleaseSuffix: issue372
+  sidecarVersion: 0.1.0
+  sidecarPrereleaseSuffix:
   sidecarImagePullPolicy: IfNotPresent
   
   vault_addr: "https://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
@@ -299,7 +299,7 @@ secretsmanagement-operator:
   # In the log files a warning will be shown with the encrypted value, which should be used instead of this
   hvacTokenSecret:
     name: canvas-vault-hc-secrets
-    key: unsealKey1
+    key: rootToken
 
   ## 4) encrypted secret key ref
   #hvacTokenEncSecret:
