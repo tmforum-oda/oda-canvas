@@ -1,3 +1,4 @@
+{{ if eq 1 0 -}}
 ---
 # https://github.com/istio/istio/issues/38683
 apiVersion: networking.istio.io/v1beta1
@@ -11,3 +12,4 @@ spec:
     tls:
       mode: SIMPLE
       insecureSkipVerify: true
+{{- end }}
