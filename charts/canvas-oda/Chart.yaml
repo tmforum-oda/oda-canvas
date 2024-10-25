@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.7
+version: 1.1.7-rc1
+# version: 1.1.7-rc1 - fix linux/arm64 docker build for secretsmanagement-operator
 # version: 1.1.7     - updated to v1beta4 crds
 # version: 1.1.6     - updated kong and apisix installation to change istio-ingress behaviour , ssl enabled on istio-ingress for api-gateway, updated component crds,added test to check latest chart once helm charts are published on github
 # version: 1.1.6-rc2 - follow up Issue #289: fill canvas info service from DependentAPI operator
@@ -65,7 +66,7 @@ dependencies:
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: secretsmanagement-operator
-    version: "0.1.0"
+    version: "0.1.1"
     repository: 'file://../secretsmanagement-operator'
   - name: canvas-vault
     version: "0.2.0"
