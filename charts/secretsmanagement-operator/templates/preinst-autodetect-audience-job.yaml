@@ -30,7 +30,7 @@ spec:
         # TODO[FH]: remove prereleasesuffix
         image: "tmforumodacanvas/baseimage-kubectl-curl:1.30.5-issue372"
         imagePullPolicy: Always
-        command: ["/bin/bash"]
+        command: ["/bin/sh"]
         args: ["-c", "echo starting autodetect audience pre install hook;
            date;
            set -xev;
