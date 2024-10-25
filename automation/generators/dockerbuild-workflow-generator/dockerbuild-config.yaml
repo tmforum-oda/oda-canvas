@@ -89,7 +89,7 @@ secretsmanagement-operator:
   # default is "Dockerfile" in buildContext
   #buildDockerfile:
   # default is "linux/amd64,linux/arm64"
-  platforms: linux/amd64 # linux/arm64 has problems building cffi python wheel
+  #platforms: linux/amd64 # linux/arm64 has problems building cffi python wheel
 
   
 secretsmanagement-sidecar:
