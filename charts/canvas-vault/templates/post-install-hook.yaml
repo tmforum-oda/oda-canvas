@@ -73,6 +73,12 @@ spec:
              fi;
            else
              echo Vault already initialized;
+             if echo $STATUS_JSON | jq -e '.sealed == true' >/dev/null;
+             then
+               echo Vault is sealed, unsealing;
+               UNSEAL_KEY1=$( kubectl get secret -n $NAMESPACE $SECRET_NAME -ojsonpath='{.data.unsealKey1}' | base64 -d);
+               curl -k -s -X PUT -H 'X-Vault-Request:true' -d \"{\\\"key\\\":\\\"$UNSEAL_KEY1\\\",\\\"reset\\\":false,\\\"migrate\\\":false}\" $VAULT_ADDR/v1/sys/unseal | jq .;
+             fi;
            fi;
            echo waiting up to 60 seconds for the vault to be ready;
            kubectl -n $NAMESPACE wait -l  statefulset.kubernetes.io/pod-name=$VAULTPOD --for=condition=ready pod --timeout=60s;
