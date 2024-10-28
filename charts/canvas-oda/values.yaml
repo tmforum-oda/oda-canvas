@@ -132,6 +132,9 @@ controller:
     keycloak: *portKeycloak
     dataDog:
       enabled: true
+    hostName: "*"
+    httpsRedirect: true
+    credentialName: istio-ingress-cert    
   #We reuse the admin user created on keycloak installation
   credentials:
     user: admin

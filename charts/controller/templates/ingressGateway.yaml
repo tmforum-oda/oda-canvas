@@ -19,16 +19,16 @@ spec:
       name: http
       protocol: HTTP
     tls:
-      httpsRedirect: true
+      httpsRedirect: {{ .Values.deployment.httpsRedirect }}
     hosts:
-    - "*"
+    - "{{ .Values.deployment.hostName }}"
   - port:
       number: 443
       name: https
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      credentialName: istio-ingress-cert  
+      credentialName: {{ .Values.deployment.credentialName }}  
     hosts:
-    - "*"
+    - "{{ .Values.deployment.hostName }}"
 {{ end }}
