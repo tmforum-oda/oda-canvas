@@ -27,11 +27,10 @@ spec:
       restartPolicy: Never
       containers:
       - name: autodetect-audience
-        # public image with kubectl and curl:
-        # https://github.com/projectsyn/component-cert-manager/pull/130
-        image: "quay.io/appuio/oc:v4.14"
-        imagePullPolicy: Always
-        command: ["/bin/bash"]
+        # TODO[FH]: set to fixed version (1.30.5) as soon as this image is released from branch 372
+        image: "tmforumodacanvas/baseimage-kubectl-curl"
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
         args: ["-c", "echo starting autodetect audience pre install hook;
            date;
            set -xev;
