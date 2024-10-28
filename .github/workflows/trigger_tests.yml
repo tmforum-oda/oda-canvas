@@ -151,7 +151,8 @@ jobs:
         helm dependency update ./charts/canvas-api-gateway/combined-api-gateway-chart
         helm dependency update ./charts/canvas-vault
         helm dependency update ./charts/canvas-oda
-        helm install canvas -n canvas --create-namespace ./charts/canvas-oda
+        #helm install canvas -n canvas --create-namespace ./charts/canvas-oda
+        helm install canvas --debug -n canvas --create-namespace ./charts/canvas-oda
 
     - name: Port Forwarding Keycloak Service
       run: |

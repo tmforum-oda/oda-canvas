@@ -58,6 +58,7 @@ vault_skip_verify = bool(os.getenv("VAULT_SKIP_VERIFY", "true"))
 
 if vault_skip_verify:
     import urllib3
+
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
