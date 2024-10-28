@@ -18,7 +18,7 @@ const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
 const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
 const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const CLEANUP_PACKAGE = false // set to true to uninstall the package after each Scenario
-const DEBUG_LOGS = false // set to true to log the controller logs after each failed Scenario
+const DEBUG_LOGS = true // set to true to log the controller logs after each failed Scenario
 global.currentReleaseName = null;
 
 setDefaultTimeout( 20 * 1000);
