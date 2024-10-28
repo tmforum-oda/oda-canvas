@@ -10,6 +10,8 @@ RUN apk update && \
 WORKDIR /src
 
 ADD requirements.txt /src/
+# https://stackoverflow.com/questions/71372066/docker-fails-to-install-cffi-with-python3-9-alpine-in-dockerfile
+RUN apk add gcc musl-dev libffi-dev
 RUN pip install -r requirements.txt && \
     rm requirements.txt
 

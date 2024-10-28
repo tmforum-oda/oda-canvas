@@ -132,6 +132,9 @@ controller:
     keycloak: *portKeycloak
     dataDog:
       enabled: true
+    hostName: "*"
+    httpsRedirect: true
+    credentialName: istio-ingress-cert    
   #We reuse the admin user created on keycloak installation
   credentials:
     user: admin
@@ -258,7 +261,7 @@ canvas-vault:
 
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator
-  version: 0.1.1
+  version: 0.1.2
   prereleaseSuffix: issue372
   imagePullPolicy: IfNotPresent
   
