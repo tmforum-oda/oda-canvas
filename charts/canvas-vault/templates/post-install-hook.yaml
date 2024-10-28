@@ -26,11 +26,10 @@ spec:
       restartPolicy: Never
       containers:
       - name: post-install-job
-        # public image with kubectl and curl:
-        # https://github.com/projectsyn/component-cert-manager/pull/130
-        image: "quay.io/appuio/oc:v4.14"
+        # TODO[FH]: set to fixed version (1.30.5) as soon as this image is released from branch 372
+        image: "tmforumodacanvas/baseimage-kubectl-curl"
         imagePullPolicy: Always
-        command: ["/bin/bash"]
+        command: ["/bin/sh"]
         args: ["-c", "echo starting canvas vault post install hook;
            date;
            set -xev;
