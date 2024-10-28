@@ -73,6 +73,49 @@ entries:
   canvas-oda:
   - apiVersion: v2
     appVersion: v1beta4
+    created: "2024-10-28T21:55:29.861805112Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.0.2
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.1.3
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: controller
+      repository: file://../controller
+      version: 1.1.4
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 0.2.3
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 0.1.1
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 0.2.0
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.1.3
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 7a7122055cf8ed3f615508f50dc31ec27221d28351007f73069ebad580bed2b5
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.1.8-rc2/canvas-oda-1.1.8-rc2.tgz
+    version: 1.1.8-rc2
+  - apiVersion: v2
+    appVersion: v1beta4
     created: "2024-10-22T16:06:05.154431569Z"
     dependencies:
     - name: cert-manager-init
@@ -568,6 +611,16 @@ entries:
   controller:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2024-10-28T21:55:30.066125153Z"
+    description: A helm chart to deploy the component controller
+    digest: 338ce1e7581974cda3c283f902004a5f621bcd7d0e2e195da55a6b2f88471c34
+    name: controller
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/controller-1.1.4/controller-1.1.4.tgz
+    version: 1.1.4
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2024-10-22T16:06:05.459889029Z"
     description: A helm chart to deploy the component controller
     digest: 4dd3ba2adbfc310c21e05e479d41719ddc028870ae8ec7051927f3e81a3a1e0e
@@ -806,4 +859,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-0.1.0/oda-webhook-0.1.0.tgz
     version: 0.1.0
-generated: "2024-10-22T16:08:44.018733676Z"
+generated: "2024-10-28T21:55:30.066256969Z"
