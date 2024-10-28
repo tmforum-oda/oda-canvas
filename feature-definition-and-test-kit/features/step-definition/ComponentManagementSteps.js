@@ -18,7 +18,7 @@ const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
 const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
 const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const CLEANUP_PACKAGE = false // set to true to uninstall the package after each Scenario
-const DEBUG_LOGS = true // set to true to log the controller logs after each failed Scenario
+const DEBUG_LOGS = false // set to true to log the controller logs after each failed Scenario
 global.currentReleaseName = null;
 
 setDefaultTimeout( 20 * 1000);
@@ -178,6 +178,15 @@ Then('I can query the {string} spec version of the {string} component', {timeout
  * @param {string} releaseName - The release name of the package to be uninstalled.
  */
 Given('the release {string} is not installed', async function (releaseName) {
+  await packageManagerUtils.uninstallPackage(releaseName, NAMESPACE)
+});
+
+/**
+ * Uninstall the specified package.
+ *
+ * @param {string} releaseName - The release name of the package to be uninstalled.
+ */
+Given('the release {string} is uninstalled', async function (releaseName) {
   await packageManagerUtils.uninstallPackage(releaseName, NAMESPACE)
 });
 
