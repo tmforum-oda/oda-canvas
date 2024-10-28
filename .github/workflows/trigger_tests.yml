@@ -153,8 +153,8 @@ jobs:
         helm dependency update ./charts/canvas-oda
         #helm install canvas -n canvas --create-namespace ./charts/canvas-oda
         helm install canvas --debug -n canvas --create-namespace ./charts/canvas-oda || true
-        kubectl get pods -n nexus
-        kubectl logs -n nexus job/canvas-vault-hc-post-install-hook
+        kubectl get pods -n canvas-vault
+        kubectl logs -n canvas-vault job/canvas-vault-hc-post-install-hook
         exit 2
 
     - name: Port Forwarding Keycloak Service
