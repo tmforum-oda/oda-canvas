@@ -152,10 +152,7 @@ jobs:
         helm dependency update ./charts/canvas-vault
         helm dependency update ./charts/canvas-oda
         #helm install canvas -n canvas --create-namespace ./charts/canvas-oda
-        helm install canvas --debug -n canvas --create-namespace ./charts/canvas-oda || true
-        kubectl get pods -n canvas-vault
-        kubectl logs -n canvas-vault job/canvas-vault-hc-post-install-hook
-        exit 2
+        helm install canvas --debug -n canvas --create-namespace ./charts/canvas-oda
 
     - name: Port Forwarding Keycloak Service
       run: |
@@ -209,6 +206,8 @@ jobs:
     - name: Delete kind cluster
       if: always()
       run: |
+        kubectl get pods -n canvas-vault || true
+        kubectl logs -n canvas-vault job/canvas-vault-hc-post-install-hook || true
         kind delete cluster
         
     - name: check test success

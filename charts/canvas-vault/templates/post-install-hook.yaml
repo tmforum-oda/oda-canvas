@@ -99,11 +99,11 @@ spec:
            fi;
            echo ISSUER=$ISSUER;
            if [ -z \"$CACERT\" ]; then
-             if curl -k $ISSUER/.well-known/openid-configuration >/dev/null 2>&1; then
+             if curl $ISSUER/.well-known/openid-configuration >/dev/null 2>&1; then
                echo no CACERT needed;
              else
                CACERT=/run/secrets/kubernetes.io/serviceaccount/ca.crt;
-               if curl -k $ISSUER/.well-known/openid-configuration --cacert $CACERT >/dev/null 2>&1;then
+               if curl $ISSUER/.well-known/openid-configuration --cacert $CACERT >/dev/null 2>&1;then
                  echo CACERT=$CACERT;
                else
                  echo could not curl -k $ISSUER/.well-known/openid-configuration --cacert $CACERT; 
