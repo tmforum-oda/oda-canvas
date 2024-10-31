@@ -43,7 +43,7 @@ A Helm of helm to orchestrate the ODA instalation
 | controller.deployment.istioGateway | bool | `true` |  |
 | controller.deployment.keycloak.http | int | `8083` |  |
 | controller.deployment.monitoredNamespaces | string | `"components"` |  |
-| controller.deployment.secconImage | string | `"tmforumodacanvas/security-listener:0.6.0"` |  |
+| controller.deployment.idconfopImage | string | `"tmforumodacanvas/security-listener:0.6.0"` |  |
 | global.certificate.appName | string | `"compcrdwebhook"` | Name of the certificate and webhook | |
 | keycloak.auth.adminPassword | string | `"adpass"` |  |
 | keycloak.auth.adminUser | string | `"admin"` |  |
@@ -55,7 +55,7 @@ A Helm of helm to orchestrate the ODA instalation
 | keycloak.ingress.hosts[0].path | string | `"/"` |  |
 | keycloak.ingress.hosts[0].tls | bool | `false` |  |
 | keycloak.ingress.ingressClassName | string | `"traefik"` |  |
-| keycloak.keycloakConfigCli | object | `{"backoffLimit":1,"command":["java","-jar","/opt/keycloak-config-cli.jar"],"configuration":{"odari.json":"{\n  \"enabled\": true,\n  \"realm\": \"odari\",\n  \"users\": [\n    {\n    \"username\": \"seccon\",\n    \"email\": \"seccon@oda.io\",\n    \"enabled\": true,\n    \"firstName\": \"Security\",\n    \"lastName\": \"User\"\n    }\n   ]\n}\n"},"enabled":true}` | Create an odari realm with a seccon user |
+| keycloak.keycloakConfigCli | object | `{"backoffLimit":1,"command":["java","-jar","/opt/keycloak-config-cli.jar"],"configuration":{"odari.json":"{\n  \"enabled\": true,\n  \"realm\": \"odari\",\n  \"users\": [\n    {\n    \"username\": \"idconfop\",\n    \"email\": \"idconfop@oda.io\",\n    \"enabled\": true,\n    \"firstName\": \"Security\",\n    \"lastName\": \"User\"\n    }\n   ]\n}\n"},"enabled":true}` | Create an odari realm with a idconfop user |
 | keycloak.postgresql.enabled | bool | `true` |  |
 | keycloak.postgresql.auth.database | string | `"keycloak"` |  |
 | keycloak.postgresql.auth.password | string | `"keycloakdbuser"` |  |

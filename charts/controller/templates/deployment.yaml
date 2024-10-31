@@ -30,16 +30,16 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /config/run-command
-      - name: seccon
-        image: {{ include "controller.secconDockerimage" . }}
-        imagePullPolicy: {{ include "controller.secconImagePullPolicy" . }}
+      - name: idconfop
+        image: {{ include "controller.idconfopDockerimage" . }}
+        imagePullPolicy: {{ include "controller.idconfopImagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-controller-configmap
           - secretRef:
               name: {{ .Release.Name }}-controller-secret
         ports:
-        - name: seccon
+        - name: idconfop
           containerPort: 5000
       volumes:
       - name: config-volume

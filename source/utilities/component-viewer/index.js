@@ -77,7 +77,7 @@ async function displayComponentTree() {
                 else if (deployment_status == "In-Progress-CompCon") {
                     console.log('Deployment Status: %s'.gray, deployment_status.yellow, ': Component controller configuring APIs'.yellow)
                 }
-                else if (deployment_status == "In-Progress-SecCon") {
+                else if (deployment_status == "In-Progress-IDConfOp") {
                     console.log('Deployment Status: %s'.gray, deployment_status.yellow, ': Component controller configuring Identity Management'.yellow)
                 }
                 else {
@@ -212,7 +212,7 @@ function createTroubleshootingText(deployment_status, componentInstance) {
         }
     }  
 
-    if (deployment_status == "In-Progress-SecCon") {
+    if (deployment_status == "In-Progress-IDConfOp") {
         // check that all the APIs have a valid url
         TroubleshootingText += 'Troubleshooting: '.grey + 'Component controller is still configuring Identity Management.'.yellow + '\n'
         TroubleshootingText += 'Troubleshooting: '.grey + 'If this problem persists, check the confurigation of the Identity Management system and the logs of the Component Controller.'.yellow + '\n'        

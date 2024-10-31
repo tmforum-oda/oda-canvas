@@ -5,10 +5,10 @@ deployment:
   compconPrereleaseSuffix:
   compconImagePullPolicy: IfNotPresent
   istioGateway: true
-  secconImage: tmforumodacanvas/security-listener
-  secconVersion: 0.7.1
-  secconPrereleaseSuffix:
-  secconImagePullPolicy: IfNotPresent
+  idconfopImage: tmforumodacanvas/security-listener
+  idconfopVersion: 0.7.1
+  idconfopPrereleaseSuffix:
+  idconfopImagePullPolicy: IfNotPresent
   monitoredNamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false

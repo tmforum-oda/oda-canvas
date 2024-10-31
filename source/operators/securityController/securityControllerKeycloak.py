@@ -24,7 +24,7 @@ def register_listener(url: str) -> None:
         # more errors
         r = requests.post(
             url,
-            json = {'callback': 'http://seccon.canvas:5000/listener'})
+            json = {'callback': 'http://idconfop.canvas:5000/listener'})
         r.raise_for_status()
     except RuntimeError:
         raise
@@ -36,7 +36,7 @@ def format_cloud_event(message: str, subject: str) -> str:
     attributes = {
         'specversion' : '1.0',
         'type' : 'org.tmforum.for.type.event.an.invented.burton.brian',
-        'source' : 'http://seccon.canvas.svc.cluster.local',
+        'source' : 'http://idconfop.canvas.svc.cluster.local',
         'subject': subject,
         'id' : str(uuid.uuid4()),
         'time' : datetime.datetime.now().isoformat(),
@@ -62,7 +62,7 @@ password = os.environ.get('KEYCLOAK_PASSWORD')
 kcBaseURL = os.environ.get('KEYCLOAK_BASE')
 kcRealm = os.environ.get('KEYCLOAK_REALM')
 
-seccon_user = 'seccon'
+idconfop_user = 'idconfop'
 
 kc = Keycloak(kcBaseURL)
 
@@ -79,7 +79,7 @@ COMPONENTS_PLURAL = "components"
     VERSION,
     COMPONENTS_PLURAL,
     field='status.summary/status.deployment_status',
-    value='In-Progress-SecCon',
+    value='In-Progress-IDConfOp',
     retries=5
 )
 def security_client_add(meta, spec, status, body, namespace, labels,name, old, new, **kwargs):
@@ -99,7 +99,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         except RuntimeError as e:
             logger.error(format_cloud_event(
                 str(e),
-                'secCon could not GET Keycloak token'
+                'IDConfop could not GET Keycloak token'
             ))
 
         try: # to create the client in Keycloak
@@ -107,7 +107,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         except RuntimeError as e:
             logger.error(format_cloud_event(
                 str(e),
-                f'secCon could not POST new client {name} in realm {kcRealm}'
+                f'IDConfop could not POST new client {name} in realm {kcRealm}'
             ))
             raise kopf.TemporaryError(
                 'Could not add component to Keycloak. Will retry.',
@@ -116,7 +116,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         else:
             logger.info(format_cloud_event(
                 f'oda.tmforum.org component {name} created',
-                'secCon: component created'
+                'IDConfop: component created'
             ))
 
             try: # to get the list of existing clients
@@ -134,23 +134,23 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             # 1) GET securityFunction.controllerRole from the component
             # 2) add_role for securityFunction.controllerRole against component
             # 3) write new function for add_role_to_user
-            # 4) create user for seccon
-            # 5) add_role_to_user for secCon user
+            # 4) create user for idconfop
+            # 5) add_role_to_user for idconfop user
 
-            seccon_role = spec['securityFunction']['controllerRole']
-            kc.add_role(seccon_role, client, token, kcRealm)
+            idconfop_role = spec['securityFunction']['controllerRole']
+            kc.add_role(idconfop_role, client, token, kcRealm)
         except RuntimeError as e:
             logging.error(format_cloud_event(
-                f'Keycloak add_role failed for {seccon_role} in {name}: {e}',
-                'secCon: bootstrap add_role failed'
+                f'Keycloak add_role failed for {idconfop_role} in {name}: {e}',
+                'IDConfop: bootstrap add_role failed'
             ))
 
-        try: # to assign the role to the seccon user
-            kc.add_role_to_user(seccon_user, seccon_role, name, token, kcRealm)
+        try: # to assign the role to the idconfop user
+            kc.add_role_to_user(idconfop_user, idconfop_role, name, token, kcRealm)
         except RuntimeError as e:
             logging.error(format_cloud_event(
-                f'Keycloak assign role failed for {seccon_role} in {name}: {e}',
-                'secCon: bootstrap failed'
+                f'Keycloak assign role failed for {idconfop_role} in {name}: {e}',
+                'IDConfop: bootstrap failed'
             ))
         else:
             try:# to add list of roles exposed in component
@@ -207,7 +207,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         except Exception as e:
             logger.error(format_cloud_event(
                 str(e),
-                'secCon could not GET Keycloak token'
+                'IDConfop could not GET Keycloak token'
             ))
             raise kopf.TemporaryError(
                 'Could not authenticate to Keycloak. Will retry.',
@@ -218,7 +218,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         except RuntimeError as e:
             logger.error(format_cloud_event(
                 str(e),
-                f'secCon could not POST new client {name} in realm {kcRealm}'
+                f'IDConfop could not POST new client {name} in realm {kcRealm}'
             ))
             raise kopf.TemporaryError(
                 'Could not add component to Keycloak. Will retry.',
@@ -227,7 +227,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         else:
             logger.info(format_cloud_event(
                 f'oda.tmforum.org component {name} created',
-                'secCon: component created'
+                'IDConfop: component created'
             ))
     
             try: # to get the list of existing clients
@@ -245,15 +245,15 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             # 1) GET securityFunction.controllerRole from the component
             # 2) add_role for securityFunction.controllerRole against component
             # 3) write new function for add_role_to_user
-            # 4) create user for seccon
-            # 5) add_role_to_user for secCon user
+            # 4) create user for idconfop
+            # 5) add_role_to_user for idconfop user
     
-            seccon_role = spec['securityFunction']['controllerRole']
-            kc.add_role(seccon_role, client, token, kcRealm)
+            idconfop_role = spec['securityFunction']['controllerRole']
+            kc.add_role(idconfop_role, client, token, kcRealm)
         except RuntimeError as e:
             logging.error(format_cloud_event(
-                f'Keycloak add_role failed for {seccon_role} in {name}: {e}',
-                'secCon: bootstrap add_role failed'
+                f'Keycloak add_role failed for {idconfop_role} in {name}: {e}',
+                'IDConfop: bootstrap add_role failed'
             ))
 
         #To store value of status of listener registered
@@ -261,12 +261,12 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         #storing this as a global variable
         global status_listener
         
-        try: # to assign the role to the seccon user
-            kc.add_role_to_user(seccon_user, seccon_role, name, token, kcRealm)
+        try: # to assign the role to the idconfop user
+            kc.add_role_to_user(idconfop_user, idconfop_role, name, token, kcRealm)
         except RuntimeError as e:
             logging.error(format_cloud_event(
-                f'Keycloak assign role failed for {seccon_role} in {name}: {e}',
-                'secCon: bootstrap failed'
+                f'Keycloak assign role failed for {idconfop_role} in {name}: {e}',
+                'IDConfop: bootstrap failed'
             ))
         else:
             if(status_listener == False) :
@@ -275,7 +275,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                 except RuntimeError as e:
                     logger.warning(format_cloud_event(
                         str(e),
-                        'secCon could not register partyRoleManagement listener'
+                        'IDConfop could not register partyRoleManagement listener'
                     ))
                     status_value = { 'identityProvider': 'Keycloak',
                                     'listenerRegistered': False }
@@ -308,7 +308,7 @@ def security_client_delete(meta, spec, status, body, namespace, labels, name, **
     except Exception as e:
         logger.error(format_cloud_event(
             str(e),
-            'secCon could not GET Keycloak token'
+            'IDConfop could not GET Keycloak token'
         ))
         raise kopf.TemporaryError(
             'Could not authenticate to Keycloak. Will retry.',
@@ -319,7 +319,7 @@ def security_client_delete(meta, spec, status, body, namespace, labels, name, **
     except RuntimeError as e:
         logger.error(format_cloud_event(
             str(e),
-            f'secCon could not DELETE client {name} in realm {kcRealm}'
+            f'IDConfop could not DELETE client {name} in realm {kcRealm}'
         ))
         raise kopf.TemporaryError(
             'Could not delete component from Keycloak. Will retry.',
@@ -328,5 +328,5 @@ def security_client_delete(meta, spec, status, body, namespace, labels, name, **
     else:
         logger.info(format_cloud_event(
             f'oda.tmforum.org component {name} deleted',
-            'secCon: component deleted'
+            'IDConfop: component deleted'
         ))

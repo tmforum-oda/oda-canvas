@@ -73,12 +73,12 @@ build the full compcon docker image name from image + version + prereleaseSuffix
 
 
 {{/*
-build the full seccon docker image name from image + version + prereleaseSuffix
+build the full idconfop docker image name from image + version + prereleaseSuffix
 */}}
-{{- define "controller.secconDockerimage" -}}
-  {{- .Values.deployment.secconImage -}}:{{- .Values.deployment.secconVersion -}}
-  {{- if .Values.deployment.secconPrereleaseSuffix -}}
-    -{{- .Values.deployment.secconPrereleaseSuffix -}}
+{{- define "controller.idconfopDockerimage" -}}
+  {{- .Values.deployment.idconfopImage -}}:{{- .Values.deployment.idconfopVersion -}}
+  {{- if .Values.deployment.idconfopPrereleaseSuffix -}}
+    -{{- .Values.deployment.idconfopPrereleaseSuffix -}}
   {{- end -}}
 {{- end -}}
 
@@ -96,12 +96,12 @@ overwrite compcon imagePullSecret with "Always" if prereleaseSuffix is set
 
 
 {{/*
-overwrite seccon imagePullSecret with "Always" if prereleaseSuffix is set
+overwrite idconfop imagePullSecret with "Always" if prereleaseSuffix is set
 */}}
-{{- define "controller.secconImagePullPolicy" -}}
-  {{- if .Values.deployment.secconPrereleaseSuffix -}}
+{{- define "controller.idconfopImagePullPolicy" -}}
+  {{- if .Values.deployment.idconfopPrereleaseSuffix -}}
     Always
   {{- else -}}
-    {{- .Values.deployment.secconImagePullPolicy -}}
+    {{- .Values.deployment.idconfopImagePullPolicy -}}
   {{- end -}}
 {{- end -}}

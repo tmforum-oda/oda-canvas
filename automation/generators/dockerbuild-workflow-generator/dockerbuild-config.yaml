@@ -115,9 +115,9 @@ security-listener:
   fileName: security-listener
 
   valuesYamlFile: charts/canvas-oda/values.yaml
-  valuesPathImage: .controller.deployment.secconImage
-  valuesPathVersion: .controller.deployment.secconVersion
-  valuesPathPrereleaseSuffix: .controller.deployment.secconPrereleaseSuffix
+  valuesPathImage: .controller.deployment.idconfopImage
+  valuesPathVersion: .controller.deployment.idconfopVersion
+  valuesPathPrereleaseSuffix: .controller.deployment.idconfopPrereleaseSuffix
 
   paths:
     - source/operators/securityControllerAPIserver-keycloak-dockerfile

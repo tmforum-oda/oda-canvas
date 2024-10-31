@@ -83,7 +83,7 @@ keycloak:
   # -- Keycloak HTTP container port
   containerPorts: *portKeycloak
 
-  # -- Create a odari realm with a seccon user
+  # -- Create a odari realm with an idconfop user
   keycloakConfigCli:
     enabled: true
     image:
@@ -97,8 +97,8 @@ keycloak:
           "realm": "odari",
           "users": [
             {
-            "username": "seccon",
-            "email": "seccon@oda.io",
+            "username": "idconfop",
+            "email": "idconfop@oda.io",
             "enabled": true,
             "firstName": "Security",
             "lastName": "User"
@@ -122,9 +122,9 @@ controller:
     compconPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    secconImage: tmforumodacanvas/security-listener
-    secconVersion: 0.7.1
-    secconPrereleaseSuffix:
+    idconfopImage: tmforumodacanvas/security-listener
+    idconfopVersion: 0.7.1
+    idconfopPrereleaseSuffix:
     monitoredNamespaces: 'components'           # comma separated list of namespaces
     ingressClass:
       enabled: false

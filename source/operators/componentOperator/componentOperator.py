@@ -1318,7 +1318,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     status_summary['deployment_status'] = 'In-Progress-CompCon'
     if countOfCompleteAPIs == countOfDesiredAPIs:
-        status_summary['deployment_status'] = 'In-Progress-SecCon'
+        status_summary['deployment_status'] = 'In-Progress-IDConfOp'
         if (('security_client_add/status.summary/status.deployment_status' in status.keys()) and (status['security_client_add/status.summary/status.deployment_status']['listenerRegistered'] == True)):
             status_summary['deployment_status'] = 'In-Progress-SecretMan'
             if countOfCompleteSecretsManagements == countOfDesiredSecretsManagements:

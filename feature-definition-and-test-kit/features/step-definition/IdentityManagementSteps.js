@@ -23,7 +23,7 @@ setDefaultTimeout( 20 * 1000);
  */
 Then('I should see the predefined role assigned to the {string} user for the {string} component in the identity platform', async function (operatorUserName, componentName) {
   let componentResource = null
-  let secconRole = null
+  let idconfopRole = null
   var startTime = performance.now()
   var endTime
 
@@ -39,10 +39,10 @@ Then('I should see the predefined role assigned to the {string} user for the {st
     if ((!componentResource) || (!componentResource.hasOwnProperty('spec')) || (!componentResource.spec.hasOwnProperty('securityFunction')) || (!componentResource.spec.securityFunction.hasOwnProperty('controllerRole'))) {
       componentResource = null // reset the componentResource to null so that we can try again
     } else {
-      secconRole = componentResource.spec.securityFunction.controllerRole;
+      idconfopRole = componentResource.spec.securityFunction.controllerRole;
       allUserRoles = await identityManagerUtils.getRolesForUser(operatorUserName, global.currentReleaseName, componentName);
       //return 'pending';
-      assert.ok(allUserRoles.includes(secconRole), 'The predefine role for the security operator should be correctly assigned in the identity platform');
+      assert.ok(allUserRoles.includes(idconfopRole), 'The predefine role for the security operator should be correctly assigned in the identity platform');
     }
   }
 });
