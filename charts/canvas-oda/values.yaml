@@ -98,7 +98,7 @@ keycloak:
           "users": [
             {
             "username": "idconfop",
-            "email": "idconfop@oda.io",
+            "email": "idconfop@oda.tmforum.org",
             "enabled": true,
             "firstName": "Security",
             "lastName": "User"
