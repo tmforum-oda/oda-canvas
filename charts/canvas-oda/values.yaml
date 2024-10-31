@@ -83,7 +83,7 @@ keycloak:
   # -- Keycloak HTTP container port
   containerPorts: *portKeycloak
 
-  # -- Create a myrealm realm with a seccon user
+  # -- Create a odari realm with a seccon user
   keycloakConfigCli:
     enabled: true
     image:
@@ -91,10 +91,10 @@ keycloak:
     backoffLimit: 1
     command: [ "java", "-jar", "/opt/keycloak-config-cli.jar" ]
     configuration:
-      myrealm.json: |
+      odari.json: |
         {
           "enabled": true,
-          "realm": "myrealm",
+          "realm": "odari",
           "users": [
             {
             "username": "seccon",
@@ -140,7 +140,7 @@ controller:
     user: admin
     pass: adpass
   configmap:
-    kcrealm: myrealm
+    kcrealm: odari
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
     

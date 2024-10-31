@@ -48,8 +48,8 @@ $env:KEYCLOAK_USER = "admin"
 $env:KEYCLOAK_PASSWORD = "adpass"
 ```
 
-5. Configure a new realm `myrealm` in keycloak.
-6. Configure a new client `r1-productcatalog` in the `myrealm` realm.
+5. Configure a new realm `odari` in keycloak.
+6. Configure a new client `r1-productcatalog` in the `odari` realm.
 
 **Interactive development and Testing of operator using KOPF**
 

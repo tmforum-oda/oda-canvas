@@ -26,5 +26,5 @@ credentials:
   pass: adpass
 configmap:
   #kcbase: http://canvas-keycloak:8088/auth # trying to parameterise this in the configmap
-  kcrealm: myrealm
+  kcrealm: odari
   loglevel: '20'

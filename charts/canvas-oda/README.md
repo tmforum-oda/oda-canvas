@@ -31,7 +31,7 @@ A Helm of helm to orchestrate the ODA instalation
 | cert-manager-init.leaseWaitTimeonStartup | int | `20` | Time to wait CertManager to be ready to prevent issuer creation errors |
 | cert-manager-init.nameOverride | string | `""` |  |
 | cert-manager-init.namespace | string | `"canvas"` |  |
-| controller.configmap.kcrealm | string | `"myrealm"` |  |
+| controller.configmap.kcrealm | string | `"odari"` |  |
 | controller.configmap.loglevel | string | `"20"` | Log level [python] (https://docs.python.org/3/library/logging.html |
 | controller.credentials.pass | string | `"adpass"` |  |
 | controller.credentials.user | string | `"admin"` |  |
@@ -55,7 +55,7 @@ A Helm of helm to orchestrate the ODA instalation
 | keycloak.ingress.hosts[0].path | string | `"/"` |  |
 | keycloak.ingress.hosts[0].tls | bool | `false` |  |
 | keycloak.ingress.ingressClassName | string | `"traefik"` |  |
-| keycloak.keycloakConfigCli | object | `{"backoffLimit":1,"command":["java","-jar","/opt/keycloak-config-cli.jar"],"configuration":{"myrealm.json":"{\n  \"enabled\": true,\n  \"realm\": \"myrealm\",\n  \"users\": [\n    {\n    \"username\": \"seccon\",\n    \"email\": \"seccon@oda.io\",\n    \"enabled\": true,\n    \"firstName\": \"Security\",\n    \"lastName\": \"User\"\n    }\n   ]\n}\n"},"enabled":true}` | Create a myrealm realm with a seccon user |
+| keycloak.keycloakConfigCli | object | `{"backoffLimit":1,"command":["java","-jar","/opt/keycloak-config-cli.jar"],"configuration":{"odari.json":"{\n  \"enabled\": true,\n  \"realm\": \"odari\",\n  \"users\": [\n    {\n    \"username\": \"seccon\",\n    \"email\": \"seccon@oda.io\",\n    \"enabled\": true,\n    \"firstName\": \"Security\",\n    \"lastName\": \"User\"\n    }\n   ]\n}\n"},"enabled":true}` | Create an odari realm with a seccon user |
 | keycloak.postgresql.enabled | bool | `true` |  |
 | keycloak.postgresql.auth.database | string | `"keycloak"` |  |
 | keycloak.postgresql.auth.password | string | `"keycloakdbuser"` |  |
