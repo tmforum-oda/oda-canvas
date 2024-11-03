@@ -1,4 +1,4 @@
-# Discover dependent APIs use case
+# Configure dependent APIs use case
 
 This use-case describes how a component discovers the url and credentials for a dependent API. The use case uses the following assumptions:
 
