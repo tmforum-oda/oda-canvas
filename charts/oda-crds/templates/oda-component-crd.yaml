@@ -1316,65 +1316,83 @@ spec:
           spec:
             type: object
             properties:
-              id:
-                type: string
-                description: This is the id of functional component and must refer to the id of a TM Forum published golden component.
-                example: TMFC001
-              name:
-                type: string
-                description: This is the name of functional component and must refer to the name of a TM Forum published golden component.
-                example: ProductCatalogManagement
-              version:
-                type: string
-                description: This is the version of the component (it is specific to the vendor of this component and not the type).
-              description:
-                type: string
-                description: This is a short description of the component's purpose.
-              functionalBlock:   
-                type: string
-                description: This is the functional block of the component with the Open Digital Architecture.
-                example: CoreCommerce 
-              publicationDate:
-                type: string
-                format: date-time
-                description: This is the date that the golden component was published.
-              status:
-                type: string
-                description: This is the status of the golden component.
-              maintainers:
-                type: array
-                description: Maintainers is an optional list of maintainers of
-                  the component. The maintainers in this list maintain the the
-                  source code, images, and package for the component.
-                items:
-                  description: ContactData contains information about an individual or organization.
-                  type: object
-                  properties:
-                    email:
-                      description: Email is the email address.
+              componentMetadata:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: This is the id of functional component and must refer to the id of a TM Forum published golden component.
+                    example: TMFC001
+                  name:
+                    type: string
+                    description: This is the name of functional component and must refer to the name of a TM Forum published golden component.
+                    example: ProductCatalogManagement
+                  version:
+                    type: string
+                    description: This is the version of the component (it is specific to the vendor of this component and not the type).
+                  description:
+                    type: string
+                    description: This is a short description of the component's purpose.
+                  functionalBlock:   
+                    type: string
+                    description: This is the functional block of the component with the Open Digital Architecture.
+                    example: CoreCommerce 
+                  publicationDate:
+                    type: string
+                    format: date-time
+                    description: This is the date that the golden component was published.
+                  status:
+                    type: string
+                    description: This is the status of the golden component.
+                  eTom:
+                    type: array
+                    description: This is the eTom mapping of the component with the Open Digital Architecture.
+                    items:
                       type: string
-                    name:
-                      description: Name is the descriptive name.
+                  SID:
+                    type: array
+                    description: This is the SID mapping of the component with the Open Digital Architecture.
+                    items:
                       type: string
-                    url:
-                      description: Website address of maintaining organization.
-                      type: string
-              owners:
-                type: array
-                description: Owners is an optional list of the owners of the installed component.
-                items:
-                  type: object
-                  description: ContactData contains information about an individual or organization.
-                  properties:
-                    email:
-                      description: Email is the email address.
-                      type: string
-                    name:
-                      description: Name is the descriptive name.
-                      type: string
-                    url:
-                      description: Website address of owning organization.
-                      type: string
+                  functionalFramework:
+                    type: array
+                    description: This is the functional framework of the component with the Open Digital Architecture.   
+                    items:
+                      type: string 
+                  maintainers:
+                    type: array
+                    description: Maintainers is an optional list of maintainers of
+                      the component. The maintainers in this list maintain the the
+                      source code, images, and package for the component.
+                    items:
+                      description: ContactData contains information about an individual or organization.
+                      type: object
+                      properties:
+                        email:
+                          description: Email is the email address.
+                          type: string
+                        name:
+                          description: Name is the descriptive name.
+                          type: string
+                        url:
+                          description: Website address of maintaining organization.
+                          type: string
+                  owners:
+                    type: array
+                    description: Owners is an optional list of the owners of the installed component.
+                    items:
+                      type: object
+                      description: ContactData contains information about an individual or organization.
+                      properties:
+                        email:
+                          description: Email is the email address.
+                          type: string
+                        name:
+                          description: Name is the descriptive name.
+                          type: string
+                        url:
+                          description: Website address of owning organization.
+                          type: string
               coreFunction:
                 type: object
                 properties:
@@ -1400,6 +1418,9 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        apiSDO:
+                          type: string
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         apiKeyVerification:
                           type: object
                           description: "(optional) API key verification settings"
@@ -1530,6 +1551,9 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        apiSDO:
+                          type: string
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         resources:
                           type: array
                           items:
@@ -1637,6 +1661,9 @@ spec:
                           - openapi
                           - prometheus
                           description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                        apiSDO:
+                          type: string
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
                         apiKeyVerification:
                           type: object
                           description: "(optional) API key verification settings"
@@ -1767,6 +1794,9 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        apiSDO:
+                          type: string
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
                         resources:
                           type: array
                           items:
@@ -1835,6 +1865,9 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        apiSDO:
+                          type: string
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
                         apiKeyVerification:
                           type: object
                           description: "(optional) API key verification settings"
@@ -1965,6 +1998,9 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                        apiSDO:
+                          type: string
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
                         resources:
                           type: array
                           items:

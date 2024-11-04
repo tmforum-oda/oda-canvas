@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.3
+version: 1.1.4
+# version: 1.1.4 - added componentMetadata and apiSDO to v1beta4 crds
 # version: 1.1.3 - added v1beta4 crds and removed v1alpha crds
 # version: 1.1.2 - bug fix to update apitype to apiType for conversions to v1beta3
 # version: 1.1.1 - bug fix for empty specification property of exposedAPI
