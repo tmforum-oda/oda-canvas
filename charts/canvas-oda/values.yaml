@@ -101,7 +101,11 @@ keycloak:
             "email": "idconfop@oda.tmforum.org",
             "enabled": true,
             "firstName": "Security",
-            "lastName": "User"
+            "lastName": "User",
+            "clientRoles": {
+              "realm-management": [
+                "manage-clients"
+              ]
             }
            ]
         }
