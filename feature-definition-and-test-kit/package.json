@@ -16,6 +16,7 @@
     "resource-inventory-utils-kubernetes": "file:resource-inventory-utils-kubernetes",
     "package-manager-utils-helm": "file:package-manager-utils-helm",
     "identity-manager-utils-keycloak": "file:identity-manager-utils-keycloak",
+    "component-utils": "file:component-utils",
     "yaml": "^2.1.3"
   }
 }
