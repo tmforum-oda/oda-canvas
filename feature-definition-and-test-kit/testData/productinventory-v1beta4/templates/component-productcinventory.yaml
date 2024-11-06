@@ -4,20 +4,21 @@ metadata:
   name: {{.Release.Name}}-{{.Values.component.type}}
   labels:
     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
-spec:  
-  id: {{.Values.component.id}}
-  name: {{.Values.component.name}}
-  functionalBlock: {{.Values.component.functionalBlock}}
-  publicationDate: {{.Values.component.publicationDate}}
-  status: specified
-  version: {{.Values.component.version}}
-  description: "Simple Product Inventory ODA-Component from Open-API reference implementation."
-  maintainers:
-    - name: Dominic Oyeniran
-      email: dominic.oyeniran@vodafone.com
-  owners:
-    - name: Dominic Oyeniran
-      email: dominic.oyeniran@vodafone.com     
+spec:
+  componentMedtaData: 
+    id: {{.Values.component.id}}
+    name: {{.Values.component.name}}
+    functionalBlock: {{.Values.component.functionalBlock}}
+    publicationDate: {{.Values.component.publicationDate}}
+    status: specified
+    version: {{.Values.component.version}}
+    description: "Simple Product Inventory ODA-Component from Open-API reference implementation."
+    maintainers:
+      - name: Dominic Oyeniran
+        email: dominic.oyeniran@vodafone.com
+    owners:
+      - name: Dominic Oyeniran
+        email: dominic.oyeniran@vodafone.com     
   coreFunction:
     exposedAPIs: 
     - name: productinventorymanagement

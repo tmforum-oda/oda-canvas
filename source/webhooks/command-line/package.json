@@ -1,0 +1,14 @@
+{
+    "name": "component-version-converter",
+    "version": "1.0.0",
+    "description": "A simple Node.js application to convert Components from one version to another",
+    "main": "convert.js",
+    "scripts": {
+      "start": "node convert.js"
+    },
+    "dependencies": {
+      "js-yaml": "^4.1.0"
+    },
+    "author": "",
+    "license": "ISC"
+  }

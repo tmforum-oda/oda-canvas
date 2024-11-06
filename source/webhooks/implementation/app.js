@@ -227,12 +227,93 @@ app.post("/", (req, res, next) => {
         }
       }
 
+      // move the properties to componentMetadata
+      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2", "v1beta3"], ["v1beta4"])) {
+        console.log("move relevant properties to componentMetadata");
+
+        objectsArray[key].spec.componentMetadata = {};
+        if (objectsArray[key].spec.id) {
+          objectsArray[key].spec.componentMetadata.id = objectsArray[key].spec.id;
+          delete objectsArray[key].spec.id;
+        }
+        if (objectsArray[key].spec.name) {
+          objectsArray[key].spec.componentMetadata.name = objectsArray[key].spec.name;
+          delete objectsArray[key].spec.name;
+        }
+        if (objectsArray[key].spec.version) {
+          objectsArray[key].spec.componentMetadata.version = objectsArray[key].spec.version;
+          delete objectsArray[key].spec.version;
+        }
+        if (objectsArray[key].spec.description) {
+          objectsArray[key].spec.componentMetadata.description = objectsArray[key].spec.description;
+          delete objectsArray[key].spec.description;
+        }
+        if (objectsArray[key].spec.functionalBlock) {
+          objectsArray[key].spec.componentMetadata.functionalBlock = objectsArray[key].spec.functionalBlock;
+          delete objectsArray[key].spec.functionalBlock;
+        }
+        if (objectsArray[key].spec.publicationDate) {
+          objectsArray[key].spec.componentMetadata.publicationDate = objectsArray[key].spec.publicationDate;
+          delete objectsArray[key].spec.publicationDate;
+        }
+        if (objectsArray[key].spec.status) {
+          objectsArray[key].spec.componentMetadata.status = objectsArray[key].spec.status;
+          delete objectsArray[key].spec.status;
+        }
+        if (objectsArray[key].spec.maintainers) {
+          objectsArray[key].spec.componentMetadata.maintainers = objectsArray[key].spec.maintainers;
+          delete objectsArray[key].spec.maintainers;
+        }
+        if (objectsArray[key].spec.owners) {
+          objectsArray[key].spec.componentMetadata.owners = objectsArray[key].spec.owners;
+          delete objectsArray[key].spec.owners;
+        }
+      }        
       
  
       
       // ****************************************************
       // downgrade newer versions to the older versions
       // ****************************************************
+      // move the properties from componentMetadata and remove apiSDO
+      if (apiVersion.mapOldToNew(["v1beta4"], ["v1beta1", "v1beta2", "v1beta3"])) {
+        if (objectsArray[key].spec.componentMetadata) {
+          // for each property in componentMetadata, move it to the root level
+          console.log("Move properties from componentMetadata to root");
+
+          for (var property in objectsArray[key].spec.componentMetadata) {
+            objectsArray[key].spec[property] = objectsArray[key].spec.componentMetadata[property];
+          }
+          delete objectsArray[key].spec.componentMetadata;
+        }    
+        
+        // for each of coreFunction, managementFunction and securityFunction, remove the apiSDO from exposedAPIs and dependentAPIs array items
+        console.log("Remove the apiSDO from exposedAPIs and dependentAPIs array items in coreFunction, managementFunction and securityFunction");
+        if (objectsArray[key].spec.coreFunction) {
+          for (api in objectsArray[key].spec.coreFunction.exposedAPIs) {
+            delete objectsArray[key].spec.coreFunction.exposedAPIs[api].apiSDO;
+          }
+          for (api in objectsArray[key].spec.coreFunction.dependentAPIs) {
+            delete objectsArray[key].spec.coreFunction.dependentAPIs[api].apiSDO;
+          }
+        }
+        if (objectsArray[key].spec.managementFunction) {
+          for (api in objectsArray[key].spec.managementFunction.exposedAPIs) {
+            delete objectsArray[key].spec.managementFunction.exposedAPIs[api].apiSDO;
+          }
+          for (api in objectsArray[key].spec.managementFunction.dependentAPIs) {
+            delete objectsArray[key].spec.managementFunction.dependentAPIs[api].apiSDO;
+          }
+        }
+        if (objectsArray[key].spec.securityFunction) {
+          for (api in objectsArray[key].spec.securityFunction.exposedAPIs) {
+            delete objectsArray[key].spec.securityFunction.exposedAPIs[api].apiSDO;
+          }
+          for (api in objectsArray[key].spec.securityFunction.dependentAPIs) {
+            delete objectsArray[key].spec.securityFunction.dependentAPIs[api].apiSDO;
+          }
+        }
+      }  
 
       // change the eventNotification segments and change exposedAPI specification from an array to string
       if (apiVersion.mapOldToNew(["v1beta3", "v1beta4"], ["v1beta1", "v1beta2"])) {
