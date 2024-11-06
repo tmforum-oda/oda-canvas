@@ -61,7 +61,7 @@ The values used [here](https://github.com/tmforum-oda/oda-canvas/blob/master/cha
 The hardware requirements for the reference implementation are low. To deploy the reference implementation and run all the tests, the following minimum requirements should be adequate:
 - CPU: 4 cores; AMD64 architecture, but we are also beginning to investigate running on ARM.
 - RAM: 16Gb
-- Storage: 20Gb
+- Storage: 50Gb
 - Operating system: any supported by your hardware that will run Kubernetes. For our testing and development we have used several different Linux distributions and Windows 11.
 
 To host a component on the Reference Canvas you will have to account for its requirements in addition to the minimum.
