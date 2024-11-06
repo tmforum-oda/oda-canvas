@@ -116,6 +116,49 @@ entries:
     version: 1.1.8-rc2
   - apiVersion: v2
     appVersion: v1beta4
+    created: "2024-11-06T11:10:09.484104065Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.0.2
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.1.4
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: controller
+      repository: file://../controller
+      version: 1.1.4
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 0.2.3
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 0.1.1
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 0.2.0
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.1.4
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: f7f46c95b855db086bb2c24425687c2390af21a57c3d65305a9d6875421ae50d
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.1.8-lt1/canvas-oda-1.1.8-lt1.tgz
+    version: 1.1.8-lt1
+  - apiVersion: v2
+    appVersion: v1beta4
     created: "2024-10-22T16:06:05.154431569Z"
     dependencies:
     - name: cert-manager-init
@@ -740,6 +783,16 @@ entries:
   oda-crds:
   - apiVersion: v2
     appVersion: v1beta4
+    created: "2024-11-06T11:10:09.605658777Z"
+    description: A helm chart to deploy the Canvas CRDs
+    digest: 76db1dc23f89419231c40c0f1062171534d0af9b69fbaf491123ce07ab248d1c
+    name: oda-crds
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-crds-1.1.4/oda-crds-1.1.4.tgz
+    version: 1.1.4
+  - apiVersion: v2
+    appVersion: v1beta4
     created: "2024-10-22T16:06:05.648578167Z"
     description: A helm chart to deploy the Canvas CRDs
     digest: b99eeaaf99e8693d4d17731d0ff38c63d144ea595ef2abc1907bd9653534ec19
@@ -801,6 +854,16 @@ entries:
   oda-webhook:
   - apiVersion: v2
     appVersion: v1beta4
+    created: "2024-11-06T11:10:09.763661383Z"
+    description: A Helm chart to deploy the webhook following pattern in https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion
+    digest: 2fd423c114d5328609a2c140c58bf631c134a756a44abe8f925277b37913b9d8
+    name: oda-webhook
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-1.1.4/oda-webhook-1.1.4.tgz
+    version: 1.1.4
+  - apiVersion: v2
+    appVersion: v1beta4
     created: "2024-10-22T16:06:05.790040875Z"
     description: A Helm chart to deploy the webhook following pattern in https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion
     digest: 1517313d89d41cc4eef4a29972a4fc9b108363c31b7219379820bd6610ef760d
@@ -859,4 +922,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-0.1.0/oda-webhook-0.1.0.tgz
     version: 0.1.0
-generated: "2024-10-28T21:55:30.066256969Z"
+generated: "2024-11-06T11:10:09.763860918Z"
