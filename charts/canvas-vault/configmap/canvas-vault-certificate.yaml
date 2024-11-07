@@ -6,6 +6,12 @@ metadata:
   name: canvasvault-tls
   # TODO[FH]: this should be
   # namespace: {{ include "canvasvault.namespace" . }}
+  # This file is written into a configmap and then deployed in a post-install hook,
+  # because cert-manager CRDs are not available at deploy time. 
+  # This file is not in the tempaltes folder. So, templating does not work.
+  # When installation is refactored this can be changed.
+  # Also all other occurrences of "canvas-vault" namespace / domain name should be replaced 
+  # then with the template.  
   namespace: canvas-vault
 spec:
   commonName: canvasvault-tls
