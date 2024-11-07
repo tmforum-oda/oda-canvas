@@ -174,6 +174,8 @@ canvas-vault:
     #fullnameOverride: "canvas-vault-hc"
     nameOverride: "vault-hc"
     global:
+      # if the namespace is changed the internal service address configured  
+      # in "secretsmanagement-operator.vault_addr" has to be set accordingly. 
       namespace: "canvas-vault"
       tlsDisable: false
     server:
@@ -270,6 +272,8 @@ secretsmanagement-operator:
   sidecarPrereleaseSuffix:
   sidecarImagePullPolicy: IfNotPresent
   
+  # if the internal service address is used the vault_addr has to be in sync 
+  # with the namespace configured in "canvas-vault.vault.global.namespace"
   vault_addr: "https://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
   vault_skip_verify: "true"
   # the tempaltes can be used to generate cluster specific authenticator and key-value stores, here 'sman'.
