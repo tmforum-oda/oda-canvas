@@ -8,7 +8,7 @@ The Component Operator takes the `Component` custom resource and extracts each E
 
 At present, there are API Operators for the following API Gateways/Service Meshes:
 
-* [Apache APISIX](./apache-apisix): Operator for the Apache APISIX open source API Gateway (https://apisix.apache.org/).
+* [Apache APISIX](./apache-apisix#Apache-APISIX-API-Management-Operator): Operator for the Apache APISIX open source API Gateway (https://apisix.apache.org/).
 * [Kong](./kong): Operator for the Kong open source API Gateway (https://konghq.com/products/kong-gateway).
 * [Istio](./istio): Operator for the Istio Service Mesh (https://istio.io/).
 * [Azure API Management](azure-apim): Operator for the Azure API Gateway (https://azure.microsoft.com/en-gb/products/api-management/).

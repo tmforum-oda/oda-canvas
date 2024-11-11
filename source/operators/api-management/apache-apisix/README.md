@@ -1,8 +1,8 @@
-# Kubernetes Kong API Lifecycle Management Operator
+# Apache APISIX API Management Operator
 
 ## Overview
 
-The Kubernetes Apisix API Lifecycle Management Operator is a component of the ODA Canvas, optimized for environments that utilize the Apisix API Gateway. It is built using the Kopf Kubernetes operator framework to effectively manage API custom resources. This operator ensures seamless integration with the Apisix API Gateway, facilitating the creation, management, and exposure of APIs through ApisixRoute and putting policies in place using ApisixPluginconfig configurations.
+The Apisix API Lifecycle Management Operator is a component of the ODA Canvas, optimized for environments that utilize the Apisix API Gateway (https://apisix.apache.org/). It is built using the Kopf Kubernetes operator framework to effectively manage API custom resources. This operator ensures seamless integration with the Apisix API Gateway, facilitating the creation, management, and exposure of APIs through ApisixRoute and putting policies in place using ApisixPluginconfig configurations.
 
 ## Key Features
 
