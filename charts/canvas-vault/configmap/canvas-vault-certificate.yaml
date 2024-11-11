@@ -1,0 +1,36 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  # {{ .Release.Name }}-vault-tls can not be used as name, because the extra env variables for hc vault 
+  # are defined in values yaml, which does not allow templating 
+  name: canvasvault-tls
+  # TODO[FH]: this should be
+  # namespace: {{ include "canvasvault.namespace" . }}
+  # This file is written into a configmap and then deployed in a post-install hook,
+  # because cert-manager CRDs are not available at deploy time. 
+  # This file is not in the tempaltes folder. So, templating does not work.
+  # When installation is refactored this can be changed.
+  # Also all other occurrences of "canvas-vault" namespace / domain name should be replaced 
+  # then with the template.  
+  namespace: canvas-vault
+spec:
+  commonName: canvasvault-tls
+  dnsNames:
+  - canvasvault-tls
+  - canvasvault-tls.canvas-vault
+  - canvasvault-tls.canvas-vault.svc
+  - canvasvault-tls.canvas-vault.svc.cluster.local
+  duration: 21600h0m0s
+  issuerRef:
+    name: canvas-cert-manager-init-selfsigned-cluster
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  secretName: canvasvault-tls
+  usages:
+  - digital signature
+  - content commitment
+  - key encipherment
+  - server auth

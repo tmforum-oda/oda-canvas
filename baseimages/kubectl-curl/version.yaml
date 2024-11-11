@@ -1,0 +1,3 @@
+image: tmforumodacanvas/baseimage-kubectl-curl
+version: 1.30.5
+prereleaseSuffix: issue372

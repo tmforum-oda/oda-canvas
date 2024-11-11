@@ -1,0 +1,51 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: {{ include "canvasvault.namespace" . }}
+  name: {{ .Release.Name }}-vault-hc-cronjob
+spec:
+  schedule: "*/1 * * * *"   # "At every 5th minute." (crontab.guru)
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          containers:
+          - name: autounsealvault
+            # TODO[FH] remove suffix before merging to master/main
+            image: tmforumodacanvas/baseimage-kubectl-curl:1.30.5-issue372
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: VAULT_ADDR
+              value: "https://{{ .Release.Name }}-vault-hc.{{ include "canvasvault.namespace" . }}.svc.cluster.local:8200"
+            - name: UNSEAL_KEY1
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-vault-hc-secrets
+                  key: unsealKey1
+            command: ["/bin/sh"]
+            args: ["-c", "echo Vault Autounseal Job starting for $VAULT_ADDR;
+            date -Iseconds;
+            STATUS_JSON=$(curl -k -s -H 'X-Vault-Request:true'  $VAULT_ADDR/v1/sys/seal-status || true);
+            echo --- STATUS ---;
+            echo $STATUS_JSON | jq .;
+            if echo $STATUS_JSON | jq -e '.initialized == true' >/dev/null;
+            then
+              if  echo $STATUS_JSON | jq -e '.sealed == true' >/dev/null;
+              then
+                echo Vault is sealed, unsealing;
+                curl -k -s -X PUT -H 'X-Vault-Request:true' -d \"{\\\"key\\\":\\\"$UNSEAL_KEY1\\\",\\\"reset\\\":false,\\\"migrate\\\":false}\" $VAULT_ADDR/v1/sys/unseal | jq .;
+              else
+                echo alreayd unsealed, nothing to do;
+              fi;
+            else
+              echo 'Vault not initialized';
+              exit 3;
+            fi;
+            date -Iseconds;
+            echo finished"]
+          restartPolicy: Never
+      backoffLimit: 0

@@ -129,3 +129,20 @@ security-listener:
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
+
+baseimage-kubectl-curl:
+  displayName: Baseimage-Kubectl-cURL
+  fileName: baseimage-kubectl-curl
+  
+  valuesYamlFile: baseimages/kubectl-curl/version.yaml
+  valuesPathImage: .image
+  valuesPathVersion: .version
+  valuesPathPrereleaseSuffix: .prereleaseSuffix
+  
+  paths:
+    - baseimages/kubectl-curl/**/*
+  buildContext: baseimages/kubectl-curl
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile:   
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64

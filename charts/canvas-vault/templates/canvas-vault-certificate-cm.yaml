@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ include "canvasvault.namespace" . }}
+  name: {{ .Release.Name }}-canvasvault-cert-cm
+data:
+  {{- (.Files.Glob "configmap/*").AsConfig | nindent 2 }}

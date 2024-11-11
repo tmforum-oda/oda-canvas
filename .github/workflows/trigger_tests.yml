@@ -205,6 +205,8 @@ jobs:
     - name: Delete kind cluster
       if: always()
       run: |
+        kubectl get pods -n canvas-vault || true
+        kubectl logs -n canvas-vault job/canvas-vault-hc-post-install-hook || true
         kind delete cluster
         
     - name: check test success
