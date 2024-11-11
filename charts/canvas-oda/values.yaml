@@ -264,7 +264,7 @@ canvas-vault:
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator
   version: 0.1.2
-  prereleaseSuffix: issue372
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
