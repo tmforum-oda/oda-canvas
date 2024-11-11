@@ -15,7 +15,7 @@ There are several types of operator in the ODA Canvas. For each type of operator
 
 
 * [Component Management](./component-management): Manages lifecycle of a component, and the de-composition into ExposedAPIs, PublishedEvents and other sub-resources (that are processed by their corresponding operators). 
-* [API Management](api-management): Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers.
+* [API Management](./api-management#api-management-operators): Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers.
 * [Identity Config](./identity-management): Configures the Identity Management Services made available through the Canvas.
 * [Secrets Management](./secrets-management): Manages a secure secrets vault and allows components to store and retrieve passwords and other sensitive information.
 * [Dependency Management](dependency-management): Provides services to allow a Component to discover API dependencies.
