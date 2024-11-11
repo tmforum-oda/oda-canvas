@@ -73,6 +73,49 @@ entries:
   canvas-oda:
   - apiVersion: v2
     appVersion: v1beta4
+    created: "2024-11-11T20:39:51.162257157Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.0.2
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.1.4
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: controller
+      repository: file://../controller
+      version: 1.1.4
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 0.2.3
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 0.1.2
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 0.2.1
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.1.4
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: e47d88e8f85b5ab8f9661d3125a63ea6019cc80c26df2de0be09bc3ddc8b54c5
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.1.8-rc4/canvas-oda-1.1.8-rc4.tgz
+    version: 1.1.8-rc4
+  - apiVersion: v2
+    appVersion: v1beta4
     created: "2024-10-28T21:55:29.861805112Z"
     dependencies:
     - name: cert-manager-init
@@ -590,6 +633,21 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-0.1.0/canvas-oda-0.1.0.tgz
     version: 0.1.0
+  canvas-vault:
+  - apiVersion: v2
+    appVersion: 1.14.8
+    created: "2024-11-11T20:39:51.311045293Z"
+    dependencies:
+    - name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.26.1
+    description: Installs and configures HashiCorp Vault as an in-cluster DEV Vault
+    digest: 7609aa6363fa1f88b3368bfafac55c276ec9ab179b0225fb08f1e23727d75e66
+    name: canvas-vault
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-vault-0.2.1/canvas-vault-0.2.1.tgz
+    version: 0.2.1
   cert-manager-init:
   - apiVersion: v2
     appVersion: v1beta4
@@ -922,4 +980,15 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-0.1.0/oda-webhook-0.1.0.tgz
     version: 0.1.0
-generated: "2024-11-06T11:10:09.763860918Z"
+  secretsmanagement-operator:
+  - apiVersion: v2
+    appVersion: 0.1.2
+    created: "2024-11-11T20:39:51.434799295Z"
+    description: The Secrets Management Operator
+    digest: debb76daf19b5379e4e09528a4e766c3ae3dcdd5b145a76365124e6932562adc
+    name: secretsmanagement-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
+    version: 0.1.2
+generated: "2024-11-11T20:39:51.43497813Z"
