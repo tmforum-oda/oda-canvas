@@ -14,25 +14,21 @@ The ODA canvas is itself a modular and extensible platform. The list below shows
 There are several types of operator in the ODA Canvas. For each type of operator, there may be multiple technical implementations. The list below shows the types of operator available in the ODA Canvas reference implementation. This list is not exhaustive and we foresee new operator types becoming available as the ODA Canvas matures.
 
 
-
-| Operator            | Description                     |
-| ------------------- | ------------------------------- |
-| Component Management | Manages lifecycle of a component, and the de-composition into ExposedAPIs, PublishedEvents and other sub-resources (that are processed by their corresponding operators). |
-| API Management | Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers |
-| Event Management [TBD] | Similar to the API Management, but for Event based integration with Components publishing or subscribing to Events. |
-| Identity Config | Configures the Identity Management Services made available through the Canvas. |
-| Secrets Management | Manages a secure secrets vault and allows components to store and retrieve passwords and other sensitive information. |
-| Dependency Management | Provides services to allow a Component to discover API dependencies. |
-| Carbon control [TBD] | Measures energy and carbon use by components and offers services for components to optimise their use. |
-| Cost control [TBD] | Measures license and cloud resource costs and enables components to optimize their costs. |
-
+* [Component Management](./component-management): Manages lifecycle of a component, and the de-composition into ExposedAPIs, PublishedEvents and other sub-resources (that are processed by their corresponding operators). 
+* [API Management](api-management): Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers.
+* [Identity Config](./identity-management): Configures the Identity Management Services made available through the Canvas.
+* [Secrets Management](./secrets-management): Manages a secure secrets vault and allows components to store and retrieve passwords and other sensitive information.
+* [Dependency Management](dependency-management): Provides services to allow a Component to discover API dependencies.
+* Event Management (planned): Similar to the API Management, but for Event based integration with Components publishing or subscribing to Events. 
+* Carbon control (planned): Measures energy and carbon use by components and offers services for components to optimise their use.
+* Cost control (planned): Measures license and cloud resource costs and enables components to optimize their costs.
 
 
 The ODA Reference implemantation contains Operators that can manage the **Component**, **ExposedAPI** and other resources. The [Custom Resource Definitions](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) (CRDs) that these operators manage are installed as part of the [canvas installation](../../installation/README.md). 
 
 The ODA Component YAML files are created by following the instructions in [tmforum-oda/oda-ca-docs/ODAComponentDesignGuidelines](https://github.com/tmforum-oda/oda-ca-docs/tree/master/ODAComponentDesignGuidelines.md).
 
-The Canvas Operators can be creaated in any language. Some of the reference operators are created using the KOPF (Kubernetes Operator Pythonic Framework - [https://github.com/zalando-incubator/kopf](https://github.com/zalando-incubator/kopf)). The Canvas can support operators created in other languages (e.g. Java) as long as they support the Kubernetes Operator pattern.
+The Canvas Operators can be created in any language. Some of the reference operators are created using the KOPF (Kubernetes Operator Pythonic Framework - [https://github.com/zalando-incubator/kopf](https://github.com/zalando-incubator/kopf)). The Canvas can support operators created in other languages (e.g. Java) as long as they support the Kubernetes Operator pattern.
 
 ## Operator Container Images
 
