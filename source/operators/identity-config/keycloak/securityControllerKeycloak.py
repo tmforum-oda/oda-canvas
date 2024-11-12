@@ -69,7 +69,7 @@ kc = Keycloak(kcBaseURL)
 status_listener = False
 
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta3"
+VERSION = "v1beta4"
 COMPONENTS_PLURAL = "components"
 
 # Kopf handlers -------------
