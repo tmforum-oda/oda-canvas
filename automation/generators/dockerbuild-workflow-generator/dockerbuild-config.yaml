@@ -22,9 +22,9 @@ component-operator:
   fileName: component-operator
   
   valuesYamlFile: charts/canvas-oda/values.yaml
-  valuesPathImage: .component-operator.deployment.compconImage
-  valuesPathVersion: .component-operator.deployment.compconVersion
-  valuesPathPrereleaseSuffix: .component-operator.deployment.compconPrereleaseSuffix
+  valuesPathImage: .component-operator.deployment.compopImage
+  valuesPathVersion: .component-operator.deployment.compopVersion
+  valuesPathPrereleaseSuffix: .component-operator.deployment.compopPrereleaseSuffix
   
   paths:
     - source/operators/component-management/**/*

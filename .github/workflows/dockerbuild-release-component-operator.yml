@@ -31,13 +31,13 @@ jobs:
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.component-operator.deployment.compconImage' charts/canvas-oda/values.yaml
+          cmd: yq '.component-operator.deployment.compopImage' charts/canvas-oda/values.yaml
           
       - name: read versionnumber of component-operator from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.component-operator.deployment.compconVersion, .component-operator.deployment.compconPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.component-operator.deployment.compopVersion, .component-operator.deployment.compopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
