@@ -9,7 +9,7 @@ name: Check that PRs do not contain prereleaseSuffixes
 on: 
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   check-pr-does-not-contain-prereleasesuffixes-job:
     runs-on: ubuntu-latest

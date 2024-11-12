@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - master
+    - main
     paths: 
       - source/tmf-services/TMF638_Service_Inventory/**/*
 
