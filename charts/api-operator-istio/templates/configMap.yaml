@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-api-operator-istio-configmap
+  name: api-operator-istio-configmap
   labels:
     {{- include "api-operator-istio.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}

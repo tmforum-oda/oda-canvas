@@ -4,8 +4,8 @@ metadata:
   name: seccon
   namespace: {{ .Release.Namespace }}
   labels:
-    app: oda-controller #link service to Pod and not individual container
-    {{- include "controller.labels" . | nindent 4 }}
+    app: {{.Values.deployment.operatorName}} #link service to Pod and not individual container
+    {{- include "component-operator.labels" . | nindent 4 }}
 spec:
   ports:
   - port: 5000
@@ -13,4 +13,4 @@ spec:
     name: seccon
   type: NodePort
   selector:
-    app: oda-controller
+    app: {{.Values.deployment.operatorName}}

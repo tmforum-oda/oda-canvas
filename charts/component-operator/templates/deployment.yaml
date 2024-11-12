@@ -4,7 +4,7 @@ metadata:
   name: component-operator
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "operator.labels" . | nindent 4 }}
+    {{- include "component-operator.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -15,7 +15,7 @@ spec:
       namespace: {{ .Release.Namespace }}
       labels:
         app: {{.Values.deployment.operatorName}}
-        {{- include "operator.labels" . | nindent 8 }}
+        {{- include "component-operator.labels" . | nindent 8 }}
     spec:
       serviceAccountName: odacomponent-account
       containers:
@@ -24,9 +24,9 @@ spec:
         imagePullPolicy: {{ include "component-operator.compopImagePullPolicy" . }}
         envFrom:
           - configMapRef:
-              name: {{ .Release.Name }}-operator-configmap
+              name: component-operator-configmap
           - secretRef:
-              name: {{ .Release.Name }}-operator-secret
+              name: component-operator-secret
         volumeMounts:
         - name: config-volume
           mountPath: /config/run-command
@@ -35,9 +35,9 @@ spec:
         imagePullPolicy: {{ include "component-operator.secconImagePullPolicy" . }}
         envFrom:
           - configMapRef:
-              name: {{ .Release.Name }}-operator-configmap
+              name: component-operator-configmap
           - secretRef:
-              name: {{ .Release.Name }}-operator-secret
+              name: component-operator-secret
         ports:
         - name: seccon
           containerPort: 5000

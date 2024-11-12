@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: component-operator
+  name: api-operator-istio
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "operator.labels" . | nindent 4 }}
+    {{- include "api-operator-istio.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -15,32 +15,19 @@ spec:
       namespace: {{ .Release.Namespace }}
       labels:
         app: {{.Values.deployment.operatorName}}
-        {{- include "operator.labels" . | nindent 8 }}
+        {{- include "api-operator-istio.labels" . | nindent 8 }}
     spec:
       serviceAccountName: odacomponent-account
       containers:
       - name: {{.Values.deployment.operatorName}}
-        image: {{ include "component-operator.compopDockerimage" . }}
-        imagePullPolicy: {{ include "component-operator.compopImagePullPolicy" . }}
+        image: {{ include "api-operator-istio.apiopDockerimage" . }}
+        imagePullPolicy: {{ include "api-operator-istio.apiopImagePullPolicy" . }}
         envFrom:
           - configMapRef:
-              name: {{ .Release.Name }}-operator-configmap
-          - secretRef:
-              name: {{ .Release.Name }}-operator-secret
+              name: api-operator-istio-configmap
         volumeMounts:
         - name: config-volume
           mountPath: /config/run-command
-      - name: seccon
-        image: {{ include "component-operator.secconDockerimage" . }}
-        imagePullPolicy: {{ include "component-operator.secconImagePullPolicy" . }}
-        envFrom:
-          - configMapRef:
-              name: {{ .Release.Name }}-operator-configmap
-          - secretRef:
-              name: {{ .Release.Name }}-operator-secret
-        ports:
-        - name: seccon
-          containerPort: 5000
       volumes:
       - name: config-volume
         configMap:

@@ -5,14 +5,14 @@ metadata:
   namespace: {{ .Release.Namespace }}
   name: odacomponent-account
   labels:
-    {{- include "controller.labels" . | nindent 4 }}
+    {{- include "api-operator-istio.labels" . | nindent 4 }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: odacomponent-role-cluster
   labels:
-    {{- include "controller.labels" . | nindent 4 }}
+    {{- include "api-operator-istio.labels" . | nindent 4 }}
 rules:
 
   # Framework: knowing which other operators are running (i.e. peering).
@@ -113,7 +113,7 @@ metadata:
   namespace: {{.Values.deployment.monitoredNamespaces}}
   name: odacomponent-role-namespaced
   labels:
-    {{- include "controller.labels" . | nindent 4 }}
+    {{- include "api-operator-istio.labels" . | nindent 4 }}
 rules:
 
   # Framework: knowing which other operators are running (i.e. peering).
@@ -189,7 +189,7 @@ kind: ClusterRoleBinding
 metadata:
   name: odacomponent-rolebinding-cluster
   labels:
-    {{- include "controller.labels" . | nindent 4 }}
+    {{- include "api-operator-istio.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -205,7 +205,7 @@ metadata:
   namespace: {{.Values.deployment.monitoredNamespaces}}
   name: odacomponent-rolebinding-namespaced
   labels:
-    {{- include "controller.labels" . | nindent 4 }}
+    {{- include "api-operator-istio.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role

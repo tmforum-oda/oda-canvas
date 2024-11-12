@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.8-lt1
+version: 1.1.8-lt2
+# version: 1.1.8-lt2 - refactoring of component-operator and api-operator-istio
 # version: 1.1.8-lt1 - added componentMetadata and apiSDO to v1beta4 crds
 # version: 1.1.8-rc2 - make hostname and cert configurable for component gateway
 # version: 1.1.8-rc1 - fix linux/arm64 docker build for secretsmanagement-operator
@@ -63,6 +64,9 @@ dependencies:
   - name: component-operator
     version: "1.1.5"
     repository: 'file://../component-operator'
+  - name: api-operator-istio
+    version: "1.0.0"
+    repository: 'file://../api-operator-istio'
   - name: dependentapi-simple-operator
     version: "0.2.3"
     repository: 'file://../dependentapi-simple-operator'

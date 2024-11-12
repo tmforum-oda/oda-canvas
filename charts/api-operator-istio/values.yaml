@@ -16,3 +16,5 @@ deployment:
   hostName: "*"
   httpsRedirect: true
   credentialName: istio-ingress-cert    
+configmap:
+  loglevel: '20'
