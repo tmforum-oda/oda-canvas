@@ -15,8 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.5
-# version: 1.1.5 - refactored to component-operator chart
+version: 1.2.0
+# version: 1.2.0 - refactored to component-operator chart
 # version: 1.1.4 - make hostname and cert configurable for component gateway
 # version: 1.1.3 - updated docker image for controller to tmforumodacanvas/component-controller:0.5.6
 # version: 1.1.2 - updated rbac for clusterrole of api gateways 
