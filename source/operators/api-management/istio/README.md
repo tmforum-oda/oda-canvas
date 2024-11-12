@@ -1,14 +1,16 @@
-# API Operator for Istio/Prometheus - Introduction
+# API Operator for Istio
 
-This **API operator** for is designed to manage a Canvas environment that incluides the Istio Service Mesh as well as Prometheus monitoring and act as a reference implementation of an API Operator. In other canvas environment, (with a different combination of Service Mesh/API Gateway/Monitoring solution) the SRE (Site Reliability Engineering) team would need to write their own API Operator.
+This **API operator** manages a Canvas environment that exposes APIs using Istio Service Mesh (without any API Gateway). It is a reference implementation of an API Operator. You are free to reuse, extend or replace with your own API operator.
 
-Both **Istio** and **Prometheus** can be configured using Kubernetes Custom Resource Definitions (CRD). The API Operators for Istio and Prometheus use the Kubernetes API to listen for changes to the CRDs and then configures Istio and Prometheus accordingly.
+It also configures custom resources and annotations to support Open Metrics observability data (using **Prometheus** or a managed service that can work with the Open Metrics standard)
+
+Both **Istio** and **Prometheus** can be configured using Kubernetes Custom Resource Definitions (CRD). The API Operator uses the Kubernetes API to listen for changes to CRDs and then configures Istio and Prometheus accordingly.
 
 Istio uses `VirtualService` resources (https://istio.io/latest/docs/reference/config/networking/virtual-service/) to configure traffic routing in the Istio control plane.
 
 Prometheus uses `ServiceMonitor` resources (https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/getting-started.md) to configure the Prometheus monitoring system.
 
-This makes the logic required to create an API Operator relatively simple. The API Operator listens for new/updated/deleted `oda.tmforum.org/API` resources and then creates/updates/deletes the corresponding Virtual Service and Service Monitor resources. The API Operator also listens for status updates from Istio and Prometheus and updates the status of the `oda.tmforum.org/API` resource accordingly.
+This makes the logic required to create an API Operator relatively simple. The API Operator listens for new/updated/deleted `oda.tmforum.org/ExposedAPI` resources and then creates/updates/deletes the corresponding Virtual Service and Service Monitor resources. The API Operator also listens for status updates from Istio and Prometheus and updates the status of the `oda.tmforum.org/ExposedAPI` resource accordingly.
 
 ![API Operator](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-ca/master/controllers/apiOperatorIstio/sequenceDiagrams/apiOperatorIstio.puml)
 [plantUML code](sequenceDiagrams/apiOperatorIstio.puml)
@@ -30,12 +32,15 @@ For the Istio Virtual service, the URL/IP address is determined form the Istio `
 For the readiness status of the API, the API Operator listens for update to `EndPointSlice` resources. The `EndPointSlice` resource is created by kubernetes when a service is deployed. The `EndPointSlice` resource tracks the readiness of all the pods that are part of the service. The API Operator listens for updates to the `EndPointSlice` resource and updates the status of the API resource accordingly.
 
 
-## optional configuration for DataDog using pod annotations
+## optional configuration for DataDog or different Prometheus implementations
 
-The API operator for Istio can be configured to use DataDog to monitor the API. The API Operator can take an environment variable `OPENMETRICS_IMPLEMENTATION` which defaults to `ServiceMonitor` (for prometheus operator). If you set `OPENMETRICS_IMPLEMENTATION` to `DataDogAnnotations`, the API Operator will add the DataDog annotations to the pod running the metrics API (which DataDog uses to scrape custom metrics) instead of creating the `ServiceMonitor` resource.
+The API operator for Istio can be configured to use annotations instead of Service Monitor resources. The API Operator can take an environment variable `OPENMETRICS_IMPLEMENTATION` which can be set to:
+* `ServiceMonitor` (default) Uses Service Monitor custom resources to configure Prometheus (using prometheus operator). 
+* `DataDogAnnotations` Uses Pod annotations in format used by DataDog (which DataDog uses to scrape custom metrics) instead of creating the `ServiceMonitor` resource.
+* `PrometheusAnnotation` Uses Pod annotations in format used by Prometheus (without Prometheus operator) instead of creating the `ServiceMonitor` resource. This is used by some managed Prometheus services (like Azure managed Prometheus https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/prometheus-metrics-overview).
+
 
 ### Implementation
-
 
 This operator is written in Python, using the KOPF (https://kopf.readthedocs.io/) framework to listen for API resources being deployed in the ODA Canvas. 
 
@@ -52,5 +57,5 @@ This mode will use the kubeconfig file (typically located at `$HOME/.kube/config
 
 You need to ensure you turn-off the operator execusing in Kubernetes (for example, by setting the replicas to 0 in the operator Deployment).
 
-The command above will execute just the ExposedAPI operator. You will also need to execute the other operators relavant for your Canvas implementation - these can be executed in separate terminal command-lines.
+The command above will execute just the ExposedAPI operator. You will also need to execute the other operators relevant for your Canvas implementation - these can be executed in separate terminal command-lines.
 

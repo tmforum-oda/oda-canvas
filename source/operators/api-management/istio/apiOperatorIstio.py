@@ -596,6 +596,8 @@ def createAPIImplementationStatus(serviceName, endpointsArray, namespace, inHand
                     logWrapper(logging.INFO, 'createAPIImplementationStatus', inHandler, 'service/' + serviceName, componentName, "Can't find API resource", serviceName)
 
 
+
+
 # When api adds url address of where api is exposed, update parent Component object
 @kopf.on.field(GROUP, VERSION, APIS_PLURAL, field='status.apiStatus', retries=5)
 async def updateAPIStatus(meta, status, namespace, name, **kwargs):

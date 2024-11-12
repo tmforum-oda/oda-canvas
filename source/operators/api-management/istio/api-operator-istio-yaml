@@ -1,3 +1,4 @@
+# test manifest to deploy the api-operator-istio outside of helm chart
 apiVersion: apps/v1
 kind: Deployment
 metadata:

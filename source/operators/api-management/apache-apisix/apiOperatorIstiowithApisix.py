@@ -35,6 +35,7 @@ HTTP_STANDARD_PORTS = [80, 443]
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta3"
 APIS_PLURAL = "exposedapis"
+COMPONENTS_PLURAL = "components"
 
 # get environment variables
 OPENMETRICS_IMPLEMENTATION = os.environ.get('OPENMETRICS_IMPLEMENTATION', 'ServiceMonitor') # could be ServiceMonitor or PrometheusAnnotation or DataDogAnnotation
@@ -589,6 +590,173 @@ def createAPIImplementationStatus(serviceName, endpointsArray, namespace, inHand
 
                 if found == False:
                     logWrapper(logging.INFO, 'createAPIImplementationStatus', inHandler, 'service/' + serviceName, componentName, "Can't find API resource", serviceName)
+
+
+
+# When api adds url address of where api is exposed, update parent Component object
+@kopf.on.field(GROUP, VERSION, APIS_PLURAL, field='status.apiStatus', retries=5)
+async def updateAPIStatus(meta, status, namespace, name, **kwargs):
+    """Handler function to register for status changes in child API resources.
+    Processes status updates to the *apiStatus* in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
+
+    Args:
+        * meta (Dict): The metadata from the API resource 
+        * spec (Dict): The spec from the yaml API resource showing the intent (or desired state) 
+        * status (Dict): The status from the API resource showing the actual state.
+        * body (Dict): The entire API resource definition
+        * namespace (String): The namespace for the API resource
+        * labels (Dict): The labels attached to the API resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the API resource
+
+    Returns:
+        No return value.
+
+    :meta public:
+    """
+    logWrapper(logging.INFO, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, '', name, meta["generation"])
+
+    if 'apiStatus' in status.keys():
+        if 'url' in status['apiStatus'].keys():
+            if 'ownerReferences' in meta.keys():
+                # str | the custom object's name
+                parent_component_name = meta['ownerReferences'][0]['name']
+
+                try:
+                    custom_objects_api = kubernetes.client.CustomObjectsApi()
+                    parent_component = custom_objects_api.get_namespaced_custom_object(
+                        group = GROUP, 
+                        version = VERSION, 
+                        namespace = namespace, 
+                        plural = COMPONENTS_PLURAL, 
+                        name = parent_component_name)
+                except ApiException as e:
+                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                    if e.status == HTTP_NOT_FOUND:
+                        raise kopf.TemporaryError(
+                            "Cannot find parent component " + parent_component_name)
+                    else:
+                        logger.error(
+                            "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
+
+                logWrapper(logging.DEBUG, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
+
+                # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
+                if 'coreAPIs' in parent_component['status'].keys():
+                    for key in range(len(parent_component['status']['coreAPIs'])):
+                        if parent_component['status']['coreAPIs'][key]['uid'] == meta['uid']:
+                            parent_component['status']['coreAPIs'][key]['url'] = status['apiStatus']['url']
+                            logWrapper(logging.INFO, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Updating parent component coreAPIs APIs with url", status['apiStatus']['url'])
+                            if 'developerUI' in status['apiStatus'].keys():
+                                parent_component['status']['coreAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
+
+                if 'managementAPIs' in parent_component['status'].keys():
+                    for key in range(len(parent_component['status']['managementAPIs'])):
+                        if parent_component['status']['managementAPIs'][key]['uid'] == meta['uid']:
+                            parent_component['status']['managementAPIs'][key]['url'] = status['apiStatus']['url']
+                            logWrapper(logging.INFO, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Updating parent component managementAPIs APIs with url", status['apiStatus']['url'])
+                            if 'developerUI' in status['apiStatus'].keys():
+                                parent_component['status']['managementAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
+
+                if 'securityAPIs' in parent_component['status'].keys():
+                    for key in range(len(parent_component['status']['securityAPIs'])):
+                        if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
+                            parent_component['status']['securityAPIs'][key]['url'] = status['apiStatus']['url']
+                            logWrapper(logging.INFO, 'updateAPIStatus', 'updateAPIStatus', 'api/' + name, parent_component['metadata']['name'], "Updating parent component securityAPIs APIs with url", status['apiStatus']['url'])
+                            if 'developerUI' in status['apiStatus'].keys():
+                                parent_component['status']['securityAPIs'][key]['developerUI'] = status['apiStatus']['developerUI']
+
+                await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIStatus')
+    return None
+
+
+@kopf.on.field(GROUP, VERSION, APIS_PLURAL, field='status.implementation', retries=5)
+async def updateAPIReady(meta, status, namespace, name, **kwargs):
+    """Handler function to register for status changes in child API resources.
+    
+    Processes status updates to the *implementation* status in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
+
+    Args:
+        * meta (Dict): The metadata from the API resource 
+        * spec (Dict): The spec from the yaml API resource showing the intent (or desired state) 
+        * status (Dict): The status from the API resource showing the actual state.
+        * body (Dict): The entire API resource definition
+        * namespace (String): The namespace for the API resource
+        * labels (Dict): The labels attached to the API resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the API resource
+
+    Returns:
+        No return value.
+
+    :meta public:
+    """
+    logWrapper(logging.INFO, 'updateAPIReady', '', 'api/' + name, '', name, meta["generation"])
+
+    if 'ready' in status['implementation'].keys():
+        if status['implementation']['ready'] == True:
+            if 'ownerReferences' in meta.keys():
+                # str | the custom object's name
+                parent_component_name = meta['ownerReferences'][0]['name']
+
+                try:
+                    custom_objects_api = kubernetes.client.CustomObjectsApi()
+                    parent_component = custom_objects_api.get_namespaced_custom_object(
+                        GROUP, VERSION, namespace, COMPONENTS_PLURAL, parent_component_name)
+                except ApiException as e:
+                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                    if e.status == HTTP_NOT_FOUND:
+                        raise kopf.TemporaryError(
+                            "Cannot find parent component " + parent_component_name)
+                    else:
+                        logger.error(
+                            "Exception when calling custom_objects_api.get_namespaced_custom_object: %s", e)
+
+                logWrapper(logging.DEBUG, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Handler called", "")
+
+                # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
+                for key in range(len(parent_component['status']['coreAPIs'])):
+                    if parent_component['status']['coreAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['coreAPIs'][key]['ready'] = True
+                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component coreAPIs status", status['implementation']['ready'])
+                        await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
+                        return None
+                for key in range(len(parent_component['status']['managementAPIs'])):
+                    if parent_component['status']['managementAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['managementAPIs'][key]['ready'] = True
+                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component managementAPIs status", status['implementation']['ready'])
+                        await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
+                        return None
+                for key in range(len(parent_component['status']['securityAPIs'])):
+                    if parent_component['status']['securityAPIs'][key]['uid'] == meta['uid']:
+                        parent_component['status']['securityAPIs'][key]['ready'] = True
+                        logWrapper(logging.INFO, 'updateAPIReady', 'updateAPIReady', 'api/' + name, parent_component['metadata']['name'], "Updating component securityAPIs status", status['implementation']['ready'])
+                        await patchComponent(namespace, parent_component_name, parent_component, 'updateAPIReady')
+                        return None
+    return None
+
+
+async def patchComponent(namespace, name, component, inHandler):
+    """Helper function to patch a component.
+
+    Args:
+        * namespace (String): The namespace for the Component resource
+        * name (String): The name of the Component resource
+        * component (Dict): The component object.
+
+    Returns:
+        No return value.
+
+    :meta private:
+    """
+    try:
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+        api_response = custom_objects_api.patch_namespaced_custom_object(GROUP, VERSION, namespace, COMPONENTS_PLURAL, name, component)
+        logWrapper(logging.DEBUG, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "custom_objects_api.patch_namespaced_custom_object response", api_response)
+    except ApiException as e:
+        logWrapper(logging.DEBUG, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "Exception when calling api_instance.patch_namespaced_custom_object", e)
+        logWrapper(logging.INFO, 'patchComponent', inHandler, 'api/' + name, component['metadata']['name'], "Exception when calling api_instance.patch_namespaced_custom_object - will retry","")
+
+        raise kopf.TemporaryError("Exception when calling api_instance.patch_namespaced_custom_object for component " + name)
+
 
 
 def logWrapper(logLevel, functionName, handlerName, resourceName, componentName, subject, message):

@@ -4,6 +4,8 @@
 
 The Apisix API Lifecycle Management Operator is a component of the ODA Canvas, optimized for environments that utilize the Apisix API Gateway (https://apisix.apache.org/). It is built using the Kopf Kubernetes operator framework to effectively manage API custom resources. This operator ensures seamless integration with the Apisix API Gateway, facilitating the creation, management, and exposure of APIs through ApisixRoute and putting policies in place using ApisixPluginconfig configurations.
 
+This operator also uses Istio to control traffic between components and from the components to the API Gateway. This is a zero-trust model where internal traffic within the Canvas is controlled and communication is only allowed if it is explicitly declared in the Component specification.
+
 ## Key Features
 
 Lifecycle Management: Automates the creation, update, and deletion of ODA ExposedAPI resources and their corresponding ApisixRoute configurations.
