@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oda-controller
+  name: api-operator-istio
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: oda-controller
+      app: api-operator-istio
   template:
     metadata:
       labels:
-        app: oda-controller
+        app: api-operator-istio
     spec:
       serviceAccountName: odacomponent-account
       containers:
       - name: oda-controller
-        image: lesterthomas/odacomponentcontroller-ingress:latest
+        image: lesterthomas/api-operator-istio:0.1.0
         env:
         - name: LOGGING
           value: '20'           

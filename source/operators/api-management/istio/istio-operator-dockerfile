@@ -1,0 +1,23 @@
+#FROM python:3.12
+FROM python:3.12-alpine
+
+#RUN pip install kopf
+#RUN pip install kubernetes==27.2.0
+#RUN pip install cloudevents
+
+RUN pip install kopf==1.37.2 \
+    && pip install kubernetes==27.2.0 \
+    && pip install cloudevents \
+    && pip install PyYAML \
+    && pip install requests 
+
+#Copy the componentOperator  apiOperatorIstio  securityControllerKeycloak  secconkeycloak.py code
+COPY apiOperatorIstio.py /
+
+# Setting up required ENV variables
+ARG CICD_BUILD_TIME
+ENV CICD_BUILD_TIME $CICD_BUILD_TIME
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
+
+CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose /apiOperatorIstio.py

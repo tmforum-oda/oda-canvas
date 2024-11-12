@@ -1,44 +1,48 @@
----
-apiVersion: apiextensions.k8s.io/v1beta1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: clusterkopfpeerings.zalando.org
+  name: peerings.kopf.dev
 spec:
-  scope: Cluster
-  group: zalando.org
-  versions:
-    - name: v1
-      served: true
-      storage: true
+  group: kopf.dev
   names:
-    kind: ClusterKopfPeering
-    plural: clusterkopfpeerings
-    singular: clusterkopfpeering
----
-apiVersion: apiextensions.k8s.io/v1beta1
-kind: CustomResourceDefinition
-metadata:
-  name: kopfpeerings.zalando.org
-spec:
+    kind: Peering
+    plural: peerings
+    singular: peering
+    shortNames:
+      - pr
   scope: Namespaced
-  group: zalando.org
   versions:
     - name: v1
       served: true
       storage: true
-  names:
-    kind: KopfPeering
-    plural: kopfpeerings
-    singular: kopfpeering
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                namespace:
+                  type: string
+                id:
+                  type: string
+                election:
+                  type: string
+            status:
+              type: object
+              properties:
+                leader:
+                  type: string
+                started:
+                  type: string
+                renews:
+                  type: string
 ---
-apiVersion: zalando.org/v1
-kind: ClusterKopfPeering
+apiVersion: kopf.dev/v1
+kind: Peering
 metadata:
-  name: default
----
-apiVersion: zalando.org/v1
-kind: KopfPeering
-metadata:
-  namespace: default
-  name: default
----
+  name: default  # You can choose a name here; "default" is commonly used
+  namespace: components # Replace with your operator's namespace
+spec:
+  id: default  # Peering ID used by all operators to coordinate
+  election: leases

@@ -1,21 +1,24 @@
+# this is for development and testing to deploy a standalone component operator. Install using
+# kubectl apply -f .\component-controller.yaml
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oda-controller
+  name: component-operator
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: oda-controller
+      app: component-operator
   template:
     metadata:
       labels:
-        app: oda-controller
+        app: component-operator
     spec:
       serviceAccountName: odacomponent-account
       containers:
-      - name: oda-controller
-        image: tmforumodacanvas/component-istio-controller:0.2.0
+      - name: component-operator
+        image: lesterthomas/component-operator:0.2.0
         env:
         - name: LOGGING
           value: '20'           
