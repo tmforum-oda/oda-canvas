@@ -27,8 +27,8 @@ spec:
       restartPolicy: Never
       containers:
       - name: autodetect-audience
-        # TODO[FH]: set to fixed version (1.30.5) as soon as this image is released from branch 372
-        image: "tmforumodacanvas/baseimage-kubectl-curl"
+        # TODO[FH]: remove prereleasesuffix
+        image: "tmforumodacanvas/baseimage-kubectl-curl:1.30.5"
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
         args: ["-c", "echo starting autodetect audience pre install hook;

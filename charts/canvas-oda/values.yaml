@@ -190,38 +190,36 @@ canvas-vault:
     #fullnameOverride: "canvas-vault-hc"
     nameOverride: "vault-hc"
     global:
+      # if the namespace is changed the internal service address configured  
+      # in "secretsmanagement-operator.vault_addr" has to be set accordingly. 
       namespace: "canvas-vault"
+      tlsDisable: false
     server:
       image:
         # last version with MPL license
         tag: "1.14.8"
           
-      # Run Vault in "dev" mode. This requires no further setup, no state management,
-      # and no initialization. This is useful for experimenting with Vault without
-      # needing to unseal, store keys, et. al. All data is lost on restart - do not
-      # use dev mode for anything other than experimenting.
-      # See https://www.vaultproject.io/docs/concepts/dev-server.html to know more
       dev:
+        enabled: false
+        ## Set VAULT_DEV_ROOT_TOKEN_ID value
+        #devRootToken: "egalegal"
+      standalone:
         enabled: true
-    
-        # Set VAULT_DEV_ROOT_TOKEN_ID value
-        devRootToken: "egalegal"
-    
-      # Settings for the statefulSet used to run Vault.
+        config: |
+          ui = true
+          listener "tcp" {
+            tls_disable = 0
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+            tls_cert_file = "/vault/userconfig/canvasvault-tls/tls.crt"
+            tls_key_file  = "/vault/userconfig/canvasvault-tls/tls.key"
+            tls_client_ca_file = "/vault/userconfig/canvasvault-tls/ca.crt"
+          }
+          storage "file" {
+            path = "/vault/data"
+          }
+      
       statefulSet:
-        # Set the pod and container security contexts.
-        # If not set, these will default to, and for *not* OpenShift:
-        # pod:
-        #   runAsNonRoot: true
-        #   runAsGroup: {{ .Values.server.gid | default 1000 }}
-        #   runAsUser: {{ .Values.server.uid | default 100 }}
-        #   fsGroup: {{ .Values.server.gid | default 1000 }}
-        # container:
-        #   allowPrivilegeEscalation: false
-        #
-        # If not set, these will default to, and for OpenShift:
-        # pod: {}
-        # container: {}
         securityContext:
           pod:
             fsGroup: 1000
@@ -239,7 +237,31 @@ canvas-vault:
               - ALL
       # Enables debug logging.
       debug: true
-    
+      dataStorage:
+        enabled: true
+        size: 128M
+        mountPath: "/vault/data"
+        storageClass: null
+        accessMode: ReadWriteOnce
+        annotations: {}
+      extraEnvironmentVars:
+         VAULT_CACERT: /vault/userconfig/canvasvault-tls/ca.crt
+         VAULT_TLSCERT: /vault/userconfig/canvasvault-tls/tls.crt
+         VAULT_TLSKEY: /vault/userconfig/canvasvault-tls/tls.key
+      volumes:
+        - name: tmpvol
+          emptyDir: {}
+        - name: userconfig-canvasvault-tls
+          secret:
+           secretName: canvasvault-tls
+           defaultMode: 420
+      volumeMounts:
+        - name: tmpvol
+          mountPath: /tmp
+        - name: userconfig-canvasvault-tls
+          mountPath: /vault/userconfig/canvasvault-tls
+          readOnly: true
+
     injector:
       # True if you want to enable vault agent injection.
       # @default: global.enabled
@@ -257,7 +279,7 @@ canvas-vault:
 
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator
-  version: 0.1.1
+  version: 0.1.2
   prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   
@@ -266,8 +288,10 @@ secretsmanagement-operator:
   sidecarPrereleaseSuffix:
   sidecarImagePullPolicy: IfNotPresent
   
-  # TODO: add TLS to canvas-vault-hc
-  vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
+  # if the internal service address is used the vault_addr has to be in sync 
+  # with the namespace configured in "canvas-vault.vault.global.namespace"
+  vault_addr: "https://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
+  vault_skip_verify: "true"
   # the tempaltes can be used to generate cluster specific authenticator and key-value stores, here 'sman'.
   auth_path: "jwt-k8s-sman"
   secrets_mount_tpl: "kv-sman-{0}"
@@ -285,11 +309,26 @@ secretsmanagement-operator:
   # INFO=20, DEBUG=10
   logLevel: 20
 
-  # plaintext token for HashiCorp Vault. 
+  ### only one of the following four methods must be used
+  
+  ## 1) plaintext token for HashiCorp Vault.
   # In the log files a warning will be shown with the encrypted value, which should be used instead of this 
-  hvacToken: egalegal
-  # encrpyted token (can be found in logfile)
-  # #hvacTokenEnc:
+  #hvacToken: egalegal
+  
+  ## 2) encrpyted token (can be found in logfile)
+  #hvacTokenEnc: "03fb..."
+
+  ## 3) secret key ref
+  # In the log files a warning will be shown with the encrypted value, which should be used instead of this
+  hvacTokenSecret:
+    name: canvas-vault-hc-secrets
+    key: rootToken
+
+  ## 4) encrypted secret key ref
+  #hvacTokenEncSecret:
+  #  name: enc-secrets
+  #  key: hvacTokenEnc
+
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook

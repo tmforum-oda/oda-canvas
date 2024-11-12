@@ -1,4 +1,4 @@
-# Open API schema for v1beta3 of the ODA Component API - from master at https://github.com/tmforum-oda/oda-canvas/blob/master/charts/oda-crds/templates/oda-component-crd.yaml
+# Open API schema for v1beta3 of the ODA Component API - from main at https://github.com/tmforum-oda/oda-canvas/blob/main/charts/oda-crds/templates/oda-component-crd.yaml
 openAPIV3Schema:
         type: object
         properties:

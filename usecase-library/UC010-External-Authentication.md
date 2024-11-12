@@ -9,12 +9,12 @@ When an external system client wants to call an API exposed by a Component, this
 *Refer to [Which OAuth2 flow should I use](https://auth0.com/docs/get-started/authentication-and-authorization-flow/which-oauth-2-0-flow-should-i-use)
 ## Access Management
 
-![authentication-external-system](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/access-management.puml)
+![authentication-external-system](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/access-management.puml)
 [plantUML code](pumlFiles/access-management.puml)
 
 ## System User Authentication
 
-![authentication-external-system](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/authentication-external-system.puml)
+![authentication-external-system](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/authentication-external-system.puml)
 [plantUML code](pumlFiles/authentication-external-system.puml)
 
 

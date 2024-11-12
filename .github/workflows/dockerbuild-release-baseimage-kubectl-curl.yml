@@ -5,18 +5,18 @@
 # automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml #
 ################################################################################
 
-name: Build TMF-638 Service Inventory API Release Dockerimage
-run-name: Build TMF-638 Service Inventory API Release Dockerimage
+name: Build Baseimage-Kubectl-cURL Release Dockerimage
+run-name: Build Baseimage-Kubectl-cURL Release Dockerimage
 on:
   workflow_dispatch:
   push:
     branches:
     - main
     paths: 
-      - source/tmf-services/TMF638_Service_Inventory/**/*
+      - baseimages/kubectl-curl/**/*
 
 jobs:
-  build-tmf638-service-inventory-api-release-dockerfile-job:
+  build-baseimage-kubectl-curl-release-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -26,17 +26,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of tmf638-service-inventory-api from values.yaml
+      - name: read image of baseimage-kubectl-curl from values.yaml
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.dependentapi-simple-operator.serviceInventoryAPI.image' charts/canvas-oda/values.yaml
+          cmd: yq '.image' baseimages/kubectl-curl/version.yaml
           
-      - name: read versionnumber of tmf638-service-inventory-api from values.yaml
+      - name: read versionnumber of baseimage-kubectl-curl from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.dependentapi-simple-operator.serviceInventoryAPI.version, .dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.version, .prereleaseSuffix] | filter(.!=null and .!="") | join("-")' baseimages/kubectl-curl/version.yaml
           
       - name: Check Version
         id: check-tag
@@ -74,7 +74,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/tmf-services/TMF638_Service_Inventory
+          context: baseimages/kubectl-curl
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

@@ -51,8 +51,17 @@ if CICD_BUILD_TIME:
 # vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.ihc-dt.cluster-3.de')
 # vault_addr = os.getenv('VAULT_ADDR', 'https://canvas-vault-hc.k8s.cluster-1.de')
 vault_addr = os.getenv(
-    "VAULT_ADDR", "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
+    "VAULT_ADDR", "https://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
 )
+
+vault_skip_verify = bool(os.getenv("VAULT_SKIP_VERIFY", "true"))
+
+if vault_skip_verify:
+    import urllib3
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
 auth_path = os.getenv("AUTH_PATH", "jwt-k8s-sman")
 policy_name_tpl = os.getenv("POLICY_NAME_TPL", "sman-{0}-policy")
 login_role_tpl = os.getenv("LOGIN_ROLE_TPL", "sman-{0}-role")
@@ -275,6 +284,7 @@ def inject_sidecar(body, patch):
         "env": [
             {"name": "SECRETSMANAGEMENT_NAME", "value": f"{ciid}"},
             {"name": "VAULT_ADDR", "value": vault_addr},
+            {"name": "VAULT_SKIP_VERIFY", "value": str(vault_skip_verify)},
             {"name": "AUTH_PATH", "value": auth_path},
             {"name": "LOGIN_ROLE", "value": login_role_tpl.format(ciid)},
             {"name": "SCRETS_MOUNT", "value": secrets_mount_tpl.format(ciid)},
@@ -475,6 +485,7 @@ def setupSecretsManagement(
         # Authentication
         client = hvac.Client(
             url=vault_addr,
+            verify=not vault_skip_verify,
             token=token,
             strict_http=True,  # workaround BadRequest for LIST method (https://github.com/hvac/hvac/issues/773)
         )
@@ -578,6 +589,7 @@ def deleteSecretsManagement(sman_namespace: str, sman_name: str):
         # Authentication
         client = hvac.Client(
             url=vault_addr,
+            verify=not vault_skip_verify,
             token=token,
         )
     except Exception as e:

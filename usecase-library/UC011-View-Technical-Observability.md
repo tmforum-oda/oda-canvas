@@ -10,5 +10,5 @@ The use case uses the following assumptions:
 
 
 
-![Technical Observability](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/technical-observability.puml)
+![Technical Observability](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/technical-observability.puml)
 [plantUML code](pumlFiles/technical-observability.puml)

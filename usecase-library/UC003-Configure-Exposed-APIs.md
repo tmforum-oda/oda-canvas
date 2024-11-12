@@ -8,7 +8,7 @@ This use-case describes how each Exposed APIs is configured in the API Gateway a
 
 ## Create Exposed API
 
-![exposed-API-create](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/exposed-API-create.puml)
+![exposed-API-create](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/exposed-API-create.puml)
 [plantUML code](pumlFiles/exposed-API-create.puml)
 
 ## Update Exposed API
@@ -18,6 +18,6 @@ This use-case describes how each Exposed APIs is configured in the API Gateway a
 
 ## Delete Exposed API 
 
-![exposed-API-delete](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/exposed-API-delete.puml)
+![exposed-API-delete](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/exposed-API-delete.puml)
 [plantUML code](pumlFiles/exposed-API-delete.puml)
 

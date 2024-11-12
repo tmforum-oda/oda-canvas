@@ -8,9 +8,9 @@ sidecarVersion: 0.1.0
 sidecarPrereleaseSuffix:
 sidecarImagePullPolicy: IfNotPresent 
   
-# TODO: add TLS to canvas-vault-hc
-vault_addr: "http://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
+vault_addr: "https://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
 # the templates can be used to generate cluster specific authenticator and key-value stores, here 'sman'.
+vault_skip_verify: "true"
 auth_path: "jwt-k8s-sman"
 secrets_mount_tpl: "kv-sman-{0}"
 policy_name_tpl: "sman-{0}-policy"
@@ -27,8 +27,22 @@ autodetectAudience: true
 # INFO=20, DEBUG=10
 logLevel: 20
 
-# plaintext token for HashiCorp Vault. 
+### only one of the following four methods must be used
+  
+## 1) plaintext token for HashiCorp Vault.
 # In the log files a warning will be shown with the encrypted value, which should be used instead of this 
-hvacToken: egalegal
-# encrpyted token (can be found in logfile)
-# #hvacTokenEnc:
+#hvacToken: egalegal
+
+## 2) encrpyted token (can be found in logfile)
+#hvacTokenEnc: "03fb..."
+
+## 3) secret key ref
+# In the log files a warning will be shown with the encrypted value, which should be used instead of this
+hvacTokenSecret:
+  name: canvas-vault-hc-secrets
+  key: unsealKey1
+
+## 4) encrypted secret key ref
+#hvacTokenEncSecret:
+#  name: enc-secrets
+#  key: hvacTokenEnc
