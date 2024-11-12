@@ -17,9 +17,9 @@ compcrdwebhook:
   #platforms: linux/amd64,linux/arm64
 
   
-component-istio-controller:
-  displayName: Component-Istio-Controller
-  fileName: component-istio-controller
+component-operator:
+  displayName: Component-operator
+  fileName: component-operator
   
   valuesYamlFile: charts/canvas-oda/values.yaml
   valuesPathImage: .controller.deployment.compconImage
@@ -27,13 +27,11 @@ component-istio-controller:
   valuesPathPrereleaseSuffix: .controller.deployment.compconPrereleaseSuffix
   
   paths:
-    - source/operators/component-IstioController-dockerfile
-    - source/operators/componentOperator/**/*
-    - source/operators/apiOperatorIstio/**/*
-    - source/operators/securityController/**/*
+    - source/operators/component-management/**/*
+    - source/operators/identity-config/**/*
   buildContext: source/operators
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/component-IstioController-dockerfile
+  buildDockerfile: source/operators/component-management/component-operator-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
