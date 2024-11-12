@@ -8,7 +8,7 @@ Separate operators then process the sub-resources and manage the relavant servic
 
 ## Sequence Diagram
 
-The sequence diagram shows the overall lifecycle of deploying an ODA Component, with the component controller creating multiple sub-resources.
+The sequence diagram shows the overall lifecycle of deploying an ODA Component, with the component operator creating multiple sub-resources.
 
 ![manage-components-install](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/manage-components-install.puml)
 [plantUML code](pumlFiles/manage-components-install.puml)
@@ -19,12 +19,12 @@ There is more detail, including sequence diagrams for upgrade and deletion in us
 
 ## Reference Implementation
 
-The reference implementation of the component controller written in Python, using the [KOPF](https://kopf.readthedocs.io/) operator framework. You are free to re-use this implementation, extend or customize it, or develop your own component operator. Any custom component operator should use the same `Component` Custom Resource definition that is a foundational part of the ODA Canvas. To be compatible with other operators in the reference implementation, it should also use the `ExposedAPI`, `DependentAPI`, `PublishedNotification`, `SubscribedNotification` and `SecretsManagement` and (in the future)`IdentityConfig` and `ObservabilityConfig` custom resources. 
+The reference implementation of the component operator written in Python, using the [KOPF](https://kopf.readthedocs.io/) operator framework. You are free to re-use this implementation, extend or customize it, or develop your own component operator. Any custom component operator should use the same `Component` Custom Resource definition that is a foundational part of the ODA Canvas. To be compatible with other operators in the reference implementation, it should also use the `ExposedAPI`, `DependentAPI`, `PublishedNotification`, `SubscribedNotification` and `SecretsManagement` and (in the future)`IdentityConfig` and `ObservabilityConfig` custom resources. 
 
 
 **Interactive development and Testing of operator using KOPF**
 
-When deployed in an ODA Canvas, the operator will execute inside a Kubernetes Pod. For development and testing, it is possible to run the operator on the command-line (or inside a debugger). Kopf includes a `--standalone` attribute to allow the operator to execute in a standalone mode. This means that the operator will run independently, without relying on any external controllers or frameworks. It is particularly useful for development and debugging purposes, as it allows you to run and test your operator locally on your machine.
+When deployed in an ODA Canvas, the operator will execute inside a Kubernetes Pod. For development and testing, it is possible to run the operator on the command-line (or inside a debugger). Kopf includes a `--standalone` attribute to allow the operator to execute in a standalone mode. This means that the operator will run independently, without relying on any external operators or frameworks. It is particularly useful for development and debugging purposes, as it allows you to run and test your operator locally on your machine.
 
 Run locally in command-line: 
 ```
