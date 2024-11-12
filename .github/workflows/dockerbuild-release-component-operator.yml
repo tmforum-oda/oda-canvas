@@ -13,8 +13,8 @@ on:
     branches:
     - master
     paths: 
-      - source/operators/component-management/**/*
-      - source/operators/identity-config/**/*
+      - source/operators/component-management/*
+      - source/operators/identity-config/keycloak/*
 
 jobs:
   build-component-operator-release-dockerfile-job:

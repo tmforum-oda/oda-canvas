@@ -14,8 +14,8 @@ on:
     - feature/*
     - odaa-*
     paths: 
-      - source/operators/component-management/**/*
-      - source/operators/identity-config/**/*
+      - source/operators/component-management/*
+      - source/operators/identity-config/keycloak/*
 
 jobs:
   build-component-operator-prerelease-dockerfile-job:
