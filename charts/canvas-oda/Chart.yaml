@@ -15,9 +15,11 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
+
+
 version: 1.1.8-lt2
 # version: 1.1.8-lt2 - refactoring of component-operator and api-operator-istio
-# version: 1.1.8-lt1 - added componentMetadata and apiSDO to v1beta4 crds
+# version: 1.1.8-rc4 - issue 372 - deploy non-DEV Vault with persistence and autounseal # version: 1.1.8-lt1 - added componentMetadata and apiSDO to v1beta4 crds
 # version: 1.1.8-rc2 - make hostname and cert configurable for component gateway
 # version: 1.1.8-rc1 - fix linux/arm64 docker build for secretsmanagement-operator
 # version: 1.1.7     - updated to v1beta4 crds
