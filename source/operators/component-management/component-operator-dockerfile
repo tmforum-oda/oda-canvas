@@ -24,5 +24,5 @@ ARG GIT_COMMIT_SHA
 ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
 
 # run the KOPF framework with component and keycloak operators
-# Temporarily removed securityControllerKeycloak.py
-CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose componentOperator.py 
+
+CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose componentOperator.py securityControllerKeycloak.py
