@@ -11,8 +11,10 @@ RUN pip install kopf==1.37.2 \
     && pip install PyYAML \
     && pip install requests 
 
-#Copy the componentOperator  apiOperatorIstio  securityControllerKeycloak  secconkeycloak.py code
-COPY componentOperator.py /componentOperator/
+#Copy the componentOperator  securityControllerKeycloak  secconkeycloak code
+COPY componentOperator.py /
+COPY secconkeycloak.py /
+COPY securityControllerKeycloak.py /
 
 # Setting up required ENV variables
 ARG CICD_BUILD_TIME
@@ -20,4 +22,4 @@ ENV CICD_BUILD_TIME $CICD_BUILD_TIME
 ARG GIT_COMMIT_SHA
 ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
 
-CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose /componentOperator/componentOperator.py
+CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose componentOperator.py securityControllerKeycloak.py

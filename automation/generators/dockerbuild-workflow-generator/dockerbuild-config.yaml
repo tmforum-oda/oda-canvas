@@ -27,8 +27,8 @@ component-operator:
   valuesPathPrereleaseSuffix: .component-operator.deployment.compopPrereleaseSuffix
   
   paths:
-    - source/operators/component-management/**/*
-    - source/operators/identity-config/**/*
+    - source/operators/component-management/*
+    - source/operators/identity-config/keycloak/*
   buildContext: source/operators
   # default is "Dockerfile" in buildContext
   buildDockerfile: source/operators/component-management/component-operator-dockerfile
