@@ -19,7 +19,6 @@ import json
 from kubernetes.client.rest import ApiException
 import os
 import re
-import time
 
 logging_level = os.environ.get('LOGGING',logging.INFO)
 
