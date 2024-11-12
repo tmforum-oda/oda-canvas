@@ -20,8 +20,10 @@ There are several types of operator in the ODA Canvas. For each type of operator
 * [Secrets Management](./secrets-management): Manages a secure secrets vault and allows components to store and retrieve passwords and other sensitive information.
 * [Dependency Management](dependency-management): Provides services to allow a Component to discover API dependencies.
 * Event Management (planned): Similar to the API Management, but for Event based integration with Components publishing or subscribing to Events. 
+* AI Management (planned): Allow components to declare requirements for custom AI or foundational AI services.
 * Carbon control (planned): Measures energy and carbon use by components and offers services for components to optimise their use.
 * Cost control (planned): Measures license and cloud resource costs and enables components to optimize their costs.
+* Database Management (planned): Allow components to declare requirements for database-as-a-service for Relational, Key-Value, Document, Graph, Vector and other database types.
 
 
 The ODA Reference implemantation contains Operators that can manage the **Component**, **ExposedAPI** and other resources. The [Custom Resource Definitions](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) (CRDs) that these operators manage are installed as part of the [canvas installation](../../installation/README.md). 
