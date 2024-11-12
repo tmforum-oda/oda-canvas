@@ -52,7 +52,7 @@ if APIOPERATORISTIO_PUBLICHOSTNAME:
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
-def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
+def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
     """Handler function for new or updated APIs.
     
     Processes the spec of the API and create child Kubernetes VirtualService resources (for open-api type) or ServiceMonitor resources (for prometheus metrics type).
@@ -61,7 +61,6 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
         * meta (Dict): The metadata from the API Custom Resource 
         * spec (Dict): The spec from the API Custom Resource showing the intent (or desired state) 
         * status (Dict): The status from the API Custom Resource showing the actual state.
-        * body (Dict): The entire API Custom Resource
         * namespace (String): The namespace for the API Custom Resource
         * labels (Dict): The labels attached to the API Custom Resource. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
         * name (String): The name of the API Custom Resource

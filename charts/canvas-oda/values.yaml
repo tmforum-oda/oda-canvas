@@ -126,12 +126,7 @@ component-operator:
     secconVersion: 0.7.1
     secconPrereleaseSuffix:
     monitoredNamespaces: 'components'           # comma separated list of namespaces
-    ingressClass:
-      enabled: false
-      name: nginx
     keycloak: *portKeycloak
-    dataDog:
-      enabled: true
     hostName: "*"
     httpsRedirect: true
     credentialName: istio-ingress-cert    
@@ -144,6 +139,27 @@ component-operator:
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
     
+
+api-operator-istio:
+  deployment:
+    operatrorName: api-operator-istio
+    apiopImage: tmforumodacanvas/api-operator-istio
+    apiopVersion: 0.1.0
+    apiopPrereleaseSuffix: refact-223
+    imagePullPolicy: IfNotPresent
+    istioGateway: true
+    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    ingressClass:
+      enabled: false
+      name: nginx
+    dataDog:
+      enabled: true
+    hostName: "*"
+    httpsRedirect: true
+    credentialName: istio-ingress-cert    
+  configmap:
+    loglevel: '20'
+     
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
