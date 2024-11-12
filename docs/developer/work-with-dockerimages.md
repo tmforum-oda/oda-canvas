@@ -19,13 +19,13 @@ branch | create a branch, naming has to follow "feature/..." or "odaa-..." other
 4 | prepare everything for the Pull-Request. Set chart-version numbers, document changes, also update the version number in the dependent charts
 PR | create Pull-Request -> BDD Tests are executed and should be successfull 
 5 | before merging, remove all prereleaseSuffixes. This will make the  "no-prerelease-suffixes"-check in the PR green. Start the commit message with "\[skip tests\] ..." this will skip running the BDD tests (which would fail, because of the missing release images)
-Merge | the merge into the master branch triggers the build of the release docker images 
+Merge | the merge into the main branch triggers the build of the release docker images 
 
 
 
 ## Global Rules
 
-* Release versions (image tags) follow the semantic versioning format "\<major\>.\<minor\>.\<increment\>" and are built only from the master branch
+* Release versions (image tags) follow the semantic versioning format "\<major\>.\<minor\>.\<increment\>" and are built only from the main branch
 * Release versions are immutable and can not be overwritten 
 * Prerelease versions have the format "\<major\>.\<minor\>.\<increment\>-\<prerelease-suffix\>" and are built from feature branches
 * Feature branches have the format "feature/\*" or "odaa-\*"
@@ -35,7 +35,7 @@ Merge | the merge into the master branch triggers the build of the release docke
 
 ## Versions in values.yaml
 
-Dockerimages are versioned in the [charts/canvas-oda/values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/master/charts/canvas-oda/values.yaml) file of the canva-oda chart and consist of three parts. 
+Dockerimages are versioned in the [charts/canvas-oda/values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/main/charts/canvas-oda/values.yaml) file of the canva-oda chart and consist of three parts. 
 E.g. for oda-webhook:
 
 ```
@@ -80,7 +80,7 @@ Feature branches have the naming convention "feature/..." or "odaa-...".
 Let´s assume we are working on the GitHub issue 3456, 
 so a good name for the feature branch would be "feature/issue3456"
 
-Create this new branch in GitHub from the master branch.
+Create this new branch in GitHub from the main branch.
 
 ### Step 2: Configure Prerelease Version in feature branch
 
@@ -88,7 +88,7 @@ First get an overview, how the Dockerfile for the secretsmanagement-operator is 
 
 #### Look at the Docker build configuration
 
-All dependencies of a Docker image are configured in the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](https://github.com/tmforum-oda/oda-canvas/blob/master/automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
+All dependencies of a Docker image are configured in the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](https://github.com/tmforum-oda/oda-canvas/blob/main/automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
 
 For the Secretsmanagement-Operator this is:
 
@@ -174,7 +174,7 @@ Comitting the changes in the feature branch locally and pushing them to the GitH
 
 ![image](https://github.com/user-attachments/assets/d264d6c5-6933-4932-9e31-16323d87aa69)
 
-If we had not set a prereleaseSuffix, then the build would have fail with the error message, that release versions can only be built from the "master" branch.
+If we had not set a prereleaseSuffix, then the build would have fail with the error message, that release versions can only be built from the "main" branch.
 
 But as we set a prereleaseSuffix a new image with tag `0.1.1-issue3456` was created and uploaded to dockerhub:
 
@@ -421,9 +421,9 @@ Then the new docker image is also pullled.
 
 ### Step 7: Creating a Pull-Request
 
-After the iterative process of doing code changes, and testing the image, we are ready to contribute our changes back to the "master" branch.
+After the iterative process of doing code changes, and testing the image, we are ready to contribute our changes back to the "main" branch.
 
-Therefore a Pull-Request (PR) is created from our feature branch `feature/issue-3456` into "master" using GitHub UI.
+Therefore a Pull-Request (PR) is created from our feature branch `feature/issue-3456` into "main" using GitHub UI.
 
 #### Automatically Run Tests
 
@@ -462,7 +462,7 @@ Now all preconditions are green:
 
 ### Step 8: Code-Review and Merging the PR
 
-A code review can now be done and after appoval the branch can be merged into the "master" branch.
+A code review can now be done and after appoval the branch can be merged into the "main" branch.
 
 When the PR is merged, the release build of the docker image is triggered:
 
@@ -485,7 +485,7 @@ In the Docker registry there is now a release version 0.1.1:
 Overview about the steps to do:
 
 * Create feature branch "feature/..." and do all work in this branch
-* Increment version number and set prereleaseSuffix for Dockerimage to modify in [charts/canvas-oda/values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/master/charts/canvas-oda/values.yaml)
+* Increment version number and set prereleaseSuffix for Dockerimage to modify in [charts/canvas-oda/values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/main/charts/canvas-oda/values.yaml)
 * Modify code, push triggers rebuild of prerelease docker image
 * For the first time do a `helm upgrade` to redeploy the prerelease version
 * For any further modifications to a `kubectl scale deployment ... ---replicas 0` and then `kubectl scale deployment ... ---replicas 1` (or delete running PODs)
@@ -496,11 +496,11 @@ Overview about the steps to do:
 # How-To add a new Dockerimage
 
 Currently there are 6 Docker images which are built automatically.
-New Docker images can be added by editing the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](https://github.com/tmforum-oda/oda-canvas/blob/master/automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
+New Docker images can be added by editing the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](https://github.com/tmforum-oda/oda-canvas/blob/main/automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
 In this file the docker build specific configurations and the relevant source paths have to be set.
 
 After the configuration is finished, the GitHub Actions have to be regenerated 
-by executing [automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py](https://github.com/tmforum-oda/oda-canvas/blob/master/automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py). For executing the python script, the packages "pyyaml" and "jinja2" have to be installed (see requirements.txt).
+by executing [automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py](https://github.com/tmforum-oda/oda-canvas/blob/main/automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py). For executing the python script, the packages "pyyaml" and "jinja2" have to be installed (see requirements.txt).
 
 # How-To define unit tests
 

@@ -54,7 +54,7 @@ The helm chart installs the following updated versions of third party to
 
 ## Configuration values
 
-The values used [here](https://github.com/tmforum-oda/oda-canvas/blob/master/charts/canvas-oda/README.md)
+The values used [here](https://github.com/tmforum-oda/oda-canvas/blob/main/charts/canvas-oda/README.md)
 
 ## Hardware requirements
 

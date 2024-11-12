@@ -10,7 +10,7 @@ It uses the following assumptions:
 
 ## Install ODA Canvas
 
-![canvas-install](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/canvas-install.puml)
+![canvas-install](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/canvas-install.puml)
 [plantUML code](pumlFiles/canvas-install.puml)
 
 ## Upgrade ODA Canvas

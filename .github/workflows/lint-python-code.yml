@@ -2,7 +2,7 @@ name: Lint Python code
 on: 
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   lint-python-code:
     runs-on: ubuntu-latest
