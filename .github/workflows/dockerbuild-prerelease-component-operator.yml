@@ -32,13 +32,13 @@ jobs:
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.controller.deployment.compconImage' charts/canvas-oda/values.yaml
+          cmd: yq '.component-operator.deployment.compconImage' charts/canvas-oda/values.yaml
           
       - name: read versionnumber of component-operator from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.controller.deployment.compconVersion, .controller.deployment.compconPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.component-operator.deployment.compconVersion, .component-operator.deployment.compconPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
@@ -54,7 +54,7 @@ jobs:
         id: get_values_release_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.controller.deployment.compconVersion' charts/canvas-oda/values.yaml
+          cmd: yq '.component-operator.deployment.compconVersion' charts/canvas-oda/values.yaml
               
       - name: Get Git commit timestamps
         run: |

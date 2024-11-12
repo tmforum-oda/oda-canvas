@@ -114,12 +114,12 @@ keycloak:
         path: /
         tls: false
 
-controller:
+component-operator:
   deployment:
-    controllerName: oda-controller
-    compconImage: tmforumodacanvas/component-controller
-    compconVersion: 0.5.6
-    compconPrereleaseSuffix: 
+    operatrorName: component-operator
+    compopImage: tmforumodacanvas/component-operator
+    compopVersion: 0.6.0
+    compopPrereleaseSuffix: refact-223
     imagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener

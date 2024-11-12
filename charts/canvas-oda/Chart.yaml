@@ -60,9 +60,9 @@ dependencies:
     version: "13.0.2"
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
-  - name: controller
-    version: "1.1.4"
-    repository: 'file://../controller'
+  - name: component-operator
+    version: "1.1.5"
+    repository: 'file://../component-operator'
   - name: dependentapi-simple-operator
     version: "0.2.3"
     repository: 'file://../dependentapi-simple-operator'
