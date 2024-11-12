@@ -35,6 +35,23 @@ component-operator:
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
+api-operator-istio:
+  displayName: API-operator-istio
+  fileName: api-operator-istio
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .api-operator-istio.deployment.apiopImage
+  valuesPathVersion: .api-operator-istio.deployment.apiopVersion
+  valuesPathPrereleaseSuffix: .api-operator-istio.deployment.apiopPrereleaseSuffix
+  
+  paths:
+    - source/operators/api-management/istio/*
+  buildContext: source/operators/api-management/istio
+  # default is "Dockerfile" in buildContext
+  buildDockerfile: source/operators/api-management/istio/api-operator-istio-dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
 
 dependentapi-simple-operator:
   displayName: DependentAPI-Simple-Operator

@@ -21,14 +21,14 @@ jobs:
         id: values_yaml_contains_version_suffix_1
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.oda-webhook.prereleaseSuffix, .component-operator.deployment.compopPrereleaseSuffix, .dependentapi-simple-operator.prereleaseSuffix, .dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix, .secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix, .controller.deployment.secconPrereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/canvas-oda/values.yaml
+          cmd: yq '[.oda-webhook.prereleaseSuffix, .component-operator.deployment.compopPrereleaseSuffix, .api-operator-istio.deployment.apiopPrereleaseSuffix, .dependentapi-simple-operator.prereleaseSuffix, .dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix, .secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix, .controller.deployment.secconPrereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/canvas-oda/values.yaml
 
       - name: collect existing version suffixes in charts/canvas-oda/values.yaml for error report
         id: version_suffixes_1
         if: steps.values_yaml_contains_version_suffix_1.outputs.result=='true'
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.oda-webhook.prereleaseSuffix, .component-operator.deployment.compopPrereleaseSuffix, .dependentapi-simple-operator.prereleaseSuffix, .dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix, .secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix, .controller.deployment.secconPrereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/canvas-oda/values.yaml
+          cmd: yq '[.oda-webhook.prereleaseSuffix, .component-operator.deployment.compopPrereleaseSuffix, .api-operator-istio.deployment.apiopPrereleaseSuffix, .dependentapi-simple-operator.prereleaseSuffix, .dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix, .secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix, .controller.deployment.secconPrereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/canvas-oda/values.yaml
           
       - name: report error in charts/canvas-oda/values.yaml
         if: steps.values_yaml_contains_version_suffix_1.outputs.result=='true'
