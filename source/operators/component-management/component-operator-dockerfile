@@ -13,9 +13,9 @@ RUN pip install kopf==1.37.2 \
 
 #Copy the componentOperator  securityControllerKeycloak  secconkeycloak code
 
-COPY identity-config/keycloak/securityControllerKeycloak.py /
-COPY identity-config/keycloak/secconkeycloak.py /
-COPY component-management/componentOperator.py /
+COPY identity-config/keycloak/securityControllerKeycloak.py /identityOperator/
+COPY identity-config/keycloak/secconkeycloak.py /identityOperator/
+COPY component-management/componentOperator.py /componentOperator/
 
 # Setting up required ENV variables
 ARG CICD_BUILD_TIME
@@ -25,4 +25,4 @@ ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
 
 # run the KOPF framework with component and keycloak operators
 
-CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose componentOperator.py securityControllerKeycloak.py
+CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose /componentOperator/componentOperator.py /identityOperator/securityControllerKeycloak.py
