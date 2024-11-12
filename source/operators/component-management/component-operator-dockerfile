@@ -12,9 +12,9 @@ RUN pip install kopf==1.37.2 \
     && pip install requests 
 
 #Copy the componentOperator  securityControllerKeycloak  secconkeycloak code
-COPY componentOperator.py /
-COPY secconkeycloak.py /
 COPY securityControllerKeycloak.py /
+COPY secconkeycloak.py /
+COPY componentOperator.py /
 
 # Setting up required ENV variables
 ARG CICD_BUILD_TIME
