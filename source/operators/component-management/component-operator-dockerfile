@@ -12,6 +12,7 @@ RUN pip install kopf==1.37.2 \
     && pip install requests 
 
 #Copy the componentOperator  securityControllerKeycloak  secconkeycloak code
+RUN ls
 COPY securityControllerKeycloak.py /
 COPY secconkeycloak.py /
 COPY componentOperator.py /
