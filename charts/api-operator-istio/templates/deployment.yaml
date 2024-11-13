@@ -17,7 +17,7 @@ spec:
         app: {{.Values.deployment.operatorName}}
         {{- include "api-operator-istio.labels" . | nindent 8 }}
     spec:
-      serviceAccountName: odacomponent-account
+      serviceAccountName: apioperator-account
       containers:
       - name: {{.Values.deployment.operatorName}}
         image: {{ include "api-operator-istio.apiopDockerimage" . }}
