@@ -3,6 +3,7 @@ on:
   pull_request:
     branches:
       - main
+      - master
 jobs:
   lint-python-code:
     runs-on: ubuntu-latest
