@@ -13,8 +13,6 @@ jobs:
           src: |
             ./automation/generators/dockerbuild-workflow-generator
             ./source/operators/component-management
-            ./source/operators/api-management/apache-apisix
-            ./source/operators/api-management/kong
             ./source/operators/api-management/istio
             ./source/operators/dependentApiSimpleOperator
             ./source/operators/secretsmanagementOperator-hc
