@@ -15,8 +15,6 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-
-
 version: 1.1.8-lt3
 # version: 1.1.8-lt3 - refactoring of component-operator and api-operator-istio
 # version: 1.1.8-rc4 - issue 372 - deploy non-DEV Vault with persistence and autounseal 
