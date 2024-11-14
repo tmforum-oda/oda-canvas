@@ -145,7 +145,7 @@ api-operator-istio:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
     apiopVersion: 0.1.0
-    apiopPrereleaseSuffix: refact-233
+    apiopPrereleaseSuffix: refact-223
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components'           # comma separated list of namespaces
