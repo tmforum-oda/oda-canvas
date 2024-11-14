@@ -126,25 +126,7 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
                 and spec["port"] == apiStatus["port"]
                 and spec["implementation"] == apiStatus["implementation"]
             ):
-                # unchanged, so just return previous status
-                logWrapper(
-                    logging.INFO,
-                    "apiStatus",
-                    "apiStatus",
-                    "api/" + name,
-                    componentName,
-                    name,
-                    meta["generation"],
-                )
-                logWrapper(
-                    logging.INFO,
-                    "apiStatus",
-                    "apiStatus",
-                    "api/" + name,
-                    componentName,
-                    name,
-                    "Unchanged",
-                )
+                # no change in the api so return the existing status
                 return None
             else:
                 logWrapper(
@@ -1170,15 +1152,6 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
 
     :meta public:
     """
-    logWrapper(
-        logging.INFO,
-        "updateAPIStatus",
-        "updateAPIStatus",
-        "api/" + name,
-        "",
-        name,
-        meta["generation"],
-    )
 
     if "apiStatus" in status.keys():
         if "url" in status["apiStatus"].keys():
@@ -1316,9 +1289,6 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
 
     :meta public:
     """
-    logWrapper(
-        logging.INFO, "updateAPIReady", "", "api/" + name, "", name, meta["generation"]
-    )
 
     if "ready" in status["implementation"].keys():
         if status["implementation"]["ready"] == True:
