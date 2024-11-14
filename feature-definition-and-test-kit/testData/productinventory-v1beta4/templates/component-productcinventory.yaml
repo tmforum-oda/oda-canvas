@@ -5,7 +5,7 @@ metadata:
   labels:
     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
 spec:
-  componentMedtaData: 
+  componentMetadata: 
     id: {{.Values.component.id}}
     name: {{.Values.component.name}}
     functionalBlock: {{.Values.component.functionalBlock}}
