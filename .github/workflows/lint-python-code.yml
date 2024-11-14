@@ -12,7 +12,7 @@ jobs:
         with: 
           src: |
             ./automation/generators/dockerbuild-workflow-generator
-            ./source/operators/apiOperatorApisix
-            ./source/operators/apiOperatorKong
+            ./source/operators/component-management
+            ./source/operators/api-management/istio
             ./source/operators/dependentApiSimpleOperator
             ./source/operators/secretsmanagementOperator-hc

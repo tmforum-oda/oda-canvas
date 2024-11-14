@@ -197,7 +197,10 @@ From the command line in the root of the locally checked out repository execute 
 cd charts/cert-manager-init
 helm dependency update
 helm dependency build
-cd ../../charts/controller
+cd ../../charts/component-operator
+helm dependency update
+helm dependency build
+cd ../../charts/api-operator-istio
 helm dependency update
 helm dependency build
 cd ../../charts/canvas-vault

@@ -1,0 +1,30 @@
+deployment:
+  operatorName: component-operator
+  compopImage: tmforumodacanvas/component-operator
+  compopVersion: 0.6.0
+  compopPrereleaseSuffix:
+  compopImagePullPolicy: IfNotPresent
+  istioGateway: true
+  secconImage: tmforumodacanvas/security-listener
+  secconVersion: 0.7.1
+  secconPrereleaseSuffix:
+  secconImagePullPolicy: IfNotPresent
+  monitoredNamespaces: 'components'           # comma separated list of namespaces
+  ingressClass:
+    enabled: false
+    name: nginx
+  dataDog:
+    enabled: false
+  keycloak:
+    port: 8080
+  hostName: "*"
+  httpsRedirect: true
+  credentialName: istio-ingress-cert    
+#We reuse the admin user created on keycloak instalation
+credentials:
+  user: admin
+  pass: adpass
+configmap:
+  #kcbase: http://canvas-keycloak:8088/auth # trying to parameterise this in the configmap
+  kcrealm: myrealm
+  loglevel: '20'

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: component-operator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "component-operator.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.deployment.operatorName}}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: {{.Values.deployment.operatorName}}
+        {{- include "component-operator.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: odacomponent-account
+      containers:
+      - name: {{.Values.deployment.operatorName}}
+        image: {{ include "component-operator.compopDockerimage" . }}
+        imagePullPolicy: {{ include "component-operator.compopImagePullPolicy" . }}
+        envFrom:
+          - configMapRef:
+              name: component-operator-configmap
+          - secretRef:
+              name: component-operator-secret
+      - name: seccon
+        image: {{ include "component-operator.secconDockerimage" . }}
+        imagePullPolicy: {{ include "component-operator.secconImagePullPolicy" . }}
+        envFrom:
+          - configMapRef:
+              name: component-operator-configmap
+          - secretRef:
+              name: component-operator-secret
+        ports:
+        - name: seccon
+          containerPort: 5000

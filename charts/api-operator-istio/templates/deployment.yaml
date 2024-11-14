@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-operator-istio
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "api-operator-istio.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.deployment.operatorName}}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: {{.Values.deployment.operatorName}}
+        {{- include "api-operator-istio.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: apioperator-account
+      containers:
+      - name: {{.Values.deployment.operatorName}}
+        image: {{ include "api-operator-istio.apiopDockerimage" . }}
+        imagePullPolicy: {{ include "api-operator-istio.apiopImagePullPolicy" . }}
+        envFrom:
+          - configMapRef:
+              name: api-operator-istio-configmap

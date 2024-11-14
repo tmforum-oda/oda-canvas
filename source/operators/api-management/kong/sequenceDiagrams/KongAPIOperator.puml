@@ -1,0 +1,19 @@
+@startuml
+entity Component
+participant componentController
+entity API
+participant KongAPIController
+entity KIC
+
+Component-> componentController: Create Component
+componentController -> API: Create exposedAPIs API resources
+API -> KongAPIController: ExposedAPI created
+KongAPIController -> KIC: Create Httproute&Plugins for ExposedAPI
+KongAPIController -> KongAPIController: Make Httproute&Plugins Child of Component
+
+Component-> componentController: Delete Component
+componentController -> API: Remove exposedAPIs API resources
+API -> KongAPIController: ExposedAPI removed
+KongAPIController -> KongAPIController: Httproute&Plugins Child resource of Components automatically removed
+
+@enduml

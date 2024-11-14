@@ -1,0 +1,40 @@
+apiVersion: oda.tmforum.org/v1beta4
+kind: ExposedAPI
+metadata:
+  name: r1-productcatalogmanagement-productcatalogmanagement # Kubernetes resource name for the instance of the ExposedAPI
+spec:
+  name: productcatalogmanagement # Name of the API as defined by the Component
+  specification:
+    - "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json" # URL to the specification of the API, if required. e.g. URL to the swagger file for Open API.
+  apiType: openapi # The type of API specification. Currently only OpenAPI (swagger) and OpenMetrics APIs are supported.
+  apiSDO: TMForum # (optional) The Standards Development Organization that defines the API
+  implementation: r1-prodcatapi # The name of the Kubernetes service where the implementation of the API is found
+  path: "/r1-productcatalogmanagement/tmf-api/productCatalogManagement/v4" # The path to the root of the API
+  developerUI: "/r1-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs" # (optional) The path to the developer User Interface for the API
+  port: 8080 # The port where the API is exposed
+  apiKeyVerification:
+    enabled: true # (default: false) Enforce verification of API key
+    location: header # (optional) Name of variable where API key value is expected
+  rateLimit:
+    enabled: true # (default: false)
+    identifier: IP # Limit requests by this identifier when enforcing the rate limit
+    limit: "100" # The limit (count) of requests to allow for each identifier
+    interval: pm # (default: ps) The interval when enforcing the rate limit (ps or pm)
+  quota:
+    identifier: test-identifier # Identifier used for each quota counter
+    limit: "1000" # Quota counter limit to enforce for each identifier
+  OASValidation:
+    requestEnabled: true # (default: false) Enable for the incoming request
+    responseEnabled: true # (default: false) Enable for the response
+    allowUnspecifiedHeaders: false # (default: false) (request only) Allow for headers that are not explicitly referenced in the OAS
+    allowUnspecifiedQueryParams: false # (default: false) (request only) Allow for query parameters that are not explicitly referenced in the OAS
+    allowUnspecifiedCookies: false # (default: false) (request only) Allow for cookies that are not explicitly referenced in the OAS
+  CORS:
+    enabled: true # (default: false)
+    allowCredentials: true # (default: false) Indicates whether the client is allowed to send the actual request (not the preflight request) using credentials. Translates to the Access-Control-Allow-Credentials header
+    allowOrigins: "https://allowed-origin.com, https://another-allowed-origin.com" # (default: *) CSV of origins allowed to access the resource. The Access-Control-Allow-Origin header will include the matched origin
+    handlePreflightRequests:
+      enabled: true # (default: true) Indicates whether the API should handle OPTIONS preflight requests by generating a compliant response
+      allowHeaders: "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers" # (default: Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers) CSV of HTTP headers that can be used. Translates to the Access-Control-Allow-Headers header
+      allowMethods: "GET, POST, PUT, DELETE" # (default: GET, POST, HEAD, OPTIONS) CSV of HTTP methods allowed for the resource. Translates to the Access-Control-Allow-Methods header
+      maxAge: 3600 # (default: 1800) Specifies how long (in seconds) a client should cache the values of the Access-Control-Allow-Headers and Access-Control-Allow-Methods headers for each resource

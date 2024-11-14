@@ -1,0 +1,26 @@
+# this is for development and testing to deploy a standalone component operator. Install using
+# kubectl apply -f .\component-controller.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: component-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: component-operator
+  template:
+    metadata:
+      labels:
+        app: component-operator
+    spec:
+      serviceAccountName: odacomponent-account
+      containers:
+      - name: component-operator
+        image: lesterthomas/component-operator:0.2.0
+        env:
+        - name: LOGGING
+          value: '20'           
+        - name: COMPONENT_NAMESPACE
+          value: 'components'           # comma separated list of namespaces

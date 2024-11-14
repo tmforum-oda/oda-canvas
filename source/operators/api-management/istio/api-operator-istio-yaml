@@ -1,0 +1,24 @@
+# test manifest to deploy the api-operator-istio outside of helm chart
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-operator-istio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-operator-istio
+  template:
+    metadata:
+      labels:
+        app: api-operator-istio
+    spec:
+      serviceAccountName: odacomponent-account
+      containers:
+      - name: oda-controller
+        image: lesterthomas/api-operator-istio:0.1.0
+        env:
+        - name: LOGGING
+          value: '20'           
+        - name: COMPONENT_NAMESPACE
+          value: 'components'           # comma separated list of namespaces
