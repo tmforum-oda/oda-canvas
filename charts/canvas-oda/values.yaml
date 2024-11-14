@@ -159,6 +159,7 @@ api-operator-istio:
     credentialName: istio-ingress-cert    
   configmap:
     loglevel: '20'
+    # publicHostname: 'components.example.com'
      
 dependentapi-simple-operator:
   enabled: true
