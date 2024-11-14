@@ -2,7 +2,7 @@ deployment:
   operatorName: component-operator
   compopImage: tmforumodacanvas/component-operator
   compopVersion: 0.6.0
-  compopPrereleaseSuffix: refact-223
+  compopPrereleaseSuffix:
   compopImagePullPolicy: IfNotPresent
   istioGateway: true
   secconImage: tmforumodacanvas/security-listener
