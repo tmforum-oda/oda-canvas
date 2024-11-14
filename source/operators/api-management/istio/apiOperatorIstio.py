@@ -20,14 +20,25 @@ from kubernetes.client.rest import ApiException
 import os
 import re
 
+# Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
-
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.WARNING)
-
 logger = logging.getLogger("APIOperator")
 logger.setLevel(int(logging_level))
 logger.info(f"Logging set to %s", logging_level)
+
+CICD_BUILD_TIME = os.getenv("CICD_BUILD_TIME")
+GIT_COMMIT_SHA = os.getenv("GIT_COMMIT_SHA")
+if CICD_BUILD_TIME:
+    logger.info(f"CICD_BUILD_TIME=%s", CICD_BUILD_TIME)
+if GIT_COMMIT_SHA:
+    logger.info(f"GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
+
+
+# get namespace to monitor
+component_namespace = os.environ.get("COMPONENT_NAMESPACE", "components")
+logger.info(f"Monitoring namespace %s", component_namespace)
 
 HTTP_SCHEME = "https://"
 HTTP_K8s_LABELS = ["http", "http2"]
