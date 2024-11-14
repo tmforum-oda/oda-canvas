@@ -25,12 +25,3 @@ spec:
         envFrom:
           - configMapRef:
               name: api-operator-istio-configmap
-        volumeMounts:
-        - name: config-volume
-          mountPath: /config/run-command
-      volumes:
-      - name: config-volume
-        configMap:
-          name: operator-command
-          defaultMode: 420
-          optional: true 

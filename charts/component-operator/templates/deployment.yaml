@@ -27,9 +27,6 @@ spec:
               name: component-operator-configmap
           - secretRef:
               name: component-operator-secret
-        volumeMounts:
-        - name: config-volume
-          mountPath: /config/run-command
       - name: seccon
         image: {{ include "component-operator.secconDockerimage" . }}
         imagePullPolicy: {{ include "component-operator.secconImagePullPolicy" . }}
@@ -41,9 +38,3 @@ spec:
         ports:
         - name: seccon
           containerPort: 5000
-      volumes:
-      - name: config-volume
-        configMap:
-          name: operator-command
-          defaultMode: 420
-          optional: true 
