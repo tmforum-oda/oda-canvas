@@ -49,7 +49,16 @@ spec:
            kubectl -n $NAMESPACE wait -l  statefulset.kubernetes.io/pod-name=$VAULTPOD --for jsonpath=\"{.status.conditions[?(@.type=='Initialized')]['status']}\"=True pod --timeout=60s;
            echo running;
            date;
-           export STATUS_JSON=$(curl -k -s -H 'X-Vault-Request:true' $VAULT_ADDR/v1/sys/seal-status || true);
+           export STATUS_JSON=$(curl -k -m1 -s -H 'X-Vault-Request:true' $VAULT_ADDR/v1/sys/seal-status || true);
+           for i in $(seq 1 60);
+           do
+             if [ -z \"$STATUS_JSON\" ];
+             then
+               echo waiting for status;
+               sleep 1;
+               export STATUS_JSON=$(curl -k -m1 -s -H 'X-Vault-Request:true' $VAULT_ADDR/v1/sys/seal-status || true);
+             fi;
+           done;
            echo --- STATUS ---;
            echo $STATUS_JSON | jq .;
            if echo $STATUS_JSON | jq -e '.initialized == false' >/dev/null;
