@@ -119,7 +119,7 @@ component-operator:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
     compopVersion: 0.6.0
-    compopPrereleaseSuffix: refact-223
+    compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener
@@ -145,7 +145,7 @@ api-operator-istio:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
     apiopVersion: 0.1.0
-    apiopPrereleaseSuffix: refact-223
+    apiopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components'           # comma separated list of namespaces
