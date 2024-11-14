@@ -42,6 +42,10 @@ plural = (
     "apisixroutes"  # The plural name of the Apisix route CRD - ApisixRoute resource
 )
 
+# try to recover from broken watchers https://github.com/nolar/kopf/issues/1036
+@kopf.on.startup()
+def configure(settings: kopf.OperatorSettings, **_):
+    settings.watching.server_timeout = 1 * 60
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
