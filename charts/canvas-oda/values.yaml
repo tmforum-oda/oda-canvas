@@ -164,8 +164,8 @@ api-operator-istio:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 0.2.3
-  prereleaseSuffix: 
+  version: 0.2.4
+  prereleaseSuffix: issue320 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   serviceInventoryAPI:
@@ -280,8 +280,8 @@ canvas-vault:
 
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator
-  version: 0.1.2
-  prereleaseSuffix:
+  version: 0.1.3
+  prereleaseSuffix: issue320
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
@@ -292,6 +292,7 @@ secretsmanagement-operator:
   # if the internal service address is used the vault_addr has to be in sync 
   # with the namespace configured in "canvas-vault.vault.global.namespace"
   vault_addr: "https://canvas-vault-hc.canvas-vault.svc.cluster.local:8200"
+  # allow https communication with self signed certificate
   vault_skip_verify: "true"
   # the tempaltes can be used to generate cluster specific authenticator and key-value stores, here 'sman'.
   auth_path: "jwt-k8s-sman"

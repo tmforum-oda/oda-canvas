@@ -5,6 +5,10 @@ import kopf
 import asyncio
 
 sys.path.append("..")
+from log_wrapper import LogWrapper, logwrapper
+
+os.environ["HVAC_TOKEN"] = os.getenv("HVAC_TOKEN", "testtoken")
+
 from secretsmanagementOperatorHC import (
     safe_get,
     secretsmanagementDelete,
@@ -14,11 +18,13 @@ from secretsmanagementOperatorHC import (
 
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.DEBUG)
-kopf_logger = logging.getLogger()
-kopf_logger.setLevel(logging.WARNING)
-logger = logging.getLogger("ComponentOperator")
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.WARNING)
+logger = logging.getLogger("SManOP")
 logger.setLevel(int(logging_level))
 logger.info(f"Logging set to %s", logging_level)
+
+LogWrapper.set_defaultLogger(logger)
 
 # ------------------- TESTS ---------------- #
 
@@ -183,10 +189,88 @@ def test_secretsmanagementCreate():
     print(f"finished")
 
 
+def testLogWrapper():
+    log = LogWrapper(logger)
+    log.info("infolog")
+    log.info("infolog", "with details")
+    log.debug("debuglog")
+    log.debug("debuglog", "with details")
+    log.debug("debuglog", {"with": "details"})
+    childLog = log.childLogger(
+        function_name="fn", handler_name="hn", resource_name="rn", component_name="cn"
+    )
+    childLog.info("hi", "I am the child")
+    childLog2 = childLog.childLogger(
+        function_name="fn2",
+        handler_name="hn2",
+        resource_name="rn2",
+        component_name="cn2",
+    )
+    childLog2.info("hi", "I am the child 2")
+    childLog3 = childLog2.childLogger(function_name="fn3")
+    childLog3.info("hi", "I am the child 3")
+
+
+import inspect
+import traceback
+
+
+def logex(ex):
+    print(f"{ex}: {traceback.format_exc()}")
+
+
+@logwrapper
+def ordinary1(logw):
+    try:
+        logw.info(f"I am ordinary1")
+        ordinary2("huhu", logw=logw)
+        x = None
+        x.show()
+    except Exception as ex:
+        print("--- INDIREKT ---")
+        logex(ex)
+        print("--- DIREKT ---")
+        print(f"{ex}: {traceback.format_exc()}")
+
+
+@logwrapper
+def ordinary2(text, logw="lll", magic=None):
+    logw.info(f"o2({text})")
+    ordinary3(logw)
+
+
+@logwrapper(handler_name="hn")
+def ordinary3(logw):
+    logw.info(f"I am ordinary3")
+    ordinary4("hoho", magic="xxx", logw=logw)
+
+
+@logwrapper(component_name="cn", resource_name="rn")
+def ordinary4(text, logw="lll", magic=None):
+    logw.info(f"o4({text}) with {magic}")
+    ordinary5("egal5", magic=5, logw=logw)
+
+
+@logwrapper(logger="other", component_name="cn", resource_name="rn")
+def ordinary5(text, logw="lll", magic=None):
+    logw.info(f"o5({text}) with {magic}")
+
+
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=False)
-    # k8s_load_vps2_config(proxy=True)
-    test_kubeconfig()
-    # test_secretsmanagementDelete()
-    test_secretsmanagementCreate()
+    ordinary5("egal5", magic=5)
+    ordinary4("egal4", magic=2)
+    ordinary1("lw")
+    ordinary2("egal", magic=3, logw="jjj")
+    ordinary2("egal", magic=2)
+    ordinary3("lw")
+    ordinary4("egal", magic=3, logw="jjj")
+    ordinary4("egal4", magic=2)
+    testLogWrapper()
+    # ===========================================================================
+    # k8s_load_config(proxy=False)
+    # # k8s_load_vps2_config(proxy=True)
+    # test_kubeconfig()
+    # # test_secretsmanagementDelete()
+    # test_secretsmanagementCreate()
+    # ===========================================================================
