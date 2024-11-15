@@ -404,7 +404,6 @@ def label_deployment_pods(logw: LogWrapper, body, patch):
         patch.spec["template"] = {"metadata": {"labels": labels}}
 
 
-@logwrapper
 @kopf.on.mutate(
     "pods",
     labels={"oda.tmforum.org/secretsmanagement": "sidecar"},
@@ -418,14 +417,13 @@ async def podmutate(
     status,
     patch: kopf.Patch,
     warnings: list[str],
-    logw: LogWrapper = None,
     **_,
 ):
-    logw.set(handler_name="podmutate")
+    logw = LogWrapper(handler_name="podmutate", function_name="podmutate")
     try:
         logw.set(
             component_name=quick_get_comp_name(body),
-            resource_name="POD/" + get_pod_name(body),
+            resource_name=f"POD/{get_pod_name(body)}",
         )
         logw.debugInfo("POD mutate called", body)
         inject_sidecar(logw, body, patch)
@@ -437,7 +435,6 @@ async def podmutate(
         patch.clear()
 
 
-@logwrapper
 @kopf.on.mutate(
     "deployments",
     labels={"oda.tmforum.org/secretsmanagement": "sidecar"},
@@ -454,11 +451,11 @@ async def deploymentmutate(
     logw: LogWrapper = None,
     **_,
 ):
-    logw.set(handler_name="deploymentmutate")
+    logw = LogWrapper(handler_name="deploymentmutate", function_name="deploymentmutate")
     try:
         logw.set(
             component_name=quick_get_comp_name(body),
-            resource_name="Deployment/" + get_deployment_name(body),
+            resource_name=f"Deployment/{get_deployment_name(body)}",
         )
         logw.debugInfo("DEPLOYMENT mutate called with body", body)
         label_deployment_pods(logw, body, patch)
@@ -711,13 +708,12 @@ def restart_pods_with_missing_sidecar(
 
 
 # when an oda.tmforum.org secretsmanagement resource is created or updated, configure policy and role
-@logwrapper
 @kopf.on.create(SMAN_GROUP, SMAN_VERSION, SMAN_PLURAL)
 @kopf.on.update(SMAN_GROUP, SMAN_VERSION, SMAN_PLURAL)
 async def secretsmanagementCreate(
     meta, spec, status, body, namespace, labels, name, logw: LogWrapper = None, **kwargs
 ):
-    logw.set(handler_name="secretsmanagementCreate")
+    logw = LogWrapper(handler_name="secretsmanagementCreate", function_name="secretsmanagementCreate")
     logw.set(component_name=quick_get_comp_name(body), resource_name=f"SMan/{name}")
 
     logw.debugInfo("Create/Update  called", body)
@@ -745,12 +741,11 @@ async def secretsmanagementCreate(
 
 
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
-@logwrapper
 @kopf.on.delete(SMAN_GROUP, SMAN_VERSION, SMAN_PLURAL, retries=5)
 async def secretsmanagementDelete(
     meta, spec, status, body, namespace, labels, name, logw: LogWrapper = None, **kwargs
 ):
-    logw.set(handler_name="secretsmanagementDelete")
+    logw = LogWrapper(handler_name="secretsmanagementDelete", function_name="secretsmanagementDelete")
     logw.set(component_name=quick_get_comp_name(body), resource_name=f"SMan/{name}")
 
     logw.debugInfo("Delete  called with body", body)
@@ -810,7 +805,6 @@ def setSecretsManagementReady(logw: LogWrapper, namespace, name):
         )
 
 
-@logwrapper
 @kopf.on.field(
     SMAN_GROUP, SMAN_VERSION, SMAN_PLURAL, field="status.implementation", retries=5
 )
@@ -835,7 +829,7 @@ async def updateSecretsManagementReady(
     Returns:
         No return value, nothing to write into the status.
     """
-    logw.set(handler_name="updateSecretsManagementReady")
+    logw = LogWrapper(handler_name="updateSecretsManagementReady", function_name="updateSecretsManagementReady")
     logw.set(component_name=quick_get_comp_name(body), resource_name=f"SMan/{name}")
 
     logw.debugInfo(f"updateSecretsManagementReady called for {namespace}:{name}", body)
