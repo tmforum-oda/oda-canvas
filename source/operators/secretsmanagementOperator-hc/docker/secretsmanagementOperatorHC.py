@@ -11,6 +11,7 @@ from typing import AsyncIterator
 from kubernetes.client.models.v1_replica_set import V1ReplicaSet
 from kubernetes.client.models.v1_deployment import V1Deployment
 from hvac.exceptions import InvalidPath
+import asyncio
 
 from log_wrapper import LogWrapper, logwrapper
 
@@ -838,48 +839,64 @@ async def updateSecretsManagementReady(
         if status["implementation"]["ready"] is True:
             if "ownerReferences" in meta.keys():
                 parent_component_name = meta["ownerReferences"][0]["name"]
-                logw.info("reading component", parent_component_name)
-                try:
-                    api_instance = kubernetes.client.CustomObjectsApi()
-                    parent_component = api_instance.get_namespaced_custom_object(
-                        COMP_GROUP,
-                        COMP_VERSION,
-                        namespace,
-                        COMP_PLURAL,
-                        parent_component_name,
-                    )
-                except ApiException as e:
-                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    if e.status == HTTP_NOT_FOUND:
-                        raise kopf.TemporaryError(
-                            "Cannot find parent component " + parent_component_name
-                        )
-                    logw.exception(
-                        f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}",
-                        e,
-                    )
-                    raise kopf.TemporaryError(
-                        f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}"
-                    )
-                # find the entry to update in securitySecretsManagement status
-                sman_status = parent_component["status"]["securitySecretsManagement"]
-                ready = sman_status["ready"]
-                if ready is not True:  # avoid recursion
-                    logw.info(
-                        "patching securitySecretsManagement in component",
-                        parent_component_name,
-                    )
-                    sman_status["ready"] = True
-                    try:
-                        _ = api_instance.patch_namespaced_custom_object(
-                            COMP_GROUP,
-                            COMP_VERSION,
-                            namespace,
-                            COMP_PLURAL,
-                            parent_component_name,
-                            parent_component,
-                        )
-                    except ApiException as e:
-                        raise kopf.TemporaryError(
-                            f"updateSecretsManagementReady: Exception in patch_namespaced_custom_object: {e.body}"
-                        )
+                patch_securitySecretsManagement_ready(logw, namespace, parent_component_name, retry=5, delay=1)
+
+
+@logwrapper
+def patch_securitySecretsManagement_ready(logw: LogWrapper, namespace, parent_component_name, retry=5, delay=1):
+    try_cnt = 0
+    while True:
+        try_cnt = try_cnt+1
+        if try_cnt > 1:
+            logw.info(f"retrying failed patch in {delay} seconds, try number", try_cnt)
+            await asyncio.sleep(delay)
+        logw.info("reading component", parent_component_name)
+        try:
+            api_instance = kubernetes.client.CustomObjectsApi()
+            parent_component = api_instance.get_namespaced_custom_object(
+                COMP_GROUP,
+                COMP_VERSION,
+                namespace,
+                COMP_PLURAL,
+                parent_component_name,
+            )
+        except ApiException as e:
+            # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+            if e.status == HTTP_NOT_FOUND:
+                raise kopf.TemporaryError(
+                    "Cannot find parent component " + parent_component_name
+                )
+            logw.exception(
+                f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}",
+                e,
+            )
+            raise kopf.TemporaryError(
+                f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}"
+            )
+        # find the entry to update in securitySecretsManagement status
+        sman_status = parent_component["status"]["securitySecretsManagement"]
+        ready = sman_status["ready"]
+        if ready is True:  # avoid recursion
+            return
+        logw.info(
+            "patching securitySecretsManagement in component",
+            parent_component_name,
+        )
+        sman_status["ready"] = True
+        try:
+            _ = api_instance.patch_namespaced_custom_object(
+                COMP_GROUP,
+                COMP_VERSION,
+                namespace,
+                COMP_PLURAL,
+                parent_component_name,
+                parent_component,
+            )
+            return
+        except ApiException as e:
+            logw.error(f"updateSecretsManagementReady: Exception in patch_namespaced_custom_object {parent_component_name}", e.body)
+            # TODO[FH] check for "the object has been modified"
+            if try_cnt>=retry:
+                raise kopf.TemporaryError(
+                    f"updateSecretsManagementReady: Exception in patch_namespaced_custom_object {parent_component_name}: {e.body}"
+                )
