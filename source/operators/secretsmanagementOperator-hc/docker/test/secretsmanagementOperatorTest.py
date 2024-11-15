@@ -211,62 +211,87 @@ def testLogWrapper():
     childLog3.info("hi", "I am the child 3")
 
 
-import inspect
-import traceback
+@logwrapper
+def sync_func(logw=None):
+    logw.info(f"I am sync_func")
 
-
-def logex(ex):
-    print(f"{ex}: {traceback.format_exc()}")
-
+@logwrapper(handler_name="synch")
+def sync_func2(logw=None):
+    logw.info(f"I am sync_func")
 
 @logwrapper
-def ordinary1(logw):
-    try:
-        logw.info(f"I am ordinary1")
-        ordinary2("huhu", logw=logw)
-        x = None
-        x.show()
-    except Exception as ex:
-        print("--- INDIREKT ---")
-        logex(ex)
-        print("--- DIREKT ---")
-        print(f"{ex}: {traceback.format_exc()}")
+async def async_func(logw=None):
+    logw.info(f"I am async_func")
+
+@logwrapper(handler_name="asynch")
+async def async_func2(logw=None):
+    logw.info(f"I am async_func")
 
 
-@logwrapper
-def ordinary2(text, logw="lll", magic=None):
-    logw.info(f"o2({text})")
-    ordinary3(logw)
+#===============================================================================
+# @logwrapper
+# def ordinary1(logw):
+#     try:
+#         logw.info(f"I am ordinary1")
+#         ordinary2("huhu", logw=logw)
+#         x = None
+#         x.show()
+#     except Exception as ex:
+#         print("--- INDIREKT ---")
+#         logex(ex)
+#         print("--- DIREKT ---")
+#         print(f"{ex}: {traceback.format_exc()}")
+# 
+# 
+# @logwrapper
+# def ordinary2(text, logw="lll", magic=None):
+#     logw.info(f"o2({text})")
+#     ordinary3(logw)
+# 
+# 
+# @logwrapper(handler_name="hn")
+# def ordinary3(logw):
+#     logw.info(f"I am ordinary3")
+#     ordinary4("hoho", magic="xxx", logw=logw)
+# 
+# 
+# @logwrapper(component_name="cn", resource_name="rn")
+# def ordinary4(text, logw="lll", magic=None):
+#     logw.info(f"o4({text}) with {magic}")
+#     ordinary5("egal5", magic=5, logw=logw)
+# 
+# 
+# @logwrapper(logger="other", component_name="cn", resource_name="rn")
+# def ordinary5(text, logw="lll", magic=None):
+#     logw.info(f"o5({text}) with {magic}")
+#===============================================================================
 
 
-@logwrapper(handler_name="hn")
-def ordinary3(logw):
-    logw.info(f"I am ordinary3")
-    ordinary4("hoho", magic="xxx", logw=logw)
-
-
-@logwrapper(component_name="cn", resource_name="rn")
-def ordinary4(text, logw="lll", magic=None):
-    logw.info(f"o4({text}) with {magic}")
-    ordinary5("egal5", magic=5, logw=logw)
-
-
-@logwrapper(logger="other", component_name="cn", resource_name="rn")
-def ordinary5(text, logw="lll", magic=None):
-    logw.info(f"o5({text}) with {magic}")
+async def async_main():
+    await async_func()
+    await async_func2()
 
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    ordinary5("egal5", magic=5)
-    ordinary4("egal4", magic=2)
-    ordinary1("lw")
-    ordinary2("egal", magic=3, logw="jjj")
-    ordinary2("egal", magic=2)
-    ordinary3("lw")
-    ordinary4("egal", magic=3, logw="jjj")
-    ordinary4("egal4", magic=2)
-    testLogWrapper()
+    
+    sync_func()
+    sync_func2()
+    asyncio.run(async_main())
+    
+    
+    #===========================================================================
+    # ordinary5("egal5", magic=5)
+    # ordinary4("egal4", magic=2)
+    # ordinary1("lw")
+    # ordinary2("egal", magic=3, logw="jjj")
+    # ordinary2("egal", magic=2)
+    # ordinary3("lw")
+    # ordinary4("egal", magic=3, logw="jjj")
+    # ordinary4("egal4", magic=2)
+    # testLogWrapper()
+    #===========================================================================
+    
     # ===========================================================================
     # k8s_load_config(proxy=False)
     # # k8s_load_vps2_config(proxy=True)

@@ -404,13 +404,13 @@ def label_deployment_pods(logw: LogWrapper, body, patch):
         patch.spec["template"] = {"metadata": {"labels": labels}}
 
 
+@logwrapper
 @kopf.on.mutate(
     "pods",
     labels={"oda.tmforum.org/secretsmanagement": "sidecar"},
     operation="CREATE",
     ignore_failures=True,
 )
-@logwrapper
 async def podmutate(
     body,
     meta,
@@ -437,13 +437,13 @@ async def podmutate(
         patch.clear()
 
 
+@logwrapper
 @kopf.on.mutate(
     "deployments",
     labels={"oda.tmforum.org/secretsmanagement": "sidecar"},
     operation="CREATE",
     ignore_failures=True,
 )
-@logwrapper
 async def deploymentmutate(
     body,
     meta,
@@ -711,9 +711,9 @@ def restart_pods_with_missing_sidecar(
 
 
 # when an oda.tmforum.org secretsmanagement resource is created or updated, configure policy and role
+@logwrapper
 @kopf.on.create(SMAN_GROUP, SMAN_VERSION, SMAN_PLURAL)
 @kopf.on.update(SMAN_GROUP, SMAN_VERSION, SMAN_PLURAL)
-@logwrapper
 async def secretsmanagementCreate(
     meta, spec, status, body, namespace, labels, name, logw: LogWrapper = None, **kwargs
 ):
@@ -745,8 +745,8 @@ async def secretsmanagementCreate(
 
 
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
-@kopf.on.delete(SMAN_GROUP, SMAN_VERSION, SMAN_PLURAL, retries=5)
 @logwrapper
+@kopf.on.delete(SMAN_GROUP, SMAN_VERSION, SMAN_PLURAL, retries=5)
 async def secretsmanagementDelete(
     meta, spec, status, body, namespace, labels, name, logw: LogWrapper = None, **kwargs
 ):
@@ -810,10 +810,10 @@ def setSecretsManagementReady(logw: LogWrapper, namespace, name):
         )
 
 
+@logwrapper
 @kopf.on.field(
     SMAN_GROUP, SMAN_VERSION, SMAN_PLURAL, field="status.implementation", retries=5
 )
-@logwrapper
 async def updateSecretsManagementReady(
     meta, spec, status, body, namespace, labels, name, logw: LogWrapper = None, **kwargs
 ):
