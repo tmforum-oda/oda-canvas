@@ -843,7 +843,7 @@ async def updateSecretsManagementReady(
 
 
 @logwrapper
-def patch_securitySecretsManagement_ready(logw: LogWrapper, namespace, parent_component_name, retry=5, delay=1):
+async def patch_securitySecretsManagement_ready(logw: LogWrapper, namespace, parent_component_name, retry=5, delay=1):
     try_cnt = 0
     while True:
         try_cnt = try_cnt+1
