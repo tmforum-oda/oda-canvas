@@ -216,6 +216,7 @@ def get_pod_name(body):
     pod_name = safe_get(None, body, "metadata", "name")
     if not pod_name:
         pod_name = safe_get(None, body, "metadata", "generateName")
+    return pod_name
 
 
 def get_deployment_name(body):
@@ -427,7 +428,7 @@ async def podmutate(
         )
         logw.debugInfo("POD mutate called", body)
         inject_sidecar(logw, body, patch)
-        logw.DebugInfo(f"POD mutate returns patch (size {len(str(patch))})", patch)
+        logw.debugInfo(f"POD mutate returns patch (size {len(str(patch))})", patch)
 
     except Exception as e:
         logw.exception("Unhandled exception", e)

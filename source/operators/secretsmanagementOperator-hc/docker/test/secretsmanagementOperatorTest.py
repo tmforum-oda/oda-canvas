@@ -13,6 +13,7 @@ from secretsmanagementOperatorHC import (
     safe_get,
     secretsmanagementDelete,
     secretsmanagementCreate,
+    podmutate,
 )
 
 
@@ -189,113 +190,71 @@ def test_secretsmanagementCreate():
     print(f"finished")
 
 
-def testLogWrapper():
-    log = LogWrapper(logger)
-    log.info("infolog")
-    log.info("infolog", "with details")
-    log.debug("debuglog")
-    log.debug("debuglog", "with details")
-    log.debug("debuglog", {"with": "details"})
-    childLog = log.childLogger(
-        function_name="fn", handler_name="hn", resource_name="rn", component_name="cn"
+def test_podmutate():
+    body_json_file = "testdata/podmutate.json"
+    with open(body_json_file, "r") as f:
+        body = json.load(f)
+    meta = body["metadata"]
+    spec = body["spec"]
+    status = safe_get(None, body, "status")
+    patch = kopf.Patch({})
+    warnings = []
+    labels = safe_get(None, meta, "labels")
+    #namespace = meta["namespace"]
+    #name = meta["generateName"]
+
+    from kopf._cogs.structs.bodies import Body, RawBody, RawEvent, RawMeta
+    from kopf._core.intents.causes import ChangingCause, Reason, WatchingCause
+    from kopf._core.actions.execution import cause_var
+    from kopf._core.engines.indexing import OperatorIndexers
+    from kopf._cogs.structs.ephemera import Memo
+    from kopf._core.actions.invocation import context
+
+    OWNER_API_VERSION = "owner-api-version"
+    OWNER_NAMESPACE = "owner-namespace"
+    OWNER_KIND = "OwnerKind"
+    OWNER_NAME = "owner-name"
+    OWNER_UID = "owner-uid"
+    OWNER_LABELS = {"label-1": "value-1", "label-2": "value-2"}
+    OWNER = RawBody(
+        apiVersion=OWNER_API_VERSION,
+        kind=OWNER_KIND,
+        metadata=RawMeta(
+            namespace=OWNER_NAMESPACE,
+            name=OWNER_NAME,
+            uid=OWNER_UID,
+            labels=OWNER_LABELS,
+        ),
     )
-    childLog.info("hi", "I am the child")
-    childLog2 = childLog.childLogger(
-        function_name="fn2",
-        handler_name="hn2",
-        resource_name="rn2",
-        component_name="cn2",
+
+    resource = "?"
+    cause = ChangingCause(
+        logger=logging.getLogger("kopf.test.fake.logger"),
+        indices=OperatorIndexers().indices,
+        resource=resource,
+        patch=patch,
+        memo=Memo(),
+        body=body,
+        initial=False,
+        reason=Reason.NOOP,
     )
-    childLog2.info("hi", "I am the child 2")
-    childLog3 = childLog2.childLogger(function_name="fn3")
-    childLog3.info("hi", "I am the child 3")
+    warnings = []
+    with context([(cause_var, cause)]):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            podmutate(body, meta, spec, status, patch, warnings)
+        )
+        loop.close()
+    print(f"finished")
 
-
-@logwrapper
-def sync_func(logw=None):
-    logw.info(f"I am sync_func")
-
-@logwrapper(handler_name="synch")
-def sync_func2(logw=None):
-    logw.info(f"I am sync_func")
-
-@logwrapper
-async def async_func(logw=None):
-    logw.info(f"I am async_func")
-
-@logwrapper(handler_name="asynch")
-async def async_func2(logw=None):
-    logw.info(f"I am async_func")
-
-
-#===============================================================================
-# @logwrapper
-# def ordinary1(logw):
-#     try:
-#         logw.info(f"I am ordinary1")
-#         ordinary2("huhu", logw=logw)
-#         x = None
-#         x.show()
-#     except Exception as ex:
-#         print("--- INDIREKT ---")
-#         logex(ex)
-#         print("--- DIREKT ---")
-#         print(f"{ex}: {traceback.format_exc()}")
-# 
-# 
-# @logwrapper
-# def ordinary2(text, logw="lll", magic=None):
-#     logw.info(f"o2({text})")
-#     ordinary3(logw)
-# 
-# 
-# @logwrapper(handler_name="hn")
-# def ordinary3(logw):
-#     logw.info(f"I am ordinary3")
-#     ordinary4("hoho", magic="xxx", logw=logw)
-# 
-# 
-# @logwrapper(component_name="cn", resource_name="rn")
-# def ordinary4(text, logw="lll", magic=None):
-#     logw.info(f"o4({text}) with {magic}")
-#     ordinary5("egal5", magic=5, logw=logw)
-# 
-# 
-# @logwrapper(logger="other", component_name="cn", resource_name="rn")
-# def ordinary5(text, logw="lll", magic=None):
-#     logw.info(f"o5({text}) with {magic}")
-#===============================================================================
-
-
-async def async_main():
-    await async_func()
-    await async_func2()
 
 
 if __name__ == "__main__":
     logging.info(f"main called")
     
-    sync_func()
-    sync_func2()
-    asyncio.run(async_main())
-    
-    
-    #===========================================================================
-    # ordinary5("egal5", magic=5)
-    # ordinary4("egal4", magic=2)
-    # ordinary1("lw")
-    # ordinary2("egal", magic=3, logw="jjj")
-    # ordinary2("egal", magic=2)
-    # ordinary3("lw")
-    # ordinary4("egal", magic=3, logw="jjj")
-    # ordinary4("egal4", magic=2)
-    # testLogWrapper()
-    #===========================================================================
-    
-    # ===========================================================================
-    # k8s_load_config(proxy=False)
-    # # k8s_load_vps2_config(proxy=True)
-    # test_kubeconfig()
-    # # test_secretsmanagementDelete()
+    k8s_load_config(proxy=False)
+    # k8s_load_vps2_config(proxy=True)
+    test_kubeconfig()
+    # test_secretsmanagementDelete()
     # test_secretsmanagementCreate()
-    # ===========================================================================
+    test_podmutate()

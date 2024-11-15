@@ -1,0 +1,654 @@
+{
+	"kind": "Pod",
+	"apiVersion": "v1",
+	"metadata": {
+		"generateName": "demo-a-prodcatapi-57868f9d7c-",
+		"namespace": "components",
+		"creationTimestamp": {},
+		"labels": {
+			"app": "demo-a-productcatalogmanagement",
+			"impl": "demo-a-prodcatapi",
+			"oda.tmforum.org/secretsmanagement": "sidecar",
+			"pod-template-hash": "57868f9d7c",
+			"security.istio.io/tlsMode": "istio",
+			"service.istio.io/canonical-name": "demo-a-productcatalogmanagement",
+			"service.istio.io/canonical-revision": "productcatalogapi-0.23",
+			"version": "productcatalogapi-0.23"
+		},
+		"annotations": {
+			"istio.io/rev": "default",
+			"kubectl.kubernetes.io/default-container": "demo-a-prodcatapi",
+			"kubectl.kubernetes.io/default-logs-container": "demo-a-prodcatapi",
+			"prometheus.io/path": "/stats/prometheus",
+			"prometheus.io/port": "15020",
+			"prometheus.io/scrape": "true",
+			"sidecar.istio.io/status": "{\"initContainers\":[\"istio-init\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"workload-socket\",\"credential-socket\",\"workload-certs\",\"istio-envoy\",\"istio-data\",\"istio-podinfo\",\"istio-token\",\"istiod-ca-cert\"],\"imagePullSecrets\":null,\"revision\":\"default\"}"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "apps/v1",
+				"kind": "ReplicaSet",
+				"name": "demo-a-prodcatapi-57868f9d7c",
+				"uid": "a59d07bd-740a-4e18-b922-2f6d34a486a9",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		],
+		"managedFields": [
+			{
+				"manager": "kube-controller-manager",
+				"operation": "Update",
+				"apiVersion": "v1",
+				"time": "2024-11-15T20:51:31Z",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {},
+						"f:labels": {
+							".": {},
+							"f:app": {},
+							"f:impl": {},
+							"f:oda.tmforum.org/secretsmanagement": {},
+							"f:pod-template-hash": {},
+							"f:version": {}
+						},
+						"f:ownerReferences": {
+							".": {},
+							"k:{\"uid\":\"a59d07bd-740a-4e18-b922-2f6d34a486a9\"}": {}
+						}
+					},
+					"f:spec": {
+						"f:containers": {
+							"k:{\"name\":\"demo-a-prodcatapi\"}": {
+								".": {},
+								"f:env": {
+									".": {},
+									"k:{\"name\":\"COMPONENT_NAME\"}": {
+										".": {},
+										"f:name": {},
+										"f:value": {}
+									},
+									"k:{\"name\":\"MONGODB_DATABASE\"}": {
+										".": {},
+										"f:name": {},
+										"f:value": {}
+									},
+									"k:{\"name\":\"MONGODB_HOST\"}": {
+										".": {},
+										"f:name": {},
+										"f:value": {}
+									},
+									"k:{\"name\":\"MONGODB_PORT\"}": {
+										".": {},
+										"f:name": {},
+										"f:value": {}
+									},
+									"k:{\"name\":\"NODE_ENV\"}": {
+										".": {},
+										"f:name": {},
+										"f:value": {}
+									},
+									"k:{\"name\":\"OTL_EXPORTER_CONSOLE_ENABLED\"}": {
+										".": {},
+										"f:name": {},
+										"f:value": {}
+									},
+									"k:{\"name\":\"OTL_EXPORTER_TRACE_PROTO_COLLECTOR_URL\"}": {
+										".": {},
+										"f:name": {},
+										"f:value": {}
+									},
+									"k:{\"name\":\"OTL_EXPORTER_TRACE_PROTO_ENABLED\"}": {
+										".": {},
+										"f:name": {},
+										"f:value": {}
+									},
+									"k:{\"name\":\"RELEASE_NAME\"}": {
+										".": {},
+										"f:name": {},
+										"f:value": {}
+									}
+								},
+								"f:image": {},
+								"f:imagePullPolicy": {},
+								"f:name": {},
+								"f:ports": {
+									".": {},
+									"k:{\"containerPort\":8080,\"protocol\":\"TCP\"}": {
+										".": {},
+										"f:containerPort": {},
+										"f:name": {},
+										"f:protocol": {}
+									}
+								},
+								"f:resources": {},
+								"f:startupProbe": {
+									".": {},
+									"f:failureThreshold": {},
+									"f:httpGet": {
+										".": {},
+										"f:path": {},
+										"f:port": {},
+										"f:scheme": {}
+									},
+									"f:initialDelaySeconds": {},
+									"f:periodSeconds": {},
+									"f:successThreshold": {},
+									"f:timeoutSeconds": {}
+								},
+								"f:terminationMessagePath": {},
+								"f:terminationMessagePolicy": {}
+							}
+						},
+						"f:dnsPolicy": {},
+						"f:enableServiceLinks": {},
+						"f:restartPolicy": {},
+						"f:schedulerName": {},
+						"f:securityContext": {},
+						"f:terminationGracePeriodSeconds": {}
+					}
+				}
+			}
+		]
+	},
+	"spec": {
+		"volumes": [
+			{
+				"name": "workload-socket",
+				"emptyDir": {}
+			},
+			{
+				"name": "credential-socket",
+				"emptyDir": {}
+			},
+			{
+				"name": "workload-certs",
+				"emptyDir": {}
+			},
+			{
+				"name": "istio-envoy",
+				"emptyDir": {
+					"medium": "Memory"
+				}
+			},
+			{
+				"name": "istio-data",
+				"emptyDir": {}
+			},
+			{
+				"name": "istio-podinfo",
+				"downwardAPI": {
+					"items": [
+						{
+							"path": "labels",
+							"fieldRef": {
+								"apiVersion": "v1",
+								"fieldPath": "metadata.labels"
+							}
+						},
+						{
+							"path": "annotations",
+							"fieldRef": {
+								"apiVersion": "v1",
+								"fieldPath": "metadata.annotations"
+							}
+						}
+					],
+					"defaultMode": 420
+				}
+			},
+			{
+				"name": "istio-token",
+				"projected": {
+					"sources": [
+						{
+							"serviceAccountToken": {
+								"audience": "istio-ca",
+								"expirationSeconds": 43200,
+								"path": "istio-token"
+							}
+						}
+					],
+					"defaultMode": 420
+				}
+			},
+			{
+				"name": "istiod-ca-cert",
+				"configMap": {
+					"name": "istio-ca-root-cert",
+					"defaultMode": 420
+				}
+			},
+			{
+				"name": "kube-api-access-fzwdv",
+				"projected": {
+					"sources": [
+						{
+							"serviceAccountToken": {
+								"expirationSeconds": 3607,
+								"path": "token"
+							}
+						},
+						{
+							"configMap": {
+								"name": "kube-root-ca.crt",
+								"items": [
+									{
+										"key": "ca.crt",
+										"path": "ca.crt"
+									}
+								]
+							}
+						},
+						{
+							"downwardAPI": {
+								"items": [
+									{
+										"path": "namespace",
+										"fieldRef": {
+											"apiVersion": "v1",
+											"fieldPath": "metadata.namespace"
+										}
+									}
+								]
+							}
+						}
+					],
+					"defaultMode": 420
+				}
+			}
+		],
+		"initContainers": [
+			{
+				"name": "istio-init",
+				"image": "docker.io/istio/proxyv2:1.20.3",
+				"args": [
+					"istio-iptables",
+					"-p",
+					"15001",
+					"-z",
+					"15006",
+					"-u",
+					"1337",
+					"-m",
+					"REDIRECT",
+					"-i",
+					"*",
+					"-x",
+					"",
+					"-b",
+					"*",
+					"-d",
+					"15090,15021,15020",
+					"--log_output_level=default:info"
+				],
+				"resources": {
+					"limits": {
+						"cpu": "2",
+						"memory": "1Gi"
+					},
+					"requests": {
+						"cpu": "100m",
+						"memory": "128Mi"
+					}
+				},
+				"terminationMessagePath": "/dev/termination-log",
+				"terminationMessagePolicy": "File",
+				"imagePullPolicy": "IfNotPresent",
+				"securityContext": {
+					"capabilities": {
+						"add": [
+							"NET_ADMIN",
+							"NET_RAW"
+						],
+						"drop": [
+							"ALL"
+						]
+					},
+					"privileged": false,
+					"runAsUser": 0,
+					"runAsGroup": 0,
+					"runAsNonRoot": false,
+					"readOnlyRootFilesystem": false,
+					"allowPrivilegeEscalation": false
+				}
+			}
+		],
+		"containers": [
+			{
+				"name": "demo-a-prodcatapi",
+				"image": "lesterthomas/productcatalogapi:0.23",
+				"ports": [
+					{
+						"name": "pcapi",
+						"containerPort": 8080,
+						"protocol": "TCP"
+					}
+				],
+				"env": [
+					{
+						"name": "RELEASE_NAME",
+						"value": "demo-a"
+					},
+					{
+						"name": "COMPONENT_NAME",
+						"value": "demo-a-productcatalogmanagement"
+					},
+					{
+						"name": "OTL_EXPORTER_CONSOLE_ENABLED",
+						"value": "false"
+					},
+					{
+						"name": "OTL_EXPORTER_TRACE_PROTO_ENABLED",
+						"value": "true"
+					},
+					{
+						"name": "OTL_EXPORTER_TRACE_PROTO_COLLECTOR_URL",
+						"value": "http://datadog-agent.default.svc.cluster.local:4318/v1/traces"
+					},
+					{
+						"name": "MONGODB_HOST",
+						"value": "demo-a-mongodb"
+					},
+					{
+						"name": "MONGODB_PORT",
+						"value": "27017"
+					},
+					{
+						"name": "MONGODB_DATABASE",
+						"value": "tmf"
+					},
+					{
+						"name": "NODE_ENV",
+						"value": "production"
+					}
+				],
+				"resources": {},
+				"volumeMounts": [
+					{
+						"name": "kube-api-access-fzwdv",
+						"readOnly": true,
+						"mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+					}
+				],
+				"startupProbe": {
+					"httpGet": {
+						"path": "/app-health/demo-a-prodcatapi/startupz",
+						"port": 15020,
+						"scheme": "HTTP"
+					},
+					"initialDelaySeconds": 10,
+					"timeoutSeconds": 1,
+					"periodSeconds": 5,
+					"successThreshold": 1,
+					"failureThreshold": 30
+				},
+				"terminationMessagePath": "/dev/termination-log",
+				"terminationMessagePolicy": "File",
+				"imagePullPolicy": "Always"
+			},
+			{
+				"name": "istio-proxy",
+				"image": "docker.io/istio/proxyv2:1.20.3",
+				"args": [
+					"proxy",
+					"sidecar",
+					"--domain",
+					"$(POD_NAMESPACE).svc.cluster.local",
+					"--proxyLogLevel=warning",
+					"--proxyComponentLogLevel=misc:error",
+					"--log_output_level=default:info"
+				],
+				"ports": [
+					{
+						"name": "http-envoy-prom",
+						"containerPort": 15090,
+						"protocol": "TCP"
+					}
+				],
+				"env": [
+					{
+						"name": "JWT_POLICY",
+						"value": "third-party-jwt"
+					},
+					{
+						"name": "PILOT_CERT_PROVIDER",
+						"value": "istiod"
+					},
+					{
+						"name": "CA_ADDR",
+						"value": "istiod.istio-system.svc:15012"
+					},
+					{
+						"name": "POD_NAME",
+						"valueFrom": {
+							"fieldRef": {
+								"apiVersion": "v1",
+								"fieldPath": "metadata.name"
+							}
+						}
+					},
+					{
+						"name": "POD_NAMESPACE",
+						"valueFrom": {
+							"fieldRef": {
+								"apiVersion": "v1",
+								"fieldPath": "metadata.namespace"
+							}
+						}
+					},
+					{
+						"name": "INSTANCE_IP",
+						"valueFrom": {
+							"fieldRef": {
+								"apiVersion": "v1",
+								"fieldPath": "status.podIP"
+							}
+						}
+					},
+					{
+						"name": "SERVICE_ACCOUNT",
+						"valueFrom": {
+							"fieldRef": {
+								"apiVersion": "v1",
+								"fieldPath": "spec.serviceAccountName"
+							}
+						}
+					},
+					{
+						"name": "HOST_IP",
+						"valueFrom": {
+							"fieldRef": {
+								"apiVersion": "v1",
+								"fieldPath": "status.hostIP"
+							}
+						}
+					},
+					{
+						"name": "ISTIO_CPU_LIMIT",
+						"valueFrom": {
+							"resourceFieldRef": {
+								"resource": "limits.cpu",
+								"divisor": "0"
+							}
+						}
+					},
+					{
+						"name": "PROXY_CONFIG",
+						"value": "{}\n"
+					},
+					{
+						"name": "ISTIO_META_POD_PORTS",
+						"value": "[\n    {\"name\":\"pcapi\",\"containerPort\":8080,\"protocol\":\"TCP\"}\n]"
+					},
+					{
+						"name": "ISTIO_META_APP_CONTAINERS",
+						"value": "demo-a-prodcatapi"
+					},
+					{
+						"name": "GOMEMLIMIT",
+						"valueFrom": {
+							"resourceFieldRef": {
+								"resource": "limits.memory",
+								"divisor": "0"
+							}
+						}
+					},
+					{
+						"name": "GOMAXPROCS",
+						"valueFrom": {
+							"resourceFieldRef": {
+								"resource": "limits.cpu",
+								"divisor": "0"
+							}
+						}
+					},
+					{
+						"name": "ISTIO_META_CLUSTER_ID",
+						"value": "Kubernetes"
+					},
+					{
+						"name": "ISTIO_META_NODE_NAME",
+						"valueFrom": {
+							"fieldRef": {
+								"apiVersion": "v1",
+								"fieldPath": "spec.nodeName"
+							}
+						}
+					},
+					{
+						"name": "ISTIO_META_INTERCEPTION_MODE",
+						"value": "REDIRECT"
+					},
+					{
+						"name": "ISTIO_META_WORKLOAD_NAME",
+						"value": "demo-a-prodcatapi"
+					},
+					{
+						"name": "ISTIO_META_OWNER",
+						"value": "kubernetes://apis/apps/v1/namespaces/components/deployments/demo-a-prodcatapi"
+					},
+					{
+						"name": "ISTIO_META_MESH_ID",
+						"value": "cluster.local"
+					},
+					{
+						"name": "TRUST_DOMAIN",
+						"value": "cluster.local"
+					},
+					{
+						"name": "ISTIO_KUBE_APP_PROBERS",
+						"value": "{\"/app-health/demo-a-prodcatapi/startupz\":{\"httpGet\":{\"path\":\"/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4/catalog\",\"port\":8080,\"scheme\":\"HTTP\"},\"timeoutSeconds\":1}}"
+					}
+				],
+				"resources": {
+					"limits": {
+						"cpu": "2",
+						"memory": "1Gi"
+					},
+					"requests": {
+						"cpu": "100m",
+						"memory": "128Mi"
+					}
+				},
+				"volumeMounts": [
+					{
+						"name": "workload-socket",
+						"mountPath": "/var/run/secrets/workload-spiffe-uds"
+					},
+					{
+						"name": "credential-socket",
+						"mountPath": "/var/run/secrets/credential-uds"
+					},
+					{
+						"name": "workload-certs",
+						"mountPath": "/var/run/secrets/workload-spiffe-credentials"
+					},
+					{
+						"name": "istiod-ca-cert",
+						"mountPath": "/var/run/secrets/istio"
+					},
+					{
+						"name": "istio-data",
+						"mountPath": "/var/lib/istio/data"
+					},
+					{
+						"name": "istio-envoy",
+						"mountPath": "/etc/istio/proxy"
+					},
+					{
+						"name": "istio-token",
+						"mountPath": "/var/run/secrets/tokens"
+					},
+					{
+						"name": "istio-podinfo",
+						"mountPath": "/etc/istio/pod"
+					}
+				],
+				"readinessProbe": {
+					"httpGet": {
+						"path": "/healthz/ready",
+						"port": 15021,
+						"scheme": "HTTP"
+					},
+					"timeoutSeconds": 3,
+					"periodSeconds": 15,
+					"successThreshold": 1,
+					"failureThreshold": 4
+				},
+				"startupProbe": {
+					"httpGet": {
+						"path": "/healthz/ready",
+						"port": 15021,
+						"scheme": "HTTP"
+					},
+					"timeoutSeconds": 3,
+					"periodSeconds": 1,
+					"successThreshold": 1,
+					"failureThreshold": 600
+				},
+				"terminationMessagePath": "/dev/termination-log",
+				"terminationMessagePolicy": "File",
+				"imagePullPolicy": "IfNotPresent",
+				"securityContext": {
+					"capabilities": {
+						"drop": [
+							"ALL"
+						]
+					},
+					"privileged": false,
+					"runAsUser": 1337,
+					"runAsGroup": 1337,
+					"runAsNonRoot": true,
+					"readOnlyRootFilesystem": true,
+					"allowPrivilegeEscalation": false
+				}
+			}
+		],
+		"restartPolicy": "Always",
+		"terminationGracePeriodSeconds": 30,
+		"dnsPolicy": "ClusterFirst",
+		"serviceAccountName": "default",
+		"serviceAccount": "default",
+		"securityContext": {},
+		"schedulerName": "default-scheduler",
+		"tolerations": [
+			{
+				"key": "node.kubernetes.io/not-ready",
+				"operator": "Exists",
+				"effect": "NoExecute",
+				"tolerationSeconds": 300
+			},
+			{
+				"key": "node.kubernetes.io/unreachable",
+				"operator": "Exists",
+				"effect": "NoExecute",
+				"tolerationSeconds": 300
+			}
+		],
+		"priority": 0,
+		"enableServiceLinks": true,
+		"preemptionPolicy": "PreemptLowerPriority"
+	},
+	"status": {}
+}
