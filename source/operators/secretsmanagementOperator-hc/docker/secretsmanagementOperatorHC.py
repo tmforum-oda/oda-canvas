@@ -736,7 +736,7 @@ async def secretsmanagementCreate(
         setSecretsManagementReady(logw, sman_namespace, sman_name)
 
     restart_pods_with_missing_sidecar(
-        sman_namespace, pod_name, pod_namespace, pod_service_account
+        logw, sman_namespace, pod_name, pod_namespace, pod_service_account
     )
 
 
