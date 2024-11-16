@@ -839,7 +839,7 @@ async def updateSecretsManagementReady(
         if status["implementation"]["ready"] is True:
             if "ownerReferences" in meta.keys():
                 parent_component_name = meta["ownerReferences"][0]["name"]
-                patch_securitySecretsManagement_ready(logw, namespace, parent_component_name, retry=5, delay=1)
+                await patch_securitySecretsManagement_ready(logw, namespace, parent_component_name, retry=5, delay=1)
 
 
 @logwrapper
