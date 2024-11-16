@@ -1,7 +1,7 @@
 @UC014
 @UC014-F002
 @ApisixGateway
-Feature: UC014-F002 Create API Resource and Verify Rate-Limiting ApisixPlugin Creation for API
+Feature: UC014-F002 Create API Resource and Verify Rate-Limiting and Authentication ApisixPlugin Creation for API
 
   Scenario: Create and Verify ApisixPlugin for ExposedAPI Resource
     Given an example package "productcatalog-v1beta3-plugin" with a '<ComponentName>' component in its "coreFunction" segment
