@@ -131,13 +131,14 @@ class LogWrapper:
         """
         if self.logger.isEnabledFor(logLevel):
             cn = tostr(self.component_name)
+            rn = tostr(self.resource_name)
             hn = tostr(self.handler_name)
             fn = tostr(self.function_name)
             sub = tostr(subject)
             moo = tostr(message_or_object)
             self.logger.log(
                 logLevel,
-                f"[{cn}|{tostr(self.resource_name)}|{hn}|{fn}] {sub}: {moo}",
+                f"[{cn}|{rn}|{hn}|{fn}] {sub}: {moo}",
             )
         return
 
