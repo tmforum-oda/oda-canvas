@@ -130,11 +130,11 @@ class LogWrapper:
             No return value.
         """
         if self.logger.isEnabledFor(logLevel):
-            cn = tostr(self.component_name)
-            rn = tostr(self.resource_name)
-            hn = tostr(self.handler_name)
-            fn = tostr(self.function_name)
-            sub = tostr(subject)
+            cn = tostr(self.component_name).replace("|", "/")
+            rn = tostr(self.resource_name).replace("|", "/")
+            hn = tostr(self.handler_name).replace("|", "/")
+            fn = tostr(self.function_name).replace("]", ")")
+            sub = tostr(subject).replace(":", ";")
             moo = tostr(message_or_object)
             self.logger.log(
                 logLevel,
