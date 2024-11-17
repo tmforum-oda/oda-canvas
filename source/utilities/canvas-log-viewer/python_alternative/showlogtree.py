@@ -1,3 +1,5 @@
+import sys
+import fileinput
 from rich.tree import Tree
 from rich import print
 
@@ -56,13 +58,10 @@ def parse_log(lines):
 
 
 def create_log_tree(filename):
-    with open(filename, "r") as f:
-        lines = f.readlines()
-    lines = lines[0:20]
+    files = [] if filename=='-' else [filename]
+    lines = list(fileinput.input(files = files))           
+    #lines = lines[0:20]
     entries = parse_log(lines)
-    print()
-    print(json.dumps(entries, indent=2))
-    print()
     logTree = {} 
     for entry in entries:
         next = logTree
@@ -121,7 +120,11 @@ def show_log_tree(filename):
 
 
 if __name__ == "__main__":
+    if len(sys.argv)>1:
+        filename = sys.argv[1]
+    else:
+        filename = "-" 
     #filename = "canvas-smanop.log"
-    filename = "canvas-compop.log"
+    #filename = "canvas-compop.log"
     show_log_tree(filename)
     
