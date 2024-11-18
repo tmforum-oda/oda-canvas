@@ -16,3 +16,4 @@ else
     echo "usage: kubectl canvaslogs (comp|sman|depapi) [componentfilter]"
     echo "       needs python with 'pip install rich'"
 fi
+

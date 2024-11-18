@@ -12,7 +12,7 @@ a new Python environment can be setup
 
 ```
 mkdir -p ~/.venv
-python -m venv ~/.venv/canvaslogs
+python3 -m venv ~/.venv/canvaslogs
 . ~/.venv/canvaslogs/bin/activate
 pip install rich
 ```
@@ -26,15 +26,15 @@ copy binaries into an installation folder
 
 ```
 mkdir -p ~/canvaslogs
-cp kubectl-canvaslogs ~/canvaslogs
-cp showlogtree.py ~/canvaslogs
+cp kubectl-canvaslogs ~/canvaslogs/
+cp showlogtree.py ~/canvaslogs/
 chmod a+x ~/canvaslogs/kubectl-canvaslogs
 ```
 
 create symbolic link to executable (or add ~/canvaslogs to PATH env var)
 
 ```
-sudo ln -s ~/canvaslogs/kubectl-canvaslogs /ust/local/bin/kubectl-canvaslogs
+sudo ln -s ~/canvaslogs/kubectl-canvaslogs /usr/local/bin/kubectl-canvaslogs
 ```
 
 ### test
