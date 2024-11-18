@@ -11,9 +11,12 @@ then
     kubectl logs -n canvas deployment/canvas-smanop | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py "$2"
 elif [ "$1" = "depapi" ]
 then
-    kubectl logs -n canvas deployment/canvas-depapi-op | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py "$2"
+    kubectl logs -n canvas deployment/canvas-smanop | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py "$2"
+elif [ "$1" = "apiistio" ]
+then
+    kubectl logs -n canvas deployment/api-operator-istio | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py "$2"
 else
-    echo "usage: kubectl canvaslogs (comp|sman|depapi) [componentfilter]"
+    echo "usage: kubectl canvaslogs (comp|sman|depapi|apiistio) [componentfilter]"
     echo "       needs python with 'pip install rich'"
 fi
 

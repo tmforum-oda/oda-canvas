@@ -42,7 +42,7 @@ sudo ln -s ~/canvaslogs/kubectl-canvaslogs /usr/local/bin/kubectl-canvaslogs
 ```
 $ kubectl canvaslogs
 
-  usage: kubectl canvaslogs (comp|sman|depapi) [componentfilter]
+  usage: kubectl canvaslogs (comp|sman|depapi|apiistio) [componentfilter]
          needs python with 'pip install rich'
 ```
 
