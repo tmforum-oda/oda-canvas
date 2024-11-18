@@ -1,0 +1,18 @@
+#!/bin/sh
+
+CANVASLOGS_FOLDER=$(dirname `realpath "$0"`)
+PYTHON=~/.venv/canvaslogs/bin/python
+
+if [ "$1" = "comp" ]
+then
+    kubectl logs -n canvas deployment/component-operator -c component-operator | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py "$2"
+elif [ "$1" = "sman" ]
+then
+    kubectl logs -n canvas deployment/canvas-smanop | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py "$2"
+elif [ "$1" = "depapi" ]
+then
+    kubectl logs -n canvas deployment/canvas-depapi-op | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py "$2"
+else
+    echo "usage: kubectl canvaslogs (comp|sman|depapi) [componentfilter]"
+    echo "       needs python with 'pip install rich'"
+fi

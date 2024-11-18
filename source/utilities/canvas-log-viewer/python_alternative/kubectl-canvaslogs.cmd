@@ -1,7 +1,7 @@
 @echo off
 
 if "%1" == "comp" (
-	kubectl logs -n canvas deployment/component-operator | python showlogtree.py "%2"
+	kubectl logs -n canvas deployment/component-operator -c component-operator | python showlogtree.py "%2"
 	exit 0
 )
 if "%1" == "sman" (

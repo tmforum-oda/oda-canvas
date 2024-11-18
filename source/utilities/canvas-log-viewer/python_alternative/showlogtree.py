@@ -28,9 +28,6 @@ MESSAGE_RX = "(?P<message>.*)"
 LINE_RX = re.compile(
     f"{TIME_RX}{sp}{LOGGER_RX}{sp}{LEVEL_RX}{sp}({COMPONENT_RX}{RESOURCE_RX}{HANDLER_RX}{FUNCTION_RX}{sp}{SUBJECT_RX}{sp}|{RESOURCE_ONLY_RX}{sp}|){MESSAGE_RX}"
 )
-LINE_RO_RX = re.compile(
-    f"{TIME_RX}{sp}{LOGGER_RX}{sp}{LEVEL_RX}{sp}{RESOURCE_ONLY_RX}{sp}{MESSAGE_RX}"
-)
 
 
 def nvl(obj, none_value):
@@ -138,16 +135,12 @@ def recursive_build_tree(input_tree, output_tree):
 
 def show_log_tree(filename, compfilter):
     logTree = create_log_tree(filename, compfilter)
-    tree = Tree(f"[green]{filename}")
+    tree = Tree(f"[green]Canvas Log Viewer ({filename})")
     recursive_build_tree(logTree, tree)
     print(tree)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        compfilter = sys.argv[1]
-    else:
-        compfilter = None
-    # filename = "canvas-smanop.log"
-    # filename = "canvas-compop.log"
-    show_log_tree("-", compfilter)
+    compfilter = sys.argv[1] if len(sys.argv) > 1 else None
+    filename = "-"  # stdin
+    show_log_tree(filename, compfilter)
