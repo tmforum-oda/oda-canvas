@@ -614,7 +614,7 @@ def setupSecretsManagement(
             )
 
     except Exception as e:
-        logw.exception("ERROR setup vault {sman_namespace}:{sman_name} failed!", e)
+        logw.exception("ERROR setup vault {sman_name}.{sman_namespace} failed!", e)
         raise kopf.TemporaryError(e)
 
 
@@ -701,7 +701,8 @@ def restart_pods_with_missing_sidecar(
         has_sidecar = has_container(pod, "smansidecar")
 
         logw.info(
-            f"INFO FOR POD {pod_namespace}:{pod_name}:{pod_serviceAccountName}, matches: {matches}, has sidecar: {has_sidecar}"
+            "INFO FOR POD",
+            f"{pod_namespace}:{pod_name}:{pod_serviceAccountName}, matches: {matches}, has sidecar: {has_sidecar}",
         )
         if matches and not has_sidecar:
             logw.info("RESTARTING POD", f"{pod_namespace}:{pod_name}")
@@ -787,7 +788,7 @@ def setSecretsManagementReady(logw: LogWrapper, namespace, name):
         )
     except ApiException as e:
         if e.status == HTTP_NOT_FOUND:
-            logw.error(f"secretsmanagement {namespace}:{name} not found")
+            logw.error(f"secretsmanagement {name}.{namespace} not found")
             raise kopf.TemporaryError(
                 f"setSecretsManagementReady: secretsmanagement {namespace}:{name} not found"
             )
@@ -841,7 +842,7 @@ async def updateSecretsManagementReady(
     )
     logw.set(component_name=quick_get_comp_name(body), resource_name=f"SMan/{name}")
 
-    logw.debugInfo(f"updateSecretsManagementReady called for {namespace}:{name}", body)
+    logw.debugInfo(f"updateSecretsManagementReady called for {name}.{namespace}", body)
     if "ready" in status["implementation"].keys():
         if status["implementation"]["ready"] is True:
             if "ownerReferences" in meta.keys():
@@ -878,7 +879,7 @@ async def patch_securitySecretsManagement_ready(
                     "Cannot find parent component " + parent_component_name
                 )
             logw.exception(
-                f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}",
+                f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}",
                 e,
             )
             raise kopf.TemporaryError(
