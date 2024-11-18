@@ -715,7 +715,9 @@ def restart_pods_with_missing_sidecar(
 async def secretsmanagementCreate(
     meta, spec, status, body, namespace, labels, name, logw: LogWrapper = None, **kwargs
 ):
-    logw = LogWrapper(handler_name="secretsmanagementCreate", function_name="secretsmanagementCreate")
+    logw = LogWrapper(
+        handler_name="secretsmanagementCreate", function_name="secretsmanagementCreate"
+    )
     logw.set(component_name=quick_get_comp_name(body), resource_name=f"SMan/{name}")
 
     logw.debugInfo("Create/Update  called", body)
@@ -747,7 +749,9 @@ async def secretsmanagementCreate(
 async def secretsmanagementDelete(
     meta, spec, status, body, namespace, labels, name, logw: LogWrapper = None, **kwargs
 ):
-    logw = LogWrapper(handler_name="secretsmanagementDelete", function_name="secretsmanagementDelete")
+    logw = LogWrapper(
+        handler_name="secretsmanagementDelete", function_name="secretsmanagementDelete"
+    )
     logw.set(component_name=quick_get_comp_name(body), resource_name=f"SMan/{name}")
 
     logw.debugInfo("Delete  called with body", body)
@@ -831,7 +835,10 @@ async def updateSecretsManagementReady(
     Returns:
         No return value, nothing to write into the status.
     """
-    logw = LogWrapper(handler_name="updateSecretsManagementReady", function_name="updateSecretsManagementReady")
+    logw = LogWrapper(
+        handler_name="updateSecretsManagementReady",
+        function_name="updateSecretsManagementReady",
+    )
     logw.set(component_name=quick_get_comp_name(body), resource_name=f"SMan/{name}")
 
     logw.debugInfo(f"updateSecretsManagementReady called for {namespace}:{name}", body)
@@ -839,14 +846,18 @@ async def updateSecretsManagementReady(
         if status["implementation"]["ready"] is True:
             if "ownerReferences" in meta.keys():
                 parent_component_name = meta["ownerReferences"][0]["name"]
-                await patch_securitySecretsManagement_ready(logw, namespace, parent_component_name, retry=5, delay=1)
+                await patch_securitySecretsManagement_ready(
+                    logw, namespace, parent_component_name, retry=5, delay=1
+                )
 
 
 @logwrapper
-async def patch_securitySecretsManagement_ready(logw: LogWrapper, namespace, parent_component_name, retry=5, delay=1):
+async def patch_securitySecretsManagement_ready(
+    logw: LogWrapper, namespace, parent_component_name, retry=5, delay=1
+):
     try_cnt = 0
     while True:
-        try_cnt = try_cnt+1
+        try_cnt = try_cnt + 1
         if try_cnt > 1:
             logw.info(f"retrying failed patch in {delay} seconds, try number", try_cnt)
             await asyncio.sleep(delay)
@@ -894,9 +905,12 @@ async def patch_securitySecretsManagement_ready(logw: LogWrapper, namespace, par
             )
             return
         except ApiException as e:
-            logw.error(f"updateSecretsManagementReady: Exception in patch_namespaced_custom_object {parent_component_name}", e.body)
+            logw.error(
+                f"updateSecretsManagementReady: Exception in patch_namespaced_custom_object {parent_component_name}",
+                e.body,
+            )
             # TODO[FH] check for "the object has been modified"
-            if try_cnt>=retry:
+            if try_cnt >= retry:
                 raise kopf.TemporaryError(
                     f"updateSecretsManagementReady: Exception in patch_namespaced_custom_object {parent_component_name}: {e.body}"
                 )

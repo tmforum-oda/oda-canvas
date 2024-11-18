@@ -200,8 +200,8 @@ def test_podmutate():
     patch = kopf.Patch({})
     warnings = []
     labels = safe_get(None, meta, "labels")
-    #namespace = meta["namespace"]
-    #name = meta["generateName"]
+    # namespace = meta["namespace"]
+    # name = meta["generateName"]
 
     from kopf._cogs.structs.bodies import Body, RawBody, RawEvent, RawMeta
     from kopf._core.intents.causes import ChangingCause, Reason, WatchingCause
@@ -241,17 +241,14 @@ def test_podmutate():
     warnings = []
     with context([(cause_var, cause)]):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            podmutate(body, meta, spec, status, patch, warnings)
-        )
+        loop.run_until_complete(podmutate(body, meta, spec, status, patch, warnings))
         loop.close()
     print(f"finished")
 
 
-
 if __name__ == "__main__":
     logging.info(f"main called")
-    
+
     k8s_load_config(proxy=False)
     # k8s_load_vps2_config(proxy=True)
     test_kubeconfig()
