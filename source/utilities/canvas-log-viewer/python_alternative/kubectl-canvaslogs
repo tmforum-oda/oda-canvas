@@ -42,9 +42,8 @@ else
     echo "       needs python with 'pip install rich timedinput'"
     echo ""
     echo "options:"
-    echo "  -h, (help)          show this help message and exit"
-    echo "  <component-filter>  filter components by name with wildcards (*/?), e.g. \"comp-a-*\""
     echo "  -f, (follow)        keep the Log Viewer open and update the display on incoming logs"
+    echo "  <component-filter>  filter components by name with wildcards (*/?), e.g. \"comp-a-*\""
     echo "  -l <last-hours>     only look at the last n hours in logfile"
     echo ""
 fi

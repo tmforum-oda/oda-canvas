@@ -1,20 +1,52 @@
 @echo off
 
-if "%1" == "comp" (
-	kubectl logs -n canvas deployment/component-operator -c component-operator | python showlogtree.py "%2"
+SET CANVASLOGS_FOLDER=%~dp0
+
+SET PYTHON=python
+IF EXIST c:\dev\venv\canvaslogs\Scripts\python.exe (
+	SET PYTHON=c:\dev\venv\canvaslogs\Scripts\python.exe
+)
+
+SET FOLLOW=
+if "%1" == "-f" (
+	SET FOLLOW=-f
+	shift
+)
+
+SET OPERATOR=%1
+shift
+
+SET COMP_PATTERN=
+SET TEMP=%1-
+if not "%TEMP:~0,1%" == "-" (
+	SET COMP_PATTERN=-c %1
+    shift
+)
+
+
+if "%OPERATOR%" == "comp" (
+	kubectl logs -n canvas deployment/component-operator -c component-operator %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
 	GOTO :eof
 )
-if "%1" == "sman" (
-	kubectl logs -n canvas deployment/canvas-smanop | python showlogtree.py "%2"
+if "%OPERATOR%" == "sman" (
+	kubectl logs -n canvas deployment/canvas-smanop %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
 	GOTO :eof
 )
-if "%1" == "depapi" (
-	kubectl logs -n canvas deployment/canvas-depapi-op | python showlogtree.py "%2"
+if "%OPERATOR%" == "depapi" (
+	kubectl logs -n canvas deployment/canvas-depapi-op %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
 	GOTO :eof
 )
-if "%1" == "apiistio" (
-	kubectl logs -n canvas deployment/api-operator-istio | python showlogtree.py "%2"
+if "%OPERATOR%" == "apiistio" (
+	kubectl logs -n canvas deployment/api-operator-istio %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
 	GOTO :eof
 )
-echo "usage: kubectl canvaslogs (comp|sman|depapi|apiistio) [componentfilter]"
-echo "       needs python with 'pip install rich'"
+
+echo "                                                                                                "
+echo "usage: kubectl canvaslogs [-f] (comp|sman|depapi|apiistio) [<componentfilter>] [-l <last-hours>]"
+echo "       needs python with 'pip install rich timedinput'                                          "
+echo "                                                                                                "
+echo "options:                                                                                        "
+echo "  -f, (follow)        keep the Log Viewer open and update the display on incoming logs          "
+echo "  <component-filter>  filter components by name with wildcards (*/?), e.g. comp-a-*             "
+echo "  -l <last-hours>     only look at the last n hours in logfile                                  "
+echo "                                                                                                "
