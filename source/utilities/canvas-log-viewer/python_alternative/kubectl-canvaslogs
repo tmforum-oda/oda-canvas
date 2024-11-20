@@ -26,16 +26,16 @@ fi
 
 if [ "$OPERATOR" = "comp" ]
 then
-    kubectl logs -n canvas deployment/component-operator -c component-operator | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py $COMP_PATTERN $1 $2 $3 $4 $5 $6 $7 $8 $9
+    kubectl logs -n canvas deployment/component-operator -c component-operator $FOLLOW | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py $COMP_PATTERN $FOLLOW $1 $2 $3 $4 $5 $6 $7 $8 $9
 elif [ "$OPERATOR" = "sman" ]
 then
-    kubectl logs -n canvas deployment/canvas-smanop | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py $COMP_PATTERN $1 $2 $3 $4 $5 $6 $7 $8 $9
+    kubectl logs -n canvas deployment/canvas-smanop $FOLLOW | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py $COMP_PATTERN $FOLLOW $1 $2 $3 $4 $5 $6 $7 $8 $9
 elif [ "$OPERATOR" = "depapi" ]
 then
-    kubectl logs -n canvas deployment/canvas-depapi-op | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py $COMP_PATTERN $1 $2 $3 $4 $5 $6 $7 $8 $9
+    kubectl logs -n canvas deployment/canvas-depapi-op $FOLLOW | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py $COMP_PATTERN $FOLLOW $1 $2 $3 $4 $5 $6 $7 $8 $9
 elif [ "$OPERATOR" = "apiistio" ]
 then
-    kubectl logs -n canvas deployment/api-operator-istio | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py $COMP_PATTERN $1 $2 $3 $4 $5 $6 $7 $8 $9
+    kubectl logs -n canvas deployment/api-operator-istio $FOLLOW | $PYTHON $CANVASLOGS_FOLDER/showlogtree.py $COMP_PATTERN $FOLLOW $1 $2 $3 $4 $5 $6 $7 $8 $9
 else
     echo ""
     echo "usage: kubectl canvaslogs [-f] (comp|sman|depapi|apiistio) [<componentfilter>] [-l <last-hours>]"
@@ -48,4 +48,3 @@ else
     echo "  -l <last-hours>     only look at the last n hours in logfile"
     echo ""
 fi
-
