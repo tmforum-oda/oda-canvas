@@ -165,7 +165,7 @@ dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 0.2.4
-  prereleaseSuffix: issue320 
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   serviceInventoryAPI:
@@ -281,7 +281,7 @@ canvas-vault:
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator
   version: 0.1.3
-  prereleaseSuffix: issue320
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
