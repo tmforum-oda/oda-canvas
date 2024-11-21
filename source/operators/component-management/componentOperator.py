@@ -2088,7 +2088,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
             in status.keys()
         ) and (
             status["security_client_add/status.summary/status.deployment_status"][
-                "listenerRegistered"
+                "identityProvider"
             ]
             == True
         ):
