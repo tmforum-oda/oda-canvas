@@ -195,24 +195,18 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                 partyRoleAPI = api
                 foundPartyRole = True
                 break
-    if not(foundPartyRole):
-        raise kopf.TemporaryError(
-            'Could not get partyrole path from component. Will retry.',
-            delay=10
-        )
-
-    rooturl = (
-        'http://'
-        + partyRoleAPI['implementation']
-        + '.' + namespace + '.svc.cluster.local:'
-        + str(partyRoleAPI['port'])
-        + partyRoleAPI['path']
-    )
-    logger.debug('using component root url: %s', rooturl)
-    logger.debug('status.deployment_status = %s -> %s', old, new)
 
     if (foundPartyRole == True) :
         try: # to register with the partyRoleManagement API
+            rooturl = (
+                'http://'
+                + partyRoleAPI['implementation']
+                + '.' + namespace + '.svc.cluster.local:'
+                + str(partyRoleAPI['port'])
+                + partyRoleAPI['path']
+            )
+            logger.debug('using component root url: %s', rooturl)
+            logger.debug('status.deployment_status = %s -> %s', old, new)            
             register_listener(rooturl + '/hub')    
         except RuntimeError as e:
             logger.warning(format_cloud_event(
