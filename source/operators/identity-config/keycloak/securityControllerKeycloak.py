@@ -161,7 +161,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         )
 
 
-    if('securityFunction' in spec and 'componentRole' in spec['securityFunction'] and len(spec['securityFunction']['componentRole'])):
+    if ('securityFunction' in spec and 'componentRole' in spec['securityFunction'] and len(spec['securityFunction']['componentRole'])):
 
 
         try:# to add list of static roles exposed in component
@@ -188,53 +188,53 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             ))           
 
 
-        foundPartyRole = False
-        partyRoleAPI = None
-        if ('securityFunction' in spec and 'exposedAPIs' in spec['securityFunction']):
-            for api in spec['securityFunction']['exposedAPIs']:
-                if ('partyrole' in api['name']):
-                    partyRoleAPI = api
-                    foundPartyRole = True
-                    break
-        if not(foundPartyRole):
-            raise kopf.TemporaryError(
-                'Could not get partyrole path from component. Will retry.',
-                delay=10
-            )
-        # del unused-arguments for linting
-        del meta, status, body, labels, kwargs
-    
-        rooturl = (
-            'http://'
-            + partyRoleAPI['implementation']
-            + '.' + namespace + '.svc.cluster.local:'
-            + str(partyRoleAPI['port'])
-            + partyRoleAPI['path']
+    foundPartyRole = False
+    partyRoleAPI = None
+    if ('securityFunction' in spec and 'exposedAPIs' in spec['securityFunction']):
+        for api in spec['securityFunction']['exposedAPIs']:
+            if ('partyrole' in api['name']):
+                partyRoleAPI = api
+                foundPartyRole = True
+                break
+    if not(foundPartyRole):
+        raise kopf.TemporaryError(
+            'Could not get partyrole path from component. Will retry.',
+            delay=10
         )
-        logger.debug('using component root url: %s', rooturl)
-        logger.debug('status.deployment_status = %s -> %s', old, new)
-    
-        if(foundPartyRole == True) :
-            try: # to register with the partyRoleManagement API
-                register_listener(rooturl + '/hub')    
-            except RuntimeError as e:
-                logger.warning(format_cloud_event(
-                    str(e),
-                    'secCon could not register partyRoleManagement listener'
-                ))
-                raise kopf.TemporaryError(
-                    'Could not register listener. Will retry.', delay=10
-                )
-            else:
-                status_value = { 'identityProvider': 'Keycloak',
-                                'listenerRegistered': True }
-        else :
+    # del unused-arguments for linting
+    del meta, status, body, labels, kwargs
+
+    rooturl = (
+        'http://'
+        + partyRoleAPI['implementation']
+        + '.' + namespace + '.svc.cluster.local:'
+        + str(partyRoleAPI['port'])
+        + partyRoleAPI['path']
+    )
+    logger.debug('using component root url: %s', rooturl)
+    logger.debug('status.deployment_status = %s -> %s', old, new)
+
+    if(foundPartyRole == True) :
+        try: # to register with the partyRoleManagement API
+            register_listener(rooturl + '/hub')    
+        except RuntimeError as e:
+            logger.warning(format_cloud_event(
+                str(e),
+                'secCon could not register partyRoleManagement listener'
+            ))
+            raise kopf.TemporaryError(
+                'Could not register listener. Will retry.', delay=10
+            )
+        else:
             status_value = { 'identityProvider': 'Keycloak',
-                            'listenerRegistered': False }
-    
-        # the return value is added to the status field of the k8s object
-        # under securityRoles parameter (corresponds to function name) 
-        return status_value
+                            'listenerRegistered': True }
+    else :
+        status_value = { 'identityProvider': 'Keycloak',
+                        'listenerRegistered': False }
+
+    # the return value is added to the status field of the k8s object
+    # under securityRoles parameter (corresponds to function name) 
+    return status_value
 
 @kopf.on.delete(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 def security_client_delete(meta, spec, status, body, namespace, labels, name, **kwargs):
