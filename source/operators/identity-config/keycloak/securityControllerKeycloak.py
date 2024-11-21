@@ -233,7 +233,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
                             'listenerRegistered': False }
     
         # the return value is added to the status field of the k8s object
-        # under securityRoles parameter (corresponds to function name)
+        # under securityRoles parameter (corresponds to function name) 
         return status_value
 
 @kopf.on.delete(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
