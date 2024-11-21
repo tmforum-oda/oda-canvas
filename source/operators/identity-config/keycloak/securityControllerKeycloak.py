@@ -163,7 +163,6 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
 
     if ('securityFunction' in spec and 'componentRole' in spec['securityFunction'] and len(spec['securityFunction']['componentRole'])):
 
-
         try:# to add list of static roles exposed in component
             # TODO find securityFunction.componentRole and add_role in {name}
             # 1) GET securityFunction.componentRole from the component
@@ -201,8 +200,6 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
             'Could not get partyrole path from component. Will retry.',
             delay=10
         )
-    # del unused-arguments for linting
-    del meta, status, body, labels, kwargs
 
     rooturl = (
         'http://'
@@ -214,7 +211,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
     logger.debug('using component root url: %s', rooturl)
     logger.debug('status.deployment_status = %s -> %s', old, new)
 
-    if(foundPartyRole == True) :
+    if (foundPartyRole == True) :
         try: # to register with the partyRoleManagement API
             register_listener(rooturl + '/hub')    
         except RuntimeError as e:
