@@ -2087,11 +2087,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
             "security_client_add/status.summary/status.deployment_status"
             in status.keys()
         ) and (
-            status["security_client_add/status.summary/status.deployment_status"][
-                "identityProvider"
-            ]
-            == True
-        ):
+            status["security_client_add/status.summary/status.deployment_status"]["identityProvider"]):
             status_summary["deployment_status"] = "In-Progress-SecretMan"
             if countOfCompleteSecretsManagements == countOfDesiredSecretsManagements:
                 status_summary["deployment_status"] = "In-Progress-DepApi"
