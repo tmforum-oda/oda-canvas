@@ -18,3 +18,4 @@ deployment:
   credentialName: istio-ingress-cert    
 configmap:
   loglevel: '20'
+  # publicHostname: 'components.example.com'
