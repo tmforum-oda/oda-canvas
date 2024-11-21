@@ -84,7 +84,11 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
     """
     Handler for component create/update
     """
-    
+    # del unused-arguments for linting
+    del meta, status, body, labels, kwargs
+
+    rooturl = ""
+
     try: # to authenticate and get a token
         token = kc.get_token(username, password)
     except RuntimeError as e:
@@ -159,10 +163,6 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
 
     if('securityFunction' in spec and 'componentRole' in spec['securityFunction'] and len(spec['securityFunction']['componentRole'])):
 
-        # del unused-arguments for linting
-        del meta, status, body, labels, kwargs
-
-        rooturl = ""
 
         try:# to add list of static roles exposed in component
             # TODO find securityFunction.componentRole and add_role in {name}
