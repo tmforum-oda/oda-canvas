@@ -119,7 +119,7 @@ component-operator:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
     compopVersion: 0.6.0
-    compopPrereleaseSuffix: 223-refactor
+    compopPrereleaseSuffix: 223-refact-2
     imagePullPolicy: IfNotPresent
     istioGateway: true
     secconImage: tmforumodacanvas/security-listener
