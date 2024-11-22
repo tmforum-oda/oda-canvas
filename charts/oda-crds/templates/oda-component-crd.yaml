@@ -2016,6 +2016,941 @@ spec:
                     description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
                       It must exist in the roles exposed by the partyRole API.
                     type: string
+          conformance:
+            type: object
+            properties:
+              coreFunction:
+                type: object
+                properties:
+                  exposedAPIs:
+                    type: object
+                    properties:
+                      requiredOneOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                      requiredAllOf:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: refer to a name in apis collection
+                            conformanceLevel:
+                              type: string
+                              enum:
+                              - L1
+                              - L2
+                            additionalResourceConformance:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  resource:
+                                    type: string
+                                  methods:
+                                    type: array
+                                    items:
+                                      type: string
+                                  parameters:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        paramPath:
+                                          type: string
+                                          description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                      required:
+                                      - paramPath                              
+                          required:
+                          - name
+                      requiredAnyOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                  dependentAPIs:
+                    type: object
+                    properties:
+                      requiredOneOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                      requiredAllOf:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: refer to a name in apis collection
+                            conformanceLevel:
+                              type: string
+                              enum:
+                              - L1
+                              - L2
+                            additionalResourceConformance:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  resource:
+                                    type: string
+                                  methods:
+                                    type: array
+                                    items:
+                                      type: string
+                                  parameters:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        paramPath:
+                                          type: string
+                                          description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                      required:
+                                      - paramPath                              
+                          required:
+                          - name
+                      requiredAnyOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+              managementFunction:
+                type: object
+                properties:
+                  exposedAPIs:
+                    type: object
+                    properties:
+                      requiredOneOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                      requiredAllOf:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: refer to a name in apis collection
+                            conformanceLevel:
+                              type: string
+                              enum:
+                              - L1
+                              - L2
+                            additionalResourceConformance:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  resource:
+                                    type: string
+                                  methods:
+                                    type: array
+                                    items:
+                                      type: string
+                                  parameters:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        paramPath:
+                                          type: string
+                                          description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                      required:
+                                      - paramPath                              
+                          required:
+                          - name
+                      requiredAnyOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                  dependentAPIs:
+                    type: object
+                    properties:
+                      requiredOneOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                      requiredAllOf:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: refer to a name in apis collection
+                            conformanceLevel:
+                              type: string
+                              enum:
+                              - L1
+                              - L2
+                            additionalResourceConformance:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  resource:
+                                    type: string
+                                  methods:
+                                    type: array
+                                    items:
+                                      type: string
+                                  parameters:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        paramPath:
+                                          type: string
+                                          description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                      required:
+                                      - paramPath                              
+                          required:
+                          - name
+                      requiredAnyOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+              securityFunction:
+                type: object
+                properties:
+                  exposedAPIs:
+                    type: object
+                    properties:
+                      requiredOneOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                      requiredAllOf:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: refer to a name in apis collection
+                            conformanceLevel:
+                              type: string
+                              enum:
+                              - L1
+                              - L2
+                            additionalResourceConformance:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  resource:
+                                    type: string
+                                  methods:
+                                    type: array
+                                    items:
+                                      type: string
+                                  parameters:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        paramPath:
+                                          type: string
+                                          description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                      required:
+                                      - paramPath                              
+                          required:
+                          - name
+                      requiredAnyOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                  dependentAPIs:
+                    type: object
+                    properties:
+                      requiredOneOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                      requiredAllOf:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: refer to a name in apis collection
+                            conformanceLevel:
+                              type: string
+                              enum:
+                              - L1
+                              - L2
+                            additionalResourceConformance:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  resource:
+                                    type: string
+                                  methods:
+                                    type: array
+                                    items:
+                                      type: string
+                                  parameters:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        paramPath:
+                                          type: string
+                                          description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                      required:
+                                      - paramPath                              
+                          required:
+                          - name
+                      requiredAnyOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+              eventNotification:
+                type: object
+                properties:
+                  publishedEvents:
+                    type: object
+                    properties:
+                      requiredOneOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                      requiredAllOf:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: refer to a name in apis collection
+                            conformanceLevel:
+                              type: string
+                              enum:
+                              - L1
+                              - L2
+                            additionalResourceConformance:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  resource:
+                                    type: string
+                                  methods:
+                                    type: array
+                                    items:
+                                      type: string
+                                  parameters:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        paramPath:
+                                          type: string
+                                          description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                      required:
+                                      - paramPath                              
+                          required:
+                          - name
+                      requiredAnyOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                  subscribedEvents:
+                    type: object
+                    properties:
+                      requiredOneOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
+                      requiredAllOf:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: refer to a name in apis collection
+                            conformanceLevel:
+                              type: string
+                              enum:
+                              - L1
+                              - L2
+                            additionalResourceConformance:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  resource:
+                                    type: string
+                                  methods:
+                                    type: array
+                                    items:
+                                      type: string
+                                  parameters:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        paramPath:
+                                          type: string
+                                          description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                      required:
+                                      - paramPath                              
+                          required:
+                          - name
+                      requiredAnyOf:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: refer to a name in apis collection
+                              conformanceLevel:
+                                type: string
+                                enum:
+                                - L1
+                                - L2
+                              additionalResourceConformance:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                      resource:
+                                        type: string
+                                      methods:
+                                        type: array
+                                        items:
+                                          type: string
+                                      parameters:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            paramPath:
+                                              type: string
+                                              description: path follows JsonPath standards, https://support.smartbear.com/alertsite/docs/monitors/api/endpoint/jsonpath.html, https://ietf-wg-jsonpath.github.io/draft-ietf-jsonpath-base/draft-ietf-jsonpath-base.html
+                                          required:
+                                          - paramPath
+                            required:
+                            - name
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
