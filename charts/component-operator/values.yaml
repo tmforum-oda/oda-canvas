@@ -1,7 +1,7 @@
 deployment:
   operatorName: component-operator
   compopImage: tmforumodacanvas/component-operator
-  compopVersion: 0.6.0
+  compopVersion: 0.6.1
   compopPrereleaseSuffix:
   compopImagePullPolicy: IfNotPresent
   istioGateway: true

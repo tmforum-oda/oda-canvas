@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.2.1
+version: 1.2.2
+# version: 1.2.2 - changed seccon to idconfop and keycloak realm to odari
 # version: 1.2.1 - removed operator-command configMap - no longer using entrypoint.sh
 # version: 1.2.0 - refactored to component-operator chart
 # version: 1.1.4 - make hostname and cert configurable for component gateway
