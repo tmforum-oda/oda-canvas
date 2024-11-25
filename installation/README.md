@@ -54,7 +54,17 @@ The helm chart installs the following updated versions of third party to
 
 ## Configuration values
 
-The values used [here](https://github.com/tmforum-oda/oda-canvas/blob/master/charts/canvas-oda/README.md)
+The values used [here](https://github.com/tmforum-oda/oda-canvas/blob/main/charts/canvas-oda/README.md)
+
+## Hardware requirements
+
+The hardware requirements for the reference implementation are low. To deploy the reference implementation and run all the tests, the following minimum requirements should be adequate:
+- CPU: 4 cores; AMD64 architecture, but we are also beginning to investigate running on ARM.
+- RAM: 16Gb
+- Storage: 50Gb
+- Operating system: any supported by your hardware that will run Kubernetes. For our testing and development we have used several different Linux distributions and Windows 11.
+
+To host a component on the Reference Canvas you will have to account for its requirements in addition to the minimum.
 
 ## Environment installation
 
@@ -141,7 +151,7 @@ If HashiCorp Vault is **NOT** installed, everything works fine, only if a compon
 it will get stuck in state "InProgress-SecretsConfig".
 
 
-### 4. Reference implementation
+### 5. Reference implementation
 
 1. Add oda-canvas helm repo
 
@@ -157,7 +167,7 @@ it will get stuck in state "InProgress-SecretsConfig".
     ```bash
     helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
     ```
-### 5. Optionally Install APISIX or Kong Gateway
+### 6. Optionally Install APISIX or Kong Gateway
 
 For users seeking advanced API gateway capabilities, the ODA Canvas provides the option to install either the Kong Gateway or the APISIX Gateway. Additionally, the ODA Canvas includes a specially designed Gateway Operator tailored for seamless integration and management within the ODA Canvas environment. These gateways offer powerful features for managing APIs, including traffic management, security, load balancing, rate limiting, and observability.
 

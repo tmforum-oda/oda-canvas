@@ -1,24 +1,24 @@
-apiVersion: oda.tmforum.org/v1beta3
+apiVersion: oda.tmforum.org/v1beta4
 kind: Component
 metadata:
   name: {{.Release.Name}}-{{.Values.component.name}}
   labels:
     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
 spec:
-  id: {{.Values.component.id}}
-  name: {{.Values.component.name}}
-  functionalBlock: {{.Values.component.functionalBlock}}
-  publicationDate: {{.Values.component.publicationDate}}
-  status: specified
-  version: {{.Values.component.version}}
-  description: "Simple Product Catalog ODA-Component from Open-API reference implementation."
-
-  maintainers:
-  - name: Lester Thomas
-    email: lester.thomas@vodafone.com
-  owners:
+  componentMetadata:
+    id: {{.Values.component.id}}
+    name: {{.Values.component.name}}
+    functionalBlock: {{.Values.component.functionalBlock}}
+    publicationDate: {{.Values.component.publicationDate}}
+    status: specified
+    version: {{.Values.component.version}}
+    description: "Simple Product Catalog ODA-Component from Open-API reference implementation."
+    maintainers:
     - name: Lester Thomas
-      email: lester.thomas@vodafone.com     
+      email: lester.thomas@vodafone.com
+    owners:
+      - name: Lester Thomas
+        email: lester.thomas@vodafone.com     
   coreFunction:
     exposedAPIs: 
     - name: productcatalogmanagement

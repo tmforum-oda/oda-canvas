@@ -25,6 +25,8 @@ spec:
 
         - name: VAULT_ADDR
           value: "{{ .Values.vault_addr }}"
+        - name: VAULT_SKIP_VERIFY
+          value: "{{ .Values.vault_skip_verify }}"
         - name: AUTH_PATH
           value: "{{ .Values.auth_path }}"
         - name: LOGIN_ROLE_TPL
@@ -48,15 +50,28 @@ spec:
           value: "{{ include "secretsmanagementoperator.sidecarDockerimage" . }}"
         - name: SIDECAR_IMAGEPULLPOLICY
           value: "{{ include "secretsmanagementoperator.sidecarImagePullPolicy" . }}"
-        {{ if .Values.hvacTokenEnc -}}
-        - name: HVAC_TOKEN_ENC
-          value: "{{ .Values.hvacTokenEnc }}"
-        {{- end }}
         {{ if .Values.hvacToken -}}
         - name: HVAC_TOKEN
           value: "{{ .Values.hvacToken }}"
         {{- end }}
-          
+        {{ if .Values.hvacTokenEnc -}}
+        - name: HVAC_TOKEN_ENC
+          value: "{{ .Values.hvacTokenEnc }}"
+        {{- end }}
+        {{ if .Values.hvacTokenSecret -}}
+        - name: HVAC_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.hvacTokenSecret.name }}"
+              key: "{{ .Values.hvacTokenSecret.key }}"
+        {{- end }}
+        {{ if .Values.hvacTokenEncSecret -}}
+        - name: HVAC_TOKEN_ENC
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.hvacTokenEncSecret.name }}"
+              key: "{{ .Values.hvacTokenEncSecret.key }}"
+        {{- end }}
         - name: WEBHOOK_SERVICE_NAME
           value: "{{ .Release.Name }}-smanop-svc"
         - name: WEBHOOK_SERVICE_NAMESPACE

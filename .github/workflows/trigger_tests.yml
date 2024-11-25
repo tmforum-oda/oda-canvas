@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
 
@@ -191,20 +191,23 @@ jobs:
         export CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
         npm start 2>&1 | tee /tmp/test_results.log
         kubectl get exposedapis -n components
-        kubectl -n canvas logs deployment/oda-controller | tee /tmp/oda-controller.log
-
+        kubectl -n canvas logs deployment/component-operator | tee /tmp/component-operator.log
+        kubectl -n canvas logs deployment/api-operator-istio | tee /tmp/api-operator-istio.log
               
     - name: Upload Test Report
       uses: actions/upload-artifact@v4
       with:
         name: test-report
         path: |
-         /tmp/oda-controller.log
+         /tmp/component-operator.log
+         /tmp/api-operator-istio.log
          /tmp/test_results.log
   
     - name: Delete kind cluster
       if: always()
       run: |
+        kubectl get pods -n canvas-vault || true
+        kubectl logs -n canvas-vault job/canvas-vault-hc-post-install-hook || true
         kind delete cluster
         
     - name: check test success

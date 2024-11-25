@@ -300,7 +300,7 @@ def test_updateDepedentAPIReady():
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=True)
+    k8s_load_config(proxy=False)
     test_kubeconfig()
     # test_dependentApiCreate()
     # test_dependentApiUpdate()

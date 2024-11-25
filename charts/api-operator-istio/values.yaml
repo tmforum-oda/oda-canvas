@@ -1,0 +1,21 @@
+deployment:
+  operatorName: api-operator-istio
+  apiopImage: tmforumodacanvas/api-operator-istio
+  apiopVersion: 0.6.0
+  apiopPrereleaseSuffix:
+  apiopImagePullPolicy: IfNotPresent
+  istioGateway: true
+  monitoredNamespaces: 'components'           # comma separated list of namespaces
+  ingressClass:
+    enabled: false
+    name: nginx
+  dataDog:
+    enabled: false
+  keycloak:
+    port: 8080
+  hostName: "*"
+  httpsRedirect: true
+  credentialName: istio-ingress-cert    
+configmap:
+  loglevel: '20'
+  # publicHostname: 'components.example.com'

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-operator-istio-configmap
+  labels:
+    {{- include "api-operator-istio.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+data:
+  LOGGING: {{ .Values.configmap.loglevel | quote }}
+  COMPONENT_NAMESPACE: {{.Values.deployment.monitoredNamespaces}}
+  {{- if .Values.deployment.ingressClass.enabled }}
+  INGRESS_CLASS: {{ .Values.deployment.ingressClass.name }}
+  {{ end }}
+  {{- if .Values.deployment.dataDog.enabled }}
+  OPENMETRICS_IMPLEMENTATION: "DataDogAnnotation"
+  {{ end }}
+  {{- if .Values.configmap.publicHostname }}
+  APIOPERATORISTIO_PUBLICHOSTNAME: {{ .Values.configmap.publicHostname }}
+  {{ end }}

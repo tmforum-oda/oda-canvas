@@ -10,10 +10,10 @@ This use-case describes how a canvas can support seamless upgrade of the underly
 
 ## Support components of different versions
 
-![componentsWithDifferentVersions](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/components-with-different-versions.puml)
+![componentsWithDifferentVersions](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/components-with-different-versions.puml)
 [plantUML code](pumlFiles/components-with-different-versions.puml)
 
 ## Support operators using different versions
 
-![operatorsWithDifferentVersions](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/operators-with-different-versions.puml)
+![operatorsWithDifferentVersions](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/operators-with-different-versions.puml)
 [plantUML code](pumlFiles/operators-with-different-versions.puml)

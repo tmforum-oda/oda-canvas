@@ -2,7 +2,7 @@ name: Lint Python code
 on: 
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   lint-python-code:
     runs-on: ubuntu-latest
@@ -12,7 +12,7 @@ jobs:
         with: 
           src: |
             ./automation/generators/dockerbuild-workflow-generator
-            ./source/operators/apiOperatorApisix
-            ./source/operators/apiOperatorKong
+            ./source/operators/component-management
+            ./source/operators/api-management/istio
             ./source/operators/dependentApiSimpleOperator
             ./source/operators/secretsmanagementOperator-hc

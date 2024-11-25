@@ -1,4 +1,4 @@
-# Discover dependent APIs use case
+# Configure dependent APIs use case
 
 This use-case describes how a component discovers the url and credentials for a dependent API. The use case uses the following assumptions:
 
@@ -8,7 +8,7 @@ This use-case describes how a component discovers the url and credentials for a 
 
 The use case below shows a **Product Inventory** with a dependency on a downstream **Product Catalog**. In the use case there are two product catalog APIs provided for a **Retail Catalog** and a **Wholesale Catalog**. 
 
-![discoverDependentAPI](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/discover-dependent-API.puml)
+![discoverDependentAPI](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/discover-dependent-API.puml)
 [plantUML code](pumlFiles/discover-dependent-API.puml)
 
 

@@ -15,7 +15,11 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.8-rc2
+version: 1.1.8-rc6
+# version: 1.1.8-rc6 - issue 320 - SecretsManagemnt-Operator and DependentAPI-Simple-Operator support Canvas Log Viewer format 
+# version: 1.1.8-lt3 - refactoring of component-operator and api-operator-istio
+# version: 1.1.8-rc4 - issue 372 - deploy non-DEV Vault with persistence and autounseal 
+# version: 1.1.8-lt1 - added componentMetadata and apiSDO to v1beta4 crds
 # version: 1.1.8-rc2 - make hostname and cert configurable for component gateway
 # version: 1.1.8-rc1 - fix linux/arm64 docker build for secretsmanagement-operator
 # version: 1.1.7     - updated to v1beta4 crds
@@ -52,28 +56,31 @@ dependencies:
     repository: 'file://../canvas-namespaces'
     condition: canvas-namespaces.enabled
   - name: oda-crds
-    version: "1.1.3"
+    version: "1.1.4"
     repository: 'file://../oda-crds'
     condition: oda-crds.enabled
   - name: keycloak
     version: "13.0.2"
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
-  - name: controller
-    version: "1.1.4"
-    repository: 'file://../controller'
+  - name: component-operator
+    version: "1.2.1"
+    repository: 'file://../component-operator'
+  - name: api-operator-istio
+    version: "1.0.2"
+    repository: 'file://../api-operator-istio'
   - name: dependentapi-simple-operator
-    version: "0.2.3"
+    version: "0.2.4"
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: secretsmanagement-operator
-    version: "0.1.1"
+    version: "0.1.3"
     repository: 'file://../secretsmanagement-operator'
   - name: canvas-vault
-    version: "0.2.0"
+    version: "0.2.1"
     repository: 'file://../canvas-vault'
     condition: canvas-vault.enabled
   - name: oda-webhook
-    version: "1.1.3"
+    version: "1.1.4"
     repository: 'file://../oda-webhook'
 

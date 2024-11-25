@@ -113,6 +113,30 @@ Then('I should not see the {string} ExposedAPI resource on the {string} componen
 
 
 /**
+ * Wait for a specified DependentAPI resource to be removed and assert that it was removed within a specified timeout.
+ *
+ * @param {string} DependentAPIName - The name of the DependentAPI resource to check.
+ * @returns {Promise<void>} - A Promise that resolves when the DependentAPI resource is removed.
+ */
+Then('I should not see the {string} DependentAPI resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (dependentAPIName, componentName) {
+  // set the initial value of DependentAPIResource to 'not null'
+  let dependentAPIResource = 'not null'
+  var startTime = performance.now()
+  var endTime
+
+  // wait until the DependentAPI resource is removed or the timeout is reached
+  while (dependentAPIResource != null) {
+    dependentAPIResource = await resourceInventoryUtils.getExposedAPIResource(dependentAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    endTime = performance.now()
+
+    // assert that the ExposedAPI resource was removed within the timeout
+    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The DependentAPI resource should be removed within " + API_DEPLOY_TIMEOUT + " milliseconds")
+  }
+
+});
+
+
+/**
  * Wait for a specified ExposedAPI resource to have a URL on the Service Mesh or Gateway and assert that it was found within a specified timeout.
  *
  * @param {string} ExposedAPIName - The name of the ExposedAPI resource to check.
@@ -163,3 +187,26 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
   }
 });
 
+Then('I should see the {string} DependentAPI resource on the {string} component with a ready status', {timeout : API_READY_TIMEOUT + TIMEOUT_BUFFER},  async function (DependentAPIName, componentName) {
+  // get the DependentAPI resource
+  let apiResource = null
+  var startTime = performance.now()
+  var endTime
+  // wait until the DependentAPI resource is found or the timeout is reached
+  while (apiResource == null) {
+    apiResource = await resourceInventoryUtils.getDependentAPIResource(DependentAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    endTime = performance.now()
+
+    // assert that the ExposedAPI resource was found within the timeout
+    assert.ok(endTime - startTime < API_READY_TIMEOUT, "The ready status should be found within " + API_READY_TIMEOUT + " milliseconds")
+
+    // check if there is a url on the ExposedAPI resource status
+    if ((!apiResource) || (!apiResource.hasOwnProperty('status')) || (!apiResource.status.hasOwnProperty('implementation')) || (!apiResource.status.implementation.hasOwnProperty('ready'))) {
+      apiResource = null // reset the apiResource to null so that we can try again
+    } else if (!(apiResource.status.implementation.ready == true)) {
+      apiResource = null // reset the apiResource to null so that we can try again
+    }
+  }
+
+
+});
