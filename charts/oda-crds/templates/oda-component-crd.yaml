@@ -1525,9 +1525,10 @@ spec:
                           items:
                             type: object
                           description: Resources is an optional list of resources that are exposed by the API.
+                        #required attribute can be ignored when conformance is specified.
                         required:
                           type: boolean
-                          description: Required is a flag that indicates whether the API is required or not.
+                          description: Required is a flag that indicates whether the API is required or not. required attribute can be ignored when conformance is specified.
                       required:
                       - name
                       - apiType
@@ -1559,9 +1560,10 @@ spec:
                           items:
                             type: object
                           description: Resources is an optional list of resources that are consumed by the API.
+                        #required attribute can be ignored when conformance is specified.
                         required:
                           type: boolean
-                          description: Required is a flag that indicates whether the API is required or not.
+                          description: Required is a flag that indicates whether the API is required or not. required attribute can be ignored when conformance is specified.
                       required:
                       - name
                       - apiType
@@ -1768,9 +1770,10 @@ spec:
                           items:
                             type: object
                           description: Resources is an optional list of resources that are exposed by the API.
+                        #required attribute can be ignored when conformance is specified.
                         required:
                           type: boolean
-                          description: Required is a flag that indicates whether the API is required or not.
+                          description: Required is a flag that indicates whether the API is required or not. required attribute can be ignored when conformance is specified.
                       required:
                       - name
                       - apiType
@@ -1802,9 +1805,10 @@ spec:
                           items:
                             type: object
                           description: Resources is an optional list of resources that are consumed by the API.
+                        # required attribute can be ignored when conformance is specified.
                         required:
                           type: boolean
-                          description: Required is a flag that indicates whether the API is required or not.
+                          description: Required is a flag that indicates whether the API is required or not. required attribute can be ignored when conformance is specified.
                       required:
                       - name
                       - apiType
@@ -1972,9 +1976,10 @@ spec:
                           items:
                             type: object
                           description: Resources is an optional list of resources that are exposed by the API.
+                        # required attribute can be ignored when conformance is specified.
                         required:
                           type: boolean
-                          description: Required is a flag that indicates whether the API is required or not.
+                          description: Required is a flag that indicates whether the API is required or not.required attribute can be ignored when conformance is specified.
                       required:
                       - name
                       - apiType
@@ -2006,9 +2011,10 @@ spec:
                           items:
                             type: object
                           description: Resources is an optional list of resources that are consumed by the API.
+                        # required attribute can be ignored when conformance is specified.
                         required:
                           type: boolean
-                          description: Required is a flag that indicates whether the API is required or not.
+                          description: Required is a flag that indicates whether the API is required or not. required attribute can be ignored when conformance is specified.
                       required:
                       - name
                       - apiType
@@ -2034,7 +2040,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2070,7 +2083,14 @@ spec:
                           properties:
                             name:
                               type: string
-                              description: refer to a name in apis collection
+                              description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                            conformanceProfile:
+                              type: object
+                              description: defines the external conformance conformanceProfile
+                              properties:
+                                profileLink:
+                                  type: string
+                                  description: specifies the location where the profile can be found.
                             conformanceLevel:
                               type: string
                               enum:
@@ -2108,7 +2128,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2149,7 +2176,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2185,7 +2219,14 @@ spec:
                           properties:
                             name:
                               type: string
-                              description: refer to a name in apis collection
+                              description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                            conformanceProfile:
+                              type: object
+                              description: defines the external conformance conformanceProfile
+                              properties:
+                                profileLink:
+                                  type: string
+                                  description: specifies the location where the profile can be found.
                             conformanceLevel:
                               type: string
                               enum:
@@ -2223,7 +2264,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2267,7 +2315,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2303,7 +2358,14 @@ spec:
                           properties:
                             name:
                               type: string
-                              description: refer to a name in apis collection
+                              description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                            conformanceProfile:
+                              type: object
+                              description: defines the external conformance conformanceProfile
+                              properties:
+                                profileLink:
+                                  type: string
+                                  description: specifies the location where the profile can be found.
                             conformanceLevel:
                               type: string
                               enum:
@@ -2341,7 +2403,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2382,7 +2451,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2418,7 +2494,14 @@ spec:
                           properties:
                             name:
                               type: string
-                              description: refer to a name in apis collection
+                              description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                            conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                             conformanceLevel:
                               type: string
                               enum:
@@ -2456,7 +2539,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2500,7 +2590,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2536,7 +2633,14 @@ spec:
                           properties:
                             name:
                               type: string
-                              description: refer to a name in apis collection
+                              description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                            conformanceProfile:
+                              type: object
+                              description: defines the external conformance conformanceProfile
+                              properties:
+                                profileLink:
+                                  type: string
+                                  description: specifies the location where the profile can be found.
                             conformanceLevel:
                               type: string
                               enum:
@@ -2574,7 +2678,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2615,7 +2726,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2651,7 +2769,14 @@ spec:
                           properties:
                             name:
                               type: string
-                              description: refer to a name in apis collection
+                              description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                            conformanceProfile:
+                              type: object
+                              description: defines the external conformance conformanceProfile
+                              properties:
+                                profileLink:
+                                  type: string
+                                  description: specifies the location where the profile can be found.
                             conformanceLevel:
                               type: string
                               enum:
@@ -2689,7 +2814,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2733,7 +2865,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2769,7 +2908,14 @@ spec:
                           properties:
                             name:
                               type: string
-                              description: refer to a name in apis collection
+                              description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                            conformanceProfile:
+                              type: object
+                              description: defines the external conformance conformanceProfile
+                              properties:
+                                profileLink:
+                                  type: string
+                                  description: specifies the location where the profile can be found.
                             conformanceLevel:
                               type: string
                               enum:
@@ -2807,7 +2953,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2848,7 +3001,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
@@ -2884,7 +3044,14 @@ spec:
                           properties:
                             name:
                               type: string
-                              description: refer to a name in apis collection
+                              description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                            conformanceProfile:
+                              type: object
+                              description: defines the external conformance conformanceProfile
+                              properties:
+                                profileLink:
+                                  type: string
+                                  description: specifies the location where the profile can be found.
                             conformanceLevel:
                               type: string
                               enum:
@@ -2922,7 +3089,14 @@ spec:
                             properties:
                               name:
                                 type: string
-                                description: refer to a name in apis collection
+                                description: refer to a 'name' attribute value of API definition in corresponding entity of this in spec section.
+                              conformanceProfile:
+                                type: object
+                                description: defines the external conformance conformanceProfile
+                                properties:
+                                  profileLink:
+                                    type: string
+                                    description: specifies the location where the profile can be found.
                               conformanceLevel:
                                 type: string
                                 enum:
