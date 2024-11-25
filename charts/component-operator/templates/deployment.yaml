@@ -27,14 +27,14 @@ spec:
               name: component-operator-configmap
           - secretRef:
               name: component-operator-secret
-      - name: seccon
-        image: {{ include "component-operator.secconDockerimage" . }}
-        imagePullPolicy: {{ include "component-operator.secconImagePullPolicy" . }}
+      - name: idconfop
+        image: {{ include "component-operator.idconfopDockerimage" . }}
+        imagePullPolicy: {{ include "component-operator.idconfopImagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: component-operator-configmap
           - secretRef:
               name: component-operator-secret
         ports:
-        - name: seccon
+        - name: idconfop
           containerPort: 5000
