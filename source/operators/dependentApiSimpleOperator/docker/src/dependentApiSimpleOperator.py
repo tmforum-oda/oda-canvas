@@ -9,13 +9,15 @@ from kubernetes.client.rest import ApiException
 
 from service_inventory_client import ServiceInventoryAPI
 
+from log_wrapper import LogWrapper, logwrapper
+
 
 DEPAPI_GROUP = "oda.tmforum.org"
-DEPAPI_VERSION = "v1beta3"
+DEPAPI_VERSION = "v1beta4"
 DEPAPI_PLURAL = "dependentapis"
 
 COMP_GROUP = "oda.tmforum.org"
-COMP_VERSION = "v1beta3"
+COMP_VERSION = "v1beta4"
 COMP_PLURAL = "components"
 
 API_PLURAL = "exposedapis"
@@ -28,20 +30,21 @@ HTTP_CONFLICT = 409
 
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
-kopf_logger = logging.getLogger()
-kopf_logger.setLevel(logging.INFO)
-logger = logging.getLogger("DependentApiSimpleOperator")
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+logger = logging.getLogger("depapiop")
 logger.setLevel(int(logging_level))
 logger.info("Logging set to %s", logging_level)
 logger.debug("debug logging is on")
 
+LogWrapper.set_defaultLogger(logger)
 
 CICD_BUILD_TIME = os.getenv("CICD_BUILD_TIME")
 GIT_COMMIT_SHA = os.getenv("GIT_COMMIT_SHA")
 if CICD_BUILD_TIME:
-    logger.info(f"CICD_BUILD_TIME=%s", CICD_BUILD_TIME)
+    logger.info("CICD_BUILD_TIME=%s", CICD_BUILD_TIME)
 if GIT_COMMIT_SHA:
-    logger.info(f"GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
+    logger.info("GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
 
 # for local testing set environment variable $CANVAS_INFO_ENDPOINT to "http://localhost:8638"
 CANVAS_INFO_ENDPOINT = os.getenv(
@@ -49,6 +52,8 @@ CANVAS_INFO_ENDPOINT = os.getenv(
     "http://info.canvas.svc.cluster.local",
 )
 logger.info(f"CANVAS_INFO_ENDPOINT=%s", CANVAS_INFO_ENDPOINT)
+
+componentname_label = os.getenv("COMPONENTNAME_LABEL", "oda.tmforum.org/componentName")
 
 INSTANCES = {}
 
@@ -64,7 +69,8 @@ def implementationReady(depapiBody):
     return safe_get(None, depapiBody, "status", "implementation", "ready")
 
 
-def get_depapi_spec(depapi_name, depapi_namespace):
+@logwrapper
+def get_depapi_spec(logw: LogWrapper, depapi_name, depapi_namespace):
     api_instance = kubernetes.client.CustomObjectsApi()
     try:
         depapi = api_instance.get_namespaced_custom_object(
@@ -73,16 +79,18 @@ def get_depapi_spec(depapi_name, depapi_namespace):
         return depapi["spec"]
     except ApiException as e:
         if e.status == HTTP_NOT_FOUND:
-            logger.error(
-                f"setDependentAPIStatus: dependentapi {depapi_namespace}:{depapi_name} not found"
-            )
+            logw.error("dependentapi not found", f"{depapi_namespace}:{depapi_name}")
         else:
+            logw.error(
+                "error getting dependentapi {depapi_name}.{depapi_namespace}", e.body
+            )
             raise kopf.TemporaryError(
-                f"setDependentAPIStatus: Exception in get_namespaced_custom_object: {e.body}"
+                f"get_depapi_spec: Exception in get_namespaced_custom_object: {e.body}"
             )
 
 
-def get_expapi():
+@logwrapper
+def get_expapi(logw: LogWrapper):
     api_instance = kubernetes.client.CustomObjectsApi()
     try:
         exp_apis = api_instance.list_cluster_custom_object(
@@ -91,15 +99,17 @@ def get_expapi():
         return exp_apis
     except ApiException as e:
         if e.status == HTTP_NOT_FOUND:
-            logger.error(f"openAPIStatus: openapi not found")
+            logw.error(f"exposedapis not found")
         else:
+            logw.error(f"Exception in list_cluster_custom_object", e.body)
             raise kopf.TemporaryError(
                 f"openAPIStatus: Exception in list_cluster_custom_object: {e.body}"
             )
 
 
-def get_depapi_url(depapi_name, depapi_namespace):
-    dep_api = get_depapi_spec(depapi_name, depapi_namespace)
+@logwrapper
+def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
+    dep_api = get_depapi_spec(logw, depapi_name, depapi_namespace)
     depapi_specification = dep_api["specification"]
     exp_apis = get_expapi()
     for exp_api in exp_apis["items"]:
@@ -116,6 +126,14 @@ def get_depapi_url(depapi_name, depapi_namespace):
     return None
 
 
+def quick_get_comp_name(body):
+    return safe_get(None, body, "metadata", "labels", componentname_label)
+
+
+def get_sman_name(body):
+    return safe_get(None, body, "metadata", "name")
+
+
 # triggered when an oda.tmforum.org dependentapi resource is created or updated
 @kopf.on.resume(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, retries=5)
 @kopf.on.create(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, retries=5)
@@ -123,22 +141,29 @@ def get_depapi_url(depapi_name, depapi_namespace):
 async def dependentApiCreate(
     meta, spec, status, body, namespace, labels, name, **kwargs
 ):
+    logw = LogWrapper(
+        handler_name="dependentApiCreate", function_name="dependentApiCreate"
+    )
+    logw.set(
+        component_name=quick_get_comp_name(body),
+        resource_name=f"DepAPI/{name}",
+    )
 
-    logger.info(f"Create/Update  called with name {name} in namespace {namespace}")
-    logger.debug(f"Create/Update  called with body: {body}")
+    logw.debugInfo(f"Create/Update  called with for name {name}.{namespace}", body)
 
     # Dummy implementation set dummy url and ready status
     if not implementationReady(body):  # avoid recursion
-        url = get_depapi_url(name, namespace)
+        url = get_depapi_url(logw, name, namespace)
         if url != None:
-            setDependentAPIStatus(namespace, name, url)
+            setDependentAPIStatus(logw, namespace, name, url)
 
 
-def removeServiceInventory(svc_id):
+@logwrapper
+def removeServiceInventory(logw: LogWrapper, svc_id):
     svc_info = cavas_info_instance()
     ok = svc_info.delete_service(svc_id, ignore_not_found=True)
     if ok:
-        logger.info(f"deleted ServiceInventory entry: {svc_id}")
+        logw.info(f"deleted ServiceInventory entry {svc_id}")
     return ok
 
 
@@ -147,12 +172,18 @@ def removeServiceInventory(svc_id):
 async def dependentApiDelete(
     meta, spec, status, body, namespace, labels, name, **kwargs
 ):
+    logw = LogWrapper(
+        handler_name="dependentApiDelete", function_name="dependentApiDelete"
+    )
+    logw.set(
+        component_name=quick_get_comp_name(body),
+        resource_name=f"DepAPI/{name}",
+    )
 
-    logger.info(f"Delete         called with name {name} in namespace {namespace}")
-    logger.debug(f"Delete         called with body: {body}")
+    logw.debugInfo(f"Delete DepAPI {name}.{namespace}", body)
     svc_id = safe_get(None, status, "depapiStatus", "svcInvID")
     if svc_id:
-        removeServiceInventory(svc_id)
+        removeServiceInventory(logw, svc_id)
 
 
 def cavas_info_instance() -> ServiceInventoryAPI:
@@ -161,7 +192,10 @@ def cavas_info_instance() -> ServiceInventoryAPI:
     return INSTANCES["svc_inv"]
 
 
-def updateServiceInventory(component_name, dependency_name, specification, url):
+@logwrapper
+def updateServiceInventory(
+    logw: LogWrapper, component_name, dependency_name, specification, url
+):
     svc_info = cavas_info_instance()
     svcs = svc_info.list_services(
         component_name=component_name, dependency_name=dependency_name, state=None
@@ -175,8 +209,7 @@ def updateServiceInventory(component_name, dependency_name, specification, url):
             specification=specification,
             state="active",
         )
-        logger.info(f'ServiceInventory: created {svc["id"]}')
-        logger.debug(f"ServiceInventory: created {str(svc)}")
+        logw.debugInfo(f'ServiceInventory created {svc["id"]}', svc)
     else:
         svc = svc_info.update_service(
             id=svcs[0]["id"],
@@ -186,12 +219,12 @@ def updateServiceInventory(component_name, dependency_name, specification, url):
             specification=specification,
             state="active",
         )
-        logger.info(f'ServiceInventory: updated {svc["id"]}')
-        logger.debug(f"ServiceInventory: updated {str(svc)}")
+        logw.debugInfo(f'ServiceInventory updated {svc["id"]}', svc)
     return svc["id"]
 
 
-def setDependentAPIStatus(namespace, name, url):
+@logwrapper
+def setDependentAPIStatus(logw: LogWrapper, namespace, name, url):
     """Helper function to update the url and implementation Ready status on the DependentAPI custom resource.
 
     Args:
@@ -202,8 +235,8 @@ def setDependentAPIStatus(namespace, name, url):
     Returns:
         No return value.
     """
-    logger.info(
-        f"setting implementation status to ready for dependent api {namespace}:{name}"
+    logw.info(
+        f"setting implementation status to ready for dependent api {name}.{namespace}"
     )
     api_instance = kubernetes.client.CustomObjectsApi()
     try:
@@ -212,11 +245,10 @@ def setDependentAPIStatus(namespace, name, url):
         )
     except ApiException as e:
         if e.status == HTTP_NOT_FOUND:
-            logger.error(
-                f"setDependentAPIStatus: dependentapi {namespace}:{name} not found"
-            )
+            logw.error(f"dependentapi {name}.{namespace} not found")
             raise e
         else:
+            logw.error(f"exception getting {name}.{namespace} not found", e.body)
             raise kopf.TemporaryError(
                 f"setDependentAPIStatus: Exception in get_namespaced_custom_object: {e.body}"
             )
@@ -233,7 +265,9 @@ def setDependentAPIStatus(namespace, name, url):
             None, depapi, "metadata", "labels", "oda.tmforum.org/componentName"
         )
         specification = safe_get(None, depapi, "spec", "specification")
-        svc_id = updateServiceInventory(component_name, da_name, specification, url)
+        svc_id = updateServiceInventory(
+            logw, component_name, da_name, specification, url
+        )
         depapi["status"]["depapiStatus"]["svcInvID"] = svc_id
     except Exception as e:
         raise kopf.TemporaryError(
@@ -241,7 +275,7 @@ def setDependentAPIStatus(namespace, name, url):
         )
 
     try:
-        api_response = api_instance.patch_namespaced_custom_object(
+        _ = api_instance.patch_namespaced_custom_object(
             DEPAPI_GROUP, DEPAPI_VERSION, namespace, DEPAPI_PLURAL, name, depapi
         )
     except ApiException as e:
@@ -277,16 +311,20 @@ async def updateDepedentAPIReady(
     Returns:
         No return value, nothing to write into the status.
     """
-    logger.info(f"updateDepedentAPIReady called for {namespace}:{name}")
-    logger.debug(
-        f"updateDepedentAPIReady called for {namespace}:{name} with body {body}"
+    logw = LogWrapper(
+        handler_name="updateDepedentAPIReady", function_name="updateDepedentAPIReady"
     )
+    logw.set(
+        component_name=quick_get_comp_name(body),
+        resource_name=f"DepAPI/{name}",
+    )
+    logw.debugInfo(f"updateDepedentAPIReady called for {name}.{namespace}", body)
     if "ready" in status["implementation"].keys():
         if status["implementation"]["ready"] == True:
             depapi_url = safe_get(None, status, "depapiStatus", "url")
             if "ownerReferences" in meta.keys():
                 parent_component_name = meta["ownerReferences"][0]["name"]
-                logger.info(f"reading component {parent_component_name}")
+                logw.info(f"reading component {parent_component_name}")
                 try:
                     api_instance = kubernetes.client.CustomObjectsApi()
                     parent_component = api_instance.get_namespaced_custom_object(
@@ -302,7 +340,10 @@ async def updateDepedentAPIReady(
                         raise kopf.TemporaryError(
                             "Cannot find parent component " + parent_component_name
                         )
-                    logger.error(e)
+                    logw.exception(
+                        f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}",
+                        e.body,
+                    )
                     raise kopf.TemporaryError(
                         f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}"
                     )
@@ -312,16 +353,13 @@ async def updateDepedentAPIReady(
                         parent_component["status"]["coreDependentAPIs"][key]["uid"]
                         == meta["uid"]
                     ):
-                        ready = parent_component["status"]["coreDependentAPIs"][key][
-                            "ready"
-                        ]
                         if (
                             parent_component["status"]["coreDependentAPIs"][key][
                                 "ready"
                             ]
                             != True
                         ):  # avoid recursion
-                            logger.info(
+                            logw.info(
                                 f"patching coreDependentAPI {key} in component {parent_component_name}"
                             )
                             parent_component["status"]["coreDependentAPIs"][key][
@@ -331,15 +369,13 @@ async def updateDepedentAPIReady(
                                 "url"
                             ] = depapi_url
                             try:
-                                api_response = (
-                                    api_instance.patch_namespaced_custom_object(
-                                        COMP_GROUP,
-                                        COMP_VERSION,
-                                        namespace,
-                                        COMP_PLURAL,
-                                        parent_component_name,
-                                        parent_component,
-                                    )
+                                _ = api_instance.patch_namespaced_custom_object(
+                                    COMP_GROUP,
+                                    COMP_VERSION,
+                                    namespace,
+                                    COMP_PLURAL,
+                                    parent_component_name,
+                                    parent_component,
                                 )
                             except ApiException as e:
                                 raise kopf.TemporaryError(

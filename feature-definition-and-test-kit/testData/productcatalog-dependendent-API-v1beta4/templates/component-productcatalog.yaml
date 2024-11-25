@@ -1,4 +1,4 @@
-apiVersion: oda.tmforum.org/v1beta3
+apiVersion: oda.tmforum.org/v1beta4
 kind: Component
 metadata:
   name: {{.Release.Name}}-{{.Values.component.name}}

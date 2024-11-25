@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.2.3
+version: 0.2.4
+# version: 0.2.4 - issue 320 - DependentAPI-Simple-Operator supports Canvas Log Viewer format
 # version: 0.2.3 - Issue #289: fill canvas info service from DependentAPI operator
 # version: 0.2.1 - added canvas info service
 # version: 0.2.0 - added dependentApiSimpleOperator functionality to fetch the defined dependent API ENDPOINT from apis custom resouce
