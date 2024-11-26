@@ -15,6 +15,7 @@ RUN pip install kopf==1.37.2 \
 
 COPY identity-config/keycloak/identityConfigOperatorKeycloak.py /identityOperator/
 COPY identity-config/keycloak/keycloakUtils.py /identityOperator/
+COPY identity-config/keycloak/log_wrapper.py /identityOperator/
 COPY component-management/componentOperator.py /componentOperator/
 
 # Setting up required ENV variables
