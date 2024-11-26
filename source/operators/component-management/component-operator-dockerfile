@@ -13,8 +13,8 @@ RUN pip install kopf==1.37.2 \
 
 #Copy the componentOperator  securityControllerKeycloak  secconkeycloak code
 
-COPY identity-config/keycloak/securityControllerKeycloak.py /identityOperator/
-COPY identity-config/keycloak/secconkeycloak.py /identityOperator/
+COPY identity-config/keycloak/identityConfigOperatorKeycloak.py /identityOperator/
+COPY identity-config/keycloak/keycloakUtils.py /identityOperator/
 COPY component-management/componentOperator.py /componentOperator/
 
 # Setting up required ENV variables
