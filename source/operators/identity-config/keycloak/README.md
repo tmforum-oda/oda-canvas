@@ -48,8 +48,8 @@ $env:KEYCLOAK_USER = "admin"
 $env:KEYCLOAK_PASSWORD = "adpass"
 ```
 
-5. Configure a new realm `myrealm` in keycloak.
-6. Configure a new client `r1-productcatalog` in the `myrealm` realm.
+5. Configure a new realm `odari` in keycloak.
+6. Configure a new client `r1-productcatalog` in the `odari` realm.
 
 **Interactive development and Testing of operator using KOPF**
 
@@ -66,6 +66,6 @@ You need to ensure you turn-off the operator execusing in Kubernetes (for exampl
 
 The command above will execute just the Keycloak identity operator. You will also need to execute the other operators relavant for your Canvas implementation - these can be executed in separate terminal command-lines.
 
-**Note: The keycloak identity operator may have issues calling http services locally inside the cluster - for example it may try to call `http://seccon.canvas.svc.cluster.local` and fail as this can only be executed inside the Kubernetes cluster.**
+**Note: The keycloak identity operator may have issues calling http services locally inside the cluster - for example it may try to call `http://idconfop.canvas.svc.cluster.local` and fail as this can only be executed inside the Kubernetes cluster.**
 
 

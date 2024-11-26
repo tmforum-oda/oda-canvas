@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: seccon
+  name: idconfop
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{.Values.deployment.operatorName}} #link service to Pod and not individual container
@@ -9,8 +9,8 @@ metadata:
 spec:
   ports:
   - port: 5000
-    targetPort: seccon
-    name: seccon
+    targetPort: idconfop
+    name: idconfop
   type: NodePort
   selector:
     app: {{.Values.deployment.operatorName}}

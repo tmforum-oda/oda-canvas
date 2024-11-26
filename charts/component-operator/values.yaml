@@ -1,14 +1,14 @@
 deployment:
   operatorName: component-operator
   compopImage: tmforumodacanvas/component-operator
-  compopVersion: 0.6.0
+  compopVersion: 0.6.1
   compopPrereleaseSuffix:
   compopImagePullPolicy: IfNotPresent
   istioGateway: true
-  secconImage: tmforumodacanvas/security-listener
-  secconVersion: 0.7.1
-  secconPrereleaseSuffix:
-  secconImagePullPolicy: IfNotPresent
+  idconfopImage: tmforumodacanvas/security-listener
+  idconfopVersion: 0.7.1
+  idconfopPrereleaseSuffix:
+  idconfopImagePullPolicy: IfNotPresent
   monitoredNamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false
@@ -26,5 +26,5 @@ credentials:
   pass: adpass
 configmap:
   #kcbase: http://canvas-keycloak:8088/auth # trying to parameterise this in the configmap
-  kcrealm: myrealm
+  kcrealm: odari
   loglevel: '20'
