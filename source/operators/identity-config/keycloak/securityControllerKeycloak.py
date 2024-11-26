@@ -149,7 +149,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         )
     
     try: # to assign the role to the seccon user
-        kc.add_role_to_user(seccon_user, seccon_role, name, token, kcRealm)
+        kc.add_role_to_user(idconfop_user, seccon_role, name, token, kcRealm)
     except RuntimeError as e:
         logging.error(format_cloud_event(
             f'Keycloak assign role failed for {seccon_role} in {name}: {e}',
