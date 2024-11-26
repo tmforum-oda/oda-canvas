@@ -54,12 +54,17 @@ EXPOSEDAPI_KIND = "ExposedAPI"
 COMPONENTS_PLURAL = "components"
 
 SECRETSMANAGEMENT_GROUP = "oda.tmforum.org"
-SECRETSMANAGEMENT_VERSION = "v1beta3"
+SECRETSMANAGEMENT_VERSION = "v1beta4"
 SECRETSMANAGEMENT_PLURAL = "secretsmanagements"
 SECRETSMANAGEMENT_KIND = "SecretsManagement"
 
+IDENTITYCONFIG_GROUP = "oda.tmforum.org"
+IDENTITYCONFIG_VERSION = "v1beta4"
+IDENTITYCONFIG_PLURAL = "identityconfigs"
+IDENTITYCONFIG_KIND = "IdentityConfig"
+
 DEPENDENTAPI_GROUP = "oda.tmforum.org"
-DEPENDENTAPI_VERSION = "v1beta3"
+DEPENDENTAPI_VERSION = "v1beta4"
 DEPENDENTAPI_PLURAL = "dependentapis"
 DEPENDENTAPI_KIND = "DependentAPI"
 
@@ -167,6 +172,40 @@ async def deleteSecretsManagement(
             name=secretsManagementName,
         )
         logs.debug(f"SecretsManagement response {secretsmanagement_response}")
+    except ApiException as e:
+        logw.error(f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}")
+
+
+@logwrapper
+async def deleteIdentityConfig(
+    logw: LogWrapper, identityConfigName, componentName, status, namespace, inHandler
+):
+    """Helper function to delete IdentityConfig Custom objects.
+
+    Args:
+        * identityConfigName (String): Name of the IdentityConfig Custom Resource to delete
+        * componentName (String): Name of the component the IdentityConfig is linked to
+        * status (Dict): The status from the yaml component envelope.
+        * namespace (String): The namespace for the component
+        * inHandler (String): The name of the handler that called this function
+
+    Returns:
+        No return value
+
+    :meta private:
+    """
+
+    logw.info(f"Deleting IdentityConfig {identityConfigName}")
+    custom_objects_api = kubernetes.client.CustomObjectsApi()
+    try:
+        identityconfig_response = custom_objects_api.delete_namespaced_custom_object(
+            group=GROUP,
+            version=IDENTITYCONFIG_VERSION,
+            namespace=namespace,
+            plural=IDENTITYCONFIG_PLURAL,
+            name=identityConfigName,
+        )
+        logs.debug(f"IdentityConfig response {identityconfig_response}")
     except ApiException as e:
         logw.error(f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}")
 
@@ -574,6 +613,70 @@ async def coreDependentAPIs(
     # Update the parent's status.
     return dependentAPIChildren
 
+@kopf.on.update(
+    GROUP,
+    VERSION,
+    COMPONENTS_PLURAL,
+    field='status.summary/status.deployment_status',
+    value='In-Progress-IDConfOp',
+    retries=5
+)
+async def security_client_add(meta, spec, status, body, namespace, labels,name, old, new, **kwargs):
+    """Handler function for **identityConfig** part of new or updated components.  
+
+    Processes the **identityConfig** part of the component envelope and creates the child IdentityConfig resource.
+
+    Args:
+        * meta (Dict): The metadata from the yaml component envelope
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)
+        * status (Dict): The status from the yaml component envelope showing the actual state.
+        * body (Dict): The entire yaml component envelope
+        * namespace (String): The namespace for the component
+        * labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the component
+        * old (Dict): The old component (for updates)
+        * new (Dict): The new component (for updates)
+
+    Returns:
+        Dict: The identityConfig status that is put into the component envelope status/security_client_add field.
+    """
+    logw = LogWrapper(handler_name="security_client_add", function_name="security_client_add")
+    logw.set(
+        component_name=quick_get_comp_name(body),
+        resource_name=quick_get_comp_name(body)
+    )
+    logw.debugInfo("security_client_add handler called", body)
+    identityConfigStatus = {}
+    identityConfigName = name
+    identityConfigResource = {
+        "controllerRole": spec["securityFunction"]["controllerRole"]
+    }
+    if "componentRole" in spec["securityFunction"]:
+        identityConfigResource["componentRole"] = spec["securityFunction"]["componentRole"]
+
+    try:
+        
+        logw.info(f"Calling createIdentityConfig {identityConfigName}")
+        resultStatus = await createIdentityConfigResource(
+            logw, identityConfigResource,
+            namespace,
+            identityConfigName,
+            "identityConfig",
+            security_client_add
+        )
+        identityConfigStatus = resultStatus
+
+    except kopf.TemporaryError as e:
+        raise e  # propagate
+    except Exception as e:
+        logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+        raise kopf.TemporaryError(e)  # allow the operator to retry
+    logw.info(f"result for status {identityConfigStatus}")
+
+    # Update the parent's status.
+    return identityConfigStatus
+
+
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -842,6 +945,31 @@ def constructSecretsManagementResourcePayload(inSecretsManagement):
     return SecretsManagementResource
 
 
+def constructIdentityConfigResourcePayload(inIdentityConfig):
+    """Helper function to create payloads for IdentityConfig Custom objects.
+
+    Args:
+        * inIdentityConfig (Dict): The IdentityConfig spec
+
+    Returns:
+        IdentityConfig Custom object (Dict)
+
+    :meta private:
+    """
+    IdentityConfigResource = {
+        "apiVersion": GROUP + "/" + IDENTITYCONFIG_VERSION,
+        "kind": IDENTITYCONFIG_KIND,
+        "metadata": {},
+        "spec": {},
+    }
+    # Make it our child: assign the namespace, name, labels, owner references, etc.
+    kopf.adopt(IdentityConfigResource)
+    newName = IdentityConfigResource["metadata"]["ownerReferences"][0]["name"]
+    IdentityConfigResource["metadata"]["name"] = newName
+    IdentityConfigResource["spec"] = inIdentityConfig
+    return IdentityConfigResource
+
+
 @logwrapper
 async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHandler):
     """Helper function to patch API Custom objects.
@@ -1089,6 +1217,60 @@ async def createSecretsManagementResource(
         )
     return returnSecretsManagementObject
 
+
+@logwrapper
+async def createIdentityConfigResource(
+    logw: LogWrapper, inIdentityConfig, namespace, name, inHandler
+):
+    """Helper function to create or update IdentityConfig Custom objects.
+
+    Args:
+        * inIdentityConfig (Dict): The IdentityConfig definition
+        * namespace (String): The namespace for the Component and API
+        * name (String): The name of the API resource
+        * inHandler (String): The name of the handler calling this function
+
+    Returns:
+        Dict with IdentityConfig definition including uuid of the IdentityConfig resource and ready status.
+
+    :meta private:
+    """
+    logw.debug(f"createIdentityConfigResource {inIdentityConfig} ")
+
+    IdentityConfigResource = constructIdentityConfigResourcePayload(
+        inIdentityConfig
+    )
+
+    identityConfigReadyStatus = False
+    returnIdentityConfigObject = {}
+
+    try:
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+        logw.info(f"Creating IdentityConfig Custom Object {IdentityConfigResource}")
+
+        identityConfigObj = custom_objects_api.create_namespaced_custom_object(
+            group=GROUP,
+            version=IDENTITYCONFIG_VERSION,
+            namespace=namespace,
+            plural=IDENTITYCONFIG_PLURAL,
+            body=IdentityConfigResource,
+        )
+        logw.debugInfo(f"IdentityConfig Resource created {IdentityConfigResource["metadata"]["name"]}", identityConfigObj)
+
+        returnIdentityConfigObject = {
+            "name": IdentityConfigResource["metadata"]["name"],
+            "uid": identityConfigObj["metadata"]["uid"],
+            "ready": identityConfigReadyStatus,
+        }
+
+    except ApiException as e:
+        logw.warning(f"IdentityConfig Exception creating {IdentityConfigResource}")
+        logw.warning(f"IdentityConfig Exception creating {e}")
+
+        raise kopf.TemporaryError(
+            "Exception creating IdentityConfig custom resource."
+        )
+    return returnIdentityConfigObject
 
 # -------------------------------------------------------------------------------
 # Make services, deployments, persistentvolumeclaims, jobs, cronjobs, statefulsets, configmap, secret, serviceaccount, role, rolebinding children of the component

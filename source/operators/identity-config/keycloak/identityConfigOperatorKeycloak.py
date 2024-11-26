@@ -11,7 +11,7 @@ from log_wrapper import LogWrapper, logwrapper
 logging_level = os.environ.get("LOGGING", logging.INFO)
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.WARNING)
-logger = logging.getLogger("IdentityConfigOperatorKeycloak")
+logger = logging.getLogger("IdentityConfig")
 logger.setLevel(int(logging_level))
 logger.info("Logging set to %s", logging_level)
 logger.debug("debug logging active")
