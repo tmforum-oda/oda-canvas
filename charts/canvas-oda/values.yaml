@@ -123,8 +123,8 @@ component-operator:
   deployment:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
-    compopVersion: 0.6.1
-    compopPrereleaseSuffix: issue76
+    compopVersion: 0.7.0
+    compopPrereleaseSuffix: 223-refact-2
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idconfopImage: tmforumodacanvas/security-listener

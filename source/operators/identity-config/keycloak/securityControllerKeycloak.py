@@ -66,8 +66,6 @@ idconfop_user = 'idconfop'
 
 kc = Keycloak(kcBaseURL)
 
-status_listener = False
-
 GROUP = "oda.tmforum.org"
 VERSION = "v1beta4"
 COMPONENTS_PLURAL = "components"
@@ -86,213 +84,152 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
     """
     Handler for component create/update
     """
-    
-    if('securityFunction' in spec and 'componentRole' in spec['securityFunction'] and len(spec['securityFunction']['componentRole'])):
+    # del unused-arguments for linting
+    del meta, status, body, labels, kwargs
 
-        # del unused-arguments for linting
-        del meta, status, body, labels, kwargs
+    rooturl = ""
 
-        rooturl = ""
-        
-        try: # to authenticate and get a token
-            token = kc.get_token(username, password)
-        except RuntimeError as e:
-            logger.error(format_cloud_event(
-                str(e),
-                'IDConfop could not GET Keycloak token'
-            ))
+    try: # to authenticate and get a token
+        token = kc.get_token(username, password)
+    except RuntimeError as e:
+        logger.error(format_cloud_event(
+            str(e),
+            'secCon could not GET Keycloak token'
+        ))
 
-        try: # to create the client in Keycloak
-            kc.create_client(name, rooturl, token, kcRealm)
-        except RuntimeError as e:
-            logger.error(format_cloud_event(
-                str(e),
-                f'IDConfop could not POST new client {name} in realm {kcRealm}'
-            ))
-            raise kopf.TemporaryError(
-                'Could not add component to Keycloak. Will retry.',
-                delay=10
-            )
-        else:
-            logger.info(format_cloud_event(
-                f'oda.tmforum.org component {name} created',
-                'IDConfop: component created'
-            ))
-
-            try: # to get the list of existing clients
-                client_list = kc.get_client_list(token, kcRealm)
-            except RuntimeError as e:
-                logging.error(format_cloud_event(
-                    str(e),
-                    f'security-APIListener could not GET clients for {kcRealm}'
-                ))
-            else:
-                client = client_list[name]
-
-        try: # to create the bootstrap role
-            # TODO find securityFunction.controllerRole and add_role in {name}
-            # 1) GET securityFunction.controllerRole from the component
-            # 2) add_role for securityFunction.controllerRole against component
-            # 3) write new function for add_role_to_user
-            # 4) create user for idconfop
-            # 5) add_role_to_user for idconfop user
-
-            idconfop_role = spec['securityFunction']['controllerRole']
-            kc.add_role(idconfop_role, client, token, kcRealm)
-        except RuntimeError as e:
-            logging.error(format_cloud_event(
-                f'Keycloak add_role failed for {idconfop_role} in {name}: {e}',
-                'IDConfop: bootstrap add_role failed'
-            ))
-
-        try: # to assign the role to the idconfop user
-            kc.add_role_to_user(idconfop_user, idconfop_role, name, token, kcRealm)
-        except RuntimeError as e:
-            logging.error(format_cloud_event(
-                f'Keycloak assign role failed for {idconfop_role} in {name}: {e}',
-                'IDConfop: bootstrap failed'
-            ))
-        else:
-            try:# to add list of roles exposed in component
-                # TODO find securityFunction.componentRole and add_role in {name}
-                # 1) GET securityFunction.componentRole from the component
-                # 2) Run for loop through list of roles present in securityFunction.componentRole
-                # 3) and execute add_role against component in every iteration
-                
-                for role in spec['securityFunction']['componentRole']:
-                    kc.add_role(role['name'], client, token, kcRealm)
-            except RuntimeError as e:
-                logging.error(format_cloud_event(
-                    f'Keycloak add_role failed for roles present in componentRole in {name}: {e}',
-                    'exposed list of roles in component: bootstrap add_role failed'
-                ))
-                status_value = { 'identityProvider': 'Keycloak',
-                                'listenerRegistered': False }
-            else:
-                status_value = { 'identityProvider': 'Keycloak',
-                                'listenerRegistered': True }
-
-        # the return value is added to the status field of the k8s object
-        # under securityRoles parameter (corresponds to function name)
-        return status_value
-    else:
-        foundPartyRole = False
-        partyRoleAPI = None
-        if ('securityFunction' in spec and 'exposedAPIs' in spec['securityFunction']):
-            for api in spec['securityFunction']['exposedAPIs']:
-                if ('partyrole' in api['name']):
-                    partyRoleAPI = api
-                    foundPartyRole = True
-                    break
-        if not(foundPartyRole):
-            raise kopf.TemporaryError(
-                'Could not get partyrole path from component. Will retry.',
-                delay=10
-            )
-        # del unused-arguments for linting
-        del meta, status, body, labels, kwargs
-    
-        rooturl = (
-            'http://'
-            + partyRoleAPI['implementation']
-            + '.' + namespace + '.svc.cluster.local:'
-            + str(partyRoleAPI['port'])
-            + partyRoleAPI['path']
+    try: # to create the client in Keycloak
+        kc.create_client(name, rooturl, token, kcRealm)
+    except RuntimeError as e:
+        logger.error(format_cloud_event(
+            str(e),
+            f'secCon could not POST new client {name} in realm {kcRealm}'
+        ))
+        raise kopf.TemporaryError(
+            'Could not add component to Keycloak. Will retry.',
+            delay=10
         )
-        logger.debug('using component root url: %s', rooturl)
-        logger.debug('status.deployment_status = %s -> %s', old, new)
+    else:
+        logger.info(format_cloud_event(
+            f'oda.tmforum.org component {name} created',
+            'secCon: component created'
+        ))
+
+    try: # to get the list of existing clients and the client object for this component
+        client_list = kc.get_client_list(token, kcRealm)
+    except RuntimeError as e:
+        logging.error(format_cloud_event(
+            str(e),
+            f'security-APIListener could not GET clients for {kcRealm}'
+        ))
+        raise kopf.TemporaryError(
+            'Could not get the client from Keycloak. Will retry.',
+            delay=10
+        )
+    else:
+        client = client_list[name]
+
+    try: # to create the bootstrap role
+        # TODO find securityFunction.controllerRole and add_role in {name}
+        # 1) GET securityFunction.controllerRole from the component
+        # 2) add_role for securityFunction.controllerRole against component
+        # 3) write new function for add_role_to_user
+        # 4) create user for seccon
+        # 5) add_role_to_user for secCon user
+
+        seccon_role = spec['securityFunction']['controllerRole']
+        kc.add_role(seccon_role, client, token, kcRealm)
+    except RuntimeError as e:
+        logging.error(format_cloud_event(
+            f'Keycloak add_role failed for {seccon_role} in {name}: {e}',
+            'secCon: bootstrap add_role failed'
+        ))
+        raise kopf.TemporaryError(
+            'Could not add the seccon role to Keycloak. Will retry.',
+            delay=10
+        )
     
-        try: # to authenticate and get a token
-            token = kc.get_token(username, password)
-        except Exception as e:
-            logger.error(format_cloud_event(
-                str(e),
-                'IDConfop could not GET Keycloak token'
-            ))
-            raise kopf.TemporaryError(
-                'Could not authenticate to Keycloak. Will retry.',
-                delay=10
-            )    
-        try: # to create the client in Keycloak
-            kc.create_client(name, rooturl, token, kcRealm)
+    try: # to assign the role to the seccon user
+        kc.add_role_to_user(seccon_user, seccon_role, name, token, kcRealm)
+    except RuntimeError as e:
+        logging.error(format_cloud_event(
+            f'Keycloak assign role failed for {seccon_role} in {name}: {e}',
+            'secCon: bootstrap failed'
+        ))
+        raise kopf.TemporaryError(
+            'Could not add the seccon role to user in Keycloak. Will retry.',
+            delay=10
+        )
+
+
+
+    if ('securityFunction' in spec and 'componentRole' in spec['securityFunction'] and len(spec['securityFunction']['componentRole'])):
+
+        try:# to add list of static roles exposed in component
+            # TODO find securityFunction.componentRole and add_role in {name}
+            # 1) GET securityFunction.componentRole from the component
+            # 2) Run for loop through list of roles present in securityFunction.componentRole
+            # 3) and execute add_role against component in every iteration
+            
+            for role in spec['securityFunction']['componentRole']:
+                kc.add_role(role['name'], client, token, kcRealm)
         except RuntimeError as e:
             logger.error(format_cloud_event(
                 str(e),
                 f'IDConfop could not POST new client {name} in realm {kcRealm}'
             ))
             raise kopf.TemporaryError(
-                'Could not add component to Keycloak. Will retry.',
+                'Could not add list of static roles to Keycloak. Will retry.',
                 delay=10
-            )
+            ) 
         else:
             logger.info(format_cloud_event(
-                f'oda.tmforum.org component {name} created',
-                'IDConfop: component created'
-            ))
-    
-            try: # to get the list of existing clients
-                client_list = kc.get_client_list(token, kcRealm)
-            except RuntimeError as e:
-                logging.error(format_cloud_event(
-                    str(e),
-                    f'security-APIListener could not GET clients for {kcRealm}'
-                ))
-            else:
-                client = client_list[name]
-            
-        try: # to create the bootstrap role
-            # TODO find securityFunction.controllerRole and add_role in {name}
-            # 1) GET securityFunction.controllerRole from the component
-            # 2) add_role for securityFunction.controllerRole against component
-            # 3) write new function for add_role_to_user
-            # 4) create user for idconfop
-            # 5) add_role_to_user for idconfop user
-    
-            idconfop_role = spec['securityFunction']['controllerRole']
-            kc.add_role(idconfop_role, client, token, kcRealm)
-        except RuntimeError as e:
-            logging.error(format_cloud_event(
-                f'Keycloak add_role failed for {idconfop_role} in {name}: {e}',
-                'IDConfop: bootstrap add_role failed'
-            ))
 
-        #To store value of status of listener registered
-        #At some point we need to replace this with calling CRDs rather than 
-        #storing this as a global variable
-        global status_listener
-        
-        try: # to assign the role to the idconfop user
-            kc.add_role_to_user(idconfop_user, idconfop_role, name, token, kcRealm)
+                f'Keycloak add_role for roles present in componentRole for component {name} created',
+                'secCon: add_role created'
+            ))           
+
+
+    foundPartyRole = False
+    partyRoleAPI = None
+    if ('securityFunction' in spec and 'exposedAPIs' in spec['securityFunction']):
+        for api in spec['securityFunction']['exposedAPIs']:
+            if ('partyrole' in api['name']):
+                partyRoleAPI = api
+                foundPartyRole = True
+                break
+
+    if (foundPartyRole == True) :
+        try: # to register with the partyRoleManagement API
+            rooturl = (
+                'http://'
+                + partyRoleAPI['implementation']
+                + '.' + namespace + '.svc.cluster.local:'
+                + str(partyRoleAPI['port'])
+                + partyRoleAPI['path']
+            )
+            logger.debug('using component root url: %s', rooturl)
+            logger.debug('status.deployment_status = %s -> %s', old, new)            
+            register_listener(rooturl + '/hub')    
+
         except RuntimeError as e:
-            logging.error(format_cloud_event(
-                f'Keycloak assign role failed for {idconfop_role} in {name}: {e}',
-                'IDConfop: bootstrap failed'
+            logger.warning(format_cloud_event(
+                str(e),
+                f'IDConfop could not POST new client {name} in realm {kcRealm}'
             ))
+            raise kopf.TemporaryError(
+                'Could not register listener. Will retry.', delay=10
+            )
         else:
-            if(status_listener == False) :
-                try: # to register with the partyRoleManagement API
-                    register_listener(rooturl + '/hub')    
-                except RuntimeError as e:
-                    logger.warning(format_cloud_event(
-                        str(e),
-                        'IDConfop could not register partyRoleManagement listener'
-                    ))
-                    status_value = { 'identityProvider': 'Keycloak',
-                                    'listenerRegistered': False }
-                    raise kopf.TemporaryError(
-                        'Could not register listener. Will retry.', delay=10
-                    )
-                else:
-                    status_listener = True
-                    status_value = { 'identityProvider': 'Keycloak',
-                                    'listenerRegistered': True }
-            else :
-                status_value = { 'identityProvider': 'Keycloak',
-                                'listenerRegistered': True }
-    
-        # the return value is added to the status field of the k8s object
-        # under securityRoles parameter (corresponds to function name)
-        return status_value
+
+            status_value = { 'identityProvider': 'Keycloak',
+                            'listenerRegistered': True }
+    else :
+        status_value = { 'identityProvider': 'Keycloak',
+                        'listenerRegistered': False }
+
+    # the return value is added to the status field of the k8s object
+    # under securityRoles parameter (corresponds to function name) 
+    return status_value
 
 @kopf.on.delete(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 def security_client_delete(meta, spec, status, body, namespace, labels, name, **kwargs):
