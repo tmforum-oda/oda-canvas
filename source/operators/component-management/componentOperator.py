@@ -660,9 +660,7 @@ async def security_client_add(meta, spec, status, body, namespace, labels,name, 
         resultStatus = await createIdentityConfigResource(
             logw, identityConfigResource,
             namespace,
-            identityConfigName,
-            "identityConfig",
-            security_client_add
+            identityConfigName
         )
         identityConfigStatus = resultStatus
 
@@ -1220,7 +1218,7 @@ async def createSecretsManagementResource(
 
 @logwrapper
 async def createIdentityConfigResource(
-    logw: LogWrapper, inIdentityConfig, namespace, name, inHandler
+    logw: LogWrapper, inIdentityConfig, namespace, name
 ):
     """Helper function to create or update IdentityConfig Custom objects.
 
@@ -1228,7 +1226,6 @@ async def createIdentityConfigResource(
         * inIdentityConfig (Dict): The IdentityConfig definition
         * namespace (String): The namespace for the Component and API
         * name (String): The name of the API resource
-        * inHandler (String): The name of the handler calling this function
 
     Returns:
         Dict with IdentityConfig definition including uuid of the IdentityConfig resource and ready status.
