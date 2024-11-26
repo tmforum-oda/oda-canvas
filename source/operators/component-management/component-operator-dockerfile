@@ -17,6 +17,7 @@ COPY identity-config/keycloak/identityConfigOperatorKeycloak.py /identityOperato
 COPY identity-config/keycloak/keycloakUtils.py /identityOperator/
 COPY identity-config/keycloak/log_wrapper.py /identityOperator/
 COPY component-management/componentOperator.py /componentOperator/
+COPY component-management/log_wrapper.py /componentOperator/
 
 # Setting up required ENV variables
 ARG CICD_BUILD_TIME

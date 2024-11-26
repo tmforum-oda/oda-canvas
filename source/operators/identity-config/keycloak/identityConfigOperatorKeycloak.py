@@ -4,7 +4,6 @@ import os
 import requests
 
 from keycloakUtils import Keycloak
-from cloudevents.http import CloudEvent, to_structured
 
 from log_wrapper import LogWrapper, logwrapper
 
@@ -12,7 +11,7 @@ from log_wrapper import LogWrapper, logwrapper
 logging_level = os.environ.get("LOGGING", logging.INFO)
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.WARNING)
-logger = logging.getLogger("SManOP")
+logger = logging.getLogger("IdentityConfigOperatorKeycloak")
 logger.setLevel(int(logging_level))
 logger.info("Logging set to %s", logging_level)
 logger.debug("debug logging active")
@@ -140,7 +139,6 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         )
 
     try: # to create the bootstrap role and add it to the idconfop user
-
         idconfop_role = spec['securityFunction']['controllerRole']
         kc.add_role(idconfop_role, client, token, kcRealm)
     except RuntimeError as e:

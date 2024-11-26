@@ -425,7 +425,7 @@ async def podmutate(
     try:
         logw.set(
             component_name=quick_get_comp_name(body),
-            resource_name=f"POD/{get_pod_name(body)}",
+            resource_name=f"POD/{get_pod_name(body)}"
         )
         logw.debugInfo("POD mutate called", body)
         inject_sidecar(logw, body, patch)
