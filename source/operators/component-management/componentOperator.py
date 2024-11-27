@@ -703,7 +703,8 @@ async def identityConfig(
     try:
         # check if the identityConfig resource already exists
         identityConfigName = name
-
+        identityConfig = None
+        
         custom_objects_api = kubernetes.client.CustomObjectsApi()
         try:
             identityConfig = custom_objects_api.get_namespaced_custom_object(
