@@ -82,7 +82,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: source/operators/identity-config/keycloak
-          file: source/operators/identity-config/keycloak/identityconfig-operator-dockerfile
+          file: source/operators/identity-config/keycloak/identityconfig-operator-keycloak-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

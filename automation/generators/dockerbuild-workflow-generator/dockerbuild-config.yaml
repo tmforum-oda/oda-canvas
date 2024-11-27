@@ -43,7 +43,7 @@ identityconfig-operator-keycloak:
     - source/operators/identity-config/keycloak/*
   buildContext: source/operators/identity-config/keycloak
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/identity-config/keycloak/identityconfig-operator-dockerfile
+  buildDockerfile: source/operators/identity-config/keycloak/identityconfig-operator-keycloak-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 

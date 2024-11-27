@@ -16,7 +16,7 @@ logger.debug("debug logging active")
 LogWrapper.set_defaultLogger(logger)
 
 componentname_label = os.getenv("COMPONENTNAME_LABEL", "oda.tmforum.org/componentName")
-
+ 
 # Helper functions ----------
 
 @logwrapper
