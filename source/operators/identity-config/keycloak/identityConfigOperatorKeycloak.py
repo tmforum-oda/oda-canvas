@@ -37,7 +37,7 @@ def register_listener(url: str) -> None:
         # more errors
         r = requests.post(
             url,
-            json = {'callback': 'http://idconfop.canvas:5000/listener'})
+            json = {'callback': 'http://idlistkey.canvas:5000/listener'})
         r.raise_for_status()
     except RuntimeError:
         raise
@@ -69,16 +69,25 @@ GROUP = "oda.tmforum.org"
 VERSION = "v1beta4"
 COMPONENTS_PLURAL = "components"
 
+IDENTITYCONFIG_GROUP = "oda.tmforum.org"
+IDENTITYCONFIG_VERSION = "v1beta4"
+IDENTITYCONFIG_PLURAL = "identityconfigs"
+IDENTITYCONFIG_KIND = "IdentityConfig"
+
+
 # Kopf handlers -------------
 
-@kopf.on.update(
-    GROUP,
-    VERSION,
-    COMPONENTS_PLURAL,
-    field='status.summary/status.deployment_status',
-    value='In-Progress-IDConfOp',
-    retries=5
-)
+# @kopf.on.update(
+#     GROUP,
+#     VERSION,
+#     COMPONENTS_PLURAL,
+#     field='status.summary/status.deployment_status',
+#     value='In-Progress-IDConfOp',
+#     retries=5
+# )
+@kopf.on.resume(GROUP, IDENTITYCONFIG_VERSION, IDENTITYCONFIG_PLURAL, retries=5)
+@kopf.on.create(GROUP, IDENTITYCONFIG_VERSION, IDENTITYCONFIG_PLURAL, retries=5)
+@kopf.on.update(GROUP, IDENTITYCONFIG_VERSION, IDENTITYCONFIG_PLURAL, retries=5)
 def security_client_add(meta, spec, status, body, namespace, labels,name, old, new, **kwargs):
     """
     Handler for component create/update

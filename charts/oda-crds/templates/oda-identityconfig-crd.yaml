@@ -26,8 +26,17 @@ spec:
             properties:
               controllerRole:
                 description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
-                  It must exist in the roles exposed by the partyRole API.
                 type: string
+              componentRole:
+                description: This allows components to declare statically defined roles that should be configured in Identity Management solution. 
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    description:
+                      type: string                
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true

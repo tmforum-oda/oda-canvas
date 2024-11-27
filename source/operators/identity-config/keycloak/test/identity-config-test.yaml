@@ -1,0 +1,28 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: oda.tmforum.org/v1beta4
+kind: IdentityConfig
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    oda.tmforum.org/componentName: r2-productcatalogmanagement
+  name: r2-productcatalogmanagement
+  namespace: components
+  ownerReferences:
+  - apiVersion: oda.tmforum.org/v1beta4
+    blockOwnerDeletion: true
+    controller: true
+    kind: Component
+    name: r2-productcatalogmanagement
+    uid: 2053d287-e5b4-460a-8140-bbd1e2d6b370
+spec:
+  componentRole:
+  - description: Product Catalogue Administrator
+    name: pcadmin
+  - description: Catalogue Owner for catalogue 1
+    name: cat1owner
+  - description: Catalogue Owner for catalogue 2
+    name: cat2owner
+  controllerRole: Admin

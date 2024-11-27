@@ -68,6 +68,8 @@ DEPENDENTAPI_VERSION = "v1beta4"
 DEPENDENTAPI_PLURAL = "dependentapis"
 DEPENDENTAPI_KIND = "DependentAPI"
 
+IDENTITY_PROVIDER_NOT_SET = "Not set"
+
 PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
 
@@ -621,7 +623,7 @@ async def coreDependentAPIs(
     value='In-Progress-IDConfOp',
     retries=5
 )
-async def security_client_add_TEST_from_component(meta, spec, status, body, namespace, labels,name, old, new, **kwargs): # temporarily changed name
+async def security_client_add(meta, spec, status, body, namespace, labels,name, old, new, **kwargs): # temporarily changed name
     """Handler function for **identityConfig** part of new or updated components.  
 
     Processes the **identityConfig** part of the component envelope and creates the child IdentityConfig resource.
@@ -646,7 +648,9 @@ async def security_client_add_TEST_from_component(meta, spec, status, body, name
         resource_name=quick_get_comp_name(body)
     )
     logw.debugInfo("security_client_add handler called", body)
-    identityConfigStatus = {}
+    identityConfigStatus = { "identityProvider": IDENTITY_PROVIDER_NOT_SET,
+                        "listenerRegistered": False }
+    
     identityConfigName = name
     identityConfigResource = {
         "controllerRole": spec["securityFunction"]["controllerRole"]
@@ -663,14 +667,13 @@ async def security_client_add_TEST_from_component(meta, spec, status, body, name
             namespace,
             identityConfigName
         )
-        identityConfigStatus = resultStatus
+        logw.info(f"createIdentityConfigResource returned {resultStatus}")
 
     except kopf.TemporaryError as e:
         raise e  # propagate
     except Exception as e:
         logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
         raise kopf.TemporaryError(e)  # allow the operator to retry
-    logw.info(f"result for status {identityConfigStatus}")
 
     # Update the parent's status.
     return identityConfigStatus
@@ -1604,7 +1607,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
             "security_client_add/status.summary/status.deployment_status"
             in status.keys()
         ) and (
-            status["security_client_add/status.summary/status.deployment_status"]["identityProvider"]):
+            status["security_client_add/status.summary/status.deployment_status"]["identityProvider"]!=IDENTITY_PROVIDER_NOT_SET):
             status_summary["deployment_status"] = "In-Progress-SecretMan"
             if countOfCompleteSecretsManagements == countOfDesiredSecretsManagements:
                 status_summary["deployment_status"] = "In-Progress-DepApi"

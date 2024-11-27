@@ -5,18 +5,18 @@
 # automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml #
 ################################################################################
 
-name: Build Component-operator Release Dockerimage
-run-name: Build Component-operator Release Dockerimage
+name: Build Identityconfig-operator-keycloak Release Dockerimage
+run-name: Build Identityconfig-operator-keycloak Release Dockerimage
 on:
   workflow_dispatch:
   push:
     branches:
     - main
     paths: 
-      - source/operators/component-management/*
+      - source/operators/identity-config/keycloak/*
 
 jobs:
-  build-component-operator-release-dockerfile-job:
+  build-identityconfig-operator-keycloak-release-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -26,17 +26,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of component-operator from values.yaml
+      - name: read image of identityconfig-operator-keycloak from values.yaml
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.component-operator.deployment.compopImage' charts/canvas-oda/values.yaml
+          cmd: yq '.identityconfig-operator-keycloak.deployment.idkopImage' charts/canvas-oda/values.yaml
           
-      - name: read versionnumber of component-operator from values.yaml
+      - name: read versionnumber of identityconfig-operator-keycloak from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.component-operator.deployment.compopVersion, .component-operator.deployment.compopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.identityconfig-operator.deployment.idkopVersion, .identityconfig-operator.deployment.idkopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
@@ -74,8 +74,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/component-management
-          file: source/operators/component-management/component-operator-dockerfile
+          context: source/operators/identity-config/keycloak
+          file: source/operators/component-management/identityconfig-operator-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
