@@ -788,7 +788,10 @@ async def identityConfig(
             if "exposedAPIs" in spec["securityFunction"]:
                 for api in spec["securityFunction"]["exposedAPIs"]:
                     if "partyrole" in api["name"]:
-                        partyRoleAPI = api
+                        partyRoleAPI = {}
+                        partyRoleAPI["implementation"] = api["implementation"]
+                        partyRoleAPI["path"] = api["path"]
+                        partyRoleAPI["port"] = api["port"]
                         foundPartyRole = True
                         break
             if foundPartyRole:
