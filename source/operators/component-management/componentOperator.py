@@ -653,10 +653,11 @@ async def security_client_add_TEST_from_component(meta, spec, status, body, name
     }
     if "componentRole" in spec["securityFunction"]:
         identityConfigResource["componentRole"] = spec["securityFunction"]["componentRole"]
-
+        logw.info(f"Adding componentRole statically defined roles")
     try:
         
         logw.info(f"Calling createIdentityConfig {identityConfigName}")
+        logw.info(f"Calling createIdentityConfig with resource {identityConfigResource}")
         resultStatus = await createIdentityConfigResource(
             logw, identityConfigResource,
             namespace,
