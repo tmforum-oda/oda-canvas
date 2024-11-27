@@ -35,7 +35,6 @@ if CICD_BUILD_TIME:
 if GIT_COMMIT_SHA:
     logger.info(f"GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
 
-
 # get namespace to monitor
 component_namespace = os.environ.get("COMPONENT_NAMESPACE", "components")
 logger.info(f"Monitoring namespace %s", component_namespace)

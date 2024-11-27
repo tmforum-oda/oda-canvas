@@ -162,8 +162,8 @@ api-operator-istio:
   deployment:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
-    apiopVersion: 0.1.0
-    apiopPrereleaseSuffix:
+    apiopVersion: 0.2.0
+    apiopPrereleaseSuffix: 223-refact-2
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components'           # comma separated list of namespaces
