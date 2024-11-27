@@ -240,7 +240,12 @@ def identityConfig(
 
         try:
             api_response = custom_objects_api.patch_namespaced_custom_object(
-                GROUP, VERSION, namespace, COMPONENTS_PLURAL, parent_component_name, parent_component
+                GROUP,
+                VERSION,
+                namespace,
+                COMPONENTS_PLURAL,
+                parent_component_name,
+                parent_component,
             )
             logw.debug(f"patchComponent: {api_response}")
         except ApiException as e:
@@ -255,9 +260,6 @@ def identityConfig(
     # the return value is added to the status field of the k8s object
     # under securityRoles parameter (corresponds to function name)
     return status_value
-
-
-      
 
 
 @kopf.on.delete(GROUP, IDENTITYCONFIG_VERSION, IDENTITYCONFIG_PLURAL, retries=5)
