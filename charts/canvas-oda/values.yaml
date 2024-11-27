@@ -107,8 +107,9 @@ keycloak:
               "realm-management": [
                 "manage-clients"
               ]
+             }
             }
-           ]
+          ]
         }
 
   ingress:
