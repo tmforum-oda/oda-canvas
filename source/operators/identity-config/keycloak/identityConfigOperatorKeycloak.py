@@ -243,7 +243,7 @@ def identityConfig(
                     f"Exception when calling custom_objects_api.get_namespaced_custom_object: {e}"
                 )
 
-        parent_component["status"]["security_client_add"] = status_value
+        parent_component["status"]["identityConfig"] = status_value
 
         try:
             api_response = custom_objects_api.patch_namespaced_custom_object(

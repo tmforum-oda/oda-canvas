@@ -664,8 +664,7 @@ async def identityConfig(meta, spec, status, body, namespace, labels, name, old,
     # del unused-arguments for linting
     del meta, status, old, new, labels, kwargs
 
-    identityConfigStatus = { "identityProvider": IDENTITY_PROVIDER_NOT_SET,
-                        "listenerRegistered": False }
+    identityConfigStatus = "identityConfig resource created"
     
     identityConfigName = name
     identityConfigResource = {
