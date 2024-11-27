@@ -5,6 +5,7 @@ import requests
 from keycloakUtils import Keycloak
 from log_wrapper import LogWrapper, logwrapper
 from kubernetes.client.rest import ApiException
+import kubernetes.client
 
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
