@@ -58,9 +58,10 @@ identity-listener-keycloak:
 
   paths:
     - source/operators/identity-config/keycloak/identity-listener-keycloak/*
-  buildContext: source/operators/identity-config/keycloak/identity-listener-keycloak
+    - source/operators/identity-config/keycloak/keycloakUtils.py
+  buildContext: source/operators/identity-config/keycloak
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/identity-config/keycloak/identity-listener-keycloak/identity-listenet-keycloak-dockerfile
+  buildDockerfile: source/operators/identity-config/keycloak/identity-listener-keycloak-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 

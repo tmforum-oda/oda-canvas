@@ -15,6 +15,7 @@ on:
     - odaa-*
     paths: 
       - source/operators/identity-config/keycloak/identity-listener-keycloak/*
+      - source/operators/identity-config/keycloak/keycloakUtils.py
 
 jobs:
   build-identity-listener-keycloak-prerelease-dockerfile-job:
@@ -81,8 +82,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/identity-config/keycloak/identity-listener-keycloak
-          file: source/operators/identity-config/keycloak/identity-listener-keycloak/identity-listenet-keycloak-dockerfile
+          context: source/operators/identity-config/keycloak
+          file: source/operators/identity-config/keycloak/identity-listener-keycloak-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
