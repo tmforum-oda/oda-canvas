@@ -797,7 +797,7 @@ async def identityConfig(
             if foundPartyRole:
                 logw.info(f"Adding componentRole dynamically defined roles")
                 # get the partyrole API and add to the identityConfig
-                identityConfigResource["partyroleAPI"] = partyRoleAPI
+                identityConfigResource["partyRoleAPI"] = partyRoleAPI
 
             # create the identityConfig resource (or patch existing resource if it is present)
             logw.debugInfo(f"Calling createIdentityConfig {identityConfigName}", f"Calling createIdentityConfig with resource {identityConfigResource}")

@@ -185,8 +185,8 @@ def identityConfig(
 
     # check if the partyRoleManagement API is exposed by the component
     # if it is present, add a listener to the partyRoleManagement API
-    if "partyroleAPI" in spec:
-        partyRoleAPI = spec["partyroleAPI"]
+    if "partyRoleAPI" in spec:
+        partyRoleAPI = spec["partyRoleAPI"]
 
         try:  # to register with the partyRoleManagement API
             rooturl = (
