@@ -138,9 +138,9 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
                     "Patching",
                     "Istio Virtual Service",
                 )
-                # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
-                if "apitype" in spec.keys():
-                    if spec["apitype"] == "prometheus":
+                # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+                if "apiType" in spec.keys():
+                    if spec["apiType"] == "prometheus":
                         # create a ServiceMonitor resource
                         logWrapper(
                             logging.INFO,
@@ -168,9 +168,9 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
         "Creating",
         "Istio Virtual Service",
     )
-    # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
-    if "apitype" in spec.keys():
-        if spec["apitype"] == "prometheus":
+    # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+    if "apiType" in spec.keys():
+        if spec["apiType"] == "prometheus":
             # create a ServiceMonitor resource
             logWrapper(
                 logging.INFO,

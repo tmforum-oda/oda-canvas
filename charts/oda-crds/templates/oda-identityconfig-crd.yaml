@@ -27,6 +27,9 @@ spec:
               controllerRole:
                 description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
                 type: string
+              controllerRole:
+                description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
+                type: string 
               componentRole:
                 description: This allows components to declare statically defined roles that should be configured in Identity Management solution. 
                 type: array
@@ -36,7 +39,57 @@ spec:
                     name:
                       type: string
                     description:
-                      type: string                
+                      type: string   
+              partyRoleAPI:
+                description: This is the name of the API that the component will expose to allow Canvas to manage party roles.
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of the API
+                  specification:
+                    type: array
+                    items:
+                      type: string
+                      format: url
+                    description: >
+                      url to the specification of the API, if required. e.g. url to the swagger file for Open API.
+                      This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                    minItems: 1
+                  apiType:
+                    type: string
+                    enum:
+                    - openapi
+                    description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                  apiSDO:
+                    type: string
+                    description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                  implementation:
+                    type: string
+                    description: The name of the service where the implementation of the API is found
+                  path:
+                    type: string
+                    description: The path to the root of the API
+                  developerUI:
+                    type: string
+                    description: (optional) The path to the developer User Interface for the API
+                  port:
+                    type: integer
+                    description: The port where the API is exposed
+                  resources:
+                    type: array
+                    items:
+                      type: object
+                    description: Resources is an optional list of resources that are exposed by the API.
+                  required:
+                    type: boolean
+                    description: Required is a flag that indicates whether the API is required or not.
+                required:
+                - name
+                - apiType
+                - implementation
+                - path
+                - port                             
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
