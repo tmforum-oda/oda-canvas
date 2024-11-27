@@ -90,7 +90,7 @@ IDENTITYCONFIG_KIND = "IdentityConfig"
 @kopf.on.resume(GROUP, IDENTITYCONFIG_VERSION, IDENTITYCONFIG_PLURAL, retries=5)
 @kopf.on.create(GROUP, IDENTITYCONFIG_VERSION, IDENTITYCONFIG_PLURAL, retries=5)
 @kopf.on.update(GROUP, IDENTITYCONFIG_VERSION, IDENTITYCONFIG_PLURAL, retries=5)
-def security_client_add(
+def identityConfig(
     meta, spec, status, body, namespace, labels, name, old, new, **kwargs
 ):
     """

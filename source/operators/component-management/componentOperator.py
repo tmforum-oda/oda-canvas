@@ -254,6 +254,9 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     )
     logw.debugInfo("coreAPIs handler called", body)
 
+    # del unused-arguments for linting
+    del meta, labels, kwargs
+
     apiChildren = (
         []
     )  # any existing API children of this component that have been patched
@@ -344,6 +347,9 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
         resource_name=quick_get_comp_name(body)
     )
     logw.debugInfo("managementAPIs handler called", body)
+
+    # del unused-arguments for linting
+    del meta, labels, kwargs
 
     apiChildren = []
     oldManagementAPIs = []
@@ -439,6 +445,9 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
         resource_name=quick_get_comp_name(body)
     )
     logw.debugInfo("securityAPIs handler called", body)
+
+    # del unused-arguments for linting
+    del meta, labels, kwargs
 
     apiChildren = []
     oldSecurityAPIs = []
@@ -566,6 +575,9 @@ async def coreDependentAPIs(
     )
     logw.debugInfo("coreDependentAPIs handler called", body)
 
+    # del unused-arguments for linting
+    del meta, labels, kwargs
+
     dependentAPIChildren = []
     dapi_base_name = name
 
@@ -623,7 +635,7 @@ async def coreDependentAPIs(
     value='In-Progress-IDConfOp',
     retries=5
 )
-async def security_client_add(meta, spec, status, body, namespace, labels,name, old, new, **kwargs): # temporarily changed name
+async def identityConfig(meta, spec, status, body, namespace, labels, name, old, new, **kwargs): # temporarily changed name
     """Handler function for **identityConfig** part of new or updated components.  
 
     Processes the **identityConfig** part of the component envelope and creates the child IdentityConfig resource.
@@ -648,6 +660,10 @@ async def security_client_add(meta, spec, status, body, namespace, labels,name, 
         resource_name=quick_get_comp_name(body)
     )
     logw.debugInfo("security_client_add handler called", body)
+
+    # del unused-arguments for linting
+    del meta, status, old, new, labels, kwargs
+
     identityConfigStatus = { "identityProvider": IDENTITY_PROVIDER_NOT_SET,
                         "listenerRegistered": False }
     
@@ -664,8 +680,7 @@ async def security_client_add(meta, spec, status, body, namespace, labels,name, 
         logw.info(f"Calling createIdentityConfig with resource {identityConfigResource}")
         resultStatus = await createIdentityConfigResource(
             logw, identityConfigResource,
-            namespace,
-            identityConfigName
+            namespace
         )
         logw.info(f"createIdentityConfigResource returned {resultStatus}")
 
@@ -1222,7 +1237,7 @@ async def createSecretsManagementResource(
 
 @logwrapper
 async def createIdentityConfigResource(
-    logw: LogWrapper, inIdentityConfig, namespace, name
+    logw: LogWrapper, inIdentityConfig, namespace
 ):
     """Helper function to create or update IdentityConfig Custom objects.
 
@@ -1285,6 +1300,9 @@ async def createIdentityConfigResource(
 @kopf.on.resume("", "v1", "services", retries=5)
 @kopf.on.create("", "v1", "services", retries=5)
 async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(
         meta, spec, body, namespace, labels, name, "service"
     )
@@ -1293,6 +1311,9 @@ async def adopt_service(meta, spec, body, namespace, labels, name, **kwargs):
 @kopf.on.resume("apps", "v1", "deployments", retries=5)
 @kopf.on.create("apps", "v1", "deployments", retries=5)
 async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(
         meta, spec, body, namespace, labels, name, "deployment"
     )
@@ -1300,9 +1321,10 @@ async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 
 @kopf.on.resume("", "v1", "persistentvolumeclaims", retries=5)
 @kopf.on.create("", "v1", "persistentvolumeclaims", retries=5)
-async def adopt_persistentvolumeclaim(
-    meta, spec, body, namespace, labels, name, **kwargs
-):
+async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(
         meta, spec, body, namespace, labels, name, "persistentvolumeclaim"
     )
@@ -1311,12 +1333,18 @@ async def adopt_persistentvolumeclaim(
 @kopf.on.resume("batch", "v1", "jobs", retries=5)
 @kopf.on.create("batch", "v1", "jobs", retries=5)
 async def adopt_job(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, "job")
 
 
 @kopf.on.resume("batch", "v1", "cronjobs", retries=5)
 @kopf.on.create("batch", "v1", "cronjobs", retries=5)
 async def adopt_cronjob(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(
         meta, spec, body, namespace, labels, name, "cronjob"
     )
@@ -1325,6 +1353,9 @@ async def adopt_cronjob(meta, spec, body, namespace, labels, name, **kwargs):
 @kopf.on.resume("apps", "v1", "statefulsets", retries=5)
 @kopf.on.create("apps", "v1", "statefulsets", retries=5)
 async def adopt_statefulset(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(
         meta, spec, body, namespace, labels, name, "statefulset"
     )
@@ -1333,6 +1364,9 @@ async def adopt_statefulset(meta, spec, body, namespace, labels, name, **kwargs)
 @kopf.on.resume("", "v1", "configmap", retries=5)
 @kopf.on.create("", "v1", "configmap", retries=5)
 async def adopt_configmap(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(
         meta, spec, body, namespace, labels, name, "configmap"
     )
@@ -1341,12 +1375,18 @@ async def adopt_configmap(meta, spec, body, namespace, labels, name, **kwargs):
 @kopf.on.resume("", "v1", "secret", retries=5)
 @kopf.on.create("", "v1", "secret", retries=5)
 async def adopt_secret(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, "secret")
 
 
 @kopf.on.resume("", "v1", "serviceaccount", retries=5)
 @kopf.on.create("", "v1", "serviceaccount", retries=5)
 async def adopt_serviceaccount(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(
         meta, spec, body, namespace, labels, name, "serviceaccount"
     )
@@ -1355,12 +1395,18 @@ async def adopt_serviceaccount(meta, spec, body, namespace, labels, name, **kwar
 @kopf.on.resume("rbac.authorization.k8s.io", "v1", "role", retries=5)
 @kopf.on.create("rbac.authorization.k8s.io", "v1", "role", retries=5)
 async def adopt_role(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(meta, spec, body, namespace, labels, name, "role")
 
 
 @kopf.on.resume("rbac.authorization.k8s.io", "v1", "rolebinding", retries=5)
 @kopf.on.create("rbac.authorization.k8s.io", "v1", "rolebinding", retries=5)
 async def adopt_rolebinding(meta, spec, body, namespace, labels, name, **kwargs):
+    # del unused-arguments for linting
+    del kwargs
+
     return adopt_kubernetesResource(
         meta, spec, body, namespace, labels, name, "rolebinding"
     )
@@ -1525,6 +1571,9 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     )
     logw.debugInfo("summary handler called", body)
 
+    # del unused-arguments for linting
+    del meta, spec, namespace, labels, name, kwargs
+
     coreAPIsummary = ""
     coreDependentAPIsummary = ""
     securitySecretsManagementSummary = ""
@@ -1604,10 +1653,10 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     if countOfCompleteAPIs == countOfDesiredAPIs:
         status_summary["deployment_status"] = "In-Progress-IDConfOp"
         if (
-            "security_client_add/status.summary/status.deployment_status"
+            "identityConfig"
             in status.keys()
         ) and (
-            status["security_client_add/status.summary/status.deployment_status"]["identityProvider"]!=IDENTITY_PROVIDER_NOT_SET):
+            status["identityConfig"]["identityProvider"]!=IDENTITY_PROVIDER_NOT_SET):
             status_summary["deployment_status"] = "In-Progress-SecretMan"
             if countOfCompleteSecretsManagements == countOfDesiredSecretsManagements:
                 status_summary["deployment_status"] = "In-Progress-DepApi"
