@@ -96,7 +96,7 @@ def security_client_add(
     Handler for component create/update
     """
     # del unused-arguments for linting
-    del status, meta, labels, kwargs
+    del status, labels, kwargs
 
     logw = LogWrapper(
         handler_name="security_client_add", function_name="security_client_add"
@@ -241,7 +241,7 @@ def security_client_add(
                 logw.error(
                     f"Exception when calling custom_objects_api.get_namespaced_custom_object: {e}"
                 )
-                
+
         parent_component["status"]["security_client_add"] = status_value
 
         try:
