@@ -17,19 +17,19 @@ spec:
         app: {{.Values.deployment.operatorName}}
         {{- include "identityconfig-operator-keycloak.labels" . | nindent 8 }}
     spec:
-      serviceAccountName: odacomponent-account
+      serviceAccountName: identityconfig-account
       containers:
       - name: {{.Values.deployment.operatorName}}
-        image: {{ include "identityconfig-operator-keycloak.compopDockerimage" . }}
-        imagePullPolicy: {{ include "identityconfig-operator-keycloak.compopImagePullPolicy" . }}
+        image: {{ include "identityconfig-operator-keycloak.idkopImage" . }}
+        imagePullPolicy: {{ include "identityconfig-operator-keycloak.imagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: identityconfig-operator-keycloak-configmap
           - secretRef:
               name: identityconfig-operator-keycloak-secret
       - name: idlistkey
-        image: {{ include "identityconfig-operator-keycloak.idlistkeyDockerimage" . }}
-        imagePullPolicy: {{ include "identityconfig-operator-keycloak.idlistkeyImagePullPolicy" . }}
+        image: {{ include "identityconfig-operator-keycloak.idlistkeyImage" . }}
+        imagePullPolicy: {{ include "identityconfig-operator-keycloak.imagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: identityconfig-operator-keycloak-configmap

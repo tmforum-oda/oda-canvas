@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "component-operator.name" -}}
+{{- define "identityconfig-operator-keycloak.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "component-operator.fullname" -}}
+{{- define "identityconfig-operator-keycloak.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "component-operator.chart" -}}
+{{- define "identityconfig-operator-keycloak.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "component-operator.labels" -}}
-helm.sh/chart: {{ include "component-operator.chart" . }}
-{{ include "component-operator.selectorLabels" . }}
+{{- define "identityconfig-operator-keycloak.labels" -}}
+helm.sh/chart: {{ include "identityconfig-operator-keycloak.chart" . }}
+{{ include "identityconfig-operator-keycloak.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,63 +45,54 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "component-operator.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "component-operator.name" . }}
+{{- define "identityconfig-operator-keycloak.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "identityconfig-operator-keycloak.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "component-operator.serviceAccountName" -}}
+{{- define "identityconfig-operator-keycloak.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "component-operator.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "identityconfig-operator-keycloak.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
 {{/*
-build the full compop docker image name from image + version + prereleaseSuffix
+build the full idkop docker image name from image + version + prereleaseSuffix
 */}}
-{{- define "component-operator.compopDockerimage" -}}
-  {{- .Values.deployment.compopImage -}}:{{- .Values.deployment.compopVersion -}}
-  {{- if .Values.deployment.compopPrereleaseSuffix -}}
-    -{{- .Values.deployment.compopPrereleaseSuffix -}}
+{{- define "identityconfig-operator-keycloak.idkopImage" -}}
+  {{- .Values.deployment.idkopImage -}}:{{- .Values.deployment.idkopVersion -}}
+  {{- if .Values.deployment.idkopPrereleaseSuffix -}}
+    -{{- .Values.deployment.idkopPrereleaseSuffix -}}
   {{- end -}}
 {{- end -}}
 
 
 {{/*
-build the full idconfop docker image name from image + version + prereleaseSuffix
+build the full idlistkey docker image name from image + version + prereleaseSuffix
 */}}
-{{- define "component-operator.idconfopDockerimage" -}}
-  {{- .Values.deployment.idconfopImage -}}:{{- .Values.deployment.idconfopVersion -}}
-  {{- if .Values.deployment.idconfopPrereleaseSuffix -}}
-    -{{- .Values.deployment.idconfopPrereleaseSuffix -}}
+{{- define "identityconfig-operator-keycloak.idlistkeyImage" -}}
+  {{- .Values.deployment.idlistkeyImage -}}:{{- .Values.deployment.idlistkeyVersion -}}
+  {{- if .Values.deployment.idlistkeyPrereleaseSuffix -}}
+    -{{- .Values.deployment.idlistkeyPrereleaseSuffix -}}
   {{- end -}}
 {{- end -}}
 
 
 {{/*
-overwrite compop imagePullSecret with "Always" if prereleaseSuffix is set
+overwrite idkop imagePullSecret with "Always" if prereleaseSuffix is set
 */}}
-{{- define "component-operator.compopImagePullPolicy" -}}
-  {{- if .Values.deployment.compopPrereleaseSuffix -}}
+{{- define "identityconfig-operator-keycloak.imagePullPolicy" -}}
+  {{- if .Values.deployment.idkopPrereleaseSuffix -}}
     Always
   {{- else -}}
-    {{- .Values.deployment.compopImagePullPolicy -}}
+    {{- .Values.deployment.imagePullPolicy -}}
   {{- end -}}
 {{- end -}}
 
 
-{{/*
-overwrite idconfop imagePullSecret with "Always" if prereleaseSuffix is set
-*/}}
-{{- define "component-operator.idconfopImagePullPolicy" -}}
-  {{- if .Values.deployment.idconfopPrereleaseSuffix -}}
-    Always
-  {{- else -}}
-    {{- .Values.deployment.idconfopImagePullPolicy -}}
-  {{- end -}}
-{{- end -}}
+

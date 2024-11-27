@@ -3,14 +3,14 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   namespace: {{ .Release.Namespace }}
-  name: odacomponent-account
+  name: identityconfig-account
   labels:
     {{- include "identityconfig-operator-keycloak.labels" . | nindent 4 }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: odacomponent-role-cluster
+  name: identityconfig-role-cluster
   labels:
     {{- include "identityconfig-operator-keycloak.labels" . | nindent 4 }}
 rules:
@@ -114,7 +114,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{.Values.deployment.monitoredNamespaces}}
-  name: odacomponent-role-namespaced
+  name: identityconfig-role-namespaced
   labels:
     {{- include "identityconfig-operator-keycloak.labels" . | nindent 4 }}
 rules:
@@ -193,30 +193,30 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: odacomponent-rolebinding-cluster
+  name: identityconfig-rolebinding-cluster
   labels:
     {{- include "identityconfig-operator-keycloak.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: odacomponent-role-cluster
+  name: identityconfig-role-cluster
 subjects:
   - kind: ServiceAccount
-    name: odacomponent-account
+    name: identityconfig-account
     namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   namespace: {{.Values.deployment.monitoredNamespaces}}
-  name: odacomponent-rolebinding-namespaced
+  name: identityconfig-rolebinding-namespaced
   labels:
     {{- include "identityconfig-operator-keycloak.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: odacomponent-role-namespaced
+  name: identityconfig-role-namespaced
 subjects:
   - kind: ServiceAccount
-    name: odacomponent-account
+    name: identityconfig-account
     namespace: {{ .Release.Namespace }}

@@ -11,7 +11,7 @@ import os
 import uuid
 import datetime
 
-from secconkeycloak import Keycloak
+from keycloakUtils import Keycloak
  
 from cloudevents.http import CloudEvent, to_structured
 
