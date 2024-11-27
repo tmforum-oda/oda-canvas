@@ -2,7 +2,6 @@ import kopf
 import logging
 import os
 import requests
-
 from keycloakUtils import Keycloak
 
 from log_wrapper import LogWrapper, logwrapper
