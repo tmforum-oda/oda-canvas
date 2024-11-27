@@ -187,7 +187,7 @@ def identityConfig(
     # if it is present, add a listener to the partyRoleManagement API
     foundPartyRole = False
     partyRoleAPI = None
-    if "securityFunction" in spec and "exposedAPIs" in spec:
+    if "partyroleAPI" in spec:
         for api in spec["exposedAPIs"]:
             if "partyrole" in api["name"]:
                 partyRoleAPI = api
