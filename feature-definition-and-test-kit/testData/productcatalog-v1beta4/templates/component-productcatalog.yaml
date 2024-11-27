@@ -28,7 +28,7 @@ spec:
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4/docs
       port: 8080
-  dependentAPIs: 
+    dependentAPIs: 
     {{- if .Values.component.dependentAPIs.enabled }}
     - name: downstreamproductcatalog 
       apiType: openapi     

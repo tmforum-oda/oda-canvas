@@ -65,7 +65,7 @@ spec:
       type: string
       description: Identity provider
       jsonPath: .status.identityConfig.identityProvider   
-    - name: listner-registered
+    - name: listener-registered
       type: boolean
       description: If component uses dynamic roles via exposing API, canvas creates listner to listen for changes.
       jsonPath: .status.identityConfig.listenerRegistered   
