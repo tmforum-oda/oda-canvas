@@ -145,7 +145,7 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
         )
 
     try: # to create the bootstrap role and add it to the idconfop user
-        idconfop_role = spec['securityFunction']['controllerRole']
+        idconfop_role = spec['controllerRole']
         kc.add_role(idconfop_role, client, token, kcRealm)
     except RuntimeError as e:
         logw.error(
@@ -179,14 +179,14 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
 
 
 
-    if ('securityFunction' in spec and 'componentRole' in spec['securityFunction'] and len(spec['securityFunction']['componentRole'])):
+    if ('componentRole' in spec and len(spec['componentRole'])):
         try:# to add list of static roles exposed in component
             # TODO find securityFunction.componentRole and add_role in {name}
             # 1) GET securityFunction.componentRole from the component
             # 2) Run for loop through list of roles present in securityFunction.componentRole
             # 3) and execute add_role against component in every iteration
             
-            for role in spec['securityFunction']['componentRole']:
+            for role in spec['componentRole']:
                 kc.add_role(role['name'], client, token, kcRealm)
                 logw.info(
                     f'Keycloak role {role["name"]} created'
@@ -205,8 +205,8 @@ def security_client_add(meta, spec, status, body, namespace, labels,name, old, n
     # if it is present, add a listener to the partyRoleManagement API
     foundPartyRole = False
     partyRoleAPI = None
-    if ('securityFunction' in spec and 'exposedAPIs' in spec['securityFunction']):
-        for api in spec['securityFunction']['exposedAPIs']:
+    if ('securityFunction' in spec and 'exposedAPIs' in spec):
+        for api in spec['exposedAPIs']:
             if ('partyrole' in api['name']):
                 partyRoleAPI = api
                 foundPartyRole = True
