@@ -1,6 +1,6 @@
 FROM python:3.7
-ADD securityListener-keycloak /
-ADD securityController/secconkeycloak.py /
+ADD ./identity-listener-keycloak.py /
+ADD ./requirements.txt /
 RUN pip install -r requirements.txt
 EXPOSE 5000
-CMD python securityControllerAPIserverKeycloak.py
+CMD python identity-listener-keycloak.py

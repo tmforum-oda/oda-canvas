@@ -12,7 +12,7 @@ import uuid
 import datetime
 
 from secconkeycloak import Keycloak
-
+ 
 from cloudevents.http import CloudEvent, to_structured
 
 # Helper functions -------------------------------------------------------
