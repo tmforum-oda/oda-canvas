@@ -43,7 +43,7 @@ identityconfig-operator-keycloak:
     - source/operators/identity-config/keycloak/*
   buildContext: source/operators/identity-config/keycloak
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/component-management/identityconfig-operator-dockerfile
+  buildDockerfile: source/operators/identity-config/keycloak/identityconfig-operator-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -57,12 +57,10 @@ identity-listener-keycloak:
   valuesPathPrereleaseSuffix: .identityconfig-operator-keycloak.deployment.idlistkeyPrereleaseSuffix
 
   paths:
-    - source/operators/securityControllerAPIserver-keycloak-dockerfile
-    - source/operators/securityController/**/*
-    - source/operators/securityListener-keycloak/**/*
-  buildContext: source/operators
+    - source/operators/identity-config/keycloak/identity-listener-keycloak/*
+  buildContext: source/operators/identity-config/keycloak/identity-listener-keycloak
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/securityControllerAPIserver-keycloak-dockerfile
+  buildDockerfile: source/operators/identity-config/keycloak/identity-listener-keycloak/identity-listenet-keycloak-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 

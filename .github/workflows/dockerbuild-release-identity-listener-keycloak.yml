@@ -13,9 +13,7 @@ on:
     branches:
     - main
     paths: 
-      - source/operators/securityControllerAPIserver-keycloak-dockerfile
-      - source/operators/securityController/**/*
-      - source/operators/securityListener-keycloak/**/*
+      - source/operators/identity-config/keycloak/identity-listener-keycloak/*
 
 jobs:
   build-identity-listener-keycloak-release-dockerfile-job:
@@ -76,8 +74,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators
-          file: source/operators/securityControllerAPIserver-keycloak-dockerfile
+          context: source/operators/identity-config/keycloak/identity-listener-keycloak
+          file: source/operators/identity-config/keycloak/identity-listener-keycloak/identity-listenet-keycloak-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
