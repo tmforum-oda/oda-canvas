@@ -112,6 +112,9 @@ class LogWrapper:
     def info(self, subject, message=None):
         self.log(logging.INFO, subject, message)
 
+    def warning(self, subject, message=None):
+        self.log(logging.WARNING, subject, message)
+
     def error(self, subject, message=None):
         self.log(logging.ERROR, subject, message)
 

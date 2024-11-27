@@ -621,7 +621,7 @@ async def coreDependentAPIs(
     value='In-Progress-IDConfOp',
     retries=5
 )
-async def security_client_add(meta, spec, status, body, namespace, labels,name, old, new, **kwargs):
+async def security_client_add_TEST_from_component(meta, spec, status, body, namespace, labels,name, old, new, **kwargs): # temporarily changed name
     """Handler function for **identityConfig** part of new or updated components.  
 
     Processes the **identityConfig** part of the component envelope and creates the child IdentityConfig resource.
