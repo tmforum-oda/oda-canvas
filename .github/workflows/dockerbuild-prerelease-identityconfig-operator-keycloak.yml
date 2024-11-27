@@ -37,12 +37,11 @@ jobs:
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.identityconfig-operator.deployment.idkopVersion, .identityconfig-operator.deployment.idkopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.identityconfig-operator-keycloak.deployment.idkopVersion, .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
         run: |
-          echo "Version: ${{ steps.get_values_version.outputs.result }}"
           echo 
           if [[ ${{ steps.get_values_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
               echo "Version ${{ steps.get_values_version.outputs.result }} matches featurebranch format <n>.<n>.<n>-<prerelease>"
@@ -54,7 +53,7 @@ jobs:
         id: get_values_release_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.identityconfig-operator.deployment.idkopVersion' charts/canvas-oda/values.yaml
+          cmd: yq '.identityconfig-operator-keycloak.deployment.idkopVersion' charts/canvas-oda/values.yaml
               
       - name: Get Git commit timestamps
         run: |

@@ -36,7 +36,7 @@ jobs:
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.identityconfig-operator.deployment.idkopVersion, .identityconfig-operator.deployment.idkopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.identityconfig-operator-keycloak.deployment.idkopVersion, .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag

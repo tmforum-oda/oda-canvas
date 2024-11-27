@@ -37,8 +37,8 @@ identityconfig-operator-keycloak:
   fileName: identityconfig-operator-keycloak
   valuesYamlFile: charts/canvas-oda/values.yaml
   valuesPathImage: .identityconfig-operator-keycloak.deployment.idkopImage
-  valuesPathVersion: .identityconfig-operator.deployment.idkopVersion
-  valuesPathPrereleaseSuffix: .identityconfig-operator.deployment.idkopPrereleaseSuffix
+  valuesPathVersion: .identityconfig-operator-keycloak.deployment.idkopVersion
+  valuesPathPrereleaseSuffix: .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix
   paths:
     - source/operators/identity-config/keycloak/*
   buildContext: source/operators/identity-config/keycloak

@@ -13,7 +13,6 @@ logger = logging.getLogger("IdentityConfig")
 logger.setLevel(int(logging_level))
 logger.info("Logging set to %s", logging_level)
 logger.debug("debug logging active")
-
 LogWrapper.set_defaultLogger(logger)
 
 componentname_label = os.getenv("COMPONENTNAME_LABEL", "oda.tmforum.org/componentName")
