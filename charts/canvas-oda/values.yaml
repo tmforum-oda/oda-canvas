@@ -141,8 +141,8 @@ identityconfig-operator-keycloak:
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
-    idlistkeyVersion: 0.7.1
-    idlistkeyPrereleaseSuffix:
+    idlistkeyVersion: 0.7.2
+    idlistkeyPrereleaseSuffix: 223-refact-2
     monitoredNamespaces: 'components'           # comma separated list of namespaces
     keycloak: *portKeycloak
     hostName: "*"
