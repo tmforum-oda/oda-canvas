@@ -42,6 +42,7 @@ jobs:
       - name: Check Version
         id: check-tag
         run: |
+          echo "Version: ${{ steps.get_values_version.outputs.result }}"
           echo 
           if [[ ${{ steps.get_values_version.outputs.result }} =~ ^[0-9]+\.[0-9]+\.[0-9]+-.*$ ]]; then
               echo "Version ${{ steps.get_values_version.outputs.result }} matches featurebranch format <n>.<n>.<n>-<prerelease>"
