@@ -702,6 +702,8 @@ async def identityConfig(
 
     try:
         # check if the identityConfig resource already exists
+        identityConfigName = name
+
         custom_objects_api = kubernetes.client.CustomObjectsApi()
         try:
             identityConfig = custom_objects_api.get_namespaced_custom_object(
@@ -771,7 +773,6 @@ async def identityConfig(
 
         else: # identityConfig does not exist
 
-            identityConfigName = name
             identityConfigResource = {
                 "controllerRole": spec["securityFunction"]["controllerRole"]
             }
