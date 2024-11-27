@@ -724,73 +724,77 @@ async def identityConfig(
                 )
                 raise kopf.TemporaryError(e)
             
-    if identityConfig:
-        # compare existing identityConfig and Patch resource if it has changed
-        resourceChanged = False
-        if identityConfig["spec"]["controllerRole"] != spec["securityFunction"]["controllerRole"]:
-            identityConfig["spec"]["controllerRole"] = spec["securityFunction"]["controllerRole"]
-            resourceChanged = True
-            logw.info(f"Updating controllerRole")
-        
-        if "componentRole" in spec["securityFunction"]:
-            if "componentRole" in identityConfig["spec"]:
-                if identityConfig["spec"]["componentRole"] != spec["securityFunction"]["componentRole"]:
+        if identityConfig:
+            # compare existing identityConfig and Patch resource if it has changed
+            resourceChanged = False
+            if identityConfig["spec"]["controllerRole"] != spec["securityFunction"]["controllerRole"]:
+                identityConfig["spec"]["controllerRole"] = spec["securityFunction"]["controllerRole"]
+                resourceChanged = True
+                logw.info(f"Updating controllerRole")
+            
+            if "componentRole" in spec["securityFunction"]:
+                if "componentRole" in identityConfig["spec"]:
+                    if identityConfig["spec"]["componentRole"] != spec["securityFunction"]["componentRole"]:
+                        identityConfig["spec"]["componentRole"] = spec["securityFunction"]["componentRole"]
+                        resourceChanged = True
+                        logw.info(f"Updating componentRole")
+                else:
                     identityConfig["spec"]["componentRole"] = spec["securityFunction"]["componentRole"]
                     resourceChanged = True
-                    logw.info(f"Updating componentRole")
+                    logw.info(f"Adding componentRole")
             else:
-                identityConfig["spec"]["componentRole"] = spec["securityFunction"]["componentRole"]
-                resourceChanged = True
-                logw.info(f"Adding componentRole")
-        else:
-            if "componentRole" in identityConfig["spec"]:
-                del identityConfig["spec"]["componentRole"]
-                resourceChanged = True
-                logw.info(f"Removing componentRole")
+                if "componentRole" in identityConfig["spec"]:
+                    del identityConfig["spec"]["componentRole"]
+                    resourceChanged = True
+                    logw.info(f"Removing componentRole")
 
-        if resourceChanged:
-            try:
-                identityConfig = custom_objects_api.patch_namespaced_custom_object(
-                    group=IDENTITYCONFIG_GROUP,
-                    version=IDENTITYCONFIG_VERSION,
-                    namespace=namespace,
-                    plural=IDENTITYCONFIG_PLURAL,
-                    name=identityConfigName,
-                    body=identityConfig,
-                )
-                logw.info(f"IdentityConfig resource patched")
-                logw.debug(f"IdentityConfig resource {identityConfig}")
-            except ApiException as e:
-                logw.error(
-                    f"Exception when calling CustomObjectsApi->patch_namespaced_custom_object {e}"
-                )
-                raise kopf.TemporaryError(e)
-            return "identityConfig resource updated"
-        else:
-            return "identityConfig resource unchanged"
+            if resourceChanged:
+                try:
+                    identityConfig = custom_objects_api.patch_namespaced_custom_object(
+                        group=IDENTITYCONFIG_GROUP,
+                        version=IDENTITYCONFIG_VERSION,
+                        namespace=namespace,
+                        plural=IDENTITYCONFIG_PLURAL,
+                        name=identityConfigName,
+                        body=identityConfig,
+                    )
+                    logw.info(f"IdentityConfig resource patched")
+                    logw.debug(f"IdentityConfig resource {identityConfig}")
+                except ApiException as e:
+                    logw.error(
+                        f"Exception when calling CustomObjectsApi->patch_namespaced_custom_object {e}"
+                    )
+                    raise kopf.TemporaryError(e)
+                return "identityConfig resource updated"
+            else:
+                return "identityConfig resource unchanged"
 
-    else: # identityConfig does not exist
+        else: # identityConfig does not exist
 
-        identityConfigName = name
-        identityConfigResource = {
-            "controllerRole": spec["securityFunction"]["controllerRole"]
-        }
-        if "componentRole" in spec["securityFunction"]:
-            identityConfigResource["componentRole"] = spec["securityFunction"][
-                "componentRole"
-            ]
-            logw.info(f"Adding componentRole statically defined roles")
+            identityConfigName = name
+            identityConfigResource = {
+                "controllerRole": spec["securityFunction"]["controllerRole"]
+            }
+            if "componentRole" in spec["securityFunction"]:
+                identityConfigResource["componentRole"] = spec["securityFunction"][
+                    "componentRole"
+                ]
+                logw.info(f"Adding componentRole statically defined roles")
 
-        # create the identityConfig resource (or patch existing resource if it is present)
-        logw.debugInfo(f"Calling createIdentityConfig {identityConfigName}", f"Calling createIdentityConfig with resource {identityConfigResource}")
+            # create the identityConfig resource (or patch existing resource if it is present)
+            logw.debugInfo(f"Calling createIdentityConfig {identityConfigName}", f"Calling createIdentityConfig with resource {identityConfigResource}")
 
-        resultStatus = await createIdentityConfigResource(
-            logw, identityConfigResource, namespace
-        )
-        logw.info(f"createIdentityConfigResource returned {resultStatus}")
+            resultStatus = await createIdentityConfigResource(
+                logw, identityConfigResource, namespace
+            )
+            logw.info(f"createIdentityConfigResource returned {resultStatus}")
 
-        return "identityConfig resource created"
-
+            return "identityConfig resource created"
+    except kopf.TemporaryError as e:
+        raise e  # propagate
+    except Exception as e:
+        logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+        raise kopf.TemporaryError(e)  # allow the operator to retry
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
