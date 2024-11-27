@@ -81,7 +81,9 @@ def configure(settings: kopf.OperatorSettings, **_):
 
 
 @logwrapper
-async def deleteExposedAPI(logw: LogWrapper, deleteExposedAPIName, componentName, status, namespace, inHandler):
+async def deleteExposedAPI(
+    logw: LogWrapper, deleteExposedAPIName, componentName, status, namespace, inHandler
+):
     """Helper function to delete API Custom objects.
 
     Args:
@@ -108,7 +110,10 @@ async def deleteExposedAPI(logw: LogWrapper, deleteExposedAPIName, componentName
         )
         logw.debug(f"API response {api_response}")
     except ApiException as e:
-        logw.error(f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}")
+        logw.error(
+            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
+        )
+
 
 @logwrapper
 async def deleteDependentAPI(
@@ -130,7 +135,7 @@ async def deleteDependentAPI(
     """
 
     logw.info(f"Deleting DependentAPI {dependentAPIName}")
-    
+
     custom_objects_api = kubernetes.client.CustomObjectsApi()
     try:
         dependentapi_response = custom_objects_api.delete_namespaced_custom_object(
@@ -142,7 +147,10 @@ async def deleteDependentAPI(
         )
         logw.debug(f"DependentAPI response {dependentapi_response}")
     except ApiException as e:
-        logw.error(f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}")
+        logw.error(
+            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
+        )
+
 
 @logwrapper
 async def deleteSecretsManagement(
@@ -175,7 +183,9 @@ async def deleteSecretsManagement(
         )
         logs.debug(f"SecretsManagement response {secretsmanagement_response}")
     except ApiException as e:
-        logw.error(f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}")
+        logw.error(
+            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
+        )
 
 
 @logwrapper
@@ -209,7 +219,9 @@ async def deleteIdentityConfig(
         )
         logs.debug(f"IdentityConfig response {identityconfig_response}")
     except ApiException as e:
-        logw.error(f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}")
+        logw.error(
+            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
+        )
 
 
 def safe_get(default_value, dictionary, *paths):
@@ -220,9 +232,9 @@ def safe_get(default_value, dictionary, *paths):
         result = result[path]
     return result
 
+
 def quick_get_comp_name(body):
     return safe_get(None, body, "metadata", "labels", componentname_label)
-
 
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -250,7 +262,7 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     logw = LogWrapper(handler_name="coreAPIs", function_name="coreAPIs")
     logw.set(
         component_name=quick_get_comp_name(body),
-        resource_name=quick_get_comp_name(body)
+        resource_name=quick_get_comp_name(body),
     )
     logw.debugInfo("coreAPIs handler called", body)
 
@@ -277,7 +289,9 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
             for oldAPI in oldCoreAPIs:
                 found = False
                 for newAPI in newCoreAPIs:
-                    logw.debug(f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
+                    logw.debug(
+                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
+                    )
                     if oldAPI["name"] == name + "-" + newAPI["name"].lower():
                         found = True
                         logw.info(f"Patching ExposedAPI {oldAPI['name']}")
@@ -288,7 +302,9 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
                         apiChildren.append(resultStatus)
                 if not found:
                     logw.info(f"Deleting ExposedAPI {oldAPI['name']}")
-                    await deleteExposedAPI(logw, oldAPI["name"], name, status, namespace, "coreAPIs")
+                    await deleteExposedAPI(
+                        logw, oldAPI["name"], name, status, namespace, "coreAPIs"
+                    )
 
         # get core APIS
         coreAPIs = spec["coreFunction"]["exposedAPIs"]
@@ -298,7 +314,9 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
             # check if we have already patched this API
             alreadyProcessed = False
             for processedAPI in apiChildren:
-                logw.debug(f"Comparing {processedAPI['name']} to {name + '-' + coreAPI['name'].lower()}")
+                logw.debug(
+                    f"Comparing {processedAPI['name']} to {name + '-' + coreAPI['name'].lower()}"
+                )
 
                 if processedAPI["name"] == name + "-" + coreAPI["name"].lower():
                     alreadyProcessed = True
@@ -344,7 +362,7 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
     logw = LogWrapper(handler_name="managementAPIs", function_name="managementAPIs")
     logw.set(
         component_name=quick_get_comp_name(body),
-        resource_name=quick_get_comp_name(body)
+        resource_name=quick_get_comp_name(body),
     )
     logw.debugInfo("managementAPIs handler called", body)
 
@@ -367,7 +385,9 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
             for oldAPI in oldManagementAPIs:
                 found = False
                 for newAPI in newManagementAPIs:
-                    logw.debug(f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
+                    logw.debug(
+                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
+                    )
 
                     if oldAPI["name"] == name + "-" + newAPI["name"].lower():
                         found = True
@@ -395,7 +415,9 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
                 logger.debug(
                     f"Comparing {processedAPI['name']} to {name + '-' + managementAPI['name'].lower()}"
                 )
-                logw.debug(f"Comparing new APIs with status {processedAPI['name']} to {name + '-' + managementAPI['name'].lower()}")
+                logw.debug(
+                    f"Comparing new APIs with status {processedAPI['name']} to {name + '-' + managementAPI['name'].lower()}"
+                )
 
                 if processedAPI["name"] == name + "-" + managementAPI["name"].lower():
                     alreadyProcessed = True
@@ -442,7 +464,7 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
     logw = LogWrapper(handler_name="securityAPIs", function_name="securityAPIs")
     logw.set(
         component_name=quick_get_comp_name(body),
-        resource_name=quick_get_comp_name(body)
+        resource_name=quick_get_comp_name(body),
     )
     logw.debugInfo("securityAPIs handler called", body)
 
@@ -464,7 +486,9 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
             for oldAPI in oldSecurityAPIs:
                 found = False
                 for newAPI in newSecurityAPIs:
-                    logw.debug(f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}")
+                    logw.debug(
+                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
+                    )
 
                     if oldAPI["name"] == name + "-" + newAPI["name"].lower():
                         found = True
@@ -489,7 +513,9 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
             # check if we have already patched this API
             alreadyProcessed = False
             for processedAPI in apiChildren:
-                logw.debug(f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}")
+                logw.debug(
+                    f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}"
+                )
 
                 if processedAPI["name"] == name + "-" + securityAPI["name"].lower():
                     alreadyProcessed = True
@@ -568,10 +594,12 @@ async def coreDependentAPIs(
 
     :meta public:
     """
-    logw = LogWrapper(handler_name="coreDependentAPIs", function_name="coreDependentAPIs")
+    logw = LogWrapper(
+        handler_name="coreDependentAPIs", function_name="coreDependentAPIs"
+    )
     logw.set(
         component_name=quick_get_comp_name(body),
-        resource_name=quick_get_comp_name(body)
+        resource_name=quick_get_comp_name(body),
     )
     logw.debugInfo("coreDependentAPIs handler called", body)
 
@@ -613,7 +641,12 @@ async def coreDependentAPIs(
             if not oldCoreDependentAPI:
                 logw.info(f"Calling createDependentAPI {cr_name}")
                 resultStatus = await createDependentAPIResource(
-                    logw, newCoreDependentAPI, namespace, name, cr_name, "coreDependentAPIs"
+                    logw,
+                    newCoreDependentAPI,
+                    namespace,
+                    name,
+                    cr_name,
+                    "coreDependentAPIs",
                 )
                 dependentAPIChildren.append(resultStatus)
             # else: already handled above
@@ -627,16 +660,19 @@ async def coreDependentAPIs(
     # Update the parent's status.
     return dependentAPIChildren
 
+
 @kopf.on.update(
     GROUP,
     VERSION,
     COMPONENTS_PLURAL,
-    field='status.summary/status.deployment_status',
-    value='In-Progress-IDConfOp',
-    retries=5
+    field="status.summary/status.deployment_status",
+    value="In-Progress-IDConfOp",
+    retries=5,
 )
-async def identityConfig(meta, spec, status, body, namespace, labels, name, old, new, **kwargs): # temporarily changed name
-    """Handler function for **identityConfig** part of new or updated components.  
+async def identityConfig(
+    meta, spec, status, body, namespace, labels, name, old, new, **kwargs
+):  # temporarily changed name
+    """Handler function for **identityConfig** part of new or updated components.
 
     Processes the **identityConfig** part of the component envelope and creates the child IdentityConfig resource.
 
@@ -652,46 +688,108 @@ async def identityConfig(meta, spec, status, body, namespace, labels, name, old,
         * new (Dict): The new component (for updates)
 
     Returns:
-        Dict: The identityConfig status that is put into the component envelope status/security_client_add field.
+        Dict: The identityConfig status that is put into the component envelope status/identityConfig/status.summary/status.deployment_status field.
     """
-    logw = LogWrapper(handler_name="security_client_add", function_name="security_client_add")
+    logw = LogWrapper(handler_name="identityconfig", function_name="identityconfig")
     logw.set(
         component_name=quick_get_comp_name(body),
-        resource_name=quick_get_comp_name(body)
+        resource_name=quick_get_comp_name(body),
     )
-    logw.debugInfo("security_client_add handler called", body)
+    logw.debugInfo("identityconfig handler called", body)
 
     # del unused-arguments for linting
     del meta, status, old, new, labels, kwargs
 
-    identityConfigStatus = "identityConfig resource created"
-    
-    identityConfigName = name
-    identityConfigResource = {
-        "controllerRole": spec["securityFunction"]["controllerRole"]
-    }
-    if "componentRole" in spec["securityFunction"]:
-        identityConfigResource["componentRole"] = spec["securityFunction"]["componentRole"]
-        logw.info(f"Adding componentRole statically defined roles")
     try:
+        # check if the identityConfig resource already exists
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+        try:
+            identityConfig = custom_objects_api.get_namespaced_custom_object(
+                group=IDENTITYCONFIG_GROUP,
+                version=IDENTITYCONFIG_VERSION,
+                namespace=namespace,
+                plural=IDENTITYCONFIG_PLURAL,
+                name=identityConfigName,
+            )
+            logw.info(f"IdentityConfig resource already exists")
+            logw.debug(f"IdentityConfig resource {identityConfig}")
+            identityConfigStatus = "identityConfig resource already exists"
+        except ApiException as e:
+            if e.status == HTTP_NOT_FOUND:
+                logw.info(f"IdentityConfig resource does not exist")
+                logw.debug(f"Creating IdentityConfig {identityConfigName}")
+            else:
+                logw.error(
+                    f"Exception when calling CustomObjectsApi->get_namespaced_custom_object {e}"
+                )
+                raise kopf.TemporaryError(e)
+            
+    if identityConfig:
+        # compare existing identityConfig and Patch resource if it has changed
+        resourceChanged = False
+        if identityConfig["spec"]["controllerRole"] != spec["securityFunction"]["controllerRole"]:
+            identityConfig["spec"]["controllerRole"] = spec["securityFunction"]["controllerRole"]
+            resourceChanged = True
+            logw.info(f"Updating controllerRole")
         
-        logw.info(f"Calling createIdentityConfig {identityConfigName}")
-        logw.info(f"Calling createIdentityConfig with resource {identityConfigResource}")
+        if "componentRole" in spec["securityFunction"]:
+            if "componentRole" in identityConfig["spec"]:
+                if identityConfig["spec"]["componentRole"] != spec["securityFunction"]["componentRole"]:
+                    identityConfig["spec"]["componentRole"] = spec["securityFunction"]["componentRole"]
+                    resourceChanged = True
+                    logw.info(f"Updating componentRole")
+            else:
+                identityConfig["spec"]["componentRole"] = spec["securityFunction"]["componentRole"]
+                resourceChanged = True
+                logw.info(f"Adding componentRole")
+        else:
+            if "componentRole" in identityConfig["spec"]:
+                del identityConfig["spec"]["componentRole"]
+                resourceChanged = True
+                logw.info(f"Removing componentRole")
+
+        if resourceChanged:
+            try:
+                identityConfig = custom_objects_api.patch_namespaced_custom_object(
+                    group=IDENTITYCONFIG_GROUP,
+                    version=IDENTITYCONFIG_VERSION,
+                    namespace=namespace,
+                    plural=IDENTITYCONFIG_PLURAL,
+                    name=identityConfigName,
+                    body=identityConfig,
+                )
+                logw.info(f"IdentityConfig resource patched")
+                logw.debug(f"IdentityConfig resource {identityConfig}")
+            except ApiException as e:
+                logw.error(
+                    f"Exception when calling CustomObjectsApi->patch_namespaced_custom_object {e}"
+                )
+                raise kopf.TemporaryError(e)
+            return "identityConfig resource updated"
+        else:
+            return "identityConfig resource unchanged"
+
+    else: # identityConfig does not exist
+
+        identityConfigName = name
+        identityConfigResource = {
+            "controllerRole": spec["securityFunction"]["controllerRole"]
+        }
+        if "componentRole" in spec["securityFunction"]:
+            identityConfigResource["componentRole"] = spec["securityFunction"][
+                "componentRole"
+            ]
+            logw.info(f"Adding componentRole statically defined roles")
+
+        # create the identityConfig resource (or patch existing resource if it is present)
+        logw.debugInfo(f"Calling createIdentityConfig {identityConfigName}", f"Calling createIdentityConfig with resource {identityConfigResource}")
+
         resultStatus = await createIdentityConfigResource(
-            logw, identityConfigResource,
-            namespace
+            logw, identityConfigResource, namespace
         )
         logw.info(f"createIdentityConfigResource returned {resultStatus}")
 
-    except kopf.TemporaryError as e:
-        raise e  # propagate
-    except Exception as e:
-        logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
-        raise kopf.TemporaryError(e)  # allow the operator to retry
-
-    # Update the parent's status.
-    return identityConfigStatus
-
+        return "identityConfig resource created"
 
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -718,10 +816,13 @@ async def securitySecretsManagement(
 
     :meta public:
     """
-    logw = LogWrapper(handler_name="securitySecretsManagement", function_name="securitySecretsManagement")
+    logw = LogWrapper(
+        handler_name="securitySecretsManagement",
+        function_name="securitySecretsManagement",
+    )
     logw.set(
         component_name=quick_get_comp_name(body),
-        resource_name=quick_get_comp_name(body)
+        resource_name=quick_get_comp_name(body),
     )
     logw.debugInfo("securitySecretsManagement handler called", body)
 
@@ -750,7 +851,8 @@ async def securitySecretsManagement(
         if oldSecuritySecretsManagement == {} and newSecuritySecretsManagement != {}:
             logw.info(f"Calling createSecretsManagement {sman_name}")
             resultStatus = await createSecretsManagementResource(
-                logw, newSecuritySecretsManagement,
+                logw,
+                newSecuritySecretsManagement,
                 namespace,
                 name,
                 "securitySecretsManagement",
@@ -797,7 +899,7 @@ async def publishedEvents(meta, spec, status, body, namespace, labels, name, **k
     logw = LogWrapper(handler_name="publishedEvents", function_name="publishedEvents")
     logw.set(
         component_name=quick_get_comp_name(body),
-        resource_name=quick_get_comp_name(body)
+        resource_name=quick_get_comp_name(body),
     )
     logw.debugInfo("publishedEvents handler called", body)
 
@@ -851,7 +953,7 @@ async def subscribedEvents(meta, spec, status, body, namespace, labels, name, **
     logw = LogWrapper(handler_name="subscribedEvents", function_name="subscribedEvents")
     logw.set(
         component_name=quick_get_comp_name(body),
-        resource_name=quick_get_comp_name(body)
+        resource_name=quick_get_comp_name(body),
     )
     logw.debugInfo("subscribedEvents handler called", body)
 
@@ -900,7 +1002,9 @@ def constructAPIResourcePayload(inExposedAPI):
     # Make it our child: assign the namespace, name, labels, owner references, etc.
     kopf.adopt(APIResource)
     newName = (
-        APIResource["metadata"]["ownerReferences"][0]["name"] + "-" + inExposedAPI["name"]
+        APIResource["metadata"]["ownerReferences"][0]["name"]
+        + "-"
+        + inExposedAPI["name"]
     ).lower()
     APIResource["metadata"]["name"] = newName
     APIResource["spec"] = inExposedAPI
@@ -1035,7 +1139,9 @@ async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHa
                 body=APIResource,
             )
             apiReadyStatus = apiObj["status"]["implementation"]["ready"]
-            logw.debugInfo(f"API Resource patched {APIResource["metadata"]["name"]}", apiObj)
+            logw.debugInfo(
+                f"API Resource patched {APIResource["metadata"]["name"]}", apiObj
+            )
 
         if "status" in apiObj.keys() and "apiStatus" in apiObj["status"].keys():
             returnAPIObject = apiObj["status"]["apiStatus"]
@@ -1089,7 +1195,9 @@ async def createAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inH
             plural=EXPOSEDAPIS_PLURAL,
             body=APIResource,
         )
-        logw.debugInfo(f"API Resource created {APIResource["metadata"]["name"]}", apiObj)
+        logw.debugInfo(
+            f"API Resource created {APIResource["metadata"]["name"]}", apiObj
+        )
         returnAPIObject = {
             "name": APIResource["metadata"]["name"],
             "uid": apiObj["metadata"]["uid"],
@@ -1139,7 +1247,10 @@ async def createDependentAPIResource(
             plural=DEPENDENTAPI_PLURAL,
             body=DependentAPIResource,
         )
-        logw.debugInfo(f"DependentAPI Resource created {DependentAPIResource["metadata"]["name"]}", dependentAPIObj)
+        logw.debugInfo(
+            f"DependentAPI Resource created {DependentAPIResource["metadata"]["name"]}",
+            dependentAPIObj,
+        )
 
     except ApiException as e:
         if e.status != HTTP_CONFLICT:
@@ -1161,8 +1272,10 @@ async def createDependentAPIResource(
                     name=cr_name,
                     body=DependentAPIResource,
                 )
-                logw.debugInfo(f"DependentAPI Resource updated {DependentAPIResource["metadata"]["name"]}", dependentAPIObj)
-
+                logw.debugInfo(
+                    f"DependentAPI Resource updated {DependentAPIResource["metadata"]["name"]}",
+                    dependentAPIObj,
+                )
 
             except ApiException as e:
                 logw.warning(f"DependentAPI Exception updating {DependentAPIResource}")
@@ -1207,7 +1320,9 @@ async def createSecretsManagementResource(
 
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
-        logw.info(f"Creating SecretsManagement Custom Object {SecretsManagementResource}")
+        logw.info(
+            f"Creating SecretsManagement Custom Object {SecretsManagementResource}"
+        )
 
         secretsManagementObj = custom_objects_api.create_namespaced_custom_object(
             group=GROUP,
@@ -1216,7 +1331,10 @@ async def createSecretsManagementResource(
             plural=SECRETSMANAGEMENT_PLURAL,
             body=SecretsManagementResource,
         )
-        logw.debugInfo(f"SecretsManagement Resource created {SecretsManagementResource["metadata"]["name"]}", secretsManagementObj)
+        logw.debugInfo(
+            f"SecretsManagement Resource created {SecretsManagementResource["metadata"]["name"]}",
+            secretsManagementObj,
+        )
 
         returnSecretsManagementObject = {
             "name": SecretsManagementResource["metadata"]["name"],
@@ -1225,7 +1343,9 @@ async def createSecretsManagementResource(
         }
 
     except ApiException as e:
-        logw.warning(f"SecretsManagement Exception creating {SecretsManagementResource}")
+        logw.warning(
+            f"SecretsManagement Exception creating {SecretsManagementResource}"
+        )
         logw.warning(f"SecretsManagement Exception creating {e}")
 
         raise kopf.TemporaryError(
@@ -1235,9 +1355,7 @@ async def createSecretsManagementResource(
 
 
 @logwrapper
-async def createIdentityConfigResource(
-    logw: LogWrapper, inIdentityConfig, namespace
-):
+async def createIdentityConfigResource(logw: LogWrapper, inIdentityConfig, namespace):
     """Helper function to create or update IdentityConfig Custom objects.
 
     Args:
@@ -1252,9 +1370,7 @@ async def createIdentityConfigResource(
     """
     logw.debug(f"createIdentityConfigResource {inIdentityConfig} ")
 
-    IdentityConfigResource = constructIdentityConfigResourcePayload(
-        inIdentityConfig
-    )
+    IdentityConfigResource = constructIdentityConfigResourcePayload(inIdentityConfig)
 
     identityConfigReadyStatus = False
     returnIdentityConfigObject = {}
@@ -1270,7 +1386,10 @@ async def createIdentityConfigResource(
             plural=IDENTITYCONFIG_PLURAL,
             body=IdentityConfigResource,
         )
-        logw.debugInfo(f"IdentityConfig Resource created {IdentityConfigResource["metadata"]["name"]}", identityConfigObj)
+        logw.debugInfo(
+            f"IdentityConfig Resource created {IdentityConfigResource["metadata"]["name"]}",
+            identityConfigObj,
+        )
 
         returnIdentityConfigObject = {
             "name": IdentityConfigResource["metadata"]["name"],
@@ -1282,10 +1401,9 @@ async def createIdentityConfigResource(
         logw.warning(f"IdentityConfig Exception creating {IdentityConfigResource}")
         logw.warning(f"IdentityConfig Exception creating {e}")
 
-        raise kopf.TemporaryError(
-            "Exception creating IdentityConfig custom resource."
-        )
+        raise kopf.TemporaryError("Exception creating IdentityConfig custom resource.")
     return returnIdentityConfigObject
+
 
 # -------------------------------------------------------------------------------
 # Make services, deployments, persistentvolumeclaims, jobs, cronjobs, statefulsets, configmap, secret, serviceaccount, role, rolebinding children of the component
@@ -1320,7 +1438,9 @@ async def adopt_deployment(meta, spec, body, namespace, labels, name, **kwargs):
 
 @kopf.on.resume("", "v1", "persistentvolumeclaims", retries=5)
 @kopf.on.create("", "v1", "persistentvolumeclaims", retries=5)
-async def adopt_persistentvolumeclaim(meta, spec, body, namespace, labels, name, **kwargs):
+async def adopt_persistentvolumeclaim(
+    meta, spec, body, namespace, labels, name, **kwargs
+):
     # del unused-arguments for linting
     del kwargs
 
@@ -1443,10 +1563,12 @@ def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resource
                     return
 
         component_name = labels["oda.tmforum.org/componentName"]
-        logw = LogWrapper(handler_name="adopt_" + resourceType, function_name="adopt_" + resourceType)
+        logw = LogWrapper(
+            handler_name="adopt_" + resourceType, function_name="adopt_" + resourceType
+        )
         logw.set(
             component_name=quick_get_comp_name(body),
-            resource_name=quick_get_comp_name(body)
+            resource_name=quick_get_comp_name(body),
         )
         logw.debugInfo("adopt_" + resourceType + " handler called", body)
 
@@ -1463,7 +1585,9 @@ def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resource
                     "Cannot find parent component " + component_name
                 )
             else:
-                logw.debug(f"Exception when calling custom_objects_api.get_namespaced_custom_object {e}")
+                logw.debug(
+                    f"Exception when calling custom_objects_api.get_namespaced_custom_object {e}"
+                )
 
         newBody = dict(body)  # cast the service body to a dict
         kopf.append_owner_reference(newBody, owner=parent_component)
@@ -1550,7 +1674,9 @@ def adopt_kubernetesResource(meta, spec, body, namespace, labels, name, resource
                 raise kopf.PermanentError(
                     "Error adopting - unsupported resource type " + resourceType
                 )
-            logw.debugInfo(f"Adding component as parent of {resourceType}", api_response)
+            logw.debugInfo(
+                f"Adding component as parent of {resourceType}", api_response
+            )
 
         except ApiException as e:
             if e.status == HTTP_CONFLICT:  # Conflict = try again
@@ -1566,7 +1692,7 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     logw = LogWrapper(handler_name="summary", function_name="summary")
     logw.set(
         component_name=quick_get_comp_name(body),
-        resource_name=quick_get_comp_name(body)
+        resource_name=quick_get_comp_name(body),
     )
     logw.debugInfo("summary handler called", body)
 
@@ -1646,28 +1772,32 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     status_summary["managementAPIsummary"] = managementAPIsummary
     status_summary["securityAPIsummary"] = securityAPIsummary
     status_summary["developerUIsummary"] = developerUIsummary
-    logw.info(f"Creating summary - completed API count{str(countOfCompleteAPIs)}/{str(countOfDesiredAPIs)}")
+    logw.info(
+        f"Creating summary - completed API count{str(countOfCompleteAPIs)}/{str(countOfDesiredAPIs)}"
+    )
 
     status_summary["deployment_status"] = "In-Progress-CompCon"
     if countOfCompleteAPIs == countOfDesiredAPIs:
         status_summary["deployment_status"] = "In-Progress-IDConfOp"
-        if (
-            "identityConfig"
-            in status.keys()
-        ) and (
-            status["identityConfig"]["identityProvider"]!=IDENTITY_PROVIDER_NOT_SET):
+        if ("identityConfig" in status.keys()) and (
+            status["identityConfig"]["identityProvider"] != IDENTITY_PROVIDER_NOT_SET
+        ):
             status_summary["deployment_status"] = "In-Progress-SecretMan"
             if countOfCompleteSecretsManagements == countOfDesiredSecretsManagements:
                 status_summary["deployment_status"] = "In-Progress-DepApi"
                 if countOfCompleteDependentAPIs == countOfDesiredDependentAPIs:
                     status_summary["deployment_status"] = "Complete"
-    logw.info(f"Creating summary - deployment status {status_summary['deployment_status']}")                
+    logw.info(
+        f"Creating summary - deployment status {status_summary['deployment_status']}"
+    )
 
     return status_summary
 
 
 @logwrapper
-async def createPublishedNotificationResource(logw: LogWrapper, definition, namespace, name, inHandler):
+async def createPublishedNotificationResource(
+    logw: LogWrapper, definition, namespace, name, inHandler
+):
     """Helper function to create or update PublishedNotification Custom objects.
 
     Args:
@@ -1741,7 +1871,9 @@ async def createPublishedNotificationResource(logw: LogWrapper, definition, name
                     "uid": apiObj["metadata"]["uid"],
                 }
             else:
-                logw.warning(f"Exception creating PublishedNotification custom resource - will retry")
+                logw.warning(
+                    f"Exception creating PublishedNotification custom resource - will retry"
+                )
                 raise kopf.TemporaryError(
                     "Exception creating PublishedNotification custom resource."
                 )
@@ -1755,7 +1887,9 @@ async def createPublishedNotificationResource(logw: LogWrapper, definition, name
 
 
 @logwrapper
-async def createSubscribedNotificationResource(logw: LogWrapper, definition, namespace, name, inHandler):
+async def createSubscribedNotificationResource(
+    logw: LogWrapper, definition, namespace, name, inHandler
+):
     """Helper function to create or update SubscribedNotification Custom objects.
 
     Args:
@@ -1821,8 +1955,10 @@ async def createSubscribedNotificationResource(logw: LogWrapper, definition, nam
                     field_manager="componentOperator",
                     body={"status": {"uid": "", "status": "initializing", "error": ""}},
                 )
-                logw.info(f"SubscribedNotification created {SubscribedNotificationResource["metadata"]["name"]}")
-                
+                logw.info(
+                    f"SubscribedNotification created {SubscribedNotificationResource["metadata"]["name"]}"
+                )
+
                 returnSubscribedNotificationObject = {
                     "name": SubscribedNotificationResource["metadata"]["name"],
                     "uid": apiObj["metadata"]["uid"],
@@ -1833,10 +1969,9 @@ async def createSubscribedNotificationResource(logw: LogWrapper, definition, nam
                 )
     except ApiException as e:
         logw.error(f"SubscribedNotification Exception creating {e}")
-        
+
         raise kopf.TemporaryError(
             "Exception creating SubscribedNotification custom resource."
         )
 
     return returnSubscribedNotificationObject
-
