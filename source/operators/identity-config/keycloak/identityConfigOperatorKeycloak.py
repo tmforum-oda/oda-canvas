@@ -62,7 +62,7 @@ password = os.environ.get("KEYCLOAK_PASSWORD")
 kcBaseURL = os.environ.get("KEYCLOAK_BASE")
 kcRealm = os.environ.get("KEYCLOAK_REALM")
 
-idconfop_user = "idconfop"
+canvassystem_user = "canvassystem"
 
 kc = Keycloak(kcBaseURL)
 
@@ -143,26 +143,26 @@ def identityConfig(
         client = client_list[name]
         logw.info(f"Client {name} retrieved")
 
-    try:  # to create the bootstrap role and add it to the idconfop user
-        idconfop_role = spec["controllerRole"]
-        kc.add_role(idconfop_role, client, token, kcRealm)
+    try:  # to create the bootstrap role and add it to the canvassystem user
+        canvassystem_role = spec["controllerRole"]
+        kc.add_role(canvassystem_role, client, token, kcRealm)
     except RuntimeError as e:
-        logw.error(f"Keycloak add_role failed for {idconfop_role}", str(e))
+        logw.error(f"Keycloak add_role failed for {canvassystem_role}", str(e))
         raise kopf.TemporaryError(
-            "Could not add the idconfop role to Keycloak. Will retry.", delay=10
+            "Could not add the canvassystem role to Keycloak. Will retry.", delay=10
         )
     else:
-        logw.info(f"Keycloak role {idconfop_role} created")
+        logw.info(f"Keycloak role {canvassystem_role} created")
 
-    try:  # to assign the role to the idconfop user
-        kc.add_role_to_user(idconfop_user, idconfop_role, name, token, kcRealm)
+    try:  # to assign the role to the canvassystem user
+        kc.add_role_to_user(canvassystem_user, canvassystem_role, name, token, kcRealm)
     except RuntimeError as e:
-        logw.error(f"Keycloak assign role failed for {idconfop_role} in {name}", str(e))
+        logw.error(f"Keycloak assign role failed for {canvassystem_role} in {name}", str(e))
         raise kopf.TemporaryError(
-            "Could not add the idconfop role to user in Keycloak. Will retry.", delay=10
+            "Could not add the canvassystem role to user in Keycloak. Will retry.", delay=10
         )
     else:
-        logw.info(f"Keycloak role {idconfop_role} assigned to user {idconfop_user}")
+        logw.info(f"Keycloak role {canvassystem_role} assigned to user {canvassystem_user}")
 
     if "componentRole" in spec and len(spec["componentRole"]):
         try:  # to add list of static roles exposed in component

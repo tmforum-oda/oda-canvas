@@ -73,17 +73,6 @@ build the full apiop docker image name from image + version + prereleaseSuffix
 
 
 {{/*
-build the full idconfop docker image name from image + version + prereleaseSuffix
-*/}}
-{{- define "api-operator-istio.idconfopDockerimage" -}}
-  {{- .Values.deployment.idconfopImage -}}:{{- .Values.deployment.idconfopVersion -}}
-  {{- if .Values.deployment.idconfopPrereleaseSuffix -}}
-    -{{- .Values.deployment.idconfopPrereleaseSuffix -}}
-  {{- end -}}
-{{- end -}}
-
-
-{{/*
 overwrite apiop imagePullSecret with "Always" if prereleaseSuffix is set
 */}}
 {{- define "api-operator-istio.apiopImagePullPolicy" -}}
@@ -94,14 +83,3 @@ overwrite apiop imagePullSecret with "Always" if prereleaseSuffix is set
   {{- end -}}
 {{- end -}}
 
-
-{{/*
-overwrite idconfop imagePullSecret with "Always" if prereleaseSuffix is set
-*/}}
-{{- define "api-operator-istio.idconfopImagePullPolicy" -}}
-  {{- if .Values.deployment.idconfopPrereleaseSuffix -}}
-    Always
-  {{- else -}}
-    {{- .Values.deployment.idconfopImagePullPolicy -}}
-  {{- end -}}
-{{- end -}}

@@ -73,17 +73,6 @@ build the full compop docker image name from image + version + prereleaseSuffix
 
 
 {{/*
-build the full idconfop docker image name from image + version + prereleaseSuffix
-*/}}
-{{- define "component-operator.idconfopDockerimage" -}}
-  {{- .Values.deployment.idconfopImage -}}:{{- .Values.deployment.idconfopVersion -}}
-  {{- if .Values.deployment.idconfopPrereleaseSuffix -}}
-    -{{- .Values.deployment.idconfopPrereleaseSuffix -}}
-  {{- end -}}
-{{- end -}}
-
-
-{{/*
 overwrite compop imagePullSecret with "Always" if prereleaseSuffix is set
 */}}
 {{- define "component-operator.compopImagePullPolicy" -}}
@@ -91,17 +80,5 @@ overwrite compop imagePullSecret with "Always" if prereleaseSuffix is set
     Always
   {{- else -}}
     {{- .Values.deployment.compopImagePullPolicy -}}
-  {{- end -}}
-{{- end -}}
-
-
-{{/*
-overwrite idconfop imagePullSecret with "Always" if prereleaseSuffix is set
-*/}}
-{{- define "component-operator.idconfopImagePullPolicy" -}}
-  {{- if .Values.deployment.idconfopPrereleaseSuffix -}}
-    Always
-  {{- else -}}
-    {{- .Values.deployment.idconfopImagePullPolicy -}}
   {{- end -}}
 {{- end -}}

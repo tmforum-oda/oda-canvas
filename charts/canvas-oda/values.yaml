@@ -84,7 +84,7 @@ keycloak:
   # -- Keycloak HTTP container port
   containerPorts: *portKeycloak
 
-  # -- Create a odari realm with an idconfop user
+  # -- Create a odari realm with an canvassystem user
   keycloakConfigCli:
     enabled: true
     image:
@@ -98,10 +98,10 @@ keycloak:
           "realm": "odari",
           "users": [
             {
-            "username": "idconfop",
-            "email": "idconfop@oda.tmforum.org",
+            "username": "canvassystem",
+            "email": "canvassystem@oda.tmforum.org",
             "enabled": true,
-            "firstName": "Security",
+            "firstName": "Canvas",
             "lastName": "User",
             "clientRoles": {
               "realm-management": [

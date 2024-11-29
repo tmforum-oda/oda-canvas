@@ -25,6 +25,3 @@ spec:
         envFrom:
           - configMapRef:
               name: component-operator-configmap
-        ports:
-        - name: idconfop
-          containerPort: 5000

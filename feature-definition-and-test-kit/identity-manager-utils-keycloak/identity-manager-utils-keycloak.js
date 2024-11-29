@@ -54,7 +54,7 @@ const identityManagerUtils = {
     // Get the token for authn/authz against the Keycloak API
     const token = await identityManagerUtils.getToken(config.baseURL, config.user, config.password);
     const headers = { Authorization: 'Bearer ' + token };
-    // Get the ID for the idconfop user
+    // Get the ID for the canvassystem user
     var res = await axios({
       url: '/admin/realms/'  + config.realm + '/users',
       baseURL: config.baseURL,
@@ -64,7 +64,7 @@ const identityManagerUtils = {
     }).catch(err => {
       console.log(err);
     });
-    idconfopID = res.data[0].id;
+    canvassystemID = res.data[0].id;
     // Get the ID for the component
     res = await axios({
       url: '/admin/realms/'  + config.realm + '/clients',
@@ -76,9 +76,9 @@ const identityManagerUtils = {
       console.log(err);
     });
     clientID = res.data[0].id;
-    // Get the list of roles for idconfop in componentName
+    // Get the list of roles for canvassystem in componentName
     res = await axios({
-      url: '/admin/realms/'  + config.realm + '/users/' + idconfopID + '/role-mappings/clients/' + clientID,
+      url: '/admin/realms/'  + config.realm + '/users/' + canvassystemID + '/role-mappings/clients/' + clientID,
       baseURL: config.baseURL,
       method: 'get',
       headers: headers
