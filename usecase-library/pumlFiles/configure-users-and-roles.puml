@@ -19,7 +19,7 @@ note right
 end note
 
 identityOperator -> IdentityResource : Query bootstrap Admin role defined\nin component SecurityFunction segment
-identityOperator -> IDM: Assign Canvas **seccon** user to Admin role
+identityOperator -> IDM: Assign Canvas **canvassystem** user to Admin role
 note right
     The Admin role is used by the Canvas to call APIs on the ODA Component.
 end note

@@ -5,8 +5,8 @@
 # automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml #
 ################################################################################
 
-name: Build Security-Listener Prerelease Dockerimage
-run-name: Build Security-Listener Prerelease Dockerimage
+name: Build identity-Listener-keycloak Prerelease Dockerimage
+run-name: Build identity-Listener-keycloak Prerelease Dockerimage
 on:
   workflow_dispatch:
   push:
@@ -14,12 +14,11 @@ on:
     - feature/*
     - odaa-*
     paths: 
-      - source/operators/securityControllerAPIserver-keycloak-dockerfile
-      - source/operators/securityController/**/*
-      - source/operators/securityListener-keycloak/**/*
+      - source/operators/identity-config/keycloak/identity-listener-keycloak/*
+      - source/operators/identity-config/keycloak/keycloakUtils.py
 
 jobs:
-  build-security-listener-prerelease-dockerfile-job:
+  build-identity-listener-keycloak-prerelease-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -29,17 +28,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of security-listener from values.yaml
+      - name: read image of identity-listener-keycloak from values.yaml
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.controller.deployment.secconImage' charts/canvas-oda/values.yaml
+          cmd: yq '.identityconfig-operator-keycloak.deployment.idlistkeyImage' charts/canvas-oda/values.yaml
           
-      - name: read versionnumber of security-listener from values.yaml
+      - name: read versionnumber of identity-listener-keycloak from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.controller.deployment.secconVersion, .controller.deployment.secconPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.identityconfig-operator-keycloak.deployment.idlistkeyVersion, .identityconfig-operator-keycloak.deployment.idlistkeyPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
@@ -51,11 +50,11 @@ jobs:
               echo "::error::Version ${{ steps.get_values_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
           fi        
 
-      - name: read release versionnumber of security-listener from values.yaml
+      - name: read release versionnumber of identity-listener-keycloak from values.yaml
         id: get_values_release_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.controller.deployment.secconVersion' charts/canvas-oda/values.yaml
+          cmd: yq '.identityconfig-operator-keycloak.deployment.idlistkeyVersion' charts/canvas-oda/values.yaml
               
       - name: Get Git commit timestamps
         run: |
@@ -83,8 +82,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators
-          file: source/operators/securityControllerAPIserver-keycloak-dockerfile
+          context: source/operators/identity-config/keycloak
+          file: source/operators/identity-config/keycloak/identity-listener-keycloak-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

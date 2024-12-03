@@ -25,16 +25,3 @@ spec:
         envFrom:
           - configMapRef:
               name: component-operator-configmap
-          - secretRef:
-              name: component-operator-secret
-      - name: seccon
-        image: {{ include "component-operator.secconDockerimage" . }}
-        imagePullPolicy: {{ include "component-operator.secconImagePullPolicy" . }}
-        envFrom:
-          - configMapRef:
-              name: component-operator-configmap
-          - secretRef:
-              name: component-operator-secret
-        ports:
-        - name: seccon
-          containerPort: 5000

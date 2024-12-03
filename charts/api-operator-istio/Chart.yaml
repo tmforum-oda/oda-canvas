@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.2
+version: 1.0.3
+# version: 1.0.3 - minor bugfixes
 # version: 1.0.2 - removed operator-command configMap - no longer using entrypoint.sh
 # version: 1.0.1 - minor fixes
 # version: 1.0.0 - initial version

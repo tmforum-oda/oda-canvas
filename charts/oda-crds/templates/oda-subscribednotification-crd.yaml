@@ -143,7 +143,7 @@ spec:
                 description:
                   type: string
                   description: (Optional) Description
-                apitype:
+                apiType:
                   type: string
                   enum:
                   - openapi
@@ -191,7 +191,7 @@ spec:
         - name: APIType
           type: string
           description: APIType
-          jsonPath: .spec.apitype
+          jsonPath: .spec.apiType
         - name: UID
           type: string
           description: UID
@@ -221,7 +221,7 @@ spec:
                 description:
                   type: string
                   description: (Optional) Description
-                apitype:
+                apiType:
                   type: string
                   enum:
                   - openapi
@@ -269,7 +269,7 @@ spec:
         - name: APIType
           type: string
           description: APIType
-          jsonPath: .spec.apitype
+          jsonPath: .spec.apiType
         - name: UID
           type: string
           description: UID

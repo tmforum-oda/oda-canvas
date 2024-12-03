@@ -6,13 +6,14 @@
 component:
   # Specifies whether a service account should be created
   id: TMFC001
-  typename: ProductCatalogManagement
   name: productcatalogmanagement
   functionalBlock: CoreCommerce
-  publicationDate: 2023-08-18T00:00:00.000Z
+  publicationDate: 2024-09-17T00:00:00.000Z
   version: "0.0.1"
   storageClassName: default
-  
+  dependentAPIs:
+    enabled: false
+    rejectUnauthorizedCertificates: false
 security:
   controllerRole: Admin
 mongodb:
@@ -20,7 +21,7 @@ mongodb:
   database: tmf
 api:
   image: lesterthomas/productcatalogapi:0.23
-  versionlabel: productcatalogapi-0.23
+  versionlabel: productcatalogapi-0.21
   otlp:
     console:
       enabled: false
@@ -30,3 +31,6 @@ api:
 partyrole:
   image: lesterthomas/partyroleapi:1.0
   versionlabel: partyroleapi-1.0
+canvasinfo:
+  host: info.canvas.svc.cluster.local
+  basepath: /

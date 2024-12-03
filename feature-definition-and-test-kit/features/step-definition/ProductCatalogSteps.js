@@ -92,6 +92,8 @@ When('I query the {string} component in the {string} release for {string} data:'
     .send()
   assert.equal(response.status, 200, 'Failed to get ' + resourceType + ' data from Product Catalog API')
   this.existingData = response.body
+  console.log('Component ' + componentInstanceName + ' has the following ' + resourceType + ' data:')
+  console.log(this.existingData)
 });
 
 Then('I should see the following {string} data in the federated product catalog:', async function (resourceType, dataTable) {

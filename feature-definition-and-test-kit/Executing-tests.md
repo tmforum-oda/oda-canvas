@@ -23,7 +23,7 @@ To execute the tests, first you install the necessary packages and set the envir
   KEYCLOAK_USER=admin 
   KEYCLOAK_PASSWORD=adpass 
   KEYCLOAK_BASE_URL=http://keycloack-ip:8083/auth/ 
-  KEYCLOAK_REALM=myrealm
+  KEYCLOAK_REALM=odari
   ```
 
 

@@ -14,7 +14,6 @@ on:
     - main
     paths: 
       - source/operators/component-management/*
-      - source/operators/identity-config/keycloak/*
 
 jobs:
   build-component-operator-release-dockerfile-job:
@@ -75,7 +74,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators
+          context: source/operators/component-management
           file: source/operators/component-management/component-operator-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}

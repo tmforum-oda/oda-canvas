@@ -1,10 +1,5 @@
 requests
 argparse
-cloudevents
-kopf
-kubernetes
-pykube-ng
-pyyaml
 kopf
 kubernetes
 pykube-ng

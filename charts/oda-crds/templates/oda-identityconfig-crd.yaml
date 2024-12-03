@@ -1,0 +1,74 @@
+apiVersion: "apiextensions.k8s.io/v1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "identityconfigs.oda.tmforum.org"
+  annotations:
+    cert-manager.io/inject-ca-from:  {{ printf "%s/%s" .Release.Namespace .Values.global.certificate.appName  }}
+spec:
+  scope: "Namespaced"
+  group: "oda.tmforum.org"
+  names:
+    plural: "identityconfigs"
+    singular: "identityconfig"
+    kind: "IdentityConfig"
+  versions:
+  - name: "v1beta4"
+    # Each version can be enabled/disabled by Served flag.
+    served: true
+    # One and only one version must be marked as the storage version.
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              controllerRole:
+                description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
+                type: string
+              controllerRole:
+                description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
+                type: string 
+              componentRole:
+                description: This allows components to declare statically defined roles that should be configured in Identity Management solution. 
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    description:
+                      type: string   
+              partyRoleAPI:
+                description: This is the name of the API that the component will expose to allow Canvas to manage party roles.
+                type: object
+                properties:
+                  implementation:
+                    type: string
+                    description: The name of the service where the implementation of the API is found
+                  path:
+                    type: string
+                    description: The path to the root of the API
+                  port:
+                    type: integer
+                    description: The port where the API is exposed
+                required:
+                - implementation
+                - path
+                - port                             
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+    additionalPrinterColumns:
+    - name: identity_provider
+      type: string
+      description: Identity provider
+      jsonPath: .status.identityConfig.identityProvider   
+    - name: listener-registered
+      type: boolean
+      description: If component uses dynamic roles via exposing API, canvas creates listner to listen for changes.
+      jsonPath: .status.identityConfig.listenerRegistered   
+
+
+

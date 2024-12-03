@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identityconfig-operator-keycloak
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "identityconfig-operator-keycloak.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.deployment.operatorName}}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: {{.Values.deployment.operatorName}}
+        {{- include "identityconfig-operator-keycloak.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: identityconfig-account
+      containers:
+      - name: {{.Values.deployment.operatorName}}
+        image: {{ include "identityconfig-operator-keycloak.idkopImage" . }}
+        imagePullPolicy: {{ include "identityconfig-operator-keycloak.imagePullPolicy" . }}
+        envFrom:
+          - configMapRef:
+              name: identityconfig-operator-keycloak-configmap
+          - secretRef:
+              name: identityconfig-operator-keycloak-secret
+      - name: idlistkey
+        image: {{ include "identityconfig-operator-keycloak.idlistkeyImage" . }}
+        imagePullPolicy: {{ include "identityconfig-operator-keycloak.imagePullPolicy" . }}
+        envFrom:
+          - configMapRef:
+              name: identityconfig-operator-keycloak-configmap
+          - secretRef:
+              name: identityconfig-operator-keycloak-secret
+        ports:
+        - name: idlistkey
+          containerPort: 5000

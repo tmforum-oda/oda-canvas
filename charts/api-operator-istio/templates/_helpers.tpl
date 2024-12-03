@@ -73,17 +73,6 @@ build the full apiop docker image name from image + version + prereleaseSuffix
 
 
 {{/*
-build the full seccon docker image name from image + version + prereleaseSuffix
-*/}}
-{{- define "api-operator-istio.secconDockerimage" -}}
-  {{- .Values.deployment.secconImage -}}:{{- .Values.deployment.secconVersion -}}
-  {{- if .Values.deployment.secconPrereleaseSuffix -}}
-    -{{- .Values.deployment.secconPrereleaseSuffix -}}
-  {{- end -}}
-{{- end -}}
-
-
-{{/*
 overwrite apiop imagePullSecret with "Always" if prereleaseSuffix is set
 */}}
 {{- define "api-operator-istio.apiopImagePullPolicy" -}}
@@ -94,14 +83,3 @@ overwrite apiop imagePullSecret with "Always" if prereleaseSuffix is set
   {{- end -}}
 {{- end -}}
 
-
-{{/*
-overwrite seccon imagePullSecret with "Always" if prereleaseSuffix is set
-*/}}
-{{- define "api-operator-istio.secconImagePullPolicy" -}}
-  {{- if .Values.deployment.secconPrereleaseSuffix -}}
-    Always
-  {{- else -}}
-    {{- .Values.deployment.secconImagePullPolicy -}}
-  {{- end -}}
-{{- end -}}

@@ -20,6 +20,8 @@ spec:
       - name: {{.Release.Name}}-prodcatapi
         image: {{.Values.api.image}}
         env:
+        - name: DEPENDENT_APIS_REJECT_UNAUTHORIZED_CERTIFICATES
+          value: "{{.Values.component.dependentAPIs.rejectUnauthorizedCertificates}}"
         - name: RELEASE_NAME
           value: {{.Release.Name}}
         - name: COMPONENT_NAME
@@ -38,6 +40,10 @@ spec:
           value: {{.Values.mongodb.database}}
         - name: NODE_ENV
           value: production
+        - name: CANVAS_INFO_HOST_PORT
+          value: "{{.Values.canvasinfo.host}}" 
+        - name: CANVAS_INFO_BASEPATH
+          value: "{{.Values.canvasinfo.basepath}}" 
         imagePullPolicy: Always
         ports:
         - name: {{.Release.Name}}-pcapi

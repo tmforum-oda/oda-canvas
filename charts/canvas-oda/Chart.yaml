@@ -15,7 +15,9 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.8-rc6
+version: 1.1.8-lt4
+# version: 1.1.8-lt4 - Refactored and separated identity config operator from component operator
+# version: 1.1.8-ak1 - changed seccon to canvassystem, changed keycloak realm to odari , enabled tls for keycloak API endpoints
 # version: 1.1.8-rc6 - issue 320 - SecretsManagemnt-Operator and DependentAPI-Simple-Operator support Canvas Log Viewer format 
 # version: 1.1.8-lt3 - refactoring of component-operator and api-operator-istio
 # version: 1.1.8-rc4 - issue 372 - deploy non-DEV Vault with persistence and autounseal 
@@ -64,10 +66,13 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: component-operator
-    version: "1.2.1"
+    version: "1.2.2"
     repository: 'file://../component-operator'
+  - name: identityconfig-operator-keycloak
+    version: "1.0.0"
+    repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
-    version: "1.0.2"
+    version: "1.0.3"
     repository: 'file://../api-operator-istio'
   - name: dependentapi-simple-operator
     version: "0.2.4"

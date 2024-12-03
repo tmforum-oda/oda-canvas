@@ -20,18 +20,48 @@ compcrdwebhook:
 component-operator:
   displayName: Component-operator
   fileName: component-operator
-  
   valuesYamlFile: charts/canvas-oda/values.yaml
   valuesPathImage: .component-operator.deployment.compopImage
   valuesPathVersion: .component-operator.deployment.compopVersion
   valuesPathPrereleaseSuffix: .component-operator.deployment.compopPrereleaseSuffix
-  
   paths:
     - source/operators/component-management/*
-    - source/operators/identity-config/keycloak/*
-  buildContext: source/operators
+  buildContext: source/operators/component-management
   # default is "Dockerfile" in buildContext
   buildDockerfile: source/operators/component-management/component-operator-dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+identityconfig-operator-keycloak:
+  displayName: Identityconfig-operator-keycloak
+  fileName: identityconfig-operator-keycloak
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .identityconfig-operator-keycloak.deployment.idkopImage
+  valuesPathVersion: .identityconfig-operator-keycloak.deployment.idkopVersion
+  valuesPathPrereleaseSuffix: .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix
+  paths:
+    - source/operators/identity-config/keycloak/*
+  buildContext: source/operators/identity-config/keycloak
+  # default is "Dockerfile" in buildContext
+  buildDockerfile: source/operators/identity-config/keycloak/identityconfig-operator-keycloak-dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+identity-listener-keycloak:
+  displayName: identity-Listener-keycloak
+  fileName: identity-listener-keycloak
+
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .identityconfig-operator-keycloak.deployment.idlistkeyImage
+  valuesPathVersion: .identityconfig-operator-keycloak.deployment.idlistkeyVersion
+  valuesPathPrereleaseSuffix: .identityconfig-operator-keycloak.deployment.idlistkeyPrereleaseSuffix
+
+  paths:
+    - source/operators/identity-config/keycloak/identity-listener-keycloak/*
+    - source/operators/identity-config/keycloak/keycloakUtils.py
+  buildContext: source/operators/identity-config/keycloak
+  # default is "Dockerfile" in buildContext
+  buildDockerfile: source/operators/identity-config/keycloak/identity-listener-keycloak-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -124,26 +154,6 @@ secretsmanagement-sidecar:
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
   
-
-security-listener:
-  displayName: Security-Listener
-  fileName: security-listener
-
-  valuesYamlFile: charts/canvas-oda/values.yaml
-  valuesPathImage: .controller.deployment.secconImage
-  valuesPathVersion: .controller.deployment.secconVersion
-  valuesPathPrereleaseSuffix: .controller.deployment.secconPrereleaseSuffix
-
-  paths:
-    - source/operators/securityControllerAPIserver-keycloak-dockerfile
-    - source/operators/securityController/**/*
-    - source/operators/securityListener-keycloak/**/*
-  buildContext: source/operators
-  # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/securityControllerAPIserver-keycloak-dockerfile
-  # default is "linux/amd64,linux/arm64"
-  #platforms: linux/amd64,linux/arm64
-
 
 baseimage-kubectl-curl:
   displayName: Baseimage-Kubectl-cURL

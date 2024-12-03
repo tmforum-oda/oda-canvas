@@ -9,13 +9,14 @@ Feature: UC002-F001 Install Component
     Scenario Outline: Create ExposedAPI resources for each segment
         Given an example package '<PackageName>' with a '<ComponentName>' component with '<ExposedApiCount>' ExposedAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package as release '<ReleaseName>'
+        And the '<ComponentName>' component has a deployment status of 'Complete'
         Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
 
     Examples:
     | Name           | PackageName            | ReleaseName  | ExposedAPIName           | ComponentName            | SegmentName        | ExposedApiCount |
-    | Core API       | productcatalog-v1beta4 |      pc     | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1               |
-    | Management API | productcatalog-v1beta4 |      pc     | metrics                  | productcatalogmanagement | managementFunction | 1               |
-    | Security API   | productcatalog-v1beta4 |      pc     | partyrole                | productcatalogmanagement | securityFunction   | 1               |
+    | Core API       | productcatalog-v1beta4 |      ctk     | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1               |
+    | Management API | productcatalog-v1beta4 |      ctk     | metrics                  | productcatalogmanagement | managementFunction | 1               |
+    | Security API   | productcatalog-v1beta4 |      ctk     | partyrole                | productcatalogmanagement | securityFunction   | 1               |
 
     Scenario Outline: Create DependentAPI resources for each segment
         Given an example package '<PackageName>' with a '<ComponentName>' component with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
@@ -24,4 +25,4 @@ Feature: UC002-F001 Install Component
 
     Examples:
     | Name           | PackageName                              | ReleaseName | DependentAPIName         | ComponentName                | SegmentName        | DependentApiCount |
-    | Core API       | productcatalog-dependendent-API-v1beta4  |      pc     | downstreamproductcatalog | productcatalogmanagement     | coreFunction       | 1                 |
+    | Core API       | productcatalog-dependendent-API-v1beta4  |      ctk     | downstreamproductcatalog | productcatalogmanagement     | coreFunction       | 1                 |

@@ -5,20 +5,18 @@
 # automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml #
 ################################################################################
 
-name: Build Security-Listener Release Dockerimage
-run-name: Build Security-Listener Release Dockerimage
+name: Build Identityconfig-operator-keycloak Release Dockerimage
+run-name: Build Identityconfig-operator-keycloak Release Dockerimage
 on:
   workflow_dispatch:
   push:
     branches:
     - main
     paths: 
-      - source/operators/securityControllerAPIserver-keycloak-dockerfile
-      - source/operators/securityController/**/*
-      - source/operators/securityListener-keycloak/**/*
+      - source/operators/identity-config/keycloak/*
 
 jobs:
-  build-security-listener-release-dockerfile-job:
+  build-identityconfig-operator-keycloak-release-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -28,17 +26,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of security-listener from values.yaml
+      - name: read image of identityconfig-operator-keycloak from values.yaml
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.controller.deployment.secconImage' charts/canvas-oda/values.yaml
+          cmd: yq '.identityconfig-operator-keycloak.deployment.idkopImage' charts/canvas-oda/values.yaml
           
-      - name: read versionnumber of security-listener from values.yaml
+      - name: read versionnumber of identityconfig-operator-keycloak from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.controller.deployment.secconVersion, .controller.deployment.secconPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.identityconfig-operator-keycloak.deployment.idkopVersion, .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
@@ -76,8 +74,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators
-          file: source/operators/securityControllerAPIserver-keycloak-dockerfile
+          context: source/operators/identity-config/keycloak
+          file: source/operators/identity-config/keycloak/identityconfig-operator-keycloak-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

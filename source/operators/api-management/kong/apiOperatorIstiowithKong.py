@@ -93,9 +93,9 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
                 return apiStatus
             else:
                 logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Patching", "Istio Virtual Service")
-                # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
-                if 'apitype' in spec.keys():
-                    if spec['apitype'] == 'prometheus':
+                # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+                if 'apiType' in spec.keys():
+                    if spec['apiType'] == 'prometheus':
                         # create a ServiceMonitor resource
                         logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Patching", "Prometheus Service Monitor")
                         createOrPatchObservability(True, spec, namespace, name, 'apiStatus', componentName)
@@ -103,9 +103,9 @@ def apiStatus(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     # if we get here then we are creating a new API            
     logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Creating", "Istio Virtual Service")    
-    # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
-    if 'apitype' in spec.keys():
-        if spec['apitype'] == 'prometheus':
+    # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+    if 'apiType' in spec.keys():
+        if spec['apiType'] == 'prometheus':
             # create a ServiceMonitor resource
             logWrapper(logging.INFO, 'apiStatus', 'apiStatus', 'api/' + name, componentName, "Creating", "Prometheus Service Monitor")    
             createOrPatchObservability(False, spec, namespace, name, 'apiStatus', componentName)

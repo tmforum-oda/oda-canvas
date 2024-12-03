@@ -1,0 +1,29 @@
+deployment:
+  operatorName: identityconfig-operator-keycloak
+  idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
+  idkopVersion: 0.1.0
+  idkopPrereleaseSuffix:
+  imagePullPolicy: IfNotPresent
+  istioGateway: true
+  idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
+  idlistkeyVersion: 0.7.1
+  idlistkeyPrereleaseSuffix:
+  monitoredNamespaces: 'components'           # comma separated list of namespaces
+  ingressClass:
+    enabled: false
+    name: nginx
+  dataDog:
+    enabled: false
+  keycloak:
+    port: 8080
+  hostName: "*"
+  httpsRedirect: true
+  credentialName: istio-ingress-cert    
+#We reuse the admin user created on keycloak instalation
+credentials:
+  user: admin
+  pass: adpass
+configmap:
+  #kcbase: http://canvas-keycloak:8088/auth # trying to parameterise this in the configmap
+  kcrealm: odari
+  loglevel: '20'

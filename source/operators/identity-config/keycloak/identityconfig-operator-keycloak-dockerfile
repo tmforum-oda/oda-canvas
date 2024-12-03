@@ -1,0 +1,23 @@
+FROM python:3.12-alpine
+
+RUN pip install kopf==1.37.2 \
+    && pip install kubernetes==27.2.0 \
+    && pip install PyYAML \
+    && pip install requests 
+
+# Copy the identity Config Operator for Keycloak code
+
+COPY ./identityConfigOperatorKeycloak.py /identityOperator/
+COPY ./keycloakUtils.py /identityOperator/
+COPY ./log_wrapper.py /identityOperator/
+
+
+# Setting up required ENV variables
+ARG CICD_BUILD_TIME
+ENV CICD_BUILD_TIME $CICD_BUILD_TIME
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
+
+# run the KOPF framework with component and keycloak operators
+
+CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose /identityOperator/identityConfigOperatorKeycloak.py

@@ -9,8 +9,8 @@ metadata:
 spec:
   ports:
   - port: {{.Values.mongodb.port}}
-    targetPort: mongodb
-    name: tcp-mongodb
+    targetPort: {{.Release.Name}}-mongodb
+    name: tcp-{{.Release.Name}}-mongodb
   type: NodePort
   selector:
     impl: {{.Release.Name}}-mongodb

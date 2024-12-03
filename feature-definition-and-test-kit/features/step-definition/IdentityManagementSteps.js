@@ -17,13 +17,13 @@ setDefaultTimeout( 20 * 1000);
 /**
  * Check for role to be assigned to the security operator in identity management.
  *
- * @param {string} operatorUserName - the username of the operator to check.
+ * @param {string} canvassystemUserName - the username of the operator to check.
  * @param {string} componentName - The name of the component to check.
  * @returns {Promise<void>} - A Promise that resolves when the component is available.
  */
-Then('I should see the predefined role assigned to the {string} user for the {string} component in the identity platform', async function (operatorUserName, componentName) {
+Then('I should see the predefined role assigned to the {string} user for the {string} component in the identity platform', async function (canvassystemUserName, componentName) {
   let componentResource = null
-  let secconRole = null
+  let canvassystemRole = null
   var startTime = performance.now()
   var endTime
 
@@ -39,10 +39,10 @@ Then('I should see the predefined role assigned to the {string} user for the {st
     if ((!componentResource) || (!componentResource.hasOwnProperty('spec')) || (!componentResource.spec.hasOwnProperty('securityFunction')) || (!componentResource.spec.securityFunction.hasOwnProperty('controllerRole'))) {
       componentResource = null // reset the componentResource to null so that we can try again
     } else {
-      secconRole = componentResource.spec.securityFunction.controllerRole;
-      allUserRoles = await identityManagerUtils.getRolesForUser(operatorUserName, global.currentReleaseName, componentName);
+      canvassystemRole = componentResource.spec.securityFunction.controllerRole;
+      allUserRoles = await identityManagerUtils.getRolesForUser(canvassystemUserName, global.currentReleaseName, componentName);
       //return 'pending';
-      assert.ok(allUserRoles.includes(secconRole), 'The predefine role for the security operator should be correctly assigned in the identity platform');
+      assert.ok(allUserRoles.includes(canvassystemRole), 'The predefine role for the security operator should be correctly assigned in the identity platform');
     }
   }
 });

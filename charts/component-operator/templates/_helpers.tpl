@@ -73,17 +73,6 @@ build the full compop docker image name from image + version + prereleaseSuffix
 
 
 {{/*
-build the full seccon docker image name from image + version + prereleaseSuffix
-*/}}
-{{- define "component-operator.secconDockerimage" -}}
-  {{- .Values.deployment.secconImage -}}:{{- .Values.deployment.secconVersion -}}
-  {{- if .Values.deployment.secconPrereleaseSuffix -}}
-    -{{- .Values.deployment.secconPrereleaseSuffix -}}
-  {{- end -}}
-{{- end -}}
-
-
-{{/*
 overwrite compop imagePullSecret with "Always" if prereleaseSuffix is set
 */}}
 {{- define "component-operator.compopImagePullPolicy" -}}
@@ -91,17 +80,5 @@ overwrite compop imagePullSecret with "Always" if prereleaseSuffix is set
     Always
   {{- else -}}
     {{- .Values.deployment.compopImagePullPolicy -}}
-  {{- end -}}
-{{- end -}}
-
-
-{{/*
-overwrite seccon imagePullSecret with "Always" if prereleaseSuffix is set
-*/}}
-{{- define "component-operator.secconImagePullPolicy" -}}
-  {{- if .Values.deployment.secconPrereleaseSuffix -}}
-    Always
-  {{- else -}}
-    {{- .Values.deployment.secconImagePullPolicy -}}
   {{- end -}}
 {{- end -}}

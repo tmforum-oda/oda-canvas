@@ -1,9 +1,4 @@
-#FROM python:3.12
 FROM python:3.12-alpine
-
-#RUN pip install kopf
-#RUN pip install kubernetes==27.2.0
-#RUN pip install cloudevents
 
 RUN pip install kopf==1.37.2 \
     && pip install kubernetes==27.2.0 \
@@ -11,11 +6,10 @@ RUN pip install kopf==1.37.2 \
     && pip install PyYAML \
     && pip install requests 
 
-#Copy the componentOperator  securityControllerKeycloak  secconkeycloak code
+# Copy the component Operator code
 
-COPY identity-config/keycloak/securityControllerKeycloak.py /identityOperator/
-COPY identity-config/keycloak/secconkeycloak.py /identityOperator/
-COPY component-management/componentOperator.py /componentOperator/
+COPY ./componentOperator.py /componentOperator/
+COPY ./log_wrapper.py /componentOperator/
 
 # Setting up required ENV variables
 ARG CICD_BUILD_TIME
@@ -25,4 +19,4 @@ ENV GIT_COMMIT_SHA $GIT_COMMIT_SHA
 
 # run the KOPF framework with component and keycloak operators
 
-CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose /componentOperator/componentOperator.py /identityOperator/securityControllerKeycloak.py
+CMD kopf run --namespace=$COMPONENT_NAMESPACE --verbose /componentOperator/componentOperator.py

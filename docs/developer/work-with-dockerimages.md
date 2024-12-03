@@ -203,6 +203,9 @@ helm dependency build
 cd ../../charts/api-operator-istio
 helm dependency update
 helm dependency build
+cd ../../charts/identityconfig-operator-keycloak
+helm dependency update
+helm dependency build
 cd ../../charts/canvas-vault
 helm dependency update
 helm dependency build

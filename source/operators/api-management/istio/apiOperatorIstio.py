@@ -35,7 +35,6 @@ if CICD_BUILD_TIME:
 if GIT_COMMIT_SHA:
     logger.info(f"GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
 
-
 # get namespace to monitor
 component_namespace = os.environ.get("COMPONENT_NAMESPACE", "components")
 logger.info(f"Monitoring namespace %s", component_namespace)
@@ -138,9 +137,9 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
                     "Patching",
                     "Istio Virtual Service",
                 )
-                # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
-                if "apitype" in spec.keys():
-                    if spec["apitype"] == "prometheus":
+                # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+                if "apiType" in spec.keys():
+                    if spec["apiType"] == "prometheus":
                         # create a ServiceMonitor resource
                         logWrapper(
                             logging.INFO,
@@ -168,9 +167,9 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
         "Creating",
         "Istio Virtual Service",
     )
-    # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
-    if "apitype" in spec.keys():
-        if spec["apitype"] == "prometheus":
+    # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+    if "apiType" in spec.keys():
+        if spec["apiType"] == "prometheus":
             # create a ServiceMonitor resource
             logWrapper(
                 logging.INFO,
