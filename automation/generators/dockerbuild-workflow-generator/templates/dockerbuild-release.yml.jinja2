@@ -136,3 +136,13 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: ${% raw %}{{ env.SOURCE_DATE_EPOCH }}{% endraw %}
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.7.0
+        with:
+          cosign-release: 'v2.4.1'
+          
+      - name: Sign Docker image
+        run: |
+          echo ${% raw %}{{ secrets.COSIGN_KEY }}{% endraw %} > cosign.key
+          chmod 600 cosign.key
+          cosign sign --key cosign.key --tlog-upload=true --yes ${% raw %}{{ steps.get_values_image.outputs.result }}{% endraw %}:${% raw %}{{ steps.get_values_version.outputs.result }}{% endraw %}
