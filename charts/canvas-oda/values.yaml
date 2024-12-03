@@ -125,7 +125,7 @@ component-operator:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
     compopVersion: 0.7.0
-    compopPrereleaseSuffix: 223-refact-2
+    compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components'           # comma separated list of namespaces
@@ -138,12 +138,12 @@ identityconfig-operator-keycloak:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
     idkopVersion: 0.1.0
-    idkopPrereleaseSuffix: 223-refact-2
+    idkopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
     idlistkeyVersion: 0.7.2
-    idlistkeyPrereleaseSuffix: 223-refact-2
+    idlistkeyPrereleaseSuffix: 
     monitoredNamespaces: 'components'           # comma separated list of namespaces
     keycloak: *portKeycloak
     hostName: "*"
@@ -163,7 +163,7 @@ api-operator-istio:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
     apiopVersion: 0.2.0
-    apiopPrereleaseSuffix: 223-refact-2
+    apiopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components'           # comma separated list of namespaces
