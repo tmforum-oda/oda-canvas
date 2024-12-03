@@ -9,6 +9,7 @@ Feature: UC002-F001 Install Component
     Scenario Outline: Create ExposedAPI resources for each segment
         Given an example package '<PackageName>' with a '<ComponentName>' component with '<ExposedApiCount>' ExposedAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package as release '<ReleaseName>'
+        And the '<ComponentName>' component has a deployment status of 'Complete'
         Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
 
     Examples:
