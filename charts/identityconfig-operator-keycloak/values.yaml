@@ -2,7 +2,7 @@ deployment:
   operatorName: identityconfig-operator-keycloak
   idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
   idkopVersion: 0.1.0
-  idkopPrereleaseSuffix: 223-refact-2
+  idkopPrereleaseSuffix:
   imagePullPolicy: IfNotPresent
   istioGateway: true
   idlistkeyImage: tmforumodacanvas/identity-listener-keycloak

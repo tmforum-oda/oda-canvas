@@ -14,22 +14,24 @@ spec:
       labels:
         app: {{.Release.Name}}-{{.Values.component.name}}
         impl: {{.Release.Name}}-prodcatapi
-        version: {{.Values.productcatalog.versionlabel}}
+        version: {{.Values.api.versionlabel}}
     spec:
       containers:
       - name: {{.Release.Name}}-prodcatapi
-        image: {{.Values.productcatalog.image}}
+        image: {{.Values.api.image}}
         env:
+        - name: DEPENDENT_APIS_REJECT_UNAUTHORIZED_CERTIFICATES
+          value: "{{.Values.component.dependentAPIs.rejectUnauthorizedCertificates}}"
         - name: RELEASE_NAME
           value: {{.Release.Name}}
         - name: COMPONENT_NAME
           value: {{.Release.Name}}-{{.Values.component.name}}
         - name: OTL_EXPORTER_CONSOLE_ENABLED
-          value: "{{.Values.productcatalog.otlp.console.enabled}}"
+          value: "{{.Values.api.otlp.console.enabled}}"
         - name: OTL_EXPORTER_TRACE_PROTO_ENABLED
-          value: "{{.Values.productcatalog.otlp.protobuffCollector.enabled}}"
+          value: "{{.Values.api.otlp.protobuffCollector.enabled}}"
         - name: OTL_EXPORTER_TRACE_PROTO_COLLECTOR_URL
-          value: {{.Values.productcatalog.otlp.protobuffCollector.url}}
+          value: {{.Values.api.otlp.protobuffCollector.url}}
         - name: MONGODB_HOST
           value: {{.Release.Name}}-mongodb
         - name: MONGODB_PORT
@@ -38,9 +40,13 @@ spec:
           value: {{.Values.mongodb.database}}
         - name: NODE_ENV
           value: production
+        - name: CANVAS_INFO_HOST_PORT
+          value: "{{.Values.canvasinfo.host}}" 
+        - name: CANVAS_INFO_BASEPATH
+          value: "{{.Values.canvasinfo.basepath}}" 
         imagePullPolicy: Always
         ports:
-        - name: pcapi
+        - name: {{.Release.Name}}-pcapi
           containerPort: 8080
         startupProbe:
           httpGet:

@@ -34,7 +34,7 @@ spec:
           value: production
         imagePullPolicy: Always
         ports:
-        - name: prapi
+        - name: {{.Release.Name}}-prapi
           containerPort: 8080
         startupProbe:
           httpGet:
