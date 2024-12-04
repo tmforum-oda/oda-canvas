@@ -207,13 +207,16 @@ The installation can fail with an error
 It can be failed due to below mentioned reasons.Please use --debug option in helm install command in order to verify the reason
 
 Prehook to check the prerequisite for istio-ingress service in istio-ingress namespace.
-```
-   To solve this ensure below points:
+
+To solve this ensure below points:
 ```
    a. Istio in properly installed in istio-ingress namespace and the service contains an External IP
 ```
+```
    b. Virtual Service CRD is installed in the cluster.
 ```
+
+
 ```bash
 2. Error: INSTALLATION FAILED: failed post-install: job failed: BackoffLimitExceeded
 ```
