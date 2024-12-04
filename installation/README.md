@@ -201,7 +201,17 @@ To install the Kong Gateway along with the Kong Operator, run the following comm
 The installation can fail with an error
 
 ```bash
-Error: INSTALLATION FAILED: failed post-install: job failed: BackoffLimitExceeded
+1. Error: INSTALLATION FAILED: failed pre-install: job failed: BackoffLimitExceeded
+```
+
+It can be failed due to below mentioned reasons. Please use --debug option in helm install command in order to verify the reason
+Prehook to check the prerequisite for istio-ingress service in istio-ingress namespace.
+   To solve this ensure below points:
+   a. Istio in properly installed in istio-ingress namespace and the service contains an External IP
+   b. Virtual Service CRD is installed in the cluster.
+
+```bash
+2. Error: INSTALLATION FAILED: failed post-install: job failed: BackoffLimitExceeded
 ```
 
 There are two major causes of this error
@@ -263,6 +273,7 @@ To solve that issue
 - Uninstall the helm chart
 - Delete the PVC with `kubectl delete pvc -n canvas data-canvas-postgresql-0`
 - reinstall the canvas
+
 
 ### Error installing : Failed post-install
 
