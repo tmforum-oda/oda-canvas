@@ -210,7 +210,7 @@ Prehook to check the prerequisite for istio-ingress service in istio-ingress nam
 
 To solve this ensure below points:
 ```
-   a. Istio in properly installed in istio-ingress namespace and the service contains an External IP
+   a. Istio in properly installed in istio-ingress namespace and the service has obtained an External IP
 ```
 ```
    b. Virtual Service CRD is installed in the cluster.
