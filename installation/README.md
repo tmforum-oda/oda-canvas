@@ -71,6 +71,7 @@ To host a component on the Reference Canvas you will have to account for its req
 ### 1. Kubernetes distribution
 
 **Prerequisites**: a running K8S distribution.
+sh install-canvas.sh (Shell script written to execute all relevant installation commands)
 
 The procedure has been tested
 
@@ -141,6 +142,8 @@ kubectl create namespace istio-ingress
 kubectl label namespace istio-ingress istio-injection=enabled
 helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway --wait
 ```
+###Verify what all installed inside helm
+helm ls -A
 
 ### 4. HashiCorp Vault
 
@@ -166,7 +169,9 @@ it will get stuck in state "InProgress-SecretsConfig".
 
     ```bash
     helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
+
     ```
+    helm install canvas oda-canvas/canvas-oda -n canvas --set canvas-vault.enabled=false --create-namespace  (Disabling canvas-valut)
 ### 6. Optionally Install APISIX or Kong Gateway
 
 For users seeking advanced API gateway capabilities, the ODA Canvas provides the option to install either the Kong Gateway or the APISIX Gateway. Additionally, the ODA Canvas includes a specially designed Gateway Operator tailored for seamless integration and management within the ODA Canvas environment. These gateways offer powerful features for managing APIs, including traffic management, security, load balancing, rate limiting, and observability.

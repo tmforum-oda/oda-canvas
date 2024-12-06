@@ -26,6 +26,19 @@ To execute the tests, first you install the necessary packages and set the envir
   KEYCLOAK_REALM=odari
   ```
 
+- Fetched the list of pods from canvas namespace
+
+kubectl get pods -n canvas 
+
+-Run Kubernetes command to forward a local port on your machine (port 8083) to a specific port (also 8083) on a pod (canvas-keycloak-0) in the canvas namespace.
+
+kubectl port-forward pods/canvas-keycloak-0 8083:8083 -n canvas
+
+Let it run, so open another terminal from “feature-definition-and-test-kit” folder
+
+- Export the environment values to load them in the shell
+
+export $(cat .env)
 
 
 ## How to run the tests

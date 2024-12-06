@@ -44,7 +44,7 @@ cert-manager-init:
   #  Post "https://cert-manager-webhook.cert-manager.svc:443/mutate?timeout=10s": x509: certificate signed by unknown authority
   # In seconds
   # -- Time to wait CertManager to be ready to prevent issuer creation errors
-  leaseWaitTimeonStartup: 80
+  leaseWaitTimeonStartup: 120
 
   cert-manager:
     enabled: true
