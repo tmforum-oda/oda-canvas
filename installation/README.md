@@ -71,7 +71,9 @@ To host a component on the Reference Canvas you will have to account for its req
 ### 1. Kubernetes distribution
 
 **Prerequisites**: a running K8S distribution.
-sh install-canvas.sh (Shell script written to execute all relevant installation commands)
+
+sh install-canvas.sh 
+(Shell script written to execute all relevant installation commands)
 
 The procedure has been tested
 
