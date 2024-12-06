@@ -164,8 +164,11 @@ it will get stuck in state "InProgress-SecretsConfig".
    helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
    helm repo update
    ```
+2. Modify values.yaml file
+Directory:  charts/oda-canvas/values.yaml
+modify leaseWaitTimeonStartup: 120
 
-2. Install the reference implementation
+3. Install the reference implementation
 
     Install the canvas using the following command.
 
@@ -173,7 +176,10 @@ it will get stuck in state "InProgress-SecretsConfig".
     helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
 
     ```
-    helm install canvas oda-canvas/canvas-oda -n canvas --set canvas-vault.enabled=false --create-namespace  (Disabling canvas-valut)
+    (Disabling canvas-valut)
+    ```bash
+    helm install canvas oda-canvas/canvas-oda -n canvas --set canvas-vault.enabled=false --create-namespace  
+    ```
 ### 6. Optionally Install APISIX or Kong Gateway
 
 For users seeking advanced API gateway capabilities, the ODA Canvas provides the option to install either the Kong Gateway or the APISIX Gateway. Additionally, the ODA Canvas includes a specially designed Gateway Operator tailored for seamless integration and management within the ODA Canvas environment. These gateways offer powerful features for managing APIs, including traffic management, security, load balancing, rate limiting, and observability.
