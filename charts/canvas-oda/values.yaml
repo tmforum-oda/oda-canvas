@@ -411,8 +411,11 @@ kong-gateway:
     IstioGatewayServerhostName: "*"
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
-      repository: ravijangra92/kong-operator:10.92.95
+      repository: tmforumodacanvas/kong-operator:0.1.0
       pullPolicy: IfNotPresent
+      kongopImage: tmforumodacanvas/kong-operator
+      kongopVersion: 0.1.0
+      kongopPrereleaseSuffix:
 
 
 # -----------------------------------------------------------------------------
@@ -444,8 +447,11 @@ apisix-gateway:
     apisixoperatorreplicaCount: 1
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
-    repository: ravijangra92/apisix-operator:10.92.95
+    repository: tmforumodacanvas/apisix-operator:0.1.0
     pullPolicy: IfNotPresent
+    apisixopImage: tmforumodacanvas/apisix-operator
+    apisixopVersion: 0.1.0
+    apisixopPrereleaseSuffix:
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas
