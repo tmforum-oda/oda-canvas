@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-operator
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.apisixoperatorreplicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-operator
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-operator
+    spec:
+      serviceAccountName: apisixapioperator-account
+      initContainers:
+        - name: wait-apisix-admin
+          image: busybox:1.28
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z canvas-apisix-admin.canvas.svc.cluster.local 9180; do echo waiting for canvas-apisix-admin; sleep 2; done;
+      containers:
+      - name: {{ .Release.Name }}-operator
+        image: {{ .Values.apisixoperatorimage.repository }}
+        imagePullPolicy: {{ .Values.apisixoperatorimage.pullPolicy }}

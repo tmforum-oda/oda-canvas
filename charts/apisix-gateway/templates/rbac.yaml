@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Release.Name }}-operator
-  namespace: ingress-apisix
+  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -51,7 +51,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-operator
-  namespace: ingress-apisix
+  namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
   name: {{ .Release.Name }}-operator-role-components
@@ -65,10 +65,24 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-operator
-  namespace: ingress-apisix
+  namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
   name: {{ .Release.Name }}-operator-role-istio-ingress
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-operator-rolebinding-components
+  namespace: {{ .Values.apisixistiooperatordeploymentnamespace }}
+subjects:
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-apisix-operator
+  namespace: {{ .Values.apisixistiooperatordeploymentnamespace }}
+roleRef:
+  kind: Role
+  name: {{ .Release.Name }}-operator-role-components
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -78,8 +92,50 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-operator
-  namespace: ingress-apisix
+  namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
   name: {{ .Release.Name }}-operator-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-apisix-operator
+  namespace: {{ .Values.apisixistiooperatordeploymentnamespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Name }}-apisix-check-clusterrole
+rules:
+- apiGroups: [""]
+  resources: ["services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+  # Uncomment the following if you want to restrict access to specific services
+  # resourceNames: ["istio-ingress","apisix-admin"]
+- apiGroups: ["apisix.apache.org"]
+  resources: ["apisixroutes", "apisixpluginconfigs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.istio.io"]
+  resources: ["gateways"]
+  verbs: ["get", "patch", "update"]
+- apiGroups: ["zalando.org"]
+  resources: ["clusterkopfpeerings"]
+  verbs: ["get", "list", "watch", "patch"]
+- apiGroups: ["oda.tmforum.org"]
+  resources: ["exposedapis"]
+  verbs: ["get", "list", "watch", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Name }}-apisix-check-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-apisix-operator
+  namespace: {{ .Values.apisixistiooperatordeploymentnamespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ .Release.Name }}-apisix-check-role
   apiGroup: rbac.authorization.k8s.io
