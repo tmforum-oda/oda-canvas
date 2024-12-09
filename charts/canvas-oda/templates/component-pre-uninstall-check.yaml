@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pre-uninstall-component-check
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook" : pre-delete
+    "helm.sh/weight" : "0"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      serviceAccountName: odacomponent-account
+      containers:
+        - name: component-checker
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Checking for component Custom Resources (CRs) in the canvas cluster."
+              if [ $(kubectl get components.oda.tmforum.org -A | wc -l) -gt 1 ]; then
+                echo "Error: Uninstallation aborted as below components present."
+                kubectl get components.oda.tmforum.org -A
+                exit 1  #Prevent Helm from proceeding
+              else
+                echo "No component CRs found. Proceeding with uninstallation."
+              fi
+      restartPolicy: Never
+  backoffLimit: 0

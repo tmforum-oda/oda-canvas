@@ -1,0 +1,97 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "api-operator-istio": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": ["enabled"]
+      },
+      "kong-gateway-install": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": ["enabled"]
+      },
+      "apisix-gateway-install": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": ["enabled"]
+      }
+    },
+    "oneOf": [
+      {
+        "properties": {
+          "api-operator-istio": {
+            "properties": {
+              "enabled": { "const": true }
+            }
+          },
+          "kong-gateway-install": {
+            "properties": {
+              "enabled": { "const": false }
+            }
+          },
+          "apisix-gateway-install": {
+            "properties": {
+              "enabled": { "const": false }
+            }
+          }
+        }
+      },
+      {
+        "properties": {
+          "api-operator-istio": {
+            "properties": {
+              "enabled": { "const": false }
+            }
+          },
+          "kong-gateway-install": {
+            "properties": {
+              "enabled": { "const": true }
+            }
+          },
+          "apisix-gateway-install": {
+            "properties": {
+              "enabled": { "const": false }
+            }
+          }
+        }
+      },
+      {
+        "properties": {
+          "api-operator-istio": {
+            "properties": {
+              "enabled": { "const": false }
+            }
+          },
+          "kong-gateway-install": {
+            "properties": {
+              "enabled": { "const": false }
+            }
+          },
+          "apisix-gateway-install": {
+            "properties": {
+              "enabled": { "const": true }
+            }
+          }
+        }
+      }
+    ],
+    "errorMessage": "Only one of api-operator-istio.enabled, kong-gateway-install.enabled, or apisix-gateway-install.enabled must be true."
+  }
+  
