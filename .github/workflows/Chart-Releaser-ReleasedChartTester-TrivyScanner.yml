@@ -37,9 +37,17 @@ jobs:
           # Update dependencies for canvas-vault chart
           cd ../canvas-vault
           helm dependency update
+          # Update dependencies for Kong Chart
+          cd ../kong-gateway
+          helm dependency update
+          # Update dependencies for Apisix Chart
+          cd ../apisix-gateway
+          helm dependency update
           # Update dependencies for canvas-oda chart
           cd ../canvas-oda
           helm dependency update
+
+
 
       - name: Run chart-releaser for Canvas Helm Charts
         uses: helm/chart-releaser-action@v1.6.0
@@ -51,7 +59,7 @@ jobs:
       - name: Sleep for 60 seconds
         run: sleep 60
 
-  delay-for-canvas-chart-release:
+  delay-for-canvas-chart-release-test:
     runs-on: ubuntu-latest
     needs: release-charts
     steps:
@@ -83,42 +91,9 @@ jobs:
       - name: Sleep for 60 seconds
         run: sleep 60
 
-  release-api-gateway:
-    runs-on: ubuntu-latest
-    needs: delay-for-canvas-chart-release
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
-      - name: Configure Helm for API Gateway
-        run: |
-          cd ./charts/canvas-api-gateway/combined-api-gateway-chart
-          helm dependency update
-          # Update dependencies for apisix-gateway chart
-          cd apisix-gateway
-          # Update dependencies for kong-gateway chart
-          helm dependency update
-          cd ../kong-gateway
-          helm dependency update
-          
-      - name: Run chart-releaser for API Gateway Helm Charts
-        uses: helm/chart-releaser-action@v1.6.0
-        with:
-          charts_dir: ./charts/canvas-api-gateway
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-
   check-new-release:
     runs-on: ubuntu-latest
-    needs: release-api-gateway
+    needs: delay-for-canvas-chart-release-test
     steps:
       - name: Install kubectl
         run: |
