@@ -15,7 +15,11 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.2
+version: 0.1.3
+
+# version: 0.1.3 - chart bundled with canvas-oda chart and job added to handle required istio-ingress type
+# version: 0.1.2 - updated appVersion to v1beta4
+# version: 0.1.1 - updated kong and apisix charts ,ssl now enabled on kong
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
