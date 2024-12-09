@@ -2,7 +2,13 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Release.Name }}-operator
-  namespace: kong
+  namespace: {{ .Values.kongnamespace }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-kong-operator
+  namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -63,7 +69,10 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-operator
-  namespace: kong
+  namespace: {{ .Values.kongnamespace }}
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-kong-operator
+  namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
 roleRef:
   kind: Role
   name: {{ .Release.Name }}-operator-role-components
@@ -73,11 +82,14 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ .Release.Name }}-operator-rolebinding-istio-ingress
-  namespace: kong
+  namespace: {{ .Values.kongnamespace }}
 subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-operator
-  namespace: kong
+  namespace: {{ .Values.kongnamespace }}
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-kong-operator
+  namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
 roleRef:
   kind: Role
   name: {{ .Release.Name }}-operator-role-istio-ingress
@@ -90,7 +102,10 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-operator
-  namespace: kong
+  namespace: {{ .Values.kongnamespace }}
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-kong-operator
+  namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
 roleRef:
   kind: ClusterRole
   name: {{ .Release.Name }}-operator-clusterrole

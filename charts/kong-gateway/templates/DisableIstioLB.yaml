@@ -2,9 +2,9 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Release.Name }}-patch-istio-ingress
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.kongnamespace }}
   annotations:
-    "helm.sh/hook": post-install
+    "helm.sh/hook": post-install,post-upgrade
     #"helm.sh/hook-weight": "2"
 spec:
   template:
@@ -17,6 +17,12 @@ spec:
           - /bin/sh
           - -c
           - |
-            kubectl patch svc istio-ingress -n istio-ingress -p '{"spec": {"type": "ClusterIP", "externalIPs": null}}'
+            CURRENT_TYPE=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.spec.type}')
+            if [ "$CURRENT_TYPE" != "ClusterIP" ]; then
+              kubectl patch svc istio-ingress -n istio-ingress -p '{"spec": {"type": "ClusterIP", "externalIPs": null}}'
+              echo "Service patched to ClusterIP type."
+            else
+              echo "Service type is already ClusterIP. No patch needed."
+            fi
       restartPolicy: Never
   backoffLimit: 3

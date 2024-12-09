@@ -158,27 +158,6 @@ identityconfig-operator-keycloak:
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
    
-api-operator-istio:
-  deployment:
-    operatrorName: api-operator-istio
-    apiopImage: tmforumodacanvas/api-operator-istio
-    apiopVersion: 0.2.0
-    apiopPrereleaseSuffix: 
-    imagePullPolicy: IfNotPresent
-    istioGateway: true
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
-    ingressClass:
-      enabled: false
-      name: nginx
-    dataDog:
-      enabled: true
-    hostName: "*"
-    httpsRedirect: true
-    credentialName: istio-ingress-cert    
-  configmap:
-    loglevel: '20'
-    # publicHostname: 'components.example.com'
-     
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
@@ -356,3 +335,117 @@ oda-webhook:
   prereleaseSuffix:  
   imagePullPolicy: IfNotPresent
  
+# -----------------------------------------------------------------------------
+# Istio operator and sub-chart parameters
+# -----------------------------------------------------------------------------
+
+api-operator-istio:
+  enabled: false # Default to true
+  deployment:
+    operatrorName: api-operator-istio
+    apiopImage: tmforumodacanvas/api-operator-istio
+    apiopVersion: 0.2.0
+    apiopPrereleaseSuffix:
+    imagePullPolicy: IfNotPresent
+    istioGateway: true
+    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    ingressClass:
+      enabled: false
+      name: nginx
+    dataDog:
+      enabled: true
+    hostName: "*"
+    httpsRedirect: true
+    credentialName: istio-ingress-cert    
+  configmap:
+    loglevel: '20'
+    # publicHostname: 'components.example.com'
+
+# -----------------------------------------------------------------------------
+# Kong operator and sub-chart parameters
+# -----------------------------------------------------------------------------
+
+kong-gateway-install:
+  enabled: false  # Enable kong-gateway if needed
+kongnamespace: kong
+kong-gateway:
+    kong:
+      postgresql:
+        nameOverride: "postgresql-kong"
+        #enabled: true
+        #namespace: "kong"
+      # Direct configurations to the kong sub-chart if needed
+      deployment:
+        enabled: true
+        serviceAccount:
+          create: true
+          automountServiceAccountToken: false
+        test:
+          enabled: false
+      namespace: kong
+      env:
+        database: "postgres"
+        pg_host: "canvas-postgresql-kong.canvas.svc.cluster.local"
+        pg_user: "kong"
+        pg_password: "kong"
+        pg_database: "kong"
+        router_flavor: "traditional"
+        nginx_worker_processes: "2"
+        proxy_access_log: "/dev/stdout"
+        admin_access_log: "/dev/stdout"
+        admin_gui_access_log: "/dev/stdout"
+        portal_api_access_log: "/dev/stdout"
+        proxy_error_log: "/dev/stderr"
+        admin_error_log: "/dev/stderr"
+        admin_gui_error_log: "/dev/stderr"
+        portal_api_error_log: "/dev/stderr"
+        prefix: "/kong_prefix/"
+      admin:
+        enabled: true
+        type: LoadBalancer
+      proxy:
+        enabled: true
+        type: LoadBalancer
+    kongoperatorreplicaCount: 1
+    IstioGatewaymonitoredNamespaces: components
+    IstioGatewayServerhostName: "*"
+    kongistiooperatordeploymentnamespace: canvas
+    kongoperatorimage:
+      repository: ravijangra92/kong-operator:10.92.95
+      pullPolicy: IfNotPresent
+
+
+# -----------------------------------------------------------------------------
+# Apisix operator and sub-chart parameters
+# -----------------------------------------------------------------------------
+
+
+apisix-gateway-install:
+  enabled: true  # Enable apisix-gateway if needed
+
+apisix-gateway:
+  apisix:
+    apisix:
+      ssl:
+        enabled: true
+      serviceNamespace: canvas
+    gateway:
+      type: LoadBalancer  # Override the service type
+    ingress-controller:
+      enabled: true   # Enable the ingress controller
+      config:
+        apisix:
+          adminAPIVersion: v3
+          serviceFullname: canvas-apisix-admin
+          serviceNamespace: canvas
+      serviceNamespace: canvas
+    service:
+      type: LoadBalancer  # Override the service type
+    apisixoperatorreplicaCount: 1
+    #apisixistiooperatordeploymentnamespace: canvas
+  apisixoperatorimage:
+    repository: ravijangra92/apisix-operator:10.92.95
+    pullPolicy: IfNotPresent
+  IstioGatewayServerhostName: "*"
+  IstioGatewaymonitoredNamespaces: components
+  apisixistiooperatordeploymentnamespace: canvas

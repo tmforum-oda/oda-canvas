@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    #"helm.sh/resource-policy": keep
+  name: component-gateway
+  namespace: {{ .Values.IstioGatewaymonitoredNamespaces }}
+spec:
+  selector:
+    istio: ingressgateway  # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "{{ .Values.IstioGatewayServerhostName }}"
