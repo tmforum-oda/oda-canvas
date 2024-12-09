@@ -8,7 +8,9 @@ global:
   certificate:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
- 
+
+preqrequisitechecks:
+  istio:  true 
 istioCert:
   namespace: "istio-ingress"
   certificate:
