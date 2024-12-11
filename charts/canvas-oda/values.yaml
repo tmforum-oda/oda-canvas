@@ -342,7 +342,7 @@ oda-webhook:
 # -----------------------------------------------------------------------------
 
 api-operator-istio:
-  enabled: false # Default to true
+  enabled: true # Default to true
   deployment:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
@@ -426,7 +426,7 @@ kong-gateway:
 
 
 apisix-gateway-install:
-  enabled: true  # Enable apisix-gateway if needed
+  enabled: false  # Enable apisix-gateway if needed
 
 apisix-gateway:
   apisix:
