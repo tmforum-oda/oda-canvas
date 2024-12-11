@@ -148,7 +148,8 @@ jobs:
     - name: Install Helm chart from Git repo
       run: |
         helm dependency update ./charts/cert-manager-init
-        helm dependency update ./charts/canvas-api-gateway/combined-api-gateway-chart
+        helm dependency update ./charts/apisix-gateway
+        helm dependency update ./charts/kong-gateway
         helm dependency update ./charts/canvas-vault
         helm dependency update ./charts/canvas-oda
         helm install canvas -n canvas --create-namespace ./charts/canvas-oda

@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.8-lt4
+version: 1.1.8-lt5
+# version: 1.1.8-lt5 - updated istio,kong and apisix charts , added value validation schema , added canvas uninstall security to avoid uninstall in presence of components
 # version: 1.1.8-lt4 - Refactored and separated identity config operator from component operator
 # version: 1.1.8-ak1 - changed seccon to canvassystem, changed keycloak realm to odari , enabled tls for keycloak API endpoints
 # version: 1.1.8-rc6 - issue 320 - SecretsManagemnt-Operator and DependentAPI-Simple-Operator support Canvas Log Viewer format 
@@ -72,8 +73,9 @@ dependencies:
     version: "1.0.0"
     repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
-    version: "1.0.3"
+    version: "1.0.4"
     repository: 'file://../api-operator-istio'
+    condition: api-operator-istio.enabled
   - name: dependentapi-simple-operator
     version: "0.2.4"
     repository: 'file://../dependentapi-simple-operator'
@@ -88,4 +90,11 @@ dependencies:
   - name: oda-webhook
     version: "1.1.4"
     repository: 'file://../oda-webhook'
-
+  - name: kong-gateway
+    version: "0.1.3"
+    repository: 'file://../kong-gateway'
+    condition: kong-gateway-install.enabled
+  - name: apisix-gateway
+    version: "0.1.3"
+    repository: 'file://../apisix-gateway'
+    condition: apisix-gateway-install.enabled

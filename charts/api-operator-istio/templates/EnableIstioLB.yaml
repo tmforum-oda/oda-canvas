@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-loadbalancer-svc-istio-ingress
+  namespace: {{ .Release.Namespace}}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade 
+spec:
+  template:
+    spec:
+      serviceAccountName: apioperator-account
+      containers:
+      - name: patch-istio-ingress
+        image: bitnami/kubectl:latest  # Using kubectl image
+        command:
+          - /bin/sh
+          - -c
+          - |
+            CURRENT_TYPE=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.spec.type}')
+            if [ "$CURRENT_TYPE" != "LoadBalancer" ]; then
+              kubectl patch svc istio-ingress -n istio-ingress -p '{"spec": {"type": "LoadBalancer", "externalIPs": null}}'
+              echo "Service patched to LoadBalancer type."
+            else
+              echo "Service type for Istio-Ingress is already LoadBalancer. No patch required."
+            fi
+      restartPolicy: Never
+  backoffLimit: 3
