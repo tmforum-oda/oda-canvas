@@ -70,7 +70,7 @@ dependencies:
     version: "1.2.2"
     repository: 'file://../component-operator'
   - name: identityconfig-operator-keycloak
-    version: "1.0.0"
+    version: "1.1.0"
     repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
     version: "1.0.3"

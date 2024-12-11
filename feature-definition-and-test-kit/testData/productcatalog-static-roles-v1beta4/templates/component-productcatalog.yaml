@@ -41,7 +41,7 @@ spec:
       path: /{{.Release.Name}}-{{.Values.component.name}}/metrics
       port: 4000    
   securityFunction:
-    controllerRole: {{ .Values.security.controllerRole }}
+    canvasSystemRole: {{ .Values.security.canvasSystemRole }}
     exposedAPIs: []
     dependantAPIs: []
     componentRole:
