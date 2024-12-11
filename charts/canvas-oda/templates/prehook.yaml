@@ -24,8 +24,11 @@ spec:
                 echo "Istio is not installed properly. Service 'istio-ingress' not found in namespace 'istio-ingress' with an External IP."
                 exit 1
               else
-                # Check if the service has an external IP
-                EXTERNAL_IP=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+                # Check if the service has an external IP or hostname
+                EXTERNAL_IP=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+                if [ -z "$EXTERNAL_IP" ]; then
+                  EXTERNAL_IP=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+                fi
                 if [ -z "$EXTERNAL_IP" ]; then
                   echo "Service 'istio-ingress' does not have an external IP allocated."
                   exit 1
