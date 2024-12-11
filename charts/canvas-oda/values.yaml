@@ -184,8 +184,8 @@ api-operator-istio:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 0.2.4
-  prereleaseSuffix: 
+  version: 0.3.0
+  prereleaseSuffix: issue-414
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   serviceInventoryAPI:

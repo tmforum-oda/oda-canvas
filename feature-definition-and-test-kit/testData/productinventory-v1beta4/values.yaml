@@ -13,7 +13,7 @@ service:
   type: ClusterIP
   port: 80
 security:
-  controllerRole: Admin
+  canvasSystemRole: Admin
 mongodb:
   port: 27017
   database: tmf

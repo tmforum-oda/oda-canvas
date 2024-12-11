@@ -36,10 +36,10 @@ Then('I should see the predefined role assigned to the {string} user for the {st
     assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
 
     // check if the component deployment status is deploymentStatus
-    if ((!componentResource) || (!componentResource.hasOwnProperty('spec')) || (!componentResource.spec.hasOwnProperty('securityFunction')) || (!componentResource.spec.securityFunction.hasOwnProperty('controllerRole'))) {
+    if ((!componentResource) || (!componentResource.hasOwnProperty('spec')) || (!componentResource.spec.hasOwnProperty('securityFunction')) || (!componentResource.spec.securityFunction.hasOwnProperty('canvasSystemRole'))) {
       componentResource = null // reset the componentResource to null so that we can try again
     } else {
-      canvassystemRole = componentResource.spec.securityFunction.controllerRole;
+      canvassystemRole = componentResource.spec.securityFunction.canvasSystemRole;
       allUserRoles = await identityManagerUtils.getRolesForUser(canvassystemUserName, global.currentReleaseName, componentName);
       //return 'pending';
       assert.ok(allUserRoles.includes(canvassystemRole), 'The predefine role for the security operator should be correctly assigned in the identity platform');
