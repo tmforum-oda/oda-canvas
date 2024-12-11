@@ -223,6 +223,3 @@ Then('I should not see an ApisixPlugin resource for {string}', async function (c
   const apisixplugin = await resourceInventoryUtils.getApisixPluginForComponent(componentName, apisixPluginName, namespace);
   assert.ok(!apisixplugin, `The ApisixPluginConfig ${apisixPluginName} for ${componentName} should not exist.`);
 });
-
-
-
