@@ -76,7 +76,7 @@ dependencies:
     version: "1.0.3"
     repository: 'file://../api-operator-istio'
   - name: dependentapi-simple-operator
-    version: "0.2.4"
+    version: "0.3.0"
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: secretsmanagement-operator
