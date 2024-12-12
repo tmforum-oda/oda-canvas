@@ -360,17 +360,18 @@ app.post("/", (req, res, next) => {
         const segments = ["coreFunction", "managementFunction", "securityFunction"];
         segments.forEach(segment => {
           for (api in objectsArray[key].spec[segment].exposedAPIs) {
-            // move the gatewayConfiguration properties to the root level
-            const gatewayProperties = ["apiKeyVerification", "rateLimit", "quota", "OASValidation", "CORS", "template"];
-            gatewayProperties.forEach(property => {
-              if (objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property]) {
-                objectsArray[key].spec[segment].exposedAPIs[api][property] = objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property];
-                delete objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property];
-              }
-            });
-            // remove the gatewayConfiguration object
-            delete objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration;
-
+            if (objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration) {
+              // move the gatewayConfiguration properties to the root level
+              const gatewayProperties = ["apiKeyVerification", "rateLimit", "quota", "OASValidation", "CORS", "template"];
+              gatewayProperties.forEach(property => {
+                if (objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property]) {
+                  objectsArray[key].spec[segment].exposedAPIs[api][property] = objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property];
+                  delete objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property];
+                }
+              });
+              // remove the gatewayConfiguration object
+              delete objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration;
+            }
             // change specification object array to an array of strings with just the url
             console.log("Change specification object array to an array of strings with just the url");
             if (objectsArray[key].spec[segment].exposedAPIs[api].specification) {
