@@ -89,5 +89,5 @@ kong:
 kongoperatorreplicaCount: 1
 kongistiooperatordeploymentnamespace: canvas
 kongoperatorimage:
-  repository: ravijangra92/kong-operator:10.92.95
+  repository: tmforumodacanvas/kong-operator:0.1.0
   pullPolicy: IfNotPresent

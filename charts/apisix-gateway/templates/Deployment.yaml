@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-operator
+  name: {{ .Release.Name }}-apisixistio-operator
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.apisixoperatorreplicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-operator
+      app: {{ .Release.Name }}-apisixistio-operator
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-operator
+        app: {{ .Release.Name }}-apisixistio-operator
     spec:
       serviceAccountName: apisixapioperator-account
       initContainers:
@@ -23,6 +23,6 @@ spec:
             - |
               until nc -z canvas-apisix-admin.canvas.svc.cluster.local 9180; do echo waiting for canvas-apisix-admin; sleep 2; done;
       containers:
-      - name: {{ .Release.Name }}-operator
+      - name: {{ .Release.Name }}-apisixistio-operator
         image: {{ .Values.apisixoperatorimage.repository }}
         imagePullPolicy: {{ .Values.apisixoperatorimage.pullPolicy }}

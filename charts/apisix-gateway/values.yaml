@@ -11,5 +11,5 @@ ingress-controller:
 apisixoperatorreplicaCount: 1
 apisixistiooperatordeploymentnamespace: canvas
 apisixoperatorimage:
-  repository: ravijangra92/apisix-operator:10.92.95
+  repository: tmforumodacanvas/apisix-operator:0.1.0
   pullPolicy: IfNotPresent

@@ -1,0 +1,141 @@
+# apply in dev mode with port 1338 one time if 1338 doesnt work properly 
+
+# share same username and pass initially  and then on next login give name and kong admin ip - http://xx.xx.xx.xx:8001/
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: kong-gateway-for-konga
+  namespace: kong
+spec:
+  gatewayClassName: kong
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+        kinds:
+          - kind: HTTPRoute
+            group: gateway.networking.k8s.io
+---
+# PostgreSQL Deployment for Konga
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-konga
+  namespace: kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-konga
+  template:
+    metadata:
+      labels:
+        app: postgres-konga
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:11
+        env:
+        - name: POSTGRES_DB
+          value: kongadb
+        - name: POSTGRES_USER
+          value: kong_user
+        - name: POSTGRES_PASSWORD
+          value: kong_password
+        - name: DB_FORCE_MIGRATE
+          value: "true"
+        ports:
+        - containerPort: 5432
+---
+# PostgreSQL Service for Konga
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-konga
+  namespace: kong
+spec:
+  selector:
+    app: postgres-konga
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+# Konga Deployment with DB Connection to PostgreSQL
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: konga
+  namespace: kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: konga
+  template:
+    metadata:
+      labels:
+        app: konga
+    spec:
+      containers:
+      - name: konga
+        image: pantsel/konga:latest
+        ports:
+        - containerPort: 1337
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DB_ADAPTER
+          value: "postgres"
+        - name: DB_HOST
+          value: "postgres-konga.kong.svc.cluster.local"
+        - name: DB_USER
+          value: "kong_user"
+        - name: DB_PASSWORD
+          value: "kong_password"
+        - name: DB_DATABASE
+          value: "kongadb"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_FORCE_MIGRATE
+          value: "true"
+---
+# Konga Service to expose Konga to internal traffic
+apiVersion: v1
+kind: Service
+metadata:
+  name: konga
+  namespace: kong
+spec:
+  selector:
+    app: konga
+  ports:
+    - protocol: TCP
+      port: 1337
+      targetPort: 1337
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: konga-httproute
+  namespace: kong
+  annotations:
+    konghq.com/strip-path: "true"  
+spec:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: kong-gateway-for-konga
+    namespace: kong
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: konga
+      port: 1337
+

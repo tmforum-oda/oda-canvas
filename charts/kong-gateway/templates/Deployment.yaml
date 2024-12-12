@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-operator
+  name: {{ .Release.Name }}-kongistio-operator
   namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
 spec:
   replicas: {{ .Values.kongoperatorreplicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-operator
+      app: {{ .Release.Name }}-kongistio-operator
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-operator
+        app: {{ .Release.Name }}-kongistio-operator
     spec:
       serviceAccountName: kongapioperator-account
       initContainers:
@@ -23,6 +23,6 @@ spec:
             - |
               until nc -z canvas-kong-admin.kong.svc.cluster.local 8001; do echo waiting for kong-admin; sleep 2; done;
       containers:
-      - name: {{ .Release.Name }}-operator
+      - name: {{ .Release.Name }}-kongistio-operator
         image: {{ .Values.kongoperatorimage.repository }}
         imagePullPolicy: {{ .Values.kongoperatorimage.pullPolicy }}
