@@ -1,5 +1,4 @@
 from utils import safe_get
-
 import kopf
 import logging
 import os
