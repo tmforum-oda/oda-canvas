@@ -147,8 +147,7 @@ jobs:
       run: |
         echo DEBUG: temporarily setting DNS for charts.bitnami.com
         echo "108.138.217.10 charts.bitnami.com" | sudo tee -a /etc/hosts
-        echo DEBUG: ping charts.bitnami.com
-        ping charts.bitnami.com
+        cat /etc/hosts
         echo DEBUG: update ./charts/cert-manager-init
         helm dependency update ./charts/cert-manager-init
         echo DEBUG: update ./charts/canvas-api-gateway/combined-api-gateway
