@@ -143,7 +143,8 @@ jobs:
         kubectl create namespace istio-ingress
         kubectl label namespace istio-ingress istio-injection=enabled
         helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
-    - name: Install Helm chart from Git repo
+
+        - name: Install Helm chart from Git repo
       run: |
         echo DEBUG: temporarily setting DNS for charts.bitnami.com
         echo "108.138.217.10 charts.bitnami.com" | sudo tee -a /etc/hosts
@@ -167,8 +168,13 @@ jobs:
 
     - name: Installing example component PC 
       run: |
-        helm repo add oda-components https://tmforum-oda.github.io/reference-example-components/
-        helm install ctk oda-components/productcatalog -n components
+        helm install ctk .\feature-definition-and-test-kit\testData\productcatalog-static-roles-v1beta4\      
+        sleep 30
+        kubectl get all -n components
+        kubectl logs -l app=component-operator -n canvas
+        helm uninstall ctk -n components
+
+
     - name: Check status of deployments
       run: |
         sleep 90
