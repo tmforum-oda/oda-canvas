@@ -19,7 +19,7 @@ import json
 from kubernetes.client.rest import ApiException
 import os
 import re
- 
+
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
 kopf_logger = logging.getLogger()
