@@ -15,7 +15,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.8-lt5
+version: 1.1.8-lt6
 # version: 1.1.8-lt5 - Final changes to v1beta4 crd
 # version: 1.1.8-lt4 - Refactored and separated identity config operator from component operator
 # version: 1.1.8-ak1 - changed seccon to canvassystem, changed keycloak realm to odari , enabled tls for keycloak API endpoints

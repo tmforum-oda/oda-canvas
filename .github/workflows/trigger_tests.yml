@@ -168,7 +168,7 @@ jobs:
 
     - name: Installing example component PC 
       run: |
-        helm install ctk feature-definition-and-test-kit/testData/productcatalog-static-roles-v1beta4/      
+        helm install ctk feature-definition-and-test-kit/testData/productcatalog-static-roles-v1beta4/ -n components     
         sleep 30
         kubectl get all -n components
         kubectl logs -l app=component-operator -n canvas
