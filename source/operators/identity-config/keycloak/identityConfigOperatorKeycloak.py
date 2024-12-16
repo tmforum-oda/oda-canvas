@@ -21,7 +21,6 @@ componentname_label = os.getenv("COMPONENTNAME_LABEL", "oda.tmforum.org/componen
 
 # Helper functions ----------
 
-
 def register_listener(url: str) -> None:
     """
     Register the listener URL with partyRoleManagement for role updates

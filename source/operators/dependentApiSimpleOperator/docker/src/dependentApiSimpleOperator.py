@@ -2,7 +2,6 @@ from utils import safe_get
 import kopf
 import logging
 import os
-
 import kubernetes.client
 from kubernetes.client.rest import ApiException
 

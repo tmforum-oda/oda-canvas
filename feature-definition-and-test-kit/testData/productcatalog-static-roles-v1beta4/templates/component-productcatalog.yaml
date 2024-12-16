@@ -43,7 +43,7 @@ spec:
   securityFunction:
     canvasSystemRole: {{ .Values.security.canvasSystemRole }}
     exposedAPIs: []
-    dependantAPIs: []
+    dependentAPIs: []
     componentRole:
     - name: pcadmin
       description: Product Catalogue Administrator

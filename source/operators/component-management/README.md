@@ -5,7 +5,6 @@ This is the reference implementiton of a component operator that manages the ove
 Separate operators then process the sub-resources and manage the relavant services in the ODA Canvas. This allows technology-specific versions of these operators. For example, if you were using an open source Kong API Gateway, you install the kong-specific API Management operator which would take metadata from the `ExposedAPI` resource and use it to configure APIs in Kong.
 
 
-
 ## Sequence Diagram
 
 The sequence diagram shows the overall lifecycle of deploying an ODA Component, with the component operator creating multiple sub-resources.
