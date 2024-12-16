@@ -145,6 +145,8 @@ jobs:
         helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
     - name: Install Helm chart from Git repo
       run: |
+        echo DEBUG: temporarily setting DNS for charts.bitnami.com
+        echo "108.138.217.10 charts.bitnami.com" | sudo tee -a /etc/hosts
         echo DEBUG: ping charts.bitnami.com
         ping charts.bitnami.com
         echo DEBUG: update ./charts/cert-manager-init
