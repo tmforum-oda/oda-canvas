@@ -24,5 +24,12 @@ This operator should be deployed within Kubernetes clusters that use the Kong AP
 It uses to config file present in $HOME/.kube/config to run from local workstation
 Run: `kopf run apiOperatorKong.py`
 
+## Installing Konga (Unofficial GUI for Kong)
 
+Konga is an unofficial, community-supported graphical user interface (GUI) for managing Kong Gateway. It provides an intuitive dashboard to monitor and configure Kong resources such as routes, services, plugins, and consumers.
+
+Steps to Install Konga: Use konga-install.yaml to deploy konga for testing purpose. 
+    ```
+    kubectl apply -f konga-install.yaml
+    ```
 
