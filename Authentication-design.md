@@ -15,3 +15,4 @@ The authentication use cases are documented in the [use case library](usecase-li
 * [UC007-Configure-Dependent-APIs](usecase-library/UC007-Configure-Dependent-APIs.md)
 * [UC009-Internal-Authentication](usecase-library/UC009-Internal-Authentication.md)
 * [UC010-External-Authentication](usecase-library/UC010-External-Authentication.md)
+ 
