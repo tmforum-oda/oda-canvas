@@ -144,7 +144,7 @@ jobs:
         kubectl label namespace istio-ingress istio-injection=enabled
         helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
 
-        - name: Install Helm chart from Git repo
+    - name: Install Helm chart from Git repo
       run: |
         echo DEBUG: temporarily setting DNS for charts.bitnami.com
         echo "108.138.217.10 charts.bitnami.com" | sudo tee -a /etc/hosts
