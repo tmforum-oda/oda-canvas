@@ -170,8 +170,8 @@ dependentapi-simple-operator:
   serviceInventoryAPI:
     enabled: true
     image: tmforumodacanvas/tmf638-service-inventory-api
-    version: 0.1.1
-    prereleaseSuffix:
+    version: 0.1.2
+    prereleaseSuffix: issue-414
     imagePullPolicy: IfNotPresent
     serverUrl: http://info.canvas.svc.cluster.local
     mongodb:
@@ -413,11 +413,11 @@ kong-gateway:
     IstioGatewayServerhostName: "*"
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
-      repository: tmforumodacanvas/kong-operator:0.1.0
+      repository: tmforumodacanvas/kong-operator:0.2.0
       pullPolicy: IfNotPresent
       kongopImage: tmforumodacanvas/kong-operator
-      kongopVersion: 0.1.0
-      kongopPrereleaseSuffix:
+      kongopVersion: 0.2.0
+      kongopPrereleaseSuffix: issue-414
 
 
 # -----------------------------------------------------------------------------
@@ -449,11 +449,11 @@ apisix-gateway:
     apisixoperatorreplicaCount: 1
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
-    repository: tmforumodacanvas/apisix-operator:0.1.0
+    repository: tmforumodacanvas/apisix-operator:0.2.0
     pullPolicy: IfNotPresent
     apisixopImage: tmforumodacanvas/apisix-operator
-    apisixopVersion: 0.1.0
-    apisixopPrereleaseSuffix:
+    apisixopVersion: 0.2.0
+    apisixopPrereleaseSuffix: issue-414
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas
