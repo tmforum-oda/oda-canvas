@@ -11,7 +11,7 @@ import json
 import os
 
 from utils import safe_get
-
+ 
 
 class ServiceInventoryAPI:
     def __init__(self, endpoint):
