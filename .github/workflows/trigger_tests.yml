@@ -165,24 +165,23 @@ jobs:
         sleep 30
         kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083 &
 
-#    - name: Installing example component PC 
-#      run: |
-#        helm repo add oda-components https://tmforum-oda.github.io/reference-example-components/
-#        helm install ctk oda-components/productcatalog -n components
-
-#    - name: Check status of deployments
-#      run: |
-#        sleep 90
-#        kubectl get all -n canvas
-#        kubectl get all -n components
-#        kubectl get all -n istio-ingress
-#        kubectl get all -n istio-system
-#        kubectl get exposedapis -n components
-#        kubectl get components -n components
+    - name: Installing example component PC 
+      run: |
+        helm repo add oda-components https://tmforum-oda.github.io/reference-example-components/
+        helm install ctk oda-components/productcatalog -n components
+    - name: Check status of deployments
+      run: |
+        sleep 90
+        kubectl get all -n canvas
+        kubectl get all -n components
+        kubectl get all -n istio-ingress
+        kubectl get all -n istio-system
+        kubectl get exposedapis -n components
+        kubectl get components -n components
   
-#    - name: Remove the example PC Component
-#      run: |
-#        helm uninstall ctk -n components
+    - name: Remove the example PC Component
+      run: |
+        helm uninstall ctk -n components
         
     - name: Install test Kit
       continue-on-error: true
