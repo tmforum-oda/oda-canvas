@@ -171,3 +171,37 @@ baseimage-kubectl-curl:
   #buildDockerfile:   
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
+
+apisix-gateway:
+  displayName: API-operator-apisix
+  fileName: api-operator-apisix
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .apisix-gateway.apisixoperatorimage.apisixopImage
+  valuesPathVersion: .apisix-gateway.apisixoperatorimage.apisixopVersion
+  valuesPathPrereleaseSuffix: .apisix-gateway.apisixoperatorimage.apisixopPrereleaseSuffix
+  
+  paths:
+    - source/operators/api-management/apache-apisix/*
+  buildContext: source/operators/api-management/apache-apisix
+  # default is "Dockerfile" in buildContext
+  buildDockerfile: source/operators/api-management/apache-apisix/apache-apisix-dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+kong-gateway:
+  displayName: API-operator-kong
+  fileName: api-operator-kong
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .kong-gateway.kongoperatorimage.kongopImage
+  valuesPathVersion: .kong-gateway.kongoperatorimage.kongopVersion
+  valuesPathPrereleaseSuffix: .kong-gateway.kongoperatorimage.kongopPrereleaseSuffix
+  
+  paths:
+    - source/operators/api-management/kong/*
+  buildContext: source/operators/api-management/kong
+  # default is "Dockerfile" in buildContext
+  buildDockerfile: source/operators/api-management/kong/kong-dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64

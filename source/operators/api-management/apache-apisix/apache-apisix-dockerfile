@@ -1,0 +1,16 @@
+# Using alpine Python image as the base
+FROM python:3.12-alpine
+
+# Installing necessary Python packages globally
+RUN pip install --no-cache-dir kopf kubernetes PyYAML requests
+
+# Set the working directory
+WORKDIR /app
+
+# Copying Apisix Operator and IstioforApisix Python files to the container
+COPY apiOperatorApisix.py /app/
+COPY apiOperatorIstiowithApisix.py /app/
+
+# Running kopf
+CMD kopf run --namespace= --verbose apiOperatorApisix.py apiOperatorIstiowithApisix.py & \
+kopf run --namespace=components --verbose apiOperatorApisix.py apiOperatorIstiowithApisix.py; wait

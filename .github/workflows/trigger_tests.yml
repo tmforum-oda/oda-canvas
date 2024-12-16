@@ -151,9 +151,8 @@ jobs:
         cat /etc/hosts
         echo DEBUG: update ./charts/cert-manager-init
         helm dependency update ./charts/cert-manager-init
-        echo DEBUG: update ./charts/canvas-api-gateway/combined-api-gateway
-        helm dependency update ./charts/canvas-api-gateway/combined-api-gateway-chart
-        echo DEBUG: update ./charts/canvas-vault
+        helm dependency update ./charts/apisix-gateway
+        helm dependency update ./charts/kong-gateway
         helm dependency update ./charts/canvas-vault
         echo DEBUG: update ./charts/canvas-oda
         helm dependency update ./charts/canvas-oda
@@ -172,7 +171,6 @@ jobs:
         sleep 30
         kubectl get all -n components
         kubectl logs -l app=component-operator -n canvas
-        helm uninstall ctk -n components
 
 
     - name: Check status of deployments

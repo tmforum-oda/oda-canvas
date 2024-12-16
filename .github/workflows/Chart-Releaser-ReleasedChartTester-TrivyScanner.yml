@@ -1,0 +1,265 @@
+name: API Gateway and Helm Chart Release Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: chart-release
+  cancel-in-progress: false
+
+jobs:
+  release-charts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Configure Helm for Canvas charts
+        run: |
+          # Add required Helm repositories
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add hashicorp https://helm.releases.hashicorp.com
+          helm repo update
+          
+          # Update dependencies for cert-manager-init chart
+          cd ./charts/cert-manager-init
+          helm dependency update
+          # Update dependencies for canvas-vault chart
+          cd ../canvas-vault
+          helm dependency update
+          # Update dependencies for Kong Chart
+          cd ../kong-gateway
+          helm dependency update
+          # Update dependencies for Apisix Chart
+          cd ../apisix-gateway
+          helm dependency update
+          # Update dependencies for canvas-oda chart
+          cd ../canvas-oda
+          helm dependency update
+
+
+
+      - name: Run chart-releaser for Canvas Helm Charts
+        uses: helm/chart-releaser-action@v1.6.0
+        with:
+          charts_dir: ./charts
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Sleep for 60 seconds
+        run: sleep 60
+
+  delay-for-canvas-chart-release-test:
+    runs-on: ubuntu-latest
+    needs: release-charts
+    steps:
+      - name: Confirm new release was done properly
+        run: |
+          # Add the required Helm repository
+          helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
+          helm repo update
+
+          # Checking for the latest version of the cert-manager-init chart
+          latest_cert_manager=$(helm search repo oda-canvas/cert-manager-init --versions | awk 'NR==2 {print $2}')
+          if [ -z "$latest_cert_manager" ]; then
+            echo "Error: cert-manager-init chart release was not successful."
+            exit 1
+          else
+            echo "cert-manager-init chart released successfully. Version: $latest_cert_manager"
+          fi
+
+          # Checking for the latest version of the canvas-oda chart
+          latest_canvas_oda=$(helm search repo oda-canvas/canvas-oda --versions | awk 'NR==2 {print $2}')
+          if [ -z "$latest_canvas_oda" ]; then
+            echo "Error: canvas-oda chart release was not successful."
+            exit 1
+          else
+            echo "canvas-oda chart released successfully. Version: $latest_canvas_oda"
+          fi
+          echo "All charts released successfully."
+
+      - name: Sleep for 60 seconds
+        run: sleep 60
+
+  check-new-release:
+    runs-on: ubuntu-latest
+    needs: delay-for-canvas-chart-release-test
+    steps:
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          kubectl version --client
+          uname -m
+  
+      - name: Install kind
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+  
+      - name: Create kind cluster
+        run: |
+          kind create cluster
+          kubectl get nodes --show-labels
+          
+      - name: Download Kind LB Cloud Provider
+        run: |
+         git clone https://github.com/kubernetes-sigs/cloud-provider-kind.git
+         cd cloud-provider-kind && make
+         bin/cloud-provider-kind &
+  
+      - name: Install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+          kubectl get ns
+  
+      - name: Install helm-git
+        run: |
+          helm plugin install https://github.com/aslafy-z/helm-git.git
+  
+      - name: Install istio Helm chart
+        run: |
+         helm repo add istio https://istio-release.storage.googleapis.com/charts
+         helm repo update
+         kubectl create namespace istio-system
+         helm install istio-base istio/base -n istio-system
+         helm install istiod istio/istiod -n istio-system --wait
+         kubectl create namespace istio-ingress
+         kubectl label namespace istio-ingress istio-injection=enabled
+         helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
+
+      - name: Install Helm chart from Git repo
+        run: |
+          helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
+          helm repo update
+          # This below --devel ensure we are checking current release not only stable release
+          helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --devel
+
+      - name: Check if deployment was successful
+        run: |
+          if kubectl get pods -n canvas | grep -q "Running"; then
+            echo "Helm installation and deployment successful. All pods are running."
+          else
+            echo "Error: Deployment failed. Not all pods are running."
+            exit 1
+          fi
+  
+      - name: Installing components Product Catalog 
+        run: |
+          helm repo add oda-components https://tmforum-oda.github.io/reference-example-components/
+          helm install pc oda-components/productcatalog -n components
+  
+      - name: Check status of all deployments
+        run: |
+          echo "Waiting for resources to be ready..."
+          sleep 90
+          LOG_FILE="/tmp/kubernetes_status.log"
+          HELM_LOG_FILE="/tmp/helm_installation.log"
+          echo "Current Kubernetes context:" | tee -a "$LOG_FILE"
+          kubectl config current-context | tee -a "$LOG_FILE"
+          echo "Fetching resources in the 'canvas' namespace:" | tee -a "$LOG_FILE"
+          kubectl get all -n canvas | tee -a "$LOG_FILE" || echo "No resources found in 'canvas' namespace." | tee -a "$LOG_FILE"
+          echo "Fetching resources in the 'components' namespace:" | tee -a "$LOG_FILE"
+          kubectl get all -n components | tee -a "$LOG_FILE" || echo "No resources found in 'components' namespace." | tee -a "$LOG_FILE"
+          echo "Fetching resources in the 'istio-ingress' namespace:" | tee -a "$LOG_FILE"
+          kubectl get all -n istio-ingress | tee -a "$LOG_FILE" || echo "No resources found in 'istio-ingress' namespace." | tee -a "$LOG_FILE"
+          echo "Fetching resources in the 'istio-system' namespace:" | tee -a "$LOG_FILE"
+          kubectl get all -n istio-system | tee -a "$LOG_FILE" || echo "No resources found in 'istio-system' namespace." | tee -a "$LOG_FILE"
+          echo "Fetching ExposedAPIs in the 'components' namespace:" | tee -a "$LOG_FILE"
+          kubectl get exposedapis -n components | tee -a "$LOG_FILE" || echo "No ExposedAPIs found in 'components' namespace." | tee -a "$LOG_FILE"
+          echo "Fetching components in the 'components' namespace:" | tee -a "$LOG_FILE"
+          kubectl get components -n components | tee -a "$LOG_FILE" || echo "No components found in 'components' namespace." | tee -a "$LOG_FILE"
+          helm list --all-namespaces | tee "$HELM_LOG_FILE"
+        
+      - name: Check Kubernetes resource status
+        run: |
+          LOG_FILE="/tmp/kubernetes_status.log"
+          echo "Checking the entire Kubernetes log for failures..."
+          
+          if grep -i -E 'failed|CrashLoopBackOff|error' "$LOG_FILE"; then
+            echo "There are Kubernetes resource failures in this release!"
+            exit 1
+          else
+            echo "OK, no Kubernetes resource failures observed."
+          fi
+
+      - name: Check Helm installation status
+        run: |
+          HELM_LOG_FILE="/tmp/helm_installation.log"
+          echo "Checking Helm Chart logs for failures..."
+          FAILURE_FOUND=false
+          if grep -i -E 'failed|error' "$HELM_LOG_FILE"; then
+            echo "There are Helm installation failures in this release!"
+            FAILURE_FOUND=true
+
+            echo "Listing all Helm releases with their versions:"
+            helm list --all-namespaces -o json | jq -r '.[] | "\(.name) \(.chart) \(.app_version)"' | while read -r release chart version; do
+              echo "Release: $release, Chart: $chart, Version: $version"
+            done
+
+            echo "Identifying failed Helm releases..."
+            helm list --all-namespaces -o json | jq -r '.[] | select(.status != "deployed") | "\(.name) \(.chart) \(.app_version) \(.status)"' | while read -r release chart version status; do
+              echo "Failure found with Release: $release, Chart: $chart, Version: $version, Status: $status"
+            done
+          else
+            echo "OK, no Helm installation failures observed with this release."
+
+            # Listing successful Helm releases and their versions
+            echo "Listing all Helm releases with their versions:"
+            helm list --all-namespaces -o json | jq -r '.[] | "\(.name) \(.chart) \(.app_version)"' | while read -r release chart version; do
+              echo "Release: $release, Chart: $chart, Version: $version"
+            done
+          fi
+
+          # Check if failures were found and print their summary
+          if [ "$FAILURE_FOUND" = true ]; then
+            echo "Helm installation completed with some failures.Check list mentioned above."
+          else
+            echo "Helm installation completed successfully with no failures."
+          fi
+          
+      - name: Install trivy scanner and perform security scan
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo tee /etc/apt/trusted.gpg.d/aquasecurity.asc
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+          export TRIVY_DISABLE_VEX_NOTICE=true
+          log_file="/tmp/trivy_scan.log"
+          
+          images=$(kubectl get deployments -n canvas -o=jsonpath='{range .items[*]}{range .spec.template.spec.containers[*]}{.image}{"\n"}{end}')
+          
+          for image in $images; do
+            echo "Scanning image:$image" | tee -a $log_file
+            trivy image --quiet $image >> $log_file 2>&1
+            trivy image --quiet $image | grep -m 1 'Total:'
+          done
+          
+      - name: Upload Helm Installation Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: |
+            /tmp/helm_installation.log
+            /tmp/kubernetes_status.log
+            /tmp/trivy_scan.log
+          
+      - name: Delete kind cluster
+        if: always()
+        run: |
+          kind delete cluster

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-kongistio-operator
+  namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
+spec:
+  replicas: {{ .Values.kongoperatorreplicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-kongistio-operator
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-kongistio-operator
+    spec:
+      serviceAccountName: kongapioperator-account
+      initContainers:
+        - name: wait-kong-admin
+          image: busybox:1.28
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z canvas-kong-admin.kong.svc.cluster.local 8001; do echo waiting for kong-admin; sleep 2; done;
+      containers:
+      - name: {{ .Release.Name }}-kongistio-operator
+        image: {{ .Values.kongoperatorimage.repository }}
+        imagePullPolicy: {{ .Values.kongoperatorimage.pullPolicy }}

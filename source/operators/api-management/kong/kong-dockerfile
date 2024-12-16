@@ -1,0 +1,16 @@
+# Using alpine Python image as the base
+FROM python:3.12-alpine
+
+# Installing necessary Python packages globally
+RUN pip install --no-cache-dir kopf kubernetes PyYAML requests
+
+# Set the working directory
+WORKDIR /app
+
+# Copying Kong Operator and IstioforKong Python files to the container
+COPY apiOperatorKong.py /app/
+COPY apiOperatorIstiowithKong.py /app/
+
+# Running kopf
+CMD kopf run --namespace= --verbose apiOperatorKong.py apiOperatorIstiowithKong.py & \
+kopf run --namespace=components --verbose apiOperatorKong.py apiOperatorIstiowithKong.py; wait

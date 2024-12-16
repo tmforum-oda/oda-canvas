@@ -117,128 +117,128 @@ const resourceInventoryUtils = {
   * @return   {Object}                     The HTTPRoute object, or null if not found
   */
   getHTTPRouteForComponent: async function (componentName, resourceName, inNamespace = 'components') {
-  const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
-  const httpRouteResourceName = `kong-api-route-ctk-${componentName}-${componentName}`;
-  
-  try {
-  const response = await k8sCustomApi.listNamespacedCustomObject(
-	  'gateway.networking.k8s.io', 
-	  'v1', 
-	  inNamespace, 
-	  'httproutes' 
-  );
-  
-  const items = response.body.items;
-  console.log('Found HTTPRoutes:', items.map(item => item.metadata.name));
-  const matchingRoutes = items.filter(route => route.metadata.name === httpRouteResourceName);
-  console.log('Matching HTTPRoutes:', matchingRoutes.map(route => route.metadata.name));
-  
-  if (matchingRoutes.length === 0) {
-	  console.error(`HTTPRoute ${httpRouteResourceName} not found.`);
-	  return null;
-  }
-  
-  return matchingRoutes[0]; // Returning the matching HTTPRoute
-  } catch (error) {
-  console.error('Error fetching HTTPRoute:', error);
-  throw error;
-  }
-  },
-  
-  getKongPluginForComponent: async function (componentName, pluginName, inNamespace = 'components') {
-  const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
-  const kongPluginResourceName = `${pluginName}`;
-  
-  try {
-  const response = await k8sCustomApi.listNamespacedCustomObject(
-	  'configuration.konghq.com',
-	  'v1',
-	  inNamespace,
-	  'kongplugins'
-  );
-  
-  const items = response.body.items;
-  console.log('Found KongPlugins:', items.map(item => item.metadata.name));
-  const matchingPlugins = items.filter(plugin => plugin.metadata.name === kongPluginResourceName);
-  console.log('Matching KongPlugins:', matchingPlugins.map(plugin => plugin.metadata.name));
-  
-  if (matchingPlugins.length === 0) {
-	  console.error(`KongPlugin ${kongPluginResourceName} not found.`);
-	  return null;
-  }
-  
-  return matchingPlugins[0]; // Returning the matching KongPlugin
-  } catch (error) {
-  console.error(`Error fetching KongPlugin ${kongPluginResourceName}:`, error);
-  throw error;
-  }
-  },
-  
-  //For Apisix API Gateway CRs
-  
-  /**
-  * Function that returns the ApisixRoute for a given component.
-  * @param    {String} componentName       Name of the component
-  * @param    {String} resourceName        Name of the resource
-  * @param    {String} [inNamespace='istio-ingress'] - Namespace where the component instance
-  * @return   {Object}                     The ApisixRoute object, or null if not found
-  */
-  getApisixRouteForComponent: async function (componentName, resourceName, inNamespace = 'istio-ingress') {
-  const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
-  const apisixRouteResourceName = `apisix-api-route-ctk-${componentName}-${componentName}`;
-  
-  try {
-  const response = await k8sCustomApi.listNamespacedCustomObject(
-	  'apisix.apache.org',
-	  'v2',
-	  inNamespace,
-	  'apisixroutes'
-  );
-  
-  const items = response.body.items;
-  console.log('Found ApisixRoutes:', items.map(item => item.metadata.name));
-  const matchingRoutes = items.filter(route => route.metadata.name === apisixRouteResourceName);
-  console.log('Matching ApisixRoutes:', matchingRoutes.map(route => route.metadata.name));
-  
-  if (matchingRoutes.length === 0) {
-	  console.error(`ApisixRoute ${apisixRouteResourceName} not found.`);
-	  return null;
-  }
-  
-  return matchingRoutes[0]; // Returning the matching ApisixRoute
-  } catch (error) {
-  console.error('Error fetching ApisixRoute:', error);
-  throw error; // Re-throw the error for the test to catch
-  }
-  },
-  
-  getApisixPluginForComponent: async function (componentName, pluginName, inNamespace = 'istio-ingress') {
-  const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
-  const apisixPluginResourceName = `${pluginName}`;
-  
-  try {
-  const response = await k8sCustomApi.listNamespacedCustomObject(
-	  'apisix.apache.org',
-	  'v2',
-	  inNamespace,
-	  'apisixpluginconfigs'
-  );
-  
-  const items = response.body.items;
-  console.log('Found ApisixPluginConfigs:', items.map(item => item.metadata.name));
-  const matchingPlugins = items.filter(plugin => plugin.metadata.name === apisixPluginResourceName);
-  
-  if (matchingPlugins.length === 0) {
-	  console.error(`ApisixPluginConfig ${apisixPluginResourceName} not found.`);
-	  return null;
-  }
-  
-  return matchingPlugins[0]; // Returning the matching ApisixPluginConfig
-  } catch (error) {
-  console.error(`Error fetching ApisixPluginConfig ${apisixPluginResourceName}:`, error);
-  throw error;
-  }
-  },
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
+    const httpRouteResourceName = `kong-api-route-ctk-${componentName}-${componentName}`;
+    
+    try {
+    const response = await k8sCustomApi.listNamespacedCustomObject(
+      'gateway.networking.k8s.io', 
+      'v1', 
+      inNamespace, 
+      'httproutes' 
+    );
+    
+    const items = response.body.items;
+    console.log('Found HTTPRoutes:', items.map(item => item.metadata.name));
+    const matchingRoutes = items.filter(route => route.metadata.name === httpRouteResourceName);
+    console.log('Matching HTTPRoutes:', matchingRoutes.map(route => route.metadata.name));
+    
+    if (matchingRoutes.length === 0) {
+      console.error(`HTTPRoute ${httpRouteResourceName} not found.`);
+      return null;
+    }
+    
+    return matchingRoutes[0]; 
+    } catch (error) {
+    console.error('Error fetching HTTPRoute:', error);
+    throw error;
+    }
+    },
+    
+    getKongPluginForComponent: async function (componentName, pluginName, inNamespace = 'components') {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
+    const kongPluginResourceName = `${pluginName}`;
+    
+    try {
+    const response = await k8sCustomApi.listNamespacedCustomObject(
+      'configuration.konghq.com',
+      'v1',
+      inNamespace,
+      'kongplugins'
+    );
+    
+    const items = response.body.items;
+    console.log('Found KongPlugins:', items.map(item => item.metadata.name));
+    const matchingPlugins = items.filter(plugin => plugin.metadata.name === kongPluginResourceName);
+    console.log('Matching KongPlugins:', matchingPlugins.map(plugin => plugin.metadata.name));
+    
+    if (matchingPlugins.length === 0) {
+      console.error(`KongPlugin ${kongPluginResourceName} not found.`);
+      return null;
+    }
+    
+    return matchingPlugins[0]; 
+    } catch (error) {
+    console.error(`Error fetching KongPlugin ${kongPluginResourceName}:`, error);
+    throw error;
+    }
+    },
+    
+    //For Apisix API Gateway CRs
+    
+    /**
+    * Function that returns the ApisixRoute for a given component.
+    * @param    {String} componentName       Name of the component
+    * @param    {String} resourceName        Name of the resource
+    * @param    {String} [inNamespace='istio-ingress'] - Namespace where the component instance
+    * @return   {Object}                     The ApisixRoute object, or null if not found
+    */
+    getApisixRouteForComponent: async function (componentName, resourceName, inNamespace = 'istio-ingress') {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
+    const apisixRouteResourceName = `apisix-api-route-ctk-${componentName}-${componentName}`;
+    
+    try {
+    const response = await k8sCustomApi.listNamespacedCustomObject(
+      'apisix.apache.org',
+      'v2',
+      inNamespace,
+      'apisixroutes'
+    );
+    
+    const items = response.body.items;
+    console.log('Found ApisixRoutes:', items.map(item => item.metadata.name));
+    const matchingRoutes = items.filter(route => route.metadata.name === apisixRouteResourceName);
+    console.log('Matching ApisixRoutes:', matchingRoutes.map(route => route.metadata.name));
+    
+    if (matchingRoutes.length === 0) {
+      console.error(`ApisixRoute ${apisixRouteResourceName} not found.`);
+      return null;
+    }
+    
+    return matchingRoutes[0]; 
+    } catch (error) {
+    console.error('Error fetching ApisixRoute:', error);
+    throw error; 
+    }
+    },
+    
+    getApisixPluginForComponent: async function (componentName, pluginName, inNamespace = 'istio-ingress') {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
+    const apisixPluginResourceName = `${pluginName}`;
+    
+    try {
+    const response = await k8sCustomApi.listNamespacedCustomObject(
+      'apisix.apache.org',
+      'v2',
+      inNamespace,
+      'apisixpluginconfigs'
+    );
+    
+    const items = response.body.items;
+    console.log('Found ApisixPluginConfigs:', items.map(item => item.metadata.name));
+    const matchingPlugins = items.filter(plugin => plugin.metadata.name === apisixPluginResourceName);
+    
+    if (matchingPlugins.length === 0) {
+      console.error(`ApisixPluginConfig ${apisixPluginResourceName} not found.`);
+      return null;
+    }
+    
+    return matchingPlugins[0]; 
+    } catch (error) {
+    console.error(`Error fetching ApisixPluginConfig ${apisixPluginResourceName}:`, error);
+    throw error;
+    }
+    },
 
   /**
    * Function that returns the logs from the ODA operator pod
