@@ -1,7 +1,7 @@
 deployment:
   operatorName: identityconfig-operator-keycloak
   idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
-  idkopVersion: 0.1.0
+  idkopVersion: 1.0.0
   idkopPrereleaseSuffix:
   imagePullPolicy: IfNotPresent
   istioGateway: true

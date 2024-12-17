@@ -24,7 +24,7 @@ The `ExposedAPI` resource describes the API that a component would like to confi
 Minimal example with only mandatory properties.
 
 ```yaml
-apiVersion: oda.tmforum.org/v1beta4
+apiVersion: oda.tmforum.org/v1
 kind: ExposedAPI
 metadata:
   name: r1-productcatalogmanagement-productcatalogmanagement # Kubernetes resource name for the instance of the ExposedAPI
@@ -42,7 +42,7 @@ spec:
 Example with all optional properties.
 
 ```yaml
-apiVersion: oda.tmforum.org/v1beta4
+apiVersion: oda.tmforum.org/v1
 kind: ExposedAPI
 metadata:
   name: r1-productcatalogmanagement-productcatalogmanagement # Kubernetes resource name for the instance of the ExposedAPI

@@ -1,7 +1,7 @@
 deployment:
   operatorName: api-operator-istio
   apiopImage: tmforumodacanvas/api-operator-istio
-  apiopVersion: 0.6.0
+  apiopVersion: 1.0.0
   apiopPrereleaseSuffix:
   apiopImagePullPolicy: IfNotPresent
   istioGateway: true

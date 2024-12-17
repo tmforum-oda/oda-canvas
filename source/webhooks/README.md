@@ -17,12 +17,12 @@ The Webhook allows you to create custom code to support Kubernetes in converting
   conversion:
     strategy: Webhook
     webhook:
-      conversionReviewVersions: ["v1alpha1", "v1alpha2", "v1alpha3", "v1beta1"]
+      conversionReviewVersions: ["v1beta2", "v1beta3", "v1beta4", "v1"]
       clientConfig:
         caBundle: LS0tLS1CRUdJTiB--Details Removed--Q0FURS0tLS0tCg==
         service:
           namespace: canvas
-          name: compcrdwebhook
+          name: conversion-webhook
           path: /
           port: 443
 ```

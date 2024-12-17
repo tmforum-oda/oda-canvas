@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.1.8-lt6
+version: 1.2.0
+# version: 1.2.0     - initial release of v1 component specification
 # version: 1.1.8-lt6 - final changes to v1beta4 crd
 # version: 1.1.8-lt5 - updated istio,kong and apisix charts , added value validation schema , added canvas uninstall security to avoid uninstall in presence of components
 # version: 1.1.8-lt4 - Refactored and separated identity config operator from component operator
@@ -50,18 +51,18 @@ version: 1.1.8-lt6
 
 # This is the version number of the application being deployed. We are versioning the canvas as the
 # version of the latest component spec that it supports.
-appVersion: "v1beta4"
+appVersion: "v1"
 
 dependencies:
   - name: cert-manager-init
-    version: "1.0.2"
+    version: "1.1.0"
     repository: 'file://../cert-manager-init'
   - name: canvas-namespaces
     version: "1.0.1"
     repository: 'file://../canvas-namespaces'
     condition: canvas-namespaces.enabled
   - name: oda-crds
-    version: "1.1.5"
+    version: "1.3.0"
     repository: 'file://../oda-crds'
     condition: oda-crds.enabled
   - name: keycloak
@@ -69,34 +70,34 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: component-operator
-    version: "1.2.2"
+    version: "1.3.0"
     repository: 'file://../component-operator'
   - name: identityconfig-operator-keycloak
-    version: "1.1.0"
+    version: "1.2.0"
     repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
-    version: "1.0.4"
+    version: "1.1.0"
     repository: 'file://../api-operator-istio'
     condition: api-operator-istio.enabled
   - name: dependentapi-simple-operator
-    version: "0.3.0"
+    version: "1.0.0"
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: secretsmanagement-operator
-    version: "0.1.3"
+    version: "1.0.0"
     repository: 'file://../secretsmanagement-operator'
   - name: canvas-vault
-    version: "0.2.1"
+    version: "1.0.0"
     repository: 'file://../canvas-vault'
     condition: canvas-vault.enabled
   - name: oda-webhook
-    version: "1.1.4"
+    version: "1.2.0"
     repository: 'file://../oda-webhook'
   - name: kong-gateway
-    version: "0.1.4"
+    version: "1.0.0"
     repository: 'file://../kong-gateway'
     condition: kong-gateway-install.enabled
   - name: apisix-gateway
-    version: "0.1.4"
+    version: "1.0.0"
     repository: 'file://../apisix-gateway'
     condition: apisix-gateway-install.enabled

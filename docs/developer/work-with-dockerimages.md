@@ -41,24 +41,24 @@ E.g. for oda-webhook:
 ```
 ...
 oda-webhook:
-  image: tmforumodacanvas/compcrdwebhook
+  image: tmforumodacanvas/conversion-webhook
   version: 0.6.3
   prereleaseSuffix: issue123
 ```
 
-The full dockerimage is put together as "tmforumodacanvas/compcrdwebhook:0.6.3-issue123".
+The full dockerimage is put together as "tmforumodacanvas/conversion-webhook:1.0.0".
 
 If there is no prereleaseSuffix, the seperator "-" is ommitted: 
 
 ```
 ...
 oda-webhook:
-  image: tmforumodacanvas/compcrdwebhook
+  image: tmforumodacanvas/conversion-webhook
   version: 0.6.2
   prereleaseSuffix:
 ```
 
-The full docker image is "tmforumodacanvas/compcrdwebhook:0.6.2"
+The full docker image is "tmforumodacanvas/conversion-webhook:1.0.0"
 
 The advantage of using the values.yaml as source for the dockerimage names is,
 that when deploying the canvas-oda chart from the filesystem all docker images exist, because they are automatically build on code changes.
@@ -242,7 +242,7 @@ The next time when an upgrade has to be deployed the dependencies do not have to
 Let´s take a look at the SecretsManagement-Operator logfile:
 
 ```
-$ kubectl logs -n canvas deployment/canvas-smanop
+$ kubectl logs -n canvas deployment/secretsmanagement-operator-vault
 
     [2024-07-30 14:24:20,772] SecretsmanagementOpe [INFO    ] Logging set to 20
 [*] [2024-07-30 14:24:20,773] SecretsmanagementOpe [INFO    ] GitHub ISSUE #3456 was added here
@@ -298,7 +298,7 @@ $ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace
 #### Look for the changes in the logfile
 
 ```
-kubectl logs -n canvas deployment/canvas-smanop
+kubectl logs -n canvas deployment/secretsmanagement-operator-vault
 
     [2024-07-30 14:24:20,772] SecretsmanagementOpe [INFO    ] Logging set to 20
 [?] [2024-07-30 14:24:20,773] SecretsmanagementOpe [INFO    ] GitHub ISSUE #3456 was added here
@@ -325,9 +325,9 @@ Now the image did not change, it is still `...:0.1.1-issue3456`.
 But we can trigger a redeployment manually:
 
 ```
-$ kubectl rollout restart deployment -n canvas canvas-smanop
+$ kubectl rollout restart deployment -n canvas secretsmanagement-operator-vault
 
-  deployment.apps/canvas-smanop restarted
+  deployment.apps/secretsmanagement-operator-vault restarted
 ```
 
 Waiting a few seconds to give the old POD (running instance of the deployment) time to gracefully terminate and the new POD time to startup:
@@ -337,14 +337,14 @@ $ kubectl get pods -n canvas
 
   NAME                                          READY   STATUS      RESTARTS   AGE
   ...
-  canvas-smanop-6768cc66b5-ww85z                1/1     Running     0          8s
+  secretsmanagement-operator-vault-6768cc66b5-ww85z                1/1     Running     0          8s
   ...
 ```
 
 Age 8 seconds means, the POD was just started. Now we can take a look into the logfile:
 
 ```
-$ kubectl logs -n canvas canvas-smanop-7d4c875878-xdlts
+$ kubectl logs -n canvas secretsmanagement-operator-vault-7d4c875878-xdlts
 
     [2024-07-30 15:22:02,025] SecretsmanagementOpe [INFO    ] Logging set to 20
 [?] [2024-07-30 15:22:02,025] SecretsmanagementOpe [INFO    ] GitHub ISSUE #3456 was added here
@@ -365,12 +365,12 @@ This means, even if a  docker image with the same name already exists it is look
 Check:
 
 ```
-$ kubectl get deployment -n canvas canvas-smanop -oyaml
+$ kubectl get deployment -n canvas secretsmanagement-operator-vault -oyaml
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: canvas-smanop
+  name: secretsmanagement-operator-vault
   namespace: canvas
   ...
 spec:
@@ -379,7 +379,7 @@ spec:
   template:
     spec:
       containers:
-      - name: canvas-smanop
+      - name: secretsmanagement-operator-vault
         image: ocfork/secretsmanagement-operator:0.1.1-issue3456
 [*]     imagePullPolicy: Always
       ...
@@ -389,17 +389,17 @@ I have no explanation, why this did not work, but found a workaround:
 Scaling the deployment down to 0 instances (PODs) and then scaling up to 1 again:
 
 ```
-$ kubectl scale deployment -n canvas canvas-smanop --replicas=0
-  deployment.apps/canvas-smanop scaled
+$ kubectl scale deployment -n canvas secretsmanagement-operator-vault --replicas=0
+  deployment.apps/secretsmanagement-operator-vault scaled
 
-$ kubectl scale deployment -n canvas canvas-smanop --replicas=1
-  deployment.apps/canvas-smanop scaled
+$ kubectl scale deployment -n canvas secretsmanagement-operator-vault --replicas=1
+  deployment.apps/secretsmanagement-operator-vault scaled
 ```
 
 Wait a few seconds for the new POD to come up and look at the logfile:
 
 ```
-$ kubectl logs -n canvas deployment/canvas-smanop
+$ kubectl logs -n canvas deployment/secretsmanagement-operator-vault
 
     [2024-07-30 15:31:14,306] SecretsmanagementOpe [INFO    ] Logging set to 20
 [*] [2024-07-30 15:31:14,306] SecretsmanagementOpe [INFO    ] GitHub ISSUE #3456 WAS FIXED!!!

@@ -59,7 +59,7 @@ const componentUtils = {
   getAPIURL: async function (inComponentInstance, inAPIName, inNamespace) {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
     const APIResourceName = inComponentInstance + '-' + inAPIName
-    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject('oda.tmforum.org', 'v1beta4', inNamespace, 'exposedapis', undefined, undefined, 'metadata.name=' + APIResourceName)
+    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject('oda.tmforum.org', 'v1', inNamespace, 'exposedapis', undefined, undefined, 'metadata.name=' + APIResourceName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
     }

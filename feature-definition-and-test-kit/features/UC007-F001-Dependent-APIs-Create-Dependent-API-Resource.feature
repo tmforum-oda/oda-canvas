@@ -13,7 +13,7 @@ Feature: UC007-F001 Dependent APIs: Create Dependent API Resource
 
     Examples:
        | Name           | PackageName                             | ResourceName             | ComponentName            | SegmentName        | ApiCount |
-       | Core API       | productcatalog-dependendent-API-v1beta4 | downstreamproductcatalog | productcatalogmanagement | coreFunction       | 1        |
+       | Core API       | productcatalog-dependendent-API-v1 | downstreamproductcatalog | productcatalogmanagement | coreFunction       | 1        |
 
 
     Scenario Outline: Remove DependentAPI Resource when Component deleted
@@ -22,4 +22,4 @@ Feature: UC007-F001 Dependent APIs: Create Dependent API Resource
         Then I should not see the '<ResourceName>' DependentAPI resource on the '<ComponentName>' component
     Examples:
        | Name           | PackageName                             | ResourceName             | ComponentName            | SegmentName        | ApiCount |
-       | Core API       | productcatalog-dependendent-API-v1beta4 | downstreamproductcatalog | productcatalogmanagement | coreFunction       | 1        |
+       | Core API       | productcatalog-dependendent-API-v1 | downstreamproductcatalog | productcatalogmanagement | coreFunction       | 1        |

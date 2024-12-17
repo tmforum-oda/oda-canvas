@@ -7,7 +7,7 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ .Release.Name }}-kong-operator
+  name: {{ .Release.Name }}-api-operator-kong
   namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -71,7 +71,7 @@ subjects:
   name: {{ .Release.Name }}-operator
   namespace: {{ .Values.kongnamespace }}
 - kind: ServiceAccount
-  name: {{ .Release.Name }}-kong-operator
+  name: {{ .Release.Name }}-api-operator-kong
   namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
 roleRef:
   kind: Role
@@ -88,7 +88,7 @@ subjects:
   name: {{ .Release.Name }}-operator
   namespace: {{ .Values.kongnamespace }}
 - kind: ServiceAccount
-  name: {{ .Release.Name }}-kong-operator
+  name: {{ .Release.Name }}-api-operator-kong
   namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
 roleRef:
   kind: Role
@@ -104,7 +104,7 @@ subjects:
   name: {{ .Release.Name }}-operator
   namespace: {{ .Values.kongnamespace }}
 - kind: ServiceAccount
-  name: {{ .Release.Name }}-kong-operator
+  name: {{ .Release.Name }}-api-operator-kong
   namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
 roleRef:
   kind: ClusterRole

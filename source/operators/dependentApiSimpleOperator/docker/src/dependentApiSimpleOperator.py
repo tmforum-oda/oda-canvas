@@ -11,11 +11,11 @@ from log_wrapper import LogWrapper, logwrapper
 
 
 DEPAPI_GROUP = "oda.tmforum.org"
-DEPAPI_VERSION = "v1beta4"
+DEPAPI_VERSION = "v1"
 DEPAPI_PLURAL = "dependentapis"
 
 COMP_GROUP = "oda.tmforum.org"
-COMP_VERSION = "v1beta4"
+COMP_VERSION = "v1"
 COMP_PLURAL = "components"
 
 API_PLURAL = "exposedapis"

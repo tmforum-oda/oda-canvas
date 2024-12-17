@@ -15,7 +15,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | apisixoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| apisixoperatorimage.repository | string | `"ravijangra92/apisix-operator:1.3"` |  |
+| apisixoperatorimage.repository | string | `"ravijangra92/api-operator-apisix:1.3"` |  |
 | apisixoperatorreplicaCount | int | `1` |  |
 | gateway.type | string | `"LoadBalancer"` |  |
 | ingress-controller.config.apisix.adminAPIVersion | string | `"v3"` |  |

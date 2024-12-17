@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: compcrdwebhook
+  name: conversion-webhook 
   namespace: {{ .Release.Namespace }}  
   labels:
     {{- include "oda-webhook.labels" . | nindent 4 }}
@@ -9,15 +9,15 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: compcrdwebhook
+      app: conversion-webhook 
   template:
     metadata:
       labels:
-        app: compcrdwebhook
+        app: conversion-webhook 
         {{- include "oda-webhook.labels" . | nindent 8 }}
     spec:
       containers:
-      - name: compcrdwebhook
+      - name: conversion-webhook 
         image: {{ include "oda-webhook.dockerimage" . }}
         imagePullPolicy: {{ include "oda-webhook.imagePullPolicy" .	 }}
         ports:
@@ -28,5 +28,5 @@ spec:
       volumes:
         - name: secret-volume
           secret:
-            secretName: compcrdwebhook-secret
+            secretName: conversion-webhook-secret
 

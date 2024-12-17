@@ -1,6 +1,6 @@
 # oda-webhook
 
-![Version: 1.1.4](https://img.shields.io/badge/Version-1.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1beta4](https://img.shields.io/badge/AppVersion-v1beta4-informational?style=flat-square)
+![Version: 1.1.4](https://img.shields.io/badge/Version-1.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
 
 A Helm chart to deploy the webhook following pattern in https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion
 
@@ -8,7 +8,7 @@ A Helm chart to deploy the webhook following pattern in https://kubernetes.io/do
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| image | string | `"tmforumodacanvas/compcrdwebhook"` |  |
+| image | string | `"tmforumodacanvas/conversion-webhook "` |  |
 | imagePullPolicy | string | `"IfNotPresent"` |  |
 | prereleaseSuffix | string | `nil` |  |
 | version | string | `"0.11.0"` |  |

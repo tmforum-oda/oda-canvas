@@ -13,10 +13,10 @@ Feature: UC002-F001 Install Component
         Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
 
     Examples:
-    | Name           | PackageName            | ReleaseName  | ExposedAPIName           | ComponentName            | SegmentName        | ExposedApiCount |
-    | Core API       | productcatalog-v1beta4 |      ctk     | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1               |
-    | Management API | productcatalog-v1beta4 |      ctk     | metrics                  | productcatalogmanagement | managementFunction | 1               |
-    | Security API   | productcatalog-v1beta4 |      ctk     | partyrole                | productcatalogmanagement | securityFunction   | 1               |
+    | Name           | PackageName       | ReleaseName  | ExposedAPIName           | ComponentName            | SegmentName        | ExposedApiCount |
+    | Core API       | productcatalog-v1 |      ctk     | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1               |
+    | Management API | productcatalog-v1 |      ctk     | metrics                  | productcatalogmanagement | managementFunction | 1               |
+    | Security API   | productcatalog-v1 |      ctk     | partyrole                | productcatalogmanagement | securityFunction   | 1               |
 
     Scenario Outline: Create DependentAPI resources for each segment
         Given an example package '<PackageName>' with a '<ComponentName>' component with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
@@ -25,4 +25,4 @@ Feature: UC002-F001 Install Component
 
     Examples:
     | Name           | PackageName                              | ReleaseName | DependentAPIName         | ComponentName                | SegmentName        | DependentApiCount |
-    | Core API       | productcatalog-dependendent-API-v1beta4  |      ctk     | downstreamproductcatalog | productcatalogmanagement     | coreFunction       | 1                 |
+    | Core API       | productcatalog-dependendent-API-v1  |      ctk     | downstreamproductcatalog | productcatalogmanagement     | coreFunction       | 1                 |

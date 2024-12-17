@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 global:
  certificate:
-   appName: "compcrdwebhook"
+   appName: "conversion-webhook "
 
 istioCert:
   namespace: "istio-ingress"
@@ -15,7 +15,7 @@ nameOverride: ""
 fullnameOverride: ""
 namespace: canvas
 certificate:
-  appName: "compcrdwebhook"
+  appName: "conversion-webhook "
 #Cert manager get a lease  object on kube-system namespace to elect leader.
 #The time to wait for a leader is 60s.
 #The lease can survive among installations, so cainjectot can waits up to 60s to become leader

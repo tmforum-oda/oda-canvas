@@ -7,7 +7,7 @@
 global:
   certificate:
     # -- Name of the certificate and webhook |
-    appName: "compcrdwebhook"
+    appName: "conversion-webhook "
 
 preqrequisitechecks:
   istio:  true 
@@ -126,8 +126,8 @@ component-operator:
   deployment:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
-    compopVersion: 0.8.0
-    compopPrereleaseSuffix: 
+    compopVersion: 1.0.0
+    compopPrereleaseSuffix: issue-419
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components'           # comma separated list of namespaces
@@ -139,8 +139,8 @@ identityconfig-operator-keycloak:
   deployment:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
-    idkopVersion: 0.2.0
-    idkopPrereleaseSuffix: 
+    idkopVersion: 1.0.0
+    idkopPrereleaseSuffix: issue-419
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
@@ -163,8 +163,8 @@ identityconfig-operator-keycloak:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 0.3.0
-  prereleaseSuffix: 
+  version: 1.0.0
+  prereleaseSuffix: issue-419
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   serviceInventoryAPI:
@@ -278,9 +278,9 @@ canvas-vault:
           tag: "1.14.8"
 
 secretsmanagement-operator:
-  image: tmforumodacanvas/secretsmanagement-operator
-  version: 0.1.3
-  prereleaseSuffix:
+  image: tmforumodacanvas/secretsmanagement-operator-vault
+  version: 1.0.0
+  prereleaseSuffix: issue-419
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
@@ -332,9 +332,9 @@ secretsmanagement-operator:
 
 
 oda-webhook:
-  image: tmforumodacanvas/compcrdwebhook
-  version: 0.12.0
-  prereleaseSuffix:  
+  image: tmforumodacanvas/conversion-webhook
+  version: 1.0.0
+  prereleaseSuffix: issue-419 
   imagePullPolicy: IfNotPresent
  
 # -----------------------------------------------------------------------------
@@ -346,8 +346,8 @@ api-operator-istio:
   deployment:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
-    apiopVersion: 0.2.0
-    apiopPrereleaseSuffix:
+    apiopVersion: 1.0.0
+    apiopPrereleaseSuffix: issue-419 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components'           # comma separated list of namespaces
@@ -413,11 +413,11 @@ kong-gateway:
     IstioGatewayServerhostName: "*"
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
-      repository: tmforumodacanvas/kong-operator:0.2.0
+      repository: tmforumodacanvas/api-operator-kong:1.0.0
       pullPolicy: IfNotPresent
-      kongopImage: tmforumodacanvas/kong-operator
-      kongopVersion: 0.2.0
-      kongopPrereleaseSuffix: 
+      kongopImage: tmforumodacanvas/api-operator-kong
+      kongopVersion: 1.0.0
+      kongopPrereleaseSuffix: issue-419 
 
 
 # -----------------------------------------------------------------------------
@@ -449,11 +449,11 @@ apisix-gateway:
     apisixoperatorreplicaCount: 1
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
-    repository: tmforumodacanvas/apisix-operator:0.2.0
+    repository: tmforumodacanvas/api-operator-apisix:1.0.0
     pullPolicy: IfNotPresent
-    apisixopImage: tmforumodacanvas/apisix-operator
-    apisixopVersion: 0.2.0
-    apisixopPrereleaseSuffix: 
+    apisixopImage: tmforumodacanvas/api-operator-apisix
+    apisixopVersion: 1.0.0
+    apisixopPrereleaseSuffix: issue-419 
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas

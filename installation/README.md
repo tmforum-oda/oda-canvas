@@ -14,6 +14,7 @@ For each release, we will support a min and max Kubernetes version.
 | v1beta2               | 1.22                   | 1.27                   |
 | v1beta3               | 1.22                   | 1.29                   |
 | v1beta4               | 1.22                   | 1.29                   |
+| v1                    | 1.22                   | 1.29                   |
 
 If you are connected to an ODA Canvas, to test what version of Canvas it is, use the command:
 
@@ -21,7 +22,7 @@ If you are connected to an ODA Canvas, to test what version of Canvas it is, use
 kubectl get crd components.oda.tmforum.org -o jsonpath='{.spec.versions[?(@.served==true)].name}'
 ```
 
-It will return the versions of components the canvas supports. A canvas should support N-2 versions of a component i.e. for the `v1beta4` canvas, it will support components that are v1beta4, v1beta3, v1beta2 (and v1beta1 with a deprecation warning).
+It will return the versions of components the canvas supports. A canvas should support N-2 versions of a component i.e. for the `v1` canvas, it will support components that are v1, v1beta4, v1beta3 (and v1beta2 with a deprecation warning).
 
 We will test the Reference Implementation Canvas against a range of kubernetes versions and on a number of different deployments.
 
@@ -235,7 +236,7 @@ canvas-keycloak-0                           1/1     Running     0          4m43s
 canvas-keycloak-keycloak-config-cli-5k6h7   0/1     Error       0          2m50s
 canvas-keycloak-keycloak-config-cli-fq5ph   1/1     Running     0          30s
 canvas-postgresql-0                         1/1     Running     0          4m43s
-compcrdwebhook-658f4868b8-48cvx             1/1     Running     0          4m43s
+conversion-webhook-658f4868b8-48cvx             1/1     Running     0          4m43s
 job-hook-postinstall-6bm99                  0/1     Completed   0          4m43s
 oda-controller-d5c495bbb-crt4t      2/2     Running     0          4m43s
 ```
@@ -263,7 +264,7 @@ canvas          canvas-keycloak-0                                 0/1     CrashL
 canvas          canvas-keycloak-keycloak-config-cli-9ks9d         0/1     Error              0             2m28s
 canvas          canvas-keycloak-keycloak-config-cli-cd2gv         0/1     Error              0             4m38s
 canvas          canvas-postgresql-0                               1/1     Running            0             6m11s
-canvas          compcrdwebhook-658f4868b8-v9sc2                   1/1     Running            0             6m11s
+canvas          conversion-webhook-658f4868b8-v9sc2                   1/1     Running            0             6m11s
 canvas          job-hook-postinstall-v56pt                        0/1     Completed          0             6m10
 ```
 

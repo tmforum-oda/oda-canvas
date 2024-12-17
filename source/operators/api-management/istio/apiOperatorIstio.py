@@ -44,7 +44,7 @@ HTTP_K8s_LABELS = ["http", "http2"]
 HTTP_STANDARD_PORTS = [80, 443]
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta4"
+VERSION = "v1"
 APIS_PLURAL = "exposedapis"
 COMPONENTS_PLURAL = "components"
 

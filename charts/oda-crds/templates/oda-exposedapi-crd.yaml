@@ -173,6 +173,171 @@ spec:
     # Each version can be enabled/disabled by Served flag.
     served: true
     # One and only one version must be marked as the storage version.
+    storage: false
+    deprecated: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+            properties:
+              name:
+                type: string
+                description: Name of the API
+              specification:  
+                type: array
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                      format: url
+                      description: url to the specification of the API. e.g. url to the swagger/OAS file
+                    version:
+                      type: string
+                      description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
+                description: >
+                  Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                minItems: 1
+              apiType:
+                type: string
+                enum:
+                - openapi
+                - prometheus
+                description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+              apiKeyVerification:
+                type: object
+                description: (optional) 
+                properties:
+                  enabled:
+                    type: boolean
+                    description: "(default: false) Enforce verification of API key"
+                  location:
+                    type: string
+                    description: (optional) Name of variable where API key value is expected
+              rateLimit:
+                type: object
+                description: (optional) The rate limit configuration for the API
+                properties:
+                  enabled:
+                    type: boolean
+                    description: "(default: false)"
+                  identifier:
+                    type: string
+                    description: Limit requests by this identifier when enforcing the rate limit
+                  limit:
+                    type: string
+                    description: The limit (count) of requests to allow for each identifier
+                  interval:
+                    type: string
+                    description: "(default: ps) The interval when enforcing the rate limit (ps or pm)"
+              quota:
+                type: object
+                description: (optional) Quota configuration
+                properties:
+                  identifier:
+                    type: string
+                    description: Identifier used for each quota counter
+                  limit:
+                    type: string
+                    description: Quota counter limit to enforce for each identifier
+              OASValidation:
+                type: object
+                description: (optional) Validate the request or response against the OpenAPI Specification file for the API
+                properties:
+                  requestEnabled:
+                    type: boolean
+                    description: "(default: false) Enable for the incoming request"
+                  responseEnabled:
+                    type: boolean
+                    description: "(default: false) Enable for the response"
+                  allowUnspecifiedHeaders:
+                    type: boolean
+                    description: "(default: false) (request only) Allow for headers that are not explicitly referenced in the OAS"
+                  allowUnspecifiedQueryParams:
+                    type: boolean
+                    description: "(default: false) (request only) Allow for query parameters that are not explicitly referenced in the OAS"
+                  allowUnspecifiedCookies:
+                    type: boolean
+                    description: "(default: false) (request only) Allow for cookies that are not explicitly referenced in the OAS"
+              CORS:
+                type: object
+                description: (optional) Cross-origin Resource Sharing
+                properties:
+                  enabled:
+                    type: boolean
+                    description: "(default: false)"
+                  allowCredentials:
+                    type: boolean
+                    description: "(default: false) Indicates whether the client is allowed to send the actual request (not the preflight request) using credentials. Translates to the Access-Control-Allow-Credentials header"
+                  allowOrigins:
+                    type: string
+                    description: "(default: *) CSV of origins allowed to access the resource. The Access-Control-Allow-Origin header will include the matched origin"
+                  handlePreflightRequests:
+                    type: object
+                    description: "(optional) Configuration for handling preflight OPTIONS requests"
+                    properties:
+                      enabled:
+                        type: boolean
+                        description: "(default: true) Indicates whether the API should handle OPTIONS preflight requests by generating a compliant response"
+                      allowHeaders:
+                        type: string
+                        description: "(default: Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers) CSV of HTTP headers than can be used. Translates to the Access-Control-Allow-Headers header"
+                      allowMethods:
+                        type: string
+                        description: "(default: GET, POST, HEAD, OPTIONS) CSV of HTTP methods allowed for the resource. Translates to the Access-Control-Allow-Methods header"
+                      maxAge:
+                        type: integer
+                        description: "(default: 1800) Specifies how long (in seconds) a client should cache the values of the Access-Control-Allow-Headers and Access-Control-Allow-Methods headers for each resource"
+              template:
+                type: string
+                description: (optional) The name of a pre-configured template to use for the API
+              implementation:
+                type: string
+                description: The name of the service where the implementation of the API is found
+              path:
+                type: string
+                description: The path to the root of the API
+              developerUI:
+                type: string
+                description: (optional) The path to the developer User Interface for the API
+              port:
+                type: integer
+                description: The port where the API is exposed
+              resources:
+                type: array
+                items:
+                  type: object
+                description: (optional) Resources is an optional list of resources that are exposed by the API.
+              required:
+                type: boolean
+                description: Required is a flag that indicates whether the API is required or not.
+            required:
+            - name
+            # TODO: inconsitentency in upper/lowercase writing
+            - apiType
+            - implementation
+            - path
+            - port            
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+    additionalPrinterColumns:
+    - name: API_endpoint
+      type: string
+      description: API endpoint Url
+      jsonPath: .status.apiStatus.url
+    - name: Implementation_ready
+      type: string
+      description: API implementation is ready - has passed startup probe checks
+      jsonPath: .status.implementation.ready
+  - name: "v1"
+    # Each version can be enabled/disabled by Served flag.
+    served: true
+    # One and only one version must be marked as the storage version.
     storage: true
     deprecated: false
     schema:

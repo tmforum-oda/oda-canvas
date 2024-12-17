@@ -15,18 +15,16 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.4
-
+version: 1.0.0
+# version: 1.0.0 - updated to use v1 of CRD spec
 # version: 0.1.4 - added with latest updates to v1beta4 crds
 # version: 0.1.3 - chart bundled with canvas-oda chart and job added to handle required istio-ingress type
 # version: 0.1.2 - updated appVersion to v1beta4
 # version: 0.1.1 - updated kong and apisix charts ,ssl now enabled on kong
 
-# This is the version number of the application being deployed. This version number should be
-# incremented each time you make changes to the application. Versions are not expected to
-# follow Semantic Versioning. They should reflect the version the application is using.
-# It is recommended to use it with quotes.
-appVersion: "1.16.0"
+# This is the version number of the application being deployed. We are versioning the canvas as the
+# version of the latest component spec that it supports.
+appVersion: "v1"
 
 dependencies:
 - name: kong

@@ -73,7 +73,7 @@ A Helm chart for Kubernetes
 | kong.proxy.tls.servicePort | int | `443` |  |
 | kong.proxy.type | string | `"LoadBalancer"` |  |
 | kongoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| kongoperatorimage.repository | string | `"ravijangra92/kong-operator:1.3"` |  |
+| kongoperatorimage.repository | string | `"ravijangra92/api-operator-kong:1.3"` |  |
 | kongoperatorreplicaCount | int | `1` |  |
 
 ----------------------------------------------

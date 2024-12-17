@@ -129,7 +129,7 @@ describe("Mandatory non-functional capabilities", function () {
         }).catch(done)
     })
     it("Canvas component versioning webhook is running", function (done) {
-        k8sAppsAPI.readNamespacedDeploymentStatus('compcrdwebhook', ReleaseNamespace).then((res) => {
+        k8sAppsAPI.readNamespacedDeploymentStatus('conversion-webhook', ReleaseNamespace).then((res) => {
             let unavailableReplicas = res.body.status.unavailableReplicas
             let readyReplicas = res.body.status.readyReplicas
             let replicas = res.body.status.replicas

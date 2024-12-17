@@ -16,11 +16,11 @@ import asyncio
 from log_wrapper import LogWrapper, logwrapper
 
 SMAN_GROUP = "oda.tmforum.org"
-SMAN_VERSION = "v1beta4"
+SMAN_VERSION = "v1"
 SMAN_PLURAL = "secretsmanagements"
 
 COMP_GROUP = "oda.tmforum.org"
-COMP_VERSION = "v1beta4"
+COMP_VERSION = "v1"
 COMP_PLURAL = "components"
 
 HTTP_NOT_FOUND = 404
