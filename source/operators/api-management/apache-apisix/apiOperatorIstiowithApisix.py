@@ -20,7 +20,7 @@ from kubernetes.client.rest import ApiException
 import os
 import re
 
-# Setup logging 
+# Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.WARNING)
