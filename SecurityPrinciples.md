@@ -42,7 +42,9 @@ That means things like: minimising, hardening and signing of containers; real in
 
 The RI has pre-requisites, features and operations needs. Each of these is clearly defined.
 
-The ODA Canvas is designed to fit into an existing enterprise, and certain assumptions are made about what that means. For example, the Canvas is designed in such a way that we minimised the footprint for identity management inside the Canvas and components and rely on that existing outside the Canvas before deployment. We define how the features of the Canvas integrate with that and provide open source examples of how to achieve that in the RI.
+The ODA Canvas is designed to fit into an existing enterprise, and certain assumptions are made about what that means. Features are either external prerequisites, component features, Canvas features or operational tasks specific to the RI. We document them, usually in the installation guide, so that it is clear what scope a feature falls under.
+
+For example, the Canvas is designed in such a way that we minimised the footprint for identity management inside the Canvas and components and rely on that existing outside the Canvas before deployment. We define how the features of the Canvas integrate with that and provide open source examples of how to achieve that in the RI.
 
 Where certain tasks are individual to different enterprises and the TM Forum is not opinionated, we've provided SRE automations that perform those tasks for us in a lightweight way. A good example of that is how machine/system user credentials are passed from identity management to the component. This will vary from organisation to organisation depending on the identity product, and the enterprise process, so the Canvas has a method for safely gathering credentials from the RI identity platform and passing them to components. It's not part of the ODA Standards and we don't expect our simple method to be used anywhere, it simply serves an operational need for us in the RI.
 
