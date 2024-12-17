@@ -237,7 +237,7 @@ After(async function (scenario) {
         console.log()
         console.log('==================================================================')
         console.log('Operator logs for : dependent-api-simple-operator', null)
-        console.log(await resourceInventoryUtils.getOperatorLogs('dependent-api-simple-operator'))  
+        console.log(await resourceInventoryUtils.getOperatorLogs('canvas-depapi-op'))  
       } catch (error) {
         console.log('Error getting operator logs: ' + error)
       }
