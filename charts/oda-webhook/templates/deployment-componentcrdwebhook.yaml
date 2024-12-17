@@ -28,5 +28,5 @@ spec:
       volumes:
         - name: secret-volume
           secret:
-            secretName: conversion-webhook-secret
+            secretName: compcrdwebhook-secret
 

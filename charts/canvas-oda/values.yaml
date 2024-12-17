@@ -170,8 +170,8 @@ dependentapi-simple-operator:
   serviceInventoryAPI:
     enabled: true
     image: tmforumodacanvas/tmf638-service-inventory-api
-    version: 0.1.2
-    prereleaseSuffix: 
+    version: 1.0.0
+    prereleaseSuffix:  issue-419
     imagePullPolicy: IfNotPresent
     serverUrl: http://info.canvas.svc.cluster.local
     mongodb:

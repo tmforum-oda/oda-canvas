@@ -96,8 +96,8 @@ dependencies:
   - name: kong-gateway
     version: "1.0.0"
     repository: 'file://../kong-gateway'
-    condition: api-operator-kong.enabled
+    condition: kong-gateway-install.enabled
   - name: apisix-gateway
     version: "1.0.0"
     repository: 'file://../apisix-gateway'
-    condition: api-operator-apisix.enabled
+    condition: apisix-gateway-install.enabled
