@@ -178,7 +178,7 @@ APISIX is an open-source, dynamic, real-time, high-performance API gateway. The 
 To install the APISIX Gateway along with the APISIX Operator, run the following command:
 
 
-    helm install apisix oda-canvas/canvas-api-gateway -n ingress-apisix --create-namespace --set apisix-gateway-install.enabled=true
+    helm install apisix oda-canvas/canvas-api-gateway -n ingress-apisix --create-namespace --set api-operator-apisix.enabled=true
 
 or
 
@@ -193,7 +193,7 @@ Prerequisite: Install the Gateway API CRDs if required to enable the advanced ne
     
 To install the Kong Gateway along with the Kong Operator, run the following command:
 
-    helm install kong oda-canvas/canvas-api-gateway -n kong --create-namespace --set kong-gateway-install.enabled=true
+    helm install kong oda-canvas/canvas-api-gateway -n kong --create-namespace --set api-operator-kong.enabled=true
 
 ## Troubleshooting
 

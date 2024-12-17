@@ -367,7 +367,7 @@ api-operator-istio:
 # Kong operator and sub-chart parameters
 # -----------------------------------------------------------------------------
 
-kong-gateway-install:
+api-operator-kong:
   enabled: false  # Enable kong-gateway if needed
 kongnamespace: kong
 kong-gateway:
@@ -425,7 +425,7 @@ kong-gateway:
 # -----------------------------------------------------------------------------
 
 
-apisix-gateway-install:
+api-operator-apisix:
   enabled: false  # Enable apisix-gateway if needed
 
 apisix-gateway:

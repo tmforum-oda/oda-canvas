@@ -12,7 +12,7 @@
         },
         "required": ["enabled"]
       },
-      "kong-gateway-install": {
+      "api-operator-kong": {
         "type": "object",
         "properties": {
           "enabled": {
@@ -22,7 +22,7 @@
         },
         "required": ["enabled"]
       },
-      "apisix-gateway-install": {
+      "api-operator-apisix": {
         "type": "object",
         "properties": {
           "enabled": {
@@ -41,12 +41,12 @@
               "enabled": { "const": true }
             }
           },
-          "kong-gateway-install": {
+          "api-operator-kong": {
             "properties": {
               "enabled": { "const": false }
             }
           },
-          "apisix-gateway-install": {
+          "api-operator-apisix": {
             "properties": {
               "enabled": { "const": false }
             }
@@ -60,12 +60,12 @@
               "enabled": { "const": false }
             }
           },
-          "kong-gateway-install": {
+          "api-operator-kong": {
             "properties": {
               "enabled": { "const": true }
             }
           },
-          "apisix-gateway-install": {
+          "api-operator-apisix": {
             "properties": {
               "enabled": { "const": false }
             }
@@ -79,12 +79,12 @@
               "enabled": { "const": false }
             }
           },
-          "kong-gateway-install": {
+          "api-operator-kong": {
             "properties": {
               "enabled": { "const": false }
             }
           },
-          "apisix-gateway-install": {
+          "api-operator-apisix": {
             "properties": {
               "enabled": { "const": true }
             }
@@ -92,6 +92,6 @@
         }
       }
     ],
-    "errorMessage": "Only one of api-operator-istio.enabled, kong-gateway-install.enabled, or apisix-gateway-install.enabled must be true."
+    "errorMessage": "Only one of api-operator-istio.enabled, api-operator-kong.enabled, or api-operator-apisix.enabled must be true."
   }
   
