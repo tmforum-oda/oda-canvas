@@ -8,7 +8,7 @@ A Helm chart to deploy the webhook following pattern in https://kubernetes.io/do
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| image | string | `"tmforumodacanvas/conversion-webhook "` |  |
+| image | string | `"tmforumodacanvas/compcrdwebhook "` |  |
 | imagePullPolicy | string | `"IfNotPresent"` |  |
 | prereleaseSuffix | string | `nil` |  |
 | version | string | `"0.11.0"` |  |

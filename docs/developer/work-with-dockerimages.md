@@ -41,24 +41,24 @@ E.g. for oda-webhook:
 ```
 ...
 oda-webhook:
-  image: tmforumodacanvas/conversion-webhook
+  image: tmforumodacanvas/compcrdwebhook
   version: 0.6.3
   prereleaseSuffix: issue123
 ```
 
-The full dockerimage is put together as "tmforumodacanvas/conversion-webhook:1.0.0".
+The full dockerimage is put together as "tmforumodacanvas/compcrdwebhook:1.0.0".
 
 If there is no prereleaseSuffix, the seperator "-" is ommitted: 
 
 ```
 ...
 oda-webhook:
-  image: tmforumodacanvas/conversion-webhook
+  image: tmforumodacanvas/compcrdwebhook
   version: 0.6.2
   prereleaseSuffix:
 ```
 
-The full docker image is "tmforumodacanvas/conversion-webhook:1.0.0"
+The full docker image is "tmforumodacanvas/compcrdwebhook:1.0.0"
 
 The advantage of using the values.yaml as source for the dockerimage names is,
 that when deploying the canvas-oda chart from the filesystem all docker images exist, because they are automatically build on code changes.

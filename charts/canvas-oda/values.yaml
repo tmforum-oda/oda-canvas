@@ -7,7 +7,7 @@
 global:
   certificate:
     # -- Name of the certificate and webhook |
-    appName: "conversion-webhook "
+    appName: "compcrdwebhook "
 
 preqrequisitechecks:
   istio:  true 
@@ -332,7 +332,7 @@ secretsmanagement-operator:
 
 
 oda-webhook:
-  image: tmforumodacanvas/conversion-webhook
+  image: tmforumodacanvas/compcrdwebhook
   version: 1.0.0
   prereleaseSuffix: issue-419 
   imagePullPolicy: IfNotPresent

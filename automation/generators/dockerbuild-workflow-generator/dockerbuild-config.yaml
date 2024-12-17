@@ -1,6 +1,6 @@
-conversion-webhook :
+compcrdwebhook :
   displayName: Component-CRD-Webhook
-  fileName: conversion-webhook 
+  fileName: compcrdwebhook 
   
   valuesYamlFile: charts/canvas-oda/values.yaml
   valuesPathImage: .oda-webhook.image

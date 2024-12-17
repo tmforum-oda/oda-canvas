@@ -1,6 +1,6 @@
 # Implementation
 
-The webhook requires a TLS certificate. The certificate is created and signed as part of the Canvas Install script. The script puts the tls certificate and key in a secret called `conversion-webhook-secret`.
+The webhook requires a TLS certificate. The certificate is created and signed as part of the Canvas Install script. The script puts the tls certificate and key in a secret called `compcrdwebhook-secret`.
 
 
 ## Accessing certificate in NodeJS implementation
@@ -38,7 +38,7 @@ The `oda-component-crd.yaml` file has an section that refers to the webhook stra
         caBundle: {{ .Values.global.clusterCABundle }}
         service:
           namespace: canvas
-          name: conversion-webhook
+          name: compcrdwebhook
           path: /
           port: 443
 ```

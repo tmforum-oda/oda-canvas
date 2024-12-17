@@ -18,7 +18,7 @@ on:
       - source/webhooks/implementation/**/*
 
 jobs:
-  build-conversion-webhook-prerelease-dockerfile-job:
+  build-compcrdwebhook-prerelease-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -28,13 +28,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of conversion-webhook from values.yaml
+      - name: read image of compcrdwebhook from values.yaml
         id: get_values_image
         uses: mikefarah/yq@master
         with:
           cmd: yq '.oda-webhook.image' charts/canvas-oda/values.yaml
           
-      - name: read versionnumber of conversion-webhook from values.yaml
+      - name: read versionnumber of compcrdwebhook from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
@@ -50,7 +50,7 @@ jobs:
               echo "::error::Version ${{ steps.get_values_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
           fi        
 
-      - name: read release versionnumber of conversion-webhook from values.yaml
+      - name: read release versionnumber of compcrdwebhook from values.yaml
         id: get_values_release_version
         uses: mikefarah/yq@master
         with:

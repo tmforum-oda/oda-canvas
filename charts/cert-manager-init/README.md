@@ -17,9 +17,9 @@ A Helm chart for installing the cert manager
 | cert-manager.enabled | bool | `true` |  |
 | cert-manager.installCRDs | bool | `true` |  |
 | cert-manager.namespace | string | `"cert-manager"` |  |
-| certificate.appName | string | `"conversion-webhook "` |  |
+| certificate.appName | string | `"compcrdwebhook "` |  |
 | fullnameOverride | string | `""` |  |
-| global.certificate.appName | string | `"conversion-webhook "` |  |
+| global.certificate.appName | string | `"compcrdwebhook "` |  |
 | istioCert.certificate.duration | string | `"21600h"` |  |
 | istioCert.certificate.renewBefore | string | `"360h"` |  |
 | istioCert.namespace | string | `"istio-ingress"` |  |

@@ -236,7 +236,7 @@ canvas-keycloak-0                           1/1     Running     0          4m43s
 canvas-keycloak-keycloak-config-cli-5k6h7   0/1     Error       0          2m50s
 canvas-keycloak-keycloak-config-cli-fq5ph   1/1     Running     0          30s
 canvas-postgresql-0                         1/1     Running     0          4m43s
-conversion-webhook-658f4868b8-48cvx             1/1     Running     0          4m43s
+compcrdwebhook-658f4868b8-48cvx             1/1     Running     0          4m43s
 job-hook-postinstall-6bm99                  0/1     Completed   0          4m43s
 oda-controller-d5c495bbb-crt4t      2/2     Running     0          4m43s
 ```
@@ -264,7 +264,7 @@ canvas          canvas-keycloak-0                                 0/1     CrashL
 canvas          canvas-keycloak-keycloak-config-cli-9ks9d         0/1     Error              0             2m28s
 canvas          canvas-keycloak-keycloak-config-cli-cd2gv         0/1     Error              0             4m38s
 canvas          canvas-postgresql-0                               1/1     Running            0             6m11s
-canvas          conversion-webhook-658f4868b8-v9sc2                   1/1     Running            0             6m11s
+canvas          compcrdwebhook-658f4868b8-v9sc2                   1/1     Running            0             6m11s
 canvas          job-hook-postinstall-v56pt                        0/1     Completed          0             6m10
 ```
 

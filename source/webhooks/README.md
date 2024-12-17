@@ -22,7 +22,7 @@ The Webhook allows you to create custom code to support Kubernetes in converting
         caBundle: LS0tLS1CRUdJTiB--Details Removed--Q0FURS0tLS0tCg==
         service:
           namespace: canvas
-          name: conversion-webhook
+          name: compcrdwebhook
           path: /
           port: 443
 ```
