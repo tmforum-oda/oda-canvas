@@ -68,7 +68,7 @@ const CoreCommerceComponents = ["TMFC001", "TMFC002", "TMFC003", "TMFC005", "TMF
 const ProductionComponents = ["TMFC006", "TMFC007", "TMFC008", "TMFC009", "TMFC010", "TMFC010", "TMFC011", "TMFC012", "TMFC013", "TMFC014", "TMFC015"]
 
 
-// the first argument shows if we are in test mode or not
+// the first argument shows if we are in test mode or not 
 var testMode = args[0] === 'test';
 
 if (testMode) {
