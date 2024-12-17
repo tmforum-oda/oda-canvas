@@ -21,8 +21,8 @@ The project is released under the Apache 2 license. Please ensure that you have 
 
 ## Do you need a new feature?
 
-
+Raise an issue describing the feature you need and how you might implement it before starting to code. Any feature that is applied to the codebase will eventually become part of the TM Forum Open Digital Architecture standard, so new features may need ratifying before implementation. We can have that discussion with you as part of the issue and nail the feature down in a way that will be acceptable to members before development work starts.
 
 ## Anything else?
 
-Please contact us directly at ??????????????????/.
+Please contact us directly at components@tmforum.org.
