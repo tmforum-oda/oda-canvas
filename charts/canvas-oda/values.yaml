@@ -7,7 +7,7 @@
 global:
   certificate:
     # -- Name of the certificate and webhook |
-    appName: "compcrdwebhook "
+    appName: "compcrdwebhook"
 
 preqrequisitechecks:
   istio:  true 
