@@ -367,10 +367,10 @@ api-operator-istio:
 # Kong operator and sub-chart parameters
 # -----------------------------------------------------------------------------
 
-api-operator-kong:
+kong-gateway-install:
   enabled: false  # Enable kong-gateway if needed
 kongnamespace: kong
-kong-gateway:
+api-operator-kong:
     kong:
       postgresql:
         nameOverride: "postgresql-kong"
@@ -425,10 +425,10 @@ kong-gateway:
 # -----------------------------------------------------------------------------
 
 
-api-operator-apisix:
+apisix-gateway-install:
   enabled: false  # Enable apisix-gateway if needed
 
-apisix-gateway:
+api-operator-apisix:
   apisix:
     apisix:
       ssl:
