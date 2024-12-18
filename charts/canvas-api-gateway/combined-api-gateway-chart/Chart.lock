@@ -1,9 +1,0 @@
-dependencies:
-- name: kong-gateway
-  repository: file://../combined-api-gateway-chart/kong-gateway
-  version: 0.1.1
-- name: apisix-gateway
-  repository: file://../combined-api-gateway-chart/apisix-gateway
-  version: 0.1.1
-digest: sha256:557cd6093b81ca39eb688325cbf0214a6e14a794eb553af0dfcff28ecacaab44
-generated: "2024-12-16T10:52:53.9143741Z"
