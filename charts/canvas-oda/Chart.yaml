@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.1.8-lt6
+version: 1.1.8
+# version: 1.1.8     - released version
 # version: 1.1.8-lt6 - final changes to v1beta4 crd
 # version: 1.1.8-lt5 - updated istio,kong and apisix charts , added value validation schema , added canvas uninstall security to avoid uninstall in presence of components
 # version: 1.1.8-lt4 - Refactored and separated identity config operator from component operator
