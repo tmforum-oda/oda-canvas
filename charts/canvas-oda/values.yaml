@@ -127,7 +127,7 @@ component-operator:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
     compopVersion: 1.0.0
-    compopPrereleaseSuffix: issue-419
+    compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components'           # comma separated list of namespaces
@@ -140,7 +140,7 @@ identityconfig-operator-keycloak:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
     idkopVersion: 1.0.0
-    idkopPrereleaseSuffix: issue-419
+    idkopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
@@ -164,14 +164,14 @@ dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 1.0.0
-  prereleaseSuffix: issue-419
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   serviceInventoryAPI:
     enabled: true
     image: tmforumodacanvas/tmf638-service-inventory-api
     version: 1.0.0
-    prereleaseSuffix:  issue-419
+    prereleaseSuffix:  
     imagePullPolicy: IfNotPresent
     serverUrl: http://info.canvas.svc.cluster.local
     mongodb:
@@ -280,7 +280,7 @@ canvas-vault:
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator-vault
   version: 1.0.0
-  prereleaseSuffix: issue-419
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
@@ -334,7 +334,7 @@ secretsmanagement-operator:
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
   version: 1.0.0
-  prereleaseSuffix: issue-419 
+  prereleaseSuffix:  
   imagePullPolicy: IfNotPresent
  
 # -----------------------------------------------------------------------------
@@ -347,7 +347,7 @@ api-operator-istio:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
     apiopVersion: 1.0.0
-    apiopPrereleaseSuffix: issue-419 
+    apiopPrereleaseSuffix:  
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components'           # comma separated list of namespaces
@@ -417,7 +417,7 @@ api-operator-kong:
       pullPolicy: IfNotPresent
       kongopImage: tmforumodacanvas/api-operator-kong
       kongopVersion: 1.0.0
-      kongopPrereleaseSuffix: issue-419 
+      kongopPrereleaseSuffix:  
 
 
 # -----------------------------------------------------------------------------
@@ -453,7 +453,7 @@ api-operator-apisix:
     pullPolicy: IfNotPresent
     apisixopImage: tmforumodacanvas/api-operator-apisix
     apisixopVersion: 1.0.0
-    apisixopPrereleaseSuffix: issue-419 
+    apisixopPrereleaseSuffix:  
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas
