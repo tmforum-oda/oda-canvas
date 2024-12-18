@@ -60,7 +60,7 @@ var httpsServer, httpServer;
 // get command line arguments
 var args = process.argv.slice(2);
 
-const supportedAPIVersions = ["oda.tmforum.org/v1beta1", "oda.tmforum.org/v1beta2", "oda.tmforum.org/v1beta3", "oda.tmforum.org/v1beta4"]
+const supportedAPIVersions = ["oda.tmforum.org/v1beta2", "oda.tmforum.org/v1beta3", "oda.tmforum.org/v1beta4", "oda.tmforum.org/v1"]
 
 // reference data to support functional block mapping
 const PartyManagementComponents = ["TMFC020", "TMFC022", "TMFC023", "TMFC024", "TMFC025"]
@@ -68,7 +68,7 @@ const CoreCommerceComponents = ["TMFC001", "TMFC002", "TMFC003", "TMFC005", "TMF
 const ProductionComponents = ["TMFC006", "TMFC007", "TMFC008", "TMFC009", "TMFC010", "TMFC010", "TMFC011", "TMFC012", "TMFC013", "TMFC014", "TMFC015"]
 
 
-// the first argument shows if we are in test mode or not
+// the first argument shows if we are in test mode or not 
 var testMode = args[0] === 'test';
 
 if (testMode) {
@@ -115,39 +115,8 @@ app.post("/", (req, res, next) => {
       // upgrade previous versions to the latest versions
       // ****************************************************
 
-      // if the oldAPIVersion is v1beta1 and newVersion is v1beta2 or v1beta3 or v1beta4 then:
-      // - add the metadata for functionalBlock
-      // - rename security and management segments to securityFunction and managementFunction
-      // - split type into two fields id and name
-      if (apiVersion.mapOldToNew(["v1beta1"], ["v1beta2", "v1beta3", "v1beta4"])) {
-
-        console.log("rename security and management segments to securityFunction and managementFunction")
-        objectsArray[key].spec.managementFunction = objectsArray[key].spec.management
-        delete objectsArray[key].spec.management
-        objectsArray[key].spec.securityFunction = objectsArray[key].spec.security
-        delete objectsArray[key].spec.security
-
-        console.log("split type into two fields id and name")
-        objectsArray[key].spec.id = objectsArray[key].spec.type.split('-')[0]
-        objectsArray[key].spec.name = objectsArray[key].spec.type.split('-')[1]
-        delete objectsArray[key].spec.type
-
-        console.log("add the metadata for functionalBlock")
-        if (!objectsArray[key].spec.functionalBlock) {
-          if (CoreCommerceComponents.includes(objectsArray[key].spec.id)) {
-            objectsArray[key].spec.functionalBlock = 'CoreCommerce'
-          } else if (PartyManagementComponents.includes(objectsArray[key].spec.id)) {
-            objectsArray[key].spec.functionalBlock = 'PartyManagement'
-          } else if (ProductionComponents.includes(objectsArray[key].spec.id)) {
-            objectsArray[key].spec.functionalBlock = 'Production'
-          } else {
-            objectsArray[key].spec.functionalBlock = 'Unknown'
-          }
-        }
-      }
-
       // update the eventNotification segments and change exposedAPI specification to an array of 1 and apitype to apiType
-      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2"], ["v1beta3", "v1beta4"])) {
+      if (apiVersion.mapOldToNew(["v1beta2"], ["v1beta3", "v1beta4", "v1"])) {
         console.log("Update eventNotification segments");
         
         if (objectsArray[key].spec.eventNotification) {
@@ -232,7 +201,7 @@ app.post("/", (req, res, next) => {
       // rename securityFunction.controllerRole to canvasSystemRole,
       // change specification array to arroy objects with url and version for each exposed API
 
-      if (apiVersion.mapOldToNew(["v1beta1", "v1beta2", "v1beta3"], ["v1beta4"])) {
+      if (apiVersion.mapOldToNew(["v1beta2", "v1beta3"], ["v1beta4", "v1"])) {
         console.log("move relevant properties to componentMetadata");
 
         objectsArray[key].spec.componentMetadata = {};
@@ -317,7 +286,7 @@ app.post("/", (req, res, next) => {
       // move the  gatewayConfiguration to the exposedAPI root level for each exposedAPI,
       // rename securityFunction.canvasSystemRole to controllerRole and
       // change specification array to a string for each exposed API
-      if (apiVersion.mapOldToNew(["v1beta4"], ["v1beta1", "v1beta2", "v1beta3"])) {
+      if (apiVersion.mapOldToNew(["v1beta4", "v1"], ["v1beta2", "v1beta3"])) {
         if (objectsArray[key].spec.componentMetadata) {
           // for each property in componentMetadata, move it to the root level
           console.log("Move properties from componentMetadata to root");
@@ -391,7 +360,7 @@ app.post("/", (req, res, next) => {
       }  
 
       // change the eventNotification segments and change exposedAPI specification from an array to string
-      if (apiVersion.mapOldToNew(["v1beta3", "v1beta4"], ["v1beta1", "v1beta2"])) {
+      if (apiVersion.mapOldToNew(["v1beta3", "v1beta4", "v1"], ["v1beta2"])) {
         if (objectsArray[key].spec.eventNotification) {
           if (objectsArray[key].spec.eventNotification.publishedEvents && 
             Array.isArray(objectsArray[key].spec.eventNotification.publishedEvents) && 
@@ -457,26 +426,6 @@ app.post("/", (req, res, next) => {
             delete objectsArray[key].spec.securityFunction.exposedAPIs[api].apiType;
           }
         }    
-      }  
-
-      // if the oldAPIVersion is v1beta2, v1beta3, v1beta4 and newVersion is v1beta1 then:
-      // - remove the metadata for functionalBlock
-      // - rename securityFunction and managementFunction segments to security and management  
-      // - join id and name fields to create type 
-      if (apiVersion.mapOldToNew(["v1beta2", "v1beta3", "v1beta4"], ["v1beta1"])) {
-        console.log("rename securityFunction and managementFunction segments to security and management")
-        objectsArray[key].spec.management = objectsArray[key].spec.managementFunction
-        delete objectsArray[key].spec.managementFunction
-        objectsArray[key].spec.security = objectsArray[key].spec.securityFunction
-        delete objectsArray[key].spec.securityFunction
-
-        console.log("join id and name fields to create type")
-        objectsArray[key].spec.type = objectsArray[key].spec.id + '-' + objectsArray[key].spec.name
-        delete objectsArray[key].spec.id
-        delete objectsArray[key].spec.name
-        
-        console.log("remove the metadata for functionalBlock")
-        delete objectsArray[key].spec.functionalBlock
       }   
       
       objectsArray[key].apiVersion = desiredAPIVersion;

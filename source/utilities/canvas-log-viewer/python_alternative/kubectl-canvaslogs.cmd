@@ -29,11 +29,11 @@ if "%OPERATOR%" == "comp" (
 	GOTO :eof
 )
 if "%OPERATOR%" == "sman" (
-	kubectl logs -n canvas deployment/canvas-smanop %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
+	kubectl logs -n canvas deployment/secretsmanagement-operator-vault %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
 	GOTO :eof
 )
 if "%OPERATOR%" == "depapi" (
-	kubectl logs -n canvas deployment/canvas-depapi-op %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
+	kubectl logs -n canvas deployment/dependent-api-simple-operator %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
 	GOTO :eof
 )
 if "%OPERATOR%" == "apiistio" (

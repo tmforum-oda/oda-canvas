@@ -236,7 +236,7 @@ After(async function (scenario) {
         console.log(await resourceInventoryUtils.getOperatorLogs('identityconfig-operator-keycloak', 'identityconfig-operator-keycloak'))  
         console.log()
         console.log('==================================================================')
-        console.log('Operator logs for : canvas-depapi-op', null)
+        console.log('Operator logs for : dependent-api-simple-operator', null)
         console.log(await resourceInventoryUtils.getOperatorLogs('canvas-depapi-op'))  
       } catch (error) {
         console.log('Error getting operator logs: ' + error)

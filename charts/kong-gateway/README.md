@@ -1,6 +1,6 @@
 # kong-gateway
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.16.0](https://img.shields.io/badge/AppVersion-1.16.0-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -43,7 +43,7 @@ A Helm chart for Kubernetes
 | kong.env.database | string | `"postgres"` |  |
 | kong.env.nginx_worker_processes | string | `"2"` |  |
 | kong.env.pg_database | string | `"kong"` |  |
-| kong.env.pg_host | string | `"kong-postgresql.kong.svc.cluster.local"` |  |
+| kong.env.pg_host | string | `"canvas-postgresql.canvas.svc.cluster.local"` |  |
 | kong.env.pg_password | string | `"kong"` |  |
 | kong.env.pg_user | string | `"kong"` |  |
 | kong.env.portal_api_access_log | string | `"/dev/stdout"` |  |
@@ -72,8 +72,10 @@ A Helm chart for Kubernetes
 | kong.proxy.tls.parameters[0] | string | `"http2"` |  |
 | kong.proxy.tls.servicePort | int | `443` |  |
 | kong.proxy.type | string | `"LoadBalancer"` |  |
+| kongistiooperatordeploymentnamespace | string | `"canvas"` |  |
+| kongnamespace | string | `"kong"` |  |
 | kongoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| kongoperatorimage.repository | string | `"ravijangra92/kong-operator:1.3"` |  |
+| kongoperatorimage.repository | string | `"tmforumodacanvas/api-operator-kong:1.0.0"` |  |
 | kongoperatorreplicaCount | int | `1` |  |
 
 ----------------------------------------------

@@ -32,7 +32,7 @@ logger = logging.getLogger("APIOperator")
 logger.setLevel(int(logging_level))
 
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta4"
+VERSION = "v1"
 APIS_PLURAL = "exposedapis"
 
 group = "gateway.networking.k8s.io"  # API group for Gateway API

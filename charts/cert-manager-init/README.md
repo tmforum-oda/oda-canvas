@@ -1,6 +1,6 @@
 # cert-manager-init
 
-![Version: 1.0.2](https://img.shields.io/badge/Version-1.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1beta4](https://img.shields.io/badge/AppVersion-v1beta4-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
 
 A Helm chart for installing the cert manager
 
@@ -17,9 +17,9 @@ A Helm chart for installing the cert manager
 | cert-manager.enabled | bool | `true` |  |
 | cert-manager.installCRDs | bool | `true` |  |
 | cert-manager.namespace | string | `"cert-manager"` |  |
-| certificate.appName | string | `"compcrdwebhook"` |  |
+| certificate.appName | string | `"compcrdwebhook "` |  |
 | fullnameOverride | string | `""` |  |
-| global.certificate.appName | string | `"compcrdwebhook"` |  |
+| global.certificate.appName | string | `"compcrdwebhook "` |  |
 | istioCert.certificate.duration | string | `"21600h"` |  |
 | istioCert.certificate.renewBefore | string | `"360h"` |  |
 | istioCert.namespace | string | `"istio-ingress"` |  |

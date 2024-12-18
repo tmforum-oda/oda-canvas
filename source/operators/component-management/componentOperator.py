@@ -48,23 +48,23 @@ componentname_label = os.getenv("COMPONENTNAME_LABEL", "oda.tmforum.org/componen
 HTTP_CONFLICT = 409
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta4"
+VERSION = "v1"
 EXPOSEDAPIS_PLURAL = "exposedapis"
 EXPOSEDAPI_KIND = "ExposedAPI"
 COMPONENTS_PLURAL = "components"
 
 SECRETSMANAGEMENT_GROUP = "oda.tmforum.org"
-SECRETSMANAGEMENT_VERSION = "v1beta4"
+SECRETSMANAGEMENT_VERSION = "v1"
 SECRETSMANAGEMENT_PLURAL = "secretsmanagements"
 SECRETSMANAGEMENT_KIND = "SecretsManagement"
 
 IDENTITYCONFIG_GROUP = "oda.tmforum.org"
-IDENTITYCONFIG_VERSION = "v1beta4"
+IDENTITYCONFIG_VERSION = "v1"
 IDENTITYCONFIG_PLURAL = "identityconfigs"
 IDENTITYCONFIG_KIND = "IdentityConfig"
 
 DEPENDENTAPI_GROUP = "oda.tmforum.org"
-DEPENDENTAPI_VERSION = "v1beta4"
+DEPENDENTAPI_VERSION = "v1"
 DEPENDENTAPI_PLURAL = "dependentapis"
 DEPENDENTAPI_KIND = "DependentAPI"
 

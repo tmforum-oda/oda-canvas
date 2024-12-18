@@ -1,5 +1,5 @@
-image: tmforumodacanvas/secretsmanagement-operator
-version: 0.1.3
+image: tmforumodacanvas/secretsmanagement-operator-vault
+version: 1.0.0
 prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 

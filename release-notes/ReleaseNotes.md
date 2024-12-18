@@ -2,11 +2,22 @@
 
 This page shows the ODA Component specification for each release version, with a comparison to the previous version. The ODA Component specification is defined using the [Open API Specification v3](https://swagger.io/specification/).
 
+## v1 - December 18th 2024
 
+This is the general availability version of the component specification. There are no changes since v1beta4.
+
+The OAS Specification can be found at [oda-component-oas-v1.yaml](oda-component-oas-v1.yaml).
 
 ## v1beta4 - October 16th 2024
 
-Version v1beta4 has been created to capture new features. At present it is identical to v1beta3.
+The OAS Specification can be found at [oda-component-oas-v1beta4.yaml](oda-component-oas-v1beta4.yaml).
+
+Changes since v1beta3:
+
+* `eTom`, `SID` and `functionalFramework` were added to the component spec.
+* The component metadata (`id`, `name`, `version`, `description`, `functionalBlock`, `publicationDate`, `eTom`, `SID`, `functionalFramework`, `maintainers`, `owners`) has been grouped into a `componentMetadata` object.
+* Each `exposedAPI` and `dependentAPI` now has an `id` TMFxxx (e.g. TMF620 for Product Catalog Management) and a `version`. An `exposedAPI` or `dependentAPI` can allow one or more versions of the same API.
+* The `controllerRole` within `securityManagement` was renamed to `canvasSystemRole`.
 
 ## v1beta3 - August 12th 2024
 

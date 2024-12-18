@@ -1,6 +1,6 @@
 # component-operator
 
-![Version: 1.2.2](https://img.shields.io/badge/Version-1.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1beta4](https://img.shields.io/badge/AppVersion-v1beta4-informational?style=flat-square)
+![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
 
 A helm chart to deploy the component operator
 
@@ -15,7 +15,7 @@ A helm chart to deploy the component operator
 | deployment.compopImage | string | `"tmforumodacanvas/component-operator"` |  |
 | deployment.compopImagePullPolicy | string | `"IfNotPresent"` |  |
 | deployment.compopPrereleaseSuffix | string | `nil` |  |
-| deployment.compopVersion | string | `"0.6.1"` |  |
+| deployment.compopVersion | string | `"1.0.0"` |  |
 | deployment.credentialName | string | `"istio-ingress-cert"` |  |
 | deployment.dataDog.enabled | bool | `false` |  |
 | deployment.hostName | string | `"*"` |  |

@@ -13,6 +13,6 @@ Feature: UC003-F001 Expose APIs: Create API Resource
 
     Examples:
        | Name           | PackageName            | ResourceName             | ComponentName            | SegmentName        | ApiCount |
-       | Core API       | productcatalog-v1beta4 | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1        |
-       | Management API | productcatalog-v1beta4 | metrics                  | productcatalogmanagement | managementFunction | 1        |
-       | Security API   | productcatalog-v1beta4 | partyrole                | productcatalogmanagement | securityFunction   | 1        |
+       | Core API       | productcatalog-v1 | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1        |
+       | Management API | productcatalog-v1 | metrics                  | productcatalogmanagement | managementFunction | 1        |
+       | Security API   | productcatalog-v1 | partyrole                | productcatalogmanagement | securityFunction   | 1        |

@@ -8,11 +8,11 @@ Feature: UC007-F002 Dependent APIs: Configure Dependent API to single downstream
 
     Scenario Outline: Configure DependentAPI for single downstream productcatalog component
         # Install a downstream retail productcatalog component as release r-cat
-        Given I install the 'productcatalog-v1beta4' package as release 'r-cat'
+        Given I install the 'productcatalog-v1' package as release 'r-cat'
         And the 'productcatalogmanagement' component has a deployment status of 'Complete'
         And I should see the 'productcatalogmanagement' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
         # Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
-        When I install the 'productcatalog-dependendent-API-v1beta4' package as release 'f-cat'
+        When I install the 'productcatalog-dependendent-API-v1' package as release 'f-cat'
         Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'productcatalogmanagement' component with a ready status
         And the 'productcatalogmanagement' component has a deployment status of 'Complete'
 

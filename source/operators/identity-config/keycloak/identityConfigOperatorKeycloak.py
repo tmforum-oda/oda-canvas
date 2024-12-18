@@ -66,11 +66,11 @@ canvassystem_user = "canvassystem"
 kc = Keycloak(kcBaseURL)
 
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta4"
+VERSION = "v1"
 COMPONENTS_PLURAL = "components"
 
 IDENTITYCONFIG_GROUP = "oda.tmforum.org"
-IDENTITYCONFIG_VERSION = "v1beta4"
+IDENTITYCONFIG_VERSION = "v1"
 IDENTITYCONFIG_PLURAL = "identityconfigs"
 IDENTITYCONFIG_KIND = "IdentityConfig"
 

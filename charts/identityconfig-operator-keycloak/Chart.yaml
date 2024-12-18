@@ -15,12 +15,11 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.0
+version: 1.2.0
+# version: 1.2.0 - updated to use v1 of CRD spec
 # version: 1.1.0 - changed controllerRole to canvasSystemRole
 # version: 1.0.0 - initial version - identityconfig separated out from component operator
 
-# This is the version number of the application being deployed. This version number should be
-# incremented each time you make changes to the application. Versions are not expected to
-# follow Semantic Versioning. They should reflect the version the application is using.
-# It is recommended to use it with quotes.
-appVersion: "v1beta4"
+# This is the version number of the application being deployed. We are versioning the canvas as the
+# version of the latest component spec that it supports.
+appVersion: "v1"

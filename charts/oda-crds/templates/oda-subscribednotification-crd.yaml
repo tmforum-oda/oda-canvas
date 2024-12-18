@@ -10,64 +10,13 @@ spec:
     singular: "subscribednotification"
     plural: "subscribednotifications"
   versions:
-    - name: "v1beta1"
-      # Each version can be enabled/disabled by Served flag.
-      served: true
-      # One and only one version must be marked as the storage version.
-      storage: false
-      deprecated: false
-      schema:
-        openAPIV3Schema:
-          type: object
-          required: ["spec"]
-          properties:
-            spec:
-              type: object
-              x-kubernetes-preserve-unknown-fields: true
-              properties:
-                name:
-                  type: string
-                  description: Name of SubscribedNotification that this component is dependent on
-                implementation:
-                  type: string
-                  description: The name of the service receiving the notifications
-                path:
-                  type: string
-                  description: the path to the callback for this subscription
-                port:
-                  type: integer
-                  description: The port where the callback is exposed 
-            status:
-              type: object
-              x-kubernetes-preserve-unknown-fields: true
-              properties:
-                uid:
-                  type: string
-                status:
-                  type: string
-                error:
-                  type: string
-      subresources:
-        status: {}
-      additionalPrinterColumns:
-        - name: HREF
-          type: string
-          description: HREF
-          jsonPath: .spec.href
-        - name: UID
-          type: string
-          description: UID
-          jsonPath: .status.uid
-        - name: Status
-          type: string
-          description: Subscriber status
-          jsonPath: .status.status
     - name: "v1beta2"
       # Each version can be enabled/disabled by Served flag.
       served: true
       # One and only one version must be marked as the storage version.
       storage: false
-      deprecated: false
+      deprecated: true
+      deprecationWarning: "oda.tmforum.org/v1beta2 SubscribedNotification is deprecated. Please upgrade to oda.tmforum.org/v1 or newer"
       schema:
         openAPIV3Schema:
           type: object
@@ -197,6 +146,95 @@ spec:
           description: Subscriber status
           jsonPath: .status.status
     - name: "v1beta4"
+      # Each version can be enabled/disabled by Served flag.
+      served: true
+      # One and only one version must be marked as the storage version.
+      storage: false
+      deprecated: false
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: ["spec"]
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                name:
+                  type: string
+                  description: Name of the Topic that this Component is interested in listening to
+                description:
+                  type: string
+                  description: (Optional) Description
+                apiType:
+                  type: string
+                  enum:
+                  - openapi
+                  description: The type of API specification. Currently only OpenAPI (swagger) APIs are supported.
+                specification:  
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        format: url
+                        description: url to the specification of the API. e.g. url to the swagger/OAS file
+                      version:
+                        type: string
+                        description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
+                  description: >
+                    Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                  minItems: 1
+                implementation:
+                  type: string
+                  description: The name of the service receiving the notifications
+                developerUI:
+                  type: string
+                  description: (optional) The path to the developer User Interface for the API
+                callback:
+                  type: string
+                  description: The path to the callback endpoint
+                port:
+                  type: integer
+                  description: The port to which the callback listens to
+                query:
+                  type: string
+                  description: (optional) Filter the events that will be sent to callback endpoint
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                uid:
+                  type: string
+                status:
+                  type: string
+                error:
+                  type: string
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Callback
+          type: string
+          description: Hub
+          jsonPath: .spec.callback
+        - name: Port
+          type: string
+          description: Port
+          jsonPath: .spec.port
+        - name: APIType
+          type: string
+          description: APIType
+          jsonPath: .spec.apiType
+        - name: UID
+          type: string
+          description: UID
+          jsonPath: .status.uid
+        - name: Status
+          type: string
+          description: Subscriber status
+          jsonPath: .status.status
+    - name: "v1"
       # Each version can be enabled/disabled by Served flag.
       served: true
       # One and only one version must be marked as the storage version.

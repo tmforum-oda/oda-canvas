@@ -20,7 +20,7 @@ from kubernetes.client.rest import ApiException
 import os
 import re
 
-# Setup logging
+# Setup logging 
 logging_level = os.environ.get("LOGGING", logging.INFO)
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.WARNING)
@@ -45,7 +45,7 @@ HTTP_K8s_LABELS = ["http", "http2"]
 HTTP_STANDARD_PORTS = [80, 443]
 HTTP_NOT_FOUND = 404
 GROUP = "oda.tmforum.org"
-VERSION = "v1beta4"
+VERSION = "v1"
 APIS_PLURAL = "exposedapis"
 COMPONENTS_PLURAL = "components"
 

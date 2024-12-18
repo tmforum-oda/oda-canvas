@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: compcrdwebhook
+  name: compcrdwebhook 
   namespace: {{ .Release.Namespace }}  
   labels:
     {{- include "oda-webhook.labels" . | nindent 4 }}
@@ -9,15 +9,15 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: compcrdwebhook
+      app: compcrdwebhook 
   template:
     metadata:
       labels:
-        app: compcrdwebhook
+        app: compcrdwebhook 
         {{- include "oda-webhook.labels" . | nindent 8 }}
     spec:
       containers:
-      - name: compcrdwebhook
+      - name: compcrdwebhook 
         image: {{ include "oda-webhook.dockerimage" . }}
         imagePullPolicy: {{ include "oda-webhook.imagePullPolicy" .	 }}
         ports:

@@ -1,6 +1,6 @@
 # identityconfig-operator-keycloak
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1beta4](https://img.shields.io/badge/AppVersion-v1beta4-informational?style=flat-square)
+![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
 
 A helm chart to deploy the identityconfig operator for keycloak
 
@@ -17,8 +17,8 @@ A helm chart to deploy the identityconfig operator for keycloak
 | deployment.hostName | string | `"*"` |  |
 | deployment.httpsRedirect | bool | `true` |  |
 | deployment.idkopImage | string | `"tmforumodacanvas/identityconfig-operator-keycloak"` |  |
-| deployment.idkopPrereleaseSuffix | string | `"223-refact-2"` |  |
-| deployment.idkopVersion | string | `"0.1.0"` |  |
+| deployment.idkopPrereleaseSuffix | string | `nil` |  |
+| deployment.idkopVersion | string | `"1.0.0"` |  |
 | deployment.idlistkeyImage | string | `"tmforumodacanvas/identity-listener-keycloak"` |  |
 | deployment.idlistkeyPrereleaseSuffix | string | `nil` |  |
 | deployment.idlistkeyVersion | string | `"0.7.1"` |  |
