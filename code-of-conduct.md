@@ -1,5 +1,5 @@
 
-# ODA Component Accelerator Code of Conduct
+# ODA Accelerator Code of Conduct
 
 ## Our Pledge
 
