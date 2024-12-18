@@ -143,6 +143,6 @@ jobs:
           
       - name: Sign Docker image
         run: |
-          echo ${% raw %}{{ secrets.COSIGN_KEY }}{% endraw %} > cosign.key
+          echo "${% raw %}{{ secrets.COSIGN_KEY }}{% endraw %}" | base64 --decode > cosign.key
           chmod 600 cosign.key
           cosign sign --key cosign.key --tlog-upload=true --yes ${% raw %}{{ steps.get_values_image.outputs.result }}{% endraw %}:${% raw %}{{ steps.get_values_version.outputs.result }}{% endraw %}

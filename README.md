@@ -40,6 +40,8 @@ For more information see [Software Operators](source/operators/README.md)
 
 The design (including ongoing work) of the ODA Canvas is documented in [ODA Canvas Design](Canvas-design.md).
 
+Security principles for the ODA Canvas design aredocumented in [ODA Securty Principles](SecurityPrinciples.md).
+
 
 ## Release notes
 

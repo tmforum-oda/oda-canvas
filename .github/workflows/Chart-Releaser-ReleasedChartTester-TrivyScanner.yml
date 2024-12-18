@@ -29,6 +29,8 @@ jobs:
           helm repo add jetstack https://charts.jetstack.io
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo add hashicorp https://helm.releases.hashicorp.com
+          helm repo add apisix https://charts.apiseven.com
+          helm repo add kong https://charts.konghq.com
           helm repo update
           
           # Update dependencies for cert-manager-init chart
@@ -147,7 +149,7 @@ jobs:
           helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas
           helm repo update
           # This below --devel ensure we are checking current release not only stable release
-          helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --devel
+          helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --devel --set preqrequisitechecks.istio=false
 
       - name: Check if deployment was successful
         run: |
