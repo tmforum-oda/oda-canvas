@@ -35,7 +35,7 @@ We will test the Reference Implementation Canvas against a range of kubernetes v
 | Microk8s              | Yes    |                                                                                                                           |
 | MiniKube              | Yes    |                                                                                                                           |
 | Docker Desktop        | Yes    | see also [devcontainer.md](../devcontainer.md)                                                                            |
-| Kind                  |        | Using [Canvas-in-a-bottle](canvas-in-a-bottle/README.md)                                                                  |
+| Kind                  | Yes    | Used in all the GitHub action automated testing.                                                                  |
 | K3s                   | Yes    |                                                                                                                           |
 | (other)               |        | To suggest additional environments please add to this [issue](https://github.com/tmforum-oda/oda-canvas-charts/issues/52) |
 
