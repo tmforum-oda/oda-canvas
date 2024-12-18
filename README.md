@@ -46,12 +46,13 @@ The design (including ongoing work) of the ODA Canvas is documented in [ODA Canv
 
 | Version    | Release notes                         |
 |:----------:|---------------------------------------|
-| 1.2.0      | Release of `v1` component specification and general availability of ODA Canvas |
-| 1.1.7      | Updated to `v1beta4` component specification |
-| 1.1.5      | Multiple fixes |
-| 1.1.4      | Added secretsmanagement-operator         |
-| 1.1.3      | Moved operators to use `tmforumodacanvas` docker repository          |
-| 1.1.2      | Added dependentApiSimpleOperator       |
+| 1.2.0      | Release of `v1` component specification and general availability of ODA Canvas   |
+| 1.1.8      | Final changes to `v1beta4` component specification                               |
+| 1.1.7      | Updated to `v1beta4` component specification                                     |
+| 1.1.5      | Multiple fixes                                                                   |
+| 1.1.4      | Added secretsmanagement-operator                                                 |
+| 1.1.3      | Moved operators to use `tmforumodacanvas` docker repository                      |
+| 1.1.2      | Added dependentApiSimpleOperator                                                 |
 | 1.1.1      | Bug fix release - Webhook handles empty specification field for exposedAPI. Tested against kubernetes 1.29.        |
 | 1.1.0      | Added support for multiple specifications of each Open-API. The v1beta3 `exposedAPI` object defines its `specification` property as an array. This is specifically designed to allow TM Forum Gen5 Open-APIs (which can be specified alongside Gen4 APIs).  <BR/> The [Webhook](./source/webhooks) will automatically convert v1beta2 and v1beta1 specifications to v1beta3 with an array of 1.          |
 | 1.0.0      | First tracked release for component version v1beta3 (also supports N-2 versions i.e. v1beta2 and v1beta1).
