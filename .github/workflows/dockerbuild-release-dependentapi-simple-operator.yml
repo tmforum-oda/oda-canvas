@@ -135,6 +135,6 @@ jobs:
           
       - name: Sign Docker image
         run: |
-          echo ${{ secrets.COSIGN_KEY }} > cosign.key
+          echo "${{ secrets.COSIGN_KEY }}" | base64 --decode > cosign.key
           chmod 600 cosign.key
           cosign sign --key cosign.key --tlog-upload=true --yes ${{ steps.get_values_image.outputs.result }}:${{ steps.get_values_version.outputs.result }}
