@@ -731,14 +731,14 @@ async def identityConfig(
             # compare existing identityConfig and Patch resource if it has changed
             resourceChanged = False
             if (
-                identityConfig["spec"]["controllerRole"]
-                != spec["securityFunction"]["controllerRole"]
+                identityConfig["spec"]["canvasSystemRole"]
+                != spec["securityFunction"]["canvasSystemRole"]
             ):
-                identityConfig["spec"]["controllerRole"] = spec["securityFunction"][
-                    "controllerRole"
+                identityConfig["spec"]["canvasSystemRole"] = spec["securityFunction"][
+                    "canvasSystemRole"
                 ]
                 resourceChanged = True
-                logw.info(f"Updating controllerRole")
+                logw.info(f"Updating canvasSystemRole")
 
             if "componentRole" in spec["securityFunction"]:
                 if "componentRole" in identityConfig["spec"]:
@@ -787,7 +787,7 @@ async def identityConfig(
         else:  # identityConfig does not exist
 
             identityConfigResource = {
-                "controllerRole": spec["securityFunction"]["controllerRole"]
+                "canvasSystemRole": spec["securityFunction"]["canvasSystemRole"]
             }
             if "componentRole" in spec["securityFunction"]:
                 identityConfigResource["componentRole"] = spec["securityFunction"][
@@ -1045,6 +1045,12 @@ def constructAPIResourcePayload(inExposedAPI):
         + inExposedAPI["name"]
     ).lower()
     APIResource["metadata"]["name"] = newName
+    # ungroup the gatewayConfiguration properties
+    if "gatewayConfiguration" in inExposedAPI.keys():
+        # for each property in inExposedAPI["spec"]["gatewayConfiguration"] add it to the inExposedAPI
+        for key, value in inExposedAPI["gatewayConfiguration"].items():
+            inExposedAPI[key] = value
+        del inExposedAPI["gatewayConfiguration"]
     APIResource["spec"] = inExposedAPI
     if "developerUI" in inExposedAPI.keys():
         APIResource["spec"]["developerUI"] = inExposedAPI["developerUI"]

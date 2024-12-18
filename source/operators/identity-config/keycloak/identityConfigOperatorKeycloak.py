@@ -21,7 +21,6 @@ componentname_label = os.getenv("COMPONENTNAME_LABEL", "oda.tmforum.org/componen
 
 # Helper functions ----------
 
-
 def register_listener(url: str) -> None:
     """
     Register the listener URL with partyRoleManagement for role updates
@@ -144,7 +143,7 @@ def identityConfig(
         logw.info(f"Client {name} retrieved")
 
     try:  # to create the bootstrap role and add it to the canvassystem user
-        canvassystem_role = spec["controllerRole"]
+        canvassystem_role = spec["canvasSystemRole"]
         kc.add_role(canvassystem_role, client, token, kcRealm)
     except RuntimeError as e:
         logw.error(f"Keycloak add_role failed for {canvassystem_role}", str(e))

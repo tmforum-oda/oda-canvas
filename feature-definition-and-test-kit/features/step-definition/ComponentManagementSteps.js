@@ -218,13 +218,28 @@ After(async function (scenario) {
   if (DEBUG_LOGS) {
     console.log()
     console.log('Scenario status: ' + scenario.result.status)
-    if (scenario.result.status === 'FAILED') {
+    if (true) { //(scenario.result.status === 'FAILED') {
       console.log('------------------------------------------------------------------')
       console.log('Controller logs:')
       try {
-      console.log(await resourceInventoryUtils.getControllerLogs())  
+        console.log()
+        console.log('==================================================================')
+        console.log('Operator logs for : component-operator')
+        console.log(await resourceInventoryUtils.getOperatorLogs('component-operator', null))  
+        console.log()
+        console.log('==================================================================')
+        console.log('Operator logs for : api-operator-istio')
+        console.log(await resourceInventoryUtils.getOperatorLogs('api-operator-istio', null))  
+        console.log()
+        console.log('==================================================================')
+        console.log('Operator logs for : identityconfig-operator-keycloak, identityconfig-operator-keycloak')
+        console.log(await resourceInventoryUtils.getOperatorLogs('identityconfig-operator-keycloak', 'identityconfig-operator-keycloak'))  
+        console.log()
+        console.log('==================================================================')
+        console.log('Operator logs for : canvas-depapi-op', null)
+        console.log(await resourceInventoryUtils.getOperatorLogs('canvas-depapi-op'))  
       } catch (error) {
-        console.log('Error getting controller logs: ' + error)
+        console.log('Error getting operator logs: ' + error)
       }
       console.log('------------------------------------------------------------------')
     } 

@@ -22,7 +22,8 @@ spec:
   coreFunction:
     exposedAPIs: 
     - name: productcatalogmanagement
-      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"]
+      specification:
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-prodcatapi
       apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
@@ -32,7 +33,8 @@ spec:
     {{- if .Values.component.dependentAPIs.enabled }}
     - name: downstreamproductcatalog 
       apiType: openapi     
-      specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+      specification:
+      - url: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
     {{- else }}
       []
     {{- end }}
@@ -47,10 +49,11 @@ spec:
       path: /{{.Release.Name}}-{{.Values.component.name}}/metrics
       port: 4000    
   securityFunction:
-    controllerRole: {{ .Values.security.controllerRole }}
+    canvasSystemRole: {{ .Values.security.canvasSystemRole }}
     exposedAPIs: 
     - name: partyrole
-      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"]
+      specification:
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-partyroleapi
       apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4

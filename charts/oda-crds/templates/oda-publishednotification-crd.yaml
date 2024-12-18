@@ -28,10 +28,6 @@ spec:
                 name:
                   type: string
                   description: Name of PublishedNotification that this component is dependent on
-                specification:
-                  type: string
-                  format: url
-                  description: url to the specification of the Notification. e.g. url to the swagger file
                 implementation:
                   type: string
                   description: The name of the service sending the notifications
@@ -223,10 +219,21 @@ spec:
                   enum:
                   - openapi
                   description: The type of API specification. Currently only OpenAPI (swagger) APIs are supported.
-                specification:
-                  type: string
-                  format: url
-                  description: (optional) url to the specification of the API. e.g. url to the swagger file
+                specification:  
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        format: url
+                        description: url to the specification of the API. e.g. url to the swagger/OAS file
+                      version:
+                        type: string
+                        description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
+                  description: >
+                    Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                  minItems: 1
                 implementation:
                   type: string
                   description: The name of the service sending the notifications

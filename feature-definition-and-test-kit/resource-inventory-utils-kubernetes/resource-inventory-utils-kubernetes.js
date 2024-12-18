@@ -241,19 +241,22 @@ const resourceInventoryUtils = {
     },
 
   /**
-   * Function that returns the logs from the ODA Controller pod
+   * Function that returns the logs from the ODA operator pod
    */
-  getControllerLogs: async function () {
-    // use the kubernetes API to get the logs from the ODA Controller pod
+  getOperatorLogs: async function (inOperatorLabel, inContainerName) {
+    // use the kubernetes API to get the logs from the ODA operator pod
     const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api)
-    const podList = await k8sCoreApi.listNamespacedPod('canvas', undefined, undefined, undefined, undefined, 'app=oda-controller')
-    const controllerPod = podList.body.items[0]
-    const controllerPodName = controllerPod.metadata.name
-    const controllerPodNamespace = controllerPod.metadata.namespace
-
-    const controllerLogs = await k8sCoreApi.readNamespacedPodLog(controllerPodName, controllerPodNamespace, container='oda-controller')
-    console.log(controllerLogs.body)
-    return controllerLogs.body
+    const podList = await k8sCoreApi.listNamespacedPod('canvas', undefined, undefined, undefined, undefined, 'app=' + inOperatorLabel)
+    const operatorPod = podList.body.items[0]
+    const operatorPodName = operatorPod.metadata.name
+    const operatorPodNamespace = operatorPod.metadata.namespace
+    var operatorLogs
+    if (inContainerName) {
+      operatorLogs = await k8sCoreApi.readNamespacedPodLog(operatorPodName, operatorPodNamespace, container=inContainerName)
+    } else {
+      operatorLogs = await k8sCoreApi.readNamespacedPodLog(operatorPodName, operatorPodNamespace)
+    }
+    return operatorLogs.body
   }
 }
 

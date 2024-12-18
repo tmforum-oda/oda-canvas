@@ -2,6 +2,7 @@ FROM python:3.12-alpine
 
 RUN pip install kopf==1.37.2 \
     && pip install kubernetes==27.2.0 \
+    && pip install python-json-logger==2.0.7 \
     && pip install cloudevents \
     && pip install PyYAML \
     && pip install requests 

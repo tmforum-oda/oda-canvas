@@ -7,7 +7,7 @@ const NotificationHandler = require('./services/NotificationHandler')
 
 const plugins = require('./plugins/plugins')
 
-// const db = require('./plugins/mongoUtils')
+// const db = require('./plugins/mongoUtils') 
 // const queue = require('./plugins/kafka')
 
 Service.setDB(plugins.db)

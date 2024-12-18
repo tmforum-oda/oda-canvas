@@ -22,7 +22,8 @@ spec:
   coreFunction:
     exposedAPIs: 
     - name: productcatalogmanagement
-      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"]
+      specification: 
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-prodcatapi
       apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
@@ -40,9 +41,9 @@ spec:
       path: /{{.Release.Name}}-{{.Values.component.name}}/metrics
       port: 4000    
   securityFunction:
-    controllerRole: {{ .Values.security.controllerRole }}
+    canvasSystemRole: {{ .Values.security.canvasSystemRole }}
     exposedAPIs: []
-    dependantAPIs: []
+    dependentAPIs: []
     componentRole:
     - name: pcadmin
       description: Product Catalogue Administrator

@@ -22,7 +22,8 @@ spec:
   coreFunction:
     exposedAPIs: 
     - name: productinventorymanagement
-      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF637_ProductInventory/master/TMF637-ProductInventory-v4.0.0.swagger.json"]
+      specification:
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF637_ProductInventory/master/TMF637-ProductInventory-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-productinventoryapi
       apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.type}}/tmf-api/productInventory/v4
@@ -34,10 +35,11 @@ spec:
     subscribedEvents: []
   managementFunction: []
   securityFunction:
-    controllerRole: {{ .Values.security.controllerRole }}
+    canvasSystemRole: {{ .Values.security.canvasSystemRole }}
     exposedAPIs: 
     - name: partyrole
-      specification: ["https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"]
+      specification:
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-partyroleapi
       apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4

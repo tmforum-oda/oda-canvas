@@ -126,7 +126,7 @@ component-operator:
   deployment:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
-    compopVersion: 0.7.0
+    compopVersion: 0.8.0
     compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
@@ -139,7 +139,7 @@ identityconfig-operator-keycloak:
   deployment:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
-    idkopVersion: 0.1.0
+    idkopVersion: 0.2.0
     idkopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
@@ -163,15 +163,15 @@ identityconfig-operator-keycloak:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 0.2.4
+  version: 0.3.0
   prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   serviceInventoryAPI:
     enabled: true
     image: tmforumodacanvas/tmf638-service-inventory-api
-    version: 0.1.1
-    prereleaseSuffix:
+    version: 0.1.2
+    prereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     serverUrl: http://info.canvas.svc.cluster.local
     mongodb:
@@ -333,7 +333,7 @@ secretsmanagement-operator:
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
-  version: 0.11.0
+  version: 0.12.0
   prereleaseSuffix:  
   imagePullPolicy: IfNotPresent
  
@@ -413,11 +413,11 @@ kong-gateway:
     IstioGatewayServerhostName: "*"
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
-      repository: tmforumodacanvas/kong-operator:0.1.0
+      repository: tmforumodacanvas/kong-operator:0.2.0
       pullPolicy: IfNotPresent
       kongopImage: tmforumodacanvas/kong-operator
-      kongopVersion: 0.1.0
-      kongopPrereleaseSuffix:
+      kongopVersion: 0.2.0
+      kongopPrereleaseSuffix: 
 
 
 # -----------------------------------------------------------------------------
@@ -449,11 +449,11 @@ apisix-gateway:
     apisixoperatorreplicaCount: 1
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
-    repository: tmforumodacanvas/apisix-operator:0.1.0
+    repository: tmforumodacanvas/apisix-operator:0.2.0
     pullPolicy: IfNotPresent
     apisixopImage: tmforumodacanvas/apisix-operator
-    apisixopVersion: 0.1.0
-    apisixopPrereleaseSuffix:
+    apisixopVersion: 0.2.0
+    apisixopPrereleaseSuffix: 
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas

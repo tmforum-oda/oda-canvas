@@ -24,10 +24,7 @@ spec:
           spec:
             type: object
             properties:
-              controllerRole:
-                description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
-                type: string
-              controllerRole:
+              canvasSystemRole:
                 description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
                 type: string 
               componentRole:

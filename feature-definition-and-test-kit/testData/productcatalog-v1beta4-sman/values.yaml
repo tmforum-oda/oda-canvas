@@ -12,7 +12,7 @@ component:
   version: "0.0.1"
   storageClassName: default
 security:
-  controllerRole: Admin
+  canvasSystemRole: Admin
 mongodb:
   port: 27017
   database: tmf

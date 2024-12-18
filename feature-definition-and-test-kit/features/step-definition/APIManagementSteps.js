@@ -82,7 +82,15 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
 
   // The apiResource has a spec with a specification that is an array of strings
   // assert that the array contains the specVersion
-  assert.ok(apiResource.spec.specification.includes(specVersion), "The ExposedAPI resource should have the specification " + specVersion)
+  var found = false
+  for (var i = 0; i < apiResource.spec.specification.length; i++) {
+    if (apiResource.spec.specification[i].url == specVersion) {
+      found = true
+      break
+    }
+  }
+
+  assert.ok(found, "The ExposedAPI resource should have the specification " + specVersion)
 
 });
 

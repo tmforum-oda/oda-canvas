@@ -56,7 +56,7 @@ var express = require('express');
 var app = express();
 app.use(express.json())    // <==== parse request body as JSON
 var httpsServer, httpServer;
-
+ 
 // get command line arguments
 var args = process.argv.slice(2);
 
@@ -227,7 +227,11 @@ app.post("/", (req, res, next) => {
         }
       }
 
-      // move the properties to componentMetadata
+      // move the properties to componentMetadata, 
+      // move gateway properties to gatewayConfiguration for each exposedAPI, 
+      // rename securityFunction.controllerRole to canvasSystemRole,
+      // change specification array to arroy objects with url and version for each exposed API
+
       if (apiVersion.mapOldToNew(["v1beta1", "v1beta2", "v1beta3"], ["v1beta4"])) {
         console.log("move relevant properties to componentMetadata");
 
@@ -268,6 +272,39 @@ app.post("/", (req, res, next) => {
           objectsArray[key].spec.componentMetadata.owners = objectsArray[key].spec.owners;
           delete objectsArray[key].spec.owners;
         }
+
+        // move the relavant properties to gatewayConfiguration for each exposedAPI, and change specification array to arroy objects with url and version
+        console.log("move gateway properties to gatewayConfiguration for each exposedAPI and change specification array to arroy objects with url and version");  
+        const segments = ["coreFunction", "managementFunction", "securityFunction"];
+        segments.forEach(segment => {
+          for (api in objectsArray[key].spec[segment].exposedAPIs) {
+            // create empty gatewayConfiguration object
+            objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration = {};
+            // move the apiKeyVerification, rateLimit, quota, OASValidation, CORS, template properties to gatewayConfiguration
+            const gatewayProperties = ["apiKeyVerification", "rateLimit", "quota", "OASValidation", "CORS", "template"];
+            gatewayProperties.forEach(property => {
+              if (objectsArray[key].spec[segment].exposedAPIs[api][property]) {
+                objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property] = objectsArray[key].spec[segment].exposedAPIs[api][property];
+                delete objectsArray[key].spec[segment].exposedAPIs[api][property];
+              }
+            });
+            // change specification array to arroy objects with url and version
+            console.log("Change specification array to arroy objects with url and version");
+            if (objectsArray[key].spec[segment].exposedAPIs[api].specification) {
+              for (var i = 0; i < objectsArray[key].spec[segment].exposedAPIs[api].specification.length; i++) {
+                objectsArray[key].spec[segment].exposedAPIs[api].specification[i] = {url: objectsArray[key].spec[segment].exposedAPIs[api].specification[i]}
+              }
+            }
+          }
+        });
+
+
+        // rename securityFunction.controllerRole to canvasSystemRole
+        console.log("rename securityFunction.controllerRole to canvasSystemRole");
+        if (objectsArray[key].spec.securityFunction.controllerRole) {
+          objectsArray[key].spec.securityFunction.canvasSystemRole = objectsArray[key].spec.securityFunction.controllerRole;
+          delete objectsArray[key].spec.securityFunction.controllerRole;
+        }
       }        
       
  
@@ -275,7 +312,11 @@ app.post("/", (req, res, next) => {
       // ****************************************************
       // downgrade newer versions to the older versions
       // ****************************************************
-      // move the properties from componentMetadata and remove apiSDO
+      // move the properties from componentMetadata,  
+      // remove apiSDO,  
+      // move the  gatewayConfiguration to the exposedAPI root level for each exposedAPI,
+      // rename securityFunction.canvasSystemRole to controllerRole and
+      // change specification array to a string for each exposed API
       if (apiVersion.mapOldToNew(["v1beta4"], ["v1beta1", "v1beta2", "v1beta3"])) {
         if (objectsArray[key].spec.componentMetadata) {
           // for each property in componentMetadata, move it to the root level
@@ -312,6 +353,40 @@ app.post("/", (req, res, next) => {
           for (api in objectsArray[key].spec.securityFunction.dependentAPIs) {
             delete objectsArray[key].spec.securityFunction.dependentAPIs[api].apiSDO;
           }
+        }
+
+        // move gatewayConfiguration to the exposedAPI root level for each exposedAPI and change specification object array to an array of strings with just the url
+        console.log("move gatewayConfiguration to the exposedAPI root level for each exposedAPI");  
+        const segments = ["coreFunction", "managementFunction", "securityFunction"];
+        segments.forEach(segment => {
+          for (api in objectsArray[key].spec[segment].exposedAPIs) {
+            if (objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration) {
+              // move the gatewayConfiguration properties to the root level
+              const gatewayProperties = ["apiKeyVerification", "rateLimit", "quota", "OASValidation", "CORS", "template"];
+              gatewayProperties.forEach(property => {
+                if (objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property]) {
+                  objectsArray[key].spec[segment].exposedAPIs[api][property] = objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property];
+                  delete objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration[property];
+                }
+              });
+              // remove the gatewayConfiguration object
+              delete objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration;
+            }
+            // change specification object array to an array of strings with just the url
+            console.log("Change specification object array to an array of strings with just the url");
+            if (objectsArray[key].spec[segment].exposedAPIs[api].specification) {
+              for (var i = 0; i < objectsArray[key].spec[segment].exposedAPIs[api].specification.length; i++) {
+                objectsArray[key].spec[segment].exposedAPIs[api].specification[i] = objectsArray[key].spec[segment].exposedAPIs[api].specification[i].url;
+              }
+            }
+          }
+        });
+
+        // rename securityFunction.canvasSystemRole to controllerRole
+        console.log("rename securityFunction.canvasSystemRole to controllerRole");
+        if (objectsArray[key].spec.securityFunction.canvasSystemRole) {
+          objectsArray[key].spec.securityFunction.controllerRole = objectsArray[key].spec.securityFunction.canvasSystemRole;
+          delete objectsArray[key].spec.securityFunction.canvasSystemRole;
         }
       }  
 

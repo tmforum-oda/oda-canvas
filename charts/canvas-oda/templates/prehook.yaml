@@ -30,7 +30,10 @@ spec:
             
                 if [ "$SERVICE_TYPE" = "LoadBalancer" ]; then
                   # Check if the service has an external IP
-                  EXTERNAL_IP=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+                  EXTERNAL_IP=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+                  if [ -z "$EXTERNAL_IP" ]; then
+                    EXTERNAL_IP=$(kubectl get svc istio-ingress -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+                  fi
                   if [ -z "$EXTERNAL_IP" ]; then
                     echo "Service 'istio-ingress' is of type LoadBalancer but does not have an external IP allocated."
                     exit 1
@@ -39,12 +42,12 @@ spec:
                   fi
                 elif [ "$SERVICE_TYPE" = "ClusterIP" ]; then
                   echo "Service 'istio-ingress' is of type ClusterIP. External IP is not required."
+
                 else
                   echo "Service 'istio-ingress' is of type: $SERVICE_TYPE. Required 'LoadBalancer' and 'ClusterIP' are supported."
                   exit 1
                 fi
               fi
-            
               # Check if the VirtualService CRD exists
               VIRTUALSERVICE_CRD=$(kubectl get crd virtualservices.networking.istio.io --ignore-not-found)
               if [ -z "$VIRTUALSERVICE_CRD" ]; then

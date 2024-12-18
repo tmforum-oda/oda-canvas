@@ -136,47 +136,56 @@ jobs:
 
     - name: Install istio Helm chart
       run: |
-       helm repo add istio https://istio-release.storage.googleapis.com/charts
-       helm repo update
-       kubectl create namespace istio-system
-       helm install istio-base istio/base -n istio-system
-       helm install istiod istio/istiod -n istio-system --wait
-       kubectl create namespace istio-ingress
-       kubectl label namespace istio-ingress istio-injection=enabled
-       helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
+        helm repo add istio https://istio-release.storage.googleapis.com/charts
+        kubectl create namespace istio-system
+        helm install istio-base istio/base -n istio-system
+        helm install istiod istio/istiod -n istio-system --wait
+        kubectl create namespace istio-ingress
+        kubectl label namespace istio-ingress istio-injection=enabled
+        helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
 
     - name: Install Helm chart from Git repo
       run: |
+        echo DEBUG: temporarily setting DNS for charts.bitnami.com
+        echo "108.138.217.10 charts.bitnami.com" | sudo tee -a /etc/hosts
+        cat /etc/hosts
+        echo DEBUG: update ./charts/cert-manager-init
         helm dependency update ./charts/cert-manager-init
         helm dependency update ./charts/apisix-gateway
         helm dependency update ./charts/kong-gateway
         helm dependency update ./charts/canvas-vault
+        echo DEBUG: update ./charts/canvas-oda
         helm dependency update ./charts/canvas-oda
+        echo DEBUG: helm install canvas -n canvas
         helm install canvas -n canvas --create-namespace ./charts/canvas-oda
+        echo DEBUG: finished Install Helm chart from Git repo
 
     - name: Port Forwarding Keycloak Service
       run: |
         sleep 30
         kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083 &
 
-#    - name: Installing example component PC 
-#      run: |
-#        helm repo add oda-components https://tmforum-oda.github.io/reference-example-components/
-#        helm install ctk oda-components/productcatalog -n components
+    - name: Installing example component PC 
+      run: |
+        helm install ctk feature-definition-and-test-kit/testData/productcatalog-static-roles-v1beta4/ -n components     
+        sleep 30
+        kubectl get all -n components
+        kubectl logs -l app=component-operator -n canvas
 
-#    - name: Check status of deployments
-#      run: |
-#        sleep 90
-#        kubectl get all -n canvas
-#        kubectl get all -n components
-#        kubectl get all -n istio-ingress
-#        kubectl get all -n istio-system
-#        kubectl get exposedapis -n components
-#        kubectl get components -n components
+
+    - name: Check status of deployments
+      run: |
+        sleep 90
+        kubectl get all -n canvas
+        kubectl get all -n components
+        kubectl get all -n istio-ingress
+        kubectl get all -n istio-system
+        kubectl get exposedapis -n components
+        kubectl get components -n components
   
-#    - name: Remove the example PC Component
-#      run: |
-#        helm uninstall ctk -n components
+    - name: Remove the example PC Component
+      run: |
+        helm uninstall ctk -n components
         
     - name: Install test Kit
       continue-on-error: true

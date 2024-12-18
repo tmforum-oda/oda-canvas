@@ -15,7 +15,7 @@ component:
     enabled: true
     rejectUnauthorizedCertificates: false
 security:
-  controllerRole: Admin
+  canvasSystemRole: Admin
 mongodb:
   port: 27017
   database: tmf

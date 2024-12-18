@@ -1401,17 +1401,26 @@ spec:
                     items:
                       type: object
                       properties:
+                        id:
+                          type: string
+                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
                         name:
                           type: string
                           description: Name of the API
                         specification:  
                           type: array
                           items:
-                            type: string
-                            format: url
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                                format: url
+                                description: url to the specification of the API. e.g. url to the swagger/OAS file
+                              version:
+                                type: string
+                                description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
                           description: >
-                            url to the specification of the API, if required. e.g. url to the swagger file for Open API.
-                            This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                            Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
                           minItems: 1
                         apiType:
                           type: string
@@ -1421,93 +1430,97 @@ spec:
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
-                        apiKeyVerification:
+                        gatewayConfiguration:
                           type: object
-                          description: "(optional) API key verification settings"
+                          description: Configuration settings for API Gateway
                           properties:
-                            enabled:
-                              type: boolean
-                              description: "(default: false) Enforce API key verification"
-                            location:
-                              type: string
-                              description: "(optional) Variable name for API key location"
-                        rateLimit:
-                          type: object
-                          description: "(optional) Rate limiting configuration"
-                          properties:
-                            enabled:
-                              type: boolean
-                              description: "(default: false)"
-                            identifier:
-                              type: string
-                              description: "Identifier for rate-limiting"
-                            limit:
-                              type: string
-                              description: "Limit of requests per identifier"
-                            interval:
-                              type: string
-                              description: "(default: ps) Interval for rate limit"
-                        quota:
-                          type: object
-                          description: "(optional) Quota configuration"
-                          properties:
-                            identifier:
-                              type: string
-                              description: "Identifier for quota counter"
-                            limit:
-                              type: string
-                              description: "Quota counter limit"
-                        OASValidation:
-                          type: object
-                          description: "(optional) OpenAPI Specification validation"
-                          properties:
-                            requestEnabled:
-                              type: boolean
-                              description: "(default: false) Enable request validation"
-                            responseEnabled:
-                              type: boolean
-                              description: "(default: false) Enable response validation"
-                            allowUnspecifiedHeaders:
-                              type: boolean
-                              description: "(default: false) Allow unspecified headers"
-                            allowUnspecifiedQueryParams:
-                              type: boolean
-                              description: "(default: false) Allow unspecified query parameters"
-                            allowUnspecifiedCookies:
-                              type: boolean
-                              description: "(default: false) Allow unspecified cookies"
-                        CORS:
-                          type: object
-                          description: "(optional) Cross-origin Resource Sharing configuration"
-                          properties:
-                            enabled:
-                              type: boolean
-                              description: "(default: false)"
-                            allowCredentials:
-                              type: boolean
-                              description: "(default: false) Enable credentials for cross-origin requests"
-                            allowOrigins:
-                              type: string
-                              description: "(default: *) Allowed origins (CSV)"
-                            handlePreflightRequests:
+                            apiKeyVerification:
                               type: object
-                              description: "(optional) Preflight request configuration"
+                              description: "(optional) API key verification settings"
                               properties:
                                 enabled:
                                   type: boolean
-                                  description: "(default: true)"
-                                allowHeaders:
+                                  description: "(default: false) Enforce API key verification"
+                                location:
                                   type: string
-                                  description: "(default: Origin, Accept, X-Requested-With, etc.)"
-                                allowMethods:
+                                  description: "(optional) Variable name for API key location"
+                            rateLimit:
+                              type: object
+                              description: "(optional) Rate limiting configuration"
+                              properties:
+                                enabled:
+                                  type: boolean
+                                  description: "(default: false)"
+                                identifier:
                                   type: string
-                                  description: "(default: GET, POST, etc.)"
-                                maxAge:
-                                  type: integer
-                                  description: "(default: 1800) Cache duration for CORS preflight requests"
-                        template:
-                          type: string
-                          description: "(optional) Pre-configured template for the API"
+                                  description: "Identifier for rate-limiting"
+                                limit:
+                                  type: string
+                                  description: "Limit of requests per identifier"
+                                interval:
+                                  type: string
+                                  description: "(default: ps) Interval for rate limit"
+                            quota:
+                              type: object
+                              description: "(optional) Quota configuration"
+                              properties:
+                                identifier:
+                                  type: string
+                                  description: "Identifier for quota counter"
+                                limit:
+                                  type: string
+                                  description: "Quota counter limit"
+                            OASValidation:
+                              type: object
+                              description: "(optional) OpenAPI Specification validation"
+                              properties:
+                                requestEnabled:
+                                  type: boolean
+                                  description: "(default: false) Enable request validation"
+                                responseEnabled:
+                                  type: boolean
+                                  description: "(default: false) Enable response validation"
+                                allowUnspecifiedHeaders:
+                                  type: boolean
+                                  description: "(default: false) Allow unspecified headers"
+                                allowUnspecifiedQueryParams:
+                                  type: boolean
+                                  description: "(default: false) Allow unspecified query parameters"
+                                allowUnspecifiedCookies:
+                                  type: boolean
+                                  description: "(default: false) Allow unspecified cookies"
+                            CORS:
+                              type: object
+                              description: "(optional) Cross-origin Resource Sharing configuration"
+                              properties:
+                                enabled:
+                                  type: boolean
+                                  description: "(default: false)"
+                                allowCredentials:
+                                  type: boolean
+                                  description: "(default: false) Enable credentials for cross-origin requests"
+                                allowOrigins:
+                                  type: string
+                                  description: "(default: *) Allowed origins (CSV)"
+                                handlePreflightRequests:
+                                  type: object
+                                  description: "(optional) Preflight request configuration"
+                                  properties:
+                                    enabled:
+                                      type: boolean
+                                      description: "(default: true)"
+                                    allowHeaders:
+                                      type: string
+                                      description: "(default: Origin, Accept, X-Requested-With, etc.)"
+                                    allowMethods:
+                                      type: string
+                                      description: "(default: GET, POST, etc.)"
+                                    maxAge:
+                                      type: integer
+                                      description: "(default: 1800) Cache duration for CORS preflight requests"
+                            template:
+                              type: string
+                              description: "(optional) Pre-configured template for the API"
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -1542,9 +1555,21 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        specification:
-                          type: string
-                          format: url
+                        specification:  
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                                format: url
+                                description: url to the specification of the API. e.g. url to the swagger/OAS file
+                              version:
+                                type: string
+                                description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
+                          description: >
+                            Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                          minItems: 1
                           description: url to the specification of the API. e.g. url to the swagger file
                         apiType:
                           type: string
@@ -1584,10 +1609,21 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
-                        specification:
-                          type: string
-                          format: url
-                          description: (optional) url to the specification of the API. e.g. url to the swagger file
+                        specification:  
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                                format: url
+                                description: url to the specification of the API. e.g. url to the swagger/OAS file
+                              version:
+                                type: string
+                                description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
+                          description: >
+                            Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                          minItems: 1
                         implementation:
                           type: string
                           description: The name of the service receiving the notifications
@@ -1616,10 +1652,21 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
-                        specification:
-                          type: string
-                          format: url
-                          description: (optional) url to the specification of the API. e.g. url to the swagger file
+                        specification:  
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                                format: url
+                                description: url to the specification of the API. e.g. url to the swagger/OAS file
+                              version:
+                                type: string
+                                description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
+                          description: >
+                            Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                          minItems: 1
                         implementation:
                           type: string
                           description: The name of the service receiving the notifications
@@ -1646,14 +1693,20 @@ spec:
                         name:
                           type: string
                           description: Name of the API
-                        specification:
+                        specification:  
                           type: array
                           items:
-                            type: string
-                            format: url
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                                format: url
+                                description: url to the specification of the API. e.g. url to the swagger/OAS file
+                              version:
+                                type: string
+                                description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
                           description: >
-                            url to the specification of the API, if required. e.g. url to the swagger file for Open API.
-                            This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                            Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
                           minItems: 1
                         apiType:
                           type: string
@@ -1664,93 +1717,97 @@ spec:
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
-                        apiKeyVerification:
+                        gatewayConfiguration:
                           type: object
-                          description: "(optional) API key verification settings"
+                          description: Configuration settings for API Gateway
                           properties:
-                            enabled:
-                              type: boolean
-                              description: "(default: false) Enforce API key verification"
-                            location:
-                              type: string
-                              description: "(optional) Variable name for API key location"
-                        rateLimit:
-                          type: object
-                          description: "(optional) Rate limiting configuration"
-                          properties:
-                            enabled:
-                              type: boolean
-                              description: "(default: false)"
-                            identifier:
-                              type: string
-                              description: "Identifier for rate-limiting"
-                            limit:
-                              type: string
-                              description: "Limit of requests per identifier"
-                            interval:
-                              type: string
-                              description: "(default: ps) Interval for rate limit"
-                        quota:
-                          type: object
-                          description: "(optional) Quota configuration"
-                          properties:
-                            identifier:
-                              type: string
-                              description: "Identifier for quota counter"
-                            limit:
-                              type: string
-                              description: "Quota counter limit"
-                        OASValidation:
-                          type: object
-                          description: "(optional) OpenAPI Specification validation"
-                          properties:
-                            requestEnabled:
-                              type: boolean
-                              description: "(default: false) Enable request validation"
-                            responseEnabled:
-                              type: boolean
-                              description: "(default: false) Enable response validation"
-                            allowUnspecifiedHeaders:
-                              type: boolean
-                              description: "(default: false) Allow unspecified headers"
-                            allowUnspecifiedQueryParams:
-                              type: boolean
-                              description: "(default: false) Allow unspecified query parameters"
-                            allowUnspecifiedCookies:
-                              type: boolean
-                              description: "(default: false) Allow unspecified cookies"
-                        CORS:
-                          type: object
-                          description: "(optional) Cross-origin Resource Sharing configuration"
-                          properties:
-                            enabled:
-                              type: boolean
-                              description: "(default: false)"
-                            allowCredentials:
-                              type: boolean
-                              description: "(default: false) Enable credentials for cross-origin requests"
-                            allowOrigins:
-                              type: string
-                              description: "(default: *) Allowed origins (CSV)"
-                            handlePreflightRequests:
+                            apiKeyVerification:
                               type: object
-                              description: "(optional) Preflight request configuration"
+                              description: "(optional) API key verification settings"
                               properties:
                                 enabled:
                                   type: boolean
-                                  description: "(default: true)"
-                                allowHeaders:
+                                  description: "(default: false) Enforce API key verification"
+                                location:
                                   type: string
-                                  description: "(default: Origin, Accept, X-Requested-With, etc.)"
-                                allowMethods:
+                                  description: "(optional) Variable name for API key location"
+                            rateLimit:
+                              type: object
+                              description: "(optional) Rate limiting configuration"
+                              properties:
+                                enabled:
+                                  type: boolean
+                                  description: "(default: false)"
+                                identifier:
                                   type: string
-                                  description: "(default: GET, POST, etc.)"
-                                maxAge:
-                                  type: integer
-                                  description: "(default: 1800) Cache duration for CORS preflight requests"
-                        template:
-                          type: string
-                          description: "(optional) Pre-configured template for the API"
+                                  description: "Identifier for rate-limiting"
+                                limit:
+                                  type: string
+                                  description: "Limit of requests per identifier"
+                                interval:
+                                  type: string
+                                  description: "(default: ps) Interval for rate limit"
+                            quota:
+                              type: object
+                              description: "(optional) Quota configuration"
+                              properties:
+                                identifier:
+                                  type: string
+                                  description: "Identifier for quota counter"
+                                limit:
+                                  type: string
+                                  description: "Quota counter limit"
+                            OASValidation:
+                              type: object
+                              description: "(optional) OpenAPI Specification validation"
+                              properties:
+                                requestEnabled:
+                                  type: boolean
+                                  description: "(default: false) Enable request validation"
+                                responseEnabled:
+                                  type: boolean
+                                  description: "(default: false) Enable response validation"
+                                allowUnspecifiedHeaders:
+                                  type: boolean
+                                  description: "(default: false) Allow unspecified headers"
+                                allowUnspecifiedQueryParams:
+                                  type: boolean
+                                  description: "(default: false) Allow unspecified query parameters"
+                                allowUnspecifiedCookies:
+                                  type: boolean
+                                  description: "(default: false) Allow unspecified cookies"
+                            CORS:
+                              type: object
+                              description: "(optional) Cross-origin Resource Sharing configuration"
+                              properties:
+                                enabled:
+                                  type: boolean
+                                  description: "(default: false)"
+                                allowCredentials:
+                                  type: boolean
+                                  description: "(default: false) Enable credentials for cross-origin requests"
+                                allowOrigins:
+                                  type: string
+                                  description: "(default: *) Allowed origins (CSV)"
+                                handlePreflightRequests:
+                                  type: object
+                                  description: "(optional) Preflight request configuration"
+                                  properties:
+                                    enabled:
+                                      type: boolean
+                                      description: "(default: true)"
+                                    allowHeaders:
+                                      type: string
+                                      description: "(default: Origin, Accept, X-Requested-With, etc.)"
+                                    allowMethods:
+                                      type: string
+                                      description: "(default: GET, POST, etc.)"
+                                    maxAge:
+                                      type: integer
+                                      description: "(default: 1800) Cache duration for CORS preflight requests"
+                            template:
+                              type: string
+                              description: "(optional) Pre-configured template for the API"
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -1785,10 +1842,21 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        specification:
-                          type: string
-                          format: url
-                          description: url to the specification of the API. e.g. url to the swagger file
+                        specification:  
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                                format: url
+                                description: url to the specification of the API. e.g. url to the swagger/OAS file
+                              version:
+                                type: string
+                                description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
+                          description: >
+                            Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                          minItems: 1
                         apiType:
                           type: string
                           enum:
@@ -1810,7 +1878,6 @@ spec:
                       - apiType
               securityFunction:
                 type: object
-                x-kubernetes-preserve-unknown-fields: true
                 properties:
                   secretsManagement:
                     description: optional, request access to secrets stored exclusively for this component.
@@ -1851,14 +1918,20 @@ spec:
                         name:
                           type: string
                           description: Name of the API
-                        specification:
+                        specification:  
                           type: array
                           items:
-                            type: string
-                            format: url
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                                format: url
+                                description: url to the specification of the API. e.g. url to the swagger/OAS file
+                              version:
+                                type: string
+                                description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
                           description: >
-                            url to the specification of the API, if required. e.g. url to the swagger file for Open API.
-                            This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                            Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
                           minItems: 1
                         apiType:
                           type: string
@@ -1868,6 +1941,97 @@ spec:
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                        gatewayConfiguration:
+                          type: object
+                          description: Configuration settings for API Gateway
+                          properties:
+                            apiKeyVerification:
+                              type: object
+                              description: "(optional) API key verification settings"
+                              properties:
+                                enabled:
+                                  type: boolean
+                                  description: "(default: false) Enforce API key verification"
+                                location:
+                                  type: string
+                                  description: "(optional) Variable name for API key location"
+                            rateLimit:
+                              type: object
+                              description: "(optional) Rate limiting configuration"
+                              properties:
+                                enabled:
+                                  type: boolean
+                                  description: "(default: false)"
+                                identifier:
+                                  type: string
+                                  description: "Identifier for rate-limiting"
+                                limit:
+                                  type: string
+                                  description: "Limit of requests per identifier"
+                                interval:
+                                  type: string
+                                  description: "(default: ps) Interval for rate limit"
+                            quota:
+                              type: object
+                              description: "(optional) Quota configuration"
+                              properties:
+                                identifier:
+                                  type: string
+                                  description: "Identifier for quota counter"
+                                limit:
+                                  type: string
+                                  description: "Quota counter limit"
+                            OASValidation:
+                              type: object
+                              description: "(optional) OpenAPI Specification validation"
+                              properties:
+                                requestEnabled:
+                                  type: boolean
+                                  description: "(default: false) Enable request validation"
+                                responseEnabled:
+                                  type: boolean
+                                  description: "(default: false) Enable response validation"
+                                allowUnspecifiedHeaders:
+                                  type: boolean
+                                  description: "(default: false) Allow unspecified headers"
+                                allowUnspecifiedQueryParams:
+                                  type: boolean
+                                  description: "(default: false) Allow unspecified query parameters"
+                                allowUnspecifiedCookies:
+                                  type: boolean
+                                  description: "(default: false) Allow unspecified cookies"
+                            CORS:
+                              type: object
+                              description: "(optional) Cross-origin Resource Sharing configuration"
+                              properties:
+                                enabled:
+                                  type: boolean
+                                  description: "(default: false)"
+                                allowCredentials:
+                                  type: boolean
+                                  description: "(default: false) Enable credentials for cross-origin requests"
+                                allowOrigins:
+                                  type: string
+                                  description: "(default: *) Allowed origins (CSV)"
+                                handlePreflightRequests:
+                                  type: object
+                                  description: "(optional) Preflight request configuration"
+                                  properties:
+                                    enabled:
+                                      type: boolean
+                                      description: "(default: true)"
+                                    allowHeaders:
+                                      type: string
+                                      description: "(default: Origin, Accept, X-Requested-With, etc.)"
+                                    allowMethods:
+                                      type: string
+                                      description: "(default: GET, POST, etc.)"
+                                    maxAge:
+                                      type: integer
+                                      description: "(default: 1800) Cache duration for CORS preflight requests"
+                            template:
+                              type: string
+                              description: "(optional) Pre-configured template for the API"
                         implementation:
                           type: string
                           description: The name of the service where the implementation of the API is found
@@ -1902,10 +2066,21 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        specification:
-                          type: string
-                          format: url
-                          description: url to the specification of the API. e.g. url to the swagger file
+                        specification:  
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                                format: url
+                                description: url to the specification of the API. e.g. url to the swagger/OAS file
+                              version:
+                                type: string
+                                description: The version of API specification. For TM Forum Open-APIs this would be the version of the Open-API spec e.g. v4.0.1
+                          description: >
+                            Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
+                          minItems: 1
                         apiType:
                           type: string
                           enum:
@@ -1925,10 +2100,20 @@ spec:
                       required:
                       - name
                       - apiType
-                  controllerRole:
+                  canvasSystemRole:
                     description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
                       It must exist in the roles exposed by the partyRole API.
                     type: string
+                  componentRole:
+                    description: This allows components to declare statically defined roles that should be configured in Identity Management solution. 
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        description:
+                          type: string   
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true

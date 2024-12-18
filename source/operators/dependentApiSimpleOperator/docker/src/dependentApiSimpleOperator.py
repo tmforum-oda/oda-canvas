@@ -1,9 +1,7 @@
 from utils import safe_get
-
 import kopf
 import logging
 import os
-
 import kubernetes.client
 from kubernetes.client.rest import ApiException
 
@@ -118,7 +116,8 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
         else:
             if (
                 exp_api["spec"]["apiType"] == "openapi"
-                and exp_api["spec"]["specification"][0] == depapi_specification
+                and exp_api["spec"]["specification"][0]["url"]
+                == depapi_specification[0]["url"]
                 and safe_get(False, exp_api, "status", "implementation", "ready")
                 == True
             ):
