@@ -1,6 +1,6 @@
 # api-operator-istio
 
-![Version: 1.0.3](https://img.shields.io/badge/Version-1.0.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
 
 A helm chart to deploy the api operator for istio
 
@@ -12,7 +12,7 @@ A helm chart to deploy the api operator for istio
 | deployment.apiopImage | string | `"tmforumodacanvas/api-operator-istio"` |  |
 | deployment.apiopImagePullPolicy | string | `"IfNotPresent"` |  |
 | deployment.apiopPrereleaseSuffix | string | `nil` |  |
-| deployment.apiopVersion | string | `"0.6.0"` |  |
+| deployment.apiopVersion | string | `"1.0.0"` |  |
 | deployment.credentialName | string | `"istio-ingress-cert"` |  |
 | deployment.dataDog.enabled | bool | `false` |  |
 | deployment.hostName | string | `"*"` |  |

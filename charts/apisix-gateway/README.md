@@ -1,6 +1,6 @@
 # apisix-gateway
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.9.1](https://img.shields.io/badge/AppVersion-3.9.1-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -14,8 +14,9 @@ A Helm chart for Kubernetes
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| apisixistiooperatordeploymentnamespace | string | `"canvas"` |  |
 | apisixoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| apisixoperatorimage.repository | string | `"ravijangra92/api-operator-apisix:1.3"` |  |
+| apisixoperatorimage.repository | string | `"tmforumodacanvas/api-operator-apisix:1.0.0"` |  |
 | apisixoperatorreplicaCount | int | `1` |  |
 | gateway.type | string | `"LoadBalancer"` |  |
 | ingress-controller.config.apisix.adminAPIVersion | string | `"v3"` |  |
