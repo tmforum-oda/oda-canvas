@@ -3,6 +3,16 @@ entries:
   api-operator-istio:
   - apiVersion: v2
     appVersion: v1beta4
+    created: "2024-12-18T09:43:26.604022691Z"
+    description: A helm chart to deploy the api operator for istio
+    digest: 69fba79f374edc03fbfe45c54159261e11b9aa49f0aeee40a6b9a57460dd8f24
+    name: api-operator-istio
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-istio-1.0.4/api-operator-istio-1.0.4.tgz
+    version: 1.0.4
+  - apiVersion: v2
+    appVersion: v1beta4
     created: "2024-12-05T09:58:37.985533512Z"
     description: A helm chart to deploy the api operator for istio
     digest: 97496f315d7bd2fb71e05da322ce3d394ec41cc72f21bd13f686da675aea5235
@@ -21,6 +31,22 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-istio-1.0.2/api-operator-istio-1.0.2.tgz
     version: 1.0.2
+  apisix-gateway:
+  - apiVersion: v2
+    appVersion: 3.9.1
+    created: "2024-12-18T09:43:26.74401611Z"
+    dependencies:
+    - alias: apisix
+      name: apisix
+      repository: https://charts.apiseven.com
+      version: 2.7.0
+    description: A Helm chart for Kubernetes
+    digest: 4341f6e2dfd834f09ba2c37d846dd3cd5f85dfaece4d007c52a90b3803050fd3
+    name: apisix-gateway
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/apisix-gateway-0.1.3/apisix-gateway-0.1.3.tgz
+    version: 0.1.3
   canvas-api-gateway:
   - apiVersion: v2
     appVersion: v1beta4
@@ -178,6 +204,64 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.1.8-rc2/canvas-oda-1.1.8-rc2.tgz
     version: 1.1.8-rc2
+  - apiVersion: v2
+    appVersion: v1beta4
+    created: "2024-12-18T09:43:26.906978163Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.0.2
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.1.4
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: component-operator
+      repository: file://../component-operator
+      version: 1.2.2
+    - name: identityconfig-operator-keycloak
+      repository: file://../identityconfig-operator-keycloak
+      version: 1.0.0
+    - condition: api-operator-istio.enabled
+      name: api-operator-istio
+      repository: file://../api-operator-istio
+      version: 1.0.4
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 0.2.4
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 0.1.3
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 0.2.1
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.1.4
+    - condition: kong-gateway-install.enabled
+      name: kong-gateway
+      repository: file://../kong-gateway
+      version: 0.1.3
+    - condition: apisix-gateway-install.enabled
+      name: apisix-gateway
+      repository: file://../apisix-gateway
+      version: 0.1.3
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 25c5f6c77ec834d555a1f1b650cb9282fe9113729ebe414bf3947f0225051e7e
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.1.8-lt5/canvas-oda-1.1.8-lt5.tgz
+    version: 1.1.8-lt5
   - apiVersion: v2
     appVersion: v1beta4
     created: "2024-12-05T09:58:38.189626172Z"
@@ -982,6 +1066,21 @@ entries:
   kong-gateway:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2024-12-18T09:43:27.036590448Z"
+    dependencies:
+    - alias: kong
+      name: kong
+      repository: https://charts.konghq.com
+      version: 2.34.0
+    description: A Helm chart for Kubernetes
+    digest: a82a9c136a60ac144618c55178cecf3150ec9764d2b49002badc141e36fec59b
+    name: kong-gateway
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/kong-gateway-0.1.3/kong-gateway-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2024-06-13T19:04:00.045606873Z"
     dependencies:
     - alias: kong
@@ -1159,4 +1258,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2024-12-05T09:58:39.488966689Z"
+generated: "2024-12-18T09:43:27.036742383Z"
