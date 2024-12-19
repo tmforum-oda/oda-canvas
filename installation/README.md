@@ -164,7 +164,7 @@ it will get stuck in state "InProgress-SecretsConfig".
 2. Install the reference implementation
 
    **Istio API Operator as the Default:**
-   By default, the Istio API Operator is enabled in the Canvas installation. If you do not modify the [values.yaml](https://github.com/RJ-acc/oda-canvas-api-gateway/blob/update-doc-419-v1-release/charts/canvas-oda/values.yaml) file, Canvas     will use the Istio API Operator which manages a Canvas environment that exposes APIs through the Istio Service Mesh without any additional API Gateway.
+   By default, the Istio API Operator is enabled in the Canvas installation. If you do not modify the [values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/main/charts/canvas-oda/values.yaml) file, Canvas will use the Istio API Operator which manages a Canvas environment that exposes APIs through the Istio Service Mesh without any additional API Gateway.
 
  - **For Istio (Default) no change required in [values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/main/charts/canvas-oda/values.yaml).:**
    ```yaml
