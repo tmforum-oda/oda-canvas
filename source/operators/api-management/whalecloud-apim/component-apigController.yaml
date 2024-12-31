@@ -15,7 +15,7 @@ spec:
       serviceAccountName: odacomponent-account
       containers:
       - name: oda-controller-apig
-        image: wctdevops/apigcontroller:0.1
+        image: wctdevops/apigcontroller:0.2
         env:
         - name: LOGGING
           value: '20'    
