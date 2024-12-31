@@ -1,3 +1,9 @@
+"""Kubernetes operator for ODA API custom resources.
+
+It uses the kopf kubernetes operator framework (https://kopf.readthedocs.io/) to build an
+operator that takes API custom resources and implements them using Whale Cloud APIG(API Gateway). 
+
+"""
 import kopf
 import logging
 import os
@@ -7,21 +13,36 @@ from http.client import HTTPConnection
 import kubernetes.client
 from kubernetes.client.rest import ApiException
 
-logger = logging.getLogger()
-logger.setLevel(int(os.getenv('LOGGING', 10)))
+# Setup logging
+logging_level = os.environ.get("LOGGING", logging.INFO)
+kopf_logger = logging.getLogger()
+kopf_logger.setLevel(logging.WARNING)
+logger = logging.getLogger("APIOperator")
+logger.setLevel(int(logging_level))
+logger.info(f"Logging set to %s", logging_level)
+
+GROUP = "oda.tmforum.org"
+VERSION = "v1beta4"
+APIS_PLURAL = "exposedapis"
+COMPONENTS_PLURAL = "components"
+
+APIG_BIND_API = "/operator/AutoCreation/createAPIFromSwagger"
+APIG_UNBIND_API = "/operator/AutoCreation/removeAPIFromSwagger"
+APIG_DEFAULT_INGRESS = "apig-operator-uportal"
+APIG_DEFAULT_PORT = 8080
+APIG_SUCC_CODE = "0000"
 
 # when an oda.tmforum.org api resource is created or updated, bind the apig api
-@kopf.on.create('oda.tmforum.org', 'v1alpha2', 'apis')
-@kopf.on.update('oda.tmforum.org', 'v1alpha2', 'apis')
+@kopf.on.create(GROUP, VERSION, APIS_PLURAL)
+@kopf.on.update(GROUP, VERSION, APIS_PLURAL)
 def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"api has name: {meta['name']}")
     logging.debug(f"api has status: {status}")
     logging.debug(f"api is called with body: {spec}")
     namespace = meta.get('namespace')
-    apigEndpoint = os.getenv('APIG_ENDPOINT', "apig-operator-uportal.%s:8080"%namespace)
-    apigIngressName = os.getenv('APIG_INGRESS', "apig-operator-uportal")
-    apigBindPath = "/operator/AutoCreation/createAPIFromSwagger"
+    apigEndpoint = os.getenv('APIG_ENDPOINT', "%s.%s:%d"%(APIG_DEFAULT_INGRESS,namespace,APIG_DEFAULT_PORT))
+    apigIngressName = os.getenv('APIG_INGRESS', APIG_DEFAULT_INGRESS)
     
     apiSpec = {
         "path":spec['path'],
@@ -36,16 +57,13 @@ def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
         return {"response": "success", "spec": MOCK_ALL}
 
     if not ( status and ('apigBind' in status.keys()) and status['apigBind']['spec'] == apiSpec ):
-        resp = restCall(apigEndpoint, apigBindPath, apiSpec)
-        if not resp or resp['res_code'] != "00000":
+        resp = restCall(apigEndpoint, APIG_BIND_API, apiSpec)
+        if not resp or resp['res_code'] != APIG_SUCC_CODE:
             raise kopf.TemporaryError( "Bind apig failed, return %s"%resp )
         # if bind success, update CRD status
         try:
             customObjectsApi = kubernetes.client.CustomObjectsApi()
-            group = 'oda.tmforum.org' # str | the custom resource's group
-            version = 'v1alpha2' # str | the custom resource's version
-            plural = 'apis' # str | the custom resource's plural name
-            apiObj = customObjectsApi.get_namespaced_custom_object(group, version, namespace, plural, meta['name'] )
+            apiObj = customObjectsApi.get_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL, meta['name'] )
             
             ingressApi = kubernetes.client.NetworkingV1beta1Api()
             listIngressResp = ingressApi.read_namespaced_ingress( apigIngressName, namespace )
@@ -70,7 +88,7 @@ def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
                 apiObj['status']['apiStatus']['name'] = meta['name']
                 apiObj['status']['apiStatus']['url'] = "http://" + ingressTarget + spec['path']
                 apiObj['status']['implementation'] = {"ready": True}
-                patchRslt = customObjectsApi.patch_namespaced_custom_object(group, version, namespace, plural, meta['name'] , apiObj)
+                patchRslt = customObjectsApi.patch_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL, meta['name'] , apiObj)
                 logging.debug("Patch apis response: %s\n" % patchRslt)
         except ApiException as e:
             logging.warning("Exception when calling kubernetes api: %s\n" % e)
@@ -79,7 +97,7 @@ def apigBind(meta, spec, status, body, namespace, labels, name, **kwargs):
     return
 
 # when an oda.tmforum.org api resource is deleted, unbind the apig api
-@kopf.on.delete('oda.tmforum.org', 'v1alpha2', 'apis', retries=5)
+@kopf.on.delete(GROUP, VERSION, APIS_PLURAL, retries=5)
 def apigUnBind(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     logging.debug(f"api has name: {meta['name']}")
@@ -91,8 +109,7 @@ def apigUnBind(meta, spec, status, body, namespace, labels, name, **kwargs):
         return {"response": "success", "spec": MOCK_ALL }
     
     namespace = meta.get('namespace')
-    apigEndpoint = os.getenv('APIG_ENDPOINT', "apig-operator-uportal.%s:8080"%namespace) 
-    apigUnBindPath = "/operator/AutoCreation/removeAPIFromSwagger"
+    apigEndpoint = os.getenv('APIG_ENDPOINT', "%s.%s:%d"%(APIG_DEFAULT_INGRESS,namespace,APIG_DEFAULT_PORT))
     
     apiSpec = {
         "path":spec['path'],
@@ -101,17 +118,17 @@ def apigUnBind(meta, spec, status, body, namespace, labels, name, **kwargs):
         "implementation": spec['implementation'],
         "port": spec['port']
     }
-    resp = restCall(apigEndpoint, apigUnBindPath, apiSpec)
+    resp = restCall(apigEndpoint, APIG_UNBIND_API, apiSpec)
     
-    if not resp or resp['res_code'] != "00000":
+    if not resp or resp['res_code'] != APIG_SUCC_CODE:
         raise kopf.TemporaryError( "UnBind apig failed , return %s"%resp )
     return {"response": resp}
 
-# a simple Restful API caller
+# call Apig Restful APIs
 def restCall( host, path, spec ):
     APIG_MOCK = os.getenv('APIG_MOCK', "")
     if APIG_MOCK != "":
-        return {"res_code": "00000", "res_message": APIG_MOCK }
+        return {"res_code": APIG_SUCC_CODE, "res_message": APIG_MOCK }
         
     hConn=HTTPConnection(host)
     respBody = None
@@ -132,5 +149,5 @@ def restCall( host, path, spec ):
         return respBody
     except Exception as StrError:
         hConn.close()
-        logging.warn("Exception when calling restful api: %s\n" % StrError)
+        logging.error("Exception when calling restful api: %s\n" % StrError)
         time.sleep(2)
