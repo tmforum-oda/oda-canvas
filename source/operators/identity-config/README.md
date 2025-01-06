@@ -11,7 +11,7 @@ At present, there are IdentityConfig Operators for the following:
 * [Keycloak](./keycloak): Operator for the Keycloak open source Identity Management system (https://www.keycloak.org/).
 * [Microsoft Azure Entra ID](../../../installation/azure): Operator for Azure Entra ID (https://learn.microsoft.com/en-us/entra/identity/).
 
-## ExposedAPI Data Model
+## IdentityConfig Data Model
 
 The `IdentityConfig` resource describes the permissions a component would like to configure in the Identity Management system. The component can provide static definitions in the component itself, or the component can dynamically manage the permissions by exposing a TM Forum Open-API.
 
