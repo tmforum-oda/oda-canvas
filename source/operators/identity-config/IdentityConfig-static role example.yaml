@@ -1,0 +1,13 @@
+apiVersion: oda.tmforum.org/v1
+kind: IdentityConfig
+metadata:
+  name: ctk-productcatalogmanagementproductcatalogmanagement # Kubernetes resource name for the instance of the IdentityConfig
+spec:
+  canvasSystemRole: Admin
+  componentRole:
+  - description: Product Catalogue Administrator
+    name: pcadmin
+  - description: Catalogue Owner for catalogue 1
+    name: cat1owner
+  - description: Catalogue Owner for catalogue 2
+    name: cat2owner

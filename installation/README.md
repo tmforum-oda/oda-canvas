@@ -14,7 +14,7 @@ For each release, we will support a min and max Kubernetes version.
 | v1beta2               | 1.22                   | 1.27                   |
 | v1beta3               | 1.22                   | 1.29                   |
 | v1beta4               | 1.22                   | 1.29                   |
-| v1                    | 1.22                   | 1.29                   |
+| v1                    | 1.22                   | 1.30                   |
 
 If you are connected to an ODA Canvas, to test what version of Canvas it is, use the command:
 

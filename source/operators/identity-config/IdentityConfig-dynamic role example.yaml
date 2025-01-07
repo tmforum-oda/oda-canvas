@@ -1,0 +1,10 @@
+apiVersion: oda.tmforum.org/v1
+kind: IdentityConfig
+metadata:
+  name: ctk-productcatalogmanagementproductcatalogmanagement # Kubernetes resource name for the instance of the IdentityConfig
+spec:
+  canvasSystemRole: Admin
+  partyRoleAPI:
+    implementation: ctk-partyroleapi
+    path: /ctk-productcatalogmanagement/tmf-api/partyRoleManagement/v4
+    port: 8080
