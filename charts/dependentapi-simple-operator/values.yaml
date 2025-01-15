@@ -13,4 +13,5 @@ serviceInventoryAPI:
   serverUrl: http://info.canvas.svc.cluster.local
   mongodb:
     port: 27017
-    database: svcinv 
+    database: svcinv
+    image: mongo:6.0
