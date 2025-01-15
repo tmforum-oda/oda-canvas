@@ -12,7 +12,7 @@ spec:
       serviceAccountName: {{ .Release.Name }}-operator
       containers:
       - name: patch-istio-ingress
-        image: bitnami/kubectl:latest
+        image: {{ .Values.global.hookImages.kubectl }}
         command:
           - /bin/sh
           - -c

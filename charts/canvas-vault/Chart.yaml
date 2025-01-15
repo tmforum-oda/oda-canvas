@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.0
+version: 1.0.1
+# version: 1.0.1 - Templatize hardcoded images in post/pre-install/upgrade hook jobs
 # version: 1.0.0 - updated to use v1 of CRD spec
 # version: 0.2.1 - issue 372 - deploy non-DEV Vault with persistence and autounseal 
 # version: 0.2.0 - ODAA-86: downgrade HashiCorp Vault to 1.14.8. Last version under MPLv2, 
