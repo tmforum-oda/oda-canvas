@@ -91,3 +91,4 @@ kongistiooperatordeploymentnamespace: canvas
 kongoperatorimage:
   repository: tmforumodacanvas/api-operator-kong:1.0.0
   pullPolicy: IfNotPresent
+initContainerImage: busybox:1.28

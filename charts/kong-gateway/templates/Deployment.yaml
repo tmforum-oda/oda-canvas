@@ -16,7 +16,7 @@ spec:
       serviceAccountName: kongapioperator-account
       initContainers:
         - name: wait-kong-admin
-          image: {{ .Values.global.hookImages.busybox }}
+          image: {{ .Values.initContainerImage }}
           command:
             - sh
             - -c
