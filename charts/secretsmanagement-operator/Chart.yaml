@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.0
+version: 1.0.1
+# version: 1.0.1 - Templatized hardcoded images
 # version: 1.0.0 - updated to use v1 of CRD spec
 # version: 0.1.3 - issue 320 - SecretsManagemnt-Operator supports Canvas Log Viewer format 
 # version: 0.1.2 - allow https calls to Vault with self-signed certs (VAULT_SKIP_VERIFY env var)

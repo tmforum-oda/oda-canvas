@@ -27,7 +27,7 @@ spec:
       containers:
       - name: post-install-job
         # TODO[FH] remove suffix before merging to master/main
-        image: tmforumodacanvas/baseimage-kubectl-curl:1.30.5
+        image: {{ .Values.global.hookImages.kubectlCurl }}
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
         args: ["-c", "echo starting canvas vault post install hook;

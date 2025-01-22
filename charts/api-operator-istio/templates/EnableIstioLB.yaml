@@ -11,7 +11,7 @@ spec:
       serviceAccountName: apioperator-account
       containers:
       - name: patch-istio-ingress
-        image: bitnami/kubectl:latest  # Using kubectl image
+        image: {{ .Values.global.hookImages.kubectl }}  # Using kubectl image
         command:
           - /bin/sh
           - -c

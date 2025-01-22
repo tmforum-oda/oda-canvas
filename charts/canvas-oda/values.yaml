@@ -8,6 +8,10 @@ global:
   certificate:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
+  hookImages:
+    kubectl: bitnami/kubectl:latest
+    kubectlCurl: tmforumodacanvas/baseimage-kubectl-curl:1.30.5
+    busybox: busybox:1.35
 
 preqrequisitechecks:
   istio:  true 

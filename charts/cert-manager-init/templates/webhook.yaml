@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: post-install
-          image: busybox:1.35
+          image: {{ .Values.global.hookImages.busybox }}
           imagePullPolicy: IfNotPresent
           command: ['sleep', '{{- $delay}}']
       restartPolicy: OnFailure
