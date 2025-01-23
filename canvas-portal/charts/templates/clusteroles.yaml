@@ -89,6 +89,11 @@ rules:
   resources:
     - components
     - apis
+    - dependentapis
+    - exposedapis
+    - publishednotifications
+    - subscribednotifications
+    - secretsmanagements
   verbs:
     - create
     - delete

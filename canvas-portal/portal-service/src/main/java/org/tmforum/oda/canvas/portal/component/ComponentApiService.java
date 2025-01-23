@@ -31,12 +31,12 @@ public class ComponentApiService {
     }
 
     private static final CustomResourceDefinitionContext ODA_COMPONENT_API_CRD_CONTEXT = new CustomResourceDefinitionContext.Builder()
-            .withName("apis.oda.tmforum.org")
+            .withName("exposedapis.oda.tmforum.org")
             .withGroup("oda.tmforum.org")
             .withScope("Namespaced")
-            .withVersion("v1alpha3")
-            .withPlural("apis")
-            .withKind("api")
+            .withVersion("v1")
+            .withPlural("exposedapis")
+            .withKind("ExposedAPI")
             .build();
 
     /**
