@@ -16,8 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.1
-# version: 1.2.1     - Templatized hardcoded images
+version: 1.2.1-rc1
+# version: 1.2.1-rc1 - Templatized hardcoded images
 # version: 1.2.0     - initial release of v1 component specification
 # version: 1.1.8     - released version
 # version: 1.1.8-lt6 - final changes to v1beta4 crd
