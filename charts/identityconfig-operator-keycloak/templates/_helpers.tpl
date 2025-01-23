@@ -65,7 +65,7 @@ Create the name of the service account to use
 build the full idkop docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "identityconfig-operator-keycloak.idkopImage" -}}
-  {{- .Values.deployment.idkopImage -}}:{{- .Values.deployment.idkopVersion -}}
+  {{ include "docker.registry" .}}{{- .Values.deployment.idkopImage -}}:{{- .Values.deployment.idkopVersion -}}
   {{- if .Values.deployment.idkopPrereleaseSuffix -}}
     -{{- .Values.deployment.idkopPrereleaseSuffix -}}
   {{- end -}}
@@ -76,7 +76,7 @@ build the full idkop docker image name from image + version + prereleaseSuffix
 build the full idlistkey docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "identityconfig-operator-keycloak.idlistkeyImage" -}}
-  {{- .Values.deployment.idlistkeyImage -}}:{{- .Values.deployment.idlistkeyVersion -}}
+  {{ include "docker.registry" .}}{{- .Values.deployment.idlistkeyImage -}}:{{- .Values.deployment.idlistkeyVersion -}}
   {{- if .Values.deployment.idlistkeyPrereleaseSuffix -}}
     -{{- .Values.deployment.idlistkeyPrereleaseSuffix -}}
   {{- end -}}
@@ -102,6 +102,3 @@ Create KOPF cli option for the comma seperated list of namespaces in monitoredNa
 {{- define "identityconfig-operator-keycloak.monitoredNamespacesCLIOpts" -}}
 {{- printf "-n %s" .Values.deployment.monitoredNamespaces | replace "," " -n " }}
 {{- end -}}
-
-
-

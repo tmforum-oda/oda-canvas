@@ -23,6 +23,7 @@ version: 1.2.6
 # version: 1.2.3 - issue 362 - set serviceAccountsEnabled to true when creating new clients
 # version: 1.2.2 - updated listener docker image to remove vulnerabilities
 # version: 1.2.1 - Added startup handler with api server watcher timeout
+# version: 1.2.1 - Added support for custom/private docker registry and image pull secrets
 # version: 1.2.0 - updated to use v1 of CRD spec
 # version: 1.1.0 - changed controllerRole to canvasSystemRole
 # version: 1.0.0 - initial version - identityconfig separated out from component operator

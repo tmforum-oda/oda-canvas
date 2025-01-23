@@ -2,7 +2,7 @@
 build the full kong docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "api-operator-kong.kongopDockerimage" -}}
-  {{- .Values.kongoperatorimage.kongopImage -}}:{{- .Values.kongoperatorimage.kongopVersion -}}
+  {{ include "docker.registry" .}}{{- .Values.kongoperatorimage.kongopImage -}}:{{- .Values.kongoperatorimage.kongopVersion -}}
   {{- if .Values.kongoperatorimage.kongopPrereleaseSuffix -}}
     -{{- .Values.kongoperatorimage.kongopPrereleaseSuffix -}}
   {{- end -}}
