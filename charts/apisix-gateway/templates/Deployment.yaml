@@ -16,7 +16,7 @@ spec:
       serviceAccountName: apisixapioperator-account
       initContainers:
         - name: wait-apisix-admin
-          image: busybox:1.28
+          image: {{ .Values.initContainerImage }}
           command:
             - sh
             - -c

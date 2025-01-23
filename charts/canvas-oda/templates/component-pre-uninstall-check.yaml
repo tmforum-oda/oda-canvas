@@ -13,7 +13,7 @@ spec:
       serviceAccountName: odacomponent-account
       containers:
         - name: component-checker
-          image: bitnami/kubectl:latest
+          image: {{ .Values.global.hookImages.kubectl }}
           command:
             - /bin/sh
             - -c

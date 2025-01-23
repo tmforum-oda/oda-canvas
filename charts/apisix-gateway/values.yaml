@@ -13,3 +13,4 @@ apisixistiooperatordeploymentnamespace: canvas
 apisixoperatorimage:
   repository: tmforumodacanvas/api-operator-apisix:1.0.0
   pullPolicy: IfNotPresent
+initContainerImage: busybox:1.28

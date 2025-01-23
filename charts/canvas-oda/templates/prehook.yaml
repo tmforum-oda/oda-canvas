@@ -13,7 +13,7 @@ spec:
       serviceAccount: canvas-sm-prehook-sa
       containers:
       - name: check-istio
-        image: bitnami/kubectl:latest
+        image: {{ .Values.global.hookImages.kubectl }}
         command:
             - /bin/sh
             - -c

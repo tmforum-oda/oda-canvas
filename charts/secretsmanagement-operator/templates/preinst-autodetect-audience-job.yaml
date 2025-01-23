@@ -28,7 +28,7 @@ spec:
       containers:
       - name: autodetect-audience
         # TODO[FH]: remove prereleasesuffix
-        image: "tmforumodacanvas/baseimage-kubectl-curl:1.30.5"
+        image: {{ .Values.global.hookImages.kubectlCurl }}
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
         args: ["-c", "echo starting autodetect audience pre install hook;

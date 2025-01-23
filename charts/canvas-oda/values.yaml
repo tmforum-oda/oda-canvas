@@ -8,6 +8,10 @@ global:
   certificate:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
+  hookImages:
+    kubectl: bitnami/kubectl:latest
+    kubectlCurl: tmforumodacanvas/baseimage-kubectl-curl:1.30.5
+    busybox: busybox:1.35
 
 preqrequisitechecks:
   istio:  true 
@@ -417,7 +421,8 @@ api-operator-kong:
       pullPolicy: IfNotPresent
       kongopImage: tmforumodacanvas/api-operator-kong
       kongopVersion: 1.0.0
-      kongopPrereleaseSuffix:  
+      kongopPrereleaseSuffix:
+    initContainerImage: busybox:1.28
 
 
 # -----------------------------------------------------------------------------
@@ -457,3 +462,4 @@ api-operator-apisix:
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas
+  initContainerImage: busybox:1.28
