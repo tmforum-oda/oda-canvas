@@ -243,7 +243,7 @@ Given('the {string} component has a deployment status of {string} for the {strin
   while (componentResource == null) {
     componentResource = await resourceInventoryUtils.getComponentResource(  releaseName + '-' + componentName, NAMESPACE)
     // Logs for componentResource for debugging purpose 
-    console.log('Current componentResource:', JSON.stringify(componentResource, null, 2));
+    // console.log('Current componentResource:', JSON.stringify(componentResource, null, 2));
 
     endTime = performance.now()
 
