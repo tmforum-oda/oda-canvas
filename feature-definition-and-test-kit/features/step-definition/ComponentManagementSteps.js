@@ -115,7 +115,7 @@ When('I upgrade the {string} package as release {string}', async function (compo
 
 
 /**
- * Validate if a package has been installed using the packageManagerUtils.installPackage function.
+* Validate if a package has been installed (and install it if not) using the packageManagerUtils.installPackage function.
  *
  * @param {string} componentPackage - The name of the example component package to install.
  */
