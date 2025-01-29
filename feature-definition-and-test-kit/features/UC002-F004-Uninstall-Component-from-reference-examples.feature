@@ -4,10 +4,11 @@
 
 @UC002         # tagged as use case 2
 @UC002-F004    # tagged as feature 4 within use case 2
-Feature: UC002-F004 Uninstall a Helm component and verify resources removal
+Feature: UC002-F004 Uninstall a component and verify resources removal
 
-    Scenario Outline: Uninstall a Helm component and verify resources removal
-        Given the '<ComponentName>' component has a deployment status of 'Complete' for the '<ReleaseName>' release
+    Scenario Outline: Uninstall a component and verify resources removal
+        Given I install the '<PackageName>' package as release '<ReleaseName>' from the '<RepoName>' repository
+        And the '<ComponentName>' component has a deployment status of 'Complete' for the '<ReleaseName>' release
         When I uninstall the '<PackageName>' package as release '<ReleaseName>'
         And the canvas operator process the uninstallation of components and exposedapis
         Then I should not see the '<ComponentName>' component after '<ReleaseName>' release uninstall

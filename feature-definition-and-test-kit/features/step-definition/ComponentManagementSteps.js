@@ -89,16 +89,16 @@ When('I install the {string} package as release {string}', async function (compo
 });
 
 /**
- * Add and update a Helm repository.
+ * Add and update a package repository.
  */
-Given('the Helm repository {string} with URL {string} is added and updated', async function (repoName, repoURL) {
-  console.log(`Checking if Helm repo '${repoName}' exists...`);
+Given('the repository {string} with URL {string} is added and updated', async function (repoName, repoURL) {
+  console.log(`Checking if package repo '${repoName}' exists...`);
 
-  // Add repo if not present
-  await packageManagerUtils.addHelmRepoIfNotExists(repoName, repoURL);
+  // Add package repo if not present
+  await packageManagerUtils.addPackageRepoIfNotExists(repoName, repoURL);
 
-  // Update the repo to ensure latest index
-  await packageManagerUtils.updateHelmRepo(repoName);
+  // Update the package repo to ensure latest index
+  await packageManagerUtils.updatePackageRepo(repoName);
 });
 
 
@@ -115,7 +115,7 @@ When('I upgrade the {string} package as release {string}', async function (compo
 
 
 /**
- * Validate if a package has been installed (and install it if not) using the packageManagerUtils.installPackage function.
+ * Validate if a package has been installed using the packageManagerUtils.installPackage function.
  *
  * @param {string} componentPackage - The name of the example component package to install.
  */
@@ -125,13 +125,13 @@ Given('an example package {string} has been installed', async function (componen
 });
 
 /**
- * Installing a Helm package from a repository.
+ * Installing a package from a repository.
  */
 When('I install the {string} package as release {string} from the {string} repository', async function (packageName, releaseName, repoName) {
   console.log(`Installing package '${packageName}' as release '${releaseName}' from repo '${repoName}'...`);
   global.currentReleaseName = releaseName;
 
-  // Install (or upgrade) the package from the specified Helm repo
+  // Install (or upgrade) the package from the specified repo
   await packageManagerUtils.installupgradePackageFromRepo(repoName, packageName, releaseName, NAMESPACE);
   console.log(`Successfully installed/upgraded package '${packageName}' as release '${releaseName}'.`);
 });
@@ -217,7 +217,7 @@ Given('the release {string} is uninstalled', async function (releaseName) {
 });
 
 /**
- * Uninstall the specified Helm package for the given release, ensuring it ends up uninstalled.
+ * Uninstall the specified package for the given release, so it ends up uninstalled.
  *
  * @param {string} packageName - The name of the package to be uninstalled.
  * @param {string} releaseName - The release name to uninstall.

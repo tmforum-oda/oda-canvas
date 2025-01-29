@@ -186,19 +186,19 @@ const packageManagerUtils = {
   },
 
   /**
- * Check if a Helm repository exists, and add it if not present.
- * @param {string} repoName - Name of the Helm repository.
- * @param {string} repoURL - URL of the Helm repository.
+ * Check if a package repository exists, and add it if not present.
+ * @param {string} repoName - Name of the package repository.
+ * @param {string} repoURL - URL of the package repository.
  */
-  addHelmRepoIfNotExists: async function (repoName, repoURL) {
-    console.log(`Checking if Helm repo '${repoName}' is already added...`);
+  addPackageRepoIfNotExists: async function (repoName, repoURL) {
+    console.log(`Checking if repo '${repoName}' is already added...`);
     const helmRepos = execSync('helm repo list -o json', { encoding: 'utf-8' });
     const repos = JSON.parse(helmRepos);
 
     const repoExists = repos.some(repo => repo.name === repoName && repo.url === repoURL);
 
     if (!repoExists) {
-      console.log(`Adding Helm repo '${repoName}' with URL '${repoURL}'...`);
+      console.log(`Adding package repo '${repoName}' with URL '${repoURL}'...`);
       await executeHelmCommand(`helm repo add ${repoName} ${repoURL}`);
     } else {
       console.log(`Helm repo '${repoName}' already exists.`);
@@ -206,22 +206,22 @@ const packageManagerUtils = {
   },
 
   /**
-  * Update a specific Helm repository.
-  * @param {string} repoName - Name of the Helm repository.
+  * Update a specific package repository.
+  * @param {string} repoName - Name of the package repository.
   */
-  updateHelmRepo: async function (repoName) {
+  updatePackageRepo: async function (repoName) {
     if (!repoName){
       throw new Error('Repo name is required');
     }
-    console.log(`Updating Helm repository '${repoName}'...`);
+    console.log(`Updating package repository '${repoName}'...`);
     await executeHelmCommand(`helm repo update ${repoName}`);
   },
 
   /**
-   * Install a Helm package from a specific repository.
+   * Install a package from a specific repository.
    * @param {string} repoName - Name of the Helm repository.
    * @param {string} packageName - Name of the Helm package.
-   * @param {string} releaseName - Helm release name.
+   * @param {string} releaseName - Release name.
    * @param {string} namespace -  namespace.
    */
   installupgradePackageFromRepo: async function (repoName, packageName, releaseName, namespace) {

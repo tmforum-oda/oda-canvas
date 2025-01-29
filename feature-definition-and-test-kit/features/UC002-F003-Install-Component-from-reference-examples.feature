@@ -4,10 +4,10 @@
 
 @UC002         # tagged as use case 2
 @UC002-F003    # tagged as feature 3 within use case 2
-Feature: UC002-F003 Install Component from Helm Repository
+Feature: UC002-F003 Install Component from Repository
 
-    Scenario Outline: Install a Helm component and verify ExposedAPI resources creation
-        Given the Helm repository '<RepoName>' with URL '<ReferenceExampleRepoURL>' is added and updated
+    Scenario Outline: Install a component and verify ExposedAPI resources creation
+        Given the repository '<RepoName>' with URL '<ReferenceExampleRepoURL>' is added and updated
         When I install the '<PackageName>' package as release '<ReleaseName>' from the '<RepoName>' repository 
         And the '<ComponentName>' component has a deployment status of 'Complete' for the '<ReleaseName>' release
         Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
