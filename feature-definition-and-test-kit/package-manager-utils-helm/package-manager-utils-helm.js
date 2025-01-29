@@ -183,10 +183,62 @@ const packageManagerUtils = {
    */
   upgradePackage: async function(componentPackage, releaseName, namespace) {
     await executeHelmCommand('helm upgrade ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace);   
-  }
+  },
 
+  /**
+ * Check if a package repository exists, and add it if not present.
+ * @param {string} repoName - Name of the package repository.
+ * @param {string} repoURL - URL of the package repository.
+ */
+  addPackageRepoIfNotExists: async function (repoName, repoURL) {
+    console.log(`Checking if repo '${repoName}' is already added...`);
+    const helmRepos = execSync('helm repo list -o json', { encoding: 'utf-8' });
+    const repos = JSON.parse(helmRepos);
+
+    const repoExists = repos.some(repo => repo.name === repoName && repo.url === repoURL);
+
+    if (!repoExists) {
+      console.log(`Adding package repo '${repoName}' with URL '${repoURL}'...`);
+      await executeHelmCommand(`helm repo add ${repoName} ${repoURL}`);
+    } else {
+      console.log(`Helm repo '${repoName}' already exists.`);
+    }
+  },
+
+  /**
+  * Update a specific package repository.
+  * @param {string} repoName - Name of the package repository.
+  */
+  updatePackageRepo: async function (repoName) {
+    if (!repoName){
+      throw new Error('Repo name is required');
+    }
+    console.log(`Updating package repository '${repoName}'...`);
+    await executeHelmCommand(`helm repo update ${repoName}`);
+  },
+
+  /**
+   * Install a package from a specific repository.
+   * @param {string} repoName - Name of the Helm repository.
+   * @param {string} packageName - Name of the Helm package.
+   * @param {string} releaseName - Release name.
+   * @param {string} namespace -  namespace.
+   */
+  installupgradePackageFromRepo: async function (repoName, packageName, releaseName, namespace) {
+    console.log(`Checking if release '${releaseName}' exists in namespace '${namespace}'...`);
+    const helmList = execSync(`helm list -o json -n ${namespace}`, { encoding: 'utf-8' });
+    const releases = JSON.parse(helmList);
+
+    const releaseExists = releases.some(release => release.name === releaseName);
+
+    if (releaseExists) {
+      console.log(`Upgrading existing release '${releaseName}' from repo '${repoName}'...`);
+      await executeHelmCommand(`helm upgrade ${releaseName} ${repoName}/${packageName} -n ${namespace}`);
+    } else {
+      console.log(`Installing new release '${releaseName}' from repo '${repoName}'...`);
+      await executeHelmCommand(`helm install ${releaseName} ${repoName}/${packageName} -n ${namespace}`);
+    }
+  },
 }
-
-
 
 module.exports = packageManagerUtils
