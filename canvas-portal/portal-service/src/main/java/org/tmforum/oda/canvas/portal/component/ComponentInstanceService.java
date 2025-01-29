@@ -44,7 +44,6 @@ public class ComponentInstanceService {
     }
 
     private final Map<Integer, CustomResourceDefinitionContext> customResourceDefinitionContexts = new ConcurrentHashMap<>();
-    private static final String[] SUPPORTED_VERSIONS = new String[]{"v1", "v1beta4", "v1beta3", "v1beta1", "v1alpha4", "v1alpha3", "v1alpha2", "v1alpha1"};
 
     /**
      * Get a list of ODA Component instances
@@ -255,7 +254,7 @@ public class ComponentInstanceService {
      */
     public CustomResourceDefinitionContext getCustomResourceDefinitionContext(String namespace) throws BaseAppException {
         synchronized (customResourceDefinitionContexts) {
-            for (String version : SUPPORTED_VERSIONS) {
+            for (String version : ComponentVersions.getSupportedVersions()) {
                 CustomResourceDefinitionContext customResourceDefinitionContext = new CustomResourceDefinitionContext.Builder()
                         .withName("components.oda.tmforum.org")
                         .withGroup("oda.tmforum.org")

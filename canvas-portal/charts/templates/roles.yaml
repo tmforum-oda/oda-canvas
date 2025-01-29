@@ -128,7 +128,7 @@ roleRef:
   name: canvas-portal-role-namespaced
 subjects:
   - kind: ServiceAccount
-    name: canvas-portal
+    name: {{ include "canvas-portal.serviceAccountName" . }}
     namespace: {{ $.Release.Namespace }}
   {{- end }}
 {{- end }}
