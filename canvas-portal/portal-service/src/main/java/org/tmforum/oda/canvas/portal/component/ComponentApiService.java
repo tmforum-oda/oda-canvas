@@ -42,7 +42,7 @@ public class ComponentApiService {
      */
     public CustomResourceDefinitionContext getCustomResourceDefinitionContext(String namespace) throws BaseAppException {
         synchronized (customResourceDefinitionContexts) {
-            for (String version : ComponentVersions.getSupportedVersions()) {
+            for (String version : ComponentInstanceService.SUPPORTED_VERSIONS) {
                 CustomResourceDefinitionContext customResourceDefinitionContext = new CustomResourceDefinitionContext.Builder()
                         .withName("exposedapis.oda.tmforum.org")
                         .withGroup("oda.tmforum.org")
