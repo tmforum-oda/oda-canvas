@@ -1,0 +1,65 @@
+apiVersion: oda.tmforum.org/v1
+kind: Component
+metadata:
+  name: f-cat-productcatalog
+  labels:
+    oda.tmforum.org/componentName: f-cat-productcatalog
+spec:
+  componentMetadata:
+    id: TMFC001
+    name: productcatalog
+    functionalBlock: CoreCommerce
+    publicationDate: 2021-01-30
+    status: specified
+    version: v1
+    description: "Simple Product Catalog ODA-Component from Open-API reference implementation."
+    maintainers:
+    - name: Lester Thomas
+      email: lester.thomas@vodafone.com
+    owners:
+      - name: Lester Thomas
+        email: lester.thomas@vodafone.com     
+  coreFunction:
+    exposedAPIs: 
+    - name: productcatalogmanagement
+      specification:
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+      implementation: f-cat-prodcatapi
+      apiType: openapi
+      path: /f-cat-productcatalog/tmf-api/productCatalogManagement/v4
+      developerUI: /f-cat-productcatalog/tmf-api/productCatalogManagement/v4/docs
+      port: 8080
+    - name: promotionmanagement
+      specification:
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF671_Promotion/master/TMF671-Promotion-v4.0.0.swagger.json"
+      implementation: f-cat-promgmtapi
+      apiType: openapi
+      path: /f-cat-productcatalog/tmf-api/promotionManagement/v4
+      developerUI: /f-cat-productcatalog/tmf-api/promotionManagement/v4/docs
+      port: 8080      
+    dependentAPIs: 
+    - name: downstreamproductcatalog 
+      apiType: openapi     
+      specification: 
+      - url: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+  eventNotification:
+    publishedEvents: []
+    subscribedEvents: []
+  managementFunction: 
+    exposedAPIs: 
+    - name: metrics
+      apiType: prometheus
+      implementation: f-cat-productcatalog-sm
+      path: /f-cat-productcatalog/metrics
+      port: 4000    
+  securityFunction:
+    canvasSystemRole: {{ .Values.security.canvasSystemRole }}
+    exposedAPIs: 
+    - name: partyrole
+      specification:
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
+      implementation: f-cat-partyroleapi
+      apiType: openapi
+      path: /f-cat-productcatalog/tmf-api/partyRoleManagement/v4
+      developerUI: /f-cat-productcatalog/tmf-api/partyRoleManagement/v4/docs
+      port: 8080

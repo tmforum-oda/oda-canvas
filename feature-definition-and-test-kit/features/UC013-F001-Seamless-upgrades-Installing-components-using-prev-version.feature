@@ -17,9 +17,11 @@ Feature: UC013-F001 Seamless upgrade: Installing component using previous versio
         When I install the 'productcatalog-v1beta3' package
         And the 'productcatalogmanagement' component has a deployment status of 'Complete'
         Then I can query the 'v1' spec version of the 'productcatalogmanagement' component
-    
-    
-    
+
+    Scenario: Installing a component with Dependent APIs using a previous (N-1) version
+        Given an example package 'productcatalog-dependendent-API-v1beta4' with a 'productcatalogmanagement' component with '1' DependentAPI in its 'coreFunction' segment
+        When I install the 'productcatalog-dependendent-API-v1beta4' package as release 'f-cat'
+        Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'productcatalogmanagement' component with a ready status
 
 
 
