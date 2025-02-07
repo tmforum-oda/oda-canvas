@@ -57,7 +57,7 @@ var app = express();
 app.use(express.json())    // <==== parse request body as JSON
 var httpsServer, httpServer;
  
-// get command line arguments
+// get command line arguments 
 var args = process.argv.slice(2);
 
 const supportedAPIVersions = ["oda.tmforum.org/v1beta2", "oda.tmforum.org/v1beta3", "oda.tmforum.org/v1beta4", "oda.tmforum.org/v1"]
