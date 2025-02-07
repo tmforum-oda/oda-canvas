@@ -359,12 +359,14 @@ Example response:
                       objectsArray[key].spec[segment].exposedAPIs[api].specification[i] = objectsArray[key].spec[segment].exposedAPIs[api].specification[i].url;
                     }
                   }
+                }
+                for (api in objectsArray[key].spec[segment].dependentAPIs) {                 
                   if (objectsArray[key].spec[segment].dependentAPIs) {
                     if (objectsArray[key].spec[segment].dependentAPIs[api].specification) {
                       objectsArray[key].spec[segment].dependentAPIs[api].specification = objectsArray[key].spec[segment].dependentAPIs[api].specification[0].url;
                     }
                   }
-                }
+                }                
               });
       
               // rename securityFunction.canvasSystemRole to controllerRole
