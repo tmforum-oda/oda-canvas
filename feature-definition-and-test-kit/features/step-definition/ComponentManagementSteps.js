@@ -89,6 +89,20 @@ When('I install the {string} package as release {string}', async function (compo
 });
 
 /**
+ * Add and update a package repository.
+ */
+Given('the repository {string} with URL {string} is added and updated', async function (repoName, repoURL) {
+  console.log(`Checking if package repo '${repoName}' exists...`);
+
+  // Add package repo if not present
+  await packageManagerUtils.addPackageRepoIfNotExists(repoName, repoURL);
+
+  // Update the package repo to ensure latest index
+  await packageManagerUtils.updatePackageRepo(repoName);
+});
+
+
+/**
  * Upgrade a specified package using the packageManagerUtils.upgradePackage function. Use the specified release name.
  *
  * @param {string} componentPackage - The name of the package to upgrade.
@@ -101,13 +115,25 @@ When('I upgrade the {string} package as release {string}', async function (compo
 
 
 /**
- * Validate if a package has been installed (and install it if not) using the packageManagerUtils.installPackage function.
+* Validate if a package has been installed (and install it if not) using the packageManagerUtils.installPackage function.
  *
  * @param {string} componentPackage - The name of the example component package to install.
  */
 Given('an example package {string} has been installed', async function (componentPackage) {
   global.currentReleaseName = DEFAULT_RELEASE_NAME
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
+/**
+ * Installing a package from a repository.
+ */
+When('I install the {string} package as release {string} from the {string} repository', async function (packageName, releaseName, repoName) {
+  console.log(`Installing package '${packageName}' as release '${releaseName}' from repo '${repoName}'...`);
+  global.currentReleaseName = releaseName;
+
+  // Install (or upgrade) the package from the specified repo
+  await packageManagerUtils.installupgradePackageFromRepo(repoName, packageName, releaseName, NAMESPACE);
+  console.log(`Successfully installed/upgraded package '${packageName}' as release '${releaseName}'.`);
 });
 
 /**
@@ -190,6 +216,81 @@ Given('the release {string} is uninstalled', async function (releaseName) {
   await packageManagerUtils.uninstallPackage(releaseName, NAMESPACE)
 });
 
+/**
+ * Uninstall the specified package for the given release, so it ends up uninstalled.
+ *
+ * @param {string} packageName - The name of the package to be uninstalled.
+ * @param {string} releaseName - The release name to uninstall.
+ */
+Given('I uninstall the {string} package as release {string}', async function (packageName, releaseName) {
+  console.log(`Uninstalling package '${packageName}' with release '${releaseName}'...`);
+  await packageManagerUtils.uninstallPackage(releaseName, NAMESPACE);
+});
+
+/**
+ * Specified component need to have a deployment status of 'Complete' for the given release.
+ *
+ * @param {string} componentName - The name of the component to check.
+ * @param {string} deploymentStatus - The expected deployment status of the component.
+ * @returns {Promise<void>} - A Promise that resolves if the component is 'Complete', or throws if not.
+ */
+Given('the {string} component has a deployment status of {string} for the {string} release', {timeout : COMPONENT_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (componentName, deploymentStatus, releaseName) {
+  let componentResource = null
+  var startTime = performance.now()
+  var endTime
+
+  // wait until the component resource is found or the timeout is reached
+  while (componentResource == null) {
+    componentResource = await resourceInventoryUtils.getComponentResource(  releaseName + '-' + componentName, NAMESPACE)
+    // Logs for componentResource for debugging purpose 
+    // console.log('Current componentResource:', JSON.stringify(componentResource, null, 2));
+
+    endTime = performance.now()
+
+    // assert that the component resource was found within the timeout
+    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
+
+    // check if the component deployment status is deploymentStatus
+    if ((!componentResource) || (!componentResource.hasOwnProperty('status')) || (!componentResource.status.hasOwnProperty('summary/status')) || (!componentResource.status['summary/status'].hasOwnProperty('deployment_status'))) {
+      componentResource = null // reset the componentResource to null so that we can try again
+    } else {
+      if (!(componentResource.status['summary/status']['deployment_status'] == deploymentStatus)) {
+        componentResource = null // reset the componentResource to null so that we can try again
+      }
+    }
+  }
+});
+
+/**
+ * Wait for the operator to process the uninstallation of component.
+ */
+When('the canvas operator process the uninstallation of components and exposedapis',
+  async function () {
+    console.log('Delay for the canvas operator to perform clean up...');
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+);
+
+/**
+ * Checks that a specified component resource does not exist after a given release has been uninstalled.
+ *
+ * @param {string} componentName - The name of the component to check.
+ * @param {string} releaseName - The release name from which the component was uninstalled.
+ */
+Then('I should not see the {string} component after {string} release uninstall',
+  async function (componentName, releaseName) {
+    const compName = `${releaseName}-${componentName}`;
+
+    // Attempt to fetch the component resource
+    const componentResource = await resourceInventoryUtils.getComponentResource(compName, NAMESPACE);
+
+    if (componentResource) {
+      console.error(`Failure: Component "${compName}" still exists in namespace "${NAMESPACE}".`);
+      throw new Error(`Component "${compName}" still exists in namespace "${NAMESPACE}" but should have been removed by canvas`);
+    }
+
+    console.log(`Success: No component found with the name "${compName}".`);
+});
 
 /**
  * Code executed before each scenario.
