@@ -257,13 +257,19 @@ app.post("/", (req, res, next) => {
                 delete objectsArray[key].spec[segment].exposedAPIs[api][property];
               }
             });
-            // change specification array to arroy objects with url and version
-            console.log("Change specification array to arroy objects with url and version");
+            // change specification array to arroy objects with url and version for exposedAPI and dependentAPIs
+            console.log("Change specification array to array objects with url and version");
             if (objectsArray[key].spec[segment].exposedAPIs[api].specification) {
               for (var i = 0; i < objectsArray[key].spec[segment].exposedAPIs[api].specification.length; i++) {
                 objectsArray[key].spec[segment].exposedAPIs[api].specification[i] = {url: objectsArray[key].spec[segment].exposedAPIs[api].specification[i]}
               }
             }
+            if (objectsArray[key].spec[segment].dependentAPIs[api].specification) {
+              for (var i = 0; i < objectsArray[key].spec[segment].dependentAPIs[api].specification.length; i++) {
+                objectsArray[key].spec[segment].dependentAPIs[api].specification[i] = {url: objectsArray[key].spec[segment].dependentAPIs[api].specification[i]}
+              }
+            }
+
           }
         });
 
@@ -341,11 +347,16 @@ app.post("/", (req, res, next) => {
               // remove the gatewayConfiguration object
               delete objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration;
             }
-            // change specification object array to an array of strings with just the url
+            // change specification object array to an array of strings with just the url for exposedAPI and dependentAPIs
             console.log("Change specification object array to an array of strings with just the url");
             if (objectsArray[key].spec[segment].exposedAPIs[api].specification) {
               for (var i = 0; i < objectsArray[key].spec[segment].exposedAPIs[api].specification.length; i++) {
                 objectsArray[key].spec[segment].exposedAPIs[api].specification[i] = objectsArray[key].spec[segment].exposedAPIs[api].specification[i].url;
+              }
+            }
+            if (objectsArray[key].spec[segment].dependentAPIs[api].specification) {
+              for (var i = 0; i < objectsArray[key].spec[segment].dependentAPIs[api].specification.length; i++) {
+                objectsArray[key].spec[segment].dependentAPIs[api].specification[i] = objectsArray[key].spec[segment].dependentAPIs[api].specification[i].url;
               }
             }
           }
