@@ -241,7 +241,9 @@ Example response:
                 objectsArray[key].spec.componentMetadata.owners = objectsArray[key].spec.owners;
                 delete objectsArray[key].spec.owners;
               }
-      
+
+              
+              
               // move the relavant properties to gatewayConfiguration for each exposedAPI, and change specification array to arroy objects with url and version
               console.log("move gateway properties to gatewayConfiguration for each exposedAPI and change specification array to arroy objects with url and version");  
               const segments = ["coreFunction", "managementFunction", "securityFunction"];
@@ -268,11 +270,9 @@ Example response:
                 if (objectsArray[key].spec[segment].dependentAPIs) {
                   for (api in objectsArray[key].spec[segment].dependentAPIs) {
                     // change specification array to arroy objects with url and version for exposedAPI and dependentAPIs
-                    console.log("Change specification array to array objects with url and version");
+                    console.log("Change specification string to array of 1 object with url and version");
                     if (objectsArray[key].spec[segment].dependentAPIs[api].specification) {
-                      for (var i = 0; i < objectsArray[key].spec[segment].dependentAPIs[api].specification.length; i++) {
-                        objectsArray[key].spec[segment].dependentAPIs[api].specification[i] = {url: objectsArray[key].spec[segment].dependentAPIs[api].specification[i]}
-                      }
+                        objectsArray[key].spec[segment].dependentAPIs[api].specification = [{url: objectsArray[key].spec[segment].dependentAPIs[api].specification}]
                     }
                   }     
                 }
@@ -361,9 +361,7 @@ Example response:
                   }
                   if (objectsArray[key].spec[segment].dependentAPIs) {
                     if (objectsArray[key].spec[segment].dependentAPIs[api].specification) {
-                      for (var i = 0; i < objectsArray[key].spec[segment].dependentAPIs[api].specification.length; i++) {
-                        objectsArray[key].spec[segment].dependentAPIs[api].specification[i] = objectsArray[key].spec[segment].dependentAPIs[api].specification[i].url;
-                      }
+                      objectsArray[key].spec[segment].dependentAPIs[api].specification = objectsArray[key].spec[segment].dependentAPIs[api].specification[0].url;
                     }
                   }
                 }

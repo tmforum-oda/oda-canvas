@@ -22,21 +22,16 @@ spec:
         port: 8080
       - name: promotionmanagement
         specification:
-          - >-
-            https://raw.githubusercontent.com/tmforum-apis/TMF671_Promotion/master/TMF671-Promotion-v4.0.0.swagger.json
+          - https://raw.githubusercontent.com/tmforum-apis/TMF671_Promotion/master/TMF671-Promotion-v4.0.0.swagger.json
         implementation: {{.Release.Name}}-promgmtapi
         apiType: openapi
-        path: >-
-          /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4
-        developerUI: >-
-          /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4/docs
+        path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4
+        developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/promotionManagement/v4/docs
         port: 8080
     dependentAPIs:
       - name: downstreamproductcatalog
         apiType: openapi
-        specification:
-          - >-
-            https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+        specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
@@ -51,8 +46,7 @@ spec:
     exposedAPIs:
       - name: partyrole
         specification:
-          - >-
-            https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
+          - https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json
         implementation: {{.Release.Name}}-partyroleapi
         apiType: openapi
         path: >-

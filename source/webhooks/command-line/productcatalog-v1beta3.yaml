@@ -10,9 +10,7 @@ spec:
   coreFunction:
     exposedAPIs:
       - name: productcatalogmanagement
-        specification:
-          - >-
-            https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+        specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
         implementation: {{.Release.Name}}-prodcatapi
         apiType: openapi
         path: >-
@@ -34,8 +32,7 @@ spec:
     dependentAPIs:
       - name: downstreamproductcatalog
         apiType: openapi
-        specification:
-          - https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+        specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
