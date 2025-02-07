@@ -35,8 +35,7 @@ spec:
       - name: downstreamproductcatalog
         apiType: openapi
         specification:
-          - url: >-
-              https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+          - https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
   eventNotification:
     publishedEvents: []
     subscribedEvents: []
