@@ -1,0 +1,222 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: credentialsmanagement-account
+  labels:
+    {{- include "credentialsmanagement-operator.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: credentialsmanagement-role-cluster
+  labels:
+    {{- include "credentialsmanagement-operator.labels" . | nindent 4 }}
+rules:
+
+  # Framework: knowing which other operators are running (i.e. peering).
+  - apiGroups: [zalando.org]
+    resources: [clusterkopfpeerings]
+    verbs: [list, watch, patch, get]
+  - apiGroups: [zalando.org]
+    resources: [kopfpeerings]
+    verbs: [list, watch, patch, get]
+  - apiGroups: [apiextensions.k8s.io]
+    resources: [customresourcedefinitions]
+    verbs: [list, watch, get]
+    
+  # Framework: posting the events about the handlers progress/errors.
+  - apiGroups: [events.k8s.io]
+    resources: [events]
+    verbs: [create]
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create]
+
+  # Application: read-only access for watching cluster-wide.
+  - apiGroups: [oda.tmforum.org]
+    resources: [components, components/status]
+    verbs: [list, watch, patch, get]
+  - apiGroups: [oda.tmforum.org]
+    resources: [exposedapis]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: [oda.tmforum.org]
+    resources: [secretsmanagements]
+    verbs: [list, watch, patch, get, create, update, delete]    
+  - apiGroups: [oda.tmforum.org]
+    resources: [identityconfigs]
+    verbs: [list, watch, patch, get, create, update, delete]    
+  - apiGroups: [wso2.com]
+    resources: [apis]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["services", "services/status", "pods", "persistentvolumeclaims", "persistentvolumeclaims/status", "namespaces", "configmaps", "configmaps/status", "secrets", "secrets/status", "serviceaccounts", "serviceaccounts/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "ingresses/status", "httproutes"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["extensions", "apps"]
+    resources: ["deployments", "deployments/status", "statefulsets", "statefulsets/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: [ "roles", "roles/status", "rolebindings", "rolebindings/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["batch", "extensions"]
+    resources: ["jobs", "jobs/status", "cronjobs", "cronjobs/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: [get, list, patch, watch]
+  - apiGroups: [oda.tmforum.org]
+    resources: [publishednotifications, publishednotifications/status, subscribednotifications, subscribednotifications/status]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["configuration.konghq.com"]
+    resources: ["kongplugins"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apisix.apache.org"]
+    resources: ["apisixroutes", "apisixpluginconfigs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+
+  # Application: other resources it produces and manipulates.
+  # Here, we create Jobs+PVCs+Pods, but we do not patch/update/delete them ever.
+  - apiGroups: [batch, extensions]
+    resources: [jobs]
+    verbs: [create]
+  - apiGroups: [""]
+    resources: [pods, persistentvolumeclaims]
+    verbs: [create]
+
+  # Istio services
+  - apiGroups: [networking.istio.io]
+    resources: [virtualservices]
+    verbs: [list, watch, patch, get, create, update, delete]
+
+  # Prometheus servicemonitor
+  - apiGroups: [monitoring.coreos.com]
+    resources: [servicemonitors]
+    verbs: [list, watch, patch, get, create, update, delete]
+
+  # DependentAPI Custom Resources
+  - apiGroups: [oda.tmforum.org]
+    resources: [dependentapis]
+    verbs: [list, watch, patch, get, create, update, delete]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{.Values.deployment.monitoredNamespaces}}
+  name: credentialsmanagement-role-namespaced
+  labels:
+    {{- include "credentialsmanagement-operator.labels" . | nindent 4 }}
+rules:
+
+  # Framework: knowing which other operators are running (i.e. peering).
+  - apiGroups: [zalando.org]
+    resources: ["kopfpeerings"]
+    verbs: [list, watch, patch, get]
+
+  # Framework: posting the events about the handlers progress/errors.
+  - apiGroups: [events.k8s.io]
+    resources: [events]
+    verbs: [create]
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create]
+
+  # Application: watching & handling for the custom resource we declare.
+  - apiGroups: [oda.tmforum.org]
+    resources: [components, "components/status"]
+    verbs: [list, watch, patch, get]
+  - apiGroups: [oda.tmforum.org]
+    resources: [exposedapis]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: [oda.tmforum.org]
+    resources: [secretsmanagements]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: [oda.tmforum.org]
+    resources: [identityconfigs]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: [wso2.com]
+    resources: [apis]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: [""] 
+    resources: ["services", "services/status", "pods", "persistentvolumeclaims", "persistentvolumeclaims/status", "namespaces", "configmaps", "configmaps/status", "secret", "secret/status", "serviceaccounts", "serviceaccounts/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["ingresses", "ingresses/status", "httproutes"]
+    resources: ["ingresses", "ingresses/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["extensions", "apps"]
+    resources: ["deployments", "deployments/status", "statefulsets", "statefulsets/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: [ "roles", "roles/status", "rolebindings", "rolebindings/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["batch", "extensions"]
+    resources: ["jobs", "jobs/status", "cronjobs", "cronjobs/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: [list, watch, get, patch]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["configuration.konghq.com"]
+    resources: ["kongplugins"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apisix.apache.org"]
+    resources: ["apisixroutes", "apisixpluginconfigs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+
+  # Application: other resources it produces and manipulates.
+  # Here, we create Jobs+PVCs+Pods, but we do not patch/update/delete them ever.
+  - apiGroups: [batch, extensions]
+    resources: [jobs]
+    verbs: [create]
+#  - apiGroups: [""]
+#    resources: [pods, persistentvolumeclaims]
+#    verbs: [create, watch, list]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: credentialsmanagement-rolebinding-cluster
+  labels:
+    {{- include "credentialsmanagement-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: credentialsmanagement-role-cluster
+subjects:
+  - kind: ServiceAccount
+    name: credentialsmanagement-account
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{.Values.deployment.monitoredNamespaces}}
+  name: credentialsmanagement-rolebinding-namespaced
+  labels:
+    {{- include "credentialsmanagement-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: credentialsmanagement-role-namespaced
+subjects:
+  - kind: ServiceAccount
+    name: credentialsmanagement-account
+    namespace: {{ .Release.Namespace }}
