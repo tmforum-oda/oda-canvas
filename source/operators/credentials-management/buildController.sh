@@ -1,0 +1,1 @@
+docker buildx build -t "adarshkrm/credentialsmanagement-operator:0.0.1" --platform "linux/amd64,linux/arm64" -f credentialsmanagement-operator-dockerfile . --push
