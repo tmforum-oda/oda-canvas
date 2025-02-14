@@ -168,7 +168,7 @@ credentialsmanagement-operator:
   deployment:
     operatorName: credentialsmanagement-operator
     credopImage: adarshkrm/credentialsmanagement-operator
-    credopVersion: 0.0.3
+    credopVersion: 0.0.15
     credopPrereleaseSuffix:
     imagePullPolicy: IfNotPresent
     istioGateway: true
