@@ -104,3 +104,6 @@ dependencies:
     version: "1.0.2"
     repository: 'file://../apisix-gateway'
     condition: apisix-gateway-install.enabled
+  - name: credentialsmanagement-operator
+    version: "1.0.0"
+    repository: 'file://../credentialsmanagement-operator'
