@@ -7,23 +7,25 @@ from kubernetes.client.rest import ApiException
 import json
 import os
 
+# Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
 logger = logging.getLogger('CredentialsOperator')
 logger.setLevel(int(logging_level))
 logger.info("Logging set to %s", logging_level)
 
+# Script setup --------------
+
 credsOp_client_id = os.environ.get("CLIENT_ID")
 credsOp_client_secret = os.environ.get("CLIENT_SECRET")
-url = os.environ.get("KEYCLOAK_BASE")
-realm = os.environ.get("KEYCLOAK_REALM")
+kcBaseurl = os.environ.get("KEYCLOAK_BASE")
+kcRealm = os.environ.get("KEYCLOAK_REALM")
 
 GROUP = "oda.tmforum.org"
 VERSION = "v1"
-COMPONENTS_PLURAL = "components"
 IDENTITYCONFIG_VERSION = "v1"
 IDENTITYCONFIG_PLURAL = "identityconfigs"
 
-logger.info(f"{credsOp_client_id}, {credsOp_client_secret}, {url} , {realm}")
+# Kopf handlers -------------
 
 # try to recover from broken watchers https://github.com/nolar/kopf/issues/1036
 @kopf.on.startup()
@@ -32,33 +34,28 @@ def configure(settings: kopf.OperatorSettings, **_):
 
 
 def is_status_changed(status, **_):
-    return status.get('credsOp/status.identityConfig') != "done"
+    return status.get('credentialsOperator/status.identityConfig') != "secret created"
 
 
 @kopf.on.field(GROUP, IDENTITYCONFIG_VERSION, IDENTITYCONFIG_PLURAL, field="status.identityConfig", when=is_status_changed, retries=5)
-def credsOp(
+def credentialsOperator(
     meta, spec, status, body, namespace, labels, name, old, new, **kwargs
 ):
     
-    logger.info(f'\n old: {old} ')
-    logger.info(f'\n new: {new} ')
-    logger.info(f'\n status: {status} ')
+    # del unused-arguments for linting
+    del status, labels, kwargs
 
-    # logger.info(f'\n newStatus: {new.get('status')} ')
-    # if old is not None:
-    #     logger.info(f'\n oldStatus: {old.get('status')} ')
-
-    
+    # Takes the clientId and secret of credentialsOperator client to authenticate and get a token
     try:
         r = requests.post(
-                url + "/realms/"+ realm +"/protocol/openid-connect/token",
+                kcBaseurl + "/realms/"+ kcRealm +"/protocol/openid-connect/token",
                 headers = {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 data={
-                        "client_id": credsOp_client_id,
-                        "client_secret":credsOp_client_secret,
-                        "grant_type": "client_credentials",
+                    "client_id": credsOp_client_id,
+                    "client_secret":credsOp_client_secret,
+                    "grant_type": "client_credentials",
                 },
             )
 
@@ -69,15 +66,15 @@ def credsOp(
             f"request for token failed with HTTP status {r.status_code}: {e}"
         ) 
     else:
-        logger.info( f'token : {token}' )
+        logger.info( "token retrieved" )
 
+    # clientId of component which kubernetes secret is to be created
     client_id = name
 
-    logger.info( f'client_id : {client_id}' )
-
+    # to get the list of existing clients and the client secret for this component
     try:
         r = requests.get(
-                url + "/admin/realms/" + realm + "/clients",
+                kcBaseurl + "/admin/realms/" + kcRealm + "/clients",
                 params={"clientId": client_id},
                 headers={"Authorization": "Bearer " + token},
             )
@@ -89,19 +86,13 @@ def credsOp(
             f"request for client_secret failed with HTTP status {r.status_code}: {e}"
         )
     else:
-        logger.info( f'client_secret : {client_secret}' )
+        logger.info( f'client secret retrieved' )
 
-
-
+    # encoded clientId and secret in base64
     encoded_client_id = base64.b64encode(client_id.encode('utf-8')).decode('utf-8')
     encoded_client_secret = base64.b64encode(client_secret.encode('utf-8')).decode('utf-8')
 
-
-    # decoded_client_id = base64.b64decode(encoded_client_id).decode('utf-8')
-
-    
-    logger.info( f'encoded_client_id : {encoded_client_id}' )
-    
+    # to create a kubernetes secret
     try:
         core_v1_api = kubernetes.client.CoreV1Api()
         
@@ -110,6 +101,7 @@ def credsOp(
             data={"client_id": encoded_client_id, "client_secret": encoded_client_secret}  # Base64 encoded values
         )
 
+        # Make it child of IdentityConfigResource
         kopf.adopt(secret)
         
         core_v1_api.create_namespaced_secret(namespace=namespace, body=secret)
@@ -118,7 +110,8 @@ def credsOp(
             f"secret creation failed : {e} "
         )
     else:
-        logger.info( 'secret created' )
+        logger.info( 'kubernetes secret is created' )
 
-
-    return "done"
+    # the return value is added to the status field of the k8s object
+    # under credentialsOperator/status.identityConfig parameter (corresponds to function name and field)
+    return "secret created"
