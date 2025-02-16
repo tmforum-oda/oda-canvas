@@ -7,6 +7,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   LOGGING: {{ .Values.configmap.loglevel | quote }}
-  KEYCLOAK_BASE: "http://{{ .Release.Name }}-keycloak-headless.{{ .Release.Namespace }}:{{ .Values.deployment.keycloak.http }}/auth"
+  KEYCLOAK_BASE: "{{ .Values.configmap.kcbase }}"
   KEYCLOAK_REALM: "{{ .Values.configmap.kcrealm }}"
   COMPONENT_NAMESPACE: "{{ .Values.deployment.monitoredNamespaces }}"
+
