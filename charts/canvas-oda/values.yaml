@@ -20,7 +20,12 @@ istioCert:
   certificate:
     duration: 21600h
     renewBefore: 360h 
-
+api-operator-istio:
+  enabled: true
+apisix-gateway-install:
+  enabled: false
+kong-gateway-install:
+  enabled: false
 oda-crds:
   enabled: true
 
