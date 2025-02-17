@@ -1,8 +1,8 @@
 deployment:
   operatorName: credentialsmanagement-operator
-  credopImage: adarshkrm/credentialsmanagement-operator
-  credopVersion: 0.0.17
-  credopPrereleaseSuffix:
+  credopImage: tmforumodacanvas/credentialsmanagement-operator
+  credopVersion: 1.0.0
+  credopPrereleaseSuffix: issue334
   imagePullPolicy: IfNotPresent
   istioGateway: true
   monitoredNamespaces: 'components'           # comma separated list of namespaces
