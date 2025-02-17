@@ -15,6 +15,13 @@ istioCert:
     duration: 21600h
     renewBefore: 360h 
 
+api-operator-istio:
+  enabled: true
+apisix-gateway-install:
+  enabled: false
+kong-gateway-install:
+  enabled: false
+
 oda-crds:
   enabled: true
 
@@ -88,7 +95,7 @@ keycloak:
     enabled: true
     image:
       tag: 5.5.0-debian-11-r35
-    backoffLimit: 1
+    backoffLimit: 2
     command: [ "java", "-jar", "/opt/keycloak-config-cli.jar" ]
     configuration:
       myrealm.json: |
