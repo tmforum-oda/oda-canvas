@@ -205,3 +205,19 @@ api-operator-kong:
   buildDockerfile: source/operators/api-management/kong/kong-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
+
+
+credentialsmanagement-operator:
+  displayName: Credentialsmanagement-operator
+  fileName: credentialsmanagement-operator
+  valuesYamlFile: charts/credentialsmanagement-operator/values.yaml
+  valuesPathImage: .credentialsmanagement-operator.deployment.credopImage
+  valuesPathVersion: .credentialsmanagement-operator.deployment.credopVersion
+  valuesPathPrereleaseSuffix: .credentialsmanagement-operator.deployment.credopPrereleaseSuffix
+  paths:
+    - source/operators/credentials-management/*
+  buildContext: source/operators/credentials-management
+  # default is "Dockerfile" in buildContext
+  buildDockerfile: source/operators/credentials-management/credentialsmanagement-operator-dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64

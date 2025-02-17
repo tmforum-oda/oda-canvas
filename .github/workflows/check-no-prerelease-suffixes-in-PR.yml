@@ -52,3 +52,21 @@ jobs:
         if: steps.values_yaml_contains_version_suffix_2.outputs.result=='true'
         run: |
           echo "::error file=baseimages/kubectl-curl/version.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_2.outputs.result }}]" && exit 1
+      
+      - name: check if there are nonempty version suffixes in charts/credentialsmanagement-operator/values.yaml
+        id: values_yaml_contains_version_suffix_3
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.credentialsmanagement-operator.deployment.credopPrereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/credentialsmanagement-operator/values.yaml
+
+      - name: collect existing version suffixes in charts/credentialsmanagement-operator/values.yaml for error report
+        id: version_suffixes_3
+        if: steps.values_yaml_contains_version_suffix_3.outputs.result=='true'
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.credentialsmanagement-operator.deployment.credopPrereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/credentialsmanagement-operator/values.yaml
+          
+      - name: report error in charts/credentialsmanagement-operator/values.yaml
+        if: steps.values_yaml_contains_version_suffix_3.outputs.result=='true'
+        run: |
+          echo "::error file=charts/credentialsmanagement-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_3.outputs.result }}]" && exit 1
