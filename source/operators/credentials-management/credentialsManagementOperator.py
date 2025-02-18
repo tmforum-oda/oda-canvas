@@ -112,6 +112,6 @@ def credentialsOperator(
     else:
         logger.info( 'kubernetes secret is created' )
 
-    # the return value is added to the status field of the k8s object 
+    # the return value is added to the status field of the k8s object
     # under credentialsOperator/status.identityConfig parameter (corresponds to function name and field)
     return "secret created"

@@ -211,9 +211,9 @@ credentialsmanagement-operator:
   displayName: Credentialsmanagement-operator
   fileName: credentialsmanagement-operator
   valuesYamlFile: charts/credentialsmanagement-operator/values.yaml
-  valuesPathImage: .credentialsmanagement-operator.deployment.credopImage
-  valuesPathVersion: .credentialsmanagement-operator.deployment.credopVersion
-  valuesPathPrereleaseSuffix: .credentialsmanagement-operator.deployment.credopPrereleaseSuffix
+  valuesPathImage: .deployment.credopImage
+  valuesPathVersion: .deployment.credopVersion
+  valuesPathPrereleaseSuffix: .deployment.credopPrereleaseSuffix
   paths:
     - source/operators/credentials-management/*
   buildContext: source/operators/credentials-management

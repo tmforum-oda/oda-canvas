@@ -57,14 +57,14 @@ jobs:
         id: values_yaml_contains_version_suffix_3
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.credentialsmanagement-operator.deployment.credopPrereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/credentialsmanagement-operator/values.yaml
+          cmd: yq '[.deployment.credopPrereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/credentialsmanagement-operator/values.yaml
 
       - name: collect existing version suffixes in charts/credentialsmanagement-operator/values.yaml for error report
         id: version_suffixes_3
         if: steps.values_yaml_contains_version_suffix_3.outputs.result=='true'
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.credentialsmanagement-operator.deployment.credopPrereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/credentialsmanagement-operator/values.yaml
+          cmd: yq '[.deployment.credopPrereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/credentialsmanagement-operator/values.yaml
           
       - name: report error in charts/credentialsmanagement-operator/values.yaml
         if: steps.values_yaml_contains_version_suffix_3.outputs.result=='true'
