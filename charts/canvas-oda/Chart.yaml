@@ -17,6 +17,7 @@ type: application
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
 version: 1.2.1-rc1
+# version: 1.2.2-lt1 - Fixed webhook issue 439
 # version: 1.2.1-rc1 - Templatized hardcoded images
 # version: 1.2.0     - initial release of v1 component specification
 # version: 1.1.8     - released version
@@ -93,7 +94,7 @@ dependencies:
     repository: 'file://../canvas-vault'
     condition: canvas-vault.enabled
   - name: oda-webhook
-    version: "1.2.0"
+    version: "1.2.1"
     repository: 'file://../oda-webhook'
   - name: kong-gateway
     version: "1.0.1"
