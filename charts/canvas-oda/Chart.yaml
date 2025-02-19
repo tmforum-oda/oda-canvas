@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.1-rc2
+version: 1.2.1-ak1
+# version: 1.2.1-ak1 - created credentialsmanagement-operator client in keycloak and added permissions to query keycloak clients
 # version: 1.2.1-rc2 - Resolved chart name to values mapping for kong and apisix charts observed in 1.2.0 release
 # version: 1.2.1-rc1 - Templatized hardcoded images
 # version: 1.2.0     - initial release of v1 component specification
