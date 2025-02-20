@@ -114,6 +114,23 @@ keycloak:
                 "manage-clients"
               ]
              }
+            },
+            {
+            "username": "service-account-credentialsmanagement-operator",
+            "enabled": true,
+            "clientRoles": {
+              "realm-management": [
+                "view-clients"
+              ]
+             }
+            }
+          ],
+          "clients": [
+            {
+            "clientId": "credentialsmanagement-operator",
+            "enabled": true,
+            "standardFlowEnabled": false,
+            "serviceAccountsEnabled": true,
             }
           ]
         }
@@ -163,7 +180,7 @@ identityconfig-operator-keycloak:
     kcrealm: odari
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
-   
+      
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator

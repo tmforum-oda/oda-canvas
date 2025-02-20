@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credentialsmanagement-operator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "credentialsmanagement-operator.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.deployment.operatorName}}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: {{.Values.deployment.operatorName}}
+        {{- include "credentialsmanagement-operator.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: credentialsmanagement-account
+      containers:
+      - name: {{.Values.deployment.operatorName}}
+        image: {{ include "credentialsmanagement-operator.credopImage" . }}
+        imagePullPolicy: {{ include "credentialsmanagement-operator.imagePullPolicy" . }}
+        envFrom:
+          - configMapRef:
+              name: credentialsmanagement-operator-configmap
+          - secretRef:
+              name: credentialsmanagement-operator-secret
