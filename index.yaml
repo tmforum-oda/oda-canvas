@@ -275,6 +275,64 @@ entries:
     version: 1.2.2-lt1
   - apiVersion: v2
     appVersion: v1
+    created: "2025-02-20T09:24:17.262834669Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.1.1
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.3.0
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: component-operator
+      repository: file://../component-operator
+      version: 1.3.0
+    - name: identityconfig-operator-keycloak
+      repository: file://../identityconfig-operator-keycloak
+      version: 1.2.0
+    - condition: api-operator-istio.enabled
+      name: api-operator-istio
+      repository: file://../api-operator-istio
+      version: 1.1.1
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 1.0.1
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 1.0.1
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 1.0.1
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.2.1
+    - condition: kong-gateway-install.enabled
+      name: api-operator-kong
+      repository: file://../kong-gateway
+      version: 1.0.2
+    - condition: apisix-gateway-install.enabled
+      name: api-operator-apisix
+      repository: file://../apisix-gateway
+      version: 1.0.2
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 877b1be8f6d0ea7802fa8d450c8b52636bbaeb1c5f2e64404bec8c1baf9f917e
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.2.2-ak1/canvas-oda-1.2.2-ak1.tgz
+    version: 1.2.2-ak1
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-02-07T05:58:31.241301963Z"
     dependencies:
     - name: cert-manager-init
@@ -1514,6 +1572,18 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/controller-0.1.0/controller-0.1.0.tgz
     version: 0.1.0
+  credentialsmanagement-operator:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2025-02-20T09:24:17.364023221Z"
+    description: A helm chart to deploy the credentialsmanagement operator for reference
+      implemention
+    digest: c43c9a9e204e057e8fb424c967ff018e5b9d5b4140b513a3a1f57d55ea026501
+    name: credentialsmanagement-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/credentialsmanagement-operator-1.0.0/credentialsmanagement-operator-1.0.0.tgz
+    version: 1.0.0
   dependentapi-simple-operator:
   - apiVersion: v2
     appVersion: v1
@@ -1926,4 +1996,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2025-02-20T00:09:09.670108997Z"
+generated: "2025-02-20T09:24:17.364534748Z"
