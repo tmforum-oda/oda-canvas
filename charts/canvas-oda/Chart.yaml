@@ -16,7 +16,9 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.1-rc2
+
+version: 1.2.2-lt1
+# version: 1.2.2-lt1 - Fixed webhook issue 439
 # version: 1.2.1-rc2 - Resolved chart name to values mapping for kong and apisix charts observed in 1.2.0 release
 # version: 1.2.1-rc1 - Templatized hardcoded images
 # version: 1.2.0     - initial release of v1 component specification
@@ -94,7 +96,7 @@ dependencies:
     repository: 'file://../canvas-vault'
     condition: canvas-vault.enabled
   - name: oda-webhook
-    version: "1.2.0"
+    version: "1.2.1"
     repository: 'file://../oda-webhook'
   - name: api-operator-kong
     version: "1.0.2"
