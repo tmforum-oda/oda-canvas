@@ -33,7 +33,7 @@ We will test the Reference Implementation Canvas against a range of kubernetes v
 | Azure AKS             | Yes    |                                                                                                                           |
 | GCP GKE               | Yes    | [Innovation Hub environment]                                                                                              |
 | Microk8s              | Yes    |                                                                                                                           |
-| MiniKube              | Yes    |                                                                                                                           |
+| MiniKube              | Yes    |  v1.34.0 =< Itsio is installed by default so only the itsio/gateway chart needs configuring                                                                                                                        |
 | Docker Desktop        | Yes    | see also [devcontainer.md](../devcontainer.md)                                                                            |
 | Kind                  | Yes    | Used in all the GitHub action automated testing.                                                                  |
 | K3s                   | Yes    |                                                                                                                           |
