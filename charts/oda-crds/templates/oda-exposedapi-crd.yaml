@@ -45,7 +45,7 @@ spec:
                 description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
               apiKeyVerification:
                 type: object
-                description: (optional) 
+                description: (optional)
                 properties:
                   enabled:
                     type: boolean
@@ -156,7 +156,7 @@ spec:
             - apiType
             - implementation
             - path
-            - port            
+            - port
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
@@ -187,7 +187,7 @@ spec:
               name:
                 type: string
                 description: Name of the API
-              specification:  
+              specification:
                 type: array
                 items:
                   type: object
@@ -210,7 +210,7 @@ spec:
                 description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
               apiKeyVerification:
                 type: object
-                description: (optional) 
+                description: (optional)
                 properties:
                   enabled:
                     type: boolean
@@ -321,7 +321,7 @@ spec:
             - apiType
             - implementation
             - path
-            - port            
+            - port
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
@@ -352,7 +352,7 @@ spec:
               name:
                 type: string
                 description: Name of the API
-              specification:  
+              specification:
                 type: array
                 items:
                   type: object
@@ -375,7 +375,7 @@ spec:
                 description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
               apiKeyVerification:
                 type: object
-                description: (optional) 
+                description: (optional)
                 properties:
                   enabled:
                     type: boolean
@@ -486,10 +486,12 @@ spec:
             - apiType
             - implementation
             - path
-            - port            
+            - port
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
+    subresources:
+      status: {}
     additionalPrinterColumns:
     - name: API_endpoint
       type: string
