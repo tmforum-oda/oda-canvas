@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.1
+version: 1.2.2
+# version: 1.2.2 - updated listener docker image to remove vulnerabilities
 # version: 1.2.1 - Added startup handler with api server watcher timeout
 # version: 1.2.0 - updated to use v1 of CRD spec
 # version: 1.1.0 - changed controllerRole to canvasSystemRole
