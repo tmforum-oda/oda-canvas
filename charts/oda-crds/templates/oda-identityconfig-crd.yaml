@@ -26,9 +26,9 @@ spec:
             properties:
               canvasSystemRole:
                 description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
-                type: string 
+                type: string
               componentRole:
-                description: This allows components to declare statically defined roles that should be configured in Identity Management solution. 
+                description: This allows components to declare statically defined roles that should be configured in Identity Management solution.
                 type: array
                 items:
                   type: object
@@ -36,7 +36,7 @@ spec:
                     name:
                       type: string
                     description:
-                      type: string   
+                      type: string
               partyRoleAPI:
                 description: This is the name of the API that the component will expose to allow Canvas to manage party roles.
                 type: object
@@ -53,7 +53,7 @@ spec:
                 required:
                 - implementation
                 - path
-                - port                             
+                - port
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
@@ -61,11 +61,11 @@ spec:
     - name: identity_provider
       type: string
       description: Identity provider
-      jsonPath: .status.identityConfig.identityProvider   
+      jsonPath: .status.identityConfig.identityProvider
     - name: listener-registered
       type: boolean
       description: If component uses dynamic roles via exposing API, canvas creates listner to listen for changes.
-      jsonPath: .status.identityConfig.listenerRegistered   
+      jsonPath: .status.identityConfig.listenerRegistered
   - name: "v1"
     # Each version can be enabled/disabled by Served flag.
     served: true
@@ -80,9 +80,9 @@ spec:
             properties:
               canvasSystemRole:
                 description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
-                type: string 
+                type: string
               componentRole:
-                description: This allows components to declare statically defined roles that should be configured in Identity Management solution. 
+                description: This allows components to declare statically defined roles that should be configured in Identity Management solution.
                 type: array
                 items:
                   type: object
@@ -90,7 +90,7 @@ spec:
                     name:
                       type: string
                     description:
-                      type: string   
+                      type: string
               partyRoleAPI:
                 description: This is the name of the API that the component will expose to allow Canvas to manage party roles.
                 type: object
@@ -107,19 +107,21 @@ spec:
                 required:
                 - implementation
                 - path
-                - port                             
+                - port
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
+    subresources:
+      status: {}
     additionalPrinterColumns:
     - name: identity_provider
       type: string
       description: Identity provider
-      jsonPath: .status.identityConfig.identityProvider   
+      jsonPath: .status.identityConfig.identityProvider
     - name: listener-registered
       type: boolean
       description: If component uses dynamic roles via exposing API, canvas creates listner to listen for changes.
-      jsonPath: .status.identityConfig.listenerRegistered   
+      jsonPath: .status.identityConfig.listenerRegistered
 
 
 
