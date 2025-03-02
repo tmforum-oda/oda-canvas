@@ -1,0 +1,12 @@
+FROM python:3.12-alpine
+
+RUN apk add --no-cache gcc musl-dev linux-headers libffi-dev openssl-dev
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install --upgrade pip && \
+    pip install kopf google-auth requests jinja2 xmltodict kubernetes
+
+CMD ["kopf", "run", "apiOperatorApigee.py"]

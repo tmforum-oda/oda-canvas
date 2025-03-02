@@ -1,0 +1,12 @@
+apigeeistiooperatordeploymentnamespace: canvas
+apigeeoperatorreplicaCount: 1
+apigeeoperatorimage:
+  repository: ravijangra92/apigee:3.0
+  pullPolicy: IfNotPresent
+apigeeoperator:
+  org: tmforum-oda-component-cluster
+  env: eval
+apigeeTokenSecret:
+  # NOTE: Provide a base64-encoded token here e.g gcloud auth print-access-token | base64 -w0
+  name: apigee-api-token
+  token: "eWEyOzVLcURFaHF1X1lBMDDd1d......"
