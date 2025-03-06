@@ -4,9 +4,9 @@ metadata:
   labels:
     app.kubernetes.io/name: demo-mlmodel-operator
     app.kubernetes.io/managed-by: kustomize
-  name: mlmodel-sample
+  name: mlmodel-sample-larger
 spec:
-  modelURL: "https://storage.googleapis.com/tfhub-modules/google/tf2-preview/mobilenet_v2/classification/4.tar.gz"
+  modelURL: "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tf_model.h5"
   storageSize: "5Gi"
   framework: "tensorflow"
   replicas: 1

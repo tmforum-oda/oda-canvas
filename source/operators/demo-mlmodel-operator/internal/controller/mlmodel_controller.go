@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"github.com/tmforum-oda/oda-canvas/internal/util"
 	v5 "k8s.io/api/apps/v1"
 	v4 "k8s.io/api/batch/v1"
 	v2 "k8s.io/api/core/v1"
@@ -39,6 +40,7 @@ var (
 	ModelFinalizer   = "mlmodel.finalizer"
 	CheckForPVCState = false
 	DockerImagePoc   = "ealen/echo-server"
+	config           = util.GetConfig()
 )
 
 // MLModelReconciler reconciles a MLModel object
@@ -185,13 +187,11 @@ func (r *MLModelReconciler) proceedToDownloadingState(ctx context.Context, mlMod
 		return ctrl.Result{RequeueAfter: time.Second * 5}, err
 	}
 
-	if CheckForPVCState {
+	if config.EnsureStorageAvailability {
 		if pvc.Status.Phase != v2.ClaimBound {
 			logger.Info("PVC is not bound yet, requesting requeue")
 			return ctrl.Result{RequeueAfter: time.Second * 5}, nil
 		}
-	} else {
-		logger.Info("Skipping PVC state check")
 	}
 
 	/*
@@ -209,7 +209,7 @@ func (r *MLModelReconciler) proceedToDownloadingState(ctx context.Context, mlMod
 
 	//if the pvc is bound, we can start downloading the model
 	logger.Info("proceeding to downloading state")
-	command := fmt.Sprintf("wget %s -O /mnt/model/model.tar.gz && tar -xzvf /mnt/model/model.tar.gz", mlModel.Spec.ModelURL)
+	command := fmt.Sprintf("wget %s -O /mnt/model/tf_model.h5", mlModel.Spec.ModelURL)
 	backoffLimit := int32(3)
 	ttlSecondsAfterCompletion := int32(120)
 	//start downloading the model
@@ -293,14 +293,13 @@ func (r *MLModelReconciler) proceedToServingState(ctx context.Context, mlModel *
 
 func (r *MLModelReconciler) proceedToDeployedState(ctx context.Context, mlModel *odatmforumorgv1beta1.MLModel) (ctrl.Result, error) {
 	logger.Info("Creating Deployment for Inference Server")
-	replicas := int32(1)
 	deployment := &v5.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      mlModel.Name + "-server",
 			Namespace: mlModel.Namespace,
 		},
 		Spec: v5.DeploymentSpec{
-			Replicas: &replicas,
+			Replicas: &mlModel.Spec.Replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{"app": mlModel.Name + "-server"},
 			},
@@ -398,7 +397,7 @@ func (r *MLModelReconciler) updateStatusAndRequeueOrFail(ctx context.Context, mo
 		logger.Error(err, "Failed to update status")
 		return ctrl.Result{RequeueAfter: time.Second * 5}, fmt.Errorf("failed to update status: %w", err)
 	}
-	return ctrl.Result{RequeueAfter: time.Second * 1}, nil
+	return ctrl.Result{RequeueAfter: time.Second * time.Duration(config.RequeueIntervalSeconds)}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
