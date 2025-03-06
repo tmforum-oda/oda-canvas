@@ -6,6 +6,7 @@ import asyncio
 
 # os.environ["CANVAS_INFO_ENDPOINT"] = "http://localhost:8638"
 os.environ["CANVAS_INFO_ENDPOINT"] = "https://canvas-info.ihc-dt.cluster-1.de"
+os.environ["LOGGING"] = "10"  # 10 - debug, 20 - info
 
 sys.path.append("../src")
 from oauth2EnvoyfilterOperator import depapi_timer

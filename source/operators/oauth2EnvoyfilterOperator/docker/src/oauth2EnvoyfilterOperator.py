@@ -5,11 +5,10 @@ import os
 from service_inventory_client import ServiceInventoryAPI
 
 from utils import safe_get
-from log_wrapper import LogWrapper
 
 # import kubernetes.client
 # from kubernetes.client.rest import ApiException
-# from log_wrapper import LogWrapper, logwrapper
+from log_wrapper import LogWrapper, logwrapper
 
 
 DEPAPI_GROUP = "oda.tmforum.org"
@@ -70,12 +69,47 @@ def quick_get_comp_name(body):
     return safe_get(None, body, "metadata", "labels", componentname_label)
 
 
+@logwrapper
+def add_client_secrets_to_SDS(logw: LogWrapper, namespace, componentName):
+    """
+    demo-b-productcatalogmanagement-secret:
+
+        data:
+          client_id: BASE64ENCODE(demo-b-productcatalogmanagement)
+          client_secret: BASE64ENCODE(eeB...1OO(
+
+
+    envoy-oauth2-secrets:
+
+        data:
+          demo-a-productcatalogmanagement.yaml: ...
+          ...
+          demo-b-productcatalogmanagement.yaml: BASE64ENCODE(
+                resources:
+                - "@type": "type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.Secret"
+                  name: clientsecret
+                  generic_secret:
+                    secret:
+                      inline_string: "eeB...1OO"
+            )
+
+    """
+    logw.info("adding client secrets to envoy-oauth2-secrets", f"{namespace}:{componentName}")
+
+
+@logwrapper
+def process_envoy_filter(logw: LogWrapper, namespace, id, componentName, dependencyName, url):
+    logw.info("processing dependency", dependencyName)
+    add_client_secrets_to_SDS(logw, namespace, componentName)
+
+
 @kopf.timer(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, interval=60.0)
 async def depapi_timer(meta, spec, body, namespace, labels, name, status, memo: kopf.Memo, **kwargs):
 
     logw = LogWrapper(handler_name="depapi_timer", function_name="depapi_timer")
+    comp_name = quick_get_comp_name(body)
     logw.set(
-        component_name=quick_get_comp_name(body),
+        component_name=comp_name,
         resource_name=f"DepApi/{name}",
     )
 
@@ -85,7 +119,18 @@ async def depapi_timer(meta, spec, body, namespace, labels, name, status, memo: 
     logw.info("memo counter", f"called {memo.counter} times")
 
     svc_info = cavas_info_instance()
-    svcs = svc_info.list_services()
-    logw.info("querying services from canvas-info-service", len(svcs))
+    svcs = svc_info.list_services(component_name=comp_name)
+    logw.info("querying services for componenent {comp_name} from canvas-info-service", len(svcs))
     for svc in svcs:
+        id = svc["id"]
         logw.debugInfo(f'svcid {svc["id"]}', svc)
+        componentName = svc["componentName"]
+        dependencyName = svc["dependencyName"]
+        url = svc["url"]
+        if comp_name != componentName:
+            logw.error(
+                f"strange things are happening, in returned service id {id}, componentName does not match filter criteria",
+                f"'{componentName}' != '{comp_name}'",
+            )
+            raise ValueError("componentName '{componentName}' does not match filter criteria '{comp_name}' for service id {id}")
+        process_envoy_filter(logw, namespace, id, componentName, dependencyName, url)
