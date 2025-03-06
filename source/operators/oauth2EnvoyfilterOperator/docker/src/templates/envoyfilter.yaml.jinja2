@@ -1,0 +1,35 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ component_name }}-envoyfilter-oauth2
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_OUTBOUND
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.credential_injector
+        typed_config:
+          '@type': type.googleapis.com/envoy.extensions.filters.http.credential_injector.v3.CredentialInjector
+          credential:
+            name: envoy.http.injected_credentials.oauth2
+            typed_config:
+              '@type': type.googleapis.com/envoy.extensions.http.injected_credentials.oauth2.v3.OAuth2
+              client_credentials:
+                client_id: {{ client_id }}
+                client_secret:
+                  name: clientsecret
+                  sds_config:
+                    path_config_source:
+                      path: /envoy_secrets/oauth2secs/{{ component_name }}.yaml
+                      watched_directory:
+                        path: /envoy_secrets/oauth2secs
+              token_endpoint:
+                cluster: outbound|{{ token_endpoint_port }}||{{ token_endpoint_host }}
+                timeout: 3s
+                uri: {{ token_endpoint }}
+  workloadSelector:
+    labels:
+      app: {{ component_name }}

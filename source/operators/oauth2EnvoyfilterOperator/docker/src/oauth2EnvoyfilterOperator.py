@@ -3,6 +3,8 @@ import logging
 import os
 import base64
 import kubernetes
+import urllib.parse
+import yaml
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -105,19 +107,33 @@ jinja2_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(os
 
 
 def create_sds_secret_yaml(client_secret):
-    """
-    curl -X 'POST' \
-      'http://localhost:8638/service' \
-      -H 'accept: application/json' \
-      -H 'Content-Type: application/json' \
-      -d '{
-        "serviceType": "API",
-        ...
-        }'
-    """
     template = jinja2_env.get_template("sds_secret.yaml.jinja2")
     result = template.render(
         client_secret=client_secret,
+    )
+    return result
+
+
+def create_envoyfilter_yaml(component_name, client_id, token_endpoint):
+
+    url = urllib.parse.urlparse(token_endpoint)
+    token_hostname = url.hostname
+    token_port = url.port
+    if token_port is None:
+        if url.scheme == "https":
+            token_port = 443
+        elif url.scheme == "http":
+            token_port = 80
+        else:
+            raise ValueError(f"unhandled scheme in token_endpoint '{token_endpoint}'")
+
+    template = jinja2_env.get_template("envoyfilter.yaml.jinja2")
+    result = template.render(
+        component_name=component_name,
+        client_id=client_id,
+        token_endpoint=token_endpoint,
+        token_hostname=token_hostname,
+        token_port=token_port,
     )
     return result
 
@@ -206,9 +222,72 @@ def add_client_secrets_to_SDS(logw: LogWrapper, namespace, comp_name):
 
 
 @logwrapper
+def create_envoyfilter(logw, namespace, comp_name):
+    envoyfilter_yaml = create_envoyfilter_yaml(namespace, comp_name, OAUTH2_TOKEN_ENDPOINT)
+    print(envoyfilter_yaml)
+    body = yaml.safe_load(envoyfilter_yaml)
+    return body
+
+
+def create_customresource(logw, namespace, body, plural=None):
+
+    apiVersion = body["apiVersion"]
+    kind = body["kind"]
+    name = body["metadata"]["name"]
+
+    group = apiVersion.split("/")[0]
+    version = apiVersion.split("/")[1]
+
+    if plural is None:
+        plural = f"{kind.lower()}s"  # maybe a map is needed for handling special cases
+
+    try:
+        custom_objects_api = kubernetes.client.CustomObjectsApi()
+        logw.debugInfo(f"Creating {kind} {name}.{namespace}", body)
+        customObj = custom_objects_api.create_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=namespace,
+            plural=plural,
+            body=body,
+        )
+        logw.debugInfo(f"{kind} Resource created", customObj)
+
+    except ApiException as e:
+        if e.status != HTTP_CONFLICT:
+            logw.warning(f"{kind} Exception creating {name}.{namespace}")
+            logw.warning(f"{kind} Exception creating {e}")
+
+            raise kopf.TemporaryError(f"Exception creating {kind} custom resource {name}.{namespace}.")
+        else:
+            # Conflict = try updating existing cr
+            logw.info(f"{kind} already exists {name}.{namespace}")
+            try:
+                customObj = custom_objects_api.patch_namespaced_custom_object(
+                    group=group,
+                    version=version,
+                    namespace=namespace,
+                    plural=plural,
+                    name=name,
+                    body=body,
+                )
+                logw.debugInfo(
+                    f"{kind} Resource updated {name}.{namespace}",
+                    customObj,
+                )
+
+            except ApiException as e:
+                logw.warning(f"{kind} Exception updating {name}.{namespace}")
+                logw.warning(f"{kind} Exception updating {e}")
+                raise kopf.TemporaryError("Exception creating {kind} custom resource.")
+
+
+@logwrapper
 def process_envoy_filter(logw: LogWrapper, namespace, id, comp_name, dependency_name, url):
     logw.info("processing dependency", dependency_name)
     add_client_secrets_to_SDS(logw, namespace, comp_name)
+    body = create_envoyfilter(logw, namespace, comp_name)
+    create_customresource(logw, namespace, body)
 
 
 @kopf.timer(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, interval=60.0)
