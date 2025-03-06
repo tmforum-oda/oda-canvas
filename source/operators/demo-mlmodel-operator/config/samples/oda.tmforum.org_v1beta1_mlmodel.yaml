@@ -1,0 +1,9 @@
+apiVersion: oda.tmforum.org.oda.tmforum.org/v1beta1
+kind: MLModel
+metadata:
+  labels:
+    app.kubernetes.io/name: demo-mlmodel-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: mlmodel-sample
+spec:
+  # TODO(user): Add fields here
