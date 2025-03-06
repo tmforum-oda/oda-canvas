@@ -37,7 +37,7 @@ You need to ensure you turn-off the operator executing in Kubernetes (for exampl
 The command above will execute just the component operator. You will also need to execute the other operators relevant for your Canvas implementation - these can be executed in separate terminal command-lines.
 
 
-# Build automation and versioning
+## Build automation and versioning
 
 The build and release process for docker images is described here:
 [/docs/developer/work-with-dockerimages.md](/docs/developer/work-with-dockerimages.md)

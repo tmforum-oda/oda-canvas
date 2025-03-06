@@ -486,7 +486,7 @@ In the Docker registry there is now a release version 0.1.1:
 | ![image](https://github.com/user-attachments/assets/afbe328e-9492-44e3-93c0-ac6ae4879774) |
 |-|
 
-# Summary
+## Summary
 
 Overview about the steps to do:
 
@@ -499,7 +499,7 @@ Overview about the steps to do:
 * Remove prereleaseSuffixes from values.yaml, add "\[skip tests\]" to the commit message
 * Merge the PR
 
-# How-To add a new Dockerimage
+## How-To add a new Dockerimage
 
 Currently there are 6 Docker images which are built automatically.
 New Docker images can be added by editing the file [automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml](https://github.com/tmforum-oda/oda-canvas/blob/main/automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml).
@@ -508,7 +508,7 @@ In this file the docker build specific configurations and the relevant source pa
 After the configuration is finished, the GitHub Actions have to be regenerated 
 by executing [automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py](https://github.com/tmforum-oda/oda-canvas/blob/main/automation/generators/dockerbuild-workflow-generator/dockerbuild_workflow_generator.py). For executing the python script, the packages "pyyaml" and "jinja2" have to be installed (see requirements.txt).
 
-# How-To define unit tests
+## How-To define unit tests
 
 If the parameter testDockerfile is set, then after building the dockerfile to release in the same context the test Dockerfile is built and run.
 The output of the run should be a test report in junit xml format.
