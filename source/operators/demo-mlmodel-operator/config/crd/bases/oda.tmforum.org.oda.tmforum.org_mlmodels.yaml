@@ -41,13 +41,11 @@ spec:
             properties:
               expose:
                 type: boolean
-              foo:
-                description: Foo is an example field of MLModel. Edit mlmodel_types.go
-                  to remove/update
-                type: string
               framework:
                 type: string
               modelURL:
+                description: Foo is an example field of MLModel. Edit mlmodel_types.go
+                  to remove/update
                 type: string
               replicas:
                 format: int32
@@ -64,11 +62,15 @@ spec:
             properties:
               message:
                 type: string
+              observedGeneration:
+                format: int64
+                type: integer
               phase:
                 type: string
               serviceEndpoint:
                 type: string
             required:
+            - observedGeneration
             - phase
             type: object
         type: object
