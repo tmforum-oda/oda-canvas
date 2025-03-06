@@ -221,3 +221,22 @@ credentialsmanagement-operator:
   buildDockerfile: source/operators/credentials-management/credentialsmanagement-operator-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
+
+oauth2envoyfilter-operator:
+  displayName: OAuth2-EnvoyFilter-Operator
+  fileName: oauth2envoyfilter-operator
+  
+  valuesYamlFile: charts/oauth2-envoyfilter-operator/values.yaml
+  valuesPathImage: .image
+  valuesPathVersion: .version
+  valuesPathPrereleaseSuffix: .prereleaseSuffix
+  
+  paths:
+    - source/operators/oauth2EnvoyfilterOperator/docker/**/*
+  buildContext: source/operators/oauth2EnvoyfilterOperator/docker
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile: Dockerfile
+  #testDockerfile: source/operators/oauth2EnvoyfilterOperator/docker/DockerfileTest
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+

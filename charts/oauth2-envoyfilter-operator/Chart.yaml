@@ -1,0 +1,10 @@
+apiVersion: v1
+name: oauth2-envoyfilter-operator
+description: A helm chart to deploy the OAuth2 EnvoyFilter Operator for reference implemention
+
+type: application
+
+version: 0.1.0-rc
+# version: 0.1.0 - initial version - created oauth2-envoyfilter operator
+
+appVersion: "0.1.0"

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-oauth2envf-op
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-oauth2envf-op
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-oauth2envf-op
+    spec:
+      serviceAccountName: {{ .Release.Name }}-oauth2envf-op-account
+      containers:
+      - name: oauth2envf-op
+        image: {{ include "dependentapi-simple-operator.dockerimage" . }}
+        imagePullPolicy: {{ include "dependentapi-simple-operator.imagePullPolicy" . }}
+        env:
+        - name: LOGGING
+          value: "{{ .Values.loglevel }}"
+        - name: CANVAS_INFO_ENDPOINT
+          value: "{{ canvasInfoServiceURL }}"
+        ports:
+        - containerPort: 9443
