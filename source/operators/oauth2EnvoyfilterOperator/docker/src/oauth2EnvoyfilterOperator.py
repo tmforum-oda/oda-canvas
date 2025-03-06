@@ -1,6 +1,11 @@
 import kopf
 import logging
 import os
+import base64
+import kubernetes
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
 
 from service_inventory_client import ServiceInventoryAPI
 
@@ -9,6 +14,7 @@ from utils import safe_get
 # import kubernetes.client
 # from kubernetes.client.rest import ApiException
 from log_wrapper import LogWrapper, logwrapper
+from kubernetes.client.exceptions import ApiException
 
 
 DEPAPI_GROUP = "oda.tmforum.org"
@@ -46,6 +52,16 @@ CANVAS_INFO_ENDPOINT = os.getenv(
 )
 logger.info(f"CANVAS_INFO_ENDPOINT={CANVAS_INFO_ENDPOINT}")
 
+OAUTH2_TOKEN_ENDPOINT = os.getenv(
+    "OAUTH2_TOKEN_ENDPOINT",
+    "http://canvas-keycloak-headless.canvas.svc.cluster.local:8083/auth/realms/odari/protocol/openid-connect/token",
+)
+logger.info("OAUTH2_TOKEN_ENDPOINT=%s", OAUTH2_TOKEN_ENDPOINT)
+
+ENVOY_SECRET_NAME = os.getenv("ENVOY_SECRET_NAME", "envoy-oauth2-secrets")
+logger.info("ENVOY_SECRET_NAME=%s", ENVOY_SECRET_NAME)
+
+
 componentname_label = os.getenv("COMPONENTNAME_LABEL", "oda.tmforum.org/componentName")
 
 INSTANCES = {}
@@ -69,14 +85,86 @@ def quick_get_comp_name(body):
     return safe_get(None, body, "metadata", "labels", componentname_label)
 
 
+def half_anon(secret):
+    if secret == None:
+        return None
+    if len(secret) < 6:
+        return "****"
+    return f"{secret[:2]}****{secret[-2:]}"
+
+
+def b64d(enc_text: str):
+    return base64.b64decode(enc_text).decode()
+
+
+def b64e(text: str):
+    return base64.b64encode(text.encode()).decode()
+
+
+jinja2_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates")), autoescape=select_autoescape())
+
+
+def create_sds_secret_yaml(client_secret):
+    """
+    curl -X 'POST' \
+      'http://localhost:8638/service' \
+      -H 'accept: application/json' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "serviceType": "API",
+        ...
+        }'
+    """
+    template = jinja2_env.get_template("sds_secret.yaml.jinja2")
+    result = template.render(
+        client_secret=client_secret,
+    )
+    return result
+
+
+def read_secret(namespace, secret_name):
+    v1 = kubernetes.client.CoreV1Api()
+    try:
+        sec = v1.read_namespaced_secret(secret_name, namespace)
+        return sec
+    except ApiException as e:
+        if e.status == HTTP_NOT_FOUND:
+            return None
+        raise e
+
+
+def update_secret(namespace, name, k8s_secret):
+    v1 = kubernetes.client.CoreV1Api()
+    return v1.patch_namespaced_secret(name, namespace, k8s_secret)
+
+
+def read_credentials(namespace, comp_name):
+    sec = read_secret(namespace, f"{comp_name}-secret")
+    client_id = b64d(sec.data["client_id"])
+    client_secret = b64d(sec.data["client_secret"])
+    return (client_id, client_secret)
+
+
+def create_secret(namespace, name, data):
+    # data_b64values = {kv[0]: b64e(kv[1]) for kv in data_plainvalues.items()}
+    secret = kubernetes.client.V1Secret(
+        api_version="v1",
+        kind="Secret",
+        metadata=kubernetes.client.V1ObjectMeta(name=name),
+        data=data,
+    )
+    v1 = kubernetes.client.CoreV1Api()
+    return v1.create_namespaced_secret(namespace=namespace, body=secret)
+
+
 @logwrapper
-def add_client_secrets_to_SDS(logw: LogWrapper, namespace, componentName):
+def add_client_secrets_to_SDS(logw: LogWrapper, namespace, comp_name):
     """
     demo-b-productcatalogmanagement-secret:
 
         data:
           client_id: BASE64ENCODE(demo-b-productcatalogmanagement)
-          client_secret: BASE64ENCODE(eeB...1OO(
+          client_secret: BASE64ENCODE(eeB...1OO)
 
 
     envoy-oauth2-secrets:
@@ -94,13 +182,33 @@ def add_client_secrets_to_SDS(logw: LogWrapper, namespace, componentName):
             )
 
     """
-    logw.info("adding client secrets to envoy-oauth2-secrets", f"{namespace}:{componentName}")
+    logw.info(f"adding client secrets to {ENVOY_SECRET_NAME}", f"{namespace}:{comp_name}")
+    (client_id, client_secret) = read_credentials(namespace, comp_name)
+    logw.debug("client_id", client_id)
+    logw.debug("client_secret", half_anon(client_secret))
+
+    yaml_filename = f"{comp_name}.yaml"
+    yaml_content = create_sds_secret_yaml(client_secret)
+    b64_yaml_content = b64e(yaml_content)
+
+    envoy_secret_name = ENVOY_SECRET_NAME
+    envoy_secret = read_secret(namespace, envoy_secret_name)
+    if envoy_secret is None:
+        logw.info(f"creating {ENVOY_SECRET_NAME}", yaml_filename)
+        create_secret(namespace, envoy_secret_name, {yaml_filename: b64_yaml_content})
+    else:
+        if yaml_filename in envoy_secret.data and envoy_secret.data[yaml_filename] == b64_yaml_content:
+            logw.debug("credentials unchanged", yaml_filename)
+        else:
+            logw.info(f"updating {ENVOY_SECRET_NAME} with credentials", yaml_filename)
+            envoy_secret.data[yaml_filename] = b64_yaml_content
+            update_secret(namespace, envoy_secret_name, envoy_secret)
 
 
 @logwrapper
-def process_envoy_filter(logw: LogWrapper, namespace, id, componentName, dependencyName, url):
-    logw.info("processing dependency", dependencyName)
-    add_client_secrets_to_SDS(logw, namespace, componentName)
+def process_envoy_filter(logw: LogWrapper, namespace, id, comp_name, dependency_name, url):
+    logw.info("processing dependency", dependency_name)
+    add_client_secrets_to_SDS(logw, namespace, comp_name)
 
 
 @kopf.timer(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, interval=60.0)

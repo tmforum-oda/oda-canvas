@@ -4,9 +4,11 @@ import logging
 import kopf
 import asyncio
 
-# os.environ["CANVAS_INFO_ENDPOINT"] = "http://localhost:8638"
+
 os.environ["CANVAS_INFO_ENDPOINT"] = "https://canvas-info.ihc-dt.cluster-1.de"
 os.environ["LOGGING"] = "10"  # 10 - debug, 20 - info
+os.environ["OAUTH2_TOKEN_ENDPOINT"] = "https://canvas-keycloak.ihc-dt.cluster-1.de/auth/realms/odari/protocol/openid-connect/token"
+
 
 sys.path.append("../src")
 from oauth2EnvoyfilterOperator import depapi_timer
