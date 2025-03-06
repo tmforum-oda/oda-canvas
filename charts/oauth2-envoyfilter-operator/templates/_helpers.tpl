@@ -1,5 +1,5 @@
 {{/*
-build the full dependent api docker image name from image + version + prereleaseSuffix
+build the full oauth2 envoyfilter operator docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "oauth2-envoyfilter-operator.dockerimage" -}}
   {{- .Values.image -}}:{{- .Values.version -}}
