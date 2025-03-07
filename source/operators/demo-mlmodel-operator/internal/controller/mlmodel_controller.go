@@ -89,6 +89,7 @@ func (r *MLModelReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	if !mlModel.ObjectMeta.DeletionTimestamp.IsZero() {
 		//this means the reconciliation process is being triggered by a delete event
 		return r.deleteResources(ctx, mlModel)
+		//return ctrl.Result{}, nil
 	}
 
 	if util.NeedsUpdate(mlModel) {
@@ -113,11 +114,19 @@ func (r *MLModelReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	} else if mlModel.Status.Phase == odatmforumorgv1beta1.StateCreatingStorage {
 		return r.proceedToDownloadingState(ctx, mlModel)
 	} else if mlModel.Status.Phase == odatmforumorgv1beta1.StateDownloading {
-		return r.proceedToServingState(ctx, mlModel)
+		return r.checkDownloadStateAndProceed(ctx, mlModel)
 	} else if mlModel.Status.Phase == odatmforumorgv1beta1.StateServing {
 		return r.proceedToDeployedState(ctx, mlModel)
 	}
 	return ctrl.Result{}, nil
+}
+
+func (r *MLModelReconciler) applyOwnership(mlModel *odatmforumorgv1beta1.MLModel, obj client.Object) error {
+	if err := controllerutil.SetOwnerReference(mlModel, obj, r.Scheme); err != nil {
+		logger.Error(err, "Failed to set owner reference")
+		return err
+	}
+	return nil
 }
 
 func needsUpdate(mlModel *odatmforumorgv1beta1.MLModel) bool {
@@ -128,10 +137,10 @@ func needsUpdate(mlModel *odatmforumorgv1beta1.MLModel) bool {
 func (r *MLModelReconciler) deleteResources(ctx context.Context, mlModel *odatmforumorgv1beta1.MLModel) (ctrl.Result, error) {
 	logger.Info("MLModel is being deleted, cleaning up resources")
 
-	// Call cleanup function
-	if err := r.cleanupResources(ctx, mlModel); err != nil {
-		return ctrl.Result{RequeueAfter: time.Second * 5}, err
-	}
+	//// Call cleanup function
+	//if err := r.cleanupResources(ctx, mlModel); err != nil {
+	//	return ctrl.Result{RequeueAfter: time.Second * 5}, err
+	//}
 
 	// Remove finalizer and update
 	controllerutil.RemoveFinalizer(mlModel, ModelFinalizer)
@@ -164,6 +173,11 @@ func (r *MLModelReconciler) createPVC(ctx context.Context, mlModel *odatmforumor
 				},
 			},
 		},
+	}
+
+	if err := r.applyOwnership(mlModel, &claim); err != nil {
+		logger.Error(err, "Failed to set controller reference")
+		return ctrl.Result{RequeueAfter: time.Second * 5}, err
 	}
 
 	if err := r.Create(ctx, &claim); err != nil {
@@ -261,6 +275,11 @@ func (r *MLModelReconciler) proceedToDownloadingState(ctx context.Context, mlMod
 		},
 	}
 
+	if err := r.applyOwnership(mlModel, &job); err != nil {
+		logger.Error(err, "Failed to set controller reference")
+		return ctrl.Result{RequeueAfter: time.Second * 5}, err
+	}
+
 	if err := r.Create(ctx, &job); err != nil {
 		logger.Error(err, "Failed to create download job. retrying")
 		return ctrl.Result{RequeueAfter: time.Second * 5}, err
@@ -269,7 +288,7 @@ func (r *MLModelReconciler) proceedToDownloadingState(ctx context.Context, mlMod
 	return r.updateStatusAndRequeueOrFail(ctx, mlModel)
 }
 
-func (r *MLModelReconciler) proceedToServingState(ctx context.Context, mlModel *odatmforumorgv1beta1.MLModel) (ctrl.Result, error) {
+func (r *MLModelReconciler) checkDownloadStateAndProceed(ctx context.Context, mlModel *odatmforumorgv1beta1.MLModel) (ctrl.Result, error) {
 	job := &v4.Job{}
 	if err := r.Get(ctx, client.ObjectKey{Namespace: mlModel.Namespace, Name: r.jobName(mlModel)}, job); err != nil {
 		logger.Error(err, "Failed to get download job with name: "+r.jobName(mlModel))
@@ -336,6 +355,12 @@ func (r *MLModelReconciler) proceedToDeployedState(ctx context.Context, mlModel 
 			},
 		},
 	}
+
+	if err := r.applyOwnership(mlModel, deployment); err != nil {
+		logger.Error(err, "Failed to set controller reference")
+		return ctrl.Result{RequeueAfter: time.Second * 5}, err
+	}
+
 	if err := r.Create(ctx, deployment); err != nil {
 		logger.Error(err, "Failed to create deployment")
 		return ctrl.Result{RequeueAfter: time.Second * 5}, err
