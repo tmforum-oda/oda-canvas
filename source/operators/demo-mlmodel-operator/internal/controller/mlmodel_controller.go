@@ -39,7 +39,7 @@ var (
 	logger           = log.Log.WithName("mlmodelController")
 	ModelFinalizer   = "mlmodel.finalizer"
 	CheckForPVCState = false
-	DockerImagePoc   = "ealen/echo-server"
+	DockerImagePoc   = "tensorflow/serving:latest"
 	config           = util.GetConfig()
 )
 
@@ -91,16 +91,22 @@ func (r *MLModelReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return r.deleteResources(ctx, mlModel)
 	}
 
-	if needsUpdate(mlModel) {
-		logger.Info("Model needs update")
-		mlModel.Status.ObservedGeneration = mlModel.Generation
-		mlModel.Status.Phase = odatmforumorgv1beta1.StatePending
+	if util.NeedsUpdate(mlModel) {
+		/*
+			As a POC, an update will delete the old resources
+			and start the process from the beginning. In a real-world scenario,
+			we would have to implement a more sophisticated update process
+		*/
+		if err := r.cleanupResources(ctx, mlModel); err != nil {
+			return ctrl.Result{RequeueAfter: time.Second * 5}, err
+		}
+		util.SetModelInitialState(mlModel)
 		return r.updateStatusAndRequeueOrFail(ctx, mlModel)
 	}
 
 	if mlModel.Status.Phase == "" {
 		//setup initial state
-		mlModel.Status.Phase = odatmforumorgv1beta1.StatePending
+		util.SetModelInitialState(mlModel)
 		return r.updateStatusAndRequeueOrFail(ctx, mlModel)
 	} else if mlModel.Status.Phase == odatmforumorgv1beta1.StatePending {
 		return r.createPVC(ctx, mlModel)
@@ -115,7 +121,7 @@ func (r *MLModelReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 }
 
 func needsUpdate(mlModel *odatmforumorgv1beta1.MLModel) bool {
-	return mlModel.Status.ObservedGeneration != mlModel.Generation &&
+	return mlModel.Status.ObservedGeneration > mlModel.Generation &&
 		(mlModel.Status.Phase == odatmforumorgv1beta1.StateReady || mlModel.Status.Phase == odatmforumorgv1beta1.StateFailed)
 }
 
@@ -310,7 +316,7 @@ func (r *MLModelReconciler) proceedToDeployedState(ctx context.Context, mlModel 
 				Spec: v2.PodSpec{
 					Containers: []v2.Container{
 						{
-							Name:  "inference-server",
+							Name:  "tf-serving",
 							Image: DockerImagePoc, // Modify based on the framework
 							Args:  []string{"--model_base_path=/models", "--rest_api_port=8501"},
 							Ports: []v2.ContainerPort{

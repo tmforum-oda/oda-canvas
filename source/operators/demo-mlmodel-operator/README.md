@@ -1,17 +1,40 @@
 # MLModel Kubernetes Operator Example
 A Kubernetes Operator created as a POC to showcase how to handle long running processes and tasks in a Kubernetes cluster.
 
-## Description
+# Intro
 Use case: Deployment of a machine learning model inside a Kubernetes cluster.
 
 By creating a MLModel resource, the operator will deploy a pod with the model and expose it as a service. It will also handle the downloading of the model with a kubernetes job, and failure states.
 
 ![Operator Diagram](doc/diagram.png)
 
-## Technology
-This uses the kubernetes [operator framework](https://operatorframework.io/), officially supported by CNCF.
+## Why?
+This project is a POC to showcase how to handle long running processes and tasks in a Kubernetes cluster. It is a simple example of how to create a Kubernetes operator using the operator framework.
 
-## Getting Started
+As such the following workflows have been implemented:
+- Simple sequential flow -> success scenario just like the diagram above.
+  - Statuses of the MLModel will be updated as each step is completed.
+- Failure scenario -> The operator will handle the failure of the download job and the pod. The status of the MLModel will be updated to Failed, with a message of the error.
+- Deletion of the MLModel -> The operator will delete the pod and the service when the MLModel is deleted.
+
+## Important notes
+
+As this is a POC, the following features have not been implemented:
+- **Proper model update**. So far, the operator will properly identify MLModel resource updates based on the `Generation` of the resource inside Kubernetes. However, it will delete all resources and start again.
+
+In a production scenario, the above cases should be implemented properly depending on the business scenario.
+
+### If you use arm64 architecture / Apple Silicon...
+
+The final step uses the `tensorflow/serving` image, which (at the time of this writing) is not available for the arm64 architecture. Since those images need an environment with AVX instruction set, or a docker environment with proper emulation of this instruction set, some MacOS docker environments (such as orbstack) will throw an error inside the running pod mentioning :"Illegal instruction" or something similar.
+
+If that is the case, you can change the `DockerImagePoc` variable inside the `mlmodel_controller.go` file to something calling a dummy server, like `ealen/echo-server`. This will allow you to test the operator without the final step. It's a POC after all, and you can get away with it :) 
+
+## Technology
+This uses the kubernetes [operator framework](https://operatorframework.io/), officially supported by CNCF. Therefore most of the instructions below concern the default documentation of the framework.
+
+
+# Getting Started
 
 ### Prerequisites
 - go version v1.22.0+
