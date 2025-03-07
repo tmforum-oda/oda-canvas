@@ -1,7 +1,7 @@
 @UC015
 @UC015-F001
 @KongGateway
-Feature: UC015-F001 Expose APIs: Create and Verify HTTProute for ExposedAPI Resource
+Feature: UC015-F002 Expose APIs: Create and Verify HTTProute for ExposedAPI Resource
 
     Scenario Outline: Create API Resource and Verify HTTPRoute Creation for API
         Given an example package '<PackageName>' with a '<ComponentName>' component with '<ApiCount>' ExposedAPI in its '<SegmentName>' segment

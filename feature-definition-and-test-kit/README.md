@@ -23,26 +23,50 @@ For contributors contributing new features to the ODA Canvas, the expectation is
 
 
 
-# List of BDD Features
+## List of BDD Features
 
-The table below shows the list of features, together with the test status. The features are numbered depending on the use-case they describe. 
+The list below shows the features organized by use case, with their current test status indicated. ✅ indicates the corresponding test is ready, ⏳ indicates the test has yet to be defined.
 
-| Use-Case            | Feature                         | Test Status |
-| ------------------- | ------------------------------- | ----------- |
-| [UC003 - Expose APIs for Component](../usecase-library/UC003-Configure-Exposed-APIs.md) | [F001 - Create API Resource](features/UC003-F001-Expose-APIs-Create-API-Resource.feature) | Complete |
-| [UC003 - Expose APIs for Component](../usecase-library/UC003-Configure-Exposed-APIs.md) | [F002 - Publish API Resource URL](features/UC003-F002-Expose-APIs-Publish-API-Resource-URL.feature) | Complete |
-| [UC003 - Expose APIs for Component](../usecase-library/UC003-Configure-Exposed-APIs.md) | [F003 - Verify API implementation is ready](features/UC003-F003-Expose-APIs-Verify-API-implementation-is-ready.feature) | Complete |
-| [UC003 - Expose APIs for Component](../usecase-library/UC003-Configure-Exposed-APIs.md) | [F004 - Upgrade component with additional API](features/UC003-F004-Expose-APIs-Upgrade-component-with-additional-API.feature) | Complete |
-| [UC003 - Expose APIs for Component](../usecase-library/UC003-Configure-Exposed-APIs.md) | [F005 - Upgrade component with removed API](features/UC003-F005-Expose-APIs-Upgrade-component-with-removed-API.feature) | Complete |
-| [UC003 - Expose APIs for Component](../usecase-library/UC003-Configure-Exposed-APIs.md) | [F006 - Component Specified Rate Limiting and Throttling of API Requests](features/UC003-F006-Expose-APIs-Component-Specified-Rate-Limiting-and-Throttling-of-API-Requests.feature) | Not started |
-| [UC005 - Configure Users and Roles](../usecase-library/UC005-Configure-Users-and-Roles.md) | [F001 - Apply Standard Defined Role to Canvas Admin user](features/UC005-F001-Bootstrap-Apply-Standard-Defined-Role-to-Canvas-Admin-user.feature) | Complete |
-| [UC005 - Configure Users and Roles](../usecase-library/UC005-Configure-Users-and-Roles.md)              | [F002 - Grouping Permission Specification Sets-into Business Roles in Identity Management Solution](features/UC005-F002-Bootstrap-Grouping-Permission-Specification-Sets-into-Business-Roles-in-Identity-Management-Solution.feature) | Not started |
-| [UC005 - Configure Users and Roles](../usecase-library/UC005-Configure-Users-and-Roles.md)              | [F003 - Secure User and Role Information](features/UC005-F003-Bootstrap-Secure-User-and-Role-Information-Communication.feature) | Not started |
-| [UC005 - Configure Users and Roles](../usecase-library/UC005-Configure-Users-and-Roles.md)              | [F004 - Component Exposes Permission Specification Set Towards Canvas](features/UC005-F004-Bootstrap-Component-Exposes-Permission-Specification-Set-Towards-Canvas.feature) | Not started |
-| [UC010 - Authentication external](../usecase-library/UC010-External-Authentication.md) | [F001 - Logging and Monitoring of Authentication Activity](features/UC010-F001-External-Authentication-Logging-and-Monitoring-of-Authentication-Activity.feature) | Not started |
-| [UC013 - Seamless upgrade](../usecase-library/UC013-Upgrade-Canvas.md) | [F001 - Installing components using prev version](features/UC013-F001-Seamless-upgrades-Installing-components-using-prev-version.feature) | Complete |
-| [UC013 - Seamless upgrade](../usecase-library/UC013-Upgrade-Canvas.md) | [F002 - Canvas Operators using prev version](features/UC013-F002-Seamless-upgrades-Canvas-Operators-using-prev-version.feature) | Complete |
+### UC002 - Manage Components
 
+* ✅ [F001 - Install Component](features/UC002-F001-Install-Component.feature)
+* ✅ [F002 - Upgrade Component](features/UC002-F002-Upgrade-Component.feature)
+* ✅ [F003 - Install Component from Reference Examples](features/UC002-F003-Install-Component-from-reference-examples.feature)
+* ✅ [F004 - Uninstall Component from Reference Examples](features/UC002-F004-Uninstall-Component-from-reference-examples.feature)
+
+### UC003 - Expose APIs for Component
+* ✅ [F001 - Create API Resource](features/UC003-F001-Expose-APIs-Create-API-Resource.feature)
+* ✅ [F002 - Publish API Resource URL](features/UC003-F002-Expose-APIs-Publish-API-Resource-URL.feature)
+* ✅ [F003 - Verify API implementation is ready](features/UC003-F003-Expose-APIs-Verify-API-implementation-is-ready.feature)
+* ✅ [F004 - Upgrade component with additional API](features/UC003-F004-Expose-APIs-Upgrade-component-with-additional-API.feature)
+* ✅ [F005 - Upgrade component with removed API](features/UC003-F005-Expose-APIs-Upgrade-component-with-removed-API.feature)
+* ⏳ [F006 - Component Specified Rate Limiting and Throttling of API Requests](features/UC003-F006-Expose-APIs-Component-Specified-Rate-Limiting-and-Throttling-of-API-Requests.feature)
+
+### UC005 - Configure Users and Roles
+* ✅ [F001 - Apply Standard Defined Role to Canvas Admin user](features/UC005-F001-Bootstrap-Apply-Standard-Defined-Role-to-Canvas-Admin-user.feature)
+* ⏳ [F002 - Grouping Permission Specification Sets into Business Roles](features/UC005-F002-Bootstrap-Grouping-Permission-Specification-Sets-into-Business-Roles-in-Identity-Management-Solution.feature)
+* ⏳ [F003 - Secure User and Role Information](features/UC005-F003-Bootstrap-Secure-User-and-Role-Information-Communication.feature)
+* ⏳ [F004 - Component Exposes Permission Specification Set](features/UC005-F004-Bootstrap-Component-Exposes-Permission-Specification-Set-Towards-Canvas.feature)
+* ⏳ [F005 - Add Permission Specification Sets in Component to Identity Platform](features/UC003-F005-Expose-APIs-Upgrade-component-with-removed-API.feature)
+* ⏳ [F006 - Creation Update Removal of Technical Roles in the Identity Platform](features/UC005-F006-Bootstrap-Creation-Update-Removal-of-Technical-Roles-in-the-Identity-Platform.feature)
+* ⏳ [F006 - Creation Update Removal of PartyRoles as Businees Roles and Mapping with Technical Roles in the Identity Platform](features/UC005-F007-Bootstrap-Creation-Update-Removal-of-PartyRoles-as-Business-Roles-and-Mapping-with-Technical-Roles-in-the-Identity-Platform.feature)
+
+### UC007 - Dependent APIs
+* ✅ [F001 - Create Dependent API Resource](features/UC007-F001-Dependent-APIs-Create-Dependent-API-Resource.feature)
+* ✅ [F001 - Configure Dependent API Single Downstream](features/UC007-F002-Dependent-APIs-Configure-Dependent-APIs-Single-Downstream.feature)
+
+### UC010 - Authentication External
+* ⏳ [F001 - Logging and Monitoring of Authentication Activity](features/UC010-F001-External-Authentication-Logging-and-Monitoring-of-Authentication-Activity.feature)
+
+### UC013 - Seamless upgrade
+* ✅ [F001 - Installing components using prev version](features/UC013-F001-Seamless-upgrades-Installing-components-using-prev-version.feature)
+* ✅ [F002 - Canvas Operators using prev version](features/UC013-F002-Seamless-upgrades-Canvas-Operators-using-prev-version.feature)
+
+### UC015 - API Gateway configuration
+* ✅ [F001 - Create Apisix Api Gateway Route](features/UC015-F001-Create-ApisixApiGateway-Route.feature)
+* ✅ [F002 - Create Kong Api Gateway Route](features/UC015-F002-Create-KongApiGateway-Route.feature)
+* ✅ [F003 - Create Apisix Api Gateway Plugin](features/UC015-F003-Create-ApisixApiGateway-Plugin.feature)
+* ✅ [F004 - Create Kong Api Gateway Plugin](features/UC015-F004-Create-KongApiGateway-Plugin.feature)
 
 
 
