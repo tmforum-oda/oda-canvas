@@ -23,7 +23,7 @@ For contributors contributing new features to the ODA Canvas, the expectation is
 
 
 
-# List of BDD Features
+## List of BDD Features
 
 The list below shows the features organized by use case, with their current test status indicated. ✅ indicates the corresponding test is ready, ⏳ indicates the test has yet to be defined.
 
@@ -62,7 +62,7 @@ The list below shows the features organized by use case, with their current test
 * ✅ [F001 - Installing components using prev version](features/UC013-F001-Seamless-upgrades-Installing-components-using-prev-version.feature)
 * ✅ [F002 - Canvas Operators using prev version](features/UC013-F002-Seamless-upgrades-Canvas-Operators-using-prev-version.feature)
 
-## UC015 - API Gateway configuration
+### UC015 - API Gateway configuration
 * ✅ [F001 - Create Apisix Api Gateway Route](features/UC015-F001-Create-ApisixApiGateway-Route.feature)
 * ✅ [F002 - Create Kong Api Gateway Route](features/UC015-F002-Create-KongApiGateway-Route.feature)
 * ✅ [F003 - Create Apisix Api Gateway Plugin](features/UC015-F003-Create-ApisixApiGateway-Plugin.feature)

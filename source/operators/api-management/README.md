@@ -8,12 +8,12 @@ The Component Operator takes the `Component` custom resource and extracts each E
 
 At present, there are API Operators for the following API Gateways/Service Meshes:
 
-* [Apache APISIX](./apache-apisix#Apache-APISIX-API-Management-Operator): Operator for the Apache APISIX open source API Gateway (https://apisix.apache.org/).
-* [Kong](./kong): Operator for the Kong open source API Gateway (https://konghq.com/products/kong-gateway).
-* [Istio](./istio): Operator for the Istio Service Mesh (https://istio.io/).
-* [Azure API Management](azure-apim): Operator for the Azure API Gateway (https://azure.microsoft.com/en-gb/products/api-management/).
-* [Google Apigee](google-apigee): Operator for the Google Apigee API Gateway (https://cloud.google.com/apigee).
-* [Whale Cloud API Management](whalecloud-apim): Operator for the Whale Cloud API Gateway (https://online.iwhalecloud.com/).
+* [Apache APISIX](./apache-apisix/README.md): Operator for the Apache APISIX open source API Gateway (https://apisix.apache.org/).
+* [Kong](./kong/README.md): Operator for the Kong open source API Gateway (https://konghq.com/products/kong-gateway).
+* [Istio](./istio/README.md): Operator for the Istio Service Mesh (https://istio.io/).
+* [Azure API Management](azure-apim/README.md): Operator for the Azure API Gateway (https://azure.microsoft.com/en-gb/products/api-management/).
+* [Google Apigee](apigee/README.md): Operator for the Google Apigee API Gateway (https://cloud.google.com/apigee).
+* [Whale Cloud API Management](whalecloud-apim/README.md): Operator for the Whale Cloud API Gateway (https://online.iwhalecloud.com/).
 
 
 ## ExposedAPI Data Model

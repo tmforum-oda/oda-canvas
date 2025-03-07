@@ -8,8 +8,8 @@ The Component Operator takes the `Component` custom resource and extracts the id
 
 At present, there are IdentityConfig Operators for the following:
 
-* [Keycloak](./keycloak): Operator for the Keycloak open source Identity Management system (https://www.keycloak.org/).
-* [Microsoft Azure Entra ID](../../../installation/azure): Operator for Azure Entra ID (https://learn.microsoft.com/en-us/entra/identity/).
+* [Keycloak](./keycloak/README.md): Operator for the Keycloak open source Identity Management system (https://www.keycloak.org/).
+* [Microsoft Azure Entra ID](../../../installation/azure/README.md): Operator for Azure Entra ID (https://learn.microsoft.com/en-us/entra/identity/).
 
 ## IdentityConfig Data Model
 

@@ -40,7 +40,7 @@ For more information see [Software Operators](source/operators/README.md)
 
 The design (including ongoing work) of the ODA Canvas is documented in [ODA Canvas Design](Canvas-design.md).
 
-Security principles for the ODA Canvas design aredocumented in [ODA Securty Principles](SecurityPrinciples.md).
+Security principles for the ODA Canvas design are documented in [ODA Securty Principles](SecurityPrinciples.md).
 
 
 ## Release notes
@@ -64,4 +64,4 @@ Security principles for the ODA Canvas design aredocumented in [ODA Securty Prin
 
 How to work with this repository:
 
-* [How-To work with Dockerimages](/docs/developer/work-with-dockerimages.md)
+* [How-To work with Dockerimages](./docs/developer/work-with-dockerimages.md)
