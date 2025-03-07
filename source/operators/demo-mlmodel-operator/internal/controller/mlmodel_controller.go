@@ -121,6 +121,8 @@ func (r *MLModelReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	return ctrl.Result{}, nil
 }
 
+// Allow garbage collection from Kubernetes
+// https://kubernetes.io/docs/concepts/overview/working-with-objects/owners-dependents/
 func (r *MLModelReconciler) applyOwnership(mlModel *odatmforumorgv1beta1.MLModel, obj client.Object) error {
 	if err := controllerutil.SetOwnerReference(mlModel, obj, r.Scheme); err != nil {
 		logger.Error(err, "Failed to set owner reference")
@@ -129,18 +131,13 @@ func (r *MLModelReconciler) applyOwnership(mlModel *odatmforumorgv1beta1.MLModel
 	return nil
 }
 
-func needsUpdate(mlModel *odatmforumorgv1beta1.MLModel) bool {
-	return mlModel.Status.ObservedGeneration > mlModel.Generation &&
-		(mlModel.Status.Phase == odatmforumorgv1beta1.StateReady || mlModel.Status.Phase == odatmforumorgv1beta1.StateFailed)
-}
-
+/*
+*
+Since ownership has been applied before to the dependent resources,
+they will be deleted automatically when the MLModel is deleted
+*/
 func (r *MLModelReconciler) deleteResources(ctx context.Context, mlModel *odatmforumorgv1beta1.MLModel) (ctrl.Result, error) {
 	logger.Info("MLModel is being deleted, cleaning up resources")
-
-	//// Call cleanup function
-	//if err := r.cleanupResources(ctx, mlModel); err != nil {
-	//	return ctrl.Result{RequeueAfter: time.Second * 5}, err
-	//}
 
 	// Remove finalizer and update
 	controllerutil.RemoveFinalizer(mlModel, ModelFinalizer)
