@@ -1,3 +1,4 @@
+import os
 import logging
 import traceback
 import inspect
@@ -5,6 +6,9 @@ import inspect
 
 def tostr(value):
     return "" if value is None else str(value)
+
+
+LOGWRAPPER_MESSAGE_ONLY = os.environ.get("LOGWRAPPER_MESSAGE_ONLY", "").lower() == "true"
 
 
 class LogWrapper:
@@ -62,18 +66,10 @@ class LogWrapper:
         component_name=None,
     ):
         child_logger = logger if logger is not None else self.logger
-        child_function_name = (
-            function_name if function_name is not None else self.function_name
-        )
-        child_handler_name = (
-            handler_name if handler_name is not None else self.handler_name
-        )
-        child_resource_name = (
-            resource_name if resource_name is not None else self.resource_name
-        )
-        child_component_name = (
-            component_name if component_name is not None else self.component_name
-        )
+        child_function_name = function_name if function_name is not None else self.function_name
+        child_handler_name = handler_name if handler_name is not None else self.handler_name
+        child_resource_name = resource_name if resource_name is not None else self.resource_name
+        child_component_name = component_name if component_name is not None else self.component_name
         return LogWrapper(
             child_logger,
             child_function_name,
@@ -89,18 +85,10 @@ class LogWrapper:
         resource_name=None,
         component_name=None,
     ):
-        self.function_name = (
-            function_name if function_name is not None else self.function_name
-        )
-        self.handler_name = (
-            handler_name if handler_name is not None else self.handler_name
-        )
-        self.resource_name = (
-            resource_name if resource_name is not None else self.resource_name
-        )
-        self.component_name = (
-            component_name if component_name is not None else self.component_name
-        )
+        self.function_name = function_name if function_name is not None else self.function_name
+        self.handler_name = handler_name if handler_name is not None else self.handler_name
+        self.resource_name = resource_name if resource_name is not None else self.resource_name
+        self.component_name = component_name if component_name is not None else self.component_name
 
     def debugInfo(self, info_message, debug_info):
         self.info(info_message)
@@ -130,16 +118,25 @@ class LogWrapper:
             No return value.
         """
         if self.logger.isEnabledFor(logLevel):
-            cn = tostr(self.component_name).replace("|", "/")
-            rn = tostr(self.resource_name).replace("|", "/")
-            hn = tostr(self.handler_name).replace("|", "/")
-            fn = tostr(self.function_name).replace("]", ")")
-            sub = tostr(subject).replace(":", ";")
-            moo = tostr(message_or_object)
-            self.logger.log(
-                logLevel,
-                f"[{cn}|{rn}|{hn}|{fn}] {sub}: {moo}",
-            )
+            if LOGWRAPPER_MESSAGE_ONLY:
+                msg = tostr(subject)
+                if message_or_object:
+                    msg = f"{msg}: {tostr(message_or_object)}"
+                self.logger.log(
+                    logLevel,
+                    msg,
+                )
+            else:
+                cn = tostr(self.component_name).replace("|", "/")
+                rn = tostr(self.resource_name).replace("|", "/")
+                hn = tostr(self.handler_name).replace("|", "/")
+                fn = tostr(self.function_name).replace("]", ")")
+                sub = tostr(subject).replace(":", ";")
+                moo = tostr(message_or_object)
+                self.logger.log(
+                    logLevel,
+                    f"[{cn}|{rn}|{hn}|{fn}] {sub}: {moo}",
+                )
         return
 
 

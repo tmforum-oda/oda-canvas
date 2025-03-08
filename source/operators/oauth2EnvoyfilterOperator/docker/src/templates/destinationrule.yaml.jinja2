@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: {{ depapi_name }}-add-https
+spec:
+  host: "{{ target_host }}"
+  workloadSelector:
+    matchLabels:
+      app: {{ comp_name }}
+  trafficPolicy:
+    portLevelSettings:
+    - port:
+        number: 80
+      tls:
+        mode: SIMPLE # initiates HTTPS when accessing echo.free.beeceptor.com

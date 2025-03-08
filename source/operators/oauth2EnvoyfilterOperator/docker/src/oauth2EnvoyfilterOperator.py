@@ -2,8 +2,12 @@ import kopf
 import logging
 import os
 import base64
-import kubernetes
 import urllib.parse
+
+import kubernetes
+import kubernetes.client
+from kubernetes.client.exceptions import ApiException
+
 import yaml
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -16,7 +20,6 @@ from utils import safe_get
 # import kubernetes.client
 # from kubernetes.client.rest import ApiException
 from log_wrapper import LogWrapper, logwrapper
-from kubernetes.client.exceptions import ApiException
 
 
 DEPAPI_GROUP = "oda.tmforum.org"
@@ -114,18 +117,28 @@ def create_sds_secret_yaml(client_secret):
     return result
 
 
+def url_hostname(url_str: str):
+    url = urllib.parse.urlparse(url_str)
+    return url.hostname
+
+
+def url_port(url_str: str):
+    url = urllib.parse.urlparse(url_str)
+    result = url.port
+    if result is None:
+        if url.scheme == "https":
+            result = 443
+        elif url.scheme == "http":
+            result = 80
+        else:
+            raise ValueError(f"unhandled scheme in token_endpoint '{url_str}'")
+    return result
+
+
 def create_envoyfilter_yaml(component_name, client_id, token_endpoint):
 
-    url = urllib.parse.urlparse(token_endpoint)
-    token_hostname = url.hostname
-    token_port = url.port
-    if token_port is None:
-        if url.scheme == "https":
-            token_port = 443
-        elif url.scheme == "http":
-            token_port = 80
-        else:
-            raise ValueError(f"unhandled scheme in token_endpoint '{token_endpoint}'")
+    token_hostname = url_hostname(token_endpoint)
+    token_port = url_port(token_endpoint)
 
     template = jinja2_env.get_template("envoyfilter.yaml.jinja2")
     result = template.render(
@@ -138,11 +151,35 @@ def create_envoyfilter_yaml(component_name, client_id, token_endpoint):
     return result
 
 
+def create_serviceentry_yaml(host_name_list):
+
+    template = jinja2_env.get_template("serviceentry.yaml.jinja2")
+    result = template.render(host_name_list=host_name_list)
+    return result
+
+
 def read_secret(namespace, secret_name):
     v1 = kubernetes.client.CoreV1Api()
     try:
         sec = v1.read_namespaced_secret(secret_name, namespace)
         return sec
+    except ApiException as e:
+        if e.status == HTTP_NOT_FOUND:
+            return None
+        raise e
+
+
+def read_serviceentry(namespace):
+    custom_objects_api = kubernetes.client.CustomObjectsApi()
+    try:
+        serviceentry = custom_objects_api.get_namespaced_custom_object(
+            group="networking.istio.io",
+            version="v1",
+            namespace=namespace,
+            plural="serviceentries",
+            name="add-https",
+        )
+        return serviceentry
     except ApiException as e:
         if e.status == HTTP_NOT_FOUND:
             return None
@@ -224,9 +261,33 @@ def add_client_secrets_to_SDS(logw: LogWrapper, namespace, comp_name):
 @logwrapper
 def create_envoyfilter(logw, namespace, comp_name):
     envoyfilter_yaml = create_envoyfilter_yaml(namespace, comp_name, OAUTH2_TOKEN_ENDPOINT)
-    print(envoyfilter_yaml)
+    logw.debug(envoyfilter_yaml)
     body = yaml.safe_load(envoyfilter_yaml)
     return body
+
+
+@logwrapper
+def create_serviceentry(logw, host_name_list):
+    serviceentry_yaml = create_serviceentry_yaml(host_name_list)
+    logw.debug(serviceentry_yaml)
+    body = yaml.safe_load(serviceentry_yaml)
+    return body
+
+
+@logwrapper
+def add_host_to_serviceentry(logw, namespace, comp_name, url):
+    hostname = url_hostname(url)
+    serviceentry = read_serviceentry(namespace)
+    hosts = safe_get([], serviceentry, "spec", "hosts")
+    if hostname in hosts:
+        logw.debug(f"hostname {hostname} already in serviceentry")
+        return
+    new_hosts = list(hosts)
+    new_hosts.append(hostname)
+    logw.debug("adding host to serviceentry", hostname)
+    body = create_serviceentry(logw, new_hosts)
+    create_customresource(logw, namespace, body, "serviceentries")
+    print(type(serviceentry))
 
 
 def create_customresource(logw, namespace, body, plural=None):
@@ -288,6 +349,7 @@ def process_envoy_filter(logw: LogWrapper, namespace, id, comp_name, dependency_
     add_client_secrets_to_SDS(logw, namespace, comp_name)
     body = create_envoyfilter(logw, namespace, comp_name)
     create_customresource(logw, namespace, body)
+    add_host_to_serviceentry(logw, namespace, comp_name, url)
 
 
 @kopf.timer(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, interval=60.0)

@@ -8,6 +8,7 @@ import asyncio
 os.environ["CANVAS_INFO_ENDPOINT"] = "https://canvas-info.ihc-dt.cluster-1.de"
 os.environ["LOGGING"] = "10"  # 10 - debug, 20 - info
 os.environ["OAUTH2_TOKEN_ENDPOINT"] = "https://canvas-keycloak.ihc-dt.cluster-1.de/auth/realms/odari/protocol/openid-connect/token"
+os.environ["LOGWRAPPER_MESSAGE_ONLY"] = "true"
 
 
 sys.path.append("../src")
@@ -130,6 +131,6 @@ def test_dependentApiTimer():
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=True)
+    k8s_load_config(proxy=False)
     test_kubeconfig()
     test_dependentApiTimer()
