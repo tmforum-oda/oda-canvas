@@ -1,6 +1,7 @@
 import kopf
 import logging
 import os
+import re
 import base64
 import urllib.parse
 
@@ -174,6 +175,17 @@ def read_secret(namespace, secret_name):
         raise e
 
 
+def read_configmap(namespace, configmap_name):
+    v1 = kubernetes.client.CoreV1Api()
+    try:
+        cm = v1.read_namespaced_config_map(configmap_name, namespace)
+        return cm
+    except ApiException as e:
+        if e.status == HTTP_NOT_FOUND:
+            return None
+        raise e
+
+
 def read_serviceentry(namespace):
     custom_objects_api = kubernetes.client.CustomObjectsApi()
     try:
@@ -196,6 +208,11 @@ def update_secret(namespace, name, k8s_secret):
     return v1.patch_namespaced_secret(name, namespace, k8s_secret)
 
 
+def update_configmap(namespace, name, k8s_cm):
+    v1 = kubernetes.client.CoreV1Api()
+    return v1.patch_namespaced_config_map(name, namespace, k8s_cm)
+
+
 def read_credentials(namespace, comp_name):
     sec = read_secret(namespace, f"{comp_name}-secret")
     if sec is None:
@@ -215,6 +232,17 @@ def create_secret(namespace, name, data):
     )
     v1 = kubernetes.client.CoreV1Api()
     return v1.create_namespaced_secret(namespace=namespace, body=secret)
+
+
+def create_configmap(namespace, name, data):
+    cm = kubernetes.client.V1ConfigMap(
+        api_version="v1",
+        kind="ConfigMap",
+        metadata=kubernetes.client.V1ObjectMeta(name=name),
+        data=data,
+    )
+    v1 = kubernetes.client.CoreV1Api()
+    return v1.create_namespaced_config_map(namespace=namespace, body=cm)
 
 
 @logwrapper
@@ -263,6 +291,27 @@ def add_client_secrets_to_SDS(logw: LogWrapper, namespace, comp_name):
             logw.info(f"updating client credentials in {ENVOY_SECRET_NAME}", yaml_filename)
             envoy_secret.data[yaml_filename] = b64_yaml_content
             update_secret(namespace, envoy_secret_name, envoy_secret)
+
+
+@logwrapper
+def add_url_to_dependency_configmap(logw, namespace, comp_name, dependency_name, url):
+    url = url.replace("https://", "http://")
+    dependency_configmap = f"deps-{comp_name}"
+    env_name = dependency_name.upper()
+    env_name = re.sub("[^A-Z0-9]+", "", env_name)
+    env_name = f"DEPENDENCY_URL_{env_name}"
+    logw.debug(f"adding {env_name} to dependency configmap {dependency_configmap}", url)
+    cm = read_configmap(namespace, dependency_configmap)
+    if cm is None:
+        logw.info(f"creating {dependency_configmap} with env variable", f"{env_name}={url}")
+        create_configmap(namespace, dependency_configmap, {env_name: url})
+    else:
+        if env_name in cm.data and cm.data[env_name] == url:
+            logw.debug("envvar unchangedunchanged", env_name)
+        else:
+            logw.info(f"updating dependency configmap {dependency_configmap}", f"{env_name}={url}")
+            cm.data[env_name] = url
+            update_configmap(namespace, dependency_configmap, cm)
 
 
 @logwrapper
@@ -362,6 +411,7 @@ def process_envoy_filter(logw: LogWrapper, namespace, id, comp_name, dependency_
     create_envoyfilter(logw, namespace, comp_name)
     add_host_to_serviceentry(logw, namespace, comp_name, url)
     create_destinationrule(logw, namespace, comp_name, dependency_name, url)
+    add_url_to_dependency_configmap(logw, namespace, comp_name, dependency_name, url)
 
 
 @kopf.timer(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, interval=60.0)
@@ -381,7 +431,7 @@ async def depapi_timer(meta, spec, body, namespace, labels, name, status, memo: 
 
     svc_info = cavas_info_instance()
     svcs = svc_info.list_services(component_name=comp_name)
-    logw.debug("querying services for componenent {comp_name} from canvas-info-service", len(svcs))
+    logw.debug(f"querying services for componenent {comp_name} from canvas-info-service", len(svcs))
     for svc in svcs:
         id = svc["id"]
         logw.debug(f'svcid {svc["id"]}', svc)

@@ -16,6 +16,6 @@ status:
   apiStatus:
     ip: echoservice.ihc-dt.cluster-1.de
     name: external-api-productcatalogmanagement
-    url: http://echo.free.beeceptor.com/
+    url: https://echo.free.beeceptor.com/
   implementation:
     ready: true

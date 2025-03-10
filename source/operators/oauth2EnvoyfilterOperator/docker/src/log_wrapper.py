@@ -123,7 +123,7 @@ class LogWrapper:
         if self.logger.isEnabledFor(logLevel):
             if LOGWRAPPER_MESSAGE_ONLY:
                 msg = tostr(subject)
-                if message_or_object:
+                if message_or_object is not None:
                     msg = f"{msg}: {tostr(message_or_object)}"
                 self.logger.log(
                     logLevel,

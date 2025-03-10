@@ -16,6 +16,6 @@ status:
   apiStatus:
     ip: echoservice.ihc-dt.cluster-1.de
     name: external-api-productcatalogmanagement
-    url: http://echoservice.ihc-dt.cluster-1.de/echo
+    url: https://echoservice.ihc-dt.cluster-1.de/echo
   implementation:
     ready: true

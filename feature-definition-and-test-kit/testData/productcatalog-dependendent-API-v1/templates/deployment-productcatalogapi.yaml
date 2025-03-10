@@ -44,6 +44,9 @@ spec:
           value: "{{.Values.canvasinfo.host}}" 
         - name: CANVAS_INFO_BASEPATH
           value: "{{.Values.canvasinfo.basepath}}" 
+        {{ if .Values.add_env_deps_configmap }}
+
+		{{  }}
         imagePullPolicy: Always
         ports:
         - name: {{.Release.Name}}-pcapi
