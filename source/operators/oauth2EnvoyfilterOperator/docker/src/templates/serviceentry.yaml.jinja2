@@ -4,9 +4,9 @@ metadata:
   name: add-https
 spec:
   hosts:
-  {-% for host_name in host_name_list %}
+  {% for host_name in host_name_list -%}
   - "{{ host_name }}"
-  {-% endfor %}
+  {% endfor -%}
   ports:
   - number: 80
     name: http-port

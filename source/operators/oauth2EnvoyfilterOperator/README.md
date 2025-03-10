@@ -12,7 +12,7 @@ helm upgrade --install canvas-credman-op -n canvas charts/credentialsmanagement-
 ## Installation
 
 ```
-helm upgrade --install canvas-oauth2envf-op -n canvas charts/oauth2-envoyfilter-operator
+helm upgrade --install canvas-oauth2-op -n canvas charts/oauth2-envoyfilter-operator
 ```
 
 # deploy

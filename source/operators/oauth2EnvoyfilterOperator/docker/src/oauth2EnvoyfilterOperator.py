@@ -152,9 +152,14 @@ def create_envoyfilter_yaml(component_name, client_id, token_endpoint):
 
 
 def create_serviceentry_yaml(host_name_list):
-
     template = jinja2_env.get_template("serviceentry.yaml.jinja2")
     result = template.render(host_name_list=host_name_list)
+    return result
+
+
+def create_destinationrule_yaml(comp_name, dependency_name, hostname):
+    template = jinja2_env.get_template("destinationrule.yaml.jinja2")
+    result = template.render(comp_name=comp_name, depapi_name=dependency_name, target_host=hostname)
     return result
 
 
@@ -263,15 +268,24 @@ def create_envoyfilter(logw, namespace, comp_name):
     envoyfilter_yaml = create_envoyfilter_yaml(namespace, comp_name, OAUTH2_TOKEN_ENDPOINT)
     logw.debug(envoyfilter_yaml)
     body = yaml.safe_load(envoyfilter_yaml)
-    return body
+    create_customresource(logw, namespace, body)
 
 
 @logwrapper
-def create_serviceentry(logw, host_name_list):
+def create_serviceentry(logw, namespace, host_name_list):
     serviceentry_yaml = create_serviceentry_yaml(host_name_list)
     logw.debug(serviceentry_yaml)
     body = yaml.safe_load(serviceentry_yaml)
-    return body
+    create_customresource(logw, namespace, body)
+
+
+@logwrapper
+def create_destinationrule(logw, namespace, comp_name, dependency_name, url):
+    hostname = url_hostname(url)
+    destinationrule_yaml = create_destinationrule_yaml(comp_name, dependency_name, hostname)
+    logw.debug(destinationrule_yaml)
+    body = yaml.safe_load(destinationrule_yaml)
+    create_customresource(logw, namespace, body)
 
 
 @logwrapper
@@ -286,8 +300,7 @@ def add_host_to_serviceentry(logw, namespace, comp_name, url):
     new_hosts.append(hostname)
     logw.debug("adding host to serviceentry", hostname)
     body = create_serviceentry(logw, new_hosts)
-    create_customresource(logw, namespace, body, "serviceentries")
-    print(type(serviceentry))
+    create_customresource(logw, namespace, body)  # , "serviceentries")
 
 
 def create_customresource(logw, namespace, body, plural=None):
@@ -301,7 +314,8 @@ def create_customresource(logw, namespace, body, plural=None):
 
     if plural is None:
         plural = f"{kind.lower()}s"  # maybe a map is needed for handling special cases
-
+        if plural.endswith("ys"):
+            plural = f"{plural[:-2]}ies"
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
         logw.debugInfo(f"Creating {kind} {name}.{namespace}", body)
@@ -347,9 +361,9 @@ def create_customresource(logw, namespace, body, plural=None):
 def process_envoy_filter(logw: LogWrapper, namespace, id, comp_name, dependency_name, url):
     logw.info("processing dependency", dependency_name)
     add_client_secrets_to_SDS(logw, namespace, comp_name)
-    body = create_envoyfilter(logw, namespace, comp_name)
-    create_customresource(logw, namespace, body)
+    create_envoyfilter(logw, namespace, comp_name)
     add_host_to_serviceentry(logw, namespace, comp_name, url)
+    create_destinationrule(logw, namespace, comp_name, dependency_name, url)
 
 
 @kopf.timer(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, interval=60.0)

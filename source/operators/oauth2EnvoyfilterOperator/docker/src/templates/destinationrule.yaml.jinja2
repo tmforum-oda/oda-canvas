@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
-  name: {{ depapi_name }}-add-https
+  name: {{ comp_name }}-{{ depapi_name }}-add-https
 spec:
   host: "{{ target_host }}"
   workloadSelector:

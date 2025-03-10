@@ -47,6 +47,11 @@ rules:
     resources: [pods]
     verbs: [list, watch, patch, delete]
     
+  # Application: write access for secrets.
+  - apiGroups: [""]
+    resources: [secrets]
+    verbs: [list, patch, get, create, update, delete]
+
   # Application: read-only access for replica_Set
   - apiGroups: [apps]
     resources: [replicasets]
@@ -105,6 +110,11 @@ rules:
     resources: [pods]
     verbs: [list, watch, patch, delete]
 
+  # Application: write access for secrets.
+  - apiGroups: [""]
+    resources: [secrets]
+    verbs: [list, patch, get, create, update, delete]
+  
   # Application: read-only access for replica_Set
   - apiGroups: [apps]
     resources: [replicasets]
