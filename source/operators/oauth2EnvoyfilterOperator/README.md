@@ -59,9 +59,14 @@ kubectl apply -f source/operators/oauth2EnvoyfilterOperator/docker/manual_test/t
 ## Testdeployment of component with dependency
 
 ```
-helm install demo-b -n components feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install demo-b -n components feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1  --set=add_dependency_envvars=true
 ```
 
+check if dependencies are injected (requires waiting and restart)
+
+```
+kubectl exec -it demo-b-prodcatapi-XXXXXXXXX -- /bin/sh -c "echo $DEPENDENCY_URL_DOWNSTREAMPRODUCTCATALOG"
+```
 
 ## test oauth2 injection
 
