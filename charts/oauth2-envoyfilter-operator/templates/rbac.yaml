@@ -28,7 +28,6 @@ rules:
     resources: [mutatingwebhookconfigurations]
     verbs: [create, patch]
 
-
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [oda.tmforum.org]
     resources: [dependentapis]
@@ -71,75 +70,11 @@ rules:
   - apiGroups: [admissionregistration.k8s.io]
     resources: [validatingwebhookconfigurations, mutatingwebhookconfigurations]
     verbs: [create, patch]
-        
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: {{ .Release.Name }}-role-namespaced
-rules:
 
-  # Framework: knowing which other operators are running (i.e. peering).
-  - apiGroups: [zalando.org]
-    resources: [kopfpeerings]
-    verbs: [list, watch, patch, get]
-
-  # Framework: posting the events about the handlers progress/errors.
-  - apiGroups: [""]
-    resources: [events]
-    verbs: [create]
-
-  # Application: watching & handling for the custom resource we declare.
-  - apiGroups: [oda.tmforum.org]
-    resources: [dependentapis]
-    verbs: [list, watch, patch, get]
-
-  # Application: watching & handling for the custom resource we declare.
-  - apiGroups: [oda.tmforum.org]
-    resources: [components]
-    verbs: [list, watch, patch, get]
-
-  # Application: watching & handling for the custom resource we declare.
-  
-  - apiGroups: [oda.tmforum.org]
-    resources: [exposedapis]
-    verbs: [list, watch, get]
-
-  # Application: watching & handling for the custom resource we declare.
-  - apiGroups: [""]
-    resources: [pods]
-    verbs: [list, watch, patch, delete]
-
-  # Application: write access for secrets.
-  - apiGroups: [""]
-    resources: [secrets]
+  # Application: full access to EnvoyFilter
+  - apiGroups: [networking.istio.io]
+    resources: [envoyfilters, serviceentries, destinationrules]
     verbs: [list, patch, get, create, update, delete]
-  
-  # Application: read-only access for replica_Set
-  - apiGroups: [apps]
-    resources: [replicasets]
-    verbs: [list, get]
-
-
-  # Application: watching & handling for deployments (transfer labels to pods).
-  - apiGroups: [apps]
-    resources: [deployments]
-    verbs: [list, watch, patch, get]
-
-  # Application: other resources it produces and manipulates.
-  # Here, we create Jobs+PVCs+Pods, but we do not patch/update/delete them ever.
-  - apiGroups: [batch, extensions]
-    resources: [jobs]
-    verbs: [create]
-  - apiGroups: [""]
-    resources: [pods, persistentvolumeclaims]
-    verbs: [create]
-    
-  ## Application: create mutating webhooks 
-  #- apiGroups: [admissionregistration.k8s.io/v1, admissionregistration.k8s.io/v1beta1]
-  #  resources: [validatingwebhookconfigurations, mutatingwebhookconfigurations]
-  #  verbs: [create, patch]
-    
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -153,15 +88,3 @@ subjects:
   - kind: ServiceAccount
     name: {{ .Release.Name }}-account
     namespace: "{{ .Release.Namespace }}"
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: {{ .Release.Name }}-rolebinding-namespaced
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: {{ .Release.Name }}-role-namespaced
-subjects:
-  - kind: ServiceAccount
-    name: {{ .Release.Name }}-account

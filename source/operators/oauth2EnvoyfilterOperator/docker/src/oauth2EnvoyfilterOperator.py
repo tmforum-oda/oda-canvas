@@ -198,6 +198,8 @@ def update_secret(namespace, name, k8s_secret):
 
 def read_credentials(namespace, comp_name):
     sec = read_secret(namespace, f"{comp_name}-secret")
+    if sec is None:
+        raise kopf.TemporaryError(f"client credentials for {comp_name} do not yet exist")
     client_id = b64d(sec.data["client_id"])
     client_secret = b64d(sec.data["client_secret"])
     return (client_id, client_secret)
@@ -240,7 +242,7 @@ def add_client_secrets_to_SDS(logw: LogWrapper, namespace, comp_name):
             )
 
     """
-    logw.info(f"adding client secrets to {ENVOY_SECRET_NAME}", f"{namespace}:{comp_name}")
+    logw.debug(f"adding client secrets to {ENVOY_SECRET_NAME}", f"{namespace}:{comp_name}")
     (client_id, client_secret) = read_credentials(namespace, comp_name)
     logw.debug("client_id", client_id)
     logw.debug("client_secret", half_anon(client_secret))
@@ -252,13 +254,13 @@ def add_client_secrets_to_SDS(logw: LogWrapper, namespace, comp_name):
     envoy_secret_name = ENVOY_SECRET_NAME
     envoy_secret = read_secret(namespace, envoy_secret_name)
     if envoy_secret is None:
-        logw.info(f"creating {ENVOY_SECRET_NAME}", yaml_filename)
+        logw.info(f"creating {ENVOY_SECRET_NAME} with client credentials", yaml_filename)
         create_secret(namespace, envoy_secret_name, {yaml_filename: b64_yaml_content})
     else:
         if yaml_filename in envoy_secret.data and envoy_secret.data[yaml_filename] == b64_yaml_content:
             logw.debug("credentials unchanged", yaml_filename)
         else:
-            logw.info(f"updating {ENVOY_SECRET_NAME} with credentials", yaml_filename)
+            logw.info(f"updating client credentials in {ENVOY_SECRET_NAME}", yaml_filename)
             envoy_secret.data[yaml_filename] = b64_yaml_content
             update_secret(namespace, envoy_secret_name, envoy_secret)
 
@@ -298,7 +300,7 @@ def add_host_to_serviceentry(logw, namespace, comp_name, url):
         return
     new_hosts = list(hosts)
     new_hosts.append(hostname)
-    logw.debug("adding host to serviceentry", hostname)
+    logw.info("adding host to serviceentry", hostname)
     create_serviceentry(logw, namespace, new_hosts)
 
 
@@ -317,7 +319,7 @@ def create_customresource(logw, namespace, body, plural=None):
             plural = f"{plural[:-2]}ies"
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
-        logw.debugInfo(f"Creating {kind} {name}.{namespace}", body)
+        logw.debug(f"Creating {kind} {name}.{namespace}", body)
         customObj = custom_objects_api.create_namespaced_custom_object(
             group=group,
             version=version,
@@ -325,7 +327,7 @@ def create_customresource(logw, namespace, body, plural=None):
             plural=plural,
             body=body,
         )
-        logw.debugInfo(f"{kind} Resource created", customObj)
+        logw.debugInfo(f"{kind} Resource {name} created", customObj)
 
     except ApiException as e:
         if e.status != HTTP_CONFLICT:
@@ -345,20 +347,17 @@ def create_customresource(logw, namespace, body, plural=None):
                     name=name,
                     body=body,
                 )
-                logw.debugInfo(
-                    f"{kind} Resource updated {name}.{namespace}",
-                    customObj,
-                )
+                logw.debug(f"{kind} Resource updated {name}.{namespace}", customObj)
 
             except ApiException as e:
                 logw.warning(f"{kind} Exception updating {name}.{namespace}")
                 logw.warning(f"{kind} Exception updating {e}")
-                raise kopf.TemporaryError("Exception creating {kind} custom resource.")
+                raise kopf.TemporaryError(f"Exception creating {kind} custom resource {name}.")
 
 
 @logwrapper
 def process_envoy_filter(logw: LogWrapper, namespace, id, comp_name, dependency_name, url):
-    logw.info("processing dependency", dependency_name)
+    logw.debug("processing dependency", dependency_name)
     add_client_secrets_to_SDS(logw, namespace, comp_name)
     create_envoyfilter(logw, namespace, comp_name)
     add_host_to_serviceentry(logw, namespace, comp_name, url)
@@ -375,17 +374,17 @@ async def depapi_timer(meta, spec, body, namespace, labels, name, status, memo: 
         resource_name=f"DepApi/{name}",
     )
 
-    logw.debugInfo(f"Timer called for {name}.{namespace}", body)
+    logw.debug(f"Timer called for {name}.{namespace}", body)
 
     memo.counter = memo.get("counter", 0) + 1
-    logw.info("memo counter", f"called {memo.counter} times")
+    logw.debug("memo counter", f"called {memo.counter} times")
 
     svc_info = cavas_info_instance()
     svcs = svc_info.list_services(component_name=comp_name)
-    logw.info("querying services for componenent {comp_name} from canvas-info-service", len(svcs))
+    logw.debug("querying services for componenent {comp_name} from canvas-info-service", len(svcs))
     for svc in svcs:
         id = svc["id"]
-        logw.debugInfo(f'svcid {svc["id"]}', svc)
+        logw.debug(f'svcid {svc["id"]}', svc)
         componentName = svc["componentName"]
         dependencyName = svc["dependencyName"]
         url = svc["url"]

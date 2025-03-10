@@ -1,8 +1,8 @@
 apiVersion: oda.tmforum.org/v1
 kind: ExposedAPI
 metadata:
-  name: externalapi-productcatalogmanagement-echo-beepceptor
   namespace: components
+  name: externalapi-productcatalogmanagement
 spec:
   apiType: openapi
   # "echo.free.beeceptor.com", "echoservice.ihc-dt.cluster-1.de", "echoservice-tls.echoservice.svc.cluster.local", 
