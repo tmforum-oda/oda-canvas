@@ -9,6 +9,14 @@ helm upgrade --install canvas-credman-op -n canvas charts/credentialsmanagement-
 ```
 
 
+## set default namespace to "components"
+
+```
+kubectl config set-context --current --namespace=components
+```
+
+
+
 ## Installation
 
 ```
@@ -22,11 +30,17 @@ helm upgrade --install canvas-oauth2-op -n canvas charts/oauth2-envoyfilter-oper
 helm upgrade --install demo-a -n components feature-definition-and-test-kit/testData/productcatalog-v1
 ```
 
+Alternative: external Wrapper
+
+```
+kubectl apply -f source/operators/oauth2EnvoyfilterOperator/docker/manual_test/testdata/yamls/externalapi-echo-depapi.yaml
+```
+
 
 ## Testdeployment of component with dependency
 
 ```
-helm install democlient -n components feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm install demo-b -n components feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
 ```
 
 

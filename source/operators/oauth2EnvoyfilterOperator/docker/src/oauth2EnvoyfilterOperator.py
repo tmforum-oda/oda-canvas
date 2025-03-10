@@ -137,16 +137,16 @@ def url_port(url_str: str):
 
 def create_envoyfilter_yaml(component_name, client_id, token_endpoint):
 
-    token_hostname = url_hostname(token_endpoint)
-    token_port = url_port(token_endpoint)
+    token_endpoint_hostname = url_hostname(token_endpoint)
+    token_endpoint_port = url_port(token_endpoint)
 
     template = jinja2_env.get_template("envoyfilter.yaml.jinja2")
     result = template.render(
         component_name=component_name,
         client_id=client_id,
         token_endpoint=token_endpoint,
-        token_hostname=token_hostname,
-        token_port=token_port,
+        token_endpoint_hostname=token_endpoint_hostname,
+        token_endpoint_port=token_endpoint_port,
     )
     return result
 
@@ -265,7 +265,7 @@ def add_client_secrets_to_SDS(logw: LogWrapper, namespace, comp_name):
 
 @logwrapper
 def create_envoyfilter(logw, namespace, comp_name):
-    envoyfilter_yaml = create_envoyfilter_yaml(namespace, comp_name, OAUTH2_TOKEN_ENDPOINT)
+    envoyfilter_yaml = create_envoyfilter_yaml(comp_name, comp_name, OAUTH2_TOKEN_ENDPOINT)
     logw.debug(envoyfilter_yaml)
     body = yaml.safe_load(envoyfilter_yaml)
     create_customresource(logw, namespace, body)

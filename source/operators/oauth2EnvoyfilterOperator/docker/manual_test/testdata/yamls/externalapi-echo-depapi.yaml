@@ -9,6 +9,9 @@ spec:
   name: externalapi-productcatalogmanagement-echo-beepceptor
   specification:
   - url: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+  implementation: "<external>"
+  path: "/"
+  port: 80
 status:
   apiStatus:
     ip: echoservice.ihc-dt.cluster-1.de

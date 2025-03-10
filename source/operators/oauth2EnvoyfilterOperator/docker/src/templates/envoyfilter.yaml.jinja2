@@ -27,7 +27,7 @@ spec:
                       watched_directory:
                         path: /envoy_secrets/oauth2secs
               token_endpoint:
-                cluster: outbound|{{ token_endpoint_port }}||{{ token_endpoint_host }}
+                cluster: outbound|{{ token_endpoint_port }}||{{ token_endpoint_hostname }}
                 timeout: 3s
                 uri: {{ token_endpoint }}
   workloadSelector:

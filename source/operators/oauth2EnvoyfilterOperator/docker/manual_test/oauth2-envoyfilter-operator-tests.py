@@ -7,7 +7,8 @@ import asyncio
 
 os.environ["CANVAS_INFO_ENDPOINT"] = "https://canvas-info.ihc-dt.cluster-1.de"
 os.environ["LOGGING"] = "10"  # 10 - debug, 20 - info
-os.environ["OAUTH2_TOKEN_ENDPOINT"] = "https://canvas-keycloak.ihc-dt.cluster-1.de/auth/realms/odari/protocol/openid-connect/token"
+# os.environ["OAUTH2_TOKEN_ENDPOINT"] = "https://canvas-keycloak.ihc-dt.cluster-1.de/auth/realms/odari/protocol/openid-connect/token"
+os.environ["OAUTH2_TOKEN_ENDPOINT"] = "http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari/protocol/openid-connect/token"
 os.environ["LOGWRAPPER_MESSAGE_ONLY"] = "true"
 
 
