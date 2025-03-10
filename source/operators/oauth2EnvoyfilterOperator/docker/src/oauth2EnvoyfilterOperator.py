@@ -299,8 +299,7 @@ def add_host_to_serviceentry(logw, namespace, comp_name, url):
     new_hosts = list(hosts)
     new_hosts.append(hostname)
     logw.debug("adding host to serviceentry", hostname)
-    body = create_serviceentry(logw, new_hosts)
-    create_customresource(logw, namespace, body)  # , "serviceentries")
+    create_serviceentry(logw, namespace, new_hosts)
 
 
 def create_customresource(logw, namespace, body, plural=None):

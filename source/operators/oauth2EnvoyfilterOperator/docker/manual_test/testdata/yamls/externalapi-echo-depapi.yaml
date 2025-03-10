@@ -1,0 +1,18 @@
+apiVersion: oda.tmforum.org/v1
+kind: ExposedAPI
+metadata:
+  name: externalapi-productcatalogmanagement-echo-beepceptor
+  namespace: components
+spec:
+  apiType: openapi
+  # "echo.free.beeceptor.com", "echoservice.ihc-dt.cluster-1.de", "echoservice-tls.echoservice.svc.cluster.local", 
+  name: externalapi-productcatalogmanagement-echo-beepceptor
+  specification:
+  - url: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+status:
+  apiStatus:
+    ip: echoservice.ihc-dt.cluster-1.de
+    name: external-api-productcatalogmanagement
+    url: http://echo.free.beeceptor.com/
+  implementation:
+    ready: true
