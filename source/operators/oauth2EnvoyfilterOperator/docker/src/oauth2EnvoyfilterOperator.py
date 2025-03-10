@@ -59,7 +59,7 @@ logger.info(f"CANVAS_INFO_ENDPOINT={CANVAS_INFO_ENDPOINT}")
 
 OAUTH2_TOKEN_ENDPOINT = os.getenv(
     "OAUTH2_TOKEN_ENDPOINT",
-    "http://canvas-keycloak-headless.canvas.svc.cluster.local:8083/auth/realms/odari/protocol/openid-connect/token",
+    "http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari/protocol/openid-connect/token",
 )
 logger.info("OAUTH2_TOKEN_ENDPOINT=%s", OAUTH2_TOKEN_ENDPOINT)
 
