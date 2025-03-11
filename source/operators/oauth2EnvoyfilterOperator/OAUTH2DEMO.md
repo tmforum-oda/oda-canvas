@@ -1,12 +1,4 @@
-# Notes for OAuth2 EnvoyFilter Operator
-
-## Prerequisites
-
-Credentials-Manager-Operator has to be deployed.
-
-```
-helm upgrade --install canvas-credman-op -n canvas charts/credentialsmanagement-operator --set=credentials.client_secret=IDH9****eIqD
-```
+# OAuth2 EnvoyFilter Demo
 
 
 ## set default namespace to "components"
@@ -16,11 +8,77 @@ kubectl config set-context --current --namespace=components
 ```
 
 
+## deploy echo target
+
+```
+helm upgrade --install targetcomp source/operators/oauth2EnvoyfilterOperator/helm/echotarget
+```
+
+## deploy echo client
+
+```
+helm upgrade --install clientcomp source/operators/oauth2EnvoyfilterOperator/helm/echoclient
+```
+
+
+## Prerequisites
+
+### Install Credentials-Management-Operator
+
+
+find client-secret for client "credentialsmanagement-operator" in realm "odari":
+
+https://canvas-keycloak.ihc-dt.cluster-1.de/
+
+
+install Credentials-Manager-Operator using helm
+
+```
+helm upgrade --install canvas-credman-op -n canvas charts/credentialsmanagement-operator --set=credentials.client_secret=IDH98****eIqD
+```
+
+after a minute take a look at the logs
+
+```
+kubectl canvaslogs deployment credentialsmanagement-operator
+```
+
+The secrets now exist:
+
+```
+kubectl get secret demo-b-productcatalogmanagement-secret -oyaml
+```
+
+extract secret
+
+```
+kubectl get secret demo-b-productcatalogmanagement-secret -ojsonpath='{.data.client_secret}' | base64 -d
+```
+
+### show running pods
+
+```
+kubectl get pods -Lapp -Limpl
+```
+
+### log into pod prodcatapi
+
+```
+#PRODCATAPI_POD=$(kubectl get pods -limpl=demo-b-prodcatapi -o=jsonpath="{.items[*].metadata.name}")
+TARGETCOMP_POD=$(kubectl get pods -limpl=targetcomp-echoservice -o=jsonpath="{.items[*].metadata.name}")
+echo $TARGETCOMP_POD
+kubectl exec -it $TARGETCOMP_POD -- /bin/bash
+
+```
+
+
+
+
 
 ## Installation
 
 ```
-helm upgrade --install canvas-oauth2-op -n canvas charts/oauth2-envoyfilter-operator
+helm upgrade --install canvas-oauth2-op -n canvas charts/experimental/oauth2-envoyfilter-operator
 ```
 
 ### alte objekt löschen

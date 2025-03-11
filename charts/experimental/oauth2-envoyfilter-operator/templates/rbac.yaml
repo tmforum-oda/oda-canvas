@@ -48,7 +48,7 @@ rules:
     
   # Application: write access for secrets.
   - apiGroups: [""]
-    resources: [secrets]
+    resources: [secrets, configmaps]
     verbs: [list, patch, get, create, update, delete]
 
   # Application: read-only access for replica_Set

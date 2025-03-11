@@ -1,0 +1,32 @@
+apiVersion: oda.tmforum.org/v1
+kind: Component
+metadata:
+  name: {{.Release.Name}}-{{.Values.componentname}}
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.componentname}}
+spec:
+  componentMetadata:
+    name: {{.Values.componentname}}
+    status: specified
+  coreFunction:
+    exposedAPIs: 
+    - name: echo
+      specification:
+      - url: "https://doesnotexist.example.com/echoclient.json"
+      implementation: {{.Release.Name}}-echo
+      apiType: openapi
+      path: /ip
+      port: 80
+    dependentAPIs:
+    - name: downstreamproductcatalog 
+      apiType: openapi     
+      specification: 
+        - url: "https://doesnotexist.example.com/echotarget.json"
+  eventNotification:
+    publishedEvents: []
+    subscribedEvents: []
+  managementFunction: 
+    exposedAPIs: []
+  securityFunction:
+    canvasSystemRole: {{.Values.canvasSystemRole}}
+    exposedAPIs: []
