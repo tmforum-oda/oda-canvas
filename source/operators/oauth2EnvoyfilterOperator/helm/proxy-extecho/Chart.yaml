@@ -1,0 +1,6 @@
+apiVersion: v2
+name: proxy component to external echo service
+description: returns an echo of the request
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -12,24 +12,12 @@ spec:
     exposedAPIs: 
     - name: echo
       specification:
-      - url: "https://doesnotexist.example.com/echoclient.json"
+      - url: "https://doesnotexist.example.com/jedionlytarget.json"
       implementation: {{.Release.Name}}-echo
       apiType: openapi
-      path: /ip
+      path: /jedionly
       port: 80
-    dependentAPIs:
-    - name: echotarget 
-      apiType: openapi     
-      specification: 
-        - url: "https://doesnotexist.example.com/echotarget.json"
-    - name: jedionlytarget 
-      apiType: openapi     
-      specification: 
-        - url: "https://doesnotexist.example.com/jedionlytarget.json"
-    - name: extecho
-      apiType: openapi
-      specification: 
-        - url: "https://doesnotexist.example.com/extecho.json"
+    dependentAPIs: []
   eventNotification:
     publishedEvents: []
     subscribedEvents: []

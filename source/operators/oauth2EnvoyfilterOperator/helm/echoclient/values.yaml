@@ -1,4 +1,4 @@
-componentname: echoservice
+componentname: echoclient
 
 trustedIssuers: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari https://canvas-keycloak.ihc-dt.cluster-1.de/auth/realms/odari
 validAZPs: demo-a-productcatalogmanagement demo-b-productcatalogmanagement
@@ -6,5 +6,4 @@ validAUDs: account
 
 image: ocfork/echoservice:v0.1.2-rc 
 
-#canvasSystemRole: Admin
-canvasSystemRole: jedi2
+canvasSystemRole: Admin

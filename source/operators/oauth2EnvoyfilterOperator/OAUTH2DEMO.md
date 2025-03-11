@@ -12,6 +12,10 @@ kubectl config set-context --current --namespace=components
 
 ```
 helm upgrade --install targetcomp source/operators/oauth2EnvoyfilterOperator/helm/echotarget
+
+helm upgrade --install jedionlytarget source/operators/oauth2EnvoyfilterOperator/helm/jedionlytarget
+
+helm upgrade --install proxy-extecho source/operators/oauth2EnvoyfilterOperator/helm/proxy-extecho
 ```
 
 ## deploy echo client
@@ -20,6 +24,12 @@ helm upgrade --install targetcomp source/operators/oauth2EnvoyfilterOperator/hel
 helm upgrade --install clientcomp source/operators/oauth2EnvoyfilterOperator/helm/echoclient
 ```
 
+
+## Assign jedi role
+
+```
+https://canvas-keycloak.ihc-dt.cluster-1.de/auth/admin/master/console/#/odari/users/
+```
 
 ## Prerequisites
 
@@ -89,11 +99,22 @@ kubectl get serviceentry,envoyfilter,destinationrule,secret -n components
 ```
 
 ```
+helm uninstall clientcomp
+helm uninstall targetcomp
+helm uninstall jedionlytarget
+helm uninstall extecho
+
+
 kubectl delete exposedapi externalapi-productcatalogmanagement
 kubectl delete serviceentry add-https
 kubectl delete destinationrule demo-b-productcatalogmanagement-downstreamproductcatalog-add-https
+kubectl delete destinationrule clientcomp-echoclient-downstreamproductcatalog-add-https
+kubectl delete destinationrule clientcomp-echoclient-echotarget-add-https
+kubectl delete destinationrule clientcomp-echoclient-jedionlytarget-add-https
 kubectl delete secret envoy-oauth2-secrets 
-kubectl delete envoyfilter demo-b-productcatalogmanagement-envoyfilter-oauth2 
+kubectl delete envoyfilter demo-b-productcatalogmanagement-envoyfilter-oauth2
+kubectl delete envoyfilter clientcomp-echoclient-envoyfilter-oauth2
+kubectl delete configmap deps-clientcomp-echoclient
 ```
 
 
