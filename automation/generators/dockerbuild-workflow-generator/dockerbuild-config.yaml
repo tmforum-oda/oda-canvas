@@ -226,7 +226,7 @@ oauth2envoyfilter-operator:
   displayName: OAuth2-EnvoyFilter-Operator
   fileName: oauth2envoyfilter-operator
   
-  valuesYamlFile: charts/oauth2-envoyfilter-operator/values.yaml
+  valuesYamlFile: charts/experimental/oauth2-envoyfilter-operator/values.yaml
   valuesPathImage: .image
   valuesPathVersion: .version
   valuesPathPrereleaseSuffix: .prereleaseSuffix

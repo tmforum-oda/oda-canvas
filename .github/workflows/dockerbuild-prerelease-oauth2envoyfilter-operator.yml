@@ -31,13 +31,13 @@ jobs:
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.image' charts/oauth2-envoyfilter-operator/values.yaml
+          cmd: yq '.image' charts/experimental/oauth2-envoyfilter-operator/values.yaml
           
       - name: read versionnumber of oauth2envoyfilter-operator from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.version, .prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/oauth2-envoyfilter-operator/values.yaml
+          cmd: yq '[.version, .prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/experimental/oauth2-envoyfilter-operator/values.yaml
           
       - name: Check Version
         id: check-tag
@@ -53,7 +53,7 @@ jobs:
         id: get_values_release_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.version' charts/oauth2-envoyfilter-operator/values.yaml
+          cmd: yq '.version' charts/experimental/oauth2-envoyfilter-operator/values.yaml
               
       - name: Get Git commit timestamps
         run: |
