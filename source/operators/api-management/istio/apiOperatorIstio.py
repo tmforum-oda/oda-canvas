@@ -54,22 +54,14 @@ OPENMETRICS_IMPLEMENTATION = os.environ.get(
 )  # could be ServiceMonitor or PrometheusAnnotation or DataDogAnnotation
 logger.info(f"OpenMetrics implementation pattern set to {OPENMETRICS_IMPLEMENTATION}")
 
-APIOPERATORISTIO_PUBLICHOSTNAME = os.environ.get(
-    "APIOPERATORISTIO_PUBLICHOSTNAME"
-)  # hostname to be used for calling public APIs.
-publichostname_loadBalancer = (
-    None  # Overwrites the LB ip/hostname retrieved from istioingress service.
-)
+APIOPERATORISTIO_PUBLICHOSTNAME = os.environ.get("APIOPERATORISTIO_PUBLICHOSTNAME")  # hostname to be used for calling public APIs.
+publichostname_loadBalancer = None  # Overwrites the LB ip/hostname retrieved from istioingress service.
 if APIOPERATORISTIO_PUBLICHOSTNAME:
     logger.info(f"Public hostname set: {APIOPERATORISTIO_PUBLICHOSTNAME}")
     if re.match("^[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+$", APIOPERATORISTIO_PUBLICHOSTNAME):
-        publichostname_loadBalancer = {
-            "ingress": [{"ip": APIOPERATORISTIO_PUBLICHOSTNAME}]
-        }
+        publichostname_loadBalancer = {"ingress": [{"ip": APIOPERATORISTIO_PUBLICHOSTNAME}]}
     else:
-        publichostname_loadBalancer = {
-            "ingress": [{"hostname": APIOPERATORISTIO_PUBLICHOSTNAME}]
-        }
+        publichostname_loadBalancer = {"ingress": [{"hostname": APIOPERATORISTIO_PUBLICHOSTNAME}]}
 
 
 # try to recover from broken watchers https://github.com/nolar/kopf/issues/1036
@@ -111,13 +103,9 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
 
     outputStatus = {}
     if status:  # there is a status object
-        if (
-            "apiStatus" in status.keys()
-        ):  # there is an existing apiStatus to compare against
+        if "apiStatus" in status.keys():  # there is an existing apiStatus to compare against
             # work out delta between desired and actual state
-            apiStatus = status[
-                "apiStatus"
-            ]  # starting point for return status is the previous status
+            apiStatus = status["apiStatus"]  # starting point for return status is the previous status
             # check if there is a difference in the api we created previously
             if (
                 name == apiStatus["name"]
@@ -150,12 +138,8 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
                             "Patching",
                             "Prometheus Service Monitor",
                         )
-                        createOrPatchObservability(
-                            True, spec, namespace, name, "apiStatus", componentName
-                        )
-                return createOrPatchVirtualService(
-                    True, spec, namespace, name, "apiStatus", componentName
-                )
+                        createOrPatchObservability(True, spec, namespace, name, "apiStatus", componentName)
+                return createOrPatchVirtualService(True, spec, namespace, name, "apiStatus", componentName)
 
     # if we get here then we are creating a new API
     logWrapper(
@@ -180,12 +164,8 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
                 "Creating",
                 "Prometheus Service Monitor",
             )
-            createOrPatchObservability(
-                False, spec, namespace, name, "apiStatus", componentName
-            )
-    return createOrPatchVirtualService(
-        False, spec, namespace, name, "apiStatus", componentName
-    )
+            createOrPatchObservability(False, spec, namespace, name, "apiStatus", componentName)
+    return createOrPatchVirtualService(False, spec, namespace, name, "apiStatus", componentName)
 
 
 def createOrPatchObservability(patch, spec, namespace, name, inHandler, componentName):
@@ -203,17 +183,11 @@ def createOrPatchObservability(patch, spec, namespace, name, inHandler, componen
         nothing
     """
     if OPENMETRICS_IMPLEMENTATION == "ServiceMonitor":
-        createOrPatchServiceMonitor(
-            patch, spec, namespace, name, inHandler, componentName
-        )
+        createOrPatchServiceMonitor(patch, spec, namespace, name, inHandler, componentName)
     elif OPENMETRICS_IMPLEMENTATION == "PrometheusAnnotation":
-        createOrPatchPrometheusAnnotation(
-            patch, spec, namespace, name, inHandler, componentName
-        )
+        createOrPatchPrometheusAnnotation(patch, spec, namespace, name, inHandler, componentName)
     elif OPENMETRICS_IMPLEMENTATION == "DataDogAnnotation":
-        createOrPatchDataDogAnnotation(
-            patch, spec, namespace, name, inHandler, componentName
-        )
+        createOrPatchDataDogAnnotation(patch, spec, namespace, name, inHandler, componentName)
     else:
         logWrapper(
             logging.WARNING,
@@ -226,9 +200,7 @@ def createOrPatchObservability(patch, spec, namespace, name, inHandler, componen
         )
 
 
-def createOrPatchPrometheusAnnotation(
-    patch, spec, namespace, name, inHandler, componentName
-):
+def createOrPatchPrometheusAnnotation(patch, spec, namespace, name, inHandler, componentName):
     logWrapper(
         logging.WARNING,
         "createOrPatchPrometheusAnnotation",
@@ -244,9 +216,7 @@ def createOrPatchPrometheusAnnotation(
     raise kopf.TemporaryError("Exception in createOrPatchPrometheusAnnotation.")
 
 
-def createOrPatchDataDogAnnotation(
-    patch, spec, namespace, name, inHandler, componentName
-):
+def createOrPatchDataDogAnnotation(patch, spec, namespace, name, inHandler, componentName):
     """Helper function to get API details for a prometheus metrics API and patch the corresponding kubernetes pod.
 
     Args:
@@ -293,9 +263,7 @@ def createOrPatchDataDogAnnotation(
             selector,
         )
         # get the pod using the selector
-        key, value = next(
-            iter(selector.items())
-        )  # get the first key/value pair - we don't have a way to handle multiple selectors
+        key, value = next(iter(selector.items()))  # get the first key/value pair - we don't have a way to handle multiple selectors
         selectorQuery = key + "=" + value
         logWrapper(
             logging.INFO,
@@ -347,13 +315,7 @@ def createOrPatchDataDogAnnotation(
             "openmetrics": {
                 "instances": [
                     {
-                        "openmetrics_endpoint": "http://"
-                        + serviceName
-                        + "."
-                        + namespace
-                        + ".svc.cluster.local:"
-                        + str(port)
-                        + path,
+                        "openmetrics_endpoint": "http://" + serviceName + "." + namespace + ".svc.cluster.local:" + str(port) + path,
                         "namespace": "components",
                         "metrics": [".*"],
                     }
@@ -375,9 +337,7 @@ def createOrPatchDataDogAnnotation(
         if not pod.metadata.annotations:
             pod.metadata.annotations = {}
 
-        pod.metadata.annotations[
-            "ad.datadoghq.com/" + targetContainerName + ".checks"
-        ] = annotation
+        pod.metadata.annotations["ad.datadoghq.com/" + targetContainerName + ".checks"] = annotation
         # patch the pod
         core_api.patch_namespaced_pod(podName, namespace, pod)
 
@@ -553,9 +513,7 @@ def createOrPatchServiceMonitor(patch, spec, namespace, name, inHandler, compone
         raise kopf.TemporaryError("Exception creating ServiceMonitor.")
 
 
-def createOrPatchVirtualService(
-    patch, spec, namespace, inAPIName, inHandler, componentName
-):
+def createOrPatchVirtualService(patch, spec, namespace, inAPIName, inHandler, componentName):
     """Helper function to get API details and create or patch VirtualService.
 
     Args:
@@ -650,13 +608,9 @@ def createOrPatchVirtualService(
                 "Virtual Service patched",
                 inAPIName,
             )
-            updateImplementationStatus(
-                namespace, spec["implementation"], inHandler, componentName
-            )
+            updateImplementationStatus(namespace, spec["implementation"], inHandler, componentName)
             # update parent apiStatus
-            istioStatus = getIstioIngressStatus(
-                inHandler, "api/" + inAPIName, componentName
-            )
+            istioStatus = getIstioIngressStatus(inHandler, "api/" + inAPIName, componentName)
             loadBalancer = istioStatus["loadBalancer"]
             ports = istioStatus["ports"]
             apistatus = {
@@ -720,13 +674,9 @@ def createOrPatchVirtualService(
                 "Virtual Service created",
                 inAPIName,
             )
-            updateImplementationStatus(
-                namespace, spec["implementation"], inHandler, componentName
-            )
+            updateImplementationStatus(namespace, spec["implementation"], inHandler, componentName)
             # update parent apiStatus
-            istioStatus = getIstioIngressStatus(
-                inHandler, "api/" + inAPIName, componentName
-            )
+            istioStatus = getIstioIngressStatus(inHandler, "api/" + inAPIName, componentName)
             loadBalancer = istioStatus["loadBalancer"]
             ports = istioStatus["ports"]
             apistatus = {
@@ -810,9 +760,7 @@ def updateImplementationStatus(namespace, name, inHandler, componentName):
 
     discovery_api_instance = kubernetes.client.DiscoveryV1Api()
     try:
-        api_response = discovery_api_instance.list_namespaced_endpoint_slice(
-            namespace, label_selector="kubernetes.io/service-name=" + name
-        )
+        api_response = discovery_api_instance.list_namespaced_endpoint_slice(namespace, label_selector="kubernetes.io/service-name=" + name)
         if len(api_response.items) > 0:
             createAPIImplementationStatus(
                 name,
@@ -861,9 +809,7 @@ def getIstioIngressStatus(inHandler, name, componentName):
     ## should get this by label (as this is what the gareway defines)
     try:
         # get the istio-ingressgateway service by label 'istio: ingressgateway'
-        api_response = core_api_instance.list_service_for_all_namespaces(
-            label_selector=ISTIO_INGRESSGATEWAY_LABEL
-        )
+        api_response = core_api_instance.list_service_for_all_namespaces(label_selector=ISTIO_INGRESSGATEWAY_LABEL)
 
         # api_response = core_api_instance.read_namespaced_service(ISTIO_INGRESSGATEWAY, ISTIO_NAMESPACE)
         if len(api_response.items) == 0:
@@ -945,27 +891,13 @@ def buildAPIStatus(
                 portsString = ":" + str(portDict["port"])
             break
 
-    if (
-        "hostname" in parent_api_spec.keys()
-    ):  # if api specifies hostname then use hostname
-        parent_api_status["apiStatus"]["url"] = (
-            HTTP_SCHEME
-            + parent_api_spec["hostname"]
-            + portsString
-            + parent_api_spec["path"]
-        )
+    if "hostname" in parent_api_spec.keys():  # if api specifies hostname then use hostname
+        parent_api_status["apiStatus"]["url"] = HTTP_SCHEME + parent_api_spec["hostname"] + portsString + parent_api_spec["path"]
         if "developerUI" in parent_api_spec:
-            parent_api_status["apiStatus"]["developerUI"] = (
-                HTTP_SCHEME
-                + parent_api_spec["hostname"]
-                + portsString
-                + parent_api_spec["developerUI"]
-            )
+            parent_api_status["apiStatus"]["developerUI"] = HTTP_SCHEME + parent_api_spec["hostname"] + portsString + parent_api_spec["developerUI"]
         if "ip" in ingressTarget.keys() and ingressTarget["ip"] is not None:
             parent_api_status["apiStatus"]["ip"] = ingressTarget["ip"]
-        elif (
-            "hostname" in ingressTarget.keys() and ingressTarget["hostname"] is not None
-        ):
+        elif "hostname" in ingressTarget.keys() and ingressTarget["hostname"] is not None:
             parent_api_status["apiStatus"]["ip"] = ingressTarget["hostname"]
         else:
             logWrapper(
@@ -979,36 +911,14 @@ def buildAPIStatus(
             )
     else:  # if api doesn't specify hostname then use ip
         if "ip" in ingressTarget.keys() and ingressTarget["ip"] is not None:
-            parent_api_status["apiStatus"]["url"] = (
-                HTTP_SCHEME
-                + ingressTarget["ip"]
-                + portsString
-                + parent_api_spec["path"]
-            )
+            parent_api_status["apiStatus"]["url"] = HTTP_SCHEME + ingressTarget["ip"] + portsString + parent_api_spec["path"]
             if "developerUI" in parent_api_spec:
-                parent_api_status["apiStatus"]["developerUI"] = (
-                    HTTP_SCHEME
-                    + ingressTarget["ip"]
-                    + portsString
-                    + parent_api_spec["developerUI"]
-                )
+                parent_api_status["apiStatus"]["developerUI"] = HTTP_SCHEME + ingressTarget["ip"] + portsString + parent_api_spec["developerUI"]
             parent_api_status["apiStatus"]["ip"] = ingressTarget["ip"]
-        elif (
-            "hostname" in ingressTarget.keys() and ingressTarget["hostname"] is not None
-        ):
-            parent_api_status["apiStatus"]["url"] = (
-                HTTP_SCHEME
-                + ingressTarget["hostname"]
-                + portsString
-                + parent_api_spec["path"]
-            )
+        elif "hostname" in ingressTarget.keys() and ingressTarget["hostname"] is not None:
+            parent_api_status["apiStatus"]["url"] = HTTP_SCHEME + ingressTarget["hostname"] + portsString + parent_api_spec["path"]
             if "developerUI" in parent_api_spec:
-                parent_api_status["apiStatus"]["developerUI"] = (
-                    HTTP_SCHEME
-                    + ingressTarget["hostname"]
-                    + portsString
-                    + parent_api_spec["developerUI"]
-                )
+                parent_api_status["apiStatus"]["developerUI"] = HTTP_SCHEME + ingressTarget["hostname"] + portsString + parent_api_spec["developerUI"]
             parent_api_status["apiStatus"]["ip"] = ingressTarget["hostname"]
         else:
             raise kopf.TemporaryError("Ingress target does not contain ip or hostname")
@@ -1060,9 +970,7 @@ def implementation_status(meta, spec, status, body, namespace, labels, name, **k
         raise kopf.TemporaryError("Exception handling implementation_status.")
 
 
-def createAPIImplementationStatus(
-    serviceName, endpointsArray, namespace, inHandler, componentName
-):
+def createAPIImplementationStatus(serviceName, endpointsArray, namespace, inHandler, componentName):
     """Helper function to update the implementation Ready status on the API custom resource.
 
     Args:
@@ -1091,9 +999,7 @@ def createAPIImplementationStatus(
                 # find the corresponding API resource and update status
                 # query for api with spec.implementation equal to service name
                 api_instance = kubernetes.client.CustomObjectsApi()
-                api_response = api_instance.list_namespaced_custom_object(
-                    GROUP, VERSION, namespace, APIS_PLURAL
-                )
+                api_response = api_instance.list_namespaced_custom_object(GROUP, VERSION, namespace, APIS_PLURAL)
                 found = False
                 for api in api_response["items"]:
                     if api["spec"]["implementation"] == serviceName:
@@ -1170,9 +1076,7 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
                 except ApiException as e:
                     # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
                     if e.status == HTTP_NOT_FOUND:
-                        raise kopf.TemporaryError(
-                            "Cannot find parent component " + parent_component_name
-                        )
+                        raise kopf.TemporaryError("Cannot find parent component " + parent_component_name)
                     else:
                         logger.error(
                             "Exception when calling custom_objects_api.get_namespaced_custom_object: %s",
@@ -1192,13 +1096,8 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
                 # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
                 if "coreAPIs" in parent_component["status"].keys():
                     for key in range(len(parent_component["status"]["coreAPIs"])):
-                        if (
-                            parent_component["status"]["coreAPIs"][key]["uid"]
-                            == meta["uid"]
-                        ):
-                            parent_component["status"]["coreAPIs"][key]["url"] = status[
-                                "apiStatus"
-                            ]["url"]
+                        if parent_component["status"]["coreAPIs"][key]["uid"] == meta["uid"]:
+                            parent_component["status"]["coreAPIs"][key]["url"] = status["apiStatus"]["url"]
                             logWrapper(
                                 logging.INFO,
                                 "updateAPIStatus",
@@ -1209,19 +1108,12 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
                                 status["apiStatus"]["url"],
                             )
                             if "developerUI" in status["apiStatus"].keys():
-                                parent_component["status"]["coreAPIs"][key][
-                                    "developerUI"
-                                ] = status["apiStatus"]["developerUI"]
+                                parent_component["status"]["coreAPIs"][key]["developerUI"] = status["apiStatus"]["developerUI"]
 
                 if "managementAPIs" in parent_component["status"].keys():
                     for key in range(len(parent_component["status"]["managementAPIs"])):
-                        if (
-                            parent_component["status"]["managementAPIs"][key]["uid"]
-                            == meta["uid"]
-                        ):
-                            parent_component["status"]["managementAPIs"][key]["url"] = (
-                                status["apiStatus"]["url"]
-                            )
+                        if parent_component["status"]["managementAPIs"][key]["uid"] == meta["uid"]:
+                            parent_component["status"]["managementAPIs"][key]["url"] = status["apiStatus"]["url"]
                             logWrapper(
                                 logging.INFO,
                                 "updateAPIStatus",
@@ -1232,19 +1124,12 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
                                 status["apiStatus"]["url"],
                             )
                             if "developerUI" in status["apiStatus"].keys():
-                                parent_component["status"]["managementAPIs"][key][
-                                    "developerUI"
-                                ] = status["apiStatus"]["developerUI"]
+                                parent_component["status"]["managementAPIs"][key]["developerUI"] = status["apiStatus"]["developerUI"]
 
                 if "securityAPIs" in parent_component["status"].keys():
                     for key in range(len(parent_component["status"]["securityAPIs"])):
-                        if (
-                            parent_component["status"]["securityAPIs"][key]["uid"]
-                            == meta["uid"]
-                        ):
-                            parent_component["status"]["securityAPIs"][key]["url"] = (
-                                status["apiStatus"]["url"]
-                            )
+                        if parent_component["status"]["securityAPIs"][key]["uid"] == meta["uid"]:
+                            parent_component["status"]["securityAPIs"][key]["url"] = status["apiStatus"]["url"]
                             logWrapper(
                                 logging.INFO,
                                 "updateAPIStatus",
@@ -1255,9 +1140,7 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
                                 status["apiStatus"]["url"],
                             )
                             if "developerUI" in status["apiStatus"].keys():
-                                parent_component["status"]["securityAPIs"][key][
-                                    "developerUI"
-                                ] = status["apiStatus"]["developerUI"]
+                                parent_component["status"]["securityAPIs"][key]["developerUI"] = status["apiStatus"]["developerUI"]
 
                 await patchComponent(
                     namespace,
@@ -1307,9 +1190,7 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
                 except ApiException as e:
                     # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
                     if e.status == HTTP_NOT_FOUND:
-                        raise kopf.TemporaryError(
-                            "Cannot find parent component " + parent_component_name
-                        )
+                        raise kopf.TemporaryError("Cannot find parent component " + parent_component_name)
                     else:
                         logger.error(
                             "Exception when calling custom_objects_api.get_namespaced_custom_object: %s",
@@ -1328,10 +1209,7 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
 
                 # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
                 for key in range(len(parent_component["status"]["coreAPIs"])):
-                    if (
-                        parent_component["status"]["coreAPIs"][key]["uid"]
-                        == meta["uid"]
-                    ):
+                    if parent_component["status"]["coreAPIs"][key]["uid"] == meta["uid"]:
                         parent_component["status"]["coreAPIs"][key]["ready"] = True
                         logWrapper(
                             logging.INFO,
@@ -1350,13 +1228,8 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
                         )
                         return None
                 for key in range(len(parent_component["status"]["managementAPIs"])):
-                    if (
-                        parent_component["status"]["managementAPIs"][key]["uid"]
-                        == meta["uid"]
-                    ):
-                        parent_component["status"]["managementAPIs"][key][
-                            "ready"
-                        ] = True
+                    if parent_component["status"]["managementAPIs"][key]["uid"] == meta["uid"]:
+                        parent_component["status"]["managementAPIs"][key]["ready"] = True
                         logWrapper(
                             logging.INFO,
                             "updateAPIReady",
@@ -1374,10 +1247,7 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
                         )
                         return None
                 for key in range(len(parent_component["status"]["securityAPIs"])):
-                    if (
-                        parent_component["status"]["securityAPIs"][key]["uid"]
-                        == meta["uid"]
-                    ):
+                    if parent_component["status"]["securityAPIs"][key]["uid"] == meta["uid"]:
                         parent_component["status"]["securityAPIs"][key]["ready"] = True
                         logWrapper(
                             logging.INFO,
@@ -1413,9 +1283,7 @@ async def patchComponent(namespace, name, component, inHandler):
     """
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
-        api_response = custom_objects_api.patch_namespaced_custom_object(
-            GROUP, VERSION, namespace, COMPONENTS_PLURAL, name, component
-        )
+        api_response = custom_objects_api.patch_namespaced_custom_object(GROUP, VERSION, namespace, COMPONENTS_PLURAL, name, component)
         logWrapper(
             logging.DEBUG,
             "patchComponent",
@@ -1445,15 +1313,10 @@ async def patchComponent(namespace, name, component, inHandler):
             "",
         )
 
-        raise kopf.TemporaryError(
-            "Exception when calling api_instance.patch_namespaced_custom_object for component "
-            + name
-        )
+        raise kopf.TemporaryError("Exception when calling api_instance.patch_namespaced_custom_object for component " + name)
 
 
-def logWrapper(
-    logLevel, functionName, handlerName, resourceName, componentName, subject, message
-):
+def logWrapper(logLevel, functionName, handlerName, resourceName, componentName, subject, message):
     """Helper function to standardise logging output.
 
     Args:
