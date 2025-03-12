@@ -117,7 +117,9 @@ show exposedapi
 
 ```
 kubectl get exposedapis
+```
 
+```
   NAME                                 API_ENDPOINT                                      IMPLEMENTATION_READY
   clientcomp-echoclient-echo           https://components.ihc-dt.cluster-1.de/ip         true
   jedionlytarget-jedionlytarget-echo   https://components.ihc-dt.cluster-1.de/jedionly   true
@@ -134,7 +136,6 @@ https://components.ihc-dt.cluster-1.de/ip
 
 ```
 kubectl get pods -Lapp -Limpl
-
 CLIENTCOMP_POD=$(kubectl get pods -limpl=clientcomp-echo -o=jsonpath="{.items[*].metadata.name}")
 kubectl exec -it $CLIENTCOMP_POD -- /bin/bash
 ```
@@ -211,7 +212,9 @@ kubectl exec -it $CLIENTCOMP_POD -- /bin/bash
 
 ```
 env | grep DEP
+```
 
+```
   DEPENDENCY_URL_ECHOTARGET=http://components.ihc-dt.cluster-1.de/echo
   DEPENDENCY_URL_JEDIONLYTARGET=http://components.ihc-dt.cluster-1.de/jedionly
   DEPENDENCY_URL_EXTECHO=http://echo.free.beeceptor.com
@@ -311,7 +314,9 @@ therefore we have deployed the third target
 
 ```
 echo $DEPENDENCY_URL_JEDIONLYTARGET
+```
 
+```
   http://components.ihc-dt.cluster-1.de/jedionly 
 ```
 
@@ -369,7 +374,9 @@ Let´s take a final look which istio/envoy objects were created by the oauth2 op
 
 ```
 kubectl get serviceentries,envoyfilters,destinationrules,secrets -n components
+```
 
+```
   NAME                                         HOSTS                                                          LOCATION   RESOLUTION   AGE
   serviceentry.networking.istio.io/add-https   ["components.ihc-dt.cluster-1.de","echo.free.beeceptor.com"]              DNS          62m
 
