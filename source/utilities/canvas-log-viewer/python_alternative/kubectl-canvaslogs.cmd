@@ -16,6 +16,12 @@ if "%1" == "-f" (
 SET OPERATOR=%1
 shift
 
+SET DEPLOYMENT=
+if "%OPERATOR%" == "deployment" (
+	SET DEPLOYMENT=%1
+	shift
+)
+
 SET COMP_PATTERN=
 SET TEMP=%1-
 if not "%TEMP:~0,1%" == "-" (
@@ -48,9 +54,13 @@ if "%OPERATOR%" == "credman" (
 	kubectl logs -n canvas deployment/credentialsmanagement-operator %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
 	GOTO :eof
 )
+if "%OPERATOR%" == "deployment" (
+	kubectl logs -n canvas deployment/%DEPLOYMENT% %FOLLOW% | %PYTHON% %CANVASLOGS_FOLDER%\showlogtree.py %COMP_PATTERN% %FOLLOW% %1 %2 %3 %4 %5 %6 %7 %8 %9
+	GOTO :eof
+)
 
 echo "                                                                                                "
-echo "usage: kubectl canvaslogs [-f] (comp|sman|depapi|apiistio|idconf|credman) [<componentfilter>] [-l <last-hours>]"
+echo "usage: kubectl canvaslogs [-f] (comp|sman|depapi|apiistio|idconf|credman|deployment <deploymentname>) [<componentfilter>] [-l <last-hours>]"
 echo "       needs python with 'pip install rich timedinput'                                          "
 echo "                                                                                                "
 echo "options:                                                                                        "

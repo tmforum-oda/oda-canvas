@@ -1,0 +1,9 @@
+image: tmforumodacanvas/dependentapi-simple-operator
+version: 0.1.0
+prereleaseSuffix: issue362
+
+imagePullPolicy: Always
+
+canvasInfoServiceURL: http://info.canvas.svc.cluster.local
+
+loglevel: '20'

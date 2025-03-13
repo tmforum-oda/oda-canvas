@@ -1,14 +1,14 @@
 """Kubernetes operator for ODA API custom resources.
 
 Normally this module is deployed as part of an ODA Canvas. It uses the kopf kubernetes operator framework (https://kopf.readthedocs.io/) to build an
-operator that takes API custom resources and implements them using Istio Virtual Service resources linked to an Istio Gateway. 
+operator that takes API custom resources and implements them using Istio Virtual Service resources linked to an Istio Gateway.
 
 This is the simplest API operator for an Istio Service Mesh canvas and is not suitable for a production environment. It is possible to create alternative API operators
 that would configure an API gateway in front of the Service Mesh (This is the recommended production architecture).
 
 It registers handler functions for:
 
-1. New ODA APIs - to create, update or delete child Virtual Service resources to expose the API using a Virtual Service. see `apiStatus <#apiOperatorIstio.apiOperatorIstio.apiStatus>`_ 
+1. New ODA APIs - to create, update or delete child Virtual Service resources to expose the API using a Virtual Service. see `apiStatus <#apiOperatorIstio.apiOperatorIstio.apiStatus>`_
 2. For status updates in the child Ingress resources and EndPointSlice resources, so that the API status reflects a summary the Ingress and Implementation for the API. see `ingress_status <#apiOperatorIstio.apiOperatorIstio.ingress_status>`_ and `implementation_status <#apiOperatorIstio.apiOperatorIstio.implementation_status>`_
 """
 

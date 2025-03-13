@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-echo
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.componentname}}
+spec:
+  selector:
+    matchLabels:
+      impl: {{.Release.Name}}-echo
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-{{.Values.componentname}}
+        impl: {{.Release.Name}}-echo
+    spec:
+      containers:
+      - name: {{.Release.Name}}-echo
+        image: {{.Values.image}}
+        imagePullPolicy: Always
+        env:
+        - name: XGT_TRUSTED_ISSUERS
+          value: "{{.Values.trustedIssuers}}"
+        - name: XGT_VALID_AZP_VALUES
+          value: "{{.Values.validAZPs}}"
+        - name: XGT_VALID_REQUEST_PATHS
+          value: 
+        - name: XGT_VALID_AUDS
+          value: "{{.Values.validAUDs}}"
+        - name: RELEASE_NAME
+          value: {{.Release.Name}}
+        - name: COMPONENT_NAME
+          value: {{.Release.Name}}-{{.Values.componentname}}
+        envFrom:
+        - configMapRef:
+            name: deps-{{.Release.Name}}-{{.Values.componentname}}
+            optional: true
+        volumeMounts:
+        - name: dependencies-volume
+          mountPath: /src/dependencies
+      volumes:
+      - name: dependencies-volume
+        configMap:
+          name: deps-{{.Release.Name}}-{{.Values.componentname}}
+          optional: true             
