@@ -190,7 +190,7 @@ helm upgrade --install canvas-oauth2-op -n canvas charts/experimental/oauth2-env
 kubectl canvaslogs deployment canvas-oauth2-op
 ```
 
-add url to dependency configmap
+look at output after "add url to dependency configmap"
 
 
 ```

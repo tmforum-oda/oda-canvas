@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.2
+version: 1.2.3-rc1
+# version: 1.2.3-rc1 - issue 362 - update IdentityConfig-Operator to set serviceAccountsEnabled to true when creating new clients
 # version: 1.2.2-ak3 - updated identity listener keycloak dockerfile to remove vulnerabilities
 # version: 1.2.2-ak2 - updated identityconfig-operator docker image version number to resolve deployment status issue
 # version: 1.2.2-ak1 - created credentialsmanagement-operator client in keycloak and added permissions to query keycloak clients
@@ -80,7 +81,7 @@ dependencies:
     version: "1.3.0"
     repository: 'file://../component-operator'
   - name: identityconfig-operator-keycloak
-    version: "1.2.2"
+    version: "1.2.3"
     repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
     version: "1.1.1"
