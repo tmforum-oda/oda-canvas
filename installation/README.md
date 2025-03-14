@@ -164,7 +164,6 @@ it will not reach the state "Completed" but get stuck in state "InProgress-Secre
 Components which do not request Secrets-Management will work without any errors.
 
 
-
 ### 5. Reference implementation
 
 1. Add oda-canvas helm repo
