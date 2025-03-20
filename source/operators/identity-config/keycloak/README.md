@@ -1,6 +1,6 @@
 # Identity Config operator for Keycloak - Introduction 
 
-This is the reference implementaiton of an identity config operator that takes metadata from ODA Component and uses it to automatically configure the Identity service (using Keycloak in the reference implementation). The identity config expects the component to expose a TMF669 PartyRole API detailing all the roles to be added to the identity service, or to define roles statically in the component specification. The sequence diagram shows the overall flow:
+This is the reference implementaiton of an identity config operator that takes metadata from ODA Component and uses it to automatically configure the Identity service (using Keycloak in the reference implementation). The identity config operator expects the component to expose a TMF669 PartyRole API detailing all the roles to be added to the identity service, or to define roles statically in the component specification. The sequence diagram shows the overall flow:
 
 
 ![Sequence diagram](sequenceDiagrams/securitySequenceKeycloak.png)
