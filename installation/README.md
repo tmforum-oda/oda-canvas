@@ -156,10 +156,9 @@ Instead of changing the values.yaml the value can also be overwritten on command
 helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set=canvas-vault.enabled=false
 ```
 
-If HashiCorp Vault is **NOT** installed, everything works fine.
-The Secrets-Management-Operator `canvas-smanop` in the canvas namespace will have a failure with `CreateContainerConfigError`
-and if a component requests Secrets-Management
-it will not reach the state "Completed" but get stuck in state "InProgress-SecretsConfig".
+If HashiCorp Vault is **NOT** installed:
+- everything works fine as long as Secrets-Management is not requested by any component. 
+- If Secrets-Management is needed by a component, this component will not reach the state "Completed" but get stuck in state "InProgress-SecretsConfig". Also the Secrets-Management-Operator `canvas-smanop` in the canvas namespace will have a failure with `CreateContainerConfigError`.
 
 Components which do not request Secrets-Management will work without any errors.
 
