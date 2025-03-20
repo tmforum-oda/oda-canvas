@@ -145,12 +145,22 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 
 ### 4. HashiCorp Vault
 
-A setup script to deploy and configure HashiCorp Vault into the cluster and configure it to trust 
-the Service-Account-Issuer of this cluster is provided in CanvasVault/setup_CanvasVault.sh.
+By default HashiCorp Vault is deployed into the namespace canvas-vault. 
+The deployment can be supressed when setting `canvas-vault.enabled` to `false` in the values.yaml:
 
-If HashiCorp Vault is **NOT** installed, everything works fine, only if a component requests Secrets-Management,
-it will get stuck in state "InProgress-SecretsConfig".
+https://github.com/tmforum-oda/oda-canvas/blob/21329156c71a361baaec0955fd244755d01f0227/charts/canvas-oda/values.yaml#L202-L203
 
+Instead of changing the values.yaml the value can also be overwritten on command line:
+
+```
+helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set=canvas-vault.enabled=false
+```
+
+If HashiCorp Vault is **NOT** installed:
+- everything works fine as long as Secrets-Management is not requested by any component. 
+- If Secrets-Management is needed by a component, this component will not reach the state "Completed" but get stuck in state "InProgress-SecretsConfig". Also the Secrets-Management-Operator `canvas-smanop` in the canvas namespace will have a failure with `CreateContainerConfigError`.
+
+Components which do not request Secrets-Management will work without any errors.
 
 ### 5. Reference implementation
 
