@@ -27,9 +27,9 @@ oda-crds:
 canvas-namespaces:
   enabled: true
   certManagerNamespace: cert-manager
-  componentNamespace: components
+  componentNamespace: comps448ns
   istio:
-    # --  Add Istion instrumentation label to the components namespace
+    # --  Add Istion instrumentation label to the comps448ns namespace
     labelEnabledComponent: true
 
 cert-manager-init:
@@ -151,7 +151,7 @@ component-operator:
     compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    monitoredNamespaces: 'comps448ns'           # comma separated list of namespaces
     httpsRedirect: true
     credentialName: istio-ingress-cert    
 
@@ -167,7 +167,7 @@ identityconfig-operator-keycloak:
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
     idlistkeyVersion: 0.7.3
     idlistkeyPrereleaseSuffix: 
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    monitoredNamespaces: 'comps448ns'           # comma separated list of namespaces
     keycloak: *portKeycloak
     hostName: "*"
     httpsRedirect: true
@@ -371,7 +371,7 @@ api-operator-istio:
     apiopPrereleaseSuffix:  
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    monitoredNamespaces: 'comps448ns'           # comma separated list of namespaces
     ingressClass:
       enabled: false
       name: nginx
@@ -382,7 +382,7 @@ api-operator-istio:
     credentialName: istio-ingress-cert    
   configmap:
     loglevel: '20'
-    # publicHostname: 'components.example.com'
+    # publicHostname: 'comps448ns.example.com'
 
 # -----------------------------------------------------------------------------
 # Kong operator and sub-chart parameters
@@ -430,7 +430,7 @@ api-operator-kong:
         enabled: true
         type: LoadBalancer
     kongoperatorreplicaCount: 1
-    IstioGatewaymonitoredNamespaces: components
+    IstioGatewaymonitoredNamespaces: comps448ns
     IstioGatewayServerhostName: "*"
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
@@ -477,6 +477,6 @@ api-operator-apisix:
     apisixopVersion: 1.0.0
     apisixopPrereleaseSuffix:  
   IstioGatewayServerhostName: "*"
-  IstioGatewaymonitoredNamespaces: components
+  IstioGatewaymonitoredNamespaces: comps448ns
   apisixistiooperatordeploymentnamespace: canvas
   initContainerImage: busybox:1.28
