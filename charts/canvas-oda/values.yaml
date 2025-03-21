@@ -383,6 +383,8 @@ api-operator-istio:
   configmap:
     loglevel: '20'
     # publicHostname: 'comps448ns.example.com'
+    componentGateway: 'canvas/component-gateway'
+
 
 # -----------------------------------------------------------------------------
 # Kong operator and sub-chart parameters

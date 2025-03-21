@@ -17,3 +17,6 @@ data:
   {{- if .Values.configmap.publicHostname }}
   APIOPERATORISTIO_PUBLICHOSTNAME: {{ .Values.configmap.publicHostname }}
   {{ end }}
+  {{- if .Values.configmap.componentGateway }}
+  APIOPERATORISTIO_COMPONENTGATEWAY: {{ .Values.configmap.componentGateway }}
+  {{ end }}

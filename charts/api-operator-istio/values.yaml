@@ -1,7 +1,7 @@
 deployment:
   operatorName: api-operator-istio
   apiopImage: tmforumodacanvas/api-operator-istio
-  apiopVersion: 1.0.0
+  apiopVersion: 1.0.1
   apiopPrereleaseSuffix:
   apiopImagePullPolicy: IfNotPresent
   istioGateway: true
@@ -19,3 +19,4 @@ deployment:
 configmap:
   loglevel: '20'
   # publicHostname: 'components.example.com'
+  componentGateway: 'canvas/component-gateway'
