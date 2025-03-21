@@ -367,8 +367,8 @@ api-operator-istio:
   deployment:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
-    apiopVersion: 1.0.0
-    apiopPrereleaseSuffix:  
+    apiopVersion: 1.0.1
+    apiopPrereleaseSuffix: issue448
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'comps448ns,comps-a-ns,comps-b-ns'           # comma separated list of namespaces
