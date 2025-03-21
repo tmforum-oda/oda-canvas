@@ -151,7 +151,7 @@ component-operator:
     compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    monitoredNamespaces: 'comps448ns'           # comma separated list of namespaces
+    monitoredNamespaces: 'comps448ns,comps-a-ns,comps-b-ns'           # comma separated list of namespaces
     httpsRedirect: true
     credentialName: istio-ingress-cert    
 
@@ -167,7 +167,7 @@ identityconfig-operator-keycloak:
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
     idlistkeyVersion: 0.7.3
     idlistkeyPrereleaseSuffix: 
-    monitoredNamespaces: 'comps448ns'           # comma separated list of namespaces
+    monitoredNamespaces: 'comps448ns,comps-a-ns,comps-b-ns'           # comma separated list of namespaces
     keycloak: *portKeycloak
     hostName: "*"
     httpsRedirect: true
@@ -371,7 +371,7 @@ api-operator-istio:
     apiopPrereleaseSuffix:  
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    monitoredNamespaces: 'comps448ns'           # comma separated list of namespaces
+    monitoredNamespaces: 'comps448ns,comps-a-ns,comps-b-ns'           # comma separated list of namespaces
     ingressClass:
       enabled: false
       name: nginx
