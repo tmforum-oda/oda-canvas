@@ -1,0 +1,23 @@
+apiVersion: oda.tmforum.org/v1
+kind: ExposedAPI
+metadata:
+  name: {{.Release.Name}}-{{.Values.componentname}}
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.componentname}}
+spec:
+  name: extecho
+  apiType: openapi
+  implementation: "<external>"
+  path: /
+  port: 80
+  specification:
+  - url: https://doesnotexist.example.com/extecho.json
+status:
+  apiStatus:
+    implementation: "<external>"
+    name: extecho
+    path: /
+    port: 80
+    url: {{ .Values.url }}
+  implementation:
+    ready: true

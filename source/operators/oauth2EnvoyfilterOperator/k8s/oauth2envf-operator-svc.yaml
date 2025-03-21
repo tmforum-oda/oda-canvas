@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: canvas-oauth2envf-op-svc
+  labels:
+    app: canvas-oauth2envf-op
+    resource: service
+spec:
+  ports:
+  - name: https
+    port: 443
+    targetPort: 9443
+  selector:
+    app: canvas-oauth2envf-op
+  sessionAffinity: None
+  type: ClusterIP
