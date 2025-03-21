@@ -422,11 +422,14 @@ root@demo-b-prodcatapi-6675466b75-nrgtl:/src# curl http://echo.free.beeceptor.co
 Failed to inject credential.root@demo-b-prodcatapi-6675466b75-nrgtl:/src# curl http://echo.free.beeceptor.com/echo
 ```
 
+possible issues: service-account-auth not activated, credentials in SDS not found, ...
+
 ## log istiod
 
 
 ```
 kubectl logs -n istio-system deployment/istiod
+
 ```
 
 ```

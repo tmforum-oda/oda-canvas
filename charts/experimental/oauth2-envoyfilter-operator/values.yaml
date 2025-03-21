@@ -1,4 +1,4 @@
-image: tmforumodacanvas/dependentapi-simple-operator
+image: tmforumodacanvas/oauth2-envoy-op
 version: 0.1.0
 prereleaseSuffix: issue362
 
