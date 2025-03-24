@@ -89,7 +89,7 @@ Create KOPF cli option for the comma seperated list of namespaces in monitoredNa
 "<ns1>,<ns1>,...<nsN>"-> "-n <ns1> -n <ns2> ... -n <nsN>" 
 */}}
 {{- define "component-operator.monitoredNamespacesCLIOpts" -}}
--n {{ regexReplaceAll "," .Values.deployment.monitoredNamespaces " -n " }}
+{{- printf "-n %s" .Values.deployment.monitoredNamespaces | replace "," " -n " }}
 {{- end -}}
 
 
