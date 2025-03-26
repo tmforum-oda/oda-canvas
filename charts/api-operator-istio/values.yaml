@@ -1,11 +1,11 @@
 deployment:
   operatorName: api-operator-istio
   apiopImage: tmforumodacanvas/api-operator-istio
-  apiopVersion: 1.0.0
+  apiopVersion: 1.0.1
   apiopPrereleaseSuffix:
   apiopImagePullPolicy: IfNotPresent
   istioGateway: true
-  monitoredNamespaces: 'components'           # comma separated list of namespaces
+  monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
   ingressClass:
     enabled: false
     name: nginx
@@ -19,3 +19,4 @@ deployment:
 configmap:
   loglevel: '20'
   # publicHostname: 'components.example.com'
+  componentGateway: 'canvas/component-gateway'

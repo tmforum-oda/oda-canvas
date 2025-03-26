@@ -8,6 +8,7 @@ metadata:
 data:
   LOGGING: {{ .Values.configmap.loglevel | quote }}
   COMPONENT_NAMESPACE: {{.Values.deployment.monitoredNamespaces}}
+  COMPONENT_NAMESPACES_CLI: {{ include "api-operator-istio.monitoredNamespacesCLIOpts" . }}
   {{- if .Values.deployment.ingressClass.enabled }}
   INGRESS_CLASS: {{ .Values.deployment.ingressClass.name }}
   {{ end }}
@@ -16,4 +17,7 @@ data:
   {{ end }}
   {{- if .Values.configmap.publicHostname }}
   APIOPERATORISTIO_PUBLICHOSTNAME: {{ .Values.configmap.publicHostname }}
+  {{ end }}
+  {{- if .Values.configmap.componentGateway }}
+  APIOPERATORISTIO_COMPONENTGATEWAY: {{ .Values.configmap.componentGateway }}
   {{ end }}
