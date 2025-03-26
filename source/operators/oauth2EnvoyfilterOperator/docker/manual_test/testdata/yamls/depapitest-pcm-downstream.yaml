@@ -1,0 +1,36 @@
+apiVersion: oda.tmforum.org/v1beta3
+kind: DependentAPI
+metadata:
+  annotations:
+    kopf.zalando.org/last-handled-configuration: |
+      {"spec":{"apiType":"openapi","name":"downstreamproductcatalog","specification":"https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"},"metadata":{"labels":{"app.kubernetes.io/managed-by":"Helm","oda.tmforum.org/componentName":"depapitest-productcatalogmanagement"}},"status":{"implementation":{"ready":true}}}
+  creationTimestamp: "2024-09-11T20:36:37Z"
+  finalizers:
+  - kopf.zalando.org/KopfFinalizerMarker
+  generateName: depapitest-productcatalogmanagement-
+  generation: 4
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    oda.tmforum.org/componentName: depapitest-productcatalogmanagement
+  name: depapitest-productcatalogmanagement-downstreamproductcatalog
+  namespace: components
+  ownerReferences:
+  - apiVersion: oda.tmforum.org/v1beta3
+    blockOwnerDeletion: true
+    controller: true
+    kind: Component
+    name: depapitest-productcatalogmanagement
+    uid: 21495847-cf68-492d-bd57-c1f2c78612ad
+  resourceVersion: "173546869"
+  uid: 2228b07b-fba0-4ce3-a1ed-4ad33dfc1055
+spec:
+  apiType: openapi
+  name: downstreamproductcatalog
+  specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+status:
+  depapiStatus:
+    url: http://localhost:8080/alice-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+  implementation:
+    ready: true
+  kopf:
+    progress: {}

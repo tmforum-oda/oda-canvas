@@ -39,9 +39,9 @@ class Keycloak:
         Returns nothing, or raises an exception for the caller to catch
         """
         if url == "":
-            json_obj = {"clientId": client}
+            json_obj = {"clientId": client, "serviceAccountsEnabled": True}
         else:
-            json_obj = {"clientId": client, "rootUrl": url}
+            json_obj = {"clientId": client, "rootUrl": url, "serviceAccountsEnabled": True}
 
         try:  # to create the client in Keycloak
             r = requests.post(
