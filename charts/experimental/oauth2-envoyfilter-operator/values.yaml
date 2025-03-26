@@ -1,6 +1,6 @@
 image: tmforumodacanvas/oauth2-envoy-op
 version: 0.1.0
-prereleaseSuffix: issue362
+prereleaseSuffix:
 
 imagePullPolicy: Always
 
