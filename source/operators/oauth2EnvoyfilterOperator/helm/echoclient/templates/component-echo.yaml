@@ -1,0 +1,40 @@
+apiVersion: oda.tmforum.org/v1
+kind: Component
+metadata:
+  name: {{.Release.Name}}-{{.Values.componentname}}
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.componentname}}
+spec:
+  componentMetadata:
+    name: {{.Values.componentname}}
+    status: specified
+  coreFunction:
+    exposedAPIs: 
+    - name: echo
+      specification:
+      - url: "https://doesnotexist.example.com/echoclient.json"
+      implementation: {{.Release.Name}}-echo
+      apiType: openapi
+      path: /ip
+      port: 80
+    dependentAPIs:
+    - name: echotarget 
+      apiType: openapi     
+      specification: 
+        - url: "https://doesnotexist.example.com/echotarget.json"
+    - name: jedionlytarget 
+      apiType: openapi     
+      specification: 
+        - url: "https://doesnotexist.example.com/jedionlytarget.json"
+    - name: extecho
+      apiType: openapi
+      specification: 
+        - url: "https://doesnotexist.example.com/extecho.json"
+  eventNotification:
+    publishedEvents: []
+    subscribedEvents: []
+  managementFunction: 
+    exposedAPIs: []
+  securityFunction:
+    canvasSystemRole: {{.Values.canvasSystemRole}}
+    exposedAPIs: []

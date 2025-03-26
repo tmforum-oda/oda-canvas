@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canvas-oauth2envf-op
+  namespace: canvas
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: canvas-oauth2envf-op
+  template:
+    metadata:
+      labels:
+        app: canvas-oauth2envf-op
+    spec:
+      serviceAccountName: canvas-oauth2envf-op-account
+      containers:
+      - name: oauth2envf-op
+        image: ocfork/oa2envf:0.1.1-dev
+        imagePullPolicy: Always
+        env:
+        - name: LOGGING
+          value: "10"   # 10-debug, 20-info
+        ports:
+        - containerPort: 9443

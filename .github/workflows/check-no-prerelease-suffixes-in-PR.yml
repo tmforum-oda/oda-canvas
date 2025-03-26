@@ -70,3 +70,21 @@ jobs:
         if: steps.values_yaml_contains_version_suffix_3.outputs.result=='true'
         run: |
           echo "::error file=charts/credentialsmanagement-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_3.outputs.result }}]" && exit 1
+      
+      - name: check if there are nonempty version suffixes in charts/experimental/oauth2-envoyfilter-operator/values.yaml
+        id: values_yaml_contains_version_suffix_4
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/experimental/oauth2-envoyfilter-operator/values.yaml
+
+      - name: collect existing version suffixes in charts/experimental/oauth2-envoyfilter-operator/values.yaml for error report
+        id: version_suffixes_4
+        if: steps.values_yaml_contains_version_suffix_4.outputs.result=='true'
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/experimental/oauth2-envoyfilter-operator/values.yaml
+          
+      - name: report error in charts/experimental/oauth2-envoyfilter-operator/values.yaml
+        if: steps.values_yaml_contains_version_suffix_4.outputs.result=='true'
+        run: |
+          echo "::error file=charts/experimental/oauth2-envoyfilter-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_4.outputs.result }}]" && exit 1
