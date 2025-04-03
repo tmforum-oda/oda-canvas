@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 # ODA Canvas installation
 
 The Reference Implementation of the ODA Canvas is a set of Helm charts that can be used to install and configure a fully working Canvas. The Reference Implementation is built on top of Kubernetes and Istio.
@@ -176,9 +176,9 @@ modify leaseWaitTimeonStartup: 120
     helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace 
 
     ```
-    (Disabling canvas-valut)
+    (Disabling canvas-vault)
     ```bash
-    helm install canvas oda-canvas/canvas-oda -n canvas --set canvas-vault.enabled=false --create-namespace  
+    helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set=canvas-vault.enabled=false  
     ```
 ### 6. Optionally Install APISIX or Kong Gateway
 
