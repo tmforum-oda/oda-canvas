@@ -90,7 +90,7 @@ keycloak:
   # -- Keycloak HTTP container port
   containerPorts: *portKeycloak
 
-  # -- Create a odari realm with an canvassystem user
+  # -- Create a odari realm with canvassystem and credentialsmanagement-operator clients
   keycloakConfigCli:
     enabled: true
     image:
@@ -165,8 +165,8 @@ identityconfig-operator-keycloak:
   deployment:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
-    idkopVersion: 1.0.2
-    idkopPrereleaseSuffix:
+    idkopVersion: 1.0.3
+    idkopPrereleaseSuffix: issue413
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
