@@ -1,4 +1,5 @@
 const axios = require('axios');
+const qs = require('qs');
 
 const dotenv = require('dotenv');
 
@@ -36,7 +37,7 @@ const identityManagerUtils = {
       baseURL: baseURL,
       method: 'post',
       headers: headers,
-      data: userData,
+      data: qs.stringify(userData),
     }).catch(err => {
       console.log('This is the error: ');
       console.log(err);
