@@ -45,40 +45,30 @@ const identityManagerUtils = {
   },
 
   /**
-   * Function that calls the Keycloak API and gets the role for a user in a component
-   * @param    {String} userName        Name of the user we're checking
+   * Function that calls the Keycloak API and gets the role for a client in a component
+   * @param    {String} clientName        Name of the client we're checking
    * @param    {String} componentName   Name of the component
-   * @return   {Array}                  The array of 0 or more roles for the user
+   * @return   {Array}                  The array of 0 or more roles for the client
    */  
-  getRolesForUser: async function(userName, releaseName, componentName) {
+  getRolesForClient: async function(clientName) {
     // Get the token for authn/authz against the Keycloak API
     const token = await identityManagerUtils.getToken(config.baseURL, config.user, config.password);
     const headers = { Authorization: 'Bearer ' + token };
-    // Get the ID for the canvassystem user
-    var res = await axios({
-      url: '/admin/realms/'  + config.realm + '/users',
-      baseURL: config.baseURL,
-      method: 'get',
-      headers: headers,
-      params: { username: userName }
-    }).catch(err => {
-      console.log(err);
-    });
-    canvassystemID = res.data[0].id;
-    // Get the ID for the component
+    // Get the ID for the canvassystem client
     res = await axios({
       url: '/admin/realms/'  + config.realm + '/clients',
       baseURL: config.baseURL,
       method: 'get',
       headers: headers,
-      params: { clientId: releaseName + '-' + componentName}
+      params: { clientId: clientName }
     }).catch(err => {
       console.log(err);
     });
-    clientID = res.data[0].id;
-    // Get the list of roles for canvassystem in componentName
+    canvassystemID = res.data[0].id;
+
+    // Get the list of roles for canvassystem client
     res = await axios({
-      url: '/admin/realms/'  + config.realm + '/users/' + canvassystemID + '/role-mappings/clients/' + clientID,
+      url: '/admin/realms/'  + config.realm + '/clients/' + canvassystemID + '/roles',
       baseURL: config.baseURL,
       method: 'get',
       headers: headers
