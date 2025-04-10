@@ -27,6 +27,11 @@ spec:
               name: identityconfig-operator-keycloak-configmap
           - secretRef:
               name: identityconfig-operator-keycloak-secret
+        command:
+          - "/bin/sh"
+        args: 
+          - "-c"
+          - "kopf run $COMPONENT_NAMESPACES_CLI --verbose /identityOperator/identityConfigOperatorKeycloak.py"
       - name: idlistkey
         image: {{ include "identityconfig-operator-keycloak.idlistkeyImage" . }}
         imagePullPolicy: {{ include "identityconfig-operator-keycloak.imagePullPolicy" . }}

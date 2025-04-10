@@ -83,3 +83,13 @@ overwrite apiop imagePullSecret with "Always" if prereleaseSuffix is set
   {{- end -}}
 {{- end -}}
 
+
+{{/*
+Create KOPF cli option for the comma seperated list of namespaces in monitoredNamespaces:
+"<ns1>,<ns1>,...<nsN>"-> "-n <ns1> -n <ns2> ... -n <nsN>" 
+*/}}
+{{- define "api-operator-istio.monitoredNamespacesCLIOpts" -}}
+{{- printf "-n %s" .Values.deployment.monitoredNamespaces | replace "," " -n " }}
+{{- end -}}
+
+
