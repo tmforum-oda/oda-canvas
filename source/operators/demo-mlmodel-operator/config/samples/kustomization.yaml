@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- oda.tmforum.org_v1beta1_mlmodel.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples
