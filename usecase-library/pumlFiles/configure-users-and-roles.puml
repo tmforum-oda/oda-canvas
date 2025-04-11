@@ -18,20 +18,18 @@ note right
     All the roles and permissions are associated with a client.
 end note
 
+ComponentImplementation -> SecretStore: Read ClientID and secret
+note right
+    Populating the ClientID and secret from the identity platform is
+    out of scope for the Canvas, but the Reference Implementation uses
+    a credentials operator to simulate this.
+end note
+
 identityOperator -> IdentityResource : Query bootstrap Admin role defined\nin component SecurityFunction segment
 identityOperator -> IDM: Assign Canvas **canvassystem** client to Admin role
 note right
     The Admin role is used by the Canvas to call APIs on the ODA Component.
 end note
-
-identityOperator -> IDM: Create system user for component
-note right
-    This is a system-generated user (uuid) that is used when
-    the component makes API calls (to another component or
-    canvas service).
-end note
-identityOperator <- IDM: Return clientId and secret
-identityOperator -> SecretStore: Update with clientId and secret
 
 group Dynamic role management - optional
     identityOperator -> ComponentImplementation: Register identityOperator to listen to the\nAPI provided by the component
