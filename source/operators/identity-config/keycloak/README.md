@@ -17,10 +17,10 @@ The identity config operator consists of two modules, both written in Python. Th
 
 Keycloak setup
 
-Realm = whole organisation
+Realm = whole organisation                                                                                                                                  
 Client (within Realm) = 1 App or component
 
-Roles can be scoped at realm or client level
+Roles can be scoped at realm or client level                                                                                                                
 Users can be scoped at realm or client level
 
 
@@ -57,15 +57,13 @@ The production operator will execute inside a Kubernetes Pod. For development an
 
 Run locally in command-line: 
 ```
-kopf run --namespace=components --standalone .\securityControllerKeycloak.py
+kopf run --namespace=components --standalone .\identityConfigOperatorKeycloak.py
 ```
 
 This mode will use the kubeconfig file (typically located at `$HOME/.kube/config`) to as long as `kubectl` is correctly configured for your cluster, the operator should work. 
 
-You need to ensure you turn-off the operator execusing in Kubernetes (for example, by setting the replicas to 0 in the operator Deployment).
+You need to ensure you turn-off the operator executing in Kubernetes (for example, by setting the replicas to 0 in the operator Deployment).
 
 The command above will execute just the Keycloak identity operator. You will also need to execute the other operators relavant for your Canvas implementation - these can be executed in separate terminal command-lines.
 
 **Note: The keycloak identity operator may have issues calling http services locally inside the cluster - for example it may try to call `http://idlistkey.canvas.svc.cluster.local` and fail as this can only be executed inside the Kubernetes cluster.**
-
-

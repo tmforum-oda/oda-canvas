@@ -15,13 +15,13 @@ const COMPONENT_DEPLOY_TIMEOUT = 100 * 1000 // 100 seconds
 setDefaultTimeout( 20 * 1000);
 
 /**
- * Check for role to be assigned to the security operator in identity management.
+ * Check for role to be assigned to the canvassystem client in identity management.
  *
- * @param {string} canvassystemUserName - the username of the operator to check.
+ * @param {string} canvassystemClientName - the client name of the canvas system to check.
  * @param {string} componentName - The name of the component to check.
  * @returns {Promise<void>} - A Promise that resolves when the component is available.
  */
-Then('I should see the predefined role assigned to the {string} user for the {string} component in the identity platform', async function (canvassystemUserName, componentName) {
+Then('I should see the predefined role assigned to the {string} client for the {string} component in the identity platform', async function (canvassystemClientName, componentName) {
   let componentResource = null
   let canvassystemRole = null
   var startTime = performance.now()
@@ -40,9 +40,9 @@ Then('I should see the predefined role assigned to the {string} user for the {st
       componentResource = null // reset the componentResource to null so that we can try again
     } else {
       canvassystemRole = componentResource.spec.securityFunction.canvasSystemRole;
-      allUserRoles = await identityManagerUtils.getRolesForUser(canvassystemUserName, global.currentReleaseName, componentName);
+      allClientRoles = await identityManagerUtils.getRolesForClient(canvassystemClientName);
       //return 'pending';
-      assert.ok(allUserRoles.includes(canvassystemRole), 'The predefine role for the security operator should be correctly assigned in the identity platform');
+      assert.ok(allClientRoles.includes(canvassystemRole), 'The predefine role for the canvassystem client should be correctly assigned in the identity platform');
     }
   }
 });

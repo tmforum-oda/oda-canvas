@@ -34,7 +34,7 @@ The use-cases are named based on the [use case naming conventions](use-case-nami
 - UC002: [Manage Components](./UC002-Manage-Components.md) - When an ODA Component is Installed, Updated or Uninstalled, create the sub-resources and update the status of the component.
 - UC003: [Configure Exposed APIs](./UC003-Configure-Exposed-APIs.md) - Integrate with the Service Mesh and/or API Gateway to configure and expose the API Endpoints for a Component.
 - UC004: [Configure Published Events](./UC004-Configure-Published-Events.md) - Integrate with the Eventing Service to configure and publish the Events for an ODA Component.
-- UC005: [Configure Users and Roles](./UC005-Configure-Users-and-Roles.md) - Integrate with the Identity Management System to configure users and roles.
+- UC005: [Configure Clients and Roles](./UC005-Configure-Clients-and-Roles.md) - Integrate with the Identity Management System to configure clients and roles.
 - UC006: [Configure Observability](./UC006-Configure-Observability.md) - Integrate with the Observability solution to configure technical and business observability.
 - UC007: [Configure Dependent APIs](./UC007-Configure-Dependent-APIs.md) - Configure components to be able to call APIs (on other ODA Components or external APIs).
 - UC008: [Configure Subscribed Events](./UC008-Configure-Subscribed-Events.md) - Configure components to be able to subscribe to events.
