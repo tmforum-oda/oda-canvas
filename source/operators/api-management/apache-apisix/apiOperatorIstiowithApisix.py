@@ -58,6 +58,11 @@ logger.info(f"OpenMetrics implementation pattern set to {OPENMETRICS_IMPLEMENTAT
 APIOPERATORISTIO_PUBLICHOSTNAME = os.environ.get(
     "APIOPERATORISTIO_PUBLICHOSTNAME"
 )  # hostname to be used for calling public APIs.
+
+APIOPERATORISTIO_COMPONENTGATEWAY = os.environ.get(
+    "APIOPERATORISTIO_COMPONENTGATEWAY", "component-gateway"
+)  # hostname to be used for calling public APIs.
+
 publichostname_loadBalancer = (
     None  # Overwrites the LB ip/hostname retrieved from istioingress service.
 )
@@ -593,7 +598,7 @@ def createOrPatchVirtualService(
             "metadata": {"name": inAPIName},
             "spec": {
                 "hosts": [hostname],
-                "gateways": ["component-gateway"],
+                "gateways": [APIOPERATORISTIO_COMPONENTGATEWAY],
                 "http": [
                     {
                         "match": [{"uri": {"prefix": spec["path"]}}],
