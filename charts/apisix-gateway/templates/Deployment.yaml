@@ -26,3 +26,13 @@ spec:
       - name: {{ .Release.Name }}-apisixistio-operator
         image: {{ .Values.apisixoperatorimage.repository }}
         imagePullPolicy: {{ .Values.apisixoperatorimage.pullPolicy }}
+        envFrom:
+          - configMapRef:
+              name: api-operator-istio-configmap
+        command:
+          - "/bin/sh"
+        args: 
+          - "-c"
+          - |
+            kopf run --namespace= --verbose apiOperatorApisix.py apiOperatorIstiowithApisix.py & \
+            kopf run $COMPONENT_NAMESPACES_CLI --verbose apiOperatorApisix.py apiOperatorIstiowithApisix.py; wait

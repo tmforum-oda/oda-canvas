@@ -82,3 +82,14 @@ overwrite compop imagePullSecret with "Always" if prereleaseSuffix is set
     {{- .Values.deployment.compopImagePullPolicy -}}
   {{- end -}}
 {{- end -}}
+
+
+{{/*
+Create KOPF cli option for the comma seperated list of namespaces in monitoredNamespaces:
+"<ns1>,<ns1>,...<nsN>"-> "-n <ns1> -n <ns2> ... -n <nsN>" 
+*/}}
+{{- define "component-operator.monitoredNamespacesCLIOpts" -}}
+{{- printf "-n %s" .Values.deployment.monitoredNamespaces | replace "," " -n " }}
+{{- end -}}
+
+
