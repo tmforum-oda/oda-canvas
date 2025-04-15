@@ -482,3 +482,15 @@ api-operator-apisix:
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas
   initContainerImage: busybox:1.28
+  #Adding Istio Configmap values.
+  deployment:
+    monitoredNamespaces: 'components,odacompns-*'     
+    ingressClass:
+      enabled: false
+      name: nginx
+    dataDog:
+      enabled: true
+  configmap:
+    loglevel: '20'
+    # publicHostname: 'components.example.com'
+    componentGateway: 'canvas/component-gateway'
