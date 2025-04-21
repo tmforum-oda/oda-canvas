@@ -26,3 +26,13 @@ spec:
       - name: {{ .Release.Name }}-kongistio-operator
         image: {{ .Values.kongoperatorimage.repository }}
         imagePullPolicy: {{ .Values.kongoperatorimage.pullPolicy }}
+        envFrom:
+          - configMapRef:
+              name: api-operator-istio-configmap
+        command:
+          - "/bin/sh"
+        args: 
+          - "-c"
+          - |
+            kopf run --namespace= --verbose apiOperatorKong.py apiOperatorIstiowithKong.py & \
+            kopf run $COMPONENT_NAMESPACES_CLI --verbose apiOperatorKong.py apiOperatorIstiowithKong.py; wait
