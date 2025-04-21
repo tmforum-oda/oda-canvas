@@ -92,3 +92,15 @@ kongoperatorimage:
   repository: tmforumodacanvas/api-operator-kong:1.0.0
   pullPolicy: IfNotPresent
 initContainerImage: busybox:1.28
+
+deployment:
+  monitoredNamespaces: 'components,odacompns-*'     
+  ingressClass:
+    enabled: false
+    name: nginx
+  dataDog:
+    enabled: true
+configmap:
+  loglevel: '20'
+  # publicHostname: 'components.example.com'
+  componentGateway: 'canvas/component-gateway'
