@@ -394,6 +394,17 @@ kong-gateway-install:
   enabled: false  # Enable kong-gateway if needed
 kongnamespace: kong
 api-operator-kong:
+    deployment:
+      monitoredNamespaces: 'components,odacompns-*'     
+      ingressClass:
+        enabled: false
+        name: nginx
+      dataDog:
+        enabled: true
+    configmap:
+      loglevel: '20'
+      # publicHostname: 'components.example.com'
+      componentGateway: 'canvas/component-gateway'
     kong:
       postgresql:
         nameOverride: "postgresql-kong"
