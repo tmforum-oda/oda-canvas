@@ -166,7 +166,7 @@ identityconfig-operator-keycloak:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
     idkopVersion: 1.0.3
-    idkopPrereleaseSuffix: issue413
+    idkopPrereleaseSuffix:
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
