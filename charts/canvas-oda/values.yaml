@@ -484,11 +484,10 @@ api-operator-apisix:
     apisixoperatorreplicaCount: 1
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
-    repository: tmforumodacanvas/api-operator-apisix:1.0.0
-    pullPolicy: IfNotPresent
     apisixopImage: tmforumodacanvas/api-operator-apisix
     apisixopVersion: 1.0.1
     apisixopPrereleaseSuffix: issue448  
+    pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas

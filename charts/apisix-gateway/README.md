@@ -16,7 +16,9 @@ A Helm chart for Kubernetes
 |-----|------|---------|-------------|
 | apisixistiooperatordeploymentnamespace | string | `"canvas"` |  |
 | apisixoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| apisixoperatorimage.repository | string | `"tmforumodacanvas/api-operator-apisix:1.0.0"` |  |
+| apisixoperatorimage.apisixopImage | string | `"tmforumodacanvas/api-operator-apisix:1.0.0"` |  |
+| apisixoperatorimage.apisixopVersion | string | `"tmforumodacanvas/api-operator-apisix:1.0.0"` |  |
+| apisixoperatorimage.apisixopPrereleaseSuffix | string | `"tmforumodacanvas/api-operator-apisix:1.0.0"` |  |
 | apisixoperatorreplicaCount | int | `1` |  |
 | gateway.type | string | `"LoadBalancer"` |  |
 | ingress-controller.config.apisix.adminAPIVersion | string | `"v3"` |  |

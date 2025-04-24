@@ -43,7 +43,6 @@ A Helm of helm to orchestrate the ODA installation
 | api-operator-apisix.apisixoperatorimage.apisixopPrereleaseSuffix | string | `"issue-419"` |  |
 | api-operator-apisix.apisixoperatorimage.apisixopVersion | string | `"1.0.0"` |  |
 | api-operator-apisix.apisixoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| api-operator-apisix.apisixoperatorimage.repository | string | `"tmforumodacanvas/api-operator-apisix:1.0.0"` |  |
 | api-operator-istio | object | `{"configmap":{"loglevel":"20"},"deployment":{"apiopImage":"tmforumodacanvas/api-operator-istio","apiopPrereleaseSuffix":"issue-419","apiopVersion":"1.0.0","credentialName":"istio-ingress-cert","dataDog":{"enabled":true},"hostName":"*","httpsRedirect":true,"imagePullPolicy":"IfNotPresent","ingressClass":{"enabled":false,"name":"nginx"},"istioGateway":true,"monitoredNamespaces":"components","operatrorName":"api-operator-istio"},"enabled":true}` | --------------------------------------------------------------------------- |
 | api-operator-kong.IstioGatewayServerhostName | string | `"*"` |  |
 | api-operator-kong.IstioGatewaymonitoredNamespaces | string | `"components"` |  |
