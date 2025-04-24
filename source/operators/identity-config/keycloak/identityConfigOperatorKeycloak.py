@@ -61,7 +61,7 @@ password = os.environ.get("KEYCLOAK_PASSWORD")
 kcBaseURL = os.environ.get("KEYCLOAK_BASE")
 kcRealm = os.environ.get("KEYCLOAK_REALM")
 
-canvassystem_user = "canvassystem"
+canvassystem_client = "canvassystem"
 
 kc = Keycloak(kcBaseURL)
 
@@ -145,9 +145,10 @@ def identityConfig(
         )
     else:
         client = client_list[name]
+        canvassystem_client_id = client_list[canvassystem_client]
         logw.info(f"Client {name} retrieved")
 
-    try:  # to create the bootstrap role and add it to the canvassystem user
+    try:  # to create the bootstrap role and add it to the canvassystem client
         canvassystem_role = spec["canvasSystemRole"]
         kc.add_role(canvassystem_role, client, token, kcRealm)
     except RuntimeError as e:
@@ -158,15 +159,15 @@ def identityConfig(
     else:
         logw.info(f"Keycloak role {canvassystem_role} created")
 
-    try:  # to assign the role to the canvassystem user
-        kc.add_role_to_user(canvassystem_user, canvassystem_role, name, token, kcRealm)
+    try:  # to assign the role to the canvassystem client
+        kc.add_role(canvassystem_role, canvassystem_client_id, token, kcRealm)
     except RuntimeError as e:
-        logw.error(f"Keycloak assign role failed for {canvassystem_role} in {name}", str(e))
+        logw.error(f"Keycloak add role failed for {canvassystem_role} to {canvassystem_client} client", str(e))
         raise kopf.TemporaryError(
-            "Could not add the canvassystem role to user in Keycloak. Will retry.", delay=10
+            "Could not add the canvassystem role to canvassystem client in Keycloak. Will retry.", delay=10
         )
     else:
-        logw.info(f"Keycloak role {canvassystem_role} assigned to user {canvassystem_user}")
+        logw.info(f"Keycloak role {canvassystem_role} assigned to {canvassystem_client} client")
 
     if "componentRole" in spec and len(spec["componentRole"]):
         try:  # to add list of static roles exposed in component
