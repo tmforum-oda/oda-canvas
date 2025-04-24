@@ -89,8 +89,11 @@ kong:
 kongoperatorreplicaCount: 1
 kongistiooperatordeploymentnamespace: canvas
 kongoperatorimage:
-  repository: tmforumodacanvas/api-operator-kong:1.0.0
+  kongopImage: tmforumodacanvas/api-operator-kong
+  kongopVersion: 1.0.1
+  kongopPrereleaseSuffix: issue448
   pullPolicy: IfNotPresent
+  
 initContainerImage: busybox:1.28
 
 deployment:

@@ -79,7 +79,6 @@ A Helm of helm to orchestrate the ODA installation
 | api-operator-kong.kongoperatorimage.kongopPrereleaseSuffix | string | `nil` |  |
 | api-operator-kong.kongoperatorimage.kongopVersion | string | `"1.0.0"` |  |
 | api-operator-kong.kongoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| api-operator-kong.kongoperatorimage.repository | string | `"tmforumodacanvas/api-operator-kong:1.0.0"` |  |
 | api-operator-kong.kongoperatorreplicaCount | int | `1` |  |
 | apisix-gateway-install | object | `{"enabled":false}` | --------------------------------------------------------------------------- |
 | canvas-namespaces.certManagerNamespace | string | `"cert-manager"` |  |

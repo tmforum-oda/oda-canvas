@@ -24,8 +24,8 @@ spec:
               until nc -z canvas-kong-admin.kong.svc.cluster.local 8001; do echo waiting for kong-admin; sleep 2; done;
       containers:
       - name: {{ .Release.Name }}-kongistio-operator
-        image: {{ .Values.kongoperatorimage.repository }}
-        imagePullPolicy: {{ .Values.kongoperatorimage.pullPolicy }}
+        image: {{ include "api-operator-kong.kongopDockerimage" . }}
+        imagePullPolicy: {{ include "api-operator-kong.kongopImagePullPolicy" . }}
         envFrom:
           - configMapRef:
               name: api-operator-istio-configmap
