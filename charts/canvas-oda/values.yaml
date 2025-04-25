@@ -90,7 +90,7 @@ keycloak:
   # -- Keycloak HTTP container port
   containerPorts: *portKeycloak
 
-  # -- Create a odari realm with an canvassystem user
+  # -- Create a odari realm with canvassystem and credentialsmanagement-operator clients
   keycloakConfigCli:
     enabled: true
     image:
@@ -102,13 +102,26 @@ keycloak:
         {
           "enabled": true,
           "realm": "odari",
+          "clients": [
+            {
+              "clientId": "canvassystem",
+              "name": "Canvas System",
+              "enabled": true,
+              "standardFlowEnabled": false,
+              "serviceAccountsEnabled": true
+            },
+            {
+              "clientId": "credentialsmanagement-operator",
+              "name": "Credentials Management Operator",
+              "enabled": true,
+              "standardFlowEnabled": false,
+              "serviceAccountsEnabled": true
+            }
+          ],
           "users": [
             {
-            "username": "canvassystem",
-            "email": "canvassystem@oda.tmforum.org",
+            "username": "service-account-canvassystem",
             "enabled": true,
-            "firstName": "Canvas",
-            "lastName": "User",
             "clientRoles": {
               "realm-management": [
                 "manage-clients"
@@ -123,14 +136,6 @@ keycloak:
                 "view-clients"
               ]
              }
-            }
-          ],
-          "clients": [
-            {
-            "clientId": "credentialsmanagement-operator",
-            "enabled": true,
-            "standardFlowEnabled": false,
-            "serviceAccountsEnabled": true,
             }
           ]
         }
