@@ -85,7 +85,7 @@ def configure(settings: kopf.OperatorSettings, **_):
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
-def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
+def apiStatus(meta, spec, status, namespace, labels, name, body, **kwargs):
     """Handler function for new or updated APIs.
 
     Processes the spec of the API and create child Kubernetes VirtualService resources (for open-api type) or ServiceMonitor resources (for prometheus metrics type).
@@ -111,7 +111,7 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
         "api/" + name,
         componentName,
         "apiStatus handler called with ",
-        spec,
+        body, # spec,    TODO[FH]: rollback to spec
     )
 
     outputStatus = {}
