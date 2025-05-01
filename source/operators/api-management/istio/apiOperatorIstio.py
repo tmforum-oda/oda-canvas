@@ -111,7 +111,7 @@ def apiStatus(meta, spec, status, namespace, labels, name, body, **kwargs):
         "api/" + name,
         componentName,
         "apiStatus handler called with ",
-        body, # spec,    TODO[FH]: rollback to spec
+        body,  # spec,    TODO[FH]: rollback to spec
     )
 
     outputStatus = {}
