@@ -83,6 +83,24 @@ def configure(settings: kopf.OperatorSettings, **_):
     settings.watching.server_timeout = 1 * 60
 
 
+# ------ HELPER METHODS ------ #
+def safe_get(default_value, dictionary, *paths):
+    if dictionary is None:
+        return default_value
+    result = dictionary
+    for path in paths:
+        if isinstance(path, int) and isinstance(result, list):
+            if path < 0 or path >= len(result):
+                return default_value
+        elif path not in result:
+            return default_value
+        result = result[path]
+    return result
+
+
+# ------ END HELPER METHODS ------ #
+
+
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
 def apiStatus(meta, spec, status, namespace, labels, name, body, **kwargs):
@@ -569,6 +587,67 @@ def createOrPatchServiceMonitor(patch, spec, namespace, name, inHandler, compone
         raise kopf.TemporaryError("Exception creating ServiceMonitor.")
 
 
+def get_virtualservices():
+    """
+    retrieve list of all VirtualServices in all namespaces
+    """
+    api_instance = kubernetes.client.CustomObjectsApi()
+    try:
+        VIRTUAL_SERVICE_GROUP = "networking.istio.io"
+        VIRTUAL_SERVICE_VERSION = "v1alpha3"
+        VIRTUAL_SERVICE_PLURAL = "virtualservices"
+        virt_svcs = api_instance.list_cluster_custom_object(
+            VIRTUAL_SERVICE_GROUP,
+            VIRTUAL_SERVICE_VERSION,
+            VIRTUAL_SERVICE_PLURAL,
+            pretty="true",
+        )
+        return virt_svcs
+    except ApiException as e:
+        if e.status == HTTP_NOT_FOUND:
+            return []
+        else:
+            logw.error(f"Exception in list_cluster_custom_object", e.body)
+            raise kopf.TemporaryError(
+                f"openAPIStatus: Exception in list_cluster_custom_object: {e.body}"
+            )
+
+
+def check_vs_conflict(vs_namespace, vs_name, gateway, hostname, path):
+    """
+    check whether another VirtualService already exists, with same gateway, hostname and path.
+
+    Args:
+        * vs_namespace
+                * vs_name
+                * gateway
+                * hostname
+                * path
+
+    if there is a conflict, raise an error
+    """
+    virt_svcs = get_virtualservices()
+    for virt_svc in virt_svcs["items"]:
+        other_namespace = safe_get(None, virt_svc, "metadata", "namespace")
+        other_name = safe_get(None, virt_svc, "metadata", "name")
+
+        if other_namespace == vs_namespace and other_name == vs_name:
+            continue
+        other_gateway = safe_get(None, virt_svc, "spec", "gateways", 0)
+        other_hostname = safe_get(None, virt_svc, "spec", "hosts", 0)
+        other_path = safe_get(
+            None, virt_svc, "spec", "http", 0, "match", 0, "uri", "prefix"
+        )
+        if (
+            other_gateway == gateway
+            and other_hostname == hostname
+            and other_path == path
+        ):
+            raise ValueError(
+                "duplicate VirtualService rules for vs '{vs_name}.{vs_namespace}' and vs '{other_name}.{other_namespace}'"
+            )
+
+
 def createOrPatchVirtualService(
     patch, spec, namespace, inAPIName, inHandler, componentName
 ):
@@ -585,14 +664,13 @@ def createOrPatchVirtualService(
     Returns:
         Dict: The updated apiStatus that will be put into the status field of the API resource.
     """
-
     client = kubernetes.client
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
 
-        hostname = None
-        if "hostname" in spec.keys():
-            hostname = spec["hostname"]
+        # hostname = None    # TODO[FH]: check if this is needed
+        # if "hostname" in spec.keys():
+        #     hostname = spec["hostname"]
 
         VIRTUAL_SERVICE_GROUP = "networking.istio.io"
         VIRTUAL_SERVICE_VERSION = "v1alpha3"
@@ -602,16 +680,22 @@ def createOrPatchVirtualService(
         hostname = "*"
         if APIOPERATORISTIO_PUBLICHOSTNAME:
             hostname = APIOPERATORISTIO_PUBLICHOSTNAME
+
+        path = spec["path"]
+        gateway = APIOPERATORISTIO_COMPONENTGATEWAY
+
+        check_vs_conflict(namespace, inAPIName, gateway, hostname, path)
+
         body = {
             "apiVersion": "networking.istio.io/v1alpha3",
             "kind": "VirtualService",
             "metadata": {"name": inAPIName},
             "spec": {
                 "hosts": [hostname],
-                "gateways": [APIOPERATORISTIO_COMPONENTGATEWAY],
+                "gateways": [gateway],
                 "http": [
                     {
-                        "match": [{"uri": {"prefix": spec["path"]}}],
+                        "match": [{"uri": {"prefix": path}}],
                         "route": [
                             {
                                 "destination": {
