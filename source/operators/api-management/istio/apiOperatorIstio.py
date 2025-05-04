@@ -644,7 +644,7 @@ def check_vs_conflict(vs_namespace, vs_name, gateway, hostname, path):
             and other_path == path
         ):
             raise ValueError(
-                "duplicate VirtualService rules for vs '{vs_name}.{vs_namespace}' and vs '{other_name}.{other_namespace}'"
+                f"conflicting VirtualService '{other_name}.{other_namespace}'"
             )
 
 
