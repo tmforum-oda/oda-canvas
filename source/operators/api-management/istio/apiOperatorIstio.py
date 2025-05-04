@@ -102,6 +102,17 @@ def apiStatus(meta, spec, status, namespace, labels, name, body, **kwargs):
         Dict: The apiStatus status that is put into the API Custom Resource status field.
 
     """
+
+    logWrapper(
+        logging.DEBUG,
+        "ENTRY",
+        "ENTRY",
+        "ENTRY",
+        "ENTRY",
+        f"apiStatus({name})",
+        body,
+    )
+
     componentName = labels["oda.tmforum.org/componentName"]
 
     logWrapper(
@@ -111,7 +122,7 @@ def apiStatus(meta, spec, status, namespace, labels, name, body, **kwargs):
         "api/" + name,
         componentName,
         "apiStatus handler called with ",
-        body,  # spec,    TODO[FH]: rollback to spec
+        spec,
     )
 
     outputStatus = {}
@@ -1043,6 +1054,17 @@ def implementation_status(meta, spec, status, body, namespace, labels, name, **k
 
     :meta public:
     """
+
+    logWrapper(
+        logging.DEBUG,
+        "ENTRY",
+        "ENTRY",
+        "ENTRY",
+        "ENTRY",
+        f"implementation_status({name})",
+        body,
+    )
+
     try:
         componentName = labels["oda.tmforum.org/componentName"]
         createAPIImplementationStatus(
@@ -1138,7 +1160,7 @@ def createAPIImplementationStatus(
 
 # When api adds url address of where api is exposed, update parent Component object
 @kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.apiStatus", retries=5)
-async def updateAPIStatus(meta, status, namespace, name, **kwargs):
+async def updateAPIStatus(meta, status, namespace, name, body, **kwargs):
     """Handler function to register for status changes in child API resources.
     Processes status updates to the *apiStatus* in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
 
@@ -1156,6 +1178,16 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
 
     :meta public:
     """
+
+    logWrapper(
+        logging.DEBUG,
+        "ENTRY",
+        "ENTRY",
+        "ENTRY",
+        "ENTRY",
+        f"updateAPIStatus({name})",
+        body,
+    )
 
     if "apiStatus" in status.keys():
         if "url" in status["apiStatus"].keys():
@@ -1274,7 +1306,7 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
 
 
 @kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.implementation", retries=5)
-async def updateAPIReady(meta, status, namespace, name, **kwargs):
+async def updateAPIReady(meta, status, namespace, name, body, **kwargs):
     """Handler function to register for status changes in child API resources.
 
     Processes status updates to the *implementation* status in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
@@ -1293,6 +1325,16 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
 
     :meta public:
     """
+
+    logWrapper(
+        logging.DEBUG,
+        "ENTRY",
+        "ENTRY",
+        "ENTRY",
+        "ENTRY",
+        f"updateAPIReady({name})",
+        body,
+    )
 
     if "ready" in status["implementation"].keys():
         if status["implementation"]["ready"] == True:
