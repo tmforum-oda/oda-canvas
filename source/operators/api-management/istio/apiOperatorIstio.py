@@ -48,6 +48,10 @@ VERSION = "v1"
 APIS_PLURAL = "exposedapis"
 COMPONENTS_PLURAL = "components"
 
+VIRTUAL_SERVICE_GROUP = "networking.istio.io"
+VIRTUAL_SERVICE_VERSION = "v1alpha3"
+VIRTUAL_SERVICE_PLURAL = "virtualservices"
+
 # get environment variables
 OPENMETRICS_IMPLEMENTATION = os.environ.get(
     "OPENMETRICS_IMPLEMENTATION", "ServiceMonitor"
@@ -84,7 +88,24 @@ def configure(settings: kopf.OperatorSettings, **_):
 
 
 # ------ HELPER METHODS ------ #
+
+
 def safe_get(default_value, dictionary, *paths):
+    """
+        Get a value from a dictionary using a path.
+        Args:
+                * default_value (Any): The default value to return if the path is not found.
+                * dictionary (Dict): The dictionary to get the value from.
+                * paths (List): The path to get the value from. Instead of keys, also numbers can be used to get a value from a list.
+
+    Examples:
+        safe_get([], meta, "labels")
+        safe_get("defaultvalue", meta, "labels", "mykey")
+        safe_get(None, body, "spec", "template", "spec", "containers", 0, "image")
+
+        Returns:
+            Any: The value from the dictionary at the path.
+    """
     if dictionary is None:
         return default_value
     result = dictionary
@@ -103,7 +124,7 @@ def safe_get(default_value, dictionary, *paths):
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
-def apiStatus(meta, spec, status, namespace, labels, name, body, **kwargs):
+def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
     """Handler function for new or updated APIs.
 
     Processes the spec of the API and create child Kubernetes VirtualService resources (for open-api type) or ServiceMonitor resources (for prometheus metrics type).
@@ -120,17 +141,6 @@ def apiStatus(meta, spec, status, namespace, labels, name, body, **kwargs):
         Dict: The apiStatus status that is put into the API Custom Resource status field.
 
     """
-
-    logWrapper(
-        logging.DEBUG,
-        "ENTRY",
-        "ENTRY",
-        "ENTRY",
-        "ENTRY",
-        f"apiStatus({name})",
-        body,
-    )
-
     componentName = labels["oda.tmforum.org/componentName"]
 
     logWrapper(
@@ -593,9 +603,6 @@ def get_virtualservices():
     """
     api_instance = kubernetes.client.CustomObjectsApi()
     try:
-        VIRTUAL_SERVICE_GROUP = "networking.istio.io"
-        VIRTUAL_SERVICE_VERSION = "v1alpha3"
-        VIRTUAL_SERVICE_PLURAL = "virtualservices"
         virt_svcs = api_instance.list_cluster_custom_object(
             VIRTUAL_SERVICE_GROUP,
             VIRTUAL_SERVICE_VERSION,
@@ -619,10 +626,10 @@ def check_vs_conflict(vs_namespace, vs_name, gateway, hostname, path):
 
     Args:
         * vs_namespace
-                * vs_name
-                * gateway
-                * hostname
-                * path
+        * vs_name
+        * gateway
+        * hostname
+        * path
 
     if there is a conflict, raise an error
     """
@@ -664,17 +671,10 @@ def createOrPatchVirtualService(
     Returns:
         Dict: The updated apiStatus that will be put into the status field of the API resource.
     """
+
     client = kubernetes.client
     try:
         custom_objects_api = kubernetes.client.CustomObjectsApi()
-
-        # hostname = None    # TODO[FH]: check if this is needed
-        # if "hostname" in spec.keys():
-        #     hostname = spec["hostname"]
-
-        VIRTUAL_SERVICE_GROUP = "networking.istio.io"
-        VIRTUAL_SERVICE_VERSION = "v1alpha3"
-        VIRTUAL_SERVICE_PLURAL = "virtualservices"
 
         # FIX required to optionally add hostname instead of ["*"]
         hostname = "*"
@@ -1138,17 +1138,6 @@ def implementation_status(meta, spec, status, body, namespace, labels, name, **k
 
     :meta public:
     """
-
-    logWrapper(
-        logging.DEBUG,
-        "ENTRY",
-        "ENTRY",
-        "ENTRY",
-        "ENTRY",
-        f"implementation_status({name})",
-        body,
-    )
-
     try:
         componentName = labels["oda.tmforum.org/componentName"]
         createAPIImplementationStatus(
@@ -1244,7 +1233,7 @@ def createAPIImplementationStatus(
 
 # When api adds url address of where api is exposed, update parent Component object
 @kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.apiStatus", retries=5)
-async def updateAPIStatus(meta, status, namespace, name, body, **kwargs):
+async def updateAPIStatus(meta, status, namespace, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     Processes status updates to the *apiStatus* in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
 
@@ -1262,16 +1251,6 @@ async def updateAPIStatus(meta, status, namespace, name, body, **kwargs):
 
     :meta public:
     """
-
-    logWrapper(
-        logging.DEBUG,
-        "ENTRY",
-        "ENTRY",
-        "ENTRY",
-        "ENTRY",
-        f"updateAPIStatus({name})",
-        body,
-    )
 
     if "apiStatus" in status.keys():
         if "url" in status["apiStatus"].keys():
@@ -1390,7 +1369,7 @@ async def updateAPIStatus(meta, status, namespace, name, body, **kwargs):
 
 
 @kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.implementation", retries=5)
-async def updateAPIReady(meta, status, namespace, name, body, **kwargs):
+async def updateAPIReady(meta, status, namespace, name, **kwargs):
     """Handler function to register for status changes in child API resources.
 
     Processes status updates to the *implementation* status in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
@@ -1409,16 +1388,6 @@ async def updateAPIReady(meta, status, namespace, name, body, **kwargs):
 
     :meta public:
     """
-
-    logWrapper(
-        logging.DEBUG,
-        "ENTRY",
-        "ENTRY",
-        "ENTRY",
-        "ENTRY",
-        f"updateAPIReady({name})",
-        body,
-    )
 
     if "ready" in status["implementation"].keys():
         if status["implementation"]["ready"] == True:
