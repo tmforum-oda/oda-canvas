@@ -373,7 +373,7 @@ api-operator-istio:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
     apiopVersion: 1.0.1
-    apiopPrereleaseSuffix: issue448
+    apiopPrereleaseSuffix:
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
@@ -454,7 +454,7 @@ api-operator-kong:
     kongoperatorimage:
       kongopImage: tmforumodacanvas/api-operator-kong
       kongopVersion: 1.0.1
-      kongopPrereleaseSuffix: issue448
+      kongopPrereleaseSuffix:
       pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
 
@@ -490,7 +490,7 @@ api-operator-apisix:
   apisixoperatorimage:
     apisixopImage: tmforumodacanvas/api-operator-apisix
     apisixopVersion: 1.0.1
-    apisixopPrereleaseSuffix: issue448  
+    apisixopPrereleaseSuffix:
     pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
