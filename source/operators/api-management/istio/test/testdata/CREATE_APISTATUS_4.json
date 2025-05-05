@@ -1,0 +1,87 @@
+{
+	"apiVersion": "oda.tmforum.org/v1",
+	"kind": "ExposedAPI",
+	"metadata": {
+		"creationTimestamp": "2025-05-04T15:11:24Z",
+		"generateName": "prdcat4-productcatalogmanagement-",
+		"generation": 1,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "prdcat4-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"95eebd95-96ab-40bd-9f9a-7195e39367fa\"}": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:apiType": {
+						},
+						"f:developerUI": {
+						},
+						"f:implementation": {
+						},
+						"f:name": {
+						},
+						"f:path": {
+						},
+						"f:port": {
+						},
+						"f:specification": {
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2025-05-04T15:11:24Z"
+			}
+		],
+		"name": "prdcat4-productcatalogmanagement-productcatalogmanagement",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "prdcat4-productcatalogmanagement",
+				"uid": "95eebd95-96ab-40bd-9f9a-7195e39367fa"
+			}
+		],
+		"resourceVersion": "115450641",
+		"uid": "3c35dba8-b1a3-4c7f-bee6-cdeead9c6b6f"
+	},
+	"spec": {
+		"apiType": "openapi",
+		"developerUI": "/prdcat4-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
+		"implementation": "prdcat4-prodcatapi",
+		"name": "productcatalogmanagement",
+		"path": "/prdcat4-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+		"port": 8080,
+		"specification": [
+			{
+				"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+			}
+		]
+	}
+}

@@ -11,6 +11,20 @@ ingress-controller:
 apisixoperatorreplicaCount: 1
 apisixistiooperatordeploymentnamespace: canvas
 apisixoperatorimage:
-  repository: tmforumodacanvas/api-operator-apisix:1.0.0
+  apisixopImage: tmforumodacanvas/api-operator-apisix
+  apisixopVersion: 1.0.1
+  apisixopPrereleaseSuffix:
   pullPolicy: IfNotPresent
 initContainerImage: busybox:1.28
+
+deployment:
+  monitoredNamespaces: 'components,odacompns-*'     
+  ingressClass:
+    enabled: false
+    name: nginx
+  dataDog:
+    enabled: true
+configmap:
+  loglevel: '20'
+  # publicHostname: 'components.example.com'
+  componentGateway: 'canvas/component-gateway'

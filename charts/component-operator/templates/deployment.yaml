@@ -25,3 +25,8 @@ spec:
         envFrom:
           - configMapRef:
               name: component-operator-configmap
+        command: 
+          - "/bin/sh"
+        args: 
+          - "-c"
+          - "kopf run $COMPONENT_NAMESPACES_CLI --verbose /componentOperator/componentOperator.py"

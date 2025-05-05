@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir kopf kubernetes PyYAML requests
 # Set the working directory
 WORKDIR /app
 
-# Copying Kong Operator and IstioforKong Python files to the container
+# Copying Kong Operator with ReferenceGrant handler and IstioforKong Python files to the container
 COPY apiOperatorKong.py /app/
 COPY apiOperatorIstiowithKong.py /app/
 

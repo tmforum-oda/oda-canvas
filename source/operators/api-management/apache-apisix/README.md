@@ -25,4 +25,3 @@ It uses kube config file present in $HOME/.kube/config to run from local worksta
 Run: `kopf run apiOperatorKong.py`
 
 
-

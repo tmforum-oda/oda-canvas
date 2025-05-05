@@ -95,4 +95,13 @@ overwrite idkop imagePullSecret with "Always" if prereleaseSuffix is set
 {{- end -}}
 
 
+{{/*
+Create KOPF cli option for the comma seperated list of namespaces in monitoredNamespaces:
+"<ns1>,<ns1>,...<nsN>"-> "-n <ns1> -n <ns2> ... -n <nsN>" 
+*/}}
+{{- define "identityconfig-operator-keycloak.monitoredNamespacesCLIOpts" -}}
+{{- printf "-n %s" .Values.deployment.monitoredNamespaces | replace "," " -n " }}
+{{- end -}}
+
+
 

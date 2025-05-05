@@ -43,9 +43,8 @@ A Helm of helm to orchestrate the ODA installation
 | api-operator-apisix.apisixoperatorimage.apisixopPrereleaseSuffix | string | `nil` |  |
 | api-operator-apisix.apisixoperatorimage.apisixopVersion | string | `"1.0.0"` |  |
 | api-operator-apisix.apisixoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| api-operator-apisix.apisixoperatorimage.repository | string | `"tmforumodacanvas/api-operator-apisix:1.0.0"` |  |
 | api-operator-apisix.initContainerImage | string | `"busybox:1.28"` |  |
-| api-operator-istio | object | `{"configmap":{"loglevel":"20"},"deployment":{"apiopImage":"tmforumodacanvas/api-operator-istio","apiopPrereleaseSuffix":null,"apiopVersion":"1.0.0","credentialName":"istio-ingress-cert","dataDog":{"enabled":true},"hostName":"*","httpsRedirect":true,"imagePullPolicy":"IfNotPresent","ingressClass":{"enabled":false,"name":"nginx"},"istioGateway":true,"monitoredNamespaces":"components","operatrorName":"api-operator-istio"},"enabled":true}` | --------------------------------------------------------------------------- |
+| api-operator-istio | object | `{"configmap":{"loglevel":"20"},"deployment":{"apiopImage":"tmforumodacanvas/api-operator-istio","apiopPrereleaseSuffix":"issue-419","apiopVersion":"1.0.0","credentialName":"istio-ingress-cert","dataDog":{"enabled":true},"hostName":"*","httpsRedirect":true,"imagePullPolicy":"IfNotPresent","ingressClass":{"enabled":false,"name":"nginx"},"istioGateway":true,"monitoredNamespaces":"components","operatrorName":"api-operator-istio"},"enabled":true}` | --------------------------------------------------------------------------- |
 | api-operator-kong.IstioGatewayServerhostName | string | `"*"` |  |
 | api-operator-kong.IstioGatewaymonitoredNamespaces | string | `"components"` |  |
 | api-operator-kong.initContainerImage | string | `"busybox:1.28"` |  |
@@ -80,7 +79,6 @@ A Helm of helm to orchestrate the ODA installation
 | api-operator-kong.kongoperatorimage.kongopPrereleaseSuffix | string | `nil` |  |
 | api-operator-kong.kongoperatorimage.kongopVersion | string | `"1.0.0"` |  |
 | api-operator-kong.kongoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| api-operator-kong.kongoperatorimage.repository | string | `"tmforumodacanvas/api-operator-kong:1.0.0"` |  |
 | api-operator-kong.kongoperatorreplicaCount | int | `1` |  |
 | apisix-gateway-install | object | `{"enabled":false}` | --------------------------------------------------------------------------- |
 | canvas-namespaces.certManagerNamespace | string | `"cert-manager"` |  |

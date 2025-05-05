@@ -1,0 +1,478 @@
+{
+	"apiVersion": "oda.tmforum.org/v1",
+	"kind": "Component",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/coreAPIs": "{\"started\":\"2025-05-01T14:28:22.547705+00:00\",\"stopped\":\"2025-05-01T14:28:22.575746+00:00\",\"purpose\":\"create\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/coreDependentAPIs": "{\"started\":\"2025-05-01T14:28:22.547745+00:00\",\"stopped\":\"2025-05-01T14:28:23.065044+00:00\",\"purpose\":\"create\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/managementAPIs": "{\"started\":\"2025-05-01T14:28:22.547730+00:00\",\"stopped\":\"2025-05-01T14:28:22.749033+00:00\",\"purpose\":\"create\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/publishedEvents": "{\"started\":\"2025-05-01T14:28:22.547759+00:00\",\"stopped\":\"2025-05-01T14:28:23.389714+00:00\",\"purpose\":\"create\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/securityAPIs": "{\"started\":\"2025-05-01T14:28:22.547738+00:00\",\"stopped\":\"2025-05-01T14:28:22.927905+00:00\",\"purpose\":\"create\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/securitySecretsManagement": "{\"started\":\"2025-05-01T14:28:22.547752+00:00\",\"stopped\":\"2025-05-01T14:28:23.253887+00:00\",\"purpose\":\"create\",\"retries\":1,\"success\":true,\"failure\":false}",
+			"kopf.zalando.org/subscribedEvents": "{\"started\":\"2025-05-01T14:28:22.547768+00:00\",\"purpose\":\"create\",\"retries\":0,\"success\":false,\"failure\":false}",
+			"kopf.zalando.org/summary.status": "{\"started\":\"2025-05-01T14:28:22.710518+00:00\",\"purpose\":\"create\",\"retries\":0,\"success\":false,\"failure\":false}",
+			"meta.helm.sh/release-name": "prodcat",
+			"meta.helm.sh/release-namespace": "components"
+		},
+		"creationTimestamp": "2025-05-01T14:28:21Z",
+		"generation": 10,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "prodcat-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {
+							},
+							"f:meta.helm.sh/release-name": {
+							},
+							"f:meta.helm.sh/release-namespace": {
+							}
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:componentMetadata": {
+							".": {
+							},
+							"f:description": {
+							},
+							"f:functionalBlock": {
+							},
+							"f:id": {
+							},
+							"f:maintainers": {
+							},
+							"f:name": {
+							},
+							"f:owners": {
+							},
+							"f:publicationDate": {
+							},
+							"f:status": {
+							},
+							"f:version": {
+							}
+						},
+						"f:coreFunction": {
+							".": {
+							},
+							"f:dependentAPIs": {
+							},
+							"f:exposedAPIs": {
+							}
+						},
+						"f:eventNotification": {
+							".": {
+							},
+							"f:publishedEvents": {
+							},
+							"f:subscribedEvents": {
+							}
+						},
+						"f:managementFunction": {
+							".": {
+							},
+							"f:exposedAPIs": {
+							}
+						},
+						"f:securityFunction": {
+							".": {
+							},
+							"f:canvasSystemRole": {
+							},
+							"f:exposedAPIs": {
+							}
+						}
+					}
+				},
+				"manager": "helm",
+				"operation": "Update",
+				"time": "2025-05-01T14:28:21Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:status": {
+						"f:coreAPIs": {
+						},
+						"f:managementAPIs": {
+						},
+						"f:securityAPIs": {
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2025-05-01T14:28:23Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							"f:kopf.zalando.org/coreAPIs": {
+							},
+							"f:kopf.zalando.org/coreDependentAPIs": {
+							},
+							"f:kopf.zalando.org/managementAPIs": {
+							},
+							"f:kopf.zalando.org/publishedEvents": {
+							},
+							"f:kopf.zalando.org/securityAPIs": {
+							},
+							"f:kopf.zalando.org/securitySecretsManagement": {
+							},
+							"f:kopf.zalando.org/subscribedEvents": {
+							},
+							"f:kopf.zalando.org/summary.status": {
+							}
+						}
+					},
+					"f:status": {
+						".": {
+						},
+						"f:coreDependentAPIs": {
+						},
+						"f:kopf": {
+							".": {
+							},
+							"f:progress": {
+								".": {
+								},
+								"f:coreAPIs": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:coreDependentAPIs": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:managementAPIs": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:publishedEvents": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:securityAPIs": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:securitySecretsManagement": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:stopped": {
+									},
+									"f:success": {
+									}
+								},
+								"f:subscribedEvents": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:success": {
+									}
+								},
+								"f:summary/status": {
+									".": {
+									},
+									"f:failure": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:success": {
+									}
+								}
+							}
+						},
+						"f:publishedEvents": {
+						},
+						"f:securitySecretsManagement": {
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2025-05-01T14:28:23Z"
+			}
+		],
+		"name": "prodcat-productcatalogmanagement",
+		"namespace": "components",
+		"resourceVersion": "112363820",
+		"uid": "3f3f2c8b-e156-4332-9447-adfee95e41e3"
+	},
+	"spec": {
+		"componentMetadata": {
+			"description": "Simple Product Catalog ODA-Component from Open-API reference implementation.",
+			"functionalBlock": "CoreCommerce",
+			"id": "TMFC001",
+			"maintainers": [
+				{
+					"email": "lester.thomas@vodafone.com",
+					"name": "Lester Thomas"
+				}
+			],
+			"name": "productcatalogmanagement",
+			"owners": [
+				{
+					"email": "lester.thomas@vodafone.com",
+					"name": "Lester Thomas"
+				}
+			],
+			"publicationDate": "2024-09-17T00:00:00.000Z",
+			"status": "specified",
+			"version": "0.0.1"
+		},
+		"coreFunction": {
+			"dependentAPIs": [
+			],
+			"exposedAPIs": [
+				{
+					"apiType": "openapi",
+					"developerUI": "/prodcat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
+					"implementation": "prodcat-prodcatapi",
+					"name": "productcatalogmanagement",
+					"path": "/prodcat-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+					"port": 8080,
+					"specification": [
+						{
+							"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+						}
+					]
+				}
+			]
+		},
+		"eventNotification": {
+			"publishedEvents": [
+			],
+			"subscribedEvents": [
+			]
+		},
+		"managementFunction": {
+			"exposedAPIs": [
+				{
+					"apiType": "prometheus",
+					"implementation": "prodcat-productcatalogmanagement-sm",
+					"name": "metrics",
+					"path": "/prodcat-productcatalogmanagement/metrics",
+					"port": 4000
+				}
+			]
+		},
+		"securityFunction": {
+			"canvasSystemRole": "Admin",
+			"exposedAPIs": [
+				{
+					"apiType": "openapi",
+					"developerUI": "/prodcat-productcatalogmanagement/tmf-api/partyRoleManagement/v4/docs",
+					"implementation": "prodcat-partyroleapi",
+					"name": "partyrole",
+					"path": "/prodcat-productcatalogmanagement/tmf-api/partyRoleManagement/v4",
+					"port": 8080,
+					"specification": [
+						{
+							"url": "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
+						}
+					]
+				}
+			]
+		}
+	},
+	"status": {
+		"coreAPIs": [
+			{
+				"developerUI": "https://components.ihc-dt.cluster-2.de/prodcat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
+				"name": "prodcat-productcatalogmanagement-productcatalogmanagement",
+				"ready": false,
+				"uid": "abb81734-1a7a-489a-9332-7ea8ff23c395",
+				"url": "https://components.ihc-dt.cluster-2.de/prodcat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+			}
+		],
+		"coreDependentAPIs": [
+		],
+		"kopf": {
+			"progress": {
+				"coreAPIs": {
+					"failure": false,
+					"purpose": "create",
+					"retries": 1,
+					"started": "2025-05-01T14:28:22.547705+00:00",
+					"stopped": "2025-05-01T14:28:22.575746+00:00",
+					"success": true
+				},
+				"coreDependentAPIs": {
+					"failure": false,
+					"purpose": "create",
+					"retries": 1,
+					"started": "2025-05-01T14:28:22.547745+00:00",
+					"stopped": "2025-05-01T14:28:23.065044+00:00",
+					"success": true
+				},
+				"managementAPIs": {
+					"failure": false,
+					"purpose": "create",
+					"retries": 1,
+					"started": "2025-05-01T14:28:22.547730+00:00",
+					"stopped": "2025-05-01T14:28:22.749033+00:00",
+					"success": true
+				},
+				"publishedEvents": {
+					"failure": false,
+					"purpose": "create",
+					"retries": 1,
+					"started": "2025-05-01T14:28:22.547759+00:00",
+					"stopped": "2025-05-01T14:28:23.389714+00:00",
+					"success": true
+				},
+				"securityAPIs": {
+					"failure": false,
+					"purpose": "create",
+					"retries": 1,
+					"started": "2025-05-01T14:28:22.547738+00:00",
+					"stopped": "2025-05-01T14:28:22.927905+00:00",
+					"success": true
+				},
+				"securitySecretsManagement": {
+					"failure": false,
+					"purpose": "create",
+					"retries": 1,
+					"started": "2025-05-01T14:28:22.547752+00:00",
+					"stopped": "2025-05-01T14:28:23.253887+00:00",
+					"success": true
+				},
+				"subscribedEvents": {
+					"failure": false,
+					"purpose": "create",
+					"retries": 0,
+					"started": "2025-05-01T14:28:22.547768+00:00",
+					"success": false
+				},
+				"summary/status": {
+					"failure": false,
+					"purpose": "create",
+					"retries": 0,
+					"started": "2025-05-01T14:28:22.710518+00:00",
+					"success": false
+				}
+			}
+		},
+		"managementAPIs": [
+			{
+				"name": "prodcat-productcatalogmanagement-metrics",
+				"ready": false,
+				"uid": "db3cc8c4-4db6-4a0a-9b44-ff4c4315535b",
+				"url": "https://components.ihc-dt.cluster-2.de/prodcat-productcatalogmanagement/metrics"
+			}
+		],
+		"publishedEvents": [
+		],
+		"securityAPIs": [
+			{
+				"developerUI": "https://components.ihc-dt.cluster-2.de/prodcat-productcatalogmanagement/tmf-api/partyRoleManagement/v4/docs",
+				"name": "prodcat-productcatalogmanagement-partyrole",
+				"ready": false,
+				"uid": "a341b455-fdd4-4bc6-850a-bbad03b78444",
+				"url": "https://components.ihc-dt.cluster-2.de/prodcat-productcatalogmanagement/tmf-api/partyRoleManagement/v4"
+			}
+		],
+		"securitySecretsManagement": {
+		}
+	}
+}

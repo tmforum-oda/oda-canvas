@@ -2,13 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: api-operator-istio-configmap
-  labels:
-    {{- include "api-operator-istio.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 data:
   LOGGING: {{ .Values.configmap.loglevel | quote }}
   COMPONENT_NAMESPACE: {{.Values.deployment.monitoredNamespaces}}
-  COMPONENT_NAMESPACES_CLI: {{ include "api-operator-istio.monitoredNamespacesCLIOpts" . }}
+  COMPONENT_NAMESPACES_CLI: {{ include "api-operator-apisix.monitoredNamespacesCLIOpts" . }}
   {{- if .Values.deployment.ingressClass.enabled }}
   INGRESS_CLASS: {{ .Values.deployment.ingressClass.name }}
   {{ end }}

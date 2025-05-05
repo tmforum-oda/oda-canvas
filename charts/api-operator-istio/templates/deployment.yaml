@@ -25,3 +25,8 @@ spec:
         envFrom:
           - configMapRef:
               name: api-operator-istio-configmap
+        command:
+          - "/bin/sh"
+        args: 
+          - "-c"
+          - "kopf run $COMPONENT_NAMESPACES_CLI --verbose /apiOperatorIstio.py"

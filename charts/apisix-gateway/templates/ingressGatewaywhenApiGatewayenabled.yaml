@@ -6,7 +6,7 @@ metadata:
     "helm.sh/hook-weight": "5"
     #"helm.sh/resource-policy": keep
   name: component-gateway
-  namespace: {{ .Values.IstioGatewaymonitoredNamespaces }}
+  #namespace: {{ .Values.IstioGatewaymonitoredNamespaces }}
 spec:
   selector:
     istio: ingressgateway  # using istio default controller

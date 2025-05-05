@@ -1,0 +1,124 @@
+{
+	"kind": "EndpointSlice",
+	"apiVersion": "discovery.k8s.io/v1",
+	"metadata": {
+		"name": "prdcat4-prodcatapi-pzvlx",
+		"generateName": "prdcat4-prodcatapi-",
+		"namespace": "components",
+		"uid": "fdbd0069-4780-4405-86d8-a6b89c544435",
+		"resourceVersion": "115450995",
+		"generation": 3,
+		"creationTimestamp": "2025-05-04T15:11:22Z",
+		"labels": {
+			"app": "prdcat4-productcatalogmanagement",
+			"app.kubernetes.io/managed-by": "Helm",
+			"endpointslice.kubernetes.io/managed-by": "endpointslice-controller.k8s.io",
+			"kubernetes.io/service-name": "prdcat4-prodcatapi",
+			"oda.tmforum.org/componentName": "prdcat4-productcatalogmanagement"
+		},
+		"annotations": {
+			"endpoints.kubernetes.io/last-change-trigger-time": "2025-05-04T15:11:43Z",
+			"kopf.zalando.org/last-handled-configuration": "{\"addressType\":\"IPv4\",\"endpoints\":[{\"addresses\":[\"10.92.0.120\"],\"conditions\":{\"ready\":false,\"serving\":false,\"terminating\":false},\"targetRef\":{\"kind\":\"Pod\",\"namespace\":\"components\",\"name\":\"prdcat4-prodcatapi-87cdf96bc-tzgq4\",\"uid\":\"4854c550-ebb9-4e9b-927d-ab49feaf7427\"},\"nodeName\":\"gke-ihc-dt-default-pool-2655a91f-cdtg\",\"zone\":\"europe-west4-c\"}],\"ports\":[{\"name\":\"http-prdcat4-prodcatapi\",\"protocol\":\"TCP\",\"port\":8080}],\"metadata\":{\"labels\":{\"app\":\"prdcat4-productcatalogmanagement\",\"app.kubernetes.io/managed-by\":\"Helm\",\"endpointslice.kubernetes.io/managed-by\":\"endpointslice-controller.k8s.io\",\"kubernetes.io/service-name\":\"prdcat4-prodcatapi\",\"oda.tmforum.org/componentName\":\"prdcat4-productcatalogmanagement\"}}}\n"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "v1",
+				"kind": "Service",
+				"name": "prdcat4-prodcatapi",
+				"uid": "c76b0317-46ed-464e-b682-c7175588737f",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		],
+		"managedFields": [
+			{
+				"manager": "kopf",
+				"operation": "Update",
+				"apiVersion": "discovery.k8s.io/v1",
+				"time": "2025-05-04T15:11:25Z",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {
+							},
+							"f:kopf.zalando.org/last-handled-configuration": {
+							}
+						}
+					}
+				}
+			},
+			{
+				"manager": "kube-controller-manager",
+				"operation": "Update",
+				"apiVersion": "discovery.k8s.io/v1",
+				"time": "2025-05-04T15:11:43Z",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:addressType": {
+					},
+					"f:endpoints": {
+					},
+					"f:metadata": {
+						"f:annotations": {
+							"f:endpoints.kubernetes.io/last-change-trigger-time": {
+							}
+						},
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:endpointslice.kubernetes.io/managed-by": {
+							},
+							"f:kubernetes.io/service-name": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"c76b0317-46ed-464e-b682-c7175588737f\"}": {
+							}
+						}
+					},
+					"f:ports": {
+					}
+				}
+			}
+		]
+	},
+	"addressType": "IPv4",
+	"endpoints": [
+		{
+			"addresses": [
+				"10.92.0.120"
+			],
+			"conditions": {
+				"ready": true,
+				"serving": true,
+				"terminating": false
+			},
+			"targetRef": {
+				"kind": "Pod",
+				"namespace": "components",
+				"name": "prdcat4-prodcatapi-87cdf96bc-tzgq4",
+				"uid": "4854c550-ebb9-4e9b-927d-ab49feaf7427"
+			},
+			"nodeName": "gke-ihc-dt-default-pool-2655a91f-cdtg",
+			"zone": "europe-west4-c"
+		}
+	],
+	"ports": [
+		{
+			"name": "http-prdcat4-prodcatapi",
+			"protocol": "TCP",
+			"port": 8080
+		}
+	]
+}

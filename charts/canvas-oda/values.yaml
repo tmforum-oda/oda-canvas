@@ -156,7 +156,7 @@ component-operator:
     compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     httpsRedirect: true
     credentialName: istio-ingress-cert    
 
@@ -172,7 +172,7 @@ identityconfig-operator-keycloak:
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
     idlistkeyVersion: 0.7.3
     idlistkeyPrereleaseSuffix: 
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     keycloak: *portKeycloak
     hostName: "*"
     httpsRedirect: true
@@ -372,11 +372,11 @@ api-operator-istio:
   deployment:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
-    apiopVersion: 1.0.0
-    apiopPrereleaseSuffix:  
+    apiopVersion: 1.0.1
+    apiopPrereleaseSuffix:
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     ingressClass:
       enabled: false
       name: nginx
@@ -388,6 +388,8 @@ api-operator-istio:
   configmap:
     loglevel: '20'
     # publicHostname: 'components.example.com'
+    componentGateway: 'canvas/component-gateway'
+
 
 # -----------------------------------------------------------------------------
 # Kong operator and sub-chart parameters
@@ -397,6 +399,17 @@ kong-gateway-install:
   enabled: false  # Enable kong-gateway if needed
 kongnamespace: kong
 api-operator-kong:
+    deployment:
+      monitoredNamespaces: 'components,odacompns-*'     
+      ingressClass:
+        enabled: false
+        name: nginx
+      dataDog:
+        enabled: true
+    configmap:
+      loglevel: '20'
+      # publicHostname: 'components.example.com'
+      componentGateway: 'canvas/component-gateway'
     kong:
       postgresql:
         nameOverride: "postgresql-kong"
@@ -439,11 +452,10 @@ api-operator-kong:
     IstioGatewayServerhostName: "*"
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
-      repository: tmforumodacanvas/api-operator-kong:1.0.0
-      pullPolicy: IfNotPresent
       kongopImage: tmforumodacanvas/api-operator-kong
-      kongopVersion: 1.0.0
+      kongopVersion: 1.0.1
       kongopPrereleaseSuffix:
+      pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
 
 
@@ -476,12 +488,23 @@ api-operator-apisix:
     apisixoperatorreplicaCount: 1
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
-    repository: tmforumodacanvas/api-operator-apisix:1.0.0
-    pullPolicy: IfNotPresent
     apisixopImage: tmforumodacanvas/api-operator-apisix
-    apisixopVersion: 1.0.0
-    apisixopPrereleaseSuffix:  
+    apisixopVersion: 1.0.1
+    apisixopPrereleaseSuffix:
+    pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas
   initContainerImage: busybox:1.28
+  #Adding Istio Configmap values.
+  deployment:
+    monitoredNamespaces: 'components,odacompns-*'     
+    ingressClass:
+      enabled: false
+      name: nginx
+    dataDog:
+      enabled: true
+  configmap:
+    loglevel: '20'
+    # publicHostname: 'components.example.com'
+    componentGateway: 'canvas/component-gateway'
