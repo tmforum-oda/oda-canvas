@@ -5,7 +5,9 @@ deployment:
   apiopPrereleaseSuffix:
   apiopImagePullPolicy: IfNotPresent
   istioGateway: true
-  monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
+  monitoredNamespaces:
+    - components
+    - odacompns-*
   ingressClass:
     enabled: false
     name: nginx
