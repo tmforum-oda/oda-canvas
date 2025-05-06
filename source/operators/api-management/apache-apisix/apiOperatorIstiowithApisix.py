@@ -125,6 +125,7 @@ def safe_get(default_value, dictionary, *paths):
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
+@kopf.on.resume(GROUP, VERSION, APIS_PLURAL, retries=5)
 def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
     """Handler function for new or updated APIs.
 

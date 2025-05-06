@@ -50,6 +50,7 @@ plural = "httproutes"  # The plural name of the kong route CRD - HTTPRoute resou
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
+@kopf.on.resume(GROUP, VERSION, APIS_PLURAL, retries=5)
 def manage_api_lifecycle(spec, name, namespace, status, meta, logger, **kwargs):
     """
     Handles the lifecycle events (creation and updates) for API resources.

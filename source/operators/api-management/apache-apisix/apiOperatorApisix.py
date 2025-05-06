@@ -51,6 +51,7 @@ def configure(settings: kopf.OperatorSettings, **_):
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
+@kopf.on.resume(GROUP, VERSION, APIS_PLURAL, retries=5)
 def manage_api_lifecycle(spec, name, namespace, status, meta, logger, **kwargs):
     """
     Manages the lifecycle of an API by creating or updating the ApisixRoute, managing plugins, and handling error logging.

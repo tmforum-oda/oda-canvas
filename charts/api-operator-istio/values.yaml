@@ -15,7 +15,7 @@ deployment:
     port: 8080
   hostName: "*"
   httpsRedirect: true
-  credentialName: istio-ingress-cert    
+  credentialName: istio-ingress-cert
 configmap:
   loglevel: '20'
   # publicHostname: 'components.example.com'
