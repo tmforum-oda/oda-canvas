@@ -30,13 +30,13 @@ jobs:
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.canvas-info-service.serviceInventoryAPI.image' charts/canvas-oda/values.yaml
+          cmd: yq '.canvas-info-service.image' charts/canvas-oda/values.yaml
           
       - name: read versionnumber of tmf638-service-inventory-api from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.canvas-info-service.serviceInventoryAPI.version, .canvas-info-service.serviceInventoryAPI.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.canvas-info-service.version, .canvas-info-service.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
           
       - name: Check Version
         id: check-tag
