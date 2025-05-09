@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-info-service
+  labels:
+    app: {{ .Release.Name }}-info-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-info-service
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-info-service
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-info-service
+        image: {{ include "canvas-info-service.dockerimage" . }}
+        imagePullPolicy: {{ include "canvas-info-service.imagePullPolicy" . }}
+        env:
+        - name: SERVER_URL
+          value: {{ .Values.serverUrl }}
+        ports:
+        - containerPort: 8638
