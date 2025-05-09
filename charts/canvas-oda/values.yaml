@@ -513,7 +513,7 @@ canvas-info-service:
     image: mongo:6.0
   persistence:
     size: 1Gi
-	accessModes: ReadWriteOnce
+    accessModes: ReadWriteOnce
     storageClassName:
 
 
