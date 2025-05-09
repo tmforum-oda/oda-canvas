@@ -9,5 +9,5 @@ mongodb:
   image: mongo:6.0
 persistence:
   size: 1Gi
-  storageClassName:
   accessModes: ReadWriteOnce
+  storageClassName:

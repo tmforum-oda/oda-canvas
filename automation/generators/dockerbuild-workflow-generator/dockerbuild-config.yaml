@@ -106,9 +106,9 @@ tmf638-service-inventory-api:
   fileName: tmf638-service-inventory-api
   
   valuesYamlFile: charts/canvas-oda/values.yaml
-  valuesPathImage: .dependentapi-simple-operator.serviceInventoryAPI.image
-  valuesPathVersion: .dependentapi-simple-operator.serviceInventoryAPI.version
-  valuesPathPrereleaseSuffix: .dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix
+  valuesPathImage: .canvas-info-service.serviceInventoryAPI.image
+  valuesPathVersion: .canvas-info-service.serviceInventoryAPI.version
+  valuesPathPrereleaseSuffix: .canvas-info-service.serviceInventoryAPI.prereleaseSuffix
   
   paths:
     - source/tmf-services/TMF638_Service_Inventory/**/*
