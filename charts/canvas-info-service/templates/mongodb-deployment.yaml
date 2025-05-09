@@ -1,4 +1,3 @@
-{{ if .Values.serviceInventoryAPI.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,10 +16,10 @@ spec:
     spec:
       containers:
       - name: {{.Release.Name}}-svcinv-mongodb
-        image: {{ .Values.serviceInventoryAPI.mongodb.image }}
+        image: {{ .Values.mongodb.image }}
         ports:
         - name: svcinv-mongodb
-          containerPort: {{.Values.serviceInventoryAPI.mongodb.port}}
+          containerPort: {{.Values.mongodb.port}}
         volumeMounts:
         - name: {{.Release.Name}}-svcinv-mongodb-pv-storage
           mountPath: "/data/db"
@@ -28,4 +27,3 @@ spec:
       - name: {{.Release.Name}}-svcinv-mongodb-pv-storage
         persistentVolumeClaim:
           claimName: {{.Release.Name}}-svcinv-mongodb-pv-claim
-{{- end }}
