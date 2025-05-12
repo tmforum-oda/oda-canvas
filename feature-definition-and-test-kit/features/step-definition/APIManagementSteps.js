@@ -27,9 +27,11 @@ Then('I should see the {string} ExposedAPI resource on the {string} component', 
   var startTime = performance.now()
   var endTime
 
+  let namespace = global.namespace || NAMESPACE
+  
   // wait until the ExposedAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, namespace)
     endTime = performance.now()
 
     // assert that the ExposedAPI resource was found within the timeout

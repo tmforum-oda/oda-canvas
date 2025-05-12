@@ -121,7 +121,7 @@ const packageManagerUtils = {
     }
     else {
       // install the helm template command to generate the component envelope
-      await executeHelmCommand('helm install ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace);   
+      await executeHelmCommand('helm install ' + releaseName + ' ' + testDataFolder + componentPackage + ' -n ' + namespace + " --create-namespace");
     } 
   },
 

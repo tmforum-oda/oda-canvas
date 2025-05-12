@@ -20,6 +20,7 @@ const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeout
 const CLEANUP_PACKAGE = false // set to true to uninstall the package after each Scenario
 const DEBUG_LOGS = true // set to true to log the controller logs after each failed Scenario
 global.currentReleaseName = null;
+global.namespace = null;
 
 setDefaultTimeout( 20 * 1000);
 
@@ -89,6 +90,19 @@ When('I install the {string} package as release {string}', async function (compo
 });
 
 /**
+ * Install a specified package using the packageManagerUtils.installPackage function. Use the specified release name and namespace.
+ *
+ * @param {string} componentPackage - The name of the package to install.
+ * @param {string} releaseName - The name of the release name.
+ * @param {string} namespace - The name of the release name.
+ */
+When('I install the {string} package as release {string} into namespace {string}', async function (componentPackage, releaseName, namespace) {
+  global.currentReleaseName = releaseName
+  global.namespace = namespace
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, global.namespace)
+});
+
+/**
  * Add and update a package repository.
  */
 Given('the repository {string} with URL {string} is added and updated', async function (repoName, repoURL) {
@@ -148,9 +162,11 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
   var startTime = performance.now()
   var endTime
 
+  let namespace = global.namespace || NAMESPACE;
+  
   // wait until the component resource is found or the timeout is reached
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResource(  global.currentReleaseName + '-' + componentName, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResource(  global.currentReleaseName + '-' + componentName, namespace)
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
