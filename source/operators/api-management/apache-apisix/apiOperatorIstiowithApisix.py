@@ -184,7 +184,7 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
                 )
                 # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
                 if "apitype" in spec.keys():
-                    if spec["apitype"] == "prometheus":
+                    if spec["apiType"] == "prometheus" or spec["apiType"] == "openmetrics":
                         # create a ServiceMonitor resource
                         logWrapper(
                             logging.INFO,
@@ -214,7 +214,7 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
     )
     # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
     if "apitype" in spec.keys():
-        if spec["apitype"] == "prometheus":
+        if spec["apiType"] == "prometheus" or spec["apiType"] == "openmetrics":
             # create a ServiceMonitor resource
             logWrapper(
                 logging.INFO,
