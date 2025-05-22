@@ -1978,7 +1978,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
@@ -2127,7 +2128,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
@@ -2160,7 +2162,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         specification:  
                           type: array
                           items:
@@ -2203,7 +2206,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         specification:  
                           type: array
                           items:
@@ -2265,7 +2269,9 @@ spec:
                           enum:
                           - openapi
                           - prometheus
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          - openmetrics
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and Prometheus/OpenMetrics (metrics) and MCP APIs are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2413,7 +2419,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2489,7 +2496,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2637,7 +2645,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
