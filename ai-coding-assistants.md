@@ -3,7 +3,7 @@
 ## Overview
 
 
-This document provides guidance on using osing assistants effectively within the ODA Canvas project, with a focus on enhancing developer productivity, encouraging consistent practices, and improving quality. 
+This document provides guidance on using assistants effectively within the ODA Canvas project, with a focus on enhancing developer productivity, encouraging consistent practices, and improving quality. 
 There are sections for different popular coding assistants (many initially populated with TBD - feel free to add to these sections if you are using that particular AI Coding Assistant).
 
 
