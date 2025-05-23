@@ -39,7 +39,7 @@ spec:
                 description: >
                   url to the specification of the API, if required. e.g. url to the swagger file for Open API.
                   This is an array of strings to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
-                minItems: 1                
+                minItems: 1
               apiType:
                 type: string
                 enum:
@@ -50,10 +50,10 @@ spec:
                 description: key value pairs for filtering the dependent API search, e.g. 'releaseName:demo-b'.
                 x-kubernetes-preserve-unknown-fields: true
                 properties:
-                  zone: 
+                  zone:
                     type: string
                     description: zone(cluster-/canvas-/gateway-id) or 'SAME' for same as component
-                  releaseName: 
+                  releaseName:
                     type: string
                     description: release name of the component
                   namespace:
@@ -80,7 +80,7 @@ spec:
       jsonPath: .status.implementation.ready
     - name: Age
       jsonPath: .metadata.creationTimestamp
-      type: date      
+      type: date
       description: The age of this resource
     - name: svcInvID
       type: string
@@ -108,7 +108,7 @@ spec:
               name:
                 type: string
                 description: Name of the API that this component is dependent on
-              specification:  
+              specification:
                 type: array
                 items:
                   type: object
@@ -133,10 +133,10 @@ spec:
                 description: key value pairs for filtering the dependent API search, e.g. 'releaseName:demo-b'.
                 x-kubernetes-preserve-unknown-fields: true
                 properties:
-                  zone: 
+                  zone:
                     type: string
                     description: zone(cluster-/canvas-/gateway-id) or 'SAME' for same as component
-                  releaseName: 
+                  releaseName:
                     type: string
                     description: release name of the component
                   namespace:
@@ -163,7 +163,7 @@ spec:
       jsonPath: .status.implementation.ready
     - name: Age
       jsonPath: .metadata.creationTimestamp
-      type: date      
+      type: date
       description: The age of this resource
     - name: svcInvID
       type: string
@@ -191,7 +191,7 @@ spec:
               name:
                 type: string
                 description: Name of the API that this component is dependent on
-              specification:  
+              specification:
                 type: array
                 items:
                   type: object
@@ -216,10 +216,10 @@ spec:
                 description: key value pairs for filtering the dependent API search, e.g. 'releaseName:demo-b'.
                 x-kubernetes-preserve-unknown-fields: true
                 properties:
-                  zone: 
+                  zone:
                     type: string
                     description: zone(cluster-/canvas-/gateway-id) or 'SAME' for same as component
-                  releaseName: 
+                  releaseName:
                     type: string
                     description: release name of the component
                   namespace:
@@ -239,6 +239,8 @@ spec:
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
+    subresources:
+      status: {}
     additionalPrinterColumns:
     - name: ready
       type: string
@@ -246,7 +248,7 @@ spec:
       jsonPath: .status.implementation.ready
     - name: Age
       jsonPath: .metadata.creationTimestamp
-      type: date      
+      type: date
       description: The age of this resource
     - name: svcInvID
       type: string

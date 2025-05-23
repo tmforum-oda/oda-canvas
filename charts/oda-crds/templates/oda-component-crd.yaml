@@ -51,10 +51,10 @@ spec:
               description:
                 type: string
                 description: This is a short description of the component's purpose.
-              functionalBlock:   
+              functionalBlock:
                 type: string
                 description: This is the functional block of the component with the Open Digital Architecture.
-                example: CoreCommerce 
+                example: CoreCommerce
               publicationDate:
                 type: string
                 format: date-time
@@ -380,10 +380,10 @@ spec:
               description:
                 type: string
                 description: This is a short description of the component's purpose.
-              functionalBlock:   
+              functionalBlock:
                 type: string
                 description: This is the functional block of the component with the Open Digital Architecture.
-                example: CoreCommerce 
+                example: CoreCommerce
               publicationDate:
                 type: string
                 format: date-time
@@ -436,7 +436,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: string
@@ -1067,10 +1067,10 @@ spec:
                   description:
                     type: string
                     description: This is a short description of the component's purpose.
-                  functionalBlock:   
+                  functionalBlock:
                     type: string
                     description: This is the functional block of the component with the Open Digital Architecture.
-                    example: CoreCommerce 
+                    example: CoreCommerce
                   publicationDate:
                     type: string
                     format: date-time
@@ -1090,9 +1090,9 @@ spec:
                       type: string
                   functionalFramework:
                     type: array
-                    description: This is the functional framework of the component with the Open Digital Architecture.   
+                    description: This is the functional framework of the component with the Open Digital Architecture.
                     items:
-                      type: string 
+                      type: string
                   maintainers:
                     type: array
                     description: Maintainers is an optional list of maintainers of
@@ -1137,11 +1137,11 @@ spec:
                       properties:
                         id:
                           type: string
-                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
+                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.
                         name:
                           type: string
                           description: Name of the API
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -1289,7 +1289,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -1343,7 +1343,7 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -1386,7 +1386,7 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -1427,7 +1427,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -1450,7 +1450,7 @@ spec:
                           description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
                         apiSDO:
                           type: string
-                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         gatewayConfiguration:
                           type: object
                           description: Configuration settings for API Gateway
@@ -1576,7 +1576,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -1598,7 +1598,7 @@ spec:
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         apiSDO:
                           type: string
-                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         resources:
                           type: array
                           items:
@@ -1652,7 +1652,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -1674,7 +1674,7 @@ spec:
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         apiSDO:
                           type: string
-                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         gatewayConfiguration:
                           type: object
                           description: Configuration settings for API Gateway
@@ -1800,7 +1800,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -1822,7 +1822,7 @@ spec:
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         apiSDO:
                           type: string
-                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         resources:
                           type: array
                           items:
@@ -1839,7 +1839,7 @@ spec:
                       It must exist in the roles exposed by the partyRole API.
                     type: string
                   componentRole:
-                    description: This allows components to declare statically defined roles that should be configured in Identity Management solution. 
+                    description: This allows components to declare statically defined roles that should be configured in Identity Management solution.
                     type: array
                     items:
                       type: object
@@ -1847,7 +1847,7 @@ spec:
                         name:
                           type: string
                         description:
-                          type: string   
+                          type: string
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
@@ -1885,10 +1885,10 @@ spec:
                   description:
                     type: string
                     description: This is a short description of the component's purpose.
-                  functionalBlock:   
+                  functionalBlock:
                     type: string
                     description: This is the functional block of the component with the Open Digital Architecture.
-                    example: CoreCommerce 
+                    example: CoreCommerce
                   publicationDate:
                     type: string
                     format: date-time
@@ -1908,9 +1908,9 @@ spec:
                       type: string
                   functionalFramework:
                     type: array
-                    description: This is the functional framework of the component with the Open Digital Architecture.   
+                    description: This is the functional framework of the component with the Open Digital Architecture.
                     items:
-                      type: string 
+                      type: string
                   maintainers:
                     type: array
                     description: Maintainers is an optional list of maintainers of
@@ -1955,11 +1955,11 @@ spec:
                       properties:
                         id:
                           type: string
-                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
+                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.
                         name:
                           type: string
                           description: Name of the API
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -2107,7 +2107,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -2161,7 +2161,7 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -2204,7 +2204,7 @@ spec:
                           enum:
                           - openapi
                           description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -2245,7 +2245,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -2268,7 +2268,7 @@ spec:
                           description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
                         apiSDO:
                           type: string
-                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         gatewayConfiguration:
                           type: object
                           description: Configuration settings for API Gateway
@@ -2394,7 +2394,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -2416,7 +2416,7 @@ spec:
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         apiSDO:
                           type: string
-                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         resources:
                           type: array
                           items:
@@ -2470,7 +2470,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -2492,7 +2492,7 @@ spec:
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         apiSDO:
                           type: string
-                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         gatewayConfiguration:
                           type: object
                           description: Configuration settings for API Gateway
@@ -2618,7 +2618,7 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        specification:  
+                        specification:
                           type: array
                           items:
                             type: object
@@ -2640,7 +2640,7 @@ spec:
                           description: The type of API specification. Currently only OpenAPI (swagger) is supported.
                         apiSDO:
                           type: string
-                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
+                          description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
                         resources:
                           type: array
                           items:
@@ -2657,7 +2657,7 @@ spec:
                       It must exist in the roles exposed by the partyRole API.
                     type: string
                   componentRole:
-                    description: This allows components to declare statically defined roles that should be configured in Identity Management solution. 
+                    description: This allows components to declare statically defined roles that should be configured in Identity Management solution.
                     type: array
                     items:
                       type: object
@@ -2665,10 +2665,12 @@ spec:
                         name:
                           type: string
                         description:
-                          type: string   
+                          type: string
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true
+    subresources:
+      status: {}
     additionalPrinterColumns:
     - name: deployment_status
       type: string
