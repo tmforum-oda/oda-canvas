@@ -199,20 +199,14 @@ class KubernetesResourceService {
                     '@type': 'Characteristic',
                     name: 'port',
                     value: spec.port?.toString()
-                },
-                {
+                },                {
                     '@type': 'Characteristic',
                     name: 'implementation',
                     value: spec.implementation
-                },
-                {
-                    '@type': 'Characteristic',
-                    name: 'oasDocument',
-                    value: spec.specification?.url
                 },                {
                     '@type': 'Characteristic',
                     name: 'apiDocs',
-                    value: status.developerUI
+                    value: status.apiStatus?.developerUI
                 }
             ],
             resourceStatus: this.mapExposedAPIStatusToResourceStatus(status),
