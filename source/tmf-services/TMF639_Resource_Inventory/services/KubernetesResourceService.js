@@ -127,26 +127,30 @@ class KubernetesResourceService {
             '@baseType': 'ODAComponent',
             name: metadata.name,
             description: spec.description || `ODA Component: ${metadata.name}`,
-            category: 'ODAComponent',
-            resourceSpecification: {
+            category: 'ODAComponent',            resourceSpecification: {
+                '@type': 'ResourceSpecificationRef',
                 id: spec.type || 'component',
                 name: spec.type || 'ODA Component',
                 version: spec.version
             },
             resourceCharacteristic: [
                 {
+                    '@type': 'Characteristic',
                     name: 'namespace',
                     value: metadata.namespace
                 },
                 {
+                    '@type': 'Characteristic',
                     name: 'componentType', 
                     value: spec.type
                 },
                 {
+                    '@type': 'Characteristic',
                     name: 'version',
                     value: spec.version
                 },
                 {
+                    '@type': 'Characteristic',
                     name: 'status',
                     value: status.summary?.status || 'Unknown'
                 }
@@ -179,30 +183,35 @@ class KubernetesResourceService {
             '@baseType': 'ExposedAPI',
             name: metadata.name,
             description: `Exposed API: ${spec.name || metadata.name}`,
-            category: 'ExposedAPI',
-            resourceSpecification: {
+            category: 'ExposedAPI',            resourceSpecification: {
+                '@type': 'ResourceSpecificationRef',
                 id: 'exposedapi',
                 name: 'ODA Exposed API',
                 version: spec.specification?.version
             },
             resourceCharacteristic: [
                 {
+                    '@type': 'Characteristic',
                     name: 'namespace',
                     value: metadata.namespace
                 },
                 {
+                    '@type': 'Characteristic',
                     name: 'apiName',
                     value: spec.name
                 },
                 {
+                    '@type': 'Characteristic',
                     name: 'path',
                     value: spec.path
                 },
                 {
+                    '@type': 'Characteristic',
                     name: 'port',
                     value: spec.port?.toString()
                 },
                 {
+                    '@type': 'Characteristic',
                     name: 'implementation',
                     value: spec.implementation
                 }
