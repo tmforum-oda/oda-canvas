@@ -20,7 +20,7 @@ info:
     - Manage notification of events
   version: 5.0.0
 servers:
-  - url: 'http://localhost:8639'
+  - url: 'http://localhost:8639/tmf-api/resourceInventoryManagement/v5'
 tags:
   - name: resource
     description: Operations for Resource Resource
@@ -3501,7 +3501,7 @@ components:
               '@type': PartyRef
               '@referredType': Individual
         note:
-          - text: router installed at the user's premise
+          - text: something about this resource
             '@type': Note
           - text: Port 1 configured
             author: Maria Doe

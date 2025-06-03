@@ -30,7 +30,7 @@
   "injectListenerPostings": true,
 
   "notExternal": true,
-  "servers" : [ { "url": "http://localhost:8639" } ], 
+  "servers" : [ { "url": "http://localhost:8639/tmf-api/resourceInventoryManagement/v5" } ], 
   "SCHEMA_URL" : "http://localhost:8080/openapi",
 
 

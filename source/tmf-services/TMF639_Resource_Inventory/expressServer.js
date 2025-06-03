@@ -41,7 +41,8 @@ class ExpressServer {
   setupMiddleware() {
 
     const basePath = getBasePath().replace(/\/$/,'')
-
+    logger.info(`TMF639 Resource Inventory basePath: ${basePath}`)
+    
     // this.setupAllowedMedia();
     this.app.use(cors())
     // this.app.use(bodyParser.json({ limit: '14MB' }))
@@ -101,7 +102,6 @@ class ExpressServer {
 }
 
   launch() {
-    
     try {
       
       const SOURCE_DATE_EPOCH = process.env.SOURCE_DATE_EPOCH
@@ -122,20 +122,27 @@ class ExpressServer {
         });
           logger.info('Loading OpenApiValidator with apiSpec:', this.openApiPath);
         
-        this.app.use( OpenApiValidator.middleware({
-            apiSpec: this.openApiPath,
-            validateRequests: true, // (default)
-            validateResponses: true, // false by default
-            unknownFormats: ['base64']
-        }));
-        
-        // Add explicit routes after OpenApiValidator
-        const controllers = require('./controllers');
-        this.app.get('/resource', controllers.ResourceController.listResource);
-        this.app.get('/resource/:id', controllers.ResourceController.retrieveResource);
-        
-      // this.app.use(validator)
-
+      // Create a router for TMF639 basepath
+      const tmfRouter = express.Router();
+      // OpenAPI Validator and controllers mounted on the router
+      tmfRouter.use(OpenApiValidator.middleware({
+        apiSpec: this.openApiPath,
+        validateRequests: true,
+        validateResponses: true,
+        unknownFormats: ['base64']
+      }));
+      const controllers = require('./controllers');
+      tmfRouter.get('/resource', controllers.ResourceController.listResource);
+      tmfRouter.get('/resource/:id', controllers.ResourceController.retrieveResource);
+      // Error handler for router
+      tmfRouter.use((err, req, res, next) => {
+        res.status(err.status || 500).json({
+          message: err.message || err,
+          errors: err.errors || '',
+        });
+      });
+      // Mount the router at the TMF639 basepath
+      this.app.use('/tmf-api/resourceInventoryManagement/v5', tmfRouter);
       logger.info(`TMF639 Resource Inventory validator installed`)
   
       this.app.use((err, req, res, next) => {
