@@ -107,15 +107,41 @@ class KubernetesResourceService {
             if (error.response && error.response.statusCode === 404) {
                 return null;
             }
-            logger.error(`Error fetching ExposedAPI ${name}:`, error);
-            throw error;
+            logger.error(`Error fetching ExposedAPI ${name}:`, error);            throw error;
         }
+    }
+
+    /**
+     * Find ExposedAPIs that belong to a specific Component based on oda.tmforum.org/componentName label
+     */
+    findRelatedExposedAPIs(componentName, exposedAPIs) {
+        return exposedAPIs.filter(api => {
+            const labels = api.metadata?.labels || {};
+            return labels['oda.tmforum.org/componentName'] === componentName;
+        });
+    }
+
+    /**
+     * Find Component that owns a specific ExposedAPI based on oda.tmforum.org/componentName label
+     */
+    findRelatedComponent(exposedAPI, components) {
+        const labels = exposedAPI.metadata?.labels || {};
+        const componentName = labels['oda.tmforum.org/componentName'];
+        
+        if (!componentName) {
+            return null;
+        }
+        
+        return components.find(component => component.metadata?.name === componentName);
     }    /**
      * Convert Kubernetes Component to TMF639 Resource format
-     */    convertComponentToResource(k8sComponent) {
+     */
+    convertComponentToResource(k8sComponent, relatedExposedAPIs = []) {
         const metadata = k8sComponent.metadata || {};
         const spec = k8sComponent.spec || {};
-        const status = k8sComponent.status || {};        // Build base characteristics
+        const status = k8sComponent.status || {};
+
+        // Build base characteristics
         const characteristics = [
             {
                 '@type': 'Characteristic',
@@ -125,9 +151,11 @@ class KubernetesResourceService {
             {
                 '@type': 'Characteristic',
                 name: 'deploymentStatus',
-                value: status['summary/status'].deployment_status || status.summary?.status || 'Unknown'
+                value: status.deployment_status || status.summary?.status || 'Unknown'
             }
-        ];// Add all properties from spec.componentMetadata as characteristics
+        ];
+
+        // Add all properties from spec.componentMetadata as characteristics
         if (spec.componentMetadata && typeof spec.componentMetadata === 'object') {
             Object.entries(spec.componentMetadata).forEach(([key, value]) => {
                 let characteristicValue;
@@ -149,7 +177,16 @@ class KubernetesResourceService {
                     value: characteristicValue
                 });
             });
-        }
+        }        // Build related resources - ExposedAPIs that belong to this Component
+        const relatedResource = relatedExposedAPIs.map(api => ({
+            '@type': 'ResourceRef',
+            id: api.metadata.name,
+            href: `/tmf-api/resourceInventoryManagement/v5/resource/${api.metadata.name}`,
+            name: api.metadata.name,
+            '@referredType': 'LogicalResource',
+            category: 'API',
+            relationshipType: 'exposes'
+        }));
 
         return {
             id: metadata.name,
@@ -157,7 +194,9 @@ class KubernetesResourceService {
             '@type': 'LogicalResource',
             '@baseType': 'Resource',
             name: metadata.name,
-            description: spec.description || `ODA Component: ${metadata.name}`,            category: 'ODAComponent',            resourceSpecification: {
+            description: spec.description || `ODA Component: ${metadata.name}`,
+            category: 'ODAComponent',
+            resourceSpecification: {
                 '@type': 'ResourceSpecificationRef',
                 id: 'ODAComponent',
                 name: spec.type || 'ODA Component',
@@ -173,13 +212,13 @@ class KubernetesResourceService {
                 id: metadata.namespace,
                 name: metadata.namespace,
                 '@type': 'Namespace'
-            }]
+            }],
+            relatedResource: relatedResource
         };
-    }
-
-    /**
+    }    /**
      * Convert Kubernetes ExposedAPI to TMF639 Resource format
-     */    convertExposedAPIToResource(k8sExposedAPI) {
+     */
+    convertExposedAPIToResource(k8sExposedAPI, relatedComponent = null) {
         const metadata = k8sExposedAPI.metadata || {};
         const spec = k8sExposedAPI.spec || {};
         const status = k8sExposedAPI.status || {};
@@ -227,14 +266,29 @@ class KubernetesResourceService {
             '@type': 'Characteristic',
             name: 'apiDocs',
             value: status.apiStatus?.developerUI
-        });
+        });        // Build related resources - Component that owns this ExposedAPI
+        const relatedResource = [];
+        if (relatedComponent) {
+            relatedResource.push({
+                '@type': 'ResourceRef',
+                id: relatedComponent.metadata.name,
+                href: `/tmf-api/resourceInventoryManagement/v5/resource/${relatedComponent.metadata.name}`,
+                name: relatedComponent.metadata.name,
+                '@referredType': 'LogicalResource',
+                category: 'ODAComponent',
+                relationshipType: 'exposedBy'
+            });
+        }
 
         return {
             id: metadata.name,
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${metadata.name}`,
             '@type': 'LogicalResource',
-            '@baseType': 'Resource',            name: metadata.name,
-            description: `Exposed API: ${spec.name || metadata.name}`,            category: 'API',            resourceSpecification: {
+            '@baseType': 'Resource',
+            name: metadata.name,
+            description: `Exposed API: ${spec.name || metadata.name}`,
+            category: 'API',
+            resourceSpecification: {
                 '@type': 'ResourceSpecificationRef',
                 id: 'API',
                 name: 'API',
@@ -250,7 +304,8 @@ class KubernetesResourceService {
                 id: metadata.namespace,
                 name: metadata.namespace,
                 '@type': 'Namespace'
-            }]
+            }],
+            relatedResource: relatedResource
         };
     }
 
@@ -292,9 +347,7 @@ class KubernetesResourceService {
             return 'enable';
         }
         return 'disable';
-    }
-
-    /**
+    }    /**
      * List all resources (Components and ExposedAPIs) as TMF639 Resources
      */
     async listResources(namespace = config.KUBERNETES_NAMESPACE) {
@@ -309,11 +362,17 @@ class KubernetesResourceService {
             const exposedApis = await this.getExposedAPIs(namespace);
             console.log(`KubernetesResourceService: Found ${exposedApis.length} ExposedAPIs`);
 
-            // Convert Components to TMF639 Resources
-            const componentResources = components.map(component => this.convertComponentToResource(component));
+            // Convert Components to TMF639 Resources with related ExposedAPIs
+            const componentResources = components.map(component => {
+                const relatedExposedAPIs = this.findRelatedExposedAPIs(component.metadata.name, exposedApis);
+                return this.convertComponentToResource(component, relatedExposedAPIs);
+            });
             
-            // Convert ExposedAPIs to TMF639 Resources
-            const exposedApiResources = exposedApis.map(api => this.convertExposedAPIToResource(api));
+            // Convert ExposedAPIs to TMF639 Resources with related Component
+            const exposedApiResources = exposedApis.map(api => {
+                const relatedComponent = this.findRelatedComponent(api, components);
+                return this.convertExposedAPIToResource(api, relatedComponent);
+            });
 
             // Combine all resources
             const allResources = [...componentResources, ...exposedApiResources];
@@ -328,9 +387,7 @@ class KubernetesResourceService {
             }
             throw error;
         }
-    }
-
-    /**
+    }    /**
      * Get a specific resource by ID
      */
     async getResourceById(id, namespace = config.KUBERNETES_NAMESPACE) {
@@ -341,14 +398,20 @@ class KubernetesResourceService {
             const component = await this.getComponent(id, namespace);
             if (component) {
                 console.log(`KubernetesResourceService: Found Component: ${id}`);
-                return this.convertComponentToResource(component);
+                // Get related ExposedAPIs for this Component
+                const exposedApis = await this.getExposedAPIs(namespace);
+                const relatedExposedAPIs = this.findRelatedExposedAPIs(component.metadata.name, exposedApis);
+                return this.convertComponentToResource(component, relatedExposedAPIs);
             }
 
             // Try to find as ExposedAPI
             const exposedApi = await this.getExposedAPI(id, namespace);
             if (exposedApi) {
                 console.log(`KubernetesResourceService: Found ExposedAPI: ${id}`);
-                return this.convertExposedAPIToResource(exposedApi);
+                // Get related Component for this ExposedAPI
+                const components = await this.getComponents(namespace);
+                const relatedComponent = this.findRelatedComponent(exposedApi, components);
+                return this.convertExposedAPIToResource(exposedApi, relatedComponent);
             }
 
             console.log(`KubernetesResourceService: Resource not found: ${id}`);
