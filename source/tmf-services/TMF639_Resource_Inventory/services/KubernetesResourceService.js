@@ -35,7 +35,7 @@ class KubernetesResourceService {
         try {
             const response = await this.customObjectsApi.listNamespacedCustomObject(
                 'oda.tmforum.org',     // group
-                'v1beta3',             // version  
+                'v1',             // version  
                 namespace,             // namespace
                 'components'           // plural
             );
@@ -54,7 +54,7 @@ class KubernetesResourceService {
         try {
             const response = await this.customObjectsApi.getNamespacedCustomObject(
                 'oda.tmforum.org',     // group
-                'v1beta3',             // version
+                'v1',             // version
                 namespace,             // namespace
                 'components',          // plural
                 name                   // name
@@ -77,7 +77,7 @@ class KubernetesResourceService {
         try {
             const response = await this.customObjectsApi.listNamespacedCustomObject(
                 'oda.tmforum.org',     // group
-                'v1beta3',             // version
+                'v1',             // version
                 namespace,             // namespace
                 'exposedapis'          // plural
             );
@@ -96,7 +96,7 @@ class KubernetesResourceService {
         try {
             const response = await this.customObjectsApi.getNamespacedCustomObject(
                 'oda.tmforum.org',     // group
-                'v1beta3',             // version
+                'v1',             // version
                 namespace,             // namespace
                 'exposedapis',         // plural
                 name                   // name
@@ -169,7 +169,54 @@ class KubernetesResourceService {
      */    convertExposedAPIToResource(k8sExposedAPI) {
         const metadata = k8sExposedAPI.metadata || {};
         const spec = k8sExposedAPI.spec || {};
-        const status = k8sExposedAPI.status || {};        return {
+        const status = k8sExposedAPI.status || {};
+
+        // Build base characteristics
+        const characteristics = [
+            {
+                '@type': 'Characteristic',
+                name: 'namespace',
+                value: metadata.namespace
+            },
+            {
+                '@type': 'Characteristic',
+                name: 'apiName',
+                value: spec.name
+            },
+            {
+                '@type': 'Characteristic',
+                name: 'path',
+                value: spec.path
+            },
+            {
+                '@type': 'Characteristic',
+                name: 'port',
+                value: spec.port?.toString()
+            },
+            {
+                '@type': 'Characteristic',
+                name: 'implementation',
+                value: spec.implementation
+            }
+        ];
+
+        // Add specification characteristic if spec.specification exists and is an array
+        if (spec.specification && Array.isArray(spec.specification)) {
+            characteristics.push({
+                '@type': 'Characteristic',
+                name: 'specification',
+                value: [...spec.specification]
+            });
+        }
+
+        // Add apiDocs characteristic
+        characteristics.push({
+            '@type': 'Characteristic',
+            name: 'apiDocs',
+            value: status.apiStatus?.developerUI
+        });
+
+        return {
             id: metadata.name,
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${metadata.name}`,
             '@type': 'LogicalResource',
@@ -179,36 +226,8 @@ class KubernetesResourceService {
                 id: 'API',
                 name: 'API',
                 version: spec.specification?.version
-            },            resourceCharacteristic: [
-                {
-                    '@type': 'Characteristic',
-                    name: 'namespace',
-                    value: metadata.namespace
-                },
-                {
-                    '@type': 'Characteristic',
-                    name: 'apiName',
-                    value: spec.name
-                },
-                {
-                    '@type': 'Characteristic',
-                    name: 'path',
-                    value: spec.path
-                },
-                {
-                    '@type': 'Characteristic',
-                    name: 'port',
-                    value: spec.port?.toString()
-                },                {
-                    '@type': 'Characteristic',
-                    name: 'implementation',
-                    value: spec.implementation
-                },                {
-                    '@type': 'Characteristic',
-                    name: 'apiDocs',
-                    value: status.apiStatus?.developerUI
-                }
-            ],
+            },
+            resourceCharacteristic: characteristics,
             resourceStatus: this.mapExposedAPIStatusToResourceStatus(status),
             operationalState: this.mapExposedAPIStatusToOperationalState(status),
             administrativeState: 'unlocked',
