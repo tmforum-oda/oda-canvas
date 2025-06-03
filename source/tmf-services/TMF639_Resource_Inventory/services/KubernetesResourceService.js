@@ -115,9 +115,7 @@ class KubernetesResourceService {
      */    convertComponentToResource(k8sComponent) {
         const metadata = k8sComponent.metadata || {};
         const spec = k8sComponent.spec || {};
-        const status = k8sComponent.status || {};
-
-        // Build base characteristics
+        const status = k8sComponent.status || {};        // Build base characteristics
         const characteristics = [
             {
                 '@type': 'Characteristic',
@@ -126,20 +124,10 @@ class KubernetesResourceService {
             },
             {
                 '@type': 'Characteristic',
-                name: 'componentType', 
-                value: spec.type
-            },
-            {
-                '@type': 'Characteristic',
-                name: 'version',
-                value: spec.version
-            },
-            {
-                '@type': 'Characteristic',
-                name: 'status',
-                value: status.summary?.status || 'Unknown'
+                name: 'deploymentStatus',
+                value: status['summary/status'].deployment_status || status.summary?.status || 'Unknown'
             }
-        ];        // Add all properties from spec.componentMetadata as characteristics
+        ];// Add all properties from spec.componentMetadata as characteristics
         if (spec.componentMetadata && typeof spec.componentMetadata === 'object') {
             Object.entries(spec.componentMetadata).forEach(([key, value]) => {
                 let characteristicValue;
