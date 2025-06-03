@@ -110,14 +110,60 @@ class KubernetesResourceService {
             logger.error(`Error fetching ExposedAPI ${name}:`, error);
             throw error;
         }
-    }
-
-    /**
+    }    /**
      * Convert Kubernetes Component to TMF639 Resource format
      */    convertComponentToResource(k8sComponent) {
         const metadata = k8sComponent.metadata || {};
         const spec = k8sComponent.spec || {};
-        const status = k8sComponent.status || {};        return {
+        const status = k8sComponent.status || {};
+
+        // Build base characteristics
+        const characteristics = [
+            {
+                '@type': 'Characteristic',
+                name: 'namespace',
+                value: metadata.namespace
+            },
+            {
+                '@type': 'Characteristic',
+                name: 'componentType', 
+                value: spec.type
+            },
+            {
+                '@type': 'Characteristic',
+                name: 'version',
+                value: spec.version
+            },
+            {
+                '@type': 'Characteristic',
+                name: 'status',
+                value: status.summary?.status || 'Unknown'
+            }
+        ];        // Add all properties from spec.componentMetadata as characteristics
+        if (spec.componentMetadata && typeof spec.componentMetadata === 'object') {
+            Object.entries(spec.componentMetadata).forEach(([key, value]) => {
+                let characteristicValue;
+                
+                if (Array.isArray(value)) {
+                    // Keep arrays as arrays
+                    characteristicValue = [...value];
+                } else if (typeof value === 'object' && value !== null) {
+                    // JSON stringify other objects
+                    characteristicValue = JSON.stringify(value);
+                } else {
+                    // Keep primitive values as-is
+                    characteristicValue = value;
+                }
+                
+                characteristics.push({
+                    '@type': 'Characteristic',
+                    name: key,
+                    value: characteristicValue
+                });
+            });
+        }
+
+        return {
             id: metadata.name,
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${metadata.name}`,
             '@type': 'LogicalResource',
@@ -129,28 +175,7 @@ class KubernetesResourceService {
                 name: spec.type || 'ODA Component',
                 version: spec.version
             },
-            resourceCharacteristic: [
-                {
-                    '@type': 'Characteristic',
-                    name: 'namespace',
-                    value: metadata.namespace
-                },
-                {
-                    '@type': 'Characteristic',
-                    name: 'componentType', 
-                    value: spec.type
-                },
-                {
-                    '@type': 'Characteristic',
-                    name: 'version',
-                    value: spec.version
-                },
-                {
-                    '@type': 'Characteristic',
-                    name: 'status',
-                    value: status.summary?.status || 'Unknown'
-                }
-            ],
+            resourceCharacteristic: characteristics,
             resourceStatus: this.mapComponentStatusToResourceStatus(status),
             operationalState: this.mapComponentStatusToOperationalState(status),
             administrativeState: 'unlocked',
