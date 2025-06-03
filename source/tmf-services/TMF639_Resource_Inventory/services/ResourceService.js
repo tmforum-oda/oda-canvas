@@ -52,7 +52,8 @@ const retrieveResource = (args, context /* idfields */) =>
     async (resolve) => {
       context.classname = "Resource";
       context.operationId = "retrieveResource";
-      context.method = "get";      try {
+      context.method = "get";      
+      try {
         // Get the specific resource by ID
         const resource = await k8sService.getResourceById(args.id);
 

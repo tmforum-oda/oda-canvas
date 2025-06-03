@@ -15,6 +15,21 @@ const listResource = async (request, response) => {
 };
 
 const retrieveResource = async (request, response) => {
+  // Extract the ID parameter directly from Express params since OpenAPI extraction is not working
+  const resourceId = request.params.id;
+  
+  // Manually inject the ID into the request for the Controller.handleRequest
+  if (!request.openapi) request.openapi = {};
+  if (!request.openapi.pathParams) request.openapi.pathParams = {};
+  request.openapi.pathParams.id = resourceId;
+  
+  // Also set up a minimal schema to help parameter extraction
+  request.openapi.schema = {
+    parameters: [
+      { name: 'id', in: 'path' }
+    ]
+  };
+  
   await Controller.handleRequest(request, response, service.retrieveResource);
 };
 

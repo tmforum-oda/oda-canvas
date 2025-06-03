@@ -114,22 +114,18 @@ class KubernetesResourceService {
 
     /**
      * Convert Kubernetes Component to TMF639 Resource format
-     */
-    convertComponentToResource(k8sComponent) {
+     */    convertComponentToResource(k8sComponent) {
         const metadata = k8sComponent.metadata || {};
         const spec = k8sComponent.spec || {};
-        const status = k8sComponent.status || {};
-
-        return {
+        const status = k8sComponent.status || {};        return {
             id: metadata.name,
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${metadata.name}`,
-            '@type': 'Resource',
-            '@baseType': 'ODAComponent',
+            '@type': 'LogicalResource',
+            '@baseType': 'Resource',
             name: metadata.name,
-            description: spec.description || `ODA Component: ${metadata.name}`,
-            category: 'ODAComponent',            resourceSpecification: {
+            description: spec.description || `ODA Component: ${metadata.name}`,            category: 'ODAComponent',            resourceSpecification: {
                 '@type': 'ResourceSpecificationRef',
-                id: spec.type || 'component',
+                id: 'ODAComponent',
                 name: spec.type || 'ODA Component',
                 version: spec.version
             },
@@ -170,26 +166,20 @@ class KubernetesResourceService {
 
     /**
      * Convert Kubernetes ExposedAPI to TMF639 Resource format
-     */
-    convertExposedAPIToResource(k8sExposedAPI) {
+     */    convertExposedAPIToResource(k8sExposedAPI) {
         const metadata = k8sExposedAPI.metadata || {};
         const spec = k8sExposedAPI.spec || {};
-        const status = k8sExposedAPI.status || {};
-
-        return {
+        const status = k8sExposedAPI.status || {};        return {
             id: metadata.name,
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${metadata.name}`,
-            '@type': 'Resource',
-            '@baseType': 'ExposedAPI',
-            name: metadata.name,
-            description: `Exposed API: ${spec.name || metadata.name}`,
-            category: 'ExposedAPI',            resourceSpecification: {
+            '@type': 'LogicalResource',
+            '@baseType': 'Resource',            name: metadata.name,
+            description: `Exposed API: ${spec.name || metadata.name}`,            category: 'API',            resourceSpecification: {
                 '@type': 'ResourceSpecificationRef',
-                id: 'exposedapi',
-                name: 'ODA Exposed API',
+                id: 'API',
+                name: 'API',
                 version: spec.specification?.version
-            },
-            resourceCharacteristic: [
+            },            resourceCharacteristic: [
                 {
                     '@type': 'Characteristic',
                     name: 'namespace',
@@ -214,6 +204,15 @@ class KubernetesResourceService {
                     '@type': 'Characteristic',
                     name: 'implementation',
                     value: spec.implementation
+                },
+                {
+                    '@type': 'Characteristic',
+                    name: 'oasDocument',
+                    value: spec.specification?.url
+                },                {
+                    '@type': 'Characteristic',
+                    name: 'apiDocs',
+                    value: status.developerUI
                 }
             ],
             resourceStatus: this.mapExposedAPIStatusToResourceStatus(status),
