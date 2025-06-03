@@ -20,7 +20,7 @@ from kubernetes.client.rest import ApiException
 import os
 import re
 
-# Setup logging 
+# Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
 kopf_logger = logging.getLogger()
 kopf_logger.setLevel(logging.WARNING)
@@ -184,7 +184,10 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
                 )
                 # if the apitype of the api is 'prometheus' then we need to also create a ServiceMonitor resource
                 if "apitype" in spec.keys():
-                    if spec["apiType"] == "prometheus" or spec["apiType"] == "openmetrics":
+                    if (
+                        spec["apiType"] == "prometheus"
+                        or spec["apiType"] == "openmetrics"
+                    ):
                         # create a ServiceMonitor resource
                         logWrapper(
                             logging.INFO,
@@ -654,7 +657,6 @@ def check_vs_conflict(vs_namespace, vs_name, gateway, hostname, path):
             raise ValueError(
                 f"conflicting VirtualService '{other_name}.{other_namespace}'"
             )
-
 
 
 def createOrPatchVirtualService(

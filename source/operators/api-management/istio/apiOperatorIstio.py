@@ -183,7 +183,10 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
                 )
                 # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
                 if "apiType" in spec.keys():
-                    if spec["apiType"] == "prometheus" or spec["apiType"] == "openmetrics":
+                    if (
+                        spec["apiType"] == "prometheus"
+                        or spec["apiType"] == "openmetrics"
+                    ):
                         # create a ServiceMonitor resource
                         logWrapper(
                             logging.INFO,
