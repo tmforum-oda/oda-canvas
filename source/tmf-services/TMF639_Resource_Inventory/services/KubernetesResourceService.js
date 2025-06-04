@@ -237,13 +237,8 @@ class KubernetesResourceService {
             },
             {
                 '@type': 'Characteristic',
-                name: 'path',
-                value: spec.path
-            },
-            {
-                '@type': 'Characteristic',
-                name: 'port',
-                value: spec.port?.toString()
+                name: 'url',
+                value: status.apiStatus?.url
             },
             {
                 '@type': 'Characteristic',
