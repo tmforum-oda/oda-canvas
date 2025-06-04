@@ -1,6 +1,6 @@
-# Resource Inventory MCP Server
+# TMF639 Resource Inventory MCP Server with Helm Integration
 
-This microservice implements a Model Context Protocol (MCP) server that provides a standardized interface to access the TM Forum Resource Inventory API (TMF639). It allows AI agents to interact with the Resource Inventory component through the MCP standard.
+This microservice implements a Model Context Protocol (MCP) server that provides a standardized interface to access the TM Forum Resource Inventory API (TMF639) with integrated Helm management capabilities for TM Forum ODA Components. It allows AI agents to interact with both the Resource Inventory component and manage ODA Component lifecycles through the MCP standard.
 
 ## What is MCP?
 
@@ -21,12 +21,35 @@ The TMF639 Resource Inventory Management API provides read-only access to inform
 - **State Monitoring**: Check administrative, operational, and usage states
 - **Relationship Mapping**: Understand dependencies and hierarchies
 - **ODA Component Integration**: Discover deployed microservices and APIs
+- **Helm Management**: Complete lifecycle management of ODA Components using Helm
+- **TM Forum Repository Integration**: Direct access to TM Forum reference components
+
+## Helm Integration for ODA Components
+
+This server includes comprehensive Helm integration providing the following capabilities:
+
+### Helm Tools Available
+- **helm_search_charts**: Search for Helm charts in configured repositories
+- **helm_list_releases**: List installed Helm releases (ODA Components)
+- **helm_install_chart**: Install a Helm chart as an ODA Component
+- **helm_upgrade_release**: Upgrade an existing Helm release
+- **helm_uninstall_release**: Uninstall a Helm release (remove ODA Component)
+- **helm_get_release_status**: Get detailed status of a Helm release
+- **helm_manage_repositories**: Manage Helm repositories
+- **helm_install_tmforum_component**: Install TM Forum ODA Components from reference repository
+
+### TM Forum ODA Repository
+Pre-configured with the official TM Forum ODA reference components repository:
+- **Repository URL**: https://tmforum-oda.github.io/reference-example-components
+- **Repository Name**: oda-components
 
 ## Prerequisites
 
 - Python 3.11 or higher
 - [uv](https://docs.astral.sh/uv/) package manager (recommended)
 - Access to TMF639 Resource Inventory API endpoint
+- Helm 3.x installed and accessible in PATH (for Helm integration)
+- Kubernetes cluster access (for ODA Component management)
 
 ## Installation and Setup
 
@@ -199,6 +222,129 @@ import asyncio
 from resource_inventory_api import get_resource
 print(asyncio.run(get_resource()))
 "
+```
+
+## MCP Tools Reference
+
+### Resource Inventory Tools
+
+#### `resource_get`
+Retrieve resource information from the TMF639 Resource Inventory API.
+
+**Parameters:**
+- `resource_id` (optional): ID of specific resource to retrieve
+- `fields` (optional): Comma-separated list of fields to include in response
+- `offset` (optional): Starting position for paginated results
+- `limit` (optional): Maximum number of results to return
+- `filter` (optional): Filter criteria dictionary
+
+**Example usage:**
+```javascript
+// Get all resources
+await resource_get()
+
+// Get specific resource
+await resource_get({resource_id: "resource-123"})
+
+// Get resources with pagination
+await resource_get({offset: 0, limit: 10})
+```
+
+### Helm Tools for ODA Components
+
+#### `helm_search_charts`
+Search for Helm charts in configured repositories.
+
+**Parameters:**
+- `search_term`: Search term (e.g., "productcatalog", "component")
+- `repository` (optional): Specific repository to search
+- `version` (optional): Chart version filter
+- `app_version` (optional): Application version filter
+
+#### `helm_list_releases`
+List installed Helm releases (ODA Components).
+
+**Parameters:**
+- `namespace` (optional): Kubernetes namespace filter
+- `status_filter` (optional): Release status filter (deployed, failed, etc.)
+- `chart_filter` (optional): Chart name filter
+
+#### `helm_install_chart`
+Install a Helm chart as an ODA Component.
+
+**Parameters:**
+- `release_name`: Name for the release
+- `chart_reference`: Chart reference (repo/chart or URL)
+- `namespace` (optional): Target namespace (default: components)
+- `values` (optional): Values to override (JSON object)
+- `version` (optional): Chart version to install
+- `create_namespace` (optional): Create namespace if it doesn't exist
+
+#### `helm_upgrade_release`
+Upgrade an existing Helm release.
+
+**Parameters:**
+- `release_name`: Name of the release to upgrade
+- `chart_reference` (optional): New chart reference
+- `namespace` (optional): Release namespace
+- `values` (optional): Values to override
+- `version` (optional): Chart version
+
+#### `helm_uninstall_release`
+Uninstall a Helm release (remove ODA Component).
+
+**Parameters:**
+- `release_name`: Name of the release to uninstall
+- `namespace` (optional): Release namespace
+- `keep_history` (optional): Keep release history after uninstall
+
+#### `helm_get_release_status`
+Get detailed status of a Helm release.
+
+**Parameters:**
+- `release_name`: Name of the release
+- `namespace` (optional): Release namespace
+
+#### `helm_manage_repositories`
+Manage Helm repositories.
+
+**Parameters:**
+- `action`: Action to perform ("add", "update", "remove", "list")
+- `repo_name` (optional): Repository name (required for add/remove)
+- `repo_url` (optional): Repository URL (required for add)
+
+#### `helm_install_tmforum_component`
+Install a TM Forum ODA Component from the reference repository.
+
+**Parameters:**
+- `component_name`: Name of the TM Forum component (e.g., "productcatalogmanagement")
+- `release_name` (optional): Custom release name
+- `namespace` (optional): Target namespace
+- `values` (optional): Custom values to override
+- `version` (optional): Component version
+
+**Example usage:**
+```javascript
+// Search for TM Forum components
+await helm_search_charts({search_term: "productcatalog"})
+
+// Install a TM Forum component
+await helm_install_tmforum_component({
+  component_name: "productcatalogmanagement",
+  namespace: "components"
+})
+
+// List all installed components
+await helm_list_releases()
+```
+
+### Integration Verification
+
+You can verify the integration is working properly:
+
+```powershell
+# Run the verification script
+uv run verify_integration.py
 ```
 
 ## MCP Client Integration

@@ -25,6 +25,12 @@ import uvicorn
 # Import API functionality
 from resource_inventory_api import get_resource
 
+# Import Helm API functionality
+from helm_api import HelmAPI, HelmAPIError
+
+# Additional imports for Helm operations
+import json
+
 # ---------------------------------------------------------------------------------------------
 # Configure logging
 
@@ -70,9 +76,7 @@ async def resource_get(
         fields: Optional comma-separated list of fields to include in the response.
         offset: Optional starting position for paginated results.
         limit: Optional maximum number of results to return.
-        filter: Optional dictionary of filter criteria to apply to the search.
-
-    Returns:
+        filter: Optional dictionary of filter criteria to apply to the search.    Returns:
         A dictionary containing the resource(s) information or an error message.
     """
     if filter:
@@ -81,6 +85,7 @@ async def resource_get(
         logger.info(
             f"MCP Tool - Getting resource with ID: {resource_id if resource_id else 'ALL'}"
         )
+    
     result = await get_resource(
         resource_id=resource_id,
         fields=fields,
@@ -91,7 +96,360 @@ async def resource_get(
     if result == None:
         logger.warning("Failed to retrieve resource data")
         return {"error": "Failed to retrieve resource data"}
+    
     return result
+
+
+# ---------------------------------------------------------------------------------------------
+# Helm tools for ODA Component management
+# These tools provide Helm chart management capabilities for TM Forum ODA Components
+
+
+@mcp.tool()
+async def search_component_repositories(
+    search_term: str = None,
+    repository: str = None
+) -> dict:
+    """Search for component helm charts in configured repositories.
+    
+    This tool searches for Helm charts that can be installed as ODA Components.
+    
+    Args:
+        search_term: Search term to find charts (e.g., "productcatalog")
+        repository: Specific repository to search (default: searches all)
+        
+    Returns:
+        A dictionary containing search results or error information.
+    """    
+    logger.info(f"MCP Tool - Searching Helm charts with term: {search_term}")
+    
+    try:
+        helm = HelmAPI()
+        
+
+        
+        logger.info(f"Helm API - Calling search_charts with term: '{search_term}', repository: {repository}")
+        results = await helm.search_charts(
+            search_term=search_term,
+            repository=repository
+        )
+        logger.info(f"Helm API - search_charts returned {len(results)} results")
+        
+        return {
+            "search_term": search_term,
+            "charts": results,
+            "count": len(results)
+        }
+        
+    except HelmAPIError as e:
+        logger.error(f"Helm search error: {e}")
+        return {"error": f"Helm search failed: {str(e)}"}
+
+
+@mcp.tool()
+async def list_component_releases(
+    namespace: str = None
+) -> dict:
+    """List installed Component releases (installed components).
+    
+    This tool lists all Component releases that are currently installed, which represent
+    deployed ODA Components in the canvas environment.
+    
+    Args:
+        namespace: Kubernetes namespace to list releases from
+        
+    Returns:
+        A dictionary containing the list of releases or error information.
+    """    
+    logger.info(f"MCP Tool - Listing Helm releases in namespace: {namespace or 'components'}")
+    
+    try:
+        helm = HelmAPI()
+        
+        logger.info(f"Helm API - Calling list_releases with namespace: {namespace}")
+        releases = await helm.list_releases(
+            namespace=namespace
+        )
+          
+        logger.info(f"Helm API - list_releases returned {len(releases)} releases")
+        
+        return {
+            "releases": [vars(release) if hasattr(release, '__dict__') else release for release in releases],
+            "count": len(releases),
+            "namespace": namespace or "components"
+        }
+        
+    except HelmAPIError as e:
+        logger.error(f"Helm list error: {e}")
+        return {"error": f"Failed to list Helm releases: {str(e)}"}
+
+
+@mcp.tool()
+async def install_component(
+    release_name: str,
+    chart_name: str,
+    chart_version: str = None,
+    namespace: str = "components",
+    values: dict = None,
+    repository: str = "oda-components"
+) -> dict:
+    """Install a Helm chart as an ODA Component.
+    
+    This tool installs Helm charts from the TM Forum ODA repository or other
+    configured repositories. The installed chart becomes an ODA Component.
+    
+    Args:
+        release_name: Name for the Helm release (ODA Component instance)
+        chart_name: Name of the chart to install
+        chart_version: Specific version of the chart to install
+        namespace: Kubernetes namespace for installation
+        values: Dictionary of values to override chart defaults
+        repository: Repository to install from (default: oda-components)
+        
+    Returns:
+        A dictionary containing installation results or error information.
+    """    
+    logger.info(f"MCP Tool - Installing Helm chart {chart_name} as {release_name}")
+    
+    try:
+        helm = HelmAPI()
+        
+        logger.info(f"Helm API - Calling install_chart with release_name: {release_name}, chart_name: {chart_name}, chart_version: {chart_version}, namespace: {namespace}")
+        result = await helm.install_chart(
+            release_name=release_name,
+            chart_name=chart_name,
+            chart_version=chart_version,
+            namespace=namespace,
+            values=values,
+            repository=repository
+        )
+        logger.info(f"Helm API - install_chart completed successfully for release: {release_name}")
+        
+        return {
+            "status": "success",
+            "release_name": release_name,
+            "chart_name": chart_name,
+            "chart_version": chart_version,
+            "namespace": namespace or "components",
+            "output": result
+        }
+        
+    except HelmAPIError as e:
+        logger.error(f"Helm install error: {e}")
+        return {"error": f"Failed to install chart {chart_name}: {str(e)}"}
+
+
+@mcp.tool()
+async def upgrade_component(
+    release_name: str,
+    chart_name: str = None,
+    chart_version: str = None,
+    namespace: str = None,
+    values: dict = None,
+    repository: str = None
+) -> dict:
+    """Upgrade an existing Helm release (ODA Component).
+    
+    This tool upgrades an existing ODA Component to a new version or with
+    new configuration values.
+    
+    Args:
+        release_name: Name of the existing release to upgrade
+        chart_name: Chart name (if changing from current chart)
+        chart_version: New version to upgrade to
+        namespace: Kubernetes namespace of the release
+        values: Dictionary of values to override
+        repository: Repository to upgrade from (default: oda-components)
+        
+    Returns:
+        A dictionary containing upgrade results or error information.
+    """    
+    logger.info(f"MCP Tool - Upgrading Helm release {release_name}")
+    
+    try:
+        helm = HelmAPI()
+        
+        logger.info(f"Helm API - Calling upgrade_chart with release_name: {release_name}, chart_name: {chart_name}, chart_version: {chart_version}, namespace: {namespace}")
+        result = await helm.upgrade_chart(
+            release_name=release_name,
+            chart_name=chart_name,
+            chart_version=chart_version,
+            namespace=namespace,
+            values=values,
+            repository=repository
+        )
+        logger.info(f"Helm API - upgrade_release completed successfully for release: {release_name}")
+        
+        return {
+            "status": "success",
+            "release_name": release_name,
+            "chart_version": chart_version,
+            "namespace": namespace or "components",
+            "output": result
+        }
+        
+    except HelmAPIError as e:
+        logger.error(f"Helm upgrade error: {e}")
+        return {"error": f"Failed to upgrade release {release_name}: {str(e)}"}
+
+
+@mcp.tool()
+async def uninstall_component(
+    release_name: str,
+    namespace: str = "components"
+) -> dict:
+    """Uninstall an ODA Component (Helm release).
+    
+    This tool removes an ODA Component by uninstalling its Helm release.
+    Use with caution as this will delete the component and its resources.
+    
+    Args:
+        release_name: Name of the release to uninstall
+        namespace: Kubernetes namespace of the release
+        
+    Returns:
+        A dictionary containing uninstallation results or error information.
+    """    
+    logger.info(f"MCP Tool - Uninstalling Helm release {release_name}")
+    
+    try:
+        helm = HelmAPI()
+        
+        logger.info(f"Helm API - Calling uninstall_release with release_name: {release_name}, namespace: {namespace}")
+        result = await helm.uninstall_release(
+            release_name=release_name,
+            namespace=namespace
+        )
+        logger.info(f"Helm API - uninstall_release completed successfully for release: {release_name}")
+        
+        return {
+            "status": "success",
+            "release_name": release_name,
+            "namespace": namespace or "components",
+            "output": result
+        }
+        
+    except HelmAPIError as e:
+        logger.error(f"Helm uninstall error: {e}")
+        return {"error": f"Failed to uninstall release {release_name}: {str(e)}"}
+
+
+@mcp.tool()
+async def get_component_release_status(
+    release_name: str,
+    namespace: str = "components"
+) -> dict:
+    """Get detailed status of an ODA Component Helm release.
+    
+    This tool provides detailed information about an installed ODA Component,
+    including its current status, values, and Kubernetes resources.
+    
+    Args:
+        release_name: Name of the release to check
+        namespace: Kubernetes namespace of the release
+        
+    Returns:
+        A dictionary containing detailed release information or error.
+    """    
+    print(f"MCP Tool - Getting status for Helm release {release_name}")
+    
+    try:
+        helm = HelmAPI()
+        
+        logger.info(f"Helm API - Calling get_release_status with release_name: {release_name}, namespace: {namespace}")
+        status = await helm.get_release_status(
+            release_name=release_name,
+            namespace=namespace
+        )
+        logger.info(f"Helm API - get_release_status completed successfully for release: {release_name}")
+        
+        return {
+            "release_name": release_name,
+            "namespace": namespace or "components",
+            "status": status
+        }
+        
+    except HelmAPIError as e:
+        logger.error(f"Helm status error: {e}")
+        return {"error": f"Failed to get status for release {release_name}: {str(e)}"}
+
+
+@mcp.tool()
+async def helm_manage_repositories(
+    action: str,
+    repository_name: str = None,
+    repository_url: str = None
+) -> dict:
+    """Manage Helm repositories for ODA Components.
+    
+    This tool allows you to add, update, list, or remove Helm repositories.
+    The TM Forum ODA repository is automatically configured.
+    
+    Args:
+        action: Action to perform (list, add, update, remove)
+        repository_name: Name of the repository (required for add/remove)
+        repository_url: URL of the repository (required for add)
+        
+    Returns:
+        A dictionary containing repository management results or error.
+    """
+    logger.info(f"MCP Tool - Managing Helm repository: {action}")
+    
+    try:
+        helm = HelmAPI()
+        if action == "list":
+            logger.info("Helm API - Calling list_repositories")
+            repos = await helm.list_repositories()
+            logger.info(f"Helm API - list_repositories returned {len(repos)} repositories")
+            return {
+                "action": "list",
+                "repositories": repos,
+                "count": len(repos)
+            }
+        elif action == "add":
+            if not repository_name or not repository_url:
+                return {"error": "Repository name and URL are required for add action"}
+                
+            logger.info(f"Helm API - Calling add_repository with name: {repository_name}, url: {repository_url}")
+            await helm.add_repository(repository_name, repository_url)
+            logger.info(f"Helm API - add_repository completed successfully")
+            return {
+                "action": "add",
+                "repository_name": repository_name,
+                "repository_url": repository_url,
+                "status": "success"
+            }
+        elif action == "update":
+            logger.info("Helm API - Calling update_repositories")
+            await helm.update_repositories()
+            logger.info("Helm API - update_repositories completed successfully")
+            return {
+                "action": "update",
+                "status": "success",
+                "message": "All repositories updated"
+            }
+            
+        elif action == "remove":
+            if not repository_name:
+                return {"error": "Repository name is required for remove action"}
+                
+            logger.info(f"Helm API - Calling remove_repository with name: {repository_name}")
+            await helm.remove_repository(repository_name)
+            logger.info(f"Helm API - remove_repository completed successfully")
+            return {
+                "action": "remove",
+                "repository_name": repository_name,
+                "status": "success"
+            }
+            
+        else:
+            return {"error": f"Unknown action: {action}. Supported actions: list, add, update, remove"}
+        
+    except HelmAPIError as e:
+        logger.error(f"Helm repository management error: {e}")
+        return {"error": f"Repository operation failed: {str(e)}"}
+
+
 
 
 # ---------------------------------------------------------------------------------------------
@@ -611,11 +969,11 @@ def parse_args():
 
 
 def main():
-    """Main entry point for the Resource Inventory MCP Server."""
+    """Main entry point for the ODACanvas MCP Server."""
     args = parse_args()
     
     if args.transport == "stdio":
-        logger.info("Starting Resource Inventory MCP Server with stdio transport")
+        logger.info("Starting ODACanvas MCP Server with stdio transport")
         mcp.run()
     elif args.transport == "sse":
 
@@ -624,7 +982,7 @@ def main():
         port = args.port
 
         logger.info(
-            f"Starting Product Catalog MCP Server with {transport} transport on port {port}"
+            f"Starting ODACanvas MCP Server with {transport} transport on port {port}"
         )
 
         try:
