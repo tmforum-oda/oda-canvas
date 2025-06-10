@@ -2108,9 +2108,6 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
-                        id:
-                          type: string
-                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
                         specification:  
                           type: array
                           items:
