@@ -165,7 +165,7 @@ jobs:
     - name: Installing example component PC into default and other namespace
       run: |
         helm install ctk feature-definition-and-test-kit/testData/productcatalog-static-roles-v1/ -n components     
-		helm install pcother feature-definition-and-test-kit/testData/productcatalog-v1/ -n odacompns-1 --create-namespace     
+        helm install pcother feature-definition-and-test-kit/testData/productcatalog-v1/ -n odacompns-1 --create-namespace     
         sleep 30
         kubectl get all -n components
         kubectl logs -l app=component-operator -n canvas
