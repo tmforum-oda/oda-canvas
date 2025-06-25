@@ -51,4 +51,4 @@ spec:
 
 ## Sequence Diagrams
 
-See [UC005-Configure-Users-and-Roles](../../../usecase-library/UC005-Configure-Users-and-Roles.md) for details of the Identity Management System use case.
+See [UC005-Configure-Clients-and-Roles](../../../usecase-library/UC005-Configure-Clients-and-Roles.md) for details of the Identity Management System use case.

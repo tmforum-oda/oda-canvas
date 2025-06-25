@@ -372,7 +372,9 @@ spec:
                 enum:
                 - openapi
                 - prometheus
-                description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                - openmetrics
+                - mcp
+                description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus/OpenMetrics (metrics) and MCP APIs are supported.
               apiKeyVerification:
                 type: object
                 description: (optional) 

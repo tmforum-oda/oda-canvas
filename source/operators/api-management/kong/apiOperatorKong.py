@@ -37,7 +37,9 @@ VERSION = "v1"
 APIS_PLURAL = "exposedapis"
 
 
-REFERENCEGRANT_API_VERSION = "gateway.networking.k8s.io/v1beta1" # API group for Gateway API
+REFERENCEGRANT_API_VERSION = (
+    "gateway.networking.k8s.io/v1beta1"  # API group for Gateway API
+)
 REFERENCEGRANT_KIND = "ReferenceGrant"
 REFERENCEGRANT_PLURAL = "referencegrants"
 REFERENCEGRANT_GROUP = "gateway.networking.k8s.io"
@@ -135,12 +137,11 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
     api_instance = kubernetes.client.CustomObjectsApi()
     ingress_name = f"kong-api-route-{name}"
     reference_name = f"kong-ref-grant-{name}"
-    #namespace = "components"
+    # namespace = "components"
     service_name = "istio-ingress"
     service_namespace = "istio-ingress"
     strip_path = "false"
     kong_gateway_namespace = "components"
-
 
     try:
         # Attempt to find if the path exists or not , will skip if no path
@@ -151,26 +152,30 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
         # ReferenceGrant in the same namespace as the ExposedAPI ,skipping adoption for this as due to unknown issue k8s is not creating not logging any error. Removal handled separately in deletion.
         refgrant = {
             "apiVersion": REFERENCEGRANT_API_VERSION,
-            "kind":       REFERENCEGRANT_KIND,
+            "kind": REFERENCEGRANT_KIND,
             "metadata": {
-                "name":      reference_name,
+                "name": reference_name,
                 "namespace": service_namespace,
             },
             "spec": {
-                "from": [{
-                    "group":     REFERENCEGRANT_GROUP,
-                    "kind":      "HTTPRoute",
-                    "namespace": namespace,
-                }],
-                "to": [{
-                    "group":     "",
-                    "kind":      "Service",
-                    "name":      service_name,
-                }],
+                "from": [
+                    {
+                        "group": REFERENCEGRANT_GROUP,
+                        "kind": "HTTPRoute",
+                        "namespace": namespace,
+                    }
+                ],
+                "to": [
+                    {
+                        "group": "",
+                        "kind": "Service",
+                        "name": service_name,
+                    }
+                ],
             },
         }
-        #kopf.adopt(refgrant)
-        
+        # kopf.adopt(refgrant)
+
         try:
             api_instance.get_namespaced_custom_object(
                 group=REFERENCEGRANT_GROUP,
@@ -305,7 +310,7 @@ def manage_ratelimit(spec, name, namespace, meta, **kwargs):
 
     api_instance = kubernetes.client.CustomObjectsApi()
     plugin_name = f"rate-limit-{name}"
-    #namespace = "components"
+    # namespace = "components"
     group = "configuration.konghq.com"
     version = "v1"
     plural = "kongplugins"
@@ -399,7 +404,7 @@ def manage_apiauthentication(spec, name, namespace, meta, **kwargs):
 
     api_instance = kubernetes.client.CustomObjectsApi()
     plugin_name = f"apiauthentication-{name}"
-    #namespace = "components"
+    # namespace = "components"
     group = "configuration.konghq.com"
     version = "v1"
     plural = "kongplugins"
@@ -490,7 +495,7 @@ def manage_cors(spec, name, namespace, meta, **kwargs):
 
     api_instance = kubernetes.client.CustomObjectsApi()
     plugin_name = f"cors-{name}"
-    #namespace = "components"
+    # namespace = "components"
     group = "configuration.konghq.com"
     version = "v1"
     plural = "kongplugins"
@@ -590,7 +595,7 @@ def update_httproute_annotations(name, namespace, annotations):
     group = "gateway.networking.k8s.io"
     version = "v1"
     plural = "httproutes"
-    #namespace = "components"
+    # namespace = "components"
 
     try:
         # Fetch the current HTTPRoute to get the resourceVersion
@@ -817,16 +822,20 @@ def delete_api_lifecycle(meta, name, namespace, **kwargs):
 
     try:
         api_instance.delete_namespaced_custom_object(
-            group     = REFERENCEGRANT_GROUP,
-            version   = REFERENCEGRANT_VERSION,
-            namespace = service_namespace_istio_ingress,
-            plural    = REFERENCEGRANT_PLURAL,
-            name      = reference_name,
-            body      = kubernetes.client.V1DeleteOptions(),
+            group=REFERENCEGRANT_GROUP,
+            version=REFERENCEGRANT_VERSION,
+            namespace=service_namespace_istio_ingress,
+            plural=REFERENCEGRANT_PLURAL,
+            name=reference_name,
+            body=kubernetes.client.V1DeleteOptions(),
         )
-        logger.info(f"ReferenceGrant '{reference_name}' deleted from namespace '{service_namespace_istio_ingress}'.")
+        logger.info(
+            f"ReferenceGrant '{reference_name}' deleted from namespace '{service_namespace_istio_ingress}'."
+        )
     except ApiException as e:
         if e.status == 404:
-            logger.info(f"ReferenceGrant '{reference_name}' not present in namespace '{service_namespace_istio_ingress}'.(404).")
+            logger.info(
+                f"ReferenceGrant '{reference_name}' not present in namespace '{service_namespace_istio_ingress}'.(404)."
+            )
         else:
             logger.error(f"Failed to delete ReferenceGrant '{reference_name}': {e}")
