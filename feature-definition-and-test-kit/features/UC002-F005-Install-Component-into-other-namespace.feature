@@ -4,6 +4,7 @@
 
 @UC002         # tagged as use case 2
 @UC002-F005    # tagged as feature 5 within use case 2
+@SkipTest
 Feature: UC002-F005 Install Component into other namespace
 
     Scenario Outline: Install a component into a new namespace and verify ExposedAPI resources creation

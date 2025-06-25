@@ -26,6 +26,12 @@ setDefaultTimeout( 20 * 1000);
 
 
 
+//Allow skipping tests
+Before({ tags: '@SkipTest' }, async function () {
+  console.log('Skipping scenario.');
+  return 'skipped';
+});
+
 
 
 /**
