@@ -24,5 +24,15 @@ spec:
               until nc -z canvas-apisix-admin.canvas.svc.cluster.local 9180; do echo waiting for canvas-apisix-admin; sleep 2; done;
       containers:
       - name: {{ .Release.Name }}-apisixistio-operator
-        image: {{ .Values.apisixoperatorimage.repository }}
-        imagePullPolicy: {{ .Values.apisixoperatorimage.pullPolicy }}
+        image: {{ include "api-operator-apisix.apisixopDockerimage" . }}
+        imagePullPolicy: {{ include "api-operator-apisix.apisixopImagePullPolicy" . }}
+        envFrom:
+          - configMapRef:
+              name: api-operator-istio-configmap
+        command:
+          - "/bin/sh"
+        args: 
+          - "-c"
+          - |
+            kopf run --namespace= --verbose apiOperatorApisix.py apiOperatorIstiowithApisix.py & \
+            kopf run $COMPONENT_NAMESPACES_CLI --verbose apiOperatorApisix.py apiOperatorIstiowithApisix.py; wait

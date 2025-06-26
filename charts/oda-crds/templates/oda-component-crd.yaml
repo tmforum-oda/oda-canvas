@@ -1953,12 +1953,12 @@ spec:
                     items:
                       type: object
                       properties:
-                        id:
-                          type: string
-                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
                         name:
                           type: string
                           description: Name of the API
+                        id:
+                          type: string
+                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
                         specification:  
                           type: array
                           items:
@@ -1978,7 +1978,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
@@ -2107,6 +2108,9 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
+                        id:
+                          type: string
+                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
                         specification:  
                           type: array
                           items:
@@ -2127,7 +2131,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
@@ -2160,7 +2165,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         specification:  
                           type: array
                           items:
@@ -2203,7 +2209,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) APIs is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         specification:  
                           type: array
                           items:
@@ -2245,6 +2252,9 @@ spec:
                         name:
                           type: string
                           description: Name of the API
+                        id:
+                          type: string
+                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
                         specification:  
                           type: array
                           items:
@@ -2265,7 +2275,9 @@ spec:
                           enum:
                           - openapi
                           - prometheus
-                          description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus (metrics) APIs are supported.
+                          - openmetrics
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and Prometheus/OpenMetrics (metrics) and MCP APIs are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2394,6 +2406,9 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
+                        id:
+                          type: string
+                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
                         specification:  
                           type: array
                           items:
@@ -2413,7 +2428,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2470,6 +2486,9 @@ spec:
                         name:
                           type: string
                           description: Name of the API
+                        id:
+                          type: string
+                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
                         specification:  
                           type: array
                           items:
@@ -2489,7 +2508,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2618,6 +2638,9 @@ spec:
                         name:
                           type: string
                           description: Name of the API that this component is dependent on
+                        id:
+                          type: string
+                          description: This is the id of the API. For TM Forum Open-APIs this would be TMFxxx e.g. TMF620 for Product Catalog Management.                      
                         specification:  
                           type: array
                           items:
@@ -2637,7 +2660,8 @@ spec:
                           type: string
                           enum:
                           - openapi
-                          description: The type of API specification. Currently only OpenAPI (swagger) is supported.
+                          - mcp
+                          description: The type of API specification. Currently OpenAPI (swagger) and MCP are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          

@@ -1,4 +1,3 @@
-{{ if .Values.serviceInventoryAPI.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,11 +16,10 @@ spec:
     spec:
       containers:
       - name: {{ .Release.Name }}-info-service
-        image: {{ include "dependentapi-serviceinventoryapi.dockerimage" . }}
-        imagePullPolicy: {{ include "dependentapi-serviceinventoryapi.imagePullPolicy" . }}
+        image: {{ include "canvas-info-service.dockerimage" . }}
+        imagePullPolicy: {{ include "canvas-info-service.imagePullPolicy" . }}
         env:
         - name: SERVER_URL
-          value: {{ .Values.serviceInventoryAPI.serverUrl }}
+          value: {{ .Values.serverUrl }}
         ports:
         - containerPort: 8638
-{{- end }}
