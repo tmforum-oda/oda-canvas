@@ -1,0 +1,143 @@
+{
+	"apiVersion": "oda.tmforum.org/v1",
+	"kind": "ExposedAPI",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"apiType\":\"openapi\",\"developerUI\":\"/prdcat3-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs\",\"implementation\":\"prdcat3-prodcatapi\",\"name\":\"productcatalogmanagement\",\"path\":\"/prdcat3-productcatalogmanagement/tmf-api/productCatalogManagement/v4\",\"port\":8080,\"specification\":[{\"url\":\"https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json\"}]},\"metadata\":{\"labels\":{\"app.kubernetes.io/managed-by\":\"Helm\",\"oda.tmforum.org/componentName\":\"prdcat3-productcatalogmanagement\"}}}\n"
+		},
+		"creationTimestamp": "2025-05-01T16:05:29Z",
+		"generateName": "prdcat3-productcatalogmanagement-",
+		"generation": 2,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "prdcat3-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"314b4074-480a-4f54-8495-1c2513d38e48\"}": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:apiType": {
+						},
+						"f:developerUI": {
+						},
+						"f:implementation": {
+						},
+						"f:name": {
+						},
+						"f:path": {
+						},
+						"f:port": {
+						},
+						"f:specification": {
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2025-05-01T16:05:29Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {
+							},
+							"f:kopf.zalando.org/last-handled-configuration": {
+							}
+						}
+					},
+					"f:status": {
+						".": {
+						},
+						"f:apiStatus": {
+							".": {
+							},
+							"f:developerUI": {
+							},
+							"f:implementation": {
+							},
+							"f:ip": {
+							},
+							"f:name": {
+							},
+							"f:path": {
+							},
+							"f:port": {
+							},
+							"f:uid": {
+							},
+							"f:url": {
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2025-05-01T16:05:30Z"
+			}
+		],
+		"name": "prdcat3-productcatalogmanagement-productcatalogmanagement",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "prdcat3-productcatalogmanagement",
+				"uid": "314b4074-480a-4f54-8495-1c2513d38e48"
+			}
+		],
+		"resourceVersion": "112433768",
+		"uid": "e715b931-4413-4cee-9f84-f747471063c4"
+	},
+	"spec": {
+		"apiType": "openapi",
+		"developerUI": "/prdcat3-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
+		"implementation": "prdcat3-prodcatapi",
+		"name": "productcatalogmanagement",
+		"path": "/prdcat3-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+		"port": 8080,
+		"specification": [
+			{
+				"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+			}
+		]
+	},
+	"status": {
+		"apiStatus": {
+			"developerUI": "https://components.ihc-dt.cluster-2.de/prdcat3-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
+			"implementation": "prdcat3-prodcatapi",
+			"ip": "components.ihc-dt.cluster-2.de",
+			"name": "prdcat3-productcatalogmanagement-productcatalogmanagement",
+			"path": "/prdcat3-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+			"port": 8080,
+			"uid": "8152819f-5925-4cab-a7e2-380c7d7d3066",
+			"url": "https://components.ihc-dt.cluster-2.de/prdcat3-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+		}
+	}
+}

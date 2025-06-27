@@ -1,4 +1,3 @@
-{{ if .Values.serviceInventoryAPI.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,9 +6,8 @@ metadata:
     app: {{.Release.Name}}-svcinv-mongodb
 spec:
   ports:
-  - port: {{.Values.serviceInventoryAPI.mongodb.port}}
+  - port: {{.Values.mongodb.port}}
     targetPort: svcinv-mongodb
     name: tcp-svcinv-mongodb
   selector:
     app: {{.Release.Name}}-svcinv-mongodb
-{{- end }}

@@ -1,6 +1,6 @@
 # canvas-oda
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
+![Version: 1.2.3](https://img.shields.io/badge/Version-1.2.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1](https://img.shields.io/badge/AppVersion-v1-informational?style=flat-square)
 
 A Helm of helm to orchestrate the ODA installation
 
@@ -8,18 +8,18 @@ A Helm of helm to orchestrate the ODA installation
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../api-operator-istio | api-operator-istio | 1.1.0 |
-| file://../apisix-gateway | apisix-gateway | 1.0.0 |
+| file://../api-operator-istio | api-operator-istio | 1.1.1 |
+| file://../apisix-gateway | api-operator-apisix | 1.0.2 |
 | file://../canvas-namespaces | canvas-namespaces | 1.0.1 |
-| file://../canvas-vault | canvas-vault | 1.0.0 |
-| file://../cert-manager-init | cert-manager-init | 1.1.0 |
+| file://../canvas-vault | canvas-vault | 1.0.1 |
+| file://../cert-manager-init | cert-manager-init | 1.1.1 |
 | file://../component-operator | component-operator | 1.3.0 |
-| file://../dependentapi-simple-operator | dependentapi-simple-operator | 1.0.0 |
-| file://../identityconfig-operator-keycloak | identityconfig-operator-keycloak | 1.2.0 |
-| file://../kong-gateway | kong-gateway | 1.0.0 |
+| file://../dependentapi-simple-operator | dependentapi-simple-operator | 1.0.1 |
+| file://../identityconfig-operator-keycloak | identityconfig-operator-keycloak | 1.2.3 |
+| file://../kong-gateway | api-operator-kong | 1.0.2 |
 | file://../oda-crds | oda-crds | 1.3.0 |
-| file://../oda-webhook | oda-webhook | 1.2.0 |
-| file://../secretsmanagement-operator | secretsmanagement-operator | 1.0.0 |
+| file://../oda-webhook | oda-webhook | 1.2.1 |
+| file://../secretsmanagement-operator | secretsmanagement-operator | 1.0.1 |
 | https://charts.bitnami.com/bitnami | keycloak | 13.0.2 |
 
 ## Values
@@ -40,13 +40,14 @@ A Helm of helm to orchestrate the ODA installation
 | api-operator-apisix.apisix.service.type | string | `"LoadBalancer"` |  |
 | api-operator-apisix.apisixistiooperatordeploymentnamespace | string | `"canvas"` |  |
 | api-operator-apisix.apisixoperatorimage.apisixopImage | string | `"tmforumodacanvas/api-operator-apisix"` |  |
-| api-operator-apisix.apisixoperatorimage.apisixopPrereleaseSuffix | string | `"issue-419"` |  |
+| api-operator-apisix.apisixoperatorimage.apisixopPrereleaseSuffix | string | `nil` |  |
 | api-operator-apisix.apisixoperatorimage.apisixopVersion | string | `"1.0.0"` |  |
 | api-operator-apisix.apisixoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| api-operator-apisix.apisixoperatorimage.repository | string | `"tmforumodacanvas/api-operator-apisix:1.0.0"` |  |
+| api-operator-apisix.initContainerImage | string | `"busybox:1.28"` |  |
 | api-operator-istio | object | `{"configmap":{"loglevel":"20"},"deployment":{"apiopImage":"tmforumodacanvas/api-operator-istio","apiopPrereleaseSuffix":"issue-419","apiopVersion":"1.0.0","credentialName":"istio-ingress-cert","dataDog":{"enabled":true},"hostName":"*","httpsRedirect":true,"imagePullPolicy":"IfNotPresent","ingressClass":{"enabled":false,"name":"nginx"},"istioGateway":true,"monitoredNamespaces":"components","operatrorName":"api-operator-istio"},"enabled":true}` | --------------------------------------------------------------------------- |
 | api-operator-kong.IstioGatewayServerhostName | string | `"*"` |  |
 | api-operator-kong.IstioGatewaymonitoredNamespaces | string | `"components"` |  |
+| api-operator-kong.initContainerImage | string | `"busybox:1.28"` |  |
 | api-operator-kong.kong.admin.enabled | bool | `true` |  |
 | api-operator-kong.kong.admin.type | string | `"LoadBalancer"` |  |
 | api-operator-kong.kong.deployment.enabled | bool | `true` |  |
@@ -75,10 +76,9 @@ A Helm of helm to orchestrate the ODA installation
 | api-operator-kong.kong.proxy.type | string | `"LoadBalancer"` |  |
 | api-operator-kong.kongistiooperatordeploymentnamespace | string | `"canvas"` |  |
 | api-operator-kong.kongoperatorimage.kongopImage | string | `"tmforumodacanvas/api-operator-kong"` |  |
-| api-operator-kong.kongoperatorimage.kongopPrereleaseSuffix | string | `"issue-419"` |  |
+| api-operator-kong.kongoperatorimage.kongopPrereleaseSuffix | string | `nil` |  |
 | api-operator-kong.kongoperatorimage.kongopVersion | string | `"1.0.0"` |  |
 | api-operator-kong.kongoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| api-operator-kong.kongoperatorimage.repository | string | `"tmforumodacanvas/api-operator-kong:1.0.0"` |  |
 | api-operator-kong.kongoperatorreplicaCount | int | `1` |  |
 | apisix-gateway-install | object | `{"enabled":false}` | --------------------------------------------------------------------------- |
 | canvas-namespaces.certManagerNamespace | string | `"cert-manager"` |  |
@@ -137,7 +137,7 @@ A Helm of helm to orchestrate the ODA installation
 | cert-manager-init.nameOverride | string | `""` |  |
 | cert-manager-init.namespace | string | `"canvas"` |  |
 | component-operator.deployment.compopImage | string | `"tmforumodacanvas/component-operator"` |  |
-| component-operator.deployment.compopPrereleaseSuffix | string | `"issue-419"` |  |
+| component-operator.deployment.compopPrereleaseSuffix | string | `nil` |  |
 | component-operator.deployment.compopVersion | string | `"1.0.0"` |  |
 | component-operator.deployment.credentialName | string | `"istio-ingress-cert"` |  |
 | component-operator.deployment.httpsRedirect | bool | `true` |  |
@@ -149,17 +149,20 @@ A Helm of helm to orchestrate the ODA installation
 | dependentapi-simple-operator.image | string | `"tmforumodacanvas/dependentapi-simple-operator"` |  |
 | dependentapi-simple-operator.imagePullPolicy | string | `"IfNotPresent"` |  |
 | dependentapi-simple-operator.loglevel | string | `"20"` |  |
-| dependentapi-simple-operator.prereleaseSuffix | string | `"issue-419"` |  |
+| dependentapi-simple-operator.prereleaseSuffix | string | `nil` |  |
 | dependentapi-simple-operator.serviceInventoryAPI.enabled | bool | `true` |  |
 | dependentapi-simple-operator.serviceInventoryAPI.image | string | `"tmforumodacanvas/tmf638-service-inventory-api"` |  |
 | dependentapi-simple-operator.serviceInventoryAPI.imagePullPolicy | string | `"IfNotPresent"` |  |
 | dependentapi-simple-operator.serviceInventoryAPI.mongodb.database | string | `"svcinv"` |  |
 | dependentapi-simple-operator.serviceInventoryAPI.mongodb.port | int | `27017` |  |
-| dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix | string | `"issue-419"` |  |
+| dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix | string | `nil` |  |
 | dependentapi-simple-operator.serviceInventoryAPI.serverUrl | string | `"http://info.canvas.svc.cluster.local"` |  |
 | dependentapi-simple-operator.serviceInventoryAPI.version | string | `"1.0.0"` |  |
 | dependentapi-simple-operator.version | string | `"1.0.0"` |  |
 | global.certificate.appName | string | `"compcrdwebhook"` | Name of the certificate and webhook | |
+| global.hookImages.busybox | string | `"busybox:1.35"` |  |
+| global.hookImages.kubectl | string | `"bitnami/kubectl:latest"` |  |
+| global.hookImages.kubectlCurl | string | `"tmforumodacanvas/baseimage-kubectl-curl:1.30.5"` |  |
 | identityconfig-operator-keycloak.configmap.kcrealm | string | `"odari"` |  |
 | identityconfig-operator-keycloak.configmap.loglevel | string | `"20"` | Log level [python] (https://docs.python.org/3/library/logging.html |
 | identityconfig-operator-keycloak.credentials.pass | string | `"adpass"` |  |
@@ -168,11 +171,11 @@ A Helm of helm to orchestrate the ODA installation
 | identityconfig-operator-keycloak.deployment.hostName | string | `"*"` |  |
 | identityconfig-operator-keycloak.deployment.httpsRedirect | bool | `true` |  |
 | identityconfig-operator-keycloak.deployment.idkopImage | string | `"tmforumodacanvas/identityconfig-operator-keycloak"` |  |
-| identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix | string | `"issue-419"` |  |
-| identityconfig-operator-keycloak.deployment.idkopVersion | string | `"1.0.0"` |  |
+| identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix | string | `nil` |  |
+| identityconfig-operator-keycloak.deployment.idkopVersion | string | `"1.0.3"` |  |
 | identityconfig-operator-keycloak.deployment.idlistkeyImage | string | `"tmforumodacanvas/identity-listener-keycloak"` |  |
 | identityconfig-operator-keycloak.deployment.idlistkeyPrereleaseSuffix | string | `nil` |  |
-| identityconfig-operator-keycloak.deployment.idlistkeyVersion | string | `"0.7.2"` |  |
+| identityconfig-operator-keycloak.deployment.idlistkeyVersion | string | `"0.7.3"` |  |
 | identityconfig-operator-keycloak.deployment.imagePullPolicy | string | `"IfNotPresent"` |  |
 | identityconfig-operator-keycloak.deployment.istioGateway | bool | `true` |  |
 | identityconfig-operator-keycloak.deployment.keycloak.http | int | `8083` |  |
@@ -193,7 +196,7 @@ A Helm of helm to orchestrate the ODA installation
 | keycloak.ingress.hosts[0].path | string | `"/"` |  |
 | keycloak.ingress.hosts[0].tls | bool | `false` |  |
 | keycloak.ingress.ingressClassName | string | `"traefik"` |  |
-| keycloak.keycloakConfigCli | object | `{"backoffLimit":1,"command":["java","-jar","/opt/keycloak-config-cli.jar"],"configuration":{"odari.json":"{\n  \"enabled\": true,\n  \"realm\": \"odari\",\n  \"users\": [\n    {\n    \"username\": \"canvassystem\",\n    \"email\": \"canvassystem@oda.tmforum.org\",\n    \"enabled\": true,\n    \"firstName\": \"Canvas\",\n    \"lastName\": \"User\",\n    \"clientRoles\": {\n      \"realm-management\": [\n        \"manage-clients\"\n      ]\n     }\n    }\n  ]\n}\n"},"enabled":true,"image":{"tag":"5.5.0-debian-11-r35"}}` | Create a odari realm with an canvassystem user |
+| keycloak.keycloakConfigCli | object | `{"backoffLimit":1,"command":["java","-jar","/opt/keycloak-config-cli.jar"],"configuration":{"odari.json":"{\n  \"enabled\": true,\n  \"realm\": \"odari\",\n  \"clients\": [\n    {\n      \"clientId\": \"canvassystem\",\n      \"name\": \"Canvas System\",\n      \"enabled\": true,\n      \"standardFlowEnabled\": false,\n      \"serviceAccountsEnabled\": true\n    },\n    {\n      \"clientId\": \"credentialsmanagement-operator\",\n      \"name\": \"Credentials Management Operator\",\n      \"enabled\": true,\n      \"standardFlowEnabled\": false,\n      \"serviceAccountsEnabled\": true\n    }\n  ],\n  \"users\": [\n    {\n    \"username\": \"service-account-canvassystem\",\n    \"enabled\": true,\n    \"clientRoles\": {\n      \"realm-management\": [\n        \"manage-clients\"\n      ]\n     }\n    },\n    {\n    \"username\": \"service-account-credentialsmanagement-operator\",\n    \"enabled\": true,\n    \"clientRoles\": {\n      \"realm-management\": [\n        \"view-clients\"\n      ]\n     }\n    }\n  ]\n}\n"},"enabled":true,"image":{"tag":"5.5.0-debian-11-r35"}}` | Create a odari realm with canvassystem and credentialsmanagement-operator clients |
 | keycloak.postgresql.auth.database | string | `"keycloak"` |  |
 | keycloak.postgresql.auth.password | string | `"keycloakdbuser"` |  |
 | keycloak.postgresql.auth.username | string | `"keycloak"` |  |
@@ -207,8 +210,8 @@ A Helm of helm to orchestrate the ODA installation
 | oda-crds.enabled | bool | `true` |  |
 | oda-webhook.image | string | `"tmforumodacanvas/compcrdwebhook"` |  |
 | oda-webhook.imagePullPolicy | string | `"IfNotPresent"` |  |
-| oda-webhook.prereleaseSuffix | string | `"issue-419"` |  |
-| oda-webhook.version | string | `"1.0.0"` |  |
+| oda-webhook.prereleaseSuffix | string | `nil` |  |
+| oda-webhook.version | string | `"1.0.1"` |  |
 | preqrequisitechecks.istio | bool | `true` |  |
 | secretsmanagement-operator.auth_path | string | `"jwt-k8s-sman"` |  |
 | secretsmanagement-operator.autodetectAudience | bool | `true` |  |
@@ -219,7 +222,7 @@ A Helm of helm to orchestrate the ODA installation
 | secretsmanagement-operator.logLevel | int | `20` |  |
 | secretsmanagement-operator.login_role_tpl | string | `"sman-{0}-role"` |  |
 | secretsmanagement-operator.policy_name_tpl | string | `"sman-{0}-policy"` |  |
-| secretsmanagement-operator.prereleaseSuffix | string | `"issue-419"` |  |
+| secretsmanagement-operator.prereleaseSuffix | string | `nil` |  |
 | secretsmanagement-operator.secrets_base_path_tpl | string | `"sidecar"` |  |
 | secretsmanagement-operator.secrets_mount_tpl | string | `"kv-sman-{0}"` |  |
 | secretsmanagement-operator.sidecarImage | string | `"tmforumodacanvas/secretsmanagement-sidecar"` |  |

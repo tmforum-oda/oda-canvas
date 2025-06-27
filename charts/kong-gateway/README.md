@@ -74,8 +74,10 @@ A Helm chart for Kubernetes
 | kong.proxy.type | string | `"LoadBalancer"` |  |
 | kongistiooperatordeploymentnamespace | string | `"canvas"` |  |
 | kongnamespace | string | `"kong"` |  |
+| kongoperatorimage.kongopImage | string | `"tmforumodacanvas/api-operator-kong"` |  |
+| kongoperatorimage.kongopPrereleaseSuffix | string | `nil` |  |
+| kongoperatorimage.kongopVersion | string | `"1.0.0"` |  |
 | kongoperatorimage.pullPolicy | string | `"IfNotPresent"` |  |
-| kongoperatorimage.repository | string | `"tmforumodacanvas/api-operator-kong:1.0.0"` |  |
 | kongoperatorreplicaCount | int | `1` |  |
 
 ----------------------------------------------

@@ -1,4 +1,3 @@
-{{ if .Values.serviceInventoryAPI.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -14,4 +13,3 @@ spec:
     targetPort: 8638
   selector:
     app: {{ .Release.Name }}-info-service
-{{- end }}

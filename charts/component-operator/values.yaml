@@ -5,7 +5,7 @@ deployment:
   compopPrereleaseSuffix: LT-issue-81
   compopImagePullPolicy: IfNotPresent
   istioGateway: true
-  monitoredNamespaces: 'components'           # comma separated list of namespaces
+  monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
   ingressClass:
     enabled: false
     name: nginx
