@@ -4,7 +4,6 @@
 
 @UC003         # tagged as use case 3
 @UC003-F001    # tagged as use feature 1 within use case 3
-@PROB
 Feature: UC003-F001 Expose APIs: Create API Resource
 
     Scenario Outline: Create API Resource for API
@@ -15,5 +14,5 @@ Feature: UC003-F001 Expose APIs: Create API Resource
     Examples:
        | Name           | PackageName       | ResourceName             | ComponentName            | SegmentName        | ApiCount |
        | Core API       | productcatalog-v1 | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1        |
-#       | Management API | productcatalog-v1 | metrics                  | productcatalogmanagement | managementFunction | 1        |
-#       | Security API   | productcatalog-v1 | partyrole                | productcatalogmanagement | securityFunction   | 1        |
+       | Management API | productcatalog-v1 | metrics                  | productcatalogmanagement | managementFunction | 1        |
+       | Security API   | productcatalog-v1 | partyrole                | productcatalogmanagement | securityFunction   | 1        |
