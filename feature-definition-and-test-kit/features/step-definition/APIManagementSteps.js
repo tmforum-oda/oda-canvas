@@ -29,6 +29,8 @@ Then('I should see the {string} ExposedAPI resource on the {string} component', 
 
   let namespace = global.namespace || NAMESPACE
   
+  console.log(`[--- ExposedAPI ---] namespace=${namespace}, componentName=${componentName}, ExposedAPIName=${ExposedAPIName}, currentReleaseName=${global.currentReleaseName}`);
+  
   // wait until the ExposedAPI resource is found or the timeout is reached
   while (apiResource == null) {
     apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, namespace)

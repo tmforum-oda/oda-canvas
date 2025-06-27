@@ -68,7 +68,8 @@ Given('an example package {string} with a {string} component with {string} Depen
  * @param {string} componentPackage - The name of the package to install.
  */
 When('I install the {string} package', async function (componentPackage) {
-  global.currentReleaseName = DEFAULT_RELEASE_NAME
+	global.currentReleaseName = DEFAULT_RELEASE_NAME
+	global.namespace = null
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
@@ -81,6 +82,7 @@ When('I install the {string} package', async function (componentPackage) {
  */
 Given('a baseline {string} package installed as release {string}', async function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
+  global.namespace = null
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
@@ -92,6 +94,7 @@ Given('a baseline {string} package installed as release {string}', async functio
  */
 When('I install the {string} package as release {string}', async function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
+  global.namespace = null
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
