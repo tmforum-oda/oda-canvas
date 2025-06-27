@@ -16,7 +16,6 @@ import traceback
 from kubernetes.client.rest import ApiException
 import os
 import asyncio
-
 from log_wrapper import LogWrapper, logwrapper
 
 # Setup logging
