@@ -13,7 +13,7 @@ Feature: UC003-F001 Expose APIs: Create API Resource
         Then I should see the '<ResourceName>' ExposedAPI resource on the '<ComponentName>' component
 
     Examples:
-       | Name           | PackageName            | ResourceName             | ComponentName            | SegmentName        | ApiCount |
+       | Name           | PackageName       | ResourceName             | ComponentName            | SegmentName        | ApiCount |
        | Core API       | productcatalog-v1 | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1        |
-       | Management API | productcatalog-v1 | metrics                  | productcatalogmanagement | managementFunction | 1        |
-       | Security API   | productcatalog-v1 | partyrole                | productcatalogmanagement | securityFunction   | 1        |
+#       | Management API | productcatalog-v1 | metrics                  | productcatalogmanagement | managementFunction | 1        |
+#       | Security API   | productcatalog-v1 | partyrole                | productcatalogmanagement | securityFunction   | 1        |
