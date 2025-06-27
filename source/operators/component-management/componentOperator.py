@@ -807,7 +807,7 @@ async def identityConfig(
                         foundPartyRole = True
                         break
             if foundPartyRole:
-                logw.info(f"Adding componentRole dynamically defined roles")
+                logw.info(f"Adding componentRole-PartyRole dynamically defined roles")
                 # get the partyrole API and add to the identityConfig
                 identityConfigResource["partyRoleAPI"] = partyRoleAPI
 
@@ -823,7 +823,7 @@ async def identityConfig(
                         foundPermissionSpecificationSet = True
                         break
             if foundPermissionSpecificationSet:
-                logw.info(f"Adding componentRole PermissionSpecificationSet dynamically defined roles")
+                logw.info(f"Adding componentRole-PermissionSpecificationSet dynamically defined roles")
                 # get the permissionSpecificationSet API and add to the identityConfig
                 identityConfigResource["permissionSpecificationSetAPI"] = permissionSpecificationSetAPI
 
