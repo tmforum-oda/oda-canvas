@@ -152,8 +152,8 @@ component-operator:
   deployment:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
-    compopVersion: 1.0.0
-    compopPrereleaseSuffix: 
+    compopVersion: 1.1.0
+    compopPrereleaseSuffix: LT-issue-81
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
