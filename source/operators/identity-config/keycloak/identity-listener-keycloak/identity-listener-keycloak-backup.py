@@ -1,6 +1,6 @@
 # To run this using Flask:
 # 1) set the environment variable
-#    $env:FLASK_APP = 'identity-listener-keycloak.py'
+#    $env:FLASK_APP = 'securityControllerAPIserver-keycloak.py'
 # 2) type 'flask run'
 
 from waitress import serve
@@ -67,35 +67,10 @@ app = Flask(__name__)
 
 
 @app.route("/listener", methods=["POST"])
-def event_listener():
-    """
-    Unified listener that handles both partyRole and permissionSpecificationSet events
-    """
+def party_role_listener():
+    client = ""
     doc = request.json
     logger.debug("security-APIListener received %s", doc)
-    
-    # Check if this is a partyRole event
-    if "partyRole" in doc.get("event", {}):
-        return handle_party_role_event(doc)
-    # Check if this is a permissionSpecificationSet event
-    elif "permissionSpecificationSet" in doc.get("event", {}):
-        handle_permission_spec_set_event(doc)
-        return ""
-    else:
-        logger.warning(
-            format_cloud_event(
-                "Unknown event type received",
-                "security-APIListener received unknown event structure",
-            )
-        )
-        return ""
-
-
-def handle_party_role_event(doc):
-    """
-    Handle party role events and create/update/delete roles in Keycloak
-    """
-    client = ""
     party_role = doc["event"]["partyRole"]
     logger.debug("partyRole = %s", party_role)
     if party_role["@baseType"] == "PartyRole":
@@ -143,7 +118,7 @@ def handle_party_role_event(doc):
                         )
                     )
             elif event_type == PARTY_ROLE_DELETION:
-                try:  # to delete the role from the client in Keycloak
+                try:  # to add the role to the client in Keycloak
                     kc.del_role(party_role["name"], client, token, kcRealm)
                 except RuntimeError:
                     logger.error(
@@ -198,7 +173,7 @@ def handle_permission_spec_set_event(doc):
     
     if permission_spec_set["@baseType"] == "PermissionSpecificationSet":
         event_type = doc["eventType"]
-        logger.debug("security-APIListener called with permissionSpecificationSet eventType %s", event_type)
+        logger.debug("security-APIListener called with eventType %s", event_type)
         component = permission_spec_set["href"].split("/")[3]
 
         try:  # to authenticate and get a token
@@ -281,6 +256,127 @@ def handle_permission_spec_set_event(doc):
                 "security-APIListener called with invalid @baseType for permissionSpecificationSet",
             )
         )
+
+
+@app.route("/listener", methods=["POST"])
+def unified_listener():
+    """
+    Unified listener that handles both partyRole and permissionSpecificationSet events
+    """
+    doc = request.json
+    logger.debug("security-APIListener received %s", doc)
+    
+    # Check if this is a partyRole event
+    if "partyRole" in doc.get("event", {}):
+        return party_role_handler(doc)
+    # Check if this is a permissionSpecificationSet event
+    elif "permissionSpecificationSet" in doc.get("event", {}):
+        handle_permission_spec_set_event(doc)
+        return ""
+    else:
+        logger.warning(
+            format_cloud_event(
+                "Unknown event type received",
+                "security-APIListener received unknown event structure",
+            )
+        )
+        return ""
+
+
+def party_role_handler(doc):
+    """
+    Extract the original party role handling logic
+    """
+    client = ""
+    party_role = doc["event"]["partyRole"]
+    logger.debug("partyRole = %s", party_role)
+    if party_role["@baseType"] == "PartyRole":
+        event_type = doc["eventType"]
+        logger.debug("security-APIListener called with eventType %s", event_type)
+        component = party_role["href"].split("/")[3]
+
+        try:  # to authenticate and get a token
+            token = kc.get_token(username, password)
+        except RuntimeError as e:
+            logger.error(
+                format_cloud_event(
+                    str(e), "security-APIListener could not GET Keycloak token"
+                )
+            )
+            raise
+
+        try:  # to get the list of existing clients
+            client_list = kc.get_client_list(token, kcRealm)
+        except RuntimeError as e:
+            logger.error(
+                format_cloud_event(
+                    str(e), f"security-APIListener could not GET clients for {kcRealm}"
+                )
+            )
+        else:
+            client = client_list[component]
+
+        if client != "":
+            if event_type == PARTY_ROLE_CREATION:
+                try:  # to add the role to the client in Keycloak
+                    kc.add_role(party_role["name"], client, token, kcRealm)
+                except RuntimeError as e:
+                    logger.error(
+                        format_cloud_event(
+                            f'Keycloak role create failed for {party_role["name"]} in {component}',
+                            "security-APIListener event listener error",
+                        )
+                    )
+                else:
+                    logger.info(
+                        format_cloud_event(
+                            f'Keycloak role {party_role["name"]} added to {component}',
+                            "security-APIListener event listener success",
+                        )
+                    )
+            elif event_type == PARTY_ROLE_DELETION:
+                try:  # to add the role to the client in Keycloak
+                    kc.del_role(party_role["name"], client, token, kcRealm)
+                except RuntimeError:
+                    logger.error(
+                        format_cloud_event(
+                            f'Keycloak role delete failed for {party_role["name"]} in {component}',
+                            "security-APIListener event listener error",
+                        )
+                    )
+                else:
+                    logger.info(
+                        format_cloud_event(
+                            f'Keycloak role {party_role["name"]} removed from {component}',
+                            "security-APIListener event listener success",
+                        )
+                    )
+            elif event_type == PARTY_ROLE_UPDATE:
+                pass  # because we do not need to do anything for updates
+                logger.debug("Update Keycloak for UPDATE")
+            else:
+                logger.warning(
+                    format_cloud_event(
+                        f"eventType was {event_type} - not processed",
+                        "security-APIListener called with invalid eventType",
+                    )
+                )
+        else:
+            logger.error(
+                format_cloud_event(
+                    f'No client found in Keycloak for {party_role["name"]}',
+                    "security-APIListener called for non-existent client",
+                )
+            )
+    else:
+        logger.warning(
+            format_cloud_event(
+                f'@baseType was {party_role["@baseType"]} - not processed',
+                "security-APIListener called with invalid @baseType",
+            )
+        )
+
+    return ""
 
 
 if __name__ == "__main__":

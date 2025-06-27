@@ -7,6 +7,9 @@ from log_wrapper import LogWrapper, logwrapper
 from kubernetes.client.rest import ApiException
 import kubernetes.client
 
+# HTTP status codes
+HTTP_NOT_FOUND = 404
+
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
 root_logger = logging.getLogger()
@@ -190,6 +193,7 @@ def identityConfig(
 
     # check if the partyRoleManagement API is exposed by the component
     # if it is present, add a listener to the partyRoleManagement API
+    listener_registered = False
     if "partyRoleAPI" in spec:
         partyRoleAPI = spec["partyRoleAPI"]
 
@@ -203,18 +207,42 @@ def identityConfig(
                 + str(partyRoleAPI["port"])
                 + partyRoleAPI["path"]
             )
-            logw.info(f"register_listener for url {rooturl}")
+            logw.info(f"register_listener for partyRoleAPI url {rooturl}")
             register_listener(rooturl + "/hub")
+            listener_registered = True
 
         except RuntimeError as e:
-            logw.error(f"register_listener failed for url {rooturl}", str(e))
+            logw.error(f"register_listener failed for partyRoleAPI url {rooturl}", str(e))
             raise kopf.TemporaryError(
-                "Could not register listener. Will retry.", delay=10
+                "Could not register listener for partyRoleAPI. Will retry.", delay=10
             )
-        else:
-            status_value = {"identityProvider": "Keycloak", "listenerRegistered": True}
-    else:
-        status_value = {"identityProvider": "Keycloak", "listenerRegistered": False}
+
+    # check if the permissionSpecificationSetAPI is exposed by the component
+    # if it is present, add a listener to the permissionSpecificationSetAPI
+    if "permissionSpecificationSetAPI" in spec:
+        permissionSpecificationSetAPI = spec["permissionSpecificationSetAPI"]
+
+        try:  # to register with the permissionSpecificationSetAPI
+            rooturl = (
+                "http://"
+                + permissionSpecificationSetAPI["implementation"]
+                + "."
+                + namespace
+                + ".svc.cluster.local:"
+                + str(permissionSpecificationSetAPI["port"])
+                + permissionSpecificationSetAPI["path"]
+            )
+            logw.info(f"register_listener for permissionSpecificationSetAPI url {rooturl}")
+            register_listener(rooturl + "/hub")
+            listener_registered = True
+
+        except RuntimeError as e:
+            logw.error(f"register_listener failed for permissionSpecificationSetAPI url {rooturl}", str(e))
+            raise kopf.TemporaryError(
+                "Could not register listener for permissionSpecificationSetAPI. Will retry.", delay=10
+            )
+
+    status_value = {"identityProvider": "Keycloak", "listenerRegistered": listener_registered}
 
     # update the status value to the parent component object
     if "ownerReferences" in meta.keys():

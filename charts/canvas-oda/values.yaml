@@ -165,13 +165,13 @@ identityconfig-operator-keycloak:
   deployment:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
-    idkopVersion: 1.0.3
-    idkopPrereleaseSuffix:
+    idkopVersion: 1.1.0
+    idkopPrereleaseSuffix: LT-issue-81
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
-    idlistkeyVersion: 0.7.3
-    idlistkeyPrereleaseSuffix: 
+    idlistkeyVersion: 1.1.0
+    idlistkeyPrereleaseSuffix: LT-issue-81 
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     keycloak: *portKeycloak
     hostName: "*"
