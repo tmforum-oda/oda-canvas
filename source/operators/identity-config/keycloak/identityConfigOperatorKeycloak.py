@@ -37,7 +37,7 @@ def register_listener(url: str) -> None:
         # Kopf to handle this and only this error until we come across
         # more errors
         r = requests.post(
-            url, json={"callback": "http://idlistkey.canvas:5000/listener"}
+            url, json={"callback": "http://idlistkey.canvas:5000/listener", '@type': 'Hub'}
         )
         r.raise_for_status()
     except RuntimeError:
