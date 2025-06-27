@@ -4,7 +4,6 @@
 
 @UC002         # tagged as use case 2
 @UC002-F006    # tagged as feature 6 within use case 2
-@SkipTest
 Feature: UC002-F006 Uninstall a component from non default namespace and verify resources removal
 
     Scenario Outline: Uninstall a component from non default namespace and verify resources removal
