@@ -20,10 +20,17 @@ const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeout
 const CLEANUP_PACKAGE = false // set to true to uninstall the package after each Scenario
 const DEBUG_LOGS = true // set to true to log the controller logs after each failed Scenario
 global.currentReleaseName = null;
+global.namespace = null;
 
 setDefaultTimeout( 20 * 1000);
 
 
+
+//Allow skipping tests
+Before({ tags: '@SkipTest' }, async function () {
+  console.log('Skipping scenario.');
+  return 'skipped';
+});
 
 
 
@@ -61,7 +68,8 @@ Given('an example package {string} with a {string} component with {string} Depen
  * @param {string} componentPackage - The name of the package to install.
  */
 When('I install the {string} package', async function (componentPackage) {
-  global.currentReleaseName = DEFAULT_RELEASE_NAME
+	global.currentReleaseName = DEFAULT_RELEASE_NAME
+	global.namespace = null
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
@@ -74,6 +82,7 @@ When('I install the {string} package', async function (componentPackage) {
  */
 Given('a baseline {string} package installed as release {string}', async function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
+  global.namespace = null
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
 });
 
@@ -85,7 +94,21 @@ Given('a baseline {string} package installed as release {string}', async functio
  */
 When('I install the {string} package as release {string}', async function (componentPackage, releaseName) {
   global.currentReleaseName = releaseName
+  global.namespace = null
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
+/**
+ * Install a specified package using the packageManagerUtils.installPackage function. Use the specified release name and namespace.
+ *
+ * @param {string} componentPackage - The name of the package to install.
+ * @param {string} releaseName - The name of the release name.
+ * @param {string} namespace - The name of the namespace.
+ */
+When('I install the {string} package as release {string} into namespace {string}', async function (componentPackage, releaseName, namespace) {
+  global.currentReleaseName = releaseName
+  global.namespace = namespace
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, global.namespace)
 });
 
 /**
@@ -148,9 +171,11 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
   var startTime = performance.now()
   var endTime
 
+  let namespace = global.namespace || NAMESPACE;
+  
   // wait until the component resource is found or the timeout is reached
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResource(  global.currentReleaseName + '-' + componentName, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResource(  global.currentReleaseName + '-' + componentName, namespace)
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
@@ -228,6 +253,19 @@ Given('I uninstall the {string} package as release {string}', async function (pa
 });
 
 /**
+ * Uninstall the specified package for the given release and namespace, so it ends up uninstalled.
+ *
+ * @param {string} packageName - The name of the package to be uninstalled.
+ * @param {string} releaseName - The release name to uninstall.
+ * @param {string} namespace - The name of the namespace.
+ */
+Given('I uninstall the {string} package as release {string} from namespace {string}', async function (packageName, releaseName, namespace) {
+  console.log(`Uninstalling package '${packageName}' with release '${releaseName}' from namespace '${namespace}'...`);
+  // global.currentReleaseName = releaseName
+  // global.namespace = namespace
+  await packageManagerUtils.uninstallPackage(releaseName, namespace);
+});
+/**
  * Specified component need to have a deployment status of 'Complete' for the given release.
  *
  * @param {string} componentName - The name of the component to check.
@@ -290,6 +328,28 @@ Then('I should not see the {string} component after {string} release uninstall',
     }
 
     console.log(`Success: No component found with the name "${compName}".`);
+});
+
+/**
+ * Checks that a specified component resource does not exist after a given release and namespace has been uninstalled.
+ *
+ * @param {string} componentName - The name of the component to check.
+ * @param {string} releaseName - The release name from which the component was uninstalled.
+ * @param {string} namespace - The name of the namespace from which the component was uninstalled. 
+ */
+Then('I should not see the {string} component after {string} release uninstall from namespace {string}',
+  async function (componentName, releaseName, namespace) {
+    const compName = `${releaseName}-${componentName}`;
+
+    // Attempt to fetch the component resource
+    const componentResource = await resourceInventoryUtils.getComponentResource(compName, namespace);
+
+    if (componentResource) {
+      console.error(`Failure: Component "${compName}" still exists in namespace "${namespace}".`);
+      throw new Error(`Component "${compName}" still exists in namespace "${namespace}" but should have been removed by canvas`);
+    }
+
+    console.log(`Success: No component found with the name "${compName}" in namespace "${namespace}".`);
 });
 
 /**
