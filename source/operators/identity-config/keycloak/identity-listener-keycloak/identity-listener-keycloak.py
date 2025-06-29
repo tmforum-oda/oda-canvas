@@ -224,7 +224,7 @@ def handle_permission_spec_set_event(doc):
     if permission_spec_set["@baseType"] == "PermissionSpecificationSet":
         event_type = doc["eventType"]
         logger.debug("security-APIListener called with permissionSpecificationSet eventType %s", event_type)
-        component = permission_spec_set["href"].split("/")[3]
+        component = permission_spec_set["href"].split("/")[1]
 
         try:  # to authenticate and get a token
             token = kc.get_token(username, password)
