@@ -36,8 +36,10 @@ def register_listener(url: str, api_type: str = "Unknown") -> None:
     Returns nothing, or raises an exception for the caller to catch
     """
     callback_url = "http://idlistkey.canvas:5000/listener"
-    payload = {"callback": callback_url, "@type": "Hub"}
-    
+    payload = {"callback": callback_url}
+    if (api_type == "permissionSpecificationSetAPI"): # v5 APIs require a type
+        payload["@type"] = "Hub"
+
     logger.info(f"Registering listener for {api_type} - Hub URL: {url}")
     logger.debug(f"Registration payload: {payload}")
 
