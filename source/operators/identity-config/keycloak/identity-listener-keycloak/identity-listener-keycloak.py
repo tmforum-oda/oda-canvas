@@ -72,14 +72,38 @@ def event_listener():
     Unified listener that handles both partyRole and permissionSpecificationSet events
     """
     doc = request.json
+    
+    # Enhanced logging for all incoming notifications
+    logger.info("=== NOTIFICATION RECEIVED ===")
+    logger.info(f"Received notification from: {request.remote_addr}")
+    logger.info(f"User-Agent: {request.headers.get('User-Agent', 'Unknown')}")
+    logger.info(f"Content-Type: {request.headers.get('Content-Type', 'Unknown')}")
+    logger.debug(f"Full notification payload: {doc}")
+    
+    # Log notification type and source details
+    event_type = doc.get("eventType", "Unknown")
+    logger.info(f"Event Type: {event_type}")
+    
+    if "event" in doc:
+        event_data = doc["event"]
+        if "partyRole" in event_data:
+            logger.info(f"Notification Source: partyRole API")
+            logger.info(f"PartyRole details: name={event_data['partyRole'].get('name', 'Unknown')}, href={event_data['partyRole'].get('href', 'Unknown')}")
+        elif "permissionSpecificationSet" in event_data:
+            logger.info(f"Notification Source: permissionSpecificationSet API") 
+            logger.info(f"PermissionSpecificationSet details: name={event_data['permissionSpecificationSet'].get('name', 'Unknown')}, href={event_data['permissionSpecificationSet'].get('href', 'Unknown')}")
+    
     logger.debug("security-APIListener received %s", doc)
     
     # Check if this is a partyRole event
     if "partyRole" in doc.get("event", {}):
-        return handle_party_role_event(doc)
+        result = handle_party_role_event(doc)
+        logger.info("=== NOTIFICATION PROCESSING COMPLETE (partyRole) ===")
+        return result
     # Check if this is a permissionSpecificationSet event
     elif "permissionSpecificationSet" in doc.get("event", {}):
         handle_permission_spec_set_event(doc)
+        logger.info("=== NOTIFICATION PROCESSING COMPLETE (permissionSpecificationSet) ===")
         return ""
     else:
         logger.warning(
@@ -88,6 +112,7 @@ def event_listener():
                 "security-APIListener received unknown event structure",
             )
         )
+        logger.info("=== NOTIFICATION PROCESSING COMPLETE (unknown/rejected) ===")
         return ""
 
 
@@ -281,6 +306,42 @@ def handle_permission_spec_set_event(doc):
                 "security-APIListener called with invalid @baseType for permissionSpecificationSet",
             )
         )
+
+
+@app.route("/status", methods=["GET"])
+def status_endpoint():
+    """
+    Status endpoint to view listener health and registration status
+    """
+    import requests
+    status_info = {
+        "service": "identity-listener-keycloak",
+        "status": "running",
+        "endpoints": {
+            "/listener": "POST - Receive notifications from APIs",
+            "/status": "GET - View service status and health"
+        },
+        "keycloak_connection": "unknown",
+        "environment": {
+            "KEYCLOAK_BASE": kcBaseURL,
+            "KEYCLOAK_REALM": kcRealm,
+            "KEYCLOAK_USER": username if username else "not_set"
+        }
+    }
+    
+    # Test Keycloak connection
+    try:
+        token = kc.get_token(username, password)
+        if token:
+            status_info["keycloak_connection"] = "connected"
+        else:
+            status_info["keycloak_connection"] = "failed"
+    except Exception as e:
+        status_info["keycloak_connection"] = f"error: {str(e)}"
+    
+    logger.info(f"Status endpoint accessed from {request.remote_addr}")
+    
+    return status_info
 
 
 if __name__ == "__main__":
