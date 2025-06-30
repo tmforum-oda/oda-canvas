@@ -1,3 +1,9 @@
+{{/*
+Role Initialization Job
+This job creates an initial 'Admin' role using either:
+- Permission Specification Set API (TMF672) when permissionspec.enabled=true
+- Party Role API (TMF669) when permissionspec.enabled=false
+*/}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -12,12 +18,14 @@ spec:
     spec:
       containers:
       - name: {{.Release.Name}}-roleinitialization
-        image: lesterthomas/roleinitialization:0.3
+        image: lesterthomas/roleinitialization:0.6
         env:
         - name: RELEASE_NAME
           value: {{.Release.Name}}           
         - name: COMPONENT_NAME
-          value: {{.Release.Name}}-{{.Values.component.name}}           
+          value: {{.Release.Name}}-{{.Values.component.name}}
+        - name: USE_PERMISSION_SPEC
+          value: "false"
         imagePullPolicy: Always
       restartPolicy: OnFailure
   backoffLimit: 10

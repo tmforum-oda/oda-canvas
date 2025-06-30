@@ -1,18 +1,18 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{.Release.Name}}-roleinitialization
+  name: {{.Release.Name}}-productcataloginitialization
   labels:
     oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
 spec:
   template:
     metadata:
       labels:
-        app: {{.Release.Name}}-roleinitialization
+        app: {{.Release.Name}}-productcataloginitialization
     spec:
       containers:
-      - name: {{.Release.Name}}-roleinitialization
-        image: {{.Values.partyrole.initializationimage}}
+      - name: {{.Release.Name}}-productcataloginitialization
+        image: lesterthomas/productcataloginitialization:0.3
         env:
         - name: RELEASE_NAME
           value: {{.Release.Name}}           

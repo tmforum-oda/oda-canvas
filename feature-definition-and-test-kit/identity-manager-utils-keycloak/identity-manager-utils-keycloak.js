@@ -78,6 +78,36 @@ const identityManagerUtils = {
     });
     roleList = res.data.map(({name}) => name);
     return roleList;
+  },
+
+  /**
+   * Function that checks if a client exists in Keycloak
+   * @param    {String} clientName        Name of the client to check
+   * @return   {Boolean}                  True if client exists, false otherwise
+   */  
+  clientExists: async function(clientName) {
+    try {
+      // Get the token for authn/authz against the Keycloak API
+      const token = await identityManagerUtils.getToken(config.baseURL, config.user, config.password);
+      const headers = { Authorization: 'Bearer ' + token };
+      
+      // Search for the client by clientId
+      const res = await axios({
+        url: '/admin/realms/' + config.realm + '/clients',
+        baseURL: config.baseURL,
+        method: 'get',
+        headers: headers,
+        params: { clientId: clientName }
+      });
+      
+      // If the response contains data, the client exists
+      return res.data && res.data.length > 0;
+      
+    } catch (err) {
+      console.log('Error checking client existence:', err.message);
+      // If there's an error (like 404), assume client doesn't exist
+      return false;
+    }
   }
 }
 

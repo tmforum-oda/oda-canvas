@@ -51,8 +51,9 @@ Then('I should see the predefined role assigned to the {string} client for the {
 When('I POST a new PermissionSpecificationSet with the following details:', async function (dataTable) {
   console.log('=== Starting PermissionSpecificationSet Creation Test ===');
   
-  // Extract the data from the dataTable
-  const permissionSpecData = dataTable.hashes()[0]; // Get the first row of data
+  // Extract all rows from the dataTable
+  const permissionSpecDataRows = dataTable.hashes(); // Get all rows of data
+  console.log(`Processing ${permissionSpecDataRows.length} PermissionSpecificationSet(s)`);
   
   // Get the component name - using 'productcatalogmanagement' as specified in the feature
   const componentName = 'productcatalogmanagement';
@@ -67,61 +68,74 @@ When('I POST a new PermissionSpecificationSet with the following details:', asyn
   
   // Get the base API URL from the ExposedAPI status
   const baseApiURL = exposedAPIResource.status.apiStatus.url;
-  console.log(`Creating PermissionSpecificationSet '${permissionSpecData.name}' via TMF672 API: ${baseApiURL}`);
   
-  // Create the PermissionSpecificationSet payload based on TMF672 specification
-  const permissionSpecPayload = {
-    '@type': 'PermissionSpecificationSet',
-    '@baseType': 'PermissionSpecificationSet',
-    name: permissionSpecData.name,
-    description: permissionSpecData.description,
-    involvementRole: permissionSpecData.involvementRole || 'DefaultRole',
-    permissionSpecification: [
-      {
-        '@type': 'PermissionSpecification',
-        '@baseType': 'PermissionSpecification',
-        name: permissionSpecData.name,
-        description: permissionSpecData.description,
-        function: "DefaultRole",
-        action: "all"   
+  // Store created resources for potential use in subsequent steps
+  global.createdPermissionSpecs = [];
+  
+  // Process each row in the dataTable
+  for (let i = 0; i < permissionSpecDataRows.length; i++) {
+    const permissionSpecData = permissionSpecDataRows[i];
+    console.log(`Creating PermissionSpecificationSet ${i + 1}/${permissionSpecDataRows.length}: '${permissionSpecData.name}' via TMF672 API: ${baseApiURL}`);
+    
+    // Create the PermissionSpecificationSet payload based on TMF672 specification
+    const permissionSpecPayload = {
+      '@type': 'PermissionSpecificationSet',
+      '@baseType': 'PermissionSpecificationSet',
+      name: permissionSpecData.name,
+      description: permissionSpecData.description,
+      involvementRole: permissionSpecData.involvementRole || 'DefaultRole',
+      permissionSpecification: [
+        {
+          '@type': 'PermissionSpecification',
+          '@baseType': 'PermissionSpecification',
+          name: permissionSpecData.name,
+          description: permissionSpecData.description,
+          function: "DefaultRole",
+          action: "all"   
+        }
+      ]
+    };
+    
+    try {
+      // Make the POST request to create the PermissionSpecificationSet
+      const response = await chai.request(baseApiURL)
+        .post('/permissionSpecificationSet')
+        .set('User-Agent', 'Canvas-BDD-Test')
+        .trustLocalhost(true)
+        .disableTLSCerts()
+        .send(permissionSpecPayload);
+      
+      // Assert that the request was successful (201 Created)
+      assert.ok(response.status === 201, `Expected status 201 but got ${response.status} for PermissionSpecificationSet '${permissionSpecData.name}'`);
+      
+      // Store the created resource details
+      global.createdPermissionSpecs.push(response.body);
+      
+      console.log(`✅ Successfully created PermissionSpecificationSet '${permissionSpecData.name}' with ID: ${response.body.id}`);
+      
+    } catch (error) {
+      console.error(`❌ Error creating PermissionSpecificationSet '${permissionSpecData.name}':`, error.message);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+        console.error('Response body:', JSON.stringify(error.response.body, null, 2));
       }
-    ]
-  };
-  
-  try {
-    // Make the POST request to create the PermissionSpecificationSet
-    const response = await chai.request(baseApiURL)
-      .post('/permissionSpecificationSet')
-      .set('User-Agent', 'Canvas-BDD-Test')
-      .trustLocalhost(true)
-      .disableTLSCerts()
-      .send(permissionSpecPayload);
-    
-    // Assert that the request was successful (201 Created)
-    assert.ok(response.status === 201, `Expected status 201 but got ${response.status}`);
-    
-    // Store the created resource details for potential use in subsequent steps
-    global.lastCreatedPermissionSpec = response.body;
-    
-    console.log(`✅ Successfully created PermissionSpecificationSet '${permissionSpecData.name}' with ID: ${response.body.id}`);
-    console.log('=== PermissionSpecificationSet Creation Test Complete ===');
-    
-  } catch (error) {
-    console.error('❌ Error creating PermissionSpecificationSet:', error.message);
-    if (error.response) {
-      console.error('Response status:', error.response.status);
-      console.error('Response headers:', error.response.headers);
-      console.error('Response body:', JSON.stringify(error.response.body, null, 2));
+      if (error.request) {
+        console.error('Request details:');
+        console.error('- Method:', error.request.method);
+        console.error('- URL:', error.request.url);
+        console.error('- Headers:', error.request.headers);
+      }
+      console.log(`=== PermissionSpecificationSet Creation Test Failed for '${permissionSpecData.name}' ===`);
+      throw error;
     }
-    if (error.request) {
-      console.error('Request details:');
-      console.error('- Method:', error.request.method);
-      console.error('- URL:', error.request.url);
-      console.error('- Headers:', error.request.headers);
-    }
-    console.log('=== PermissionSpecificationSet Creation Test Failed ===');
-    throw error;
   }
+  
+  // Store the last created resource for backward compatibility
+  global.lastCreatedPermissionSpec = global.createdPermissionSpecs[global.createdPermissionSpecs.length - 1];
+  
+  console.log(`✅ Successfully created all ${permissionSpecDataRows.length} PermissionSpecificationSet(s)`);
+  console.log('=== PermissionSpecificationSet Creation Test Complete ===');
 });
 
 Then('the role {string} should be created in the Identity Platform for client {string}', async function (roleName, clientName) {
@@ -188,7 +202,7 @@ Given('the role {string} exists in the Identity Platform', async function (roleN
   
   // Use the same client naming convention as other tests
   const componentName = 'productcatalogmanagement';
-  const clientName = `ctk-${componentName}`;
+  const clientName =  `${global.currentReleaseName}-${componentName}`;
   
   try {
     // Get all roles for the specified client from Keycloak
@@ -447,3 +461,58 @@ Given('the {string} component has an existing PermissionSpecificationSet {string
   }
 });
 
+Then('the client {string} should be removed from the Identity Platform', async function (clientName) {
+  console.log('=== Starting Identity Platform Client Removal Verification ===');
+  console.log(`Verifying client '${clientName}' has been removed from Identity Platform`);
+  
+  // Wait a moment for the async processing to complete
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  try {
+    // Check if the client still exists in Keycloak
+    const clientExists = await identityManagerUtils.clientExists(clientName);
+    
+    if (!clientExists) {
+      console.log(`✅ Client removal verification successful: '${clientName}' has been removed from Identity Platform`);
+    } else {
+      console.error(`❌ Client removal verification failed: '${clientName}' still exists in Identity Platform`);
+      console.error('This could indicate:');
+      console.error('- Canvas Identity Config operator is not running');
+      console.error('- Component deletion event was not received by identity listener');
+      console.error('- Identity listener failed to process the component deletion event');
+      console.error('- Keycloak integration is not configured correctly');
+      console.error('- Client deletion is not implemented in the identity management workflow');
+    }
+    
+    assert.ok(!clientExists, `Client '${clientName}' should not exist in Identity Platform after removal`);
+    
+    console.log('=== Identity Platform Client Removal Verification Complete ===');
+    
+  } catch (error) {
+    console.error('❌ Error during Identity Platform client removal verification:', error.message);
+    console.error('Error details:');
+    console.error(`- Target client: '${clientName}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    if (error.response) {
+      console.error('HTTP Response error details:');
+      console.error(`- Status: ${error.response.status}`);
+      console.error(`- Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      console.error(`- Body: ${JSON.stringify(error.response.body, null, 2)}`);
+    }
+    
+    if (error.code) {
+      console.error(`- Error code: ${error.code}`);
+    }
+    
+    console.error('Possible causes:');
+    console.error('- Keycloak service is not accessible');
+    console.error('- Invalid Keycloak credentials or configuration');
+    console.error('- Network connectivity issues to Identity Platform');
+    console.error('- Canvas Identity Config operator is not properly configured');
+    console.error('- Client removal functionality not implemented in identity management');
+    
+    console.log('=== Identity Platform Client Removal Verification Failed ===');
+    throw error;
+  }
+});
