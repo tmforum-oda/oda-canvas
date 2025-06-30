@@ -11,7 +11,7 @@ function pause(ms) {
 }
 
 async function executeHelmCommand(command) {
-  console.log(command, { encoding: 'utf-8' });
+  console.log('\n' + command, { encoding: 'utf-8' });
   const output = execSync(command, { encoding: 'utf-8' });
   console.log('helm output: ' + output)
   await pause(HELM_COMMAND_DELAY); // pause for a second to allow the helm command to complete to avoid race condition.

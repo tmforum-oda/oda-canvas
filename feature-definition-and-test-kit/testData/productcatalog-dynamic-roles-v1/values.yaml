@@ -64,8 +64,8 @@ partyrole:
   image: lesterthomas/partyroleapi:1.0
   versionLabel: partyroleapi-1.0
 permissionspec:
-  image: lesterthomas/permissionspecapi:0.19
-  versionLabel: permissionspecapi-0.19
+  image: lesterthomas/permissionspecapi:0.20
+  versionLabel: permissionspecapi-0.20
   # Set to true to use permissionspec API instead of partyrole API
   enabled: true
 promotionmgmt:

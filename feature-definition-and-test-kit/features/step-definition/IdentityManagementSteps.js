@@ -23,6 +23,7 @@ setDefaultTimeout( 20 * 1000);
  * @returns {Promise<void>} - A Promise that resolves when the component is available.
  */
 Then('I should see the predefined role assigned to the {string} client for the {string} component in the identity platform', async function (canvassystemClientName, componentName) {
+  console.log('\n=== Verifying Predefined Role Assignment to Canvas System Client ===');
   let componentResource = null
   let canvassystemRole = null
   var startTime = performance.now()
@@ -49,7 +50,7 @@ Then('I should see the predefined role assigned to the {string} client for the {
 });
 
 When('I POST a new PermissionSpecificationSet with the following details:', async function (dataTable) {
-  console.log('=== Starting PermissionSpecificationSet Creation Test ===');
+  console.log('\n=== Starting PermissionSpecificationSet Creation Test ===');
   
   // Extract all rows from the dataTable
   const permissionSpecDataRows = dataTable.hashes(); // Get all rows of data
@@ -139,7 +140,7 @@ When('I POST a new PermissionSpecificationSet with the following details:', asyn
 });
 
 Then('the role {string} should be created in the Identity Platform for client {string}', async function (roleName, clientName) {
-  console.log('=== Starting Identity Platform Role Verification ===');
+  console.log('\n=== Starting Identity Platform Role Verification ===');
   console.log(`Verifying role '${roleName}' exists for client '${clientName}'`);
   
   // Wait a moment for the async processing to complete
@@ -197,7 +198,7 @@ Then('the role {string} should be created in the Identity Platform for client {s
 });
 
 Given('the role {string} exists in the Identity Platform', async function (roleName) {
-  console.log('=== Checking Role Existence in Identity Platform ===');
+  console.log('\n=== Checking Role Existence in Identity Platform ===');
   console.log(`Checking for existing role: '${roleName}'`);
   
   // Use the same client naming convention as other tests
@@ -257,7 +258,7 @@ Given('the role {string} exists in the Identity Platform', async function (roleN
 });
 
 When('I DELETE the PermissionSpecificationSet {string} from the TMF672 API', async function (permissionSpecName) {
-  console.log('=== Starting PermissionSpecificationSet Deletion Test ===');
+  console.log('\n=== Starting PermissionSpecificationSet Deletion Test ===');
   console.log(`Target PermissionSpecificationSet to delete: '${permissionSpecName}'`);
   
   const componentName = 'productcatalogmanagement';
@@ -338,6 +339,9 @@ When('I DELETE the PermissionSpecificationSet {string} from the TMF672 API', asy
 });
 
 Then('the role {string} should be removed from the Identity Platform for client {string}', async function (roleName, clientName) {
+  console.log('\n=== Verifying Role Removal from Identity Platform ===');
+  console.log(`Verifying role '${roleName}' has been removed from client '${clientName}'`);
+  
   // Wait a moment for the async processing to complete
   await new Promise(resolve => setTimeout(resolve, 2000));
   
@@ -359,7 +363,7 @@ Then('the role {string} should be removed from the Identity Platform for client 
 });
 
 Given('the {string} component has an existing PermissionSpecificationSet {string}', async function (componentPackage, permissionSpecName) {
-  console.log('=== Starting PermissionSpecificationSet Setup Verification ===');
+  console.log('\n=== Starting PermissionSpecificationSet Setup Verification ===');
   console.log(`Required PermissionSpecificationSet: '${permissionSpecName}'`);
   
   // This step ensures a permission specification set exists before testing updates/deletes
@@ -462,7 +466,7 @@ Given('the {string} component has an existing PermissionSpecificationSet {string
 });
 
 Then('the client {string} should be removed from the Identity Platform', async function (clientName) {
-  console.log('=== Starting Identity Platform Client Removal Verification ===');
+  console.log('\n=== Starting Identity Platform Client Removal Verification ===');
   console.log(`Verifying client '${clientName}' has been removed from Identity Platform`);
   
   // Wait a moment for the async processing to complete
