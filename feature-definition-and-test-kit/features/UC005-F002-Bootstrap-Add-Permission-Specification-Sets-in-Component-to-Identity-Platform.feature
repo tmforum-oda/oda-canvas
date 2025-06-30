@@ -4,7 +4,7 @@
 
 @UC005         # tagged as use case 5
 @UC005-F002    # tagged as use feature 2 within use case 5
-Feature: UC005-F005 Bootstrap: Add Permission Specification Sets in Component to Identity Platform
+Feature: UC005-F002 Bootstrap: Add Permission Specification Sets in Component to Identity Platform
 
     Scenario: Bootstrap component with dynamic permission specification sets
         Given a baseline 'productcatalog-dynamic-roles-v1' package installed as release 'dynamic'
