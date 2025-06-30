@@ -3,6 +3,7 @@
 const { execSync } = require('child_process');
 const k8s = require('@kubernetes/client-node');
 const http = require('http');
+
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
@@ -10,36 +11,39 @@ const k8sApi = kc.makeApiClient(k8s.ApiextensionsV1Api);
 const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api);
 
+const DEBUG_LOGS = false; // set to true for verbose debugging
+
 /**
  * Check if Kong Gateway is deployed and required CRDs (e.g., ReferenceGrant) are present.
  * @returns {Promise<boolean>} - True if Kong Gateway and required Gateway API CRDs are deployed, false otherwise.
  */
 const isKongGatewayDeployed = async () => {
   try {
-    console.log('Checking Kong Gateway deployment...');
+    console.log('=== Starting Kong Gateway Deployment Verification ===');
 
     // Step 1: Listing all services in all namespaces
+    console.log('Checking for Kong Gateway services...');
     const services = await k8sCoreApi.listServiceForAllNamespaces();
     const kongGatewaySvc = services.body.items.find(
       svc => svc.metadata.name.includes('kong-proxy')
     );
 
     if (!kongGatewaySvc) {
-      console.error('Kong Gateway service not found.');
+      console.error('❌ Kong Gateway service not found.');
       return false;
     }
 
-    console.log('Kong Gateway service found:', kongGatewaySvc.metadata.name);
+    console.log(`✅ Kong Gateway service found: ${kongGatewaySvc.metadata.name}`);
 
     // Step 2: Checking if the service has an external IP
     const externalIPs = kongGatewaySvc.status.loadBalancer?.ingress;
     if (!externalIPs || externalIPs.length === 0) {
-      console.error('Kong Gateway service does not have an external IP assigned.');
+      console.error('❌ Kong Gateway service does not have an external IP assigned.');
       return false;
     }
 
     const externalIP = externalIPs[0].ip || externalIPs[0].hostname;
-    console.log('External IP assigned to Kong Gateway:', externalIP);
+    console.log(`✅ External IP assigned to Kong Gateway: ${externalIP}`);
 
     // Step 3: Checking if Kong Gateway deployment is running
     console.log('Checking Kong Gateway deployment status...');
@@ -50,7 +54,7 @@ const isKongGatewayDeployed = async () => {
     );
 
     if (!kongDeployment) {
-      console.error('Kong Gateway deployment not found in namespace:', namespace);
+      console.error(`❌ Kong Gateway deployment not found in namespace: ${namespace}`);
       return false;
     }
 
@@ -63,14 +67,12 @@ const isKongGatewayDeployed = async () => {
 
     if (readyReplicas !== replicas) {
       console.error(
-        `Kong Gateway deployment is not fully ready. (${readyReplicas}/${replicas} replicas ready)`
+        `❌ Kong Gateway deployment is not fully ready. (${readyReplicas}/${replicas} replicas ready)`
       );
       return false;
     }
 
-    console.log('Kong Gateway deployment is running successfully.');
-
-
+    console.log('✅ Kong Gateway deployment is running successfully.');
 
     // Step 4: Checking for ReferenceGrant CRD
     console.log('Checking for ReferenceGrant CRD...');
@@ -78,14 +80,32 @@ const isKongGatewayDeployed = async () => {
     const referenceGrantCRD = crdList.body.items.find(crd => crd.metadata.name === 'referencegrants.gateway.networking.k8s.io');
 
     if (!referenceGrantCRD) {
-      console.error('ReferenceGrant CRD is not present. Ensure the required Gateway API CRDs are installed. Refer to Kong Installation instructions - https://github.com/tmforum-oda/oda-canvas/tree/main/installation');
+      console.error('❌ ReferenceGrant CRD is not present. Ensure the required Gateway API CRDs are installed. Refer to Kong Installation instructions - https://github.com/tmforum-oda/oda-canvas/tree/main/installation');
       return false;
     }
 
-    console.log('ReferenceGrant CRD is present.');
+    console.log('✅ ReferenceGrant CRD is present.');
+    console.log('=== Kong Gateway Deployment Verification Complete ===');
     return true;
+    
   } catch (error) {
-    console.error('Error checking Kong Gateway deployment:', error.message);
+    console.error(`❌ Error checking Kong Gateway deployment: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    if (error.response) {
+      console.error('HTTP Response error details:');
+      console.error(`- Status: ${error.response.status}`);
+      console.error(`- Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      console.error(`- Body: ${JSON.stringify(error.response.body, null, 2)}`);
+    }
+    
+    console.error('Possible causes:');
+    console.error('- Kong Gateway not installed or configured properly');
+    console.error('- Kubernetes cluster access issues');
+    console.error('- Required Gateway API CRDs not installed');
+    console.error('- RBAC permissions insufficient for cluster resource access');
+    
     return false;
   }
 };
@@ -96,31 +116,31 @@ const isKongGatewayDeployed = async () => {
  */
 const isApisixGatewayDeployed = async () => {
   try {
-    console.log('Checking Apisix Gateway deployment...');
+    console.log('=== Starting Apisix Gateway Deployment Verification ===');
 
     // Step 1: Listing all services in all namespaces
+    console.log('Checking for Apisix Gateway services...');
     const services = await k8sCoreApi.listServiceForAllNamespaces();
     const apisixGatewaySvc = services.body.items.find(
       svc => svc.metadata.name.includes('apisix-gateway')
     );
 
     if (!apisixGatewaySvc) {
-      console.error('Apisix Gateway service not found.');
+      console.error('❌ Apisix Gateway service not found.');
       return false;
     }
 
-    console.log('Apisix Gateway service found:', apisixGatewaySvc.metadata.name);
+    console.log(`✅ Apisix Gateway service found: ${apisixGatewaySvc.metadata.name}`);
 
     // Step 2: Checking if the service has an external IP
     const externalIPs = apisixGatewaySvc.status.loadBalancer?.ingress;
     if (!externalIPs || externalIPs.length === 0) {
-      console.error('Apisix Gateway service does not have an external IP assigned.');
+      console.error('❌ Apisix Gateway service does not have an external IP assigned.');
       return false;
     }
 
     const externalIP = externalIPs[0].ip || externalIPs[0].hostname;
-    console.log('External IP assigned to Apisix Gateway:', externalIP);
-
+    console.log(`✅ External IP assigned to Apisix Gateway: ${externalIP}`);
 
     // Step 3: Checking if Apisix Gateway pods are running
     console.log('Checking Apisix Gateway deployment status...');
@@ -131,7 +151,7 @@ const isApisixGatewayDeployed = async () => {
     );
 
     if (!apisixDeployment) {
-      console.error('Apisix Gateway deployment not found in namespace:', namespace);
+      console.error(`❌ Apisix Gateway deployment not found in namespace: ${namespace}`);
       return false;
     }
 
@@ -144,15 +164,33 @@ const isApisixGatewayDeployed = async () => {
 
     if (readyReplicas !== replicas) {
       console.error(
-        `Apisix Gateway deployment is not fully ready. (${readyReplicas}/${replicas} replicas ready)`
+        `❌ Apisix Gateway deployment is not fully ready. (${readyReplicas}/${replicas} replicas ready)`
       );
       return false;
     }
 
-    console.log('Apisix Gateway deployment is running successfully.');
+    console.log('✅ Apisix Gateway deployment is running successfully.');
+    console.log('=== Apisix Gateway Deployment Verification Complete ===');
     return true;
+    
   } catch (error) {
-    console.error('Error checking Apisix Gateway deployment:', error.message);
+    console.error(`❌ Error checking Apisix Gateway deployment: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    if (error.response) {
+      console.error('HTTP Response error details:');
+      console.error(`- Status: ${error.response.status}`);
+      console.error(`- Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      console.error(`- Body: ${JSON.stringify(error.response.body, null, 2)}`);
+    }
+    
+    console.error('Possible causes:');
+    console.error('- Apisix Gateway not installed or configured properly');
+    console.error('- Kubernetes cluster access issues');
+    console.error('- Apisix service not accessible or ready');
+    console.error('- RBAC permissions insufficient for cluster resource access');
+    
     return false;
   }
 };

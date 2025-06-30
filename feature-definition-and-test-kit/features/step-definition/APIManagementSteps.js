@@ -3,37 +3,77 @@
 const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 
 const { Given, When, Then, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
-const chai = require('chai')
-const chaiHttp = require('chai-http')
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const assert = require('assert');
-chai.use(chaiHttp)
+chai.use(chaiHttp);
 
-const NAMESPACE = 'components'
-const API_DEPLOY_TIMEOUT = 10 * 1000 // 10 seconds
-const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
-const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
-const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
+const NAMESPACE = 'components';
+const API_DEPLOY_TIMEOUT = 10 * 1000; // 10 seconds
+const API_URL_TIMEOUT = 60 * 1000; // 60 seconds
+const API_READY_TIMEOUT = 120 * 1000; // 120 seconds
+const TIMEOUT_BUFFER = 5 * 1000; // 5 seconds as additional buffer to the timeouts above for the wrapping function
+const DEBUG_LOGS = false; // set to true for verbose debugging
 
-setDefaultTimeout( 20 * 1000);
+setDefaultTimeout(20 * 1000);
 
 /**
  * Wait for a specified ExposedAPI resource to be available and assert that it was found within a specified timeout.
  *
- * @param {string} APIName - The name of the ExposedAPI resource to check.
+ * @param {string} ExposedAPIName - The name of the ExposedAPI resource to check.
+ * @param {string} componentName - The name of the component.
  * @returns {Promise<void>} - A Promise that resolves when the ExposedAPI resource is available.
  */
 Then('I should see the {string} ExposedAPI resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (ExposedAPIName, componentName) {
-  let apiResource = null
-  var startTime = performance.now()
-  var endTime
+  console.log('\n=== Starting ExposedAPI Resource Verification ===');
+  console.log(`Verifying ExposedAPI '${ExposedAPIName}' on component '${componentName}'`);
+  
+  let apiResource = null;
+  var startTime = performance.now();
+  var endTime;
 
-  // wait until the ExposedAPI resource is found or the timeout is reached
-  while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, NAMESPACE)
-    endTime = performance.now()
+  try {
+    // Wait until the ExposedAPI resource is found or the timeout is reached
+    while (apiResource == null) {
+      apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, NAMESPACE);
+      endTime = performance.now();
 
-    // assert that the ExposedAPI resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT + " milliseconds")
+      // Assert that the ExposedAPI resource was found within the timeout
+      assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, `The ExposedAPI resource '${ExposedAPIName}' should be found within ${API_DEPLOY_TIMEOUT} milliseconds`);
+      
+      if (!apiResource) {
+        // Brief wait before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
+    console.log(`✅ Successfully found ExposedAPI '${ExposedAPIName}' on component '${componentName}' after ${Math.round(endTime - startTime)}ms`);
+    
+    if (DEBUG_LOGS) {
+      console.log('ExposedAPI resource details:', JSON.stringify(apiResource, null, 2));
+    }
+    
+    console.log('=== ExposedAPI Resource Verification Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error during ExposedAPI resource verification: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- ExposedAPI name: '${ExposedAPIName}'`);
+    console.error(`- Component name: '${componentName}'`);
+    console.error(`- Release name: '${global.currentReleaseName}'`);
+    console.error(`- Namespace: '${NAMESPACE}'`);
+    console.error(`- Timeout duration: ${API_DEPLOY_TIMEOUT}ms`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    console.error('Possible causes:');
+    console.error('- Component not fully deployed or ready');
+    console.error('- ExposedAPI resource not created by Canvas operators');
+    console.error('- Canvas API operator not running or misconfigured');
+    console.error('- Component specification missing ExposedAPI definition');
+    console.error('- Kubernetes RBAC issues preventing resource access');
+    
+    console.log('=== ExposedAPI Resource Verification Failed ===');
+    throw error;
   }
 });
 
