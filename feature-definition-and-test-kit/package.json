@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "start": "cucumber-js  --publish",
-    "use-case-2": "cucumber-js --publish --tags @UC001",
-    "use-case-2-feature-1": "cucumber-js --publish --tags @UC002-F001",
-    "get-tags": "node getTags.js"
+    "start:tags": "cucumber-js --publish --tags"
   },
   "license": "Apache-2.0",
   "author": "Lester Thomas",

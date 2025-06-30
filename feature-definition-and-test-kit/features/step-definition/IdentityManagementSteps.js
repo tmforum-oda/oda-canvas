@@ -2,6 +2,7 @@
 // Replace the library with your own implementation library if you use a different implementation technology.
 const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 const identityManagerUtils = require('identity-manager-utils-keycloak');
+const componentUtils = require('component-utils');
 
 const { Given, When, Then, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
 const chai = require('chai')
@@ -46,3 +47,403 @@ Then('I should see the predefined role assigned to the {string} client for the {
     }
   }
 });
+
+When('I POST a new PermissionSpecificationSet with the following details:', async function (dataTable) {
+  console.log('=== Starting PermissionSpecificationSet Creation Test ===');
+  
+  // Extract the data from the dataTable
+  const permissionSpecData = dataTable.hashes()[0]; // Get the first row of data
+  
+  // Get the component name - using 'productcatalogmanagement' as specified in the feature
+  const componentName = 'productcatalogmanagement';
+  const componentInstance = global.currentReleaseName + '-' + componentName;
+  
+  // Get the ExposedAPI resource to find the correct API URL and path
+  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('permissionspecificationset', componentName, global.currentReleaseName, NAMESPACE);
+  
+  // Assert that the ExposedAPI resource was found
+  assert.ok(exposedAPIResource, 'The permissionspecificationset ExposedAPI resource should be available');
+  assert.ok(exposedAPIResource.status && exposedAPIResource.status.apiStatus && exposedAPIResource.status.apiStatus.url, 'The ExposedAPI should have a URL in its status');
+  
+  // Get the base API URL from the ExposedAPI status
+  const baseApiURL = exposedAPIResource.status.apiStatus.url;
+  console.log(`Creating PermissionSpecificationSet '${permissionSpecData.name}' via TMF672 API: ${baseApiURL}`);
+  
+  // Create the PermissionSpecificationSet payload based on TMF672 specification
+  const permissionSpecPayload = {
+    '@type': 'PermissionSpecificationSet',
+    '@baseType': 'PermissionSpecificationSet',
+    name: permissionSpecData.name,
+    description: permissionSpecData.description,
+    involvementRole: permissionSpecData.involvementRole || 'DefaultRole',
+    permissionSpecification: [
+      {
+        '@type': 'PermissionSpecification',
+        '@baseType': 'PermissionSpecification',
+        name: permissionSpecData.name,
+        description: permissionSpecData.description,
+        function: "DefaultRole",
+        action: "all"   
+      }
+    ]
+  };
+  
+  try {
+    // Make the POST request to create the PermissionSpecificationSet
+    const response = await chai.request(baseApiURL)
+      .post('/permissionSpecificationSet')
+      .set('User-Agent', 'Canvas-BDD-Test')
+      .trustLocalhost(true)
+      .disableTLSCerts()
+      .send(permissionSpecPayload);
+    
+    // Assert that the request was successful (201 Created)
+    assert.ok(response.status === 201, `Expected status 201 but got ${response.status}`);
+    
+    // Store the created resource details for potential use in subsequent steps
+    global.lastCreatedPermissionSpec = response.body;
+    
+    console.log(`✅ Successfully created PermissionSpecificationSet '${permissionSpecData.name}' with ID: ${response.body.id}`);
+    console.log('=== PermissionSpecificationSet Creation Test Complete ===');
+    
+  } catch (error) {
+    console.error('❌ Error creating PermissionSpecificationSet:', error.message);
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response headers:', error.response.headers);
+      console.error('Response body:', JSON.stringify(error.response.body, null, 2));
+    }
+    if (error.request) {
+      console.error('Request details:');
+      console.error('- Method:', error.request.method);
+      console.error('- URL:', error.request.url);
+      console.error('- Headers:', error.request.headers);
+    }
+    console.log('=== PermissionSpecificationSet Creation Test Failed ===');
+    throw error;
+  }
+});
+
+Then('the role {string} should be created in the Identity Platform for client {string}', async function (roleName, clientName) {
+  console.log('=== Starting Identity Platform Role Verification ===');
+  console.log(`Verifying role '${roleName}' exists for client '${clientName}'`);
+  
+  // Wait a moment for the async processing to complete
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  try {
+    // Get all roles for the specified client from Keycloak
+    const clientRoles = await identityManagerUtils.getRolesForClient(clientName);
+    
+    // Check if the role exists
+    const roleExists = clientRoles.includes(roleName);
+    
+    if (roleExists) {
+      console.log(`✅ Role verification successful: '${roleName}' exists in Identity Platform for client '${clientName}'`);
+    } else {
+      console.error(`❌ Role verification failed: '${roleName}' not found in Identity Platform for client '${clientName}'`);
+      console.error('This could indicate:');
+      console.error('- Canvas Identity Config operator is not running');
+      console.error('- Event notification was not received by identity listener');
+      console.error('- Identity listener failed to process the PermissionSpecificationSet event');
+      console.error('- Keycloak integration is not configured correctly');
+    }
+    
+    assert.ok(roleExists, `Role '${roleName}' should exist in Identity Platform for client '${clientName}'. Found roles: ${clientRoles.join(', ')}`);
+    
+    console.log('=== Identity Platform Role Verification Complete ===');
+    
+  } catch (error) {
+    console.error('❌ Error during Identity Platform role verification:', error.message);
+    console.error('Error details:');
+    console.error(`- Target role: '${roleName}'`);
+    console.error(`- Target client: '${clientName}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    if (error.response) {
+      console.error('HTTP Response error details:');
+      console.error(`- Status: ${error.response.status}`);
+      console.error(`- Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      console.error(`- Body: ${JSON.stringify(error.response.body, null, 2)}`);
+    }
+    
+    if (error.code) {
+      console.error(`- Error code: ${error.code}`);
+    }
+    
+    console.error('Possible causes:');
+    console.error('- Keycloak service is not accessible');
+    console.error('- Invalid Keycloak credentials or configuration');
+    console.error('- Network connectivity issues to Identity Platform');
+    console.error('- Canvas Identity Config operator is not properly configured');
+    
+    console.log('=== Identity Platform Role Verification Failed ===');
+    throw error;
+  }
+});
+
+Given('the role {string} exists in the Identity Platform', async function (roleName) {
+  console.log('=== Checking Role Existence in Identity Platform ===');
+  console.log(`Checking for existing role: '${roleName}'`);
+  
+  // Use the same client naming convention as other tests
+  const componentName = 'productcatalogmanagement';
+  const clientName = `ctk-${componentName}`;
+  
+  try {
+    // Get all roles for the specified client from Keycloak
+    const clientRoles = await identityManagerUtils.getRolesForClient(clientName);
+    
+    // Check if the role exists
+    const roleExists = clientRoles.includes(roleName);
+    
+    if (roleExists) {
+      console.log(`✅ Role '${roleName}' already exists in Identity Platform for client '${clientName}'`);
+      // Store the role information for potential use in subsequent steps
+      global.existingRole = { name: roleName, client: clientName };
+    } else {
+      console.log(`⚠️  Role '${roleName}' does not exist in Identity Platform for client '${clientName}'`);
+      console.log('This step is verifying a precondition - the role should already exist.');
+      console.log('If this is expected, the test scenario should create the role first.');
+      
+      // For a Given step, we should fail if the precondition is not met
+      assert.ok(roleExists, `Precondition failed: Role '${roleName}' should already exist in Identity Platform for client '${clientName}'. Found roles: ${clientRoles.join(', ')}`);
+    }
+    
+    console.log('=== Identity Platform Role Existence Check Complete ===');
+    
+  } catch (error) {
+    console.error('❌ Error during Identity Platform role existence check:', error.message);
+    console.error('Error details:');
+    console.error(`- Target role: '${roleName}'`);
+    console.error(`- Target client: '${clientName}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    if (error.response) {
+      console.error('HTTP Response error details:');
+      console.error(`- Status: ${error.response.status}`);
+      console.error(`- Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      console.error(`- Body: ${JSON.stringify(error.response.body, null, 2)}`);
+    }
+    
+    if (error.code) {
+      console.error(`- Error code: ${error.code}`);
+    }
+    
+    console.error('Possible causes:');
+    console.error('- Keycloak service is not accessible');
+    console.error('- Invalid Keycloak credentials or configuration');
+    console.error('- Network connectivity issues to Identity Platform');
+    console.error('- Canvas Identity Config operator is not properly configured');
+    console.error('- Client does not exist in Keycloak');
+    
+    console.log('=== Identity Platform Role Existence Check Failed ===');
+    throw error;
+  }
+});
+
+When('I DELETE the PermissionSpecificationSet {string} from the TMF672 API', async function (permissionSpecName) {
+  console.log('=== Starting PermissionSpecificationSet Deletion Test ===');
+  console.log(`Target PermissionSpecificationSet to delete: '${permissionSpecName}'`);
+  
+  const componentName = 'productcatalogmanagement';
+  
+  // Get the ExposedAPI resource to find the correct API URL
+  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('permissionspecificationset', componentName, global.currentReleaseName, NAMESPACE);
+  
+  assert.ok(exposedAPIResource, 'The permissionspecificationset ExposedAPI resource should be available');
+  assert.ok(exposedAPIResource.status && exposedAPIResource.status.apiStatus && exposedAPIResource.status.apiStatus.url, 'The ExposedAPI should have a URL in its status');
+  
+  const baseApiURL = exposedAPIResource.status.apiStatus.url;
+  
+  try {
+    // First, find the permission specification set by name
+    const getResponse = await chai.request(baseApiURL)
+      .get(`/permissionSpecificationSet?name=${permissionSpecName}`)
+      .set('User-Agent', 'Canvas-BDD-Test')
+      .trustLocalhost(true)
+      .disableTLSCerts();
+    
+    assert.ok(getResponse.status === 200, `Expected status 200 but got ${getResponse.status}`);
+    assert.ok(getResponse.body.length > 0, `PermissionSpecificationSet '${permissionSpecName}' should exist`);
+    
+    const permissionSpecId = getResponse.body[0].id;
+    
+    // Delete the permission specification set
+    const deleteResponse = await chai.request(baseApiURL)
+      .delete(`/permissionSpecificationSet/${permissionSpecId}`)
+      .set('User-Agent', 'Canvas-BDD-Test')
+      .trustLocalhost(true)
+      .disableTLSCerts();
+    
+    assert.ok([204, 200].includes(deleteResponse.status), `Expected status 204 or 200 but got ${deleteResponse.status}`);
+    
+    // Store the deleted resource details for verification
+    global.lastDeletedPermissionSpec = { id: permissionSpecId, name: permissionSpecName };
+    
+    console.log(`✅ Successfully deleted PermissionSpecificationSet '${permissionSpecName}' with ID: ${permissionSpecId}`);
+    console.log('=== PermissionSpecificationSet Deletion Test Complete ===');
+    
+  } catch (error) {
+    console.error('❌ Error deleting PermissionSpecificationSet:', error.message);
+    console.error('Error details:');
+    console.error(`- Target PermissionSpecificationSet: '${permissionSpecName}'`);
+    console.error(`- Component: '${componentName}'`);
+    console.error(`- API URL: ${baseApiURL}`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    if (error.response) {
+      console.error('HTTP Response error details:');
+      console.error(`- Status: ${error.response.status}`);
+      console.error(`- Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      console.error(`- Body: ${JSON.stringify(error.response.body, null, 2)}`);
+    }
+    
+    if (error.request) {
+      console.error('Request details:');
+      console.error(`- Method: ${error.request.method}`);
+      console.error(`- URL: ${error.request.url}`);
+      console.error(`- Headers: ${JSON.stringify(error.request.headers, null, 2)}`);
+    }
+    
+    if (error.code) {
+      console.error(`- Error code: ${error.code}`);
+    }
+    
+    console.error('Possible causes:');
+    console.error('- PermissionSpecificationSet does not exist (may have been deleted already)');
+    console.error('- TMF672 API endpoint not accessible through Canvas');
+    console.error('- Canvas ExposedAPI resource not properly configured');
+    console.error('- Network connectivity issues to Canvas API Gateway/Service Mesh');
+    console.error('- Authentication/authorization issues with Canvas APIs');
+    console.error('- TMF672 API implementation does not support DELETE operation');
+    
+    console.log('=== PermissionSpecificationSet Deletion Test Failed ===');
+    throw error;
+  }
+});
+
+Then('the role {string} should be removed from the Identity Platform for client {string}', async function (roleName, clientName) {
+  // Wait a moment for the async processing to complete
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  try {
+    // Get all roles for the specified client from Keycloak
+    const clientRoles = await identityManagerUtils.getRolesForClient(clientName);
+    
+    // Check if the role no longer exists
+    const roleExists = clientRoles.includes(roleName);
+    
+    assert.ok(!roleExists, `Role '${roleName}' should not exist in Identity Platform for client '${clientName}'. Found roles: ${clientRoles.join(', ')}`);
+    
+    console.log(`Verified role '${roleName}' was removed from Identity Platform for client '${clientName}'`);
+    
+  } catch (error) {
+    console.error(`Error checking role removal in Identity Platform: ${error.message}`);
+    throw error;
+  }
+});
+
+Given('the {string} component has an existing PermissionSpecificationSet {string}', async function (componentPackage, permissionSpecName) {
+  console.log('=== Starting PermissionSpecificationSet Setup Verification ===');
+  console.log(`Required PermissionSpecificationSet: '${permissionSpecName}'`);
+  
+  // This step ensures a permission specification set exists before testing updates/deletes
+  const componentName = 'productcatalogmanagement';
+  
+  // Get the ExposedAPI resource to find the correct API URL
+  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('permissionspecificationset', componentName, global.currentReleaseName, NAMESPACE);
+  
+  assert.ok(exposedAPIResource, 'The permissionspecificationset ExposedAPI resource should be available');
+  assert.ok(exposedAPIResource.status && exposedAPIResource.status.apiStatus && exposedAPIResource.status.apiStatus.url, 'The ExposedAPI should have a URL in its status');
+  
+  const baseApiURL = exposedAPIResource.status.apiStatus.url;
+  
+  try {
+    // Check if the permission specification set already exists
+    const getResponse = await chai.request(baseApiURL)
+      .get(`/permissionSpecificationSet?name=${permissionSpecName}`)
+      .set('User-Agent', 'Canvas-BDD-Test')
+      .trustLocalhost(true)
+      .disableTLSCerts();
+    
+    if (getResponse.status === 200 && getResponse.body.length > 0) {
+      console.log(`✅ PermissionSpecificationSet '${permissionSpecName}' already exists`);
+      global.existingPermissionSpec = getResponse.body[0];
+      console.log('=== PermissionSpecificationSet Setup Verification Complete (Found Existing) ===');
+      return;
+    }
+    
+    console.log(`⚠️  PermissionSpecificationSet '${permissionSpecName}' does not exist - creating it for test setup`);
+    
+    // Create the permission specification set if it doesn't exist
+    const permissionSpecPayload = {
+      '@type': 'PermissionSpecificationSet',
+      '@baseType': 'PermissionSpecificationSet',
+      name: permissionSpecName,
+      description: `Test permission specification set for ${permissionSpecName}`,
+      involvementRole: 'TestRole',
+      permissionSpecification: [
+        {
+          '@type': 'PermissionSpecification',
+          '@baseType': 'PermissionSpecification',
+          name: permissionSpecName,
+          description: `Test permission for ${permissionSpecName}`,
+          function: "TestRole",
+          action: "all"              
+        }
+      ]
+    };
+    
+    const response = await chai.request(baseApiURL)
+      .post('/permissionSpecificationSet')
+      .set('User-Agent', 'Canvas-BDD-Test')
+      .trustLocalhost(true)
+      .disableTLSCerts()
+      .send(permissionSpecPayload);
+    
+    assert.ok(response.status === 201, `Expected status 201 but got ${response.status}`);
+    global.existingPermissionSpec = response.body;
+    
+    console.log(`✅ Successfully created PermissionSpecificationSet '${permissionSpecName}' for testing with ID: ${response.body.id}`);
+    console.log('=== PermissionSpecificationSet Setup Verification Complete (Created New) ===');
+    
+  } catch (error) {
+    console.error('❌ Error during PermissionSpecificationSet setup verification:', error.message);
+    console.error('Error details:');
+    console.error(`- Target component package: '${componentPackage}'`);
+    console.error(`- Required PermissionSpecificationSet: '${permissionSpecName}'`);
+    console.error(`- Component name: '${componentName}'`);
+    console.error(`- API URL: ${baseApiURL}`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    if (error.response) {
+      console.error('HTTP Response error details:');
+      console.error(`- Status: ${error.response.status}`);
+      console.error(`- Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      console.error(`- Body: ${JSON.stringify(error.response.body, null, 2)}`);
+    }
+    
+    if (error.request) {
+      console.error('Request details:');
+      console.error(`- Method: ${error.request.method}`);
+      console.error(`- URL: ${error.request.url}`);
+      console.error(`- Headers: ${JSON.stringify(error.request.headers, null, 2)}`);
+    }
+    
+    if (error.code) {
+      console.error(`- Error code: ${error.code}`);
+    }
+    
+    console.error('Possible causes:');
+    console.error('- Canvas ExposedAPI resource not ready or misconfigured');
+    console.error('- TMF672 API endpoint not accessible');
+    console.error('- Component not properly deployed with permission specification API');
+    console.error('- Network connectivity issues to Canvas API Gateway/Service Mesh');
+    console.error('- Authentication/authorization issues with Canvas APIs');
+    
+    console.log('=== PermissionSpecificationSet Setup Verification Failed ===');
+    throw error;
+  }
+});
+

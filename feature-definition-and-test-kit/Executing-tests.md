@@ -47,13 +47,13 @@ npm start -- features/UC003-F001-Expose-APIs-Create-API-Resource.feature
 The use cases and features are tagged. You can run the tests for a given use case with the following command:
 
 ```
-npm start -- --tags '@UC003'
+npm run start:tags "@UC003"
 ```
 
 Or run the tests for a single feature with the following command:
 
 ```
-npm start -- --tags '@UC003-F001'
+npm run start:tags "@UC003-F001"
 ```
 
 ## Updating the master test status
