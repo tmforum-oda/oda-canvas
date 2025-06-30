@@ -34,7 +34,7 @@ spec:
     name: cat2owner
 ```
 
-IdentityConfig with dynamically defined roles. At this uses the TMF672 User Roles and Permissions API. We also allow the TMF669 Party Role Management API - in the future this will be deprecated. 
+IdentityConfig with dynamically defined roles. At present, this uses the TMF672 User Roles and Permissions API, while support for the TMF669 Party Role Management API will be deprecated in the future.
 
 ```yaml
 apiVersion: oda.tmforum.org/v1
