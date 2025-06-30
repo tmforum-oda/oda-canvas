@@ -7,13 +7,13 @@ To execute the tests, first you install the necessary packages and set the envir
 - install necessary packages
 
   ```bash
-  cd identity-manager-utils-keycloak
+  cd utilities/identity-manager-utils-keycloak
   npm install
   cd ../package-manager-utils-helm
   npm install
   cd ../resource-inventory-utils-kubernetes
   npm install
-  cd ..
+  cd ../..
   npm install
   ```
 

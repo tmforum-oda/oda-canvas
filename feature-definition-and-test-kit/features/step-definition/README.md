@@ -13,10 +13,10 @@ This directory contains step definition JavaScript files that implement Behavior
 ### Utility Libraries
 The step definitions use modular utility libraries to interact with different Canvas technologies:
 
-- **`resource-inventory-utils-kubernetes`**: Kubernetes resource management and querying
-- **`package-manager-utils-helm`**: Helm package installation and management
-- **`identity-manager-utils-keycloak`**: Keycloak identity platform integration
-- **`component-utils`**: ODA Component lifecycle and API interactions
+- **`utilities/resource-inventory-utils-kubernetes`**: Kubernetes resource management and querying
+- **`utilities/package-manager-utils-helm`**: Helm package installation and management
+- **`utilities/identity-manager-utils-keycloak`**: Keycloak identity platform integration
+- **`utilities/component-utils`**: ODA Component lifecycle and API interactions
 
 ### Additional Dependencies
 - **`@kubernetes/client-node`**: Kubernetes API client for direct cluster interactions
@@ -45,10 +45,10 @@ Every step definition file follows this standard structure:
 
 ```javascript
 // Utility library imports - replace with your implementation
-const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
-const packageManagerUtils = require('package-manager-utils-helm');
-const identityManagerUtils = require('identity-manager-utils-keycloak');
-const componentUtils = require('component-utils');
+const resourceInventoryUtils = require('utilities/resource-inventory-utils-kubernetes');
+const packageManagerUtils = require('utilities/package-manager-utils-helm');
+const identityManagerUtils = require('utilities/identity-manager-utils-keycloak');
+const componentUtils = require('utilities/component-utils');
 
 // Cucumber framework imports
 const { Given, When, Then, AfterAll, setDefaultTimeout, Before, After } = require('@cucumber/cucumber');

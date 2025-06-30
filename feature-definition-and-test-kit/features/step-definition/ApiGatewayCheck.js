@@ -29,7 +29,7 @@ const isKongGatewayDeployed = async () => {
     );
 
     if (!kongGatewaySvc) {
-      console.error('❌ Kong Gateway service not found.');
+      console.error('Kong Gateway service not found.');
       return false;
     }
 
@@ -126,7 +126,7 @@ const isApisixGatewayDeployed = async () => {
     );
 
     if (!apisixGatewaySvc) {
-      console.error('❌ Apisix Gateway service not found.');
+      console.error('Apisix Gateway service not found.');
       return false;
     }
 

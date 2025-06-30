@@ -26,7 +26,7 @@ Before({ tags: '@KongGateway' }, async function () {
     const kongDeployed = await isKongGatewayDeployed();
 
     if (!kongDeployed) {
-      console.log('⚠️  Kong Gateway is not deployed. Skipping scenario.');
+      console.log('Kong Gateway is not deployed. Skipping scenario.');
       return 'skipped';
     }
 
@@ -52,7 +52,7 @@ Before({ tags: '@ApisixGateway' }, async function () {
     const apisixDeployed = await isApisixGatewayDeployed();
 
     if (!apisixDeployed) {
-      console.log('⚠️  Apisix Gateway is not deployed. Skipping scenario.');
+      console.log('Apisix Gateway is not deployed. Skipping scenario.');
       return 'skipped';
     }
 
