@@ -816,16 +816,21 @@ async def identityConfig(
                 for api in spec["securityFunction"]["exposedAPIs"]:
                     if "permissionspecificationset" in api["name"]:
                         permissionSpecificationSetAPI = {}
-                        permissionSpecificationSetAPI["implementation"] = api["implementation"]
+                        permissionSpecificationSetAPI["implementation"] = api[
+                            "implementation"
+                        ]
                         permissionSpecificationSetAPI["path"] = api["path"]
                         permissionSpecificationSetAPI["port"] = api["port"]
                         foundPermissionSpecificationSet = True
                         break
             if foundPermissionSpecificationSet:
-                logw.info(f"Adding componentRole-PermissionSpecificationSet dynamically defined roles")
+                logw.info(
+                    f"Adding componentRole-PermissionSpecificationSet dynamically defined roles"
+                )
                 # get the permissionSpecificationSet API and add to the identityConfig
-                identityConfigResource["permissionSpecificationSetAPI"] = permissionSpecificationSetAPI
-
+                identityConfigResource["permissionSpecificationSetAPI"] = (
+                    permissionSpecificationSetAPI
+                )
 
             # create the identityConfig resource (or patch existing resource if it is present)
             logw.debugInfo(
