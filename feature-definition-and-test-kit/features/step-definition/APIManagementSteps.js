@@ -31,11 +31,11 @@ Then('I should see the {string} ExposedAPI resource on the {string} component', 
   let apiResource = null;
   var startTime = performance.now();
   var endTime;
-
+  let namespace = global.namespace || NAMESPACE
   try {
     // Wait until the ExposedAPI resource is found or the timeout is reached
     while (apiResource == null) {
-      apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, NAMESPACE);
+      apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, namespace);
       endTime = performance.now();
 
       // Assert that the ExposedAPI resource was found within the timeout
@@ -61,7 +61,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component', 
     console.error(`- ExposedAPI name: '${ExposedAPIName}'`);
     console.error(`- Component name: '${componentName}'`);
     console.error(`- Release name: '${global.currentReleaseName}'`);
-    console.error(`- Namespace: '${NAMESPACE}'`);
+    console.error(`- Namespace: '${namespace}'`);
     console.error(`- Timeout duration: ${API_DEPLOY_TIMEOUT}ms`);
     console.error(`- Error type: ${error.constructor.name}`);
     
@@ -87,10 +87,11 @@ Then('I should see the {string} DependentAPI resource on the {string} component'
   let apiResource = null
   var startTime = performance.now()
   var endTime
-
+  
+  let namespace = global.namespace || NAMESPACE
   // wait until the DependentAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getDependentAPIResource(DependentAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getDependentAPIResource(DependentAPIName, componentName, global.currentReleaseName, namespace)
     endTime = performance.now()
 
     // assert that the DependentAPI resource was found within the timeout
