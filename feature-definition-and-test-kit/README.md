@@ -33,6 +33,8 @@ The list below shows the features organized by use case, with their current test
 * ✅ [F002 - Upgrade Component](features/UC002-F002-Upgrade-Component.feature)
 * ✅ [F003 - Install Component from Reference Examples](features/UC002-F003-Install-Component-from-reference-examples.feature)
 * ✅ [F004 - Uninstall Component from Reference Examples](features/UC002-F004-Uninstall-Component-from-reference-examples.feature)
+* ✅ [F005 - Install Component into Other Namespace](features/UC002-F005-Install-Component-into-other-namespace.feature)
+* ✅ [F006 - Uninstall Component from Other Namespace](features/UC002-F006-Uninstall-Component-from-other-namespace.feature)
 
 ### UC003 - Expose APIs for Component
 * ✅ [F001 - Create API Resource](features/UC003-F001-Expose-APIs-Create-API-Resource.feature)
