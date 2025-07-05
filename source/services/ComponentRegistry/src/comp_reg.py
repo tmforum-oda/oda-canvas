@@ -23,9 +23,7 @@ class ComponentPublic(ComponentBase):
     id: int
     
 class ComponentUpdate(SQLModel):
-    name: str | None = None
-    owner: str | None = None
-    labels: dict[str, str] | None = None
+    labels: dict[str, str|None] | None = None
     
     
     
@@ -84,8 +82,12 @@ def update_component(id: int, component: ComponentUpdate, session: Session = Dep
     db_component = session.get(Component, id)
     if db_component is None:
         raise HTTPException(status_code=404, detail="Component not found")
-    component_data = component.model_dump(exclude_unset=True)
-    db_component.sqlmodel_update(component_data)
+    #component_data = component.model_dump(exclude_unset=True)
+    #db_component.sqlmodel_update(component_data)
+    if component.labels is not None:
+        merged_labels = db_component.labels | component.labels
+        merged_labels = {k:v for (k,v) in merged_labels.items() if v is not None}
+        db_component.labels = merged_labels
     session.add(db_component)
     session.commit()
     session.refresh(db_component)
