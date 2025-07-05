@@ -1,58 +1,109 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+# from https://sqlmodel.tiangolo.com/tutorial/fastapi/simple-component-api/#install-fastapi
 
-app = FastAPI()
+from fastapi import FastAPI, Depends, HTTPException, Query
+from contextlib import asynccontextmanager
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import JSON
 
-# Definition des Component-Objekts
-class Component(BaseModel):
+
+
+class ComponentBase(SQLModel):
+    name: str = Field(index=True)
+    owner: str
+    labels: dict[str, str] = Field(default={"key": "value"}, sa_column=Column(JSON))
+
+class Component(ComponentBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+class ComponentCreate(ComponentBase):
+    pass
+
+class ComponentPublic(ComponentBase):
     id: int
-    name: str
-    description: str
+    
+class ComponentUpdate(SQLModel):
+    name: str | None = None
+    owner: str | None = None
+    labels: dict[str, str] | None = None
+    
+    
+    
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
 
-# Speicher für die Component-Objekte
-components = [
-    {"id": 1, "name": "Komponente 1", "description": "Beschreibung 1"},
-    {"id": 2, "name": "Komponente 2", "description": "Beschreibung 2"},
-]
+engine = create_engine(sqlite_url, echo=True, connect_args={"check_same_thread": False})
+
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    SQLModel.metadata.create_all(engine)
+    yield
+    # SHUTDOWN
+
+app = FastAPI(lifespan=lifespan)
+
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+    
+
+
+# POST /components
+@app.post("/components/", response_model=ComponentPublic)
+def create_component(component: ComponentCreate, session: Session = Depends(get_session)):
+    db_component = Component.model_validate(component)
+    session.add(db_component)
+    session.commit()
+    session.refresh(db_component)
+    return db_component
+
 
 # GET /components
 @app.get("/components/")
-def read_components():
+def read_components(offset: int = 0, limit: int = Query(default=100, le=100), session: Session = Depends(get_session)):
+    components = session.exec(select(Component).offset(offset).limit(limit)).all()
     return components
 
-# GET /components/{id}
-@app.get("/components/{id}")
-def read_component(id: int):
-    component = next((c for c in components if c["id"] == id), None)
-    if component is None:
-        raise HTTPException(status_code=404, detail="Komponente nicht gefunden")
-    return component
 
-# POST /components
-@app.post("/components/")
-def create_component(component: Component):
-    components.append(component.dict())
+# GET /components/{id}
+@app.get("/components/{id}", response_model=ComponentPublic)
+def read_component(id: int, session: Session = Depends(get_session)):
+    component = session.get(Component, id)
+    if component is None:
+        raise HTTPException(status_code=404, detail="Component not found")
     return component
+    
 
 # PUT /components/{id}
-@app.put("/components/{id}")
-def update_component(id: int, component: Component):
-    existing_component = next((c for c in components if c["id"] == id), None)
-    if existing_component is None:
-        raise HTTPException(status_code=404, detail="Komponente nicht gefunden")
-    existing_component["name"] = component.name
-    existing_component["description"] = component.description
-    return existing_component
+@app.put("/components/{id}", response_model=ComponentPublic)
+def update_component(id: int, component: ComponentUpdate, session: Session = Depends(get_session)):
+    db_component = session.get(Component, id)
+    if db_component is None:
+        raise HTTPException(status_code=404, detail="Component not found")
+    component_data = component.model_dump(exclude_unset=True)
+    db_component.sqlmodel_update(component_data)
+    session.add(db_component)
+    session.commit()
+    session.refresh(db_component)
+    return db_component
+
 
 # DELETE /components/{id}
 @app.delete("/components/{id}")
-def delete_component(id: int):
-    component = next((c for c in components if c["id"] == id), None)
-    if component is None:
-        raise HTTPException(status_code=404, detail="Komponente nicht gefunden")
-    components.remove(component)
-    return {"message": "Komponente gelöscht"}
+def delete_component(id: int, session: Session = Depends(get_session)):
+    component = session.get(Component, id)
+    if not component:
+        raise HTTPException(status_code=404, detail="Component not found")
+    session.delete(component)
+    session.commit()
+    return {"ok": True}
+
+
 
 if __name__ == "__main__":
-	import uvicorn
-	uvicorn.run(app, host="0.0.0.0", port=8080)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)
