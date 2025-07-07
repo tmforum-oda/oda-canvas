@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "start": "cucumber-js  --publish",
-    "use-case-2": "cucumber-js --publish --tags @UC001",
-    "use-case-2-feature-1": "cucumber-js --publish --tags @UC002-F001",
-    "get-tags": "node getTags.js"
+    "start:tags": "cucumber-js --publish --tags"
   },
   "license": "Apache-2.0",
   "author": "Lester Thomas",
@@ -13,10 +11,10 @@
     "@cucumber/cucumber": "^7.3.2",
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
-    "resource-inventory-utils-kubernetes": "file:resource-inventory-utils-kubernetes",
-    "package-manager-utils-helm": "file:package-manager-utils-helm",
-    "identity-manager-utils-keycloak": "file:identity-manager-utils-keycloak",
-    "component-utils": "file:component-utils",
+    "resource-inventory-utils-kubernetes": "file:utilities/resource-inventory-utils-kubernetes",
+    "package-manager-utils-helm": "file:utilities/package-manager-utils-helm",
+    "identity-manager-utils-keycloak": "file:utilities/identity-manager-utils-keycloak",
+    "component-utils": "file:utilities/component-utils",
     "yaml": "^2.1.3"
   }
 }

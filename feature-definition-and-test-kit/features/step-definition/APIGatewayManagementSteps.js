@@ -4,53 +4,130 @@ const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 const packageManagerUtils = require('package-manager-utils-helm');
 
 const { Given, When, Then, After, setDefaultTimeout, Before } = require('@cucumber/cucumber');
-const chai = require('chai')
-const chaiHttp = require('chai-http')
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const assert = require('assert');
-chai.use(chaiHttp)
+chai.use(chaiHttp);
 const { isKongGatewayDeployed } = require('./ApiGatewayCheck');
 const { isApisixGatewayDeployed } = require('./ApiGatewayCheck');
-const NAMESPACE = 'components'
-const DEFAULT_RELEASE_NAME = 'ctk'
-setDefaultTimeout( 20 * 1000);
+
+const NAMESPACE = 'components';
+const DEFAULT_RELEASE_NAME = 'ctk';
+const DEBUG_LOGS = false; // set to true for verbose debugging
+
+setDefaultTimeout(20 * 1000);
 
 //To check kong gateway deployment status
 Before({ tags: '@KongGateway' }, async function () {
+  console.log('\n=== Kong Gateway Deployment Check ===');
   console.log('Checking if Kong Gateway is deployed...');
-  const kongDeployed = await isKongGatewayDeployed();
+  
+  try {
+    const kongDeployed = await isKongGatewayDeployed();
 
-  if (!kongDeployed) {
-    console.log('Kong Gateway is not deployed. Skipping scenario.');
-    return 'skipped';
+    if (!kongDeployed) {
+      console.log('Kong Gateway is not deployed. Skipping scenario.');
+      return 'skipped';
+    }
+
+    console.log('✅ Kong Gateway is deployed. Proceeding with scenario.');
+    console.log('=== Kong Gateway Deployment Check Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error checking Kong Gateway deployment: ${error.message}`);
+    console.error('Possible causes:');
+    console.error('- Kong Gateway not installed or configured properly');
+    console.error('- Kubernetes cluster access issues');
+    console.error('- Required Gateway API CRDs not installed');
+    throw error;
   }
-
-  console.log('Kong Gateway is deployed. Proceeding with scenario.');
 });
 
 //To check apisix gateway deployment status
 Before({ tags: '@ApisixGateway' }, async function () {
+  console.log('\n=== Apisix Gateway Deployment Check ===');
   console.log('Checking if Apisix Gateway is deployed...');
-  const apisixDeployed = await isApisixGatewayDeployed();
+  
+  try {
+    const apisixDeployed = await isApisixGatewayDeployed();
 
-  if (!apisixDeployed) {
-    console.log('Apisix Gateway is not deployed. Skipping scenario.');
-    return 'skipped';
+    if (!apisixDeployed) {
+      console.log('Apisix Gateway is not deployed. Skipping scenario.');
+      return 'skipped';
+    }
+
+    console.log('✅ Apisix Gateway is deployed. Proceeding with scenario.');
+    console.log('=== Apisix Gateway Deployment Check Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error checking Apisix Gateway deployment: ${error.message}`);
+    console.error('Possible causes:');
+    console.error('- Apisix Gateway not installed or configured properly');
+    console.error('- Kubernetes cluster access issues');
+    console.error('- Apisix service not accessible or ready');
+    throw error;
   }
-
-  console.log('Apisix Gateway is deployed. Proceeding with scenario.');
 });
 
 //Common for both Apisix and Kong gateway
+/**
+ * Deploy a component from a package and verify its deployment status.
+ *
+ * @param {string} componentName - The name of the component to deploy.
+ * @param {string} packageName - The name of the package containing the component.
+ * @returns {Promise<void>} - A Promise that resolves when the component is deployed.
+ */
 Given('a component {string} is deployed from package {string}', async function (componentName, packageName) {
-  if (!global.currentReleaseName) {
-    global.currentReleaseName = DEFAULT_RELEASE_NAME;
+  console.log('\n=== Starting Component Deployment ===');
+  console.log(`Deploying component '${componentName}' from package '${packageName}'`);
+  
+  try {
+    if (!global.currentReleaseName) {
+      global.currentReleaseName = DEFAULT_RELEASE_NAME;
+    }
+    
+    console.log(`Using release name: '${global.currentReleaseName}'`);
+    await packageManagerUtils.installPackage(packageName, global.currentReleaseName, NAMESPACE);
+    
+    console.log(`✅ Package '${packageName}' installed successfully`);
+    
+    // Verify component resource is created
+    const componentResource = await resourceInventoryUtils.getComponentResource(
+      `${global.currentReleaseName}-${componentName}`,
+      NAMESPACE
+    );
+    
+    assert.ok(componentResource, `Component '${componentName}' should be deployed from package '${packageName}'`);
+    
+    console.log(`✅ Component '${componentName}' successfully deployed and verified`);
+    console.log('=== Component Deployment Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error during component deployment: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Component: '${componentName}'`);
+    console.error(`- Package: '${packageName}'`);
+    console.error(`- Release name: '${global.currentReleaseName}'`);
+    console.error(`- Namespace: '${NAMESPACE}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    if (error.response) {
+      console.error('HTTP Response error details:');
+      console.error(`- Status: ${error.response.status}`);
+      console.error(`- Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      console.error(`- Body: ${JSON.stringify(error.response.body, null, 2)}`);
+    }
+    
+    console.error('Possible causes:');
+    console.error('- Package not found in configured repositories');
+    console.error('- Component definition missing or invalid in package');
+    console.error('- Canvas Component operator not running');
+    console.error('- Kubernetes cluster resource constraints');
+    console.error('- Insufficient permissions to deploy components');
+    
+    console.log('=== Component Deployment Failed ===');
+    throw error;
   }
-  await packageManagerUtils.installPackage(packageName, global.currentReleaseName, NAMESPACE);
-  const componentResource = await resourceInventoryUtils.getComponentResource(
-    `${global.currentReleaseName}-${componentName}`,
-    NAMESPACE
-  );
-  assert.ok(componentResource, `Component ${componentName} should be deployed.`);
 });
 
 

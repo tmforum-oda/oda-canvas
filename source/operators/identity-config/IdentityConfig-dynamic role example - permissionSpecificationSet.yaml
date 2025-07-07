@@ -1,0 +1,10 @@
+apiVersion: oda.tmforum.org/v1
+kind: IdentityConfig
+metadata:
+  name: ctk-productcatalogmanagementproductcatalogmanagement # Kubernetes resource name for the instance of the IdentityConfig
+spec:
+  canvasSystemRole: CanvasRole
+  permissionSpecificationSetAPI:
+    implementation: ctk-permissionspecapi
+    path: /ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5
+    port: 8080

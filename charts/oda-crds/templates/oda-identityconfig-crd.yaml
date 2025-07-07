@@ -54,9 +54,6 @@ spec:
                 - implementation
                 - path
                 - port                             
-          status:
-            type: object
-            x-kubernetes-preserve-unknown-fields: true
     additionalPrinterColumns:
     - name: identity_provider
       type: string
@@ -91,7 +88,7 @@ spec:
                       type: string
                     description:
                       type: string   
-              partyRoleAPI:
+              partyRoleAPI: # a component can dynamically set roles via either partyRoleAPI or permissionSpecificationSetAPI (partyRole will be deprecated in future)
                 description: This is the name of the API that the component will expose to allow Canvas to manage party roles.
                 type: object
                 properties:
@@ -108,6 +105,26 @@ spec:
                 - implementation
                 - path
                 - port                             
+              permissionSpecificationSetAPI: # a component can dynamically set roles via either partyRoleAPI or permissionSpecificationSetAPI (partyRole will be deprecated in future)
+                description: This is the name of the API that the component will expose to allow Canvas to manage roles.
+                type: object
+                properties:
+                  implementation:
+                    type: string
+                    description: The name of the service where the implementation of the API is found
+                  path:
+                    type: string
+                    description: The path to the root of the API
+                  port:
+                    type: integer
+                    description: The port where the API is exposed
+                required:
+                - implementation
+                - path
+                - port                             
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
           status:
             type: object
             x-kubernetes-preserve-unknown-fields: true

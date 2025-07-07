@@ -1,0 +1,31 @@
+{{/*
+Role Initialization Job
+This job creates an initial 'Admin' role using either:
+- Permission Specification Set API (TMF672) when permissionspec.enabled=true
+- Party Role API (TMF669) when permissionspec.enabled=false
+*/}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{.Release.Name}}-roleinitialization
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-roleinitialization
+    spec:
+      containers:
+      - name: {{.Release.Name}}-roleinitialization
+        image: lesterthomas/roleinitialization:0.6
+        env:
+        - name: RELEASE_NAME
+          value: {{.Release.Name}}           
+        - name: COMPONENT_NAME
+          value: {{.Release.Name}}-{{.Values.component.name}}
+        - name: USE_PERMISSION_SPEC
+          value: "{{.Values.permissionspec.enabled}}"
+        imagePullPolicy: Always
+      restartPolicy: OnFailure
+  backoffLimit: 10
