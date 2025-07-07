@@ -810,11 +810,11 @@ async def identityConfig(
                 # get the partyrole API and add to the identityConfig
                 identityConfigResource["partyRoleAPI"] = partyRoleAPI
 
-            # check if the component has a permissionspecificationset API
+            # check if the component has a userrolesandpermissions API
             foundPermissionSpecificationSet = False
             if "exposedAPIs" in spec["securityFunction"]:
                 for api in spec["securityFunction"]["exposedAPIs"]:
-                    if "permissionspecificationset" in api["name"]:
+                    if "userrolesandpermissions" in api["name"]:
                         permissionSpecificationSetAPI = {}
                         permissionSpecificationSetAPI["implementation"] = api[
                             "implementation"

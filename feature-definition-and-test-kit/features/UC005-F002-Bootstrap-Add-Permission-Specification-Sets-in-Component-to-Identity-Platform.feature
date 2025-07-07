@@ -4,12 +4,14 @@
 
 @UC005         # tagged as use case 5
 @UC005-F002    # tagged as use feature 2 within use case 5
-Feature: UC005-F002 Bootstrap: Add Permission Specification Sets in Component to Identity Platform
+Feature: UC005-F002 Bootstrap: Add Dynamic Roles from Component to Identity Platform
+# The Dynamic Roles allow the component to add, update and delete roles at run-time by exposing a User Roles and Permissions API.
+# The User Roles and Permissions API has a PermissionSpecificationSet resource that allows the component to define roles and permissions dynamically.
 
     Scenario: Bootstrap component with dynamic permission specification sets
         Given a baseline 'productcatalog-dynamic-roles-v1' package installed as release 'dynamic'
         When the 'productcatalogmanagement' component has a deployment status of 'Complete'
-        Then I should see the 'permissionspecificationset' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
+        Then I should see the 'userrolesandpermissions' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
 
     Scenario: Add a new permission specification set via TMF672 API
         Given a baseline 'productcatalog-dynamic-roles-v1' package installed as release 'dynamic'

@@ -61,10 +61,10 @@ When('I POST a new PermissionSpecificationSet with the following details:', asyn
   const componentInstance = global.currentReleaseName + '-' + componentName;
   
   // Get the ExposedAPI resource to find the correct API URL and path
-  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('permissionspecificationset', componentName, global.currentReleaseName, NAMESPACE);
+  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('userrolesandpermissions', componentName, global.currentReleaseName, NAMESPACE);
   
   // Assert that the ExposedAPI resource was found
-  assert.ok(exposedAPIResource, 'The permissionspecificationset ExposedAPI resource should be available');
+  assert.ok(exposedAPIResource, 'The userrolesandpermissions ExposedAPI resource should be available');
   assert.ok(exposedAPIResource.status && exposedAPIResource.status.apiStatus && exposedAPIResource.status.apiStatus.url, 'The ExposedAPI should have a URL in its status');
   
   // Get the base API URL from the ExposedAPI status
@@ -264,9 +264,9 @@ When('I DELETE the PermissionSpecificationSet {string} from the TMF672 API', asy
   const componentName = 'productcatalogmanagement';
   
   // Get the ExposedAPI resource to find the correct API URL
-  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('permissionspecificationset', componentName, global.currentReleaseName, NAMESPACE);
+  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('userrolesandpermissions', componentName, global.currentReleaseName, NAMESPACE);
   
-  assert.ok(exposedAPIResource, 'The permissionspecificationset ExposedAPI resource should be available');
+  assert.ok(exposedAPIResource, 'The userrolesandpermissions ExposedAPI resource should be available');
   assert.ok(exposedAPIResource.status && exposedAPIResource.status.apiStatus && exposedAPIResource.status.apiStatus.url, 'The ExposedAPI should have a URL in its status');
   
   const baseApiURL = exposedAPIResource.status.apiStatus.url;
@@ -370,9 +370,9 @@ Given('the {string} component has an existing PermissionSpecificationSet {string
   const componentName = 'productcatalogmanagement';
   
   // Get the ExposedAPI resource to find the correct API URL
-  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('permissionspecificationset', componentName, global.currentReleaseName, NAMESPACE);
+  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('userrolesandpermissions', componentName, global.currentReleaseName, NAMESPACE);
   
-  assert.ok(exposedAPIResource, 'The permissionspecificationset ExposedAPI resource should be available');
+  assert.ok(exposedAPIResource, 'The userrolesandpermissions ExposedAPI resource should be available');
   assert.ok(exposedAPIResource.status && exposedAPIResource.status.apiStatus && exposedAPIResource.status.apiStatus.url, 'The ExposedAPI should have a URL in its status');
   
   const baseApiURL = exposedAPIResource.status.apiStatus.url;

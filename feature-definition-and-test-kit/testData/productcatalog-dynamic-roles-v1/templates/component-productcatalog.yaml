@@ -88,7 +88,7 @@ spec:
     canvasSystemRole: {{ .Values.security.canvasSystemRole }}
     exposedAPIs: 
     {{- if .Values.permissionspec.enabled }}
-    - name: permissionspecificationset
+    - name: userrolesandpermissions
       specification:
       - url: "https://raw.githubusercontent.com/tmforum-apis/TMF672_UserRolePermissions/master/TMF672-UserRolePermissions-v5.0.0.swagger.json"
       implementation: {{.Release.Name}}-permissionspecapi
