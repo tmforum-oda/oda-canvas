@@ -1304,7 +1304,6 @@ spec:
                           description: >
                             Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
                           minItems: 1
-                          description: url to the specification of the API. e.g. url to the swagger file
                         apiType:
                           type: string
                           enum:
@@ -2126,7 +2125,6 @@ spec:
                           description: >
                             Specification of the API. This is an array to allow for multiple specifications (e.g. to support Gen-4 and Gen-5 Open-APIs)
                           minItems: 1
-                          description: url to the specification of the API. e.g. url to the swagger file
                         apiType:
                           type: string
                           enum:
@@ -2698,8 +2696,3 @@ spec:
       type: string
       description: Deployment status [in progress, complete, failed]
       jsonPath: .status.summary/status.deployment_status
-
-
-
-
-
