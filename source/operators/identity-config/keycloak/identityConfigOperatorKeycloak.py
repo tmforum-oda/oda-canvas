@@ -253,7 +253,8 @@ def identityConfig(
             # 3) and execute add_role against component in every iteration
 
             for role in spec["componentRole"]:
-                kc.add_role(role["name"], client, token, kcRealm)
+                description = role.get("description")
+                kc.add_role(role["name"], client, token, kcRealm, description)
                 logw.info(f'Keycloak role {role["name"]} created')
         except RuntimeError as e:
             logw.error(

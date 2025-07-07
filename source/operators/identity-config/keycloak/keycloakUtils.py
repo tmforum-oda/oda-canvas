@@ -130,13 +130,18 @@ class Keycloak:
                 "get_client_list failed with HTTP status " f"{r.status_code}: {e}"
             ) from None
 
-    def add_role(self, role: str, client_id: str, token: str, realm: str) -> None:
+    def add_role(self, role: str, client_id: str, token: str, realm: str, description: str = None) -> None:
         """
         POST new roles to the right client in the right realm in
         Keycloak
 
         Returns nothing or raises an exception for the caller to catch
         """
+
+        # Build the JSON payload with role name and optional description
+        role_data = {"name": role}
+        if description is not None:
+            role_data["description"] = description
 
         try:  # to add new role to Keycloak
             r = requests.post(
@@ -146,7 +151,7 @@ class Keycloak:
                 + "/clients/"
                 + client_id
                 + "/roles",
-                json={"name": role},
+                json=role_data,
                 headers={"Authorization": "Bearer " + token},
             )
             r.raise_for_status()
