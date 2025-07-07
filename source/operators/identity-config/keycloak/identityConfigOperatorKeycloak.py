@@ -6,6 +6,10 @@ from keycloakUtils import Keycloak
 from log_wrapper import LogWrapper, logwrapper
 from kubernetes.client.rest import ApiException
 import kubernetes.client
+import datetime
+
+# HTTP status codes
+HTTP_NOT_FOUND = 404
 
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
@@ -21,23 +25,40 @@ componentname_label = os.getenv("COMPONENTNAME_LABEL", "oda.tmforum.org/componen
 
 # Helper functions ----------
 
-def register_listener(url: str) -> None:
+def register_listener(url: str, api_type: str = "Unknown") -> None:
     """
-    Register the listener URL with partyRoleManagement for role updates
+    Register the listener URL with API hub for role/permission updates
+
+    Args:
+        url: The hub URL to register with
+        api_type: Type of API (e.g., "partyRoleAPI", "permissionSpecificationSetAPI") for logging
 
     Returns nothing, or raises an exception for the caller to catch
     """
+    callback_url = "http://idlistkey.canvas:5000/listener"
+    payload = {"callback": callback_url}
+    if (api_type == "permissionSpecificationSetAPI"): # v5 APIs require a type
+        payload["@type"] = "Hub"
+
+    logger.info(f"Registering listener for {api_type} - Hub URL: {url}")
+    logger.debug(f"Registration payload: {payload}")
 
     try:  # to register the listener
         # pylint: disable=try-except-raise
         # Disabled because we raise immediately deliberately. We want
         # Kopf to handle this and only this error until we come across
         # more errors
-        r = requests.post(
-            url, json={"callback": "http://idlistkey.canvas:5000/listener"}
-        )
+        r = requests.post(url, json=payload)
         r.raise_for_status()
+        
+        logger.info(f"Successfully registered listener for {api_type} at {url}")
+        logger.debug(f"Hub registration response status: {r.status_code}, response: {r.text}")
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to register listener for {api_type} at {url}: {str(e)}")
+        raise RuntimeError(f"Hub registration failed for {api_type}: {str(e)}")
     except RuntimeError:
+        logger.error(f"RuntimeError during listener registration for {api_type} at {url}")
         raise
 
 
@@ -52,6 +73,61 @@ def safe_get(default_value, dictionary, *paths):
 
 def quick_get_comp_name(body):
     return safe_get(None, body, "metadata", "labels", componentname_label)
+
+
+# Global registry to track all registered listeners
+registered_listeners = {}
+
+def add_to_listener_registry(component_name: str, api_type: str, url: str):
+    """
+    Add a listener to the global registry for tracking
+    
+    Args:
+        component_name: Name of the component
+        api_type: Type of API (partyRoleAPI or permissionSpecificationSetAPI)
+        url: The hub URL
+    """
+    if component_name not in registered_listeners:
+        registered_listeners[component_name] = {}
+    
+    registered_listeners[component_name][api_type] = {
+        "url": url,
+        "registered_at": datetime.datetime.now().isoformat()
+    }
+    
+    logger.info(f"Added {api_type} listener for component {component_name} to registry")
+    logger.info(f"Current registered listeners: {list(registered_listeners.keys())}")
+    logger.debug(f"Full listener registry: {registered_listeners}")
+
+
+def remove_from_listener_registry(component_name: str):
+    """
+    Remove a component's listeners from the registry
+    
+    Args:
+        component_name: Name of the component to remove
+    """
+    if component_name in registered_listeners:
+        removed_listeners = registered_listeners.pop(component_name)
+        logger.info(f"Removed component {component_name} from listener registry")
+        logger.debug(f"Removed listeners: {removed_listeners}")
+    else:
+        logger.warning(f"Component {component_name} not found in listener registry")
+    
+    logger.info(f"Remaining registered listeners: {list(registered_listeners.keys())}")
+
+
+def log_all_registered_listeners():
+    """
+    Log all currently registered listeners
+    """
+    if registered_listeners:
+        logger.info(f"Currently registered listeners for {len(registered_listeners)} components:")
+        for component, listeners in registered_listeners.items():
+            for api_type, details in listeners.items():
+                logger.info(f"  - Component: {component}, API: {api_type}, URL: {details['url']}, Registered: {details['registered_at']}")
+    else:
+        logger.info("No listeners currently registered")
 
 
 # Script setup --------------
@@ -190,6 +266,7 @@ def identityConfig(
 
     # check if the partyRoleManagement API is exposed by the component
     # if it is present, add a listener to the partyRoleManagement API
+    listener_registered = False
     if "partyRoleAPI" in spec:
         partyRoleAPI = spec["partyRoleAPI"]
 
@@ -203,18 +280,47 @@ def identityConfig(
                 + str(partyRoleAPI["port"])
                 + partyRoleAPI["path"]
             )
-            logw.info(f"register_listener for url {rooturl}")
-            register_listener(rooturl + "/hub")
+            logw.info(f"register_listener for partyRoleAPI url {rooturl}")
+            register_listener(rooturl + "/hub", "partyRoleAPI")
+            add_to_listener_registry(name, "partyRoleAPI", rooturl + "/hub")
+            listener_registered = True
 
         except RuntimeError as e:
-            logw.error(f"register_listener failed for url {rooturl}", str(e))
+            logw.error(f"register_listener failed for partyRoleAPI url {rooturl}", str(e))
             raise kopf.TemporaryError(
-                "Could not register listener. Will retry.", delay=10
+                "Could not register listener for partyRoleAPI. Will retry.", delay=10
             )
-        else:
-            status_value = {"identityProvider": "Keycloak", "listenerRegistered": True}
-    else:
-        status_value = {"identityProvider": "Keycloak", "listenerRegistered": False}
+
+    # check if the permissionSpecificationSetAPI is exposed by the component
+    # if it is present, add a listener to the permissionSpecificationSetAPI
+    if "permissionSpecificationSetAPI" in spec:
+        permissionSpecificationSetAPI = spec["permissionSpecificationSetAPI"]
+
+        try:  # to register with the permissionSpecificationSetAPI
+            rooturl = (
+                "http://"
+                + permissionSpecificationSetAPI["implementation"]
+                + "."
+                + namespace
+                + ".svc.cluster.local:"
+                + str(permissionSpecificationSetAPI["port"])
+                + permissionSpecificationSetAPI["path"]
+            )
+            logw.info(f"register_listener for permissionSpecificationSetAPI url {rooturl}")
+            register_listener(rooturl + "/hub", "permissionSpecificationSetAPI")
+            add_to_listener_registry(name, "permissionSpecificationSetAPI", rooturl + "/hub")
+            listener_registered = True
+
+        except RuntimeError as e:
+            logw.error(f"register_listener failed for permissionSpecificationSetAPI url {rooturl}", str(e))
+            raise kopf.TemporaryError(
+                "Could not register listener for permissionSpecificationSetAPI. Will retry.", delay=10
+            )
+
+    status_value = {"identityProvider": "Keycloak", "listenerRegistered": listener_registered}
+
+    # Log all currently registered listeners
+    log_all_registered_listeners()
 
     # update the status value to the parent component object
     if "ownerReferences" in meta.keys():
@@ -303,3 +409,23 @@ def security_client_delete(meta, spec, status, body, namespace, labels, name, **
         )
     else:
         logw.info(f"Client {name} deleted from Keycloak")
+        remove_from_listener_registry(name)
+
+
+@kopf.on.timer('oda.tmforum.org', 'v1', 'identityconfigs', interval=300.0)  # Log every 5 minutes
+def periodic_listener_summary(**kwargs):
+    """
+    Periodically log a summary of all registered listeners for monitoring
+    """
+    logger.info("=== PERIODIC LISTENER REGISTRY SUMMARY ===")
+    log_all_registered_listeners()
+    logger.info("=== END PERIODIC SUMMARY ===")
+
+
+# Health check handler
+@kopf.on.probe(id='identity-listener-health')
+def health_check(**kwargs):
+    """
+    Health check probe for the identity config operator
+    """
+    return {"status": "healthy", "registered_listeners": len(registered_listeners)}

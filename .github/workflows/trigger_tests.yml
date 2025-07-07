@@ -162,9 +162,10 @@ jobs:
         sleep 30
         kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083 &
 
-    - name: Installing example component PC 
+    - name: Installing example component PC into default and other namespace
       run: |
         helm install ctk feature-definition-and-test-kit/testData/productcatalog-static-roles-v1/ -n components     
+        helm install pcother feature-definition-and-test-kit/testData/productcatalog-v1/ -n odacompns-1 --create-namespace     
         sleep 30
         kubectl get all -n components
         kubectl logs -l app=component-operator -n canvas
@@ -186,19 +187,20 @@ jobs:
     - name: Install test Kit
       continue-on-error: true
       run: |
-        cd feature-definition-and-test-kit/identity-manager-utils-keycloak
+        cd feature-definition-and-test-kit/utilities/identity-manager-utils-keycloak
         npm install
         cd ../package-manager-utils-helm
         npm install
         cd ../resource-inventory-utils-kubernetes
         npm install
         cd ..
+        cd ..
         npm install
         export KEYCLOAK_USER=admin 
         export KEYCLOAK_PASSWORD=adpass 
         export KEYCLOAK_BASE_URL="http://localhost:8083/auth/"
         export KEYCLOAK_REALM=odari
-        export CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
+        #export CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
         npm start 2>&1 | tee /tmp/test_results.log
         kubectl get exposedapis -n components
         kubectl -n canvas logs deployment/component-operator | tee /tmp/component-operator.log

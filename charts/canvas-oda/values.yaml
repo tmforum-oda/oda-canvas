@@ -152,7 +152,7 @@ component-operator:
   deployment:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
-    compopVersion: 1.0.0
+    compopVersion: 1.1.0
     compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
@@ -165,13 +165,13 @@ identityconfig-operator-keycloak:
   deployment:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
-    idkopVersion: 1.0.3
-    idkopPrereleaseSuffix:
+    idkopVersion: 1.1.0
+    idkopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
-    idlistkeyVersion: 0.7.3
-    idlistkeyPrereleaseSuffix: 
+    idlistkeyVersion: 1.1.0
+    idlistkeyPrereleaseSuffix:  
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     keycloak: *portKeycloak
     hostName: "*"

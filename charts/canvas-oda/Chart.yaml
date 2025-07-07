@@ -16,7 +16,9 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.3-rc4
+version: 1.2.4-LT1
+# version:  1.2.4-LT1- added permissionSpecificationSet API for configuring roles
+# version: 1.2.3     - June release, prior to DTW
 # version: 1.2.3-rc4 - issue 484 - extract canvas-info-service subchart from dependentapi-simple-operator
 # version: 1.2.3-rc3 - issue 448 - support multiple component namespaces, make component-gateway configurable in env variables of apiOperatorIstio
 # version: 1.2.3-ak1 - update keycloak installation to create canvassystem client and identityConfig-Operator to add canvasSystemRole to canvassystem client
@@ -73,7 +75,7 @@ dependencies:
     repository: 'file://../canvas-namespaces'
     condition: canvas-namespaces.enabled
   - name: oda-crds
-    version: "1.3.0"
+    version: "1.3.1"
     repository: 'file://../oda-crds'
     condition: oda-crds.enabled
   - name: keycloak
@@ -81,10 +83,10 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: component-operator
-    version: "1.3.1"
+    version: "1.4.0"
     repository: 'file://../component-operator'
   - name: identityconfig-operator-keycloak
-    version: "1.2.5"
+    version: "1.2.6"
     repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
     version: "1.1.2"
