@@ -2,12 +2,12 @@ deployment:
   operatorName: identityconfig-operator-keycloak
   idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
   idkopVersion: 1.1.0
-  idkopPrereleaseSuffix: LT-issue-81
+  idkopPrereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   istioGateway: true
   idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
   idlistkeyVersion: 1.1.0
-  idlistkeyPrereleaseSuffix: LT-issue-81
+  idlistkeyPrereleaseSuffix: 
   monitoredNamespaces: 'components'           # comma separated list of namespaces
   ingressClass:
     enabled: false
