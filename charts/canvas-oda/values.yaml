@@ -346,6 +346,39 @@ secretsmanagement-operator:
   #  name: enc-secrets
   #  key: hvacTokenEnc
 
+# -----------------------------------------------------------------------------
+# PDB Management Operator and sub-chart parameters
+# -----------------------------------------------------------------------------
+
+pdb-management-operator:
+  enabled: true
+  image: tmforumodacanvas/pdb-management-operator
+  version: 1.0.0
+  prereleaseSuffix:
+  imagePullPolicy: IfNotPresent
+  
+  # Deployment configuration
+  deployment:
+    operatorName: pdb-management-operator
+    monitoredNamespaces: 'components,odacompns-*'
+    enableWebhook: true
+    enableMetrics: true
+    enableTracing: true
+    metricsAddr: "0.0.0.0:8080"
+    probeAddr: "0.0.0.0:8081"
+  
+  # Observability configuration
+  observability:
+    # INFO=20, DEBUG=10
+    logLevel: 20
+    enableAuditLogging: true
+    enableStructuredLogging: true
+    
+  # Policy enforcement configuration
+  enforcement:
+    defaultMode: "flexible"  # strict|flexible|advisory
+    allowOverride: true
+    requireOverrideReason: true
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
