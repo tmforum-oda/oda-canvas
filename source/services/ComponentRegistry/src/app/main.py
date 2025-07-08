@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from app.database import LocalDatabase
-from app.routers import components
+from app.routers import components, exposedapis
 
 
 DATABASE_NAME = "database.db"
@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(components.router)
+app.include_router(exposedapis.router)
 
 
 if __name__ == "__main__":

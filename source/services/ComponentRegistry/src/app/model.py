@@ -34,7 +34,6 @@ class ComponentUpdate(SQLModel):
     labels: dict[str, str|None] | None = None
 
 
-
     # ============ #
     #  EXPOSED API #
     # ============ #
@@ -69,3 +68,19 @@ class ExposedAPICreate(ExposedAPIBase):
 class ExposedAPIUpdate(SQLModel):
     ready: bool | None = None
     url: str | None = None
+
+
+
+    # ============== #
+    #  RELATIONSHIPS #
+    # ============== #
+
+
+class ExposedAPIPublicWithComponent(ExposedAPIPublic):
+    component: ComponentPublic | None = None
+
+
+class ComponentPublicWithExposedAPIs(ComponentPublic):
+    exposed_apis: list[ExposedAPIPublic] = []
+
+
