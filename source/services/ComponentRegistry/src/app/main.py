@@ -1,14 +1,16 @@
 # from https://fastapi.tiangolo.com/tutorial/bigger-applications/#the-main-fastapi
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+import os
 
 from app.database import LocalDatabase
 from app.routers import components, exposedapis
 
 
-DATABASE_NAME = "database.db"
+DATABASE_FILE = os.getenv("DATABASE_FILE", "data/database.db")
+print(f"DATABASE_FILE={DATABASE_FILE}")
 
-db = LocalDatabase.create_instance(DATABASE_NAME)
+db = LocalDatabase.create_instance(DATABASE_FILE)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

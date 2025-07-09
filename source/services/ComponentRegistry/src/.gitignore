@@ -1,3 +1,4 @@
 *.db
 *.sqbpro
 __pycache__/
+data/
