@@ -7,7 +7,7 @@ from app.database import LocalDatabase
 from app.routers import components, exposedapis
 
 
-DATABASE_FILE = os.getenv("DATABASE_FILE", "data/database.db")
+DATABASE_FILE = os.getenv("DATABASE_FILE", "database.db")
 print(f"DATABASE_FILE={DATABASE_FILE}")
 
 db = LocalDatabase.create_instance(DATABASE_FILE)

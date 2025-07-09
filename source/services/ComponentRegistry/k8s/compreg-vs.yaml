@@ -9,7 +9,7 @@ spec:
   gateways:
   - canvas/component-gateway
   hosts:
-  - compreg.ihc-dt.cluster-1.de
+  - compreg.ihc-dt.cluster-2.de
   http:
   - match:
     - uri:
