@@ -371,7 +371,7 @@ api-operator-istio:
       enabled: false
       name: nginx
     dataDog:
-      enabled: true
+      enabled: false
     hostName: "*"
     httpsRedirect: true
     credentialName: istio-ingress-cert    

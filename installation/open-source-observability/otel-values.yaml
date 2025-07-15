@@ -1,0 +1,30 @@
+# otel-values.yaml
+# Simplified OpenTelemetry Collector configuration for ODA Canvas
+# Receives traces from components namespace and forwards to Jaeger
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+  tag: "0.91.0"
+
+mode: deployment
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        http:
+          endpoint: 0.0.0.0:4318  # Components send traces to this endpoint
+
+  exporters:
+    otlp/jaeger:
+      endpoint: jaeger-collector:4317
+      tls:
+        insecure: true
+
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp/jaeger]
+

@@ -1,0 +1,37 @@
+# prometheus-values.yaml
+# Simplified Prometheus configuration for ODA Canvas monitoring
+# Monitors components namespace via ServiceMonitor resources
+
+prometheus:
+  prometheusSpec:
+    # Allow ServiceMonitor discovery from all namespaces
+    serviceMonitorNamespaceSelector: {}
+    serviceMonitorSelector: {}
+    serviceMonitorSelectorNilUsesHelmValues: false
+    
+    # Basic configuration
+    retention: 15d
+    
+    # Security context
+    securityContext:
+      fsGroup: 65534
+      runAsUser: 65534
+      runAsNonRoot: true
+
+# Enable Grafana for visualization
+grafana:
+  enabled: true
+
+# Disable node exporter (not needed for component monitoring)
+nodeExporter:
+  enabled: false
+
+# Enable RBAC for proper permissions
+rbac:
+  create: true
+
+# Usage Notes:
+# 1. Deploy with: helm upgrade monitoring prometheus-community/kube-prometheus-stack -n monitoring -f ./prometheus-values.yaml
+# 2. Create ServiceMonitor resources in components namespace to define metrics endpoints
+# 3. Access Grafana: kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring
+# 4. Access Prometheus: kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090 -n monitoring
