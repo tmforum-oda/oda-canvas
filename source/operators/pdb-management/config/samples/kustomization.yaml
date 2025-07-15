@@ -1,0 +1,5 @@
+## Append samples of your project ##
+resources:
+- availability_v1alpha1_availabilitypolicy.yaml
+- apps_v1_deployment.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples
