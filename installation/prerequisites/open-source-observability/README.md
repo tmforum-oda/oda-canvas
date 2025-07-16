@@ -1,6 +1,6 @@
 # ODA Canvas Open Source Observability Stack
 
-The ODA Canvas provides a comprehensive open-source observability stack based on industry standards like OpenMetrics and OpenTelemetry. This reference implementation demonstrates how ODA Components can be monitored using widely-adopted open-source tools.
+The reference implementation of the ODA Canvas provides an open-source observability stack based on industry standards like OpenMetrics and OpenTelemetry. This reference implementation demonstrates how ODA Components can be monitored using widely-adopted open-source tools.
 
 ## Open Source Observability Components
 
