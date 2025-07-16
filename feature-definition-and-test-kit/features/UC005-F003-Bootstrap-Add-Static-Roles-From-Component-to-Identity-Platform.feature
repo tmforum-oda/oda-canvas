@@ -8,13 +8,13 @@ Feature: UC005-F003 Bootstrap: Add static roles from Component to Identity Platf
 
     Scenario: Bootstrap component with static roles
         Given a baseline 'productcatalog-static-roles-v1' package installed as release 'static'
-        When the 'productcatalogmanagement' component has a deployment status of 'Complete'
-        Then the role 'cat1owner' should be created in the Identity Platform for client 'static-productcatalogmanagement'
-        And the role 'cat2owner' should be created in the Identity Platform for client 'static-productcatalogmanagement'
+        When the 'static-productcatalogmanagement' component has a deployment status of 'Complete'
+        Then the role 'cat1owner' should be created in the Identity Platform for 'static-productcatalogmanagement' component
+        And the role 'cat2owner' should be created in the Identity Platform for 'static-productcatalogmanagement' component
 
     Scenario: Delete the Component and the Client should be removed from the Identity Platform 
         Given a baseline 'productcatalog-static-roles-v1' package installed as release 'static'
-        And the role 'cat1owner' exists in the Identity Platform
-        When I uninstall the 'productcatalog-static-roles-v1' package as release 'static'
+        And the role 'cat1owner' exists in the Identity Platform for 'static-productcatalogmanagement' component
+        When I uninstall the release 'static'
         Then the client 'static-productcatalogmanagement' should be removed from the Identity Platform
 

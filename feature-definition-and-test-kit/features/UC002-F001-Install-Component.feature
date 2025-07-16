@@ -7,19 +7,19 @@
 Feature: UC002-F001 Install Component
 
     Scenario Outline: Create ExposedAPI resources for each segment
-        Given an example package '<PackageName>' with a '<ComponentName>' component with '<ExposedApiCount>' ExposedAPI in its '<SegmentName>' segment
+        Given an example package '<PackageName>' with '<ExposedApiCount>' ExposedAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package as release '<ReleaseName>'
         And the '<ComponentName>' component has a deployment status of 'Complete'
         Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
 
     Examples:
-    | Name           | PackageName       | ReleaseName  | ExposedAPIName           | ComponentName            | SegmentName        | ExposedApiCount |
-    | Core API       | productcatalog-v1 |      ctk     | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1               |
-    | Management API | productcatalog-v1 |      ctk     | metrics                  | productcatalogmanagement | managementFunction | 1               |
-    | Security API   | productcatalog-v1 |      ctk     | partyrole                | productcatalogmanagement | securityFunction   | 1               |
+    | Name           | PackageName       | ReleaseName  | ExposedAPIName           | ComponentName                | SegmentName        | ExposedApiCount |
+    | Core API       | productcatalog-v1 |      ctk     | productcatalogmanagement | ctk-productcatalogmanagement | coreFunction       | 1               |
+    | Management API | productcatalog-v1 |      ctk     | metrics                  | ctk-productcatalogmanagement | managementFunction | 1               |
+    | Security API   | productcatalog-v1 |      ctk     | partyrole                | ctk-productcatalogmanagement | securityFunction   | 1               |
 
     Scenario Outline: Create DependentAPI resources for each segment
-        Given an example package '<PackageName>' with a '<ComponentName>' component with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
+        Given an example package '<PackageName>' with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package as release '<ReleaseName>'
         Then I should see the '<DependentAPIName>' DependentAPI resource on the '<ComponentName>' component
 

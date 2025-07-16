@@ -10,12 +10,12 @@ Feature: UC005-F002 Bootstrap: Add Dynamic Roles from Component to Identity Plat
 
     Scenario: Bootstrap component with dynamic permission specification sets
         Given a baseline 'productcatalog-dynamic-roles-v1' package installed as release 'dynamic'
-        When the 'productcatalogmanagement' component has a deployment status of 'Complete'
-        Then I should see the 'userrolesandpermissions' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
+        When the 'dynamic-productcatalogmanagement' component has a deployment status of 'Complete'
+        Then I should see the 'userrolesandpermissions' ExposedAPI resource on the 'dynamic-productcatalogmanagement' component with a url on the Service Mesh or Gateway
 
     Scenario: Add a new permission specification set via TMF672 API
         Given a baseline 'productcatalog-dynamic-roles-v1' package installed as release 'dynamic'
-        When I POST a new PermissionSpecificationSet with the following details:
+        When I POST a new PermissionSpecificationSet to the 'dynamic-productcatalogmanagement' component with the following details:
              | name         | description                    | involvementRole |
              | DynamicRole1 | Test dynamic role for UC005    | TestRole        |
              | DynamicRole2 | Test dynamic role for UC005    | TestRole        |
@@ -24,13 +24,13 @@ Feature: UC005-F002 Bootstrap: Add Dynamic Roles from Component to Identity Plat
 
     Scenario: Delete a permission specification set via TMF672 API
         Given the 'dynamic-productcatalogmanagement' component has an existing PermissionSpecificationSet 'DynamicRole1'
-        And the role 'DynamicRole1' exists in the Identity Platform
-        When I DELETE the PermissionSpecificationSet 'DynamicRole1' from the TMF672 API
+        And the role 'DynamicRole1' exists in the Identity Platform for 'dynamic-productcatalogmanagement' component
+        When I DELETE the PermissionSpecificationSet 'DynamicRole1' from the 'dynamic-productcatalogmanagement' component
         Then the role 'DynamicRole1' should be removed from the Identity Platform for client 'dynamic-productcatalogmanagement'
 
     Scenario: Delete the Component and the Client should be removed from the Identity Platform 
         Given the 'dynamic-productcatalogmanagement' component has an existing PermissionSpecificationSet 'DynamicRole2'
-        And the role 'DynamicRole2' exists in the Identity Platform
-        When I uninstall the 'productcatalog-dynamic-roles-v1' package as release 'dynamic'
+        And the role 'DynamicRole2' exists in the Identity Platform for 'dynamic-productcatalogmanagement' component
+        When I uninstall the release 'dynamic'
         Then the client 'dynamic-productcatalogmanagement' should be removed from the Identity Platform
 

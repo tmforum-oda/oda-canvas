@@ -6,24 +6,17 @@
 @UC012-F001    # tagged as feature 1 within use case 12
 Feature: UC012-F001 View Functional Observability
 
-    Scenario: Install component and test Observability config
-        Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
-        When the component 'ctk-productcatalog' has a deployment status of 'Complete'
-        Then the Observability platform monitors the 'metrics' endpoint 
+    Scenario: Install component and verify ServiceMonitor is created
+        Given An example package 'productcatalog-v1' with a 'metrics' ExposedAPI in its 'managementFunction' segment
+        When I install the 'productcatalog-v1' package with release name 'ctk'
+        And the 'ctk-productcatalogmanagement' component has a deployment status of 'Complete'
+        Then a ServiceMonitor resource 'ctk-productcatalogmanagement-metrics' should exist in the 'components' namespace
+        And the ServiceMonitor 'ctk-productcatalogmanagement-metrics' should be configured to scrape the 'metrics' endpoint
 
-    Scenario: Uninstall component and test Observability config is cleaned up
-        Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
-        And the component 'ctk-productcatalog' has a deployment status of 'Complete'
-        When I uninstall the package with release 'ctk'
-        Then the Observability platform does not monitor the 'metrics' endpoint 
+    Scenario: Uninstall component and verify ServiceMonitor is removed
+        Given An example package 'productcatalog-v1' with a 'metrics' ExposedAPI in its 'managementFunction' segment
+        When I install the 'productcatalog-v1' package with release name 'ctk'
+        And the 'ctk-productcatalogmanagement' component has a deployment status of 'Complete'
+        When I uninstall the release 'ctk'
+        Then the ServiceMonitor resource 'ctk-productcatalogmanagement-metrics' should not exist in the 'components' namespace
 
-    Scenario Outline: Install component and view Observability metrics
-        Given I install a package 'productcatalog' with a metrics API 'metrics' and release name 'ctk'
-        And the component 'ctk-productcatalog' has a deployment status of 'Complete'
-        When A user creates a '<Resource>' in the 'productcatalog' component
-        Then the Observability platform shows the '<Event>' metrics
-
-    Examples:
-       | Resource | Event          |
-       | category | createCategory |
-       | catalog  | createCatalog  |

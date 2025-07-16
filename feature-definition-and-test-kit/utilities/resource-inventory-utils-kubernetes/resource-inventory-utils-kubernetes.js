@@ -44,9 +44,9 @@ const resourceInventoryUtils = {
   * @param    {String} inNamespace            Namespace where the component instance is running
   * @return   {Object}        The ExposedAPI resource object, or null if the ExposedAPI is not found
   */
-  getExposedAPIResource: async function (inExposedAPIName, inComponentName, inReleaseName, inNamespace) {
+  getExposedAPIResource: async function (inExposedAPIName, inComponentName, inNamespace) {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
-    const ExposedAPIResourceName = inReleaseName + '-' + inComponentName + '-' + inExposedAPIName
+    const ExposedAPIResourceName = inComponentName + '-' + inExposedAPIName
     const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, EXPOSED_APIS_PLURAL, undefined, undefined, 'metadata.name=' + ExposedAPIResourceName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found
@@ -62,9 +62,9 @@ const resourceInventoryUtils = {
   * @param    {String} inNamespace            Namespace where the component instance is running
   * @return   {Object}          The DependentAPI resource object, or null if the DependentAPI is not found
   */
-  getDependentAPIResource: async function (inDependentAPIName, inComponentName, inReleaseName, inNamespace) {
+  getDependentAPIResource: async function (inDependentAPIName, inComponentName, inNamespace) {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
-    const DependentAPIResourceName = inReleaseName + '-' + inComponentName + '-' + inDependentAPIName
+    const DependentAPIResourceName = inComponentName + '-' + inDependentAPIName
     const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, DEPENDENT_APIS_PLURAL, undefined, undefined, 'metadata.name=' + DependentAPIResourceName)
     if (namespacedCustomObject.body.items.length === 0) {
       return null // API not found

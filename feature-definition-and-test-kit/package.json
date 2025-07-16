@@ -15,6 +15,7 @@
     "package-manager-utils-helm": "file:utilities/package-manager-utils-helm",
     "identity-manager-utils-keycloak": "file:utilities/identity-manager-utils-keycloak",
     "component-utils": "file:utilities/component-utils",
+    "observability-utils-kubernetes": "file:utilities/observability-utils-kubernetes",
     "yaml": "^2.1.3"
   }
 }
