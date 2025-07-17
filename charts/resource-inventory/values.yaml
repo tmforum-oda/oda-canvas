@@ -1,0 +1,13 @@
+image: tmforumodacanvas/tmf639-resource-inventory-api
+version: 1.0.0
+prereleaseSuffix:
+imagePullPolicy: IfNotPresent
+serverUrl: http://resource-inventory.canvas.svc.cluster.local
+mongodb:
+  port: 27017
+  database: resinv
+  image: mongo:6.0
+persistence:
+  size: 1Gi
+  accessModes: ReadWriteOnce
+  storageClassName:
