@@ -1,0 +1,121 @@
+# ODA Canvas Observability Stack Values
+# This chart-of-charts deploys Prometheus, Grafana, Jaeger, and OpenTelemetry for ODA Canvas monitoring
+
+# Global settings
+global:
+  # Default namespace for observability components
+  namespace: monitoring
+
+# ==================== Prometheus settings ====================
+prometheus:
+  enabled: true
+
+  prometheus:
+    prometheusSpec:
+      # Allow ServiceMonitor discovery from all namespaces
+      serviceMonitorNamespaceSelector: {}
+      serviceMonitorSelector: {}
+      serviceMonitorSelectorNilUsesHelmValues: false
+      
+      # Basic configuration
+      retention: 15d
+      
+      # Security context
+      securityContext:
+        fsGroup: 65534
+        runAsUser: 65534
+        runAsNonRoot: true
+
+  # Enable Grafana for visualization
+  grafana:
+    enabled: true
+
+  # Disable node exporter (not needed for component monitoring)
+  nodeExporter:
+    enabled: false
+
+  # Enable RBAC for proper permissions
+rbac:
+  create: true
+# ==================== Jaeger settings ========================
+jaeger:
+  enabled: true
+  # Use all-in-one deployment for simplicity
+  allInOne:
+    enabled: true
+    image:
+      repository: jaegertracing/all-in-one
+      tag: latest
+      pullPolicy: IfNotPresent
+    
+    # Configure storage to use memory (for testing/development)
+    args:
+      - --memory.max-traces=50000
+      - --query.base-path=/
+      - --collector.otlp.enabled=true
+      - --collector.otlp.grpc.host-port=0.0.0.0:4317
+      - --collector.otlp.http.host-port=0.0.0.0:4318
+
+  # Disable individual components since we're using all-in-one
+  agent:
+    enabled: false
+  collector:
+    enabled: false
+  query:
+    enabled: false
+
+  # Disable storage backends we don't need
+  storage:
+    type: memory
+    
+  # Disable Cassandra and Elasticsearch
+  cassandra:
+    enabled: false
+  elasticsearch:
+    enabled: false
+
+  # Configure service for external access
+  service:
+    type: ClusterIP
+    ports:
+      - name: query
+        port: 16686
+        targetPort: 16686
+      - name: collector-grpc
+        port: 4317
+        targetPort: 4317
+      - name: collector-http
+        port: 4318
+        targetPort: 4318
+
+
+# ==================== OpenTelemetry Collector settings =======
+opentelemetry-collector:
+  enabled: true
+
+  image:
+    repository: otel/opentelemetry-collector-contrib
+    tag: "0.91.0"
+
+  mode: deployment
+
+  config:
+    receivers:
+      otlp:
+        protocols:
+          http:
+            endpoint: 0.0.0.0:4318  # Components send traces to this endpoint
+
+    exporters:
+      otlp/jaeger:
+        endpoint: jaeger-collector:4317
+        tls:
+          insecure: true
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp/jaeger]
+

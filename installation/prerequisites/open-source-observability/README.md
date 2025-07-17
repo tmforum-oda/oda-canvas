@@ -73,6 +73,31 @@ helm repo update
 helm install jaeger jaegertracing/jaeger -n monitoring -f jaeger-values.yaml
 ```
 
+## Installation Methods
+
+### Method 1: Chart-of-Charts (Recommended)
+
+The simplest way to install the complete observability stack is using the chart-of-charts:
+
+```bash
+# Add required Helm repositories
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts  
+helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+helm repo update
+
+# Install the complete observability stack
+helm install observability ../../../charts/observability-stack \
+  --create-namespace \
+  --namespace monitoring
+```
+
+This will install all components (Prometheus, Grafana, Jaeger, OpenTelemetry) in a single command with proper configuration for ODA Canvas.
+
+### Method 2: Individual Component Installation
+
+For more control over each component, you can install them individually:
+
 ## ODA Component Integration
 
 ### Reference Implementation
@@ -92,28 +117,44 @@ OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector-opentelemetry-collector.moni
 ```
 
 
-## Access Monitoring UIs
+## Post-Installation
 
-### Prometheus
-```bash
-kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090 -n monitoring
-```
-Visit: http://localhost:9090
+### Accessing the Services
 
-### Grafana
-```bash
-kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring
-```
-Visit: http://localhost:3000
+After installation, you can access the observability services using port-forwarding:
 
-Get admin password:
 ```bash
-kubectl get secrets monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 -d
+# Prometheus
+kubectl port-forward svc/observability-kube-prometheus-prometheus 9090:9090 -n monitoring
+
+# Grafana  
+kubectl port-forward svc/observability-grafana 3000:80 -n monitoring
+
+# Jaeger
+kubectl port-forward svc/observability-jaeger-query 16686:16686 -n monitoring
 ```
 
-### Jaeger
+### Getting Grafana Admin Password
+
 ```bash
-kubectl port-forward svc/jaeger-query 16686:16686 -n monitoring
+kubectl get secret observability-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 -d
 ```
-Visit: http://localhost:16686
+
+### Configuring ODA Components
+
+Configure your ODA Components to send telemetry data to the observability stack:
+
+```yaml
+env:
+- name: OTEL_EXPORTER_OTLP_ENDPOINT
+  value: "http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318"
+- name: OTEL_RESOURCE_ATTRIBUTES
+  value: "service.name=your-component-name"
+```
+
+For detailed configuration and troubleshooting, see the [chart documentation](../../../charts/observability-stack/README.md).
+
+## Legacy Installation Instructions
+
+The following instructions are for installing components individually:
 
