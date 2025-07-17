@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-resinv-mongodb
+  labels:
+    app: {{.Release.Name}}-resinv-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Release.Name}}-resinv-mongodb
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-resinv-mongodb
+    spec:
+      containers:
+      - name: {{.Release.Name}}-resinv-mongodb
+        image: {{ .Values.mongodb.image }}
+        ports:
+        - name: resinv-mongodb
+          containerPort: {{.Values.mongodb.port}}
+        volumeMounts:
+        - name: {{.Release.Name}}-resinv-mongodb-pv-storage
+          mountPath: "/data/db"
+      volumes:
+      - name: {{.Release.Name}}-resinv-mongodb-pv-storage
+        persistentVolumeClaim:
+          claimName: {{.Release.Name}}-resinv-mongodb-pv-claim

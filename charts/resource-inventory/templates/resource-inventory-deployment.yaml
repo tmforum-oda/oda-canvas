@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-resource-inventory
+  labels:
+    app: {{ .Release.Name }}-resource-inventory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-resource-inventory
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-resource-inventory
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-resource-inventory
+        image: {{ include "resource-inventory.dockerimage" . }}
+        imagePullPolicy: {{ include "resource-inventory.imagePullPolicy" . }}
+        env:
+        - name: SERVER_URL
+          value: {{ .Values.serverUrl }}
+        ports:
+        - containerPort: 8639
