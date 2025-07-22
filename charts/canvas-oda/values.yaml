@@ -523,7 +523,7 @@ resource-inventory:
   version: 1.0.0
   prereleaseSuffix: AK-issue-491
   imagePullPolicy: IfNotPresent
-  serverUrl: http://resource-inventory.canvas.svc.cluster.local
+  serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
   mongodb:
     port: 27017
     database: resinv
