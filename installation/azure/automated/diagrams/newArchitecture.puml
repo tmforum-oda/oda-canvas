@@ -1,0 +1,88 @@
+@startuml
+!theme plain
+' Title for the diagram
+title ODA Canvas on Azure - Component & Data Flow
+
+' Use a clear directional layout
+left to right direction
+
+' Define a legend to explain the notation
+legend right
+  **Flows**
+  <color:blue><&pulse></color> '''Request/Response Flow'''
+  <color:darkred><&wrench></color> '''Operator Control Flow'''
+  <color:green><&graph></color> '''Observability Data Flow'''
+
+  **Notation**
+  [Component]
+  <<artifact>>
+  -->> : Interaction
+endlegend
+
+' Actor representing the end user or client application
+actor "User / Client" as User
+
+' ----------------- COLUMN 1: AZURE CONTROL & DATA PLANE -----------------
+package "Azure Control & Data Plane" #lightblue {
+    
+    component "APIM Gateway" as APIMGateway
+    
+    package "Azure Observability" {
+        component "Azure Monitor\n(App Insights, Logs, Metrics)" as AzureMonitor
+    }
+    
+    package "Azure Security" {
+        component "Azure Key Vault" as KeyVault
+        component "Azure Entra ID" as EntraID
+    }
+}
+
+' ----------------- COLUMN 2: AKS RUNTIME PLANE -----------------
+package "AKS Runtime Plane" #lightgreen {
+    
+    ' The Operator and its configuration artifact
+    artifact "ExposedAPI CRD\n(configures operator)" as CRD
+    component "[apiOperatorAzureAPIM]" as Operator
+    
+    ' Grouping the components that run inside a pod
+    frame "ODA Component Pod" {
+        component "ODA Component\n(e.g., TMF620)" as ODAComponent
+        component "Istio Sidecar" as Sidecar
+    }
+    
+    ' Observability agents running in the cluster
+    component "[OTel Collector]" as OTelCollector
+    component "[Azure Monitor Agent]" as AMA
+}
+
+
+' ----------------- CONNECTIONS & FLOWS -----------------
+
+' 1. Request/Response Flow (Solid Blue Lines)
+User --[#blue,bold]-> APIMGateway : "1. API Request"
+APIMGateway --[#blue,bold]-> Sidecar : "3. Forwards to Service\n(via Ingress)"
+Sidecar --[#blue,bold]-> ODAComponent : "4. Delivers to App"
+
+
+' 2. Operator Control Flow (Dashed Red Lines)
+CRD .[#darkred].> Operator : "A. Configures"
+Operator .[#darkred].> ODAComponent : "B. Patches for\nObservability"
+Operator .[#darkred].> APIMGateway : "C. Creates/Configures API\n& Policies"
+Operator .[#darkred].> KeyVault : "D. Reads Secrets"
+
+
+' 3. Observability Data Flow (Dotted Green Lines)
+APIMGateway ..[#green]..> AzureMonitor : "Traces, Logs"
+ODAComponent ..[#green]..> OTelCollector : "Traces (OTLP)"
+Sidecar ..[#green]..> OTelCollector : "Traces (OTLP)"
+OTelCollector ..[#green]..> AzureMonitor : "Exports Traces"
+
+AMA ..[#green]..> ODAComponent : "Scrapes Metrics"
+AMA ..[#green]..> AzureMonitor : "Exports Metrics & Logs"
+
+
+' 4. Security Interactions
+APIMGateway --[#purple]-> EntraID : "2. Validates JWT Token"
+
+
+@enduml
