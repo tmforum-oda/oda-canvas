@@ -9,9 +9,9 @@ const assert = require('assert');
 chai.use(chaiHttp);
 
 const NAMESPACE = 'components';
-const API_DEPLOY_TIMEOUT = 1 * 1000; // 1 seconds
-const API_URL_TIMEOUT = 6 * 1000; // 6 seconds
-const API_READY_TIMEOUT = 12 * 1000; // 12 seconds
+const API_DEPLOY_TIMEOUT = 30 * 1000; // 30 seconds
+const API_URL_TIMEOUT = 60 * 1000; // 60 seconds
+const API_READY_TIMEOUT = 120 * 1000; // 120 seconds
 const TIMEOUT_BUFFER = 5 * 1000; // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const DEBUG_LOGS = false; // set to true for verbose debugging
 

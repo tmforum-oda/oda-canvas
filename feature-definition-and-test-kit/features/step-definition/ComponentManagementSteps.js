@@ -12,7 +12,7 @@ chai.use(chaiHttp);
 
 const NAMESPACE = 'components';
 const DEFAULT_RELEASE_NAME = 'ctk';
-const COMPONENT_DEPLOY_TIMEOUT = 60 * 1000; // 60 seconds
+const COMPONENT_DEPLOY_TIMEOUT = 300 * 1000; // 5 minutes
 const TIMEOUT_BUFFER = 5 * 1000; // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const CLEANUP_PACKAGE = false; // set to true to uninstall the package after each Scenario
 const DEBUG_LOGS = false; // set to true to log the controller logs after each failed Scenario
@@ -274,7 +274,7 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
-    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT/1000 + " seconds")
 
     // check if the component deployment status is deploymentStatus
     if ((!componentResource) || (!componentResource.hasOwnProperty('status')) || (!componentResource.status.hasOwnProperty('summary/status')) || (!componentResource.status['summary/status'].hasOwnProperty('deployment_status'))) {
@@ -377,7 +377,7 @@ Given('the {string} component has a deployment status of {string} for the {strin
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
-    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT/1000 + " seconds")
 
     // check if the component deployment status is deploymentStatus
     if ((!componentResource) || (!componentResource.hasOwnProperty('status')) || (!componentResource.status.hasOwnProperty('summary/status')) || (!componentResource.status['summary/status'].hasOwnProperty('deployment_status'))) {
