@@ -9,6 +9,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}-resource-inventory
 spec:
+  type : LoadBalancer
   ports:
   - name: http
     port: 80
