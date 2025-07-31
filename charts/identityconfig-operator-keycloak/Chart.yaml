@@ -16,14 +16,14 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.6
+version: 1.2.7
+# version: 1.2.7 - Added support for custom/private docker registry and image pull secrets
 # version: 1.2.6 - issue 81 - added permissionSpecificationSet API for configuring roles
 # version: 1.2.5 - issue 448 - support multiple component namespaces: remove namespaced role, fix KOPF command
 # version: 1.2.4 - Add canvasSystemRole to canvassystem client
 # version: 1.2.3 - issue 362 - set serviceAccountsEnabled to true when creating new clients
 # version: 1.2.2 - updated listener docker image to remove vulnerabilities
 # version: 1.2.1 - Added startup handler with api server watcher timeout
-# version: 1.2.1 - Added support for custom/private docker registry and image pull secrets
 # version: 1.2.0 - updated to use v1 of CRD spec
 # version: 1.1.0 - changed controllerRole to canvasSystemRole
 # version: 1.0.0 - initial version - identityconfig separated out from component operator
