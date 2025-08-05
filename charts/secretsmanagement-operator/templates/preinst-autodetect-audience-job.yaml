@@ -31,7 +31,6 @@ spec:
       restartPolicy: Never
       containers:
       - name: autodetect-audience
-        # TODO[FH]: remove prereleasesuffix
         image: {{ include "docker.registry" .}}{{ .Values.global.hookImages.kubectlCurl }}
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]

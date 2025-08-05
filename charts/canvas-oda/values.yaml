@@ -6,7 +6,7 @@
   # Declare variables to be passed into your templates.
 global:
   image:
-    # docker registry to pull images from
+    # docker registry to pull images from, e.g. "myreg.io/" (include the trailing slash)
     registry: ""
   
   # image pull secret to pull images from private registry
