@@ -15,8 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-
-version: 1.2.4-LT1
+version: 1.2.4-LM1
+# version:  1.2.4-LM1- Added support for custom/private docker registry and image pull secrets
 # version:  1.2.4-LT1- added permissionSpecificationSet API for configuring roles
 # version: 1.2.3     - June release, prior to DTW
 # version: 1.2.3-rc4 - issue 484 - extract canvas-info-service subchart from dependentapi-simple-operator
@@ -27,7 +27,7 @@ version: 1.2.4-LT1
 # version: 1.2.2-ak2 - updated identityconfig-operator docker image version number to resolve deployment status issue
 # version: 1.2.2-ak1 - created credentialsmanagement-operator client in keycloak and added permissions to query keycloak clients
 # version: 1.2.2-lt1 - Fixed webhook issue 439
-# version: 1.2.1-rc2 - Resolved chart name to values mapping for kong and apisix charts observed in 1.2.0 release
+# version: 1.2.1-rc2 - Resolved chart name to values mapping for kong and apisix charts observed in 1.2.0 release, added support for custom/private docker registry and image pull secrets
 # version: 1.2.1-rc1 - Templatized hardcoded images
 # version: 1.2.0     - initial release of v1 component specification
 # version: 1.1.8     - released version
@@ -61,14 +61,11 @@ version: 1.2.4-LT1
 # version: 1.1.1 - bug fix for empty specification property of exposedAPI
 # version: 1.1.0 - updated component CRD to support an array for the specification field in the exposed API (to support Gen5 APIs)
 # version: 1.0.0 - baseline version
-
-# This is the version number of the application being deployed. We are versioning the canvas as the
-# version of the latest component spec that it supports.
 appVersion: "v1"
 
 dependencies:
   - name: cert-manager-init
-    version: "1.1.1"
+    version: "1.1.2"
     repository: 'file://../cert-manager-init'
   - name: canvas-namespaces
     version: "1.0.1"
@@ -83,38 +80,38 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: component-operator
-    version: "1.4.0"
+    version: "1.4.1"
     repository: 'file://../component-operator'
   - name: identityconfig-operator-keycloak
-    version: "1.2.6"
+    version: "1.2.7"
     repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
-    version: "1.1.2"
+    version: "1.1.3"
     repository: 'file://../api-operator-istio'
     condition: api-operator-istio.enabled
   - name: dependentapi-simple-operator
-    version: "1.0.2"
+    version: "1.0.3"
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: secretsmanagement-operator
-    version: "1.0.1"
+    version: "1.0.2"
     repository: 'file://../secretsmanagement-operator'
   - name: canvas-vault
-    version: "1.0.1"
+    version: "1.0.2"
     repository: 'file://../canvas-vault'
     condition: canvas-vault.enabled
   - name: oda-webhook
-    version: "1.2.1"
+    version: "1.2.2"
     repository: 'file://../oda-webhook'
   - name: api-operator-kong
-    version: "1.0.2"
+    version: "1.0.3"
     repository: 'file://../kong-gateway'
     condition: kong-gateway-install.enabled
   - name: api-operator-apisix
-    version: "1.0.2"
+    version: "1.0.3"
     repository: 'file://../apisix-gateway'
     condition: apisix-gateway-install.enabled
   - name: canvas-info-service
-    version: "1.0.0"
+    version: "1.0.1"
     repository: 'file://../canvas-info-service'
     condition: canvas-info-service.enabled

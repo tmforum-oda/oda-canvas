@@ -2,7 +2,7 @@
 build the full apisix docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "api-operator-apisix.apisixopDockerimage" -}}
-  {{- .Values.apisixoperatorimage.apisixopImage -}}:{{- .Values.apisixoperatorimage.apisixopVersion -}}
+  {{ include "docker.registry" .}}{{- .Values.apisixoperatorimage.apisixopImage -}}:{{- .Values.apisixoperatorimage.apisixopVersion -}}
   {{- if .Values.apisixoperatorimage.apisixopPrereleaseSuffix -}}
     -{{- .Values.apisixoperatorimage.apisixopPrereleaseSuffix -}}
   {{- end -}}

@@ -65,7 +65,7 @@ Create the name of the service account to use
 build the full credop docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "credentialsmanagement-operator.credopImage" -}}
-  {{- .Values.deployment.credopImage -}}:{{- .Values.deployment.credopVersion -}}
+  {{ include "docker.registry" .}}{{- .Values.deployment.credopImage -}}:{{- .Values.deployment.credopVersion -}}
   {{- if .Values.deployment.credopPrereleaseSuffix -}}
     -{{- .Values.deployment.credopPrereleaseSuffix -}}
   {{- end -}}
