@@ -14,6 +14,21 @@ entries:
   api-operator-apisix:
   - apiVersion: v2
     appVersion: v1
+    created: "2025-08-05T20:51:24.902462735Z"
+    dependencies:
+    - alias: apisix
+      name: apisix
+      repository: https://charts.apiseven.com
+      version: 2.7.0
+    description: A Helm chart for Kubernetes
+    digest: fde005ad488c73234f2a354172e5552d78107eee3e950f01316c5738e4c34ab0
+    name: api-operator-apisix
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-apisix-1.0.3/api-operator-apisix-1.0.3.tgz
+    version: 1.0.3
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-02-07T05:58:30.969745023Z"
     dependencies:
     - alias: apisix
@@ -28,6 +43,16 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-apisix-1.0.2/api-operator-apisix-1.0.2.tgz
     version: 1.0.2
   api-operator-istio:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2025-08-05T20:51:25.015931271Z"
+    description: A helm chart to deploy the api operator for istio
+    digest: fdccd954cd559738e2a97e71339adbfb6294d6516f615b510da65c019f7e8f0e
+    name: api-operator-istio
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-istio-1.1.3/api-operator-istio-1.1.3.tgz
+    version: 1.1.3
   - apiVersion: v2
     appVersion: v1
     created: "2025-06-13T15:35:44.188189964Z"
@@ -89,6 +114,21 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-istio-1.0.2/api-operator-istio-1.0.2.tgz
     version: 1.0.2
   api-operator-kong:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2025-08-05T20:51:25.146536991Z"
+    dependencies:
+    - alias: kong
+      name: kong
+      repository: https://charts.konghq.com
+      version: 2.34.0
+    description: A Helm chart for Kubernetes
+    digest: 98198e4e34da9d3de23054d127b32c35a31887e8d8c892756cd9d851a730019c
+    name: api-operator-kong
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-kong-1.0.3/api-operator-kong-1.0.3.tgz
+    version: 1.0.3
   - apiVersion: v2
     appVersion: v1
     created: "2025-02-07T05:58:31.092841499Z"
@@ -207,6 +247,16 @@ entries:
   canvas-info-service:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-08-05T20:51:25.283694435Z"
+    description: The Canvas Info Service
+    digest: 00777aa30ede04cf72578defe1000a4c00311e5a7432970fd2f487c045ddd5bc
+    name: canvas-info-service
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-info-service-1.0.1/canvas-info-service-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-06-13T15:35:44.464100125Z"
     description: The Canvas Info Service
     digest: 033489e18bb9ee35a1cffd8d6aaef25ffe998d09824bc163ccfa049fe796c649
@@ -309,6 +359,68 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.2.4-LT1/canvas-oda-1.2.4-LT1.tgz
     version: 1.2.4-LT1
+  - apiVersion: v2
+    appVersion: v1
+    created: "2025-08-05T20:51:25.460296356Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.1.2
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.3.1
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: component-operator
+      repository: file://../component-operator
+      version: 1.4.1
+    - name: identityconfig-operator-keycloak
+      repository: file://../identityconfig-operator-keycloak
+      version: 1.2.7
+    - condition: api-operator-istio.enabled
+      name: api-operator-istio
+      repository: file://../api-operator-istio
+      version: 1.1.3
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 1.0.3
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 1.0.2
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 1.0.2
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.2.2
+    - condition: kong-gateway-install.enabled
+      name: api-operator-kong
+      repository: file://../kong-gateway
+      version: 1.0.3
+    - condition: apisix-gateway-install.enabled
+      name: api-operator-apisix
+      repository: file://../apisix-gateway
+      version: 1.0.3
+    - condition: canvas-info-service.enabled
+      name: canvas-info-service
+      repository: file://../canvas-info-service
+      version: 1.0.1
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 20e37494e8ee1a9e30446d5e55047fa5df3cce1a8a4cf236c6a67fe17d196353
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.2.4-LM1/canvas-oda-1.2.4-LM1.tgz
+    version: 1.2.4-LM1
   - apiVersion: v2
     appVersion: v1
     created: "2025-06-13T15:35:44.626349176Z"
@@ -1669,6 +1781,20 @@ entries:
   canvas-vault:
   - apiVersion: v2
     appVersion: v1
+    created: "2025-08-05T20:51:25.595896466Z"
+    dependencies:
+    - name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.26.1
+    description: Installs and configures HashiCorp Vault as an in-cluster DEV Vault
+    digest: a8cec84bf8d5ac1f8a08d5b9e944b8db07a1474c63353364b892a5da7794708f
+    name: canvas-vault
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-vault-1.0.2/canvas-vault-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-01-23T08:15:32.539849142Z"
     dependencies:
     - name: vault
@@ -1710,6 +1836,21 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-vault-0.2.1/canvas-vault-0.2.1.tgz
     version: 0.2.1
   cert-manager-init:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2025-08-05T20:51:25.718748092Z"
+    dependencies:
+    - condition: cert-manager.enabled
+      name: cert-manager
+      repository: https://charts.jetstack.io
+      version: 1.11.0
+    description: A Helm chart for installing the cert manager
+    digest: 70e2ac479a06156ba1075584d789e232cade460e09b9e0a3d5a5300b9a7468f0
+    name: cert-manager-init
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/cert-manager-init-1.1.2/cert-manager-init-1.1.2.tgz
+    version: 1.1.2
   - apiVersion: v2
     appVersion: v1
     created: "2025-01-23T08:15:32.658386727Z"
@@ -1801,6 +1942,16 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/cert-manager-init-0.1.0/cert-manager-init-0.1.0.tgz
     version: 0.1.0
   component-operator:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2025-08-05T20:51:25.881635056Z"
+    description: A helm chart to deploy the component operator
+    digest: cefc086c56a6ea5d7d0d18f7c54e37bbd5870918bd343cbe678e132e28c65bdb
+    name: component-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/component-operator-1.4.1/component-operator-1.4.1.tgz
+    version: 1.4.1
   - apiVersion: v2
     appVersion: v1
     created: "2025-07-07T13:32:27.246852108Z"
@@ -1948,6 +2099,16 @@ entries:
   dependentapi-simple-operator:
   - apiVersion: v2
     appVersion: v1
+    created: "2025-08-05T20:51:26.176796695Z"
+    description: The DependentAPI Simple Operator
+    digest: 7f92cdb3716ca64eeb265e2bc9d5f934085f7490125fe4abb5d7149ee2e465dd
+    name: dependentapi-simple-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/dependentapi-simple-operator-1.0.3/dependentapi-simple-operator-1.0.3.tgz
+    version: 1.0.3
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-06-13T15:35:44.974560998Z"
     description: The DependentAPI Simple Operator
     digest: c8662af937b3d5f6cb8813ab8d946e3be23391c0912b57be5b047dbe6c6f792c
@@ -2037,6 +2198,16 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/dependentapi-simple-operator-0.1.1/dependentapi-simple-operator-0.1.1.tgz
     version: 0.1.1
   identityconfig-operator-keycloak:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2025-08-05T20:51:26.331400828Z"
+    description: A helm chart to deploy the identityconfig operator for keycloak
+    digest: 9a6ec6ddd44653096344518ad25a2216116afedb1d9fa47b677fe0510d7a3468
+    name: identityconfig-operator-keycloak
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/identityconfig-operator-keycloak-1.2.7/identityconfig-operator-keycloak-1.2.7.tgz
+    version: 1.2.7
   - apiVersion: v2
     appVersion: v1
     created: "2025-07-07T13:32:27.369968285Z"
@@ -2288,6 +2459,16 @@ entries:
   oda-webhook:
   - apiVersion: v2
     appVersion: v1
+    created: "2025-08-05T20:51:26.720619768Z"
+    description: A Helm chart to deploy the webhook following pattern in https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion
+    digest: 734276c2f17ee3b7083389fce1d711a0b6d34db53e647941c27bc1f03dbbc5a5
+    name: oda-webhook
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-1.2.2/oda-webhook-1.2.2.tgz
+    version: 1.2.2
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-02-20T00:09:09.669674097Z"
     description: A Helm chart to deploy the webhook following pattern in https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion
     digest: eeeae0a89be26dd7e59d4c1d9a96de08926ab5bd7b69c048c1d25eab239e950e
@@ -2379,6 +2560,16 @@ entries:
   secretsmanagement-operator:
   - apiVersion: v2
     appVersion: v1
+    created: "2025-08-05T20:51:26.830595419Z"
+    description: The Secrets Management Operator
+    digest: c258986945351807c08ee6b73190122b34e0354a56401e0cd5c7a889aa7c7043
+    name: secretsmanagement-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-1.0.2/secretsmanagement-operator-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-01-23T08:15:32.954423205Z"
     description: The Secrets Management Operator
     digest: cccd1f7580af80b687f914e589a0a476f2f75862c0ad855db2ef92f93e26b3e8
@@ -2417,4 +2608,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2025-07-07T13:32:27.490830317Z"
+generated: "2025-08-05T20:51:26.831077465Z"
