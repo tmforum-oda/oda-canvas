@@ -69,6 +69,7 @@ paths:
           explode: true
         - in: query
           name: filter
+          allowReserved: true
           schema:
             type: string
       responses:
@@ -206,6 +207,7 @@ paths:
           explode: true
         - in: query
           name: filter
+          allowReserved: true
           schema:
             type: string
         - description: >-
@@ -257,6 +259,7 @@ paths:
           explode: true
         - in: query
           name: filter
+          allowReserved: true
           schema:
             type: string
       responses:
@@ -2654,6 +2657,7 @@ components:
       name: filter
       in: query
       description: Filter a collection using JSONPath
+      allowReserved: true
       schema:
         type: string
         example: 'attachment[?(@size==300)]'

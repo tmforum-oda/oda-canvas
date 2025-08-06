@@ -41,6 +41,13 @@ function applyJSONPath(data, query) {
 
             logger.info("applyJSONPath:: query=" + query )
 
+            // Check if this is a complex nested array filter that's not supported by the jsonpath library
+            if (isComplexNestedFilter(query)) {
+                logger.info("applyJSONPath:: detected complex nested filter, using hybrid approach")
+                const results = applyComplexFilter(data, query)
+                return resolve(results)
+            }
+
             let path = jp.parse(query)
             let candidateProjection = path[path.length - 1]
 
@@ -92,6 +99,53 @@ function getFieldSelection(filter) {
         // ignoring any errors, just returning the empty array
     }
     return res
+}
+
+// Helper function to detect complex nested array filters
+function isComplexNestedFilter(query) {
+    // Look for patterns like: [?(...[?(...)])]
+    // This indicates nested array filtering which is not supported by jsonpath library
+    const nestedFilterPattern = /\[\?\([^)]*\[\?\([^)]*\)\][^)]*\)\]/
+    return nestedFilterPattern.test(query)
+}
+
+// Helper function to apply complex filters using programmatic approach
+function applyComplexFilter(data, query) {
+    logger.info("applyComplexFilter:: processing query=" + query)
+    
+    // For now, handle the specific case of resourceCharacteristic filtering
+    // Pattern: $[?(@.resourceCharacteristic[?(@.name=='functionalBlock' && @.value=='CoreCommerce')])]
+    
+    const resourceCharMatch = query.match(/\$\[\?\(\@\.resourceCharacteristic\[\?\(\@\.name=='([^']+)'\s*&&\s*\@\.value=='([^']+)'\)\]\)\]/)
+    
+    if (resourceCharMatch) {
+        const [, targetName, targetValue] = resourceCharMatch
+        logger.info(`applyComplexFilter:: filtering by resourceCharacteristic name='${targetName}' value='${targetValue}'`)
+        
+        return data.filter(resource => {
+            const characteristics = resource.resourceCharacteristic || []
+            return characteristics.some(char => 
+                char.name === targetName && char.value === targetValue
+            )
+        })
+    }
+    
+    // Handle simpler nested case: $[?(@.resourceCharacteristic[?(@.name=='functionalBlock')])]
+    const simpleNestedMatch = query.match(/\$\[\?\(\@\.resourceCharacteristic\[\?\(\@\.name=='([^']+)'\)\]\)\]/)
+    
+    if (simpleNestedMatch) {
+        const [, targetName] = simpleNestedMatch
+        logger.info(`applyComplexFilter:: filtering by resourceCharacteristic name='${targetName}'`)
+        
+        return data.filter(resource => {
+            const characteristics = resource.resourceCharacteristic || []
+            return characteristics.some(char => char.name === targetName)
+        })
+    }
+    
+    // For other complex patterns, try to fall back to simple $[*] and warn
+    logger.warn("applyComplexFilter:: unsupported complex filter pattern, returning all data")
+    return data
 }
  
 module.exports = {

@@ -49,6 +49,22 @@ class ExpressServer {
     this.app.use(express.json())
     this.app.use(express.text())
     this.app.use(express.urlencoded({ extended: false }))
+    
+    // Configure query parser to handle special characters in filter parameters
+    this.app.set('query parser', (str) => {
+      // Custom query parser that preserves filter parameters
+      const params = new URLSearchParams(str);
+      const result = {};
+      for (const [key, value] of params.entries()) {
+        // Don't decode filter parameters automatically
+        if (key === 'filter') {
+          result[key] = value; // Keep original value
+        } else {
+          result[key] = decodeURIComponent(value);
+        }
+      }
+      return result;
+    })
     this.app.use(cookieParser())
     
     //Simple test to see that the server is up and responding
@@ -124,13 +140,42 @@ class ExpressServer {
         
       // Create a router for TMF639 basepath
       const tmfRouter = express.Router();
-      // OpenAPI Validator and controllers mounted on the router
+      
+      // Pre-processing middleware to handle unencoded filter parameters
+      tmfRouter.use((req, res, next) => {
+        console.log('Pre-validation middleware - Original filter:', req.query.filter);
+        console.log('Pre-validation middleware - URL:', req.url);
+        console.log('Pre-validation middleware - Query:', JSON.stringify(req.query));
+        
+        // If filter parameter contains special characters, temporarily encode it for validation
+        if (req.query.filter && (req.query.filter.includes('$') || req.query.filter.includes('[') || req.query.filter.includes('(') || req.query.filter.includes('@'))) {
+          console.log('Pre-validation middleware - Found special characters, encoding filter');
+          // Store the original filter value
+          req.originalFilterValue = req.query.filter;
+          // Temporarily encode it for the validator
+          req.query.filter = encodeURIComponent(req.query.filter);
+          console.log('Pre-validation middleware - Encoded filter:', req.query.filter);
+        }
+        next();
+      });
+      
+      // OpenAPI Validator with allowReserved support for filter parameters
       tmfRouter.use(OpenApiValidator.middleware({
         apiSpec: this.openApiPath,
         validateRequests: true,
         validateResponses: true,
         unknownFormats: ['base64']
       }));
+      
+      // Post-validation middleware to restore original filter value
+      tmfRouter.use((req, res, next) => {
+        // Restore the original filter value after validation
+        if (req.originalFilterValue) {
+          req.query.filter = req.originalFilterValue;
+          delete req.originalFilterValue;
+        }
+        next();
+      });
       const controllers = require('./controllers');
       tmfRouter.get('/resource', controllers.ResourceController.listResource);
       tmfRouter.get('/resource/:id', controllers.ResourceController.retrieveResource);

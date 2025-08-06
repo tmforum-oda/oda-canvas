@@ -20,13 +20,35 @@ const listResource = (args, context /* fieldsoffsetlimit */) =>
     async (resolve) => {
       context.classname = "Resource";
       context.operationId = "listResource";
-      context.method = "get";      try {
+      context.method = "get";
+      try {
         // Get all resources from Kubernetes using the new method
-        const allResources = await k8sService.listResources();
+        let allResources = await k8sService.listResources();
 
-        // Apply filtering, pagination etc.
-        const filteredResources = Service.applyQuery(allResources, args, context);
+        // Apply JSONPath filtering if filter param is present
+        let filterQuery = args.filter || (args.dynamic && args.dynamic.filter);
         
+        if (filterQuery) {
+          const { applyJSONPath } = require('../utils/jsonpath');
+          
+          logger.info(`Applying JSONPath filter: ${filterQuery}`);
+          
+          try {
+            const filtered = await applyJSONPath(allResources, filterQuery);
+            logger.info(`Filtered resources count: ${filtered.length}`);
+            allResources = filtered;
+          } catch (err) {
+            logger.error("listResource: JSONPath filter error=" + err);
+            resolve(Service.rejectResponse(
+              err.message || 'Invalid filter',
+              err.status || 400,
+            ));
+            return;
+          }
+        }
+
+        // Apply pagination, fields, etc.
+        const filteredResources = Service.applyQuery(allResources, args, context);
         resolve(Service.createResponse(filteredResources, context));
 
       } catch (e) {
@@ -36,9 +58,8 @@ const listResource = (args, context /* fieldsoffsetlimit */) =>
           e.status || 500,
         ));
       }
-    },
-  )
-
+    }
+  );
 /**
  * Retrieves a Resource by ID from ODA Canvas Kubernetes cluster
  * This operation retrieves a Resource entity. Supports Components and ExposedAPIs.
@@ -78,7 +99,7 @@ const retrieveResource = (args, context /* idfields */) =>
         ));
       }
     },
-  )
+  );
 
 module.exports = {
   listResource,

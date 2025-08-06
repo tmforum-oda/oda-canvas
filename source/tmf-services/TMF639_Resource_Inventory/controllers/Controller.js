@@ -94,7 +94,24 @@ class Controller {
             requestParams[param.name] = request.query[param.name]
           }
         })
-      }      // add other query params to dynamic element
+      }
+      
+      // Handle raw query string for filter parameter to preserve special characters
+      if (request.url && request.url.includes('?')) {
+        const queryString = request.url.split('?')[1];
+        const rawParams = new URLSearchParams(queryString);
+        
+        // If filter parameter exists in raw query, use it instead of the decoded version
+        if (rawParams.has('filter')) {
+          const rawFilter = rawParams.get('filter');
+          // Only override if the raw filter contains special characters that would be encoded
+          if (rawFilter && (rawFilter.includes('$') || rawFilter.includes('[') || rawFilter.includes('(') || rawFilter.includes('@'))) {
+            requestParams.filter = rawFilter;
+          }
+        }
+      }
+      
+      // add other query params to dynamic element
       if(request.query) {
         Object.keys(request.query).forEach((param) => {
           if(!requestParams[param]) {
