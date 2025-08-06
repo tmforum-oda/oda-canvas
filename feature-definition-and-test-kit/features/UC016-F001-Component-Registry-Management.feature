@@ -11,7 +11,7 @@ Feature: UC016-F001 Component Registry Management
 
     @UC016-F001-001
     Scenario: Query all resources (Components and Exposed APIs)
-        Given I install the 'productcatalog-v1' package
+        Given only the 'productcatalog-v1' package is installed
         When the 'productcatalogmanagement' component has a deployment status of 'Complete'
         Then the Resource Inventory API should contain the following resources:
             | resource id                                           | category      |
@@ -21,7 +21,7 @@ Feature: UC016-F001 Component Registry Management
 
     @UC016-F001-002
     Scenario: Query a specific resource by id
-        Given I install the 'productcatalog-v1' package
+        Given only the 'productcatalog-v1' package is installed
         When the 'productcatalogmanagement' component has a deployment status of 'Complete'
         Then I can query the Resource Inventory API for each of the following resources:
             | resource id                                           | category      |
@@ -30,7 +30,7 @@ Feature: UC016-F001 Component Registry Management
 
     @UC016-F001-003
     Scenario: Query for resources matching a filter
-        Given I install the 'productcatalog-v1' package
+        Given only the 'productcatalog-v1' package is installed
         When the 'productcatalogmanagement' component has a deployment status of 'Complete'
         Then I can query the Resource Inventory API with a filter for each of the following:
             | filter                                | number of resources  |
