@@ -17,7 +17,7 @@ module.exports = {
    */
   parse: function yamlParse (text, reviver) {
     try {
-      return yaml.safeLoad(text);
+      return yaml.load(text);
     }
     catch (e) {
       if (e instanceof Error) {
