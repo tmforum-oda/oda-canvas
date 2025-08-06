@@ -118,3 +118,7 @@ dependencies:
     version: "1.0.0"
     repository: 'file://../canvas-info-service'
     condition: canvas-info-service.enabled
+  - name: resource-inventory
+    version: "1.0.0"
+    repository: 'file://../resource-inventory'
+    condition: resource-inventory.enabled
