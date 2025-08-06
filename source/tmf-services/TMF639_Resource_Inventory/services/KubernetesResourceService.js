@@ -107,7 +107,8 @@ class KubernetesResourceService {
             if (error.response && error.response.statusCode === 404) {
                 return null;
             }
-            logger.error(`Error fetching ExposedAPI ${name}:`, error);            throw error;
+            logger.error(`Error fetching ExposedAPI ${name}:`, error);
+            throw error;
         }
     }
 
@@ -133,7 +134,9 @@ class KubernetesResourceService {
         }
         
         return components.find(component => component.metadata?.name === componentName) || null;
-    }    /**
+    }
+
+    /**
      * Convert Kubernetes Component to TMF639 Resource format
      */
     convertComponentToResource(k8sComponent, relatedExposedAPIs = []) {
