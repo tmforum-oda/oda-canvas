@@ -1,5 +1,7 @@
 'use strict';
 
+const uuid = require('uuid');
+
 const {TError, TErrorEnum} = require('../utils/errorUtils');
 
 const logger = require('../logger');

@@ -151,6 +151,10 @@ function lookupSchema(obj,schema) {
 
 function traverse_internal(req,schema,obj,operations,key,path) {
 
+  // Extract type and typedef from schema if available
+  const type = schema && schema.title ? schema.title : undefined;
+  const typedef = schema && schema.properties ? schema.properties : schema;
+
   return new Promise(function(resolve, reject) {
 
     // type is only undefined if not found in the parent schema
@@ -245,7 +249,10 @@ function traverse_internal(req,schema,obj,operations,key,path) {
         var res = Array.isArray(obj) ? [] : {};
         results.results.forEach(x => res[x.key]=x.val);
         
-        var todos = operations.map(func => func(res,type,typedef));
+        // Capture type and typedef in the correct scope for the operations
+        const currentType = type;
+        const currentTypedef = typedef;
+        var todos = operations.map(func => func(res, currentType, currentTypedef));
 
         Promise.all(todos)
         .then((x) => { 

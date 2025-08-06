@@ -68,6 +68,7 @@ function validateRequest(req, operation, doc) {
       }
     }
 
+    var errString; // Declare errString at proper scope
     const rule = validationRules[operation];
     if(rule) {
       logger.debug(operation + ' :: validate request');
