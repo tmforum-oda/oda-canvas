@@ -237,6 +237,11 @@ class KubernetesResourceService {
             },
             {
                 '@type': 'Characteristic',
+                name: 'apiType',
+                value: spec.apiType
+            },
+            {
+                '@type': 'Characteristic',
                 name: 'url',
                 value: status.apiStatus?.url
             },
