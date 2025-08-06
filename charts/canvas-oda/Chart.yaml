@@ -16,8 +16,9 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.4-LT1
-# version:  1.2.4-LT1- added permissionSpecificationSet API for configuring roles
+version: 1.2.4-LT2
+# version: 1.2.4-LT2- added resource-inventory API for viewing components and exposed APIs in the canvas
+# version: 1.2.4-LT1- added permissionSpecificationSet API for configuring roles
 # version: 1.2.3     - June release, prior to DTW
 # version: 1.2.3-rc4 - issue 484 - extract canvas-info-service subchart from dependentapi-simple-operator
 # version: 1.2.3-rc3 - issue 448 - support multiple component namespaces, make component-gateway configurable in env variables of apiOperatorIstio
