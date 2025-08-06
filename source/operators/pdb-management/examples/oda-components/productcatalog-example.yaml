@@ -1,0 +1,453 @@
+# Product Catalog ODA Component with PDB Management
+# This example shows how the pdb-management operator works with real ODA components
+
+---
+# Product Catalog Deployment with ODA Canvas annotations
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tmf620-productcatalog
+  namespace: components
+  labels:
+    app: productcatalog
+    oda.tmforum.org/componentName: productcatalog
+    oda.tmforum.org/componentType: core
+    version: v4.0.0
+  annotations:
+    # PDB Management operator annotations
+    oda.tmforum.org/availability-class: "high-availability"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "productcatalog"
+    oda.tmforum.org/maintenance-window: "02:00-04:00 UTC"
+
+    # ODA Component metadata
+    oda.tmforum.org/api-specification: "TMF620-ProductCatalog-v4.0.0"
+    oda.tmforum.org/exposed-apis: "productcatalogmanagement"
+    
+    # Performance optimizations
+    oda.tmforum.org/cache-key: "productcatalog-prod"
+    oda.tmforum.org/reconcile-priority: "high"
+    
+    # Monitoring
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+spec:
+  replicas: 3  # Will get 75% minAvailable PDB (high-availability)
+  selector:
+    matchLabels:
+      app: productcatalog
+  template:
+    metadata:
+      labels:
+        app: productcatalog
+        oda.tmforum.org/componentName: productcatalog
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: productcatalog
+          image: lesterthomas/productcatalogapi:0.23
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9090
+              name: metrics
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://catalog-db:5432/productcatalog"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+---
+# Product Catalog Database - Mission Critical with Custom PDB
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productcatalog-database
+  namespace: components
+  labels:
+    app: productcatalog-db
+    tier: database
+    oda.tmforum.org/componentName: productcatalog-database
+    oda.tmforum.org/data-tier: "primary"
+  annotations:
+    # Mission critical database with custom PDB
+    oda.tmforum.org/availability-class: "custom"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "productcatalog-database"
+    oda.tmforum.org/custom-pdb-config: |
+      {
+        "minAvailable": 2,
+        "unhealthyPodEvictionPolicy": "IfHealthyBudget"
+      }
+    oda.tmforum.org/maintenance-window: "03:00-04:00 UTC"  # Shorter window
+    oda.tmforum.org/min-replicas: "3"  # Enforce minimum replicas
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: productcatalog-db
+  template:
+    metadata:
+      labels:
+        app: productcatalog-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13
+          env:
+            - name: POSTGRES_DB
+              value: "productcatalog"
+            - name: POSTGRES_USER
+              value: "catalog_user"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+---
+# Service for Product Catalog
+apiVersion: v1
+kind: Service
+metadata:
+  name: productcatalog-service
+  namespace: components
+  labels:
+    app: productcatalog
+    oda.tmforum.org/componentName: productcatalog
+spec:
+  selector:
+    app: productcatalog
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+  type: ClusterIP
+
+---
+# Party Role (Security Component) - Shows different availability class
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tmf669-partyrole
+  namespace: components
+  labels:
+    app: partyrole
+    oda.tmforum.org/componentName: partyrole
+    oda.tmforum.org/componentType: security
+  annotations:
+    # Security components automatically get upgraded availability
+    oda.tmforum.org/availability-class: "standard"  # Will be upgraded to high-availability (75%)
+    oda.tmforum.org/component-function: "security"
+    oda.tmforum.org/componentName: "partyrole"
+    oda.tmforum.org/maintenance-window: "03:00-05:00 UTC"  # Different maintenance window
+    
+    # Security-specific annotations
+    oda.tmforum.org/security-level: "high"
+    oda.tmforum.org/audit-required: "true"
+spec:
+  replicas: 5  # Will get 75% minAvailable (upgraded from 50% due to security function)
+  selector:
+    matchLabels:
+      app: partyrole
+  template:
+    metadata:
+      labels:
+        app: partyrole
+    spec:
+      containers:
+        - name: partyrole
+          image: lesterthomas/partyroleapi:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "300m"
+
+---
+# Service Catalog - High Scale Example
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tmf633-servicecatalog
+  namespace: components
+  labels:
+    app: servicecatalog
+    oda.tmforum.org/componentName: servicecatalog
+    oda.tmforum.org/componentType: core
+    oda.tmforum.org/scale: "large"
+  annotations:
+    oda.tmforum.org/availability-class: "high-availability"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "servicecatalog"
+    oda.tmforum.org/maintenance-window: "02:00-04:00 UTC"
+    
+    # High-scale performance optimizations
+    oda.tmforum.org/batch-group: "catalog-services"
+    oda.tmforum.org/cache-strategy: "write-through"
+    oda.tmforum.org/reconcile-priority: "normal"
+spec:
+  replicas: 8  # High replica count
+  selector:
+    matchLabels:
+      app: servicecatalog
+  template:
+    metadata:
+      labels:
+        app: servicecatalog
+    spec:
+      containers:
+        - name: servicecatalog
+          image: tmforum/servicecatalog:v4.1.0
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "150m"
+            limits:
+              memory: "512Mi"
+              cpu: "400m"
+
+---
+# Canvas Controller (Management Component) - Shows management function
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canvas-controller
+  namespace: canvas
+  labels:
+    app: canvas-controller
+    oda.tmforum.org/componentName: canvas-controller
+    oda.tmforum.org/componentType: management
+  annotations:
+    oda.tmforum.org/availability-class: "standard"
+    oda.tmforum.org/component-function: "management"
+    oda.tmforum.org/componentName: "canvas-controller"
+    oda.tmforum.org/maintenance-window: "01:00-03:00 UTC"
+    
+    # Management-specific monitoring
+    oda.tmforum.org/audit-logging: "enabled"
+    oda.tmforum.org/detailed-metrics: "true"
+spec:
+  replicas: 2  # Will get 50% minAvailable (standard for management)
+  selector:
+    matchLabels:
+      app: canvas-controller
+  template:
+    metadata:
+      labels:
+        app: canvas-controller
+    spec:
+      containers:
+        - name: controller
+          image: tmforum/canvas-controller:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+
+---
+# Redis Cache for Performance
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cache
+  namespace: components
+  labels:
+    app: redis-cache
+    tier: cache
+    oda.tmforum.org/componentName: redis-cache
+  annotations:
+    # Cache gets standard availability but with fast failover
+    oda.tmforum.org/availability-class: "standard"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "redis-cache"
+    oda.tmforum.org/maintenance-window: "01:00-05:00 UTC"  # Flexible window
+    
+    # Cache-specific settings
+    oda.tmforum.org/fast-failover: "true"
+    oda.tmforum.org/cache-tier: "distributed"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: redis-cache
+  template:
+    metadata:
+      labels:
+        app: redis-cache
+    spec:
+      containers:
+        - name: redis
+          image: redis:6.2-alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "200m"
+
+---
+# API Gateway - High Availability with Circuit Breaker
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: components
+  labels:
+    app: api-gateway
+    oda.tmforum.org/componentName: api-gateway
+    oda.tmforum.org/api-type: "external"
+  annotations:
+    oda.tmforum.org/availability-class: "high-availability"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "api-gateway"
+    oda.tmforum.org/maintenance-window: "02:00-03:00 UTC"
+    
+    # Circuit breaker configuration
+    oda.tmforum.org/circuit-breaker: "enabled"
+    oda.tmforum.org/circuit-breaker-threshold: "15"
+    oda.tmforum.org/circuit-breaker-timeout: "30s"
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: gateway
+          image: nginx:1.21
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "300m"
+
+---
+# AvailabilityPolicy for all ODA Core Components
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: oda-core-components-policy
+  namespace: canvas
+  annotations:
+    # Performance optimizations for ODA components
+    oda.tmforum.org/cache-ttl: "180s"
+    oda.tmforum.org/batch-processing: "enabled"
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible
+  minimumClass: standard  # Don't allow below standard for core components
+  componentSelector:
+    componentFunctions:
+      - core
+    namespaces:
+      - components
+    matchLabels:
+      oda.tmforum.org/componentType: core
+  maintenanceWindows:
+    - start: "02:00"
+      end: "04:00"
+      timezone: "UTC"
+      daysOfWeek: [0, 6]  # Weekends only
+  priority: 20
+
+---
+# Database-specific policy with strict enforcement
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: database-components-policy
+  namespace: canvas
+spec:
+  availabilityClass: custom
+  enforcement: strict  # No overrides for databases
+  customPDBConfig:
+    minAvailable: 2  # Always keep at least 2 database instances
+    unhealthyPodEvictionPolicy: "IfHealthyBudget"
+  componentSelector:
+    matchLabels:
+      tier: "database"
+    namespaces:
+      - components
+  maintenanceWindows:
+    - start: "03:00"
+      end: "04:00"
+      timezone: "UTC"
+      daysOfWeek: [0]  # Sunday only
+  priority: 100
+  enforceMinReplicas: true
+
+---
+# Monitoring policy for observability components
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: monitoring-components-policy
+  namespace: canvas
+  annotations:
+    # Enhanced monitoring configuration
+    oda.tmforum.org/metrics-enabled: "true"
+    oda.tmforum.org/detailed-metrics: "true"
+    oda.tmforum.org/event-recording: "comprehensive"
+spec:
+  availabilityClass: standard
+  enforcement: advisory
+  allowOverride: true
+  overrideRequiresReason: true
+  componentSelector:
+    matchLabels:
+      monitoring: "comprehensive"
+      oda.tmforum.org/observability: "enabled"
+  priority: 25

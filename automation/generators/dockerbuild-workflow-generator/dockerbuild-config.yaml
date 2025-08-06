@@ -240,3 +240,20 @@ oauth2envoyfilter-operator:
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
+pdb-management-operator:
+  displayName: PDB-Management-Operator
+  fileName: pdb-management-operator
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .pdb-management-operator.image
+  valuesPathVersion: .pdb-management-operator.version
+  valuesPathPrereleaseSuffix: .pdb-management-operator.prereleaseSuffix
+  
+  paths:
+    - source/operators/pdb-management/*
+  buildContext: source/operators/pdb-management
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile: Dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
