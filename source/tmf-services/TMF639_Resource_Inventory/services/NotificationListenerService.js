@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const Service = require('./Service');
+const logger = require('../logger');
 
   /**
    * Client listener for entity ServiceAttributeValueChangeEvent
@@ -19,7 +20,7 @@ const Service = require('./Service');
           resolve(Service.serve(args, context ));
 
         } catch (e) {
-          console.log("serviceAttributeValueChangeEvent: error=" + e);
+          logger.error("serviceAttributeValueChangeEvent: error=" + e);
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
             e.status || 405,
@@ -46,7 +47,7 @@ const Service = require('./Service');
           resolve(Service.serve(args, context ));
 
         } catch (e) {
-          console.log("serviceCreateEvent: error=" + e);
+          logger.error("serviceCreateEvent: error=" + e);
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
             e.status || 405,
@@ -73,7 +74,7 @@ const Service = require('./Service');
           resolve(Service.serve(args, context ));
 
         } catch (e) {
-          console.log("serviceDeleteEvent: error=" + e);
+          logger.error("serviceDeleteEvent: error=" + e);
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
             e.status || 405,
@@ -100,7 +101,7 @@ const Service = require('./Service');
           resolve(Service.serve(args, context ));
 
         } catch (e) {
-          console.log("serviceOperatingStatusChangeEvent: error=" + e);
+          logger.error("serviceOperatingStatusChangeEvent: error=" + e);
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
             e.status || 405,
@@ -127,7 +128,7 @@ const Service = require('./Service');
           resolve(Service.serve(args, context ));
 
         } catch (e) {
-          console.log("serviceStateChangeEvent: error=" + e);
+          logger.error("serviceStateChangeEvent: error=" + e);
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
             e.status || 405,

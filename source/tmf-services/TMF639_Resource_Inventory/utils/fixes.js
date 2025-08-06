@@ -24,7 +24,7 @@ function updateAPISpecification(schema, file) {
       schema.servers = addComponentName(componentName,schema.servers)
     }
 
-    console.log("schema.servers=" + JSON.stringify(schema.servers,null,2))
+    logger.debug("schema.servers=" + JSON.stringify(schema.servers,null,2))
 
     fixMediaType(schema.paths)
 
@@ -59,18 +59,18 @@ function addComponentName(componentName,servers) {
   let component = componentName
   if(!component.endsWith('/')) component = component + '/'
 
- console.log("servers="+JSON.stringify(servers))
- console.log("component="+component)
+ logger.debug("servers="+JSON.stringify(servers))
+ logger.debug("component="+component)
 
   const addComponentNameToURL = (name,url) => {
 
- console.log("url="+JSON.stringify(url))
+ logger.debug("url="+JSON.stringify(url))
 
     const urlobj = new URL(url)
     if(!urlobj.pathname.startsWith(name)) urlobj.pathname = name + urlobj.pathname;
     urlobj.pathname = urlobj.pathname.replace(/\/\//,'/')
 
-console.log("urlobj=" + urlobj.toString()) 
+logger.debug("urlobj=" + urlobj.toString()) 
     return urlobj.toString()
   }
 

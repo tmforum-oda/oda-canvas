@@ -506,7 +506,7 @@ function generateSampleValue(type,property) {
     try {
       return generateSampleValueForType(type, typeOfProp, `sample of ${property}`)
     } catch(error) {
-      console.log("generateSampleValue:: error=" + error)
+      logger.error("generateSampleValue:: error=" + error)
       return
     }
     

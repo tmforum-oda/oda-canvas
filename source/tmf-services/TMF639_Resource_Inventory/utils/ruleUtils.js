@@ -2,6 +2,7 @@
 
 const {validationRules, validationRulesType2} = require('../utils/rules');
 const {TError, TErrorEnum} = require('../utils/errorUtils');
+const logger = require('../logger');
 
 const {getPayloadType} = require('../utils/swaggerUtils');
 
@@ -41,14 +42,14 @@ function validateRequest(req, operation, doc) {
         payloadType = payloadType.substring(6);
       }
 
-      console.log(operation + ' :: validate request :: payloadType=' + payloadType);
+      logger.debug(operation + ' :: validate request :: payloadType=' + payloadType);
 
       const op = req.method.toUpperCase();  
 
       if(validationRulesType2[payloadType]!==undefined) {
          const rule = validationRulesType2[payloadType][op]
          if(rule) {
-            console.log(operation + ' :: validate request :: validationRulesType2 found');
+            logger.debug(operation + ' :: validate request :: validationRulesType2 found');
 
             const error = processRules(rule,doc);
             if(error.length>0) {
@@ -58,25 +59,25 @@ function validateRequest(req, operation, doc) {
               return resolve(doc);
             }
           } else {
-            console.log(operation + ' :: validationRulesType2 does not include ' + op);
+            logger.debug(operation + ' :: validationRulesType2 does not include ' + op);
             // flow through to 'old' ruleset
         }
       } else {
-        console.log(operation + ' :: validationRulesType2 does not include ' + payloadType);
+        logger.debug(operation + ' :: validationRulesType2 does not include ' + payloadType);
         // flow through to 'old' ruleset
       }
     }
 
     const rule = validationRules[operation];
     if(rule) {
-      console.log(operation + ' :: validate request');
+      logger.debug(operation + ' :: validate request');
 
       const error = processRules(rule,doc);
       if(error.length>0) {
         errString = error.join("\n").replace(/"/g, "");
         return reject(new TError(TErrorEnum.INVALID_BODY,errString))
       } else {
-        console.log("validateRequest: rule not found for operation: " + operation);
+        logger.debug("validateRequest: rule not found for operation: " + operation);
         return resolve(doc)
       }
     }
@@ -146,7 +147,7 @@ function processRule(rule,obj,path,lastLabel) {
       case "$noneOf":
         return checkNoneOf(criteria,obj,path,lastLabel);
       default:
-        console.log("### unprocessed operation: " + criteriaType);
+        logger.warn("### unprocessed operation: " + criteriaType);
         return error;
       }
   } else if (obj.hasOwnProperty(parts[0])) {

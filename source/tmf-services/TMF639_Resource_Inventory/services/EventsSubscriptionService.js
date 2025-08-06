@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const Service = require('./Service');
+const logger = require('../logger');
 
   /**
    * Create a subscription (hub) to receive Events
@@ -19,7 +20,7 @@ const Service = require('./Service');
           resolve(Service.serve(args, context ));
 
         } catch (e) {
-          console.log("createHub: error=" + e);
+          logger.error("createHub: error=" + e);
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
             e.status || 405,
@@ -44,7 +45,7 @@ const Service = require('./Service');
           resolve(Service.serve(args, context ));
 
         } catch (e) {
-          console.log("hubDelete: error=" + e);
+          logger.error("hubDelete: error=" + e);
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
             e.status || 405,
@@ -70,7 +71,7 @@ const Service = require('./Service');
           resolve(Service.serve(args, context ));
 
         } catch (e) {
-          console.log("hubGet: error=" + e);
+          logger.error("hubGet: error=" + e);
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
             e.status || 405,
