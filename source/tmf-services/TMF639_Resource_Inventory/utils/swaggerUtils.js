@@ -18,7 +18,7 @@ function reloadAPI() {
 function getSwaggerDoc() {
 	if (!swaggerDoc) {
 		spec = fs.readFileSync(config.OPENAPI_YAML, 'utf8')
-		let api = jsyaml.safeLoad(spec)
+		let api = jsyaml.load(spec)
 		swaggerDoc = expandAllOfs(api,api)
 
 		logger.info("done:: replaceAllRefs")
