@@ -200,7 +200,8 @@ def handle_permission_spec_set_event(doc):
         if client != "":
             if event_type == PERMISSION_SPEC_SET_CREATION:
                 try:  # to add the role to the client in Keycloak
-                    kc.add_role(permission_spec_set["name"], client, token, kcRealm)
+                    description = permission_spec_set.get("description")
+                    kc.add_role(permission_spec_set["name"], client, token, kcRealm, description)
                 except RuntimeError as e:
                     logger.error(
                         format_cloud_event(
