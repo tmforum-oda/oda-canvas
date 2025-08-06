@@ -119,7 +119,7 @@ function download (u, httpOptions, redirects) {
           }
         }
         else {
-          resolve(res.body || new Buffer(0));
+          resolve(res.body || Buffer.alloc(0));
         }
       })
       .catch(function (err) {
