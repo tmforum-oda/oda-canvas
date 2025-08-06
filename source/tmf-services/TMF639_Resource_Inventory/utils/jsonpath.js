@@ -62,7 +62,7 @@ function applyJSONPath(data, query) {
                 return resolve(results)
 
             } else {
-                const results = jp.query(cities, query)
+                const results = jp.query(data, query)
                 return resolve(results)
             }
 
