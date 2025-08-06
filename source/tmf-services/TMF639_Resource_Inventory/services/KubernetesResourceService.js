@@ -132,7 +132,7 @@ class KubernetesResourceService {
             return null;
         }
         
-        return components.find(component => component.metadata?.name === componentName);
+        return components.find(component => component.metadata?.name === componentName) || null;
     }    /**
      * Convert Kubernetes Component to TMF639 Resource format
      */
@@ -347,15 +347,15 @@ class KubernetesResourceService {
      */
     async listResources(namespace = config.KUBERNETES_NAMESPACE) {
         try {
-            console.log('KubernetesResourceService: Starting listResources...');
+            logger.info('KubernetesResourceService: Starting listResources...');
             
             // Get Components from ODA Canvas
             const components = await this.getComponents(namespace);
-            console.log(`KubernetesResourceService: Found ${components.length} Components`);
+            logger.info(`KubernetesResourceService: Found ${components.length} Components`);
 
             // Get ExposedAPIs from ODA Canvas  
             const exposedApis = await this.getExposedAPIs(namespace);
-            console.log(`KubernetesResourceService: Found ${exposedApis.length} ExposedAPIs`);
+            logger.info(`KubernetesResourceService: Found ${exposedApis.length} ExposedAPIs`);
 
             // Convert Components to TMF639 Resources with related ExposedAPIs
             const componentResources = components.map(component => {
@@ -371,14 +371,14 @@ class KubernetesResourceService {
 
             // Combine all resources
             const allResources = [...componentResources, ...exposedApiResources];
-            console.log(`KubernetesResourceService: Returning ${allResources.length} total resources`);
+            logger.info(`KubernetesResourceService: Returning ${allResources.length} total resources`);
             
             return allResources;
         } catch (error) {
-            console.error('KubernetesResourceService: Error listing resources:', error.message);
+            logger.error('KubernetesResourceService: Error listing resources:', error.message);
             if (error.response) {
-                console.error('KubernetesResourceService: Response status:', error.response.statusCode);
-                console.error('KubernetesResourceService: Response body:', JSON.stringify(error.response.body, null, 2));
+                logger.error('KubernetesResourceService: Response status:', error.response.statusCode);
+                logger.error('KubernetesResourceService: Response body:', JSON.stringify(error.response.body, null, 2));
             }
             throw error;
         }
@@ -387,12 +387,12 @@ class KubernetesResourceService {
      */
     async getResourceById(id, namespace = config.KUBERNETES_NAMESPACE) {
         try {
-            console.log(`KubernetesResourceService: Getting resource by ID: ${id}`);
+            logger.info(`KubernetesResourceService: Getting resource by ID: ${id}`);
             
             // Try to find as Component first
             const component = await this.getComponent(id, namespace);
             if (component) {
-                console.log(`KubernetesResourceService: Found Component: ${id}`);
+                logger.info(`KubernetesResourceService: Found Component: ${id}`);
                 // Get related ExposedAPIs for this Component
                 const exposedApis = await this.getExposedAPIs(namespace);
                 const relatedExposedAPIs = this.findRelatedExposedAPIs(component.metadata.name, exposedApis);
@@ -402,17 +402,17 @@ class KubernetesResourceService {
             // Try to find as ExposedAPI
             const exposedApi = await this.getExposedAPI(id, namespace);
             if (exposedApi) {
-                console.log(`KubernetesResourceService: Found ExposedAPI: ${id}`);
+                logger.info(`KubernetesResourceService: Found ExposedAPI: ${id}`);
                 // Get related Component for this ExposedAPI
                 const components = await this.getComponents(namespace);
                 const relatedComponent = this.findRelatedComponent(exposedApi, components);
                 return this.convertExposedAPIToResource(exposedApi, relatedComponent);
             }
 
-            console.log(`KubernetesResourceService: Resource not found: ${id}`);
+            logger.info(`KubernetesResourceService: Resource not found: ${id}`);
             return null;
         } catch (error) {
-            console.error(`KubernetesResourceService: Error getting resource ${id}:`, error.message);
+            logger.error(`KubernetesResourceService: Error getting resource ${id}:`, error.message);
             throw error;
         }
     }

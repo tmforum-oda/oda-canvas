@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "prestart": "npm install",
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "mocha test/**/*.test.js --timeout 5000",
+    "test:unit": "mocha test/unit/**/*.test.js --timeout 5000",
+    "test:integration": "mocha test/integration/**/*.test.js --timeout 10000",
+    "test:coverage": "nyc mocha test/**/*.test.js --timeout 5000"
   },
   "keywords": [
     "openapi-generator",
@@ -63,7 +67,11 @@
     "wait-on": "^6.0.0",
     "winston": "^3.3.2",
     "yamljs": "^0.3.0",
-    "@kubernetes/client-node": "^0.18.1"
+    "@kubernetes/client-node": "^0.18.1",
+    "sinon": "^15.2.0",
+    "sinon-chai": "^3.7.0",
+    "nyc": "^15.1.0",
+    "supertest": "^6.3.3"
   },
   "eslintConfig": {
     "env": {

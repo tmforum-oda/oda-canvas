@@ -39,7 +39,7 @@ class Service {
   static rejectResponse(error, code = 500) {
     code = error.statusCode || code
     logger.debug("Service.rejectResponse: error= " + error + " code=" + code)
-    return { error, code: code }
+    return { payload: error, code: code }
   }
 
   static successResponse(payload, code = 200, headerParams = undefined) {
@@ -641,7 +641,13 @@ class Service {
 
   /**
    * Apply query parameters (filtering, sorting, pagination) to a list of resources
-   */  static applyQuery(resources, args, context) {
+   */
+  static applyQuery(resources, args, context) {
+    // Handle non-array inputs
+    if (!Array.isArray(resources)) {
+      return resources;
+    }
+    
     let result = [...resources];
 
     // Apply filtering based on query parameters
@@ -704,8 +710,8 @@ class Service {
   /**
    * Create a standardized response
    */
-  static createResponse(data, context) {
-    return this.successResponse(data, 200);
+  static createResponse(data, context, code = 200) {
+    return this.successResponse(data, code);
   }
 
 }

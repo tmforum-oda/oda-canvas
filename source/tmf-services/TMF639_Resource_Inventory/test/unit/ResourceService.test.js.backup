@@ -1,0 +1,340 @@
+const { expect } = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const chai = require('chai');
+
+chai.use(sinonChai);
+
+const ResourceService = require('../../services/ResourceService');
+const KubernetesResourceService = require('../../services/KubernetesResourceService');
+const {
+  mockODAComponent,
+  mockExposedAPI,
+  mockExposedAPINotReady
+} = require('../fixtures/mockKubernetesData');
+const {
+  expectedComponentResource,
+  expectedAPIResource
+} = require('../fixtures/expectedTMFResources');
+
+describe('ResourceService', () => {
+  let mockK8sService;
+  let originalK8sService;
+
+  beforeEach(() => {
+    // Create mock KubernetesResourceService
+    mockK8sService = {
+      listResources: sinon.stub(),
+      getResourceById: sinon.stub(),
+      convertComponentToResource: sinon.stub(),
+      convertExposedAPIToResource: sinon.stub()
+    };
+
+    // Mock the KubernetesResourceService constructor
+    sinon.stub(require('../../services/KubernetesResourceService').prototype, 'listResources').callsFake(mockK8sService.listResources);
+    sinon.stub(require('../../services/KubernetesResourceService').prototype, 'getResourceById').callsFake(mockK8sService.getResourceById);
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  describe('listResource', () => {
+    it('should successfully list all resources', async () => {
+      const mockResources = [
+        { ...expectedComponentResource },
+        { ...expectedAPIResource }
+      ];
+
+      mockK8sService.listResources.resolves(mockResources);
+
+      const args = {};
+      const context = {
+        classname: 'Resource',
+        operationId: 'listResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.listResource(args, context);
+
+      expect(mockK8sService.listResources).to.have.been.calledOnce;
+      expect(result).to.have.property('code', 200);
+      expect(result).to.have.property('payload');
+      expect(result.payload).to.be.an('array');
+      expect(result.payload).to.have.length(2);
+    });
+
+    it('should handle empty results', async () => {
+      mockK8sService.listResources.resolves([]);
+
+      const args = {};
+      const context = {
+        classname: 'Resource',
+        operationId: 'listResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.listResource(args, context);
+
+      expect(result).to.have.property('code', 200);
+      expect(result.payload).to.be.an('array');
+      expect(result.payload).to.have.length(0);
+    });
+
+    it('should handle Kubernetes service errors', async () => {
+      const error = new Error('Kubernetes API error');
+      mockK8sService.listResources.rejects(error);
+
+      const args = {};
+      const context = {
+        classname: 'Resource',
+        operationId: 'listResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.listResource(args, context);
+
+      expect(result).to.have.property('code', 500);
+      expect(result).to.have.property('payload');
+      expect(result.payload).to.include('Kubernetes API error');
+    });
+
+    it('should apply query filters and pagination', async () => {
+      const mockResources = [
+        { ...expectedComponentResource },
+        { ...expectedAPIResource }
+      ];
+
+      mockK8sService.listResources.resolves(mockResources);
+
+      const args = {
+        fields: 'id,name,category',
+        offset: 0,
+        limit: 10
+      };
+      const context = {
+        classname: 'Resource',
+        operationId: 'listResource',
+        method: 'get'
+      };
+
+      // Mock the Service.applyQuery method
+      const ServiceModule = require('../../services/Service');
+      const applyQueryStub = sinon.stub(ServiceModule, 'applyQuery').returns(mockResources);
+      const createResponseStub = sinon.stub(ServiceModule, 'createResponse').returns({
+        code: 200,
+        payload: mockResources
+      });
+
+      const result = await ResourceService.listResource(args, context);
+
+      expect(applyQueryStub).to.have.been.calledWith(mockResources, args, context);
+      expect(createResponseStub).to.have.been.calledWith(mockResources, context);
+      
+      applyQueryStub.restore();
+      createResponseStub.restore();
+    });
+  });
+
+  describe('retrieveResource', () => {
+    it('should successfully retrieve a specific resource', async () => {
+      mockK8sService.getResourceById.resolves(expectedComponentResource);
+
+      const args = { id: 'test-component' };
+      const context = {
+        classname: 'Resource',
+        operationId: 'retrieveResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.retrieveResource(args, context);
+
+      expect(mockK8sService.getResourceById).to.have.been.calledWith('test-component');
+      expect(result).to.have.property('code', 200);
+      expect(result).to.have.property('payload');
+      expect(result.payload).to.deep.equal(expectedComponentResource);
+    });
+
+    it('should return 404 when resource not found', async () => {
+      mockK8sService.getResourceById.resolves(null);
+
+      const args = { id: 'nonexistent-resource' };
+      const context = {
+        classname: 'Resource',
+        operationId: 'retrieveResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.retrieveResource(args, context);
+
+      expect(result).to.have.property('code', 404);
+      expect(result).to.have.property('payload');
+      expect(result.payload).to.include('Resource with id nonexistent-resource not found');
+    });
+
+    it('should handle Kubernetes service errors', async () => {
+      const error = new Error('Kubernetes API error');
+      mockK8sService.getResourceById.rejects(error);
+
+      const args = { id: 'test-component' };
+      const context = {
+        classname: 'Resource',
+        operationId: 'retrieveResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.retrieveResource(args, context);
+
+      expect(result).to.have.property('code', 500);
+      expect(result).to.have.property('payload');
+      expect(result.payload).to.include('Kubernetes API error');
+    });
+
+    it('should apply field filtering', async () => {
+      mockK8sService.getResourceById.resolves(expectedComponentResource);
+
+      const args = { 
+        id: 'test-component',
+        fields: 'id,name,category'
+      };
+      const context = {
+        classname: 'Resource',
+        operationId: 'retrieveResource',
+        method: 'get'
+      };
+
+      // Mock the Service.applyFields method
+      const ServiceModule = require('../../services/Service');
+      const filteredResource = { 
+        id: 'test-component',
+        name: 'test-component',
+        category: 'ODAComponent'
+      };
+      const applyFieldsStub = sinon.stub(ServiceModule, 'applyFields').returns(filteredResource);
+      const createResponseStub = sinon.stub(ServiceModule, 'createResponse').returns({
+        code: 200,
+        payload: filteredResource
+      });
+
+      const result = await ResourceService.retrieveResource(args, context);
+
+      expect(applyFieldsStub).to.have.been.calledWith(expectedComponentResource, 'id,name,category');
+      expect(result.payload).to.deep.equal(filteredResource);
+      
+      applyFieldsStub.restore();
+      createResponseStub.restore();
+    });
+
+    it('should handle missing resource ID', async () => {
+      const args = {}; // No ID provided
+      const context = {
+        classname: 'Resource',
+        operationId: 'retrieveResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.retrieveResource(args, context);
+
+      expect(result).to.have.property('code', 500);
+      expect(result).to.have.property('payload');
+      expect(mockK8sService.getResourceById).to.have.been.calledWith(undefined);
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle errors with status codes', async () => {
+      const error = new Error('Custom error');
+      error.status = 403;
+      mockK8sService.listResources.rejects(error);
+
+      const args = {};
+      const context = {
+        classname: 'Resource',
+        operationId: 'listResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.listResource(args, context);
+
+      expect(result).to.have.property('code', 403);
+      expect(result).to.have.property('payload', 'Custom error');
+    });
+
+    it('should handle errors without status codes', async () => {
+      const error = new Error('Generic error');
+      mockK8sService.listResources.rejects(error);
+
+      const args = {};
+      const context = {
+        classname: 'Resource',
+        operationId: 'listResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.listResource(args, context);
+
+      expect(result).to.have.property('code', 500);
+      expect(result).to.have.property('payload', 'Generic error');
+    });
+
+    it('should handle errors without messages', async () => {
+      const error = new Error();
+      error.message = '';
+      mockK8sService.retrieveResource.rejects(error);
+
+      const args = { id: 'test-component' };
+      const context = {
+        classname: 'Resource',
+        operationId: 'retrieveResource',
+        method: 'get'
+      };
+
+      const result = await ResourceService.retrieveResource(args, context);
+
+      expect(result).to.have.property('code', 500);
+      expect(result).to.have.property('payload', 'Invalid input');
+    });
+  });
+
+  describe('context handling', () => {
+    it('should preserve context information in successful responses', async () => {
+      mockK8sService.listResources.resolves([expectedComponentResource]);
+
+      const context = {
+        classname: 'Resource',
+        operationId: 'listResource',
+        method: 'get',
+        customProperty: 'test-value'
+      };
+
+      // Mock Service methods to verify context is passed
+      const ServiceModule = require('../../services/Service');
+      const createResponseStub = sinon.stub(ServiceModule, 'createResponse').returns({
+        code: 200,
+        payload: [expectedComponentResource]
+      });
+      const applyQueryStub = sinon.stub(ServiceModule, 'applyQuery').returns([expectedComponentResource]);
+
+      await ResourceService.listResource({}, context);
+
+      expect(createResponseStub).to.have.been.calledWith([expectedComponentResource], context);
+      expect(applyQueryStub).to.have.been.calledWith([expectedComponentResource], {}, context);
+      
+      createResponseStub.restore();
+      applyQueryStub.restore();
+    });
+
+    it('should set context properties correctly', async () => {
+      mockK8sService.getResourceById.resolves(expectedAPIResource);
+
+      const args = { id: 'test-api' };
+      const context = {};
+
+      await ResourceService.retrieveResource(args, context);
+
+      expect(context).to.have.property('classname', 'Resource');
+      expect(context).to.have.property('operationId', 'retrieveResource');
+      expect(context).to.have.property('method', 'get');
+    });
+  });
+});
