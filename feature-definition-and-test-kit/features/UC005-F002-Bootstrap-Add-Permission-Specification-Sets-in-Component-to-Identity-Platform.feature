@@ -19,14 +19,14 @@ Feature: UC005-F002 Bootstrap: Add Dynamic Roles from Component to Identity Plat
              | name         | description                    | involvementRole |
              | DynamicRole1 | Test dynamic role for UC005    | TestRole        |
              | DynamicRole2 | Test dynamic role for UC005    | TestRole        |
-        Then the role 'DynamicRole1' should be created in the Identity Platform for client 'dynamic-productcatalogmanagement'
-        And the role 'DynamicRole2' should be created in the Identity Platform for client 'dynamic-productcatalogmanagement'
+        Then the role 'DynamicRole1' should be created in the Identity Platform for 'dynamic-productcatalogmanagement' component
+        And the role 'DynamicRole2' should be created in the Identity Platform for 'dynamic-productcatalogmanagement' component
 
     Scenario: Delete a permission specification set via TMF672 API
         Given the 'dynamic-productcatalogmanagement' component has an existing PermissionSpecificationSet 'DynamicRole1'
         And the role 'DynamicRole1' exists in the Identity Platform for 'dynamic-productcatalogmanagement' component
         When I DELETE the PermissionSpecificationSet 'DynamicRole1' from the 'dynamic-productcatalogmanagement' component
-        Then the role 'DynamicRole1' should be removed from the Identity Platform for client 'dynamic-productcatalogmanagement'
+        Then the role 'DynamicRole1' should be removed from the Identity Platform for 'dynamic-productcatalogmanagement' component
 
     Scenario: Delete the Component and the Client should be removed from the Identity Platform 
         Given the 'dynamic-productcatalogmanagement' component has an existing PermissionSpecificationSet 'DynamicRole2'

@@ -8,17 +8,17 @@ Feature: UC012-F001 View Functional Observability
 
     Scenario: Install component and verify ServiceMonitor is created
         Given An example package 'productcatalog-v1' with a 'metrics' ExposedAPI in its 'managementFunction' segment
-        When I install the 'productcatalog-v1' package with release name 'ctk'
-        And the 'ctk-productcatalogmanagement' component has a deployment status of 'Complete'
-        Then a ServiceMonitor resource 'ctk-productcatalogmanagement-metrics' should exist in the 'components' namespace
-        And the ServiceMonitor 'ctk-productcatalogmanagement-metrics' should be configured to scrape the 'metrics' endpoint
+        When I install the 'productcatalog-v1' package with release name 'obs'
+        And the 'obs-productcatalogmanagement' component has a deployment status of 'Complete'
+        Then a ServiceMonitor resource 'obs-productcatalogmanagement-metrics' should exist in the 'components' namespace
+        And the ServiceMonitor 'obs-productcatalogmanagement-metrics' should be configured to scrape the 'metrics' endpoint
 
     Scenario: Uninstall component and verify ServiceMonitor is removed
         Given An example package 'productcatalog-v1' with a 'metrics' ExposedAPI in its 'managementFunction' segment
-        When I install the 'productcatalog-v1' package with release name 'ctk'
-        And the 'ctk-productcatalogmanagement' component has a deployment status of 'Complete'
-        When I uninstall the release 'ctk'
-        Then the ServiceMonitor resource 'ctk-productcatalogmanagement-metrics' should not exist in the 'components' namespace
+        When I install the 'productcatalog-v1' package with release name 'obs'
+        And the 'obs-productcatalogmanagement' component has a deployment status of 'Complete'
+        When I uninstall the release 'obs'
+        Then the ServiceMonitor resource 'obs-productcatalogmanagement-metrics' should not exist in the 'components' namespace
 
 
 

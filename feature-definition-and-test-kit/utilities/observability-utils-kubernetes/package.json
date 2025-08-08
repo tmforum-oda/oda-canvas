@@ -16,6 +16,7 @@
   "author": "TM Forum ODA Canvas Team",
   "license": "Apache-2.0",
   "dependencies": {
-    "@kubernetes/client-node": "^0.19.0"
+    "@kubernetes/client-node": "^0.19.0",
+    "axios": "^1.6.0"
   }
 }

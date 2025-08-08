@@ -166,6 +166,7 @@ const packageManagerUtils = {
       if (found) {
         await executeHelmCommand('helm uninstall ' + releaseName + ' -n ' + namespace);
       }
+
     },
 
   /**
