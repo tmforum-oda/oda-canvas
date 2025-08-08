@@ -24,6 +24,7 @@ class ExpressServer {
     this.port = port;
     this.app = express();
     this.openApiPath = openApiYaml;
+    
     try {
     
       this.schema = jsYaml.safeLoad(fs.readFileSync(openApiYaml))

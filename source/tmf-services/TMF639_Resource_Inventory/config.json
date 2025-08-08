@@ -1,0 +1,44 @@
+{
+
+
+  "db_prot": "mongodb",
+  "db_user": "mongodb",
+  "db_password": "mongodb",
+  "db_host": "canvas-resinv-mongodb",
+  "db_port": 27017,
+  "db_name": "resinv",
+
+  "alarm_host": "http://localhost:10011",
+  "alarm_url_hal": "/api/",
+
+  "redis_host": "redis",
+  "strict_schema": true,
+
+  "schemaValidationType": "USE_LOCAL_CACHE, USE_OPTIMISTIC_LOCAL, USE_LOCAL_MAPPING, USE_REMOTE_LOOKUP",
+
+  "localSchemaMapping": [
+    { "schema": "https://mycsp.com:8080/tmf-api/schema/Resource/Resource.yml", 
+      "file": "Resource.yml" 
+    },
+    { "schema": "@schemaLocation", 
+      "file": "Resource.yml" 
+    }
+  ],
+
+  "localSchemaLocation": "schema",
+
+  "injectListenerPostings": true,
+
+  "notExternal": true,
+  "servers" : [ { "url": "http://localhost:8639/tmf-api/resourceInventoryManagement/v5" } ], 
+  "SCHEMA_URL" : "http://localhost:8080/openapi",
+
+
+
+  "hub": "EventsSubscription",
+ 
+  "OPENAPI": "/openapi",
+
+  "tmfid": "TMF639"
+
+}

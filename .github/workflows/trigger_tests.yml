@@ -162,6 +162,13 @@ jobs:
         sleep 30
         kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083 &
 
+    - name: Port Forwarding Resource Inventory Service
+      run: |
+        kubectl -n canvas port-forward svc/resource-inventory 8639:80 &
+        sleep 1
+        echo "Test Resource Inventory API"
+        curl http://localhost:8639/tmf-api/resourceInventoryManagement/v5/
+
     - name: Installing example component PC into default and other namespace
       run: |
         helm install ctk feature-definition-and-test-kit/testData/productcatalog-static-roles-v1/ -n components     

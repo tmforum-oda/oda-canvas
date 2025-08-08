@@ -1,0 +1,537 @@
+const { expect } = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const chai = require('chai');
+
+chai.use(sinonChai);
+
+const KubernetesResourceService = require('../../services/KubernetesResourceService');
+const {
+  mockODAComponent,
+  mockExposedAPI,
+  mockExposedAPINotReady,
+  mockComponentInProgress,
+  mockComponentFailed
+} = require('../fixtures/mockKubernetesData');
+const {
+  expectedComponentResource,
+  expectedAPIResource,
+  expectedInProgressComponentResource,
+  expectedFailedComponentResource
+} = require('../fixtures/expectedTMFResources');
+
+describe('KubernetesResourceService', () => {
+  let service;
+  let mockCustomObjectsApi;
+  let mockCoreApi;
+  let mockK8sConfig;
+
+  beforeEach(() => {
+    // Mock Kubernetes client APIs
+    mockCustomObjectsApi = {
+      listNamespacedCustomObject: sinon.stub(),
+      getNamespacedCustomObject: sinon.stub()
+    };
+    
+    mockCoreApi = {};
+    
+    mockK8sConfig = {
+      loadFromCluster: sinon.stub(),
+      loadFromDefault: sinon.stub(),
+      makeApiClient: sinon.stub()
+    };
+
+    // Setup Kubernetes client mocks
+    mockK8sConfig.makeApiClient.withArgs(sinon.match.any).returns(mockCustomObjectsApi);
+
+    service = new KubernetesResourceService();
+    
+    // Replace the real k8s config with mocks
+    service.k8sConfig = mockK8sConfig;
+    service.customObjectsApi = mockCustomObjectsApi;
+    service.coreApi = mockCoreApi;
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  describe('constructor and initialization', () => {
+    it('should initialize successfully with cluster config', () => {
+      process.env.KUBERNETES_SERVICE_HOST = 'kubernetes.default.svc';
+      
+      const newService = new KubernetesResourceService();
+      newService.k8sConfig = mockK8sConfig;
+      newService.customObjectsApi = mockCustomObjectsApi;
+      
+      expect(mockK8sConfig.loadFromCluster).to.have.been.called;
+      
+      delete process.env.KUBERNETES_SERVICE_HOST;
+    });
+
+    it('should initialize successfully with default config when not in cluster', () => {
+      delete process.env.KUBERNETES_SERVICE_HOST;
+      
+      const newService = new KubernetesResourceService();
+      newService.k8sConfig = mockK8sConfig;
+      
+      expect(mockK8sConfig.loadFromDefault).to.have.been.called;
+    });
+  });
+
+  describe('getComponents', () => {
+    it('should successfully fetch components from Kubernetes', async () => {
+      const mockResponse = {
+        body: {
+          items: [mockODAComponent, mockComponentInProgress]
+        }
+      };
+
+      mockCustomObjectsApi.listNamespacedCustomObject.resolves(mockResponse);
+
+      const result = await service.getComponents('test-namespace');
+
+      expect(mockCustomObjectsApi.listNamespacedCustomObject).to.have.been.calledWith(
+        'oda.tmforum.org',
+        'v1',
+        'test-namespace',
+        'components'
+      );
+      expect(result).to.deep.equal([mockODAComponent, mockComponentInProgress]);
+    });
+
+    it('should return empty array when no components found', async () => {
+      const mockResponse = {
+        body: {
+          items: []
+        }
+      };
+
+      mockCustomObjectsApi.listNamespacedCustomObject.resolves(mockResponse);
+
+      const result = await service.getComponents();
+
+      expect(result).to.deep.equal([]);
+    });
+
+    it('should throw error when Kubernetes API call fails', async () => {
+      const error = new Error('Kubernetes API error');
+      mockCustomObjectsApi.listNamespacedCustomObject.rejects(error);
+
+      try {
+        await service.getComponents();
+        expect.fail('Should have thrown an error');
+      } catch (err) {
+        expect(err).to.equal(error);
+      }
+    });
+  });
+
+  describe('getComponent', () => {
+    it('should successfully fetch a specific component', async () => {
+      const mockResponse = {
+        body: mockODAComponent
+      };
+
+      mockCustomObjectsApi.getNamespacedCustomObject.resolves(mockResponse);
+
+      const result = await service.getComponent('test-component', 'test-namespace');
+
+      expect(mockCustomObjectsApi.getNamespacedCustomObject).to.have.been.calledWith(
+        'oda.tmforum.org',
+        'v1',
+        'test-namespace',
+        'components',
+        'test-component'
+      );
+      expect(result).to.deep.equal(mockODAComponent);
+    });
+
+    it('should return null when component not found (404)', async () => {
+      const error = new Error('Not found');
+      error.response = { statusCode: 404 };
+      mockCustomObjectsApi.getNamespacedCustomObject.rejects(error);
+
+      const result = await service.getComponent('nonexistent-component');
+
+      expect(result).to.be.null;
+    });
+
+    it('should throw error for non-404 Kubernetes API errors', async () => {
+      const error = new Error('API error');
+      error.response = { statusCode: 500 };
+      mockCustomObjectsApi.getNamespacedCustomObject.rejects(error);
+
+      try {
+        await service.getComponent('test-component');
+        expect.fail('Should have thrown an error');
+      } catch (err) {
+        expect(err).to.equal(error);
+      }
+    });
+  });
+
+  describe('getExposedAPIs', () => {
+    it('should successfully fetch exposed APIs', async () => {
+      const mockResponse = {
+        body: {
+          items: [mockExposedAPI, mockExposedAPINotReady]
+        }
+      };
+
+      mockCustomObjectsApi.listNamespacedCustomObject.resolves(mockResponse);
+
+      const result = await service.getExposedAPIs('test-namespace');
+
+      expect(mockCustomObjectsApi.listNamespacedCustomObject).to.have.been.calledWith(
+        'oda.tmforum.org',
+        'v1',
+        'test-namespace',
+        'exposedapis'
+      );
+      expect(result).to.deep.equal([mockExposedAPI, mockExposedAPINotReady]);
+    });
+  });
+
+  describe('getExposedAPI', () => {
+    it('should successfully fetch a specific exposed API', async () => {
+      const mockResponse = {
+        body: mockExposedAPI
+      };
+
+      mockCustomObjectsApi.getNamespacedCustomObject.resolves(mockResponse);
+
+      const result = await service.getExposedAPI('test-api', 'test-namespace');
+
+      expect(mockCustomObjectsApi.getNamespacedCustomObject).to.have.been.calledWith(
+        'oda.tmforum.org',
+        'v1',
+        'test-namespace',
+        'exposedapis',
+        'test-api'
+      );
+      expect(result).to.deep.equal(mockExposedAPI);
+    });
+
+    it('should return null when exposed API not found (404)', async () => {
+      const error = new Error('Not found');
+      error.response = { statusCode: 404 };
+      mockCustomObjectsApi.getNamespacedCustomObject.rejects(error);
+
+      const result = await service.getExposedAPI('nonexistent-api');
+
+      expect(result).to.be.null;
+    });
+  });
+
+  describe('findRelatedExposedAPIs', () => {
+    it('should find exposed APIs related to a component', () => {
+      const exposedAPIs = [mockExposedAPI, mockExposedAPINotReady];
+      
+      const result = service.findRelatedExposedAPIs('test-component', exposedAPIs);
+
+      expect(result).to.have.length(2);
+      expect(result).to.deep.equal([mockExposedAPI, mockExposedAPINotReady]);
+    });
+
+    it('should return empty array when no related APIs found', () => {
+      const exposedAPIs = [mockExposedAPI, mockExposedAPINotReady];
+      
+      const result = service.findRelatedExposedAPIs('other-component', exposedAPIs);
+
+      expect(result).to.have.length(0);
+    });
+  });
+
+  describe('findRelatedComponent', () => {
+    it('should find component related to an exposed API', () => {
+      const components = [mockODAComponent, mockComponentInProgress];
+      
+      const result = service.findRelatedComponent(mockExposedAPI, components);
+
+      expect(result).to.deep.equal(mockODAComponent);
+    });
+
+    it('should return null when no related component found', () => {
+      const components = [mockComponentInProgress];
+      
+      const result = service.findRelatedComponent(mockExposedAPI, components);
+
+      expect(result).to.be.null;
+    });
+
+    it('should return null when exposed API has no componentName label', () => {
+      const apiWithoutLabel = {
+        ...mockExposedAPI,
+        metadata: {
+          ...mockExposedAPI.metadata,
+          labels: {}
+        }
+      };
+      const components = [mockODAComponent];
+      
+      const result = service.findRelatedComponent(apiWithoutLabel, components);
+
+      expect(result).to.be.null;
+    });
+  });
+
+  describe('convertComponentToResource', () => {
+    it('should convert ODA Component to TMF639 Resource format', () => {
+      const relatedAPIs = [mockExposedAPI, mockExposedAPINotReady];
+      
+      const result = service.convertComponentToResource(mockODAComponent, relatedAPIs);
+
+      // Verify basic structure
+      expect(result.id).to.equal('test-component');
+      expect(result['@type']).to.equal('LogicalResource');
+      expect(result.category).to.equal('ODAComponent');
+      expect(result.resourceStatus).to.equal('available');
+      expect(result.operationalState).to.equal('enable');
+      
+      // Verify characteristics
+      const characteristics = result.resourceCharacteristic;
+      expect(characteristics).to.be.an('array');
+      
+      const namespaceChar = characteristics.find(c => c.name === 'namespace');
+      expect(namespaceChar.value).to.equal('components');
+      
+      const deploymentStatusChar = characteristics.find(c => c.name === 'deploymentStatus');
+      expect(deploymentStatusChar.value).to.equal('Complete');
+      
+      // Verify related resources
+      expect(result.relatedResource).to.have.length(2);
+      expect(result.relatedResource[0].relationshipType).to.equal('exposes');
+    });
+
+    it('should handle component in progress status', () => {
+      const result = service.convertComponentToResource(mockComponentInProgress, []);
+
+      expect(result.resourceStatus).to.equal('installing');
+      expect(result.operationalState).to.equal('enable');
+    });
+
+    it('should handle failed component status', () => {
+      const result = service.convertComponentToResource(mockComponentFailed, []);
+
+      expect(result.resourceStatus).to.equal('reserved');
+      expect(result.operationalState).to.equal('disable');
+    });
+
+    it('should handle component with no metadata', () => {
+      const componentWithoutMetadata = {
+        spec: { description: 'Test' },
+        status: {}
+      };
+      
+      const result = service.convertComponentToResource(componentWithoutMetadata, []);
+
+      expect(result.id).to.be.undefined;
+      expect(result.resourceCharacteristic).to.be.an('array');
+    });
+  });
+
+  describe('convertExposedAPIToResource', () => {
+    it('should convert ExposedAPI to TMF639 Resource format', () => {
+      const result = service.convertExposedAPIToResource(mockExposedAPI, mockODAComponent);
+
+      // Verify basic structure
+      expect(result.id).to.equal('test-component-api');
+      expect(result['@type']).to.equal('LogicalResource');
+      expect(result.category).to.equal('API');
+      expect(result.resourceStatus).to.equal('available');
+      expect(result.operationalState).to.equal('enable');
+      
+      // Verify characteristics
+      const characteristics = result.resourceCharacteristic;
+      expect(characteristics).to.be.an('array');
+      
+      const apiNameChar = characteristics.find(c => c.name === 'apiName');
+      expect(apiNameChar.value).to.equal('testapi');
+      
+      const urlChar = characteristics.find(c => c.name === 'url');
+      expect(urlChar.value).to.equal('https://localhost/test-component/api/v1');
+      
+      // Verify related resources
+      expect(result.relatedResource).to.have.length(1);
+      expect(result.relatedResource[0].relationshipType).to.equal('exposedBy');
+    });
+
+    it('should handle API not ready status', () => {
+      const result = service.convertExposedAPIToResource(mockExposedAPINotReady, mockODAComponent);
+
+      expect(result.resourceStatus).to.equal('standby');
+      expect(result.operationalState).to.equal('disable');
+    });
+
+    it('should handle API without related component', () => {
+      const result = service.convertExposedAPIToResource(mockExposedAPI, null);
+
+      expect(result.relatedResource).to.have.length(0);
+    });
+  });
+
+  describe('status mapping methods', () => {
+    describe('mapComponentStatusToResourceStatus', () => {
+      it('should map Complete status to available', () => {
+        const status = { summary: { status: 'Complete' } };
+        const result = service.mapComponentStatusToResourceStatus(status);
+        expect(result).to.equal('available');
+      });
+
+      it('should map InProgress status to installing', () => {
+        const status = { summary: { status: 'InProgress' } };
+        const result = service.mapComponentStatusToResourceStatus(status);
+        expect(result).to.equal('installing');
+      });
+
+      it('should map Failed status to reserved', () => {
+        const status = { summary: { status: 'Failed' } };
+        const result = service.mapComponentStatusToResourceStatus(status);
+        expect(result).to.equal('reserved');
+      });
+
+      it('should map unknown status to standby', () => {
+        const status = { summary: { status: 'Unknown' } };
+        const result = service.mapComponentStatusToResourceStatus(status);
+        expect(result).to.equal('standby');
+      });
+    });
+
+    describe('mapComponentStatusToOperationalState', () => {
+      it('should map Complete status to enable', () => {
+        const status = { summary: { status: 'Complete' } };
+        const result = service.mapComponentStatusToOperationalState(status);
+        expect(result).to.equal('enable');
+      });
+
+      it('should map Failed status to disable', () => {
+        const status = { summary: { status: 'Failed' } };
+        const result = service.mapComponentStatusToOperationalState(status);
+        expect(result).to.equal('disable');
+      });
+    });
+
+    describe('mapExposedAPIStatusToResourceStatus', () => {
+      it('should map ready API to available', () => {
+        const status = { implementation: { ready: true } };
+        const result = service.mapExposedAPIStatusToResourceStatus(status);
+        expect(result).to.equal('available');
+      });
+
+      it('should map not ready API to standby', () => {
+        const status = { implementation: { ready: false } };
+        const result = service.mapExposedAPIStatusToResourceStatus(status);
+        expect(result).to.equal('standby');
+      });
+    });
+  });
+
+  describe('listResources', () => {
+    it('should list all resources (components and APIs)', async () => {
+      const mockComponentsResponse = {
+        body: { items: [mockODAComponent, mockComponentInProgress] }
+      };
+      const mockAPIsResponse = {
+        body: { items: [mockExposedAPI, mockExposedAPINotReady] }
+      };
+
+      mockCustomObjectsApi.listNamespacedCustomObject
+        .onFirstCall().resolves(mockComponentsResponse)
+        .onSecondCall().resolves(mockAPIsResponse);
+
+      const result = await service.listResources('test-namespace');
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(4); // 2 components + 2 APIs
+      
+      // Verify component resources
+      const componentResources = result.filter(r => r.category === 'ODAComponent');
+      expect(componentResources).to.have.length(2);
+      
+      // Verify API resources
+      const apiResources = result.filter(r => r.category === 'API');
+      expect(apiResources).to.have.length(2);
+    });
+
+    it('should handle empty results', async () => {
+      const mockEmptyResponse = {
+        body: { items: [] }
+      };
+
+      mockCustomObjectsApi.listNamespacedCustomObject.resolves(mockEmptyResponse);
+
+      const result = await service.listResources();
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+
+    it('should propagate Kubernetes API errors', async () => {
+      const error = new Error('Kubernetes error');
+      mockCustomObjectsApi.listNamespacedCustomObject.rejects(error);
+
+      try {
+        await service.listResources();
+        expect.fail('Should have thrown an error');
+      } catch (err) {
+        expect(err).to.equal(error);
+      }
+    });
+  });
+
+  describe('getResourceById', () => {
+    it('should find resource as component', async () => {
+      mockCustomObjectsApi.getNamespacedCustomObject
+        .onFirstCall().resolves({ body: mockODAComponent })
+        .onSecondCall().resolves({ body: { items: [mockExposedAPI] } });
+
+      const result = await service.getResourceById('test-component');
+
+      expect(result).to.not.be.null;
+      expect(result.id).to.equal('test-component');
+      expect(result.category).to.equal('ODAComponent');
+    });
+
+    it('should find resource as exposed API when not found as component', async () => {
+      const notFoundError = new Error('Not found');
+      notFoundError.response = { statusCode: 404 };
+
+      mockCustomObjectsApi.getNamespacedCustomObject
+        .onFirstCall().rejects(notFoundError)
+        .onSecondCall().resolves({ body: mockExposedAPI })
+        .onThirdCall().resolves({ body: { items: [mockODAComponent] } });
+
+      const result = await service.getResourceById('test-component-api');
+
+      expect(result).to.not.be.null;
+      expect(result.id).to.equal('test-component-api');
+      expect(result.category).to.equal('API');
+    });
+
+    it('should return null when resource not found', async () => {
+      const notFoundError = new Error('Not found');
+      notFoundError.response = { statusCode: 404 };
+
+      mockCustomObjectsApi.getNamespacedCustomObject.rejects(notFoundError);
+
+      const result = await service.getResourceById('nonexistent-resource');
+
+      expect(result).to.be.null;
+    });
+
+    it('should propagate non-404 errors', async () => {
+      const error = new Error('API error');
+      error.response = { statusCode: 500 };
+
+      mockCustomObjectsApi.getNamespacedCustomObject.rejects(error);
+
+      try {
+        await service.getResourceById('test-component');
+        expect.fail('Should have thrown an error');
+      } catch (err) {
+        expect(err).to.equal(error);
+      }
+    });
+  });
+});
