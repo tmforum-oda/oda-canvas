@@ -106,7 +106,7 @@ opentelemetry-collector:
 
     exporters:
       otlp/jaeger:
-        endpoint: jaeger-collector:4317
+        endpoint: observability-jaeger-collector:4317
         tls:
           insecure: true
 
