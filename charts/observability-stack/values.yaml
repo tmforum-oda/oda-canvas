@@ -43,10 +43,8 @@ jaeger:
   # Use all-in-one deployment for simplicity
   allInOne:
     enabled: true
-    image:
-      repository: jaegertracing/all-in-one
-      tag: latest
-      pullPolicy: IfNotPresent
+    image: jaegertracing/all-in-one
+    pullPolicy: IfNotPresent
     
     # Configure storage to use memory (for testing/development)
     args:

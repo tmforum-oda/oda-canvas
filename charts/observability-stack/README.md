@@ -24,11 +24,12 @@ This chart-of-charts includes:
 ```bash
 # Add the required Helm repositories
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts  
+helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts  
 helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
 helm repo update
 
 # Install the observability stack
+cd /charts
 helm install observability ./observability-stack --create-namespace --namespace monitoring
 ```
 
@@ -60,7 +61,7 @@ The following table lists the configurable parameters and their default values:
 
 ### Prometheus
 ```bash
-kubectl port-forward svc/observability-kube-prometheus-prometheus 9090:9090 -n monitoring
+kubectl port-forward svc/observability-prometheus-prometheus 9090:9090 -n monitoring
 ```
 Visit: http://localhost:9090
 
@@ -85,7 +86,7 @@ Visit: http://localhost:16686
 
 ### Metrics Collection
 
-Create a ServiceMonitor resource in your component namespace:
+When you install a component with a openmetrics ExposedAPI, the Canvas will configure whatever Observability services you have installed. The reference implementation using Prometheus, Grafana, Jaeger amd OpenTelemetry Collector will create a ServiceMonitor resource in your component namespace. Something like:
 
 ```yaml
 apiVersion: monitoring.coreos.com/v1
