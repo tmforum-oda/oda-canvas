@@ -165,6 +165,9 @@ jobs:
     - name: Port Forwarding Resource Inventory Service
       run: |
         kubectl -n canvas port-forward svc/resource-inventory 8639:80 &
+        sleep 1
+        echo "Test Resource Inventory API"
+        curl http://localhost:8639/tmf-api/resourceInventoryManagement/v5/
 
     - name: Installing example component PC into default and other namespace
       run: |
