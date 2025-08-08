@@ -1,6 +1,5 @@
 // This TDD uses a utility library to interact with the technical implementation of a specific canvas.
 // Replace the library with your own implementation library if you use a different implementation technology.
-const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 const packageManagerUtils = require('package-manager-utils-helm');
 const observabilityUtils = require('observability-utils-kubernetes');
 
@@ -44,7 +43,7 @@ Then('a ServiceMonitor resource {string} should exist in the {string} namespace'
 });
 
 /**
- * Verify that a ServiceMonitor resource does not exist for the component
+ * Verify that a ServiceMonitor resource does not exist after the component has been uninstalled
  *
  * @param {string} serviceMonitorName - The name of the ServiceMonitor resource
  * @param {string} namespace - The namespace where the ServiceMonitor should not exist
@@ -63,6 +62,7 @@ Then('the ServiceMonitor resource {string} should not exist in the {string} name
     throw error;
   }
 });
+
 
 /**
  * Verify that the ServiceMonitor is configured to scrape the metrics endpoint

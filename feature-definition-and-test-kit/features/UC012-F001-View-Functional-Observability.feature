@@ -20,3 +20,5 @@ Feature: UC012-F001 View Functional Observability
         When I uninstall the release 'ctk'
         Then the ServiceMonitor resource 'ctk-productcatalogmanagement-metrics' should not exist in the 'components' namespace
 
+
+
