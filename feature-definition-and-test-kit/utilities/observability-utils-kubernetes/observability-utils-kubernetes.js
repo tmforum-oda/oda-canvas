@@ -914,21 +914,44 @@ const observabilityUtils = {
    */
   execInPod: async function (namespace, podName, command) {
     try {
-      const k8sExecApi = kc.makeApiClient(k8s.Exec);
-      
       return new Promise((resolve, reject) => {
         const exec = new k8s.Exec(kc);
-        let output = '';
-        
-        exec.exec(namespace, podName, 'test-container', command, 
-          process.stdout, process.stderr, process.stdin,
-          true, (status) => {
-            if (status && status.status === 'Success') {
-              resolve(output);
+        const stdoutStream = new stream.PassThrough();
+        const stderrStream = new stream.PassThrough();
+        let stdout = '';
+        let stderr = '';
+
+        stdoutStream.on('data', (chunk) => {
+          stdout += chunk.toString();
+        });
+        stderrStream.on('data', (chunk) => {
+          stderr += chunk.toString();
+        });
+
+        exec.exec(
+          namespace,
+          podName,
+          'test-container',
+          command,
+          stdoutStream,
+          stderrStream,
+          null,
+          true,
+          (err, _stream) => {
+            if (err) {
+              reject(new Error(`Command execution failed: ${err.message || err}`));
             } else {
-              reject(new Error(`Command execution failed: ${status}`));
+              // Wait a tick to ensure all data is flushed
+              setImmediate(() => {
+                if (stderr) {
+                  reject(new Error(`Command execution error: ${stderr}`));
+                } else {
+                  resolve(stdout);
+                }
+              });
             }
-          });
+          }
+        );
       });
     } catch (error) {
       console.error(`Error executing command in pod: ${error.message}`);
