@@ -527,3 +527,10 @@ canvas-info-service:
     storageClassName:
 
 
+resource-inventory:
+  enabled: true
+  image: tmforumodacanvas/tmf639-resource-inventory-api
+  version: 1.0.0
+  prereleaseSuffix: 
+  imagePullPolicy: IfNotPresent
+  serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5

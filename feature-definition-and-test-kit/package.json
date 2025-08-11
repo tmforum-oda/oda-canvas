@@ -12,6 +12,7 @@
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
     "resource-inventory-utils-kubernetes": "file:utilities/resource-inventory-utils-kubernetes",
+    "resource-inventory-utils-TMF639": "file:utilities/resource-inventory-utils-TMF639",
     "package-manager-utils-helm": "file:utilities/package-manager-utils-helm",
     "identity-manager-utils-keycloak": "file:utilities/identity-manager-utils-keycloak",
     "component-utils": "file:utilities/component-utils",
