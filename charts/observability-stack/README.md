@@ -111,7 +111,7 @@ Configure your ODA Component with these environment variables:
 ```yaml
 env:
 - name: OTEL_EXPORTER_OTLP_ENDPOINT
-  value: "http://opentelemetry-collector.monitoring.svc.cluster.local:4318"
+  value: "http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318"
 - name: OTEL_RESOURCE_ATTRIBUTES
   value: "service.name=my-component"
 ```
