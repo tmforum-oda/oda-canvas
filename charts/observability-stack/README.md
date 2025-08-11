@@ -164,6 +164,40 @@ helm uninstall observability -n monitoring
 kubectl delete namespace monitoring
 ```
 
+
+## Demonstration
+
+Using the example [Product Catalog](https://github.com/tmforum-oda/reference-example-components/tree/master/charts/ProductCatalog) component, you can observe the metrics and telemetry as follows:
+
+### Open-Metrics 
+
+The example component implements an *optional* metrics API supporting the open metrics standard (formerly the prometheus de-facto standard). This metrics endpoint provides business metrics about all the Create/Update/Delete events for all the Product Catalog resources (Catalog, Category, Product Offering, Product Offering Price, Product Specification).
+
+The observability-stack includes a Prometheus observability service that can scrape the metrics API and report on these business events. For example the screenshot below shows a graph of the rate of Catalog Create events with the query `rate(product_catalog_api_counter{NotificationEvent="CatalogCreationNotification"}[5m])`. 
+
+![alt text](Prometheus.png)
+
+### Open-Telemetry
+
+The component also generates Open-Telemetry events that can either be logged to the console using `otlp.console.enabled:true` or sent to an Open-Telemetry protobuffCollector. You can set this in the `values.yaml` file as follows:
+
+```
+  otlp:
+    console:
+      enabled: false
+    protobuffCollector:
+      enabled: true
+      url: http://otel-collector.monitoring.svc.cluster.local:4318/v1/traces
+```
+
+With telemetry enabled, you can view traces of executions in Jaeger:
+
+![alt text](Jaeger-1.png)
+
+And drill down into an individual trace:
+
+![alt text](Jaeger-2.png)
+
 ## Contributing
 
 Please read the [CONTRIBUTING.md](../../CONTRIBUTING.md) file for details on how to contribute to this project.
