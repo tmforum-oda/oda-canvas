@@ -4,5 +4,5 @@ This contains instructions for installing the underlyihng services that the Canv
 
 ## Observability
 
-The first prerequisite is for Observability. The [./open-source-observability](open-source-observability) folder contains a stack of commonly used open-source systems for observing open-metrics and open-telemetry data.
+The first prerequisite is for Observability. The [open-source-observability](/charts/observability-stack) folder contains a chart of commonly used open-source systems for observing open-metrics and open-telemetry data. Execute this as a pre-requisite to use these open-source components.
 
