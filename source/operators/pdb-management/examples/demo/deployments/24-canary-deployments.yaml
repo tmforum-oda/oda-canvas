@@ -1,0 +1,49 @@
+# Canary - relaxed availability
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-canary
+  namespace: pdb-demo
+  annotations:
+    oda.tmforum.org/availability-class: "non-critical"
+    oda.tmforum.org/override-reason: "Canary deployment - testing phase"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: myapp
+        version: canary
+    spec:
+      containers:
+      - name: app
+        image: myapp:v2.0
+
+---
+# Stable - high availability
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-stable
+  namespace: pdb-demo
+  annotations:
+    oda.tmforum.org/availability-class: "high-availability"
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: myapp
+      version: stable
+  template:
+    metadata:
+      labels:
+        app: myapp
+        version: stable
+    spec:
+      containers:
+      - name: app
+        image: myapp:v1.0
