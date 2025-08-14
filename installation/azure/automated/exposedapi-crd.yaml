@@ -1,0 +1,108 @@
+# exposedapi-crd.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  # The name must match the spec fields below, and be in the form: <plural>.<group>
+  name: exposedapis.oda.tmforum.org
+spec:
+  # group is the API group name of the CRD.
+  group: oda.tmforum.org
+  # list of versions supported by this CRD
+  versions:
+    - name: v1beta3
+      # Each version can be enabled/disabled by Served flag.
+      served: true
+      # One and only one version must be marked as the storage version.
+      storage: true
+      schema:
+        # openAPIV3Schema is the schema for validating custom objects.
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              description: "The specification for the API to be exposed."
+              required: ["path", "implementation", "port"]
+              properties:
+                path:
+                  type: string
+                  description: "The URL path for the API to be exposed in Azure APIM (e.g., /product-catalog)."
+                specification:
+                  type: string
+                  description: "The full OpenAPI 3.0 specification for the API, as a multi-line string."
+                implementation:
+                  type: string
+                  description: "The name of the Kubernetes Service that implements this API."
+                port:
+                  type: integer
+                  description: "The port number of the Kubernetes Service to route traffic to."
+                rateLimit:
+                  type: object
+                  description: "Configuration for rate limiting policies in Azure APIM."
+                  properties:
+                    limit:
+                      type: integer
+                      description: "The maximum number of calls allowed in a given period."
+                    period:
+                      type: integer
+                      description: "The time period in seconds for the rate limit."
+                CORS:
+                  type: object
+                  description: "Configuration for Cross-Origin Resource Sharing (CORS) policies."
+                  properties:
+                    allowOrigins:
+                      type: array
+                      items:
+                        type: string
+                    allowMethods:
+                      type: array
+                      items:
+                        type: string
+                    allowHeaders:
+                      type: array
+                      items:
+                        type: string
+                    exposeHeaders:
+                      type: array
+                      items:
+                        type: string
+                    maxAge:
+                      type: integer
+                    allowCredentials:
+                      type: boolean
+                monitoring:
+                  type: object
+                  description: "Configuration for observability and metrics scraping."
+                  properties:
+                    enabled:
+                      type: boolean
+                      description: "If true, the operator will annotate the backing component for Prometheus scraping."
+                      default: true
+                    port:
+                      type: integer
+                      description: "The port on which the component exposes its /metrics endpoint."
+                    path:
+                      type: string
+                      description: "The path for the metrics endpoint."
+                      default: "/metrics"
+            status:
+              type: object
+              description: "The status of the exposed API, managed by the operator."
+              properties:
+                apimBind:
+                  type: object
+                implementation:
+                  type: object
+
+  # scope can be Namespaced or Cluster.
+  scope: Namespaced
+  names:
+    # plural name to be used in the URL: /apis/<group>/<version>/<plural>
+    plural: exposedapis
+    # singular name to be used as an alias on the CLI and for display
+    singular: exposedapi
+    # kind is the CamelCased singular type.
+    kind: ExposedAPI
+    # shortNames allow shorter string to match your resource on the CLI
+    shortNames:
+    - expapi
