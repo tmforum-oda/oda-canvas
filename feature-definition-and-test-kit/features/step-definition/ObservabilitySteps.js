@@ -29,7 +29,7 @@ Before({ tags: '@SkipTest' }, async function () {
  * @returns {Promise<void>} - A Promise that resolves when the verification is complete
  */
 Then('a ServiceMonitor resource {string} should exist in the {string} namespace', async function (serviceMonitorName, namespace) {
-  console.log(`\\n=== Verifying ServiceMonitor Exists ===`);
+  console.log(`\n=== Verifying ServiceMonitor Exists ===`);
   console.log(`Checking for ServiceMonitor '${serviceMonitorName}' in namespace '${namespace}'`);
   
   try {
