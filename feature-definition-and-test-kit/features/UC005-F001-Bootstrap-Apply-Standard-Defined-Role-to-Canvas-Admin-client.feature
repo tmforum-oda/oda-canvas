@@ -11,6 +11,6 @@ Feature: UC005-F001 Bootstrap:Apply Standard Defined Role to Canvas Admin client
 
     Scenario: Create role for security client in the identity platform
         Given an example package 'productcatalog-v1' has been installed
-        When the 'productcatalogmanagement' component has a deployment status of 'Complete'
+        When the 'ctk-productcatalogmanagement' component has a deployment status of 'Complete'
         Then I should see the predefined role assigned to the 'canvassystem' client for the 'productcatalogmanagement' component in the identity platform
 

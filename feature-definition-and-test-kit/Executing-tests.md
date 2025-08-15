@@ -13,6 +13,8 @@ To execute the tests, first you install the necessary packages and set the envir
   npm install
   cd ../resource-inventory-utils-kubernetes
   npm install
+  cd ../observability-utils-kubernetes
+  npm install
   cd ../..
   npm install
   ```

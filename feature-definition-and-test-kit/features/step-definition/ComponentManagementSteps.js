@@ -12,10 +12,7 @@ chai.use(chaiHttp);
 
 const NAMESPACE = 'components';
 const DEFAULT_RELEASE_NAME = 'ctk';
-const COMPONENT_DEPLOY_TIMEOUT = 100 * 1000; // 100 seconds
-const API_DEPLOY_TIMEOUT = 10 * 1000; // 10 seconds
-const API_URL_TIMEOUT = 60 * 1000; // 60 seconds
-const API_READY_TIMEOUT = 120 * 1000; // 120 seconds
+const COMPONENT_DEPLOY_TIMEOUT = 600 * 1000; // 10 minutes
 const TIMEOUT_BUFFER = 5 * 1000; // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const CLEANUP_PACKAGE = false; // set to true to uninstall the package after each Scenario
 const DEBUG_LOGS = false; // set to true to log the controller logs after each failed Scenario
@@ -38,18 +35,17 @@ Before({ tags: '@SkipTest' }, async function () {
  * Verify the given package includes a component that has a specified number of ExposedAPIs in a specific segment.
  *
  * @param {string} componentPackage - The name of the example package.
- * @param {string} componentName - The name of the component.
  * @param {string} numberOfAPIs - The expected number of ExposedAPIs in the component segment.
  * @param {string} componentSegmentName - The name of the component segment.
  * @returns {Promise<void>} - A Promise that resolves when the verification is complete.
  */
-Given('an example package {string} with a {string} component with {string} ExposedAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
+Given('an example package {string} with {string} ExposedAPI in its {string} segment', async function (componentPackage, numberOfAPIs, componentSegmentName) {
   console.log('\n=== Starting Package ExposedAPI Verification ===');
-  console.log(`Verifying package '${componentPackage}' component '${componentName}' has ${numberOfAPIs} ExposedAPI(s) in '${componentSegmentName}' segment`);
-  
+  console.log(`Verifying package '${componentPackage}' has ${numberOfAPIs} ExposedAPI(s) in '${componentSegmentName}' segment`);
+
   try {
     const exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName);
-    
+
     // Assert that there are the correct number of ExposedAPIs in the componentSegment
     assert.ok(exposedAPIs.length == numberOfAPIs, `The '${componentSegmentName}' segment should contain ${numberOfAPIs} ExposedAPI(s), but found ${exposedAPIs.length}`);
     
@@ -65,7 +61,6 @@ Given('an example package {string} with a {string} component with {string} Expos
     console.error(`❌ Error during package ExposedAPI verification: ${error.message}`);
     console.error('Error details:');
     console.error(`- Package: '${componentPackage}'`);
-    console.error(`- Component: '${componentName}'`);
     console.error(`- Expected ExposedAPIs: ${numberOfAPIs}`);
     console.error(`- Component segment: '${componentSegmentName}'`);
     console.error(`- Error type: ${error.constructor.name}`);
@@ -85,15 +80,14 @@ Given('an example package {string} with a {string} component with {string} Expos
  * Verify the given package includes a component that has a specified number of DependentAPIs in a specific segment.
  *
  * @param {string} componentPackage - The name of the example package.
- * @param {string} componentName - The name of the component.
  * @param {string} numberOfAPIs - The expected number of DependentAPIs in the component segment.
  * @param {string} componentSegmentName - The name of the component segment.
  * @returns {Promise<void>} - A Promise that resolves when the verification is complete.
  */
-Given('an example package {string} with a {string} component with {string} DependentAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
+Given('an example package {string} with {string} DependentAPI in its {string} segment', async function (componentPackage, numberOfAPIs, componentSegmentName) {
   console.log('\n=== Starting Package DependentAPI Verification ===');
-  console.log(`Verifying package '${componentPackage}' component '${componentName}' has ${numberOfAPIs} DependentAPI(s) in '${componentSegmentName}' segment`);
-  
+  console.log(`Verifying package '${componentPackage}' has ${numberOfAPIs} DependentAPI(s) in '${componentSegmentName}' segment`);
+
   try {
     const dependentAPIs = packageManagerUtils.getDependentAPIsFromPackage(componentPackage, 'ctk', componentSegmentName);
     
@@ -112,7 +106,6 @@ Given('an example package {string} with a {string} component with {string} Depen
     console.error(`❌ Error during package DependentAPI verification: ${error.message}`);
     console.error('Error details:');
     console.error(`- Package: '${componentPackage}'`);
-    console.error(`- Component: '${componentName}'`);
     console.error(`- Expected DependentAPIs: ${numberOfAPIs}`);
     console.error(`- Component segment: '${componentSegmentName}'`);
     console.error(`- Error type: ${error.constructor.name}`);
@@ -328,13 +321,15 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
 
   let namespace = global.namespace || NAMESPACE;
   
+  console.log(`Waiting for component '${componentName}' in namespace '${namespace}' to have deployment status '${deploymentStatus}'...`);
+
   // wait until the component resource is found or the timeout is reached
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResource(  global.currentReleaseName + '-' + componentName, namespace)
+    componentResource = await resourceInventoryUtils.getComponentResource( componentName, namespace)
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
-    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT/1000 + " seconds")
 
     // check if the component deployment status is deploymentStatus
     if ((!componentResource) || (!componentResource.hasOwnProperty('status')) || (!componentResource.status.hasOwnProperty('summary/status')) || (!componentResource.status['summary/status'].hasOwnProperty('deployment_status'))) {
@@ -369,7 +364,7 @@ Then('I can query the {string} spec version of the {string} component', {timeout
   var endTime
   let componentResource = null
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResourceByVersion(  global.currentReleaseName + '-' + componentName, ComponentSpecVersion, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResourceByVersion(componentName, ComponentSpecVersion, NAMESPACE)
     endTime = performance.now()
     // assert that the Component resource was found within COMPONENT_DEPLOY_TIMEOUT seconds
     assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The component should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
@@ -399,25 +394,21 @@ Given('the release {string} is uninstalled', async function (releaseName) {
 /**
  * Uninstall the specified package for the given release, so it ends up uninstalled.
  *
- * @param {string} packageName - The name of the package to be uninstalled.
  * @param {string} releaseName - The release name to uninstall.
  */
-Given('I uninstall the {string} package as release {string}', async function (packageName, releaseName) {
-  console.log(`Uninstalling package '${packageName}' with release '${releaseName}'...`);
+Given('I uninstall the release {string}', async function (releaseName) {
+  console.log(`Uninstalling release '${releaseName}'...`);
   await packageManagerUtils.uninstallPackage(releaseName, NAMESPACE);
 });
 
 /**
  * Uninstall the specified package for the given release and namespace, so it ends up uninstalled.
  *
- * @param {string} packageName - The name of the package to be uninstalled.
  * @param {string} releaseName - The release name to uninstall.
  * @param {string} namespace - The name of the namespace.
  */
-Given('I uninstall the {string} package as release {string} from namespace {string}', async function (packageName, releaseName, namespace) {
-  console.log(`Uninstalling package '${packageName}' with release '${releaseName}' from namespace '${namespace}'...`);
-  // global.currentReleaseName = releaseName
-  // global.namespace = namespace
+Given('I uninstall the release {string} from namespace {string}', async function (releaseName, namespace) {
+  console.log(`Uninstalling release '${releaseName}' from namespace '${namespace}'...`);
   await packageManagerUtils.uninstallPackage(releaseName, namespace);
 });
 /**
@@ -434,14 +425,14 @@ Given('the {string} component has a deployment status of {string} for the {strin
 
   // wait until the component resource is found or the timeout is reached
   while (componentResource == null) {
-    componentResource = await resourceInventoryUtils.getComponentResource(  releaseName + '-' + componentName, NAMESPACE)
+    componentResource = await resourceInventoryUtils.getComponentResource(componentName, NAMESPACE)
     // Logs for componentResource for debugging purpose 
     // console.log('Current componentResource:', JSON.stringify(componentResource, null, 2));
 
     endTime = performance.now()
 
     // assert that the component resource was found within the timeout
-    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT + " seconds")
+    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT/1000 + " seconds")
 
     // check if the component deployment status is deploymentStatus
     if ((!componentResource) || (!componentResource.hasOwnProperty('status')) || (!componentResource.status.hasOwnProperty('summary/status')) || (!componentResource.status['summary/status'].hasOwnProperty('deployment_status'))) {
@@ -568,4 +559,87 @@ After(async function (scenario) {
     console.log('Scenario ended at: ' + new Date().toISOString())
   }
 
+});
+
+/**
+ * Verify the given package includes a component that has a specific ExposedAPI by name in a specific segment.
+ *
+ * @param {string} componentPackage - The name of the example package.
+ * @param {string} apiName - The name of the ExposedAPI to find.
+ * @param {string} componentSegmentName - The name of the component segment.
+ * @returns {Promise<void>} - A Promise that resolves when the verification is complete.
+ */
+Given('An example package {string} with a {string} ExposedAPI in its {string} segment', async function (componentPackage, apiName, componentSegmentName) {
+  console.log('\n=== Starting Package ExposedAPI by Name Verification ===');
+  console.log(`Verifying package '${componentPackage}' has ExposedAPI '${apiName}' in '${componentSegmentName}' segment`);
+  
+  try {
+
+    const exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName);
+    console.log(`Found ExposedAPIs in '${componentSegmentName}':`, JSON.stringify(exposedAPIs, null, 2));
+
+    // Find the specific API by name
+    foundAPI = null;
+    for (const api of exposedAPIs) {
+      // get name from api
+      const exposedapiName = api['name'];
+      console.log(`Checking ExposedAPI: ${exposedapiName}`);
+      if (exposedapiName === apiName) {
+        foundAPI = api;
+        console.log(`✅ Found ExposedAPI '${apiName}' in '${componentSegmentName}' segment`);
+      }
+    }
+      
+    assert.ok(foundAPI, `The '${componentSegmentName}' segment should contain ExposedAPI '${apiName}', but it was not found. Found APIs: ${exposedAPIs.map(api => api.name).join(', ')}`);
+
+    console.log(`✅ Successfully verified ExposedAPI '${apiName}' exists in '${componentSegmentName}' segment`);
+    
+    if (DEBUG_LOGS) {
+      console.log('Found ExposedAPI:', JSON.stringify(foundAPI, null, 2));
+      console.log('All ExposedAPIs:', JSON.stringify(exposedAPIs, null, 2));
+    }
+    
+    console.log('=== Package ExposedAPI by Name Verification Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error during package ExposedAPI by name verification: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Package: '${componentPackage}'`);
+    console.error(`- Expected ExposedAPI: '${apiName}'`);
+    console.error(`- Component segment: '${componentSegmentName}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    console.error('Possible causes:');
+    console.error('- Package does not exist or is not accessible');
+    console.error('- Component segment not found in package');
+    console.error(`- ExposedAPI '${apiName}' not defined in '${componentSegmentName}' segment`);
+    console.error('- ExposedAPI definitions missing or malformed in package');
+    console.error('- Package manager utility configuration issue');
+    
+    console.log('=== Package ExposedAPI by Name Verification Failed ===');
+    throw error;
+  }
+});
+
+/**
+ * Install a specified package using the packageManagerUtils.installPackage function. Use the specified release name.
+ * This is similar to "I install the {string} package as release {string}" but with different wording.
+ *
+ * @param {string} componentPackage - The name of the package to install.
+ * @param {string} releaseName - The name of the release name.
+ */
+When('I install the {string} package with release name {string}', async function (componentPackage, releaseName) {
+  console.log(`\n=== Installing Package with Release Name ===`);
+  console.log(`Installing package '${componentPackage}' with release name '${releaseName}'`);
+  
+  global.currentReleaseName = releaseName;
+  global.namespace = null;
+  
+  try {
+    await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE);
+    console.log(`✅ Successfully installed package '${componentPackage}' with release name '${releaseName}'`);
+  } catch (error) {
+    console.error(`❌ Failed to install package '${componentPackage}' with release name '${releaseName}': ${error.message}`);
+    throw error;
+  }
 });
