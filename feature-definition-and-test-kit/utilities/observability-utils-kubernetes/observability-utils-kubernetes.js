@@ -705,11 +705,19 @@ const observabilityUtils = {
    */
   checkTraceInJaeger: async function (traceId) {
     try {
-      // For now, return true after a delay to simulate trace processing
-      // In a real implementation, you would query Jaeger API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return true;
+      // Query the Jaeger Query API for the trace
+      const url = `${JAEGER_QUERY_BASE_URL}/api/traces/${traceId}`;
+      const response = await axios.get(url);
+      // Jaeger returns a JSON object with a "data" array; if it's non-empty, the trace exists
+      if (response && response.data && Array.isArray(response.data.data) && response.data.data.length > 0) {
+        return true;
+      }
+      return false;
     } catch (error) {
+      // If Jaeger returns 404, the trace does not exist yet
+      if (error.response && error.response.status === 404) {
+        return false;
+      }
       console.error(`Error checking trace in Jaeger: ${error.message}`);
       return false;
     }
