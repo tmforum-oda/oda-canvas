@@ -2,6 +2,7 @@
 // Replace the library with your own implementation library if you use a different implementation technology.
 const packageManagerUtils = require('package-manager-utils-helm');
 const observabilityUtils = require('observability-utils-kubernetes');
+const { isServiceMonitorDeployed } = require('./OpenMetricsCheck');
 
 const { Given, When, Then, After, setDefaultTimeout, Before } = require('@cucumber/cucumber');
 const chai = require('chai');
@@ -15,10 +16,37 @@ const CLEANUP_PACKAGE = false; // set to true to uninstall the package after eac
 
 setDefaultTimeout(20 * 1000);
 
-// Allow skipping tests
+// Allow skipping tests by adding @SkipTest to BDD scenario
 Before({ tags: '@SkipTest' }, async function () {
   console.log('Skipping scenario.');
   return 'skipped';
+});
+
+
+// Skip if there is no Service Monitor for open-metrics collection
+Before({ tags: '@ServiceMonitor' }, async function () {
+  console.log('\n=== Service Monitor Check ===');
+  console.log('Checking if Service Monitor for open-metrics collection is deployed...');
+
+  try {
+    const serviceMonitorDeployed = await isServiceMonitorDeployed();
+
+    if (!serviceMonitorDeployed) {
+      console.log('Service Monitor for open-metrics collection is not deployed. Skipping scenario.');
+      return 'skipped';
+    }
+
+    console.log('✅ Service Monitor for open-metrics collection is deployed. Proceeding with scenario.');
+    console.log('=== Service Monitor Check Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error checking Service Monitor deployment: ${error.message}`);
+    console.error('Possible causes:');
+    console.error('- Service Monitor not installed or configured properly');
+    console.error('- Kubernetes cluster access issues');
+    console.error('- Required Gateway API CRDs not installed');
+    throw error;
+  }
 });
 
 /**
