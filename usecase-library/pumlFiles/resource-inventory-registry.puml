@@ -1,0 +1,36 @@
+@startuml resource-inventory-registry
+
+actor "External\nManagement\nTool" as ExternalTool
+
+
+entity "Resource\nInventory\nService" as ResourceInventory
+
+database "Kubernetes\nAPI Server" as K8sAPI
+
+
+ExternalTool -> ResourceInventory: GET /tmf-api/resourceInventory/v4/resource
+ResourceInventory -> K8sAPI: List all Components and ExposedAPIs
+K8sAPI --> ResourceInventory: Components and ExposedAPI Custom Resources
+ResourceInventory -> ResourceInventory: Transform K8s objects\nto TMF639 format
+ResourceInventory --> ExternalTool: 200 OK (TMF639 Resource list)
+
+ExternalTool -> ResourceInventory: GET /tmf-api/resourceInventory/v4/resource/<componentId>
+ResourceInventory -> K8sAPI: Get Component by name
+K8sAPI --> ResourceInventory: Component Custom Resource
+ResourceInventory -> ResourceInventory: Transform K8s object to TMF639 format
+ResourceInventory --> ExternalTool: 200 OK (TMF639 Resource details)
+
+ExternalTool -> ResourceInventory: GET /tmf-api/resourceInventory/v4/resource/<exposedApiId>
+ResourceInventory -> K8sAPI: Get ExposedAPI by name
+K8sAPI --> ResourceInventory: ExposedAPI Custom Resource
+ResourceInventory -> ResourceInventory: Transform K8s object to TMF639 format
+ResourceInventory --> ExternalTool: 200 OK (TMF639 Resource details)
+
+ExternalTool -> ResourceInventory: GET /tmf-api/resourceInventory/v4/resource?category=API
+ResourceInventory -> K8sAPI: List all ExposedAPIs
+K8sAPI --> ResourceInventory: ExposedAPI Custom Resources
+ResourceInventory -> ResourceInventory: Transform K8s objects to TMF639 format
+ResourceInventory --> ExternalTool: 200 OK (TMF639 Resource list)
+
+
+@enduml

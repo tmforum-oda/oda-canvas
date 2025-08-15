@@ -14,9 +14,13 @@ spec:
         app: {{ .Release.Name }}-apigeeistio-operator
     spec:
       serviceAccountName: apigeeapioperator-account
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- include "image-pull-secrets" . |nindent 6 }}
+      {{- end }}
       containers:
       - name: {{ .Release.Name }}-apigeeistio-operator
-        image: {{ .Values.apigeeoperatorimage.repository }}
+        image: {{ include "docker.registry" .}}{{ .Values.apigeeoperatorimage.repository }}
         imagePullPolicy: {{ .Values.apigeeoperatorimage.pullPolicy }}
         env:
           - name: APIGEE_ORG

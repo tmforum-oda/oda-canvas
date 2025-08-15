@@ -13,9 +13,11 @@ Feature: UC002-F003 Install Component from Repository
         Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
 
     Examples:
+    
     | RepoName       | ReferenceExampleRepoURL                                         | PackageName       | ReleaseName  |  ComponentName                    |  ExposedAPIName             |
     | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |  productcatalogmanagement   |
     | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |  metrics                    |
     | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |  userrolesandpermissions    |
     | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |  promotionmanagement        |
+
 
