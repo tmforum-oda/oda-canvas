@@ -100,7 +100,8 @@ jobs:
         
     - name: Install kubectl
       run: |
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        echo "Installing kubectl version 1.30.0"
+        curl -LO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
         chmod +x kubectl
         sudo mv kubectl /usr/local/bin/
         kubectl version --client
@@ -114,7 +115,8 @@ jobs:
 
     - name: Create kind cluster
       run: |
-        kind create cluster
+        echo "Creating kind cluster pinned to latest version supported by the Canvas - v1.30.0"
+        kind create cluster --image kindest/node:v1.30.0
         kubectl get nodes --show-labels
         
     - name: Download Kind LB Cloud Provider
@@ -137,12 +139,24 @@ jobs:
     - name: Install istio Helm chart
       run: |
         helm repo add istio https://istio-release.storage.googleapis.com/charts
+        helm repo update
         kubectl create namespace istio-system
         helm install istio-base istio/base -n istio-system
         helm install istiod istio/istiod -n istio-system --wait
         kubectl create namespace istio-ingress
         kubectl label namespace istio-ingress istio-injection=enabled
-        helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
+        echo "Installing istio gateway pinned to version 1.26.3"
+        sleep 5
+        kubectl version
+        helm version
+        echo "=== DRY RUN TEST ==="
+        helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress \
+          --set labels.app=istio-ingress \
+          --set labels.istio=ingressgateway \
+          --dry-run --debug
+        echo "=== REAL INSTALL ==="
+        helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
+        echo "helm install complete"
 
     - name: Install Helm chart from Git repo
       run: |
