@@ -147,7 +147,7 @@ jobs:
         kubectl label namespace istio-ingress istio-injection=enabled
         echo "Installing istio gateway pinned to version 1.26.3"
         sleep 5
-        kubectl --version
+        kubectl version
         helm version
         echo "=== DRY RUN TEST ==="
         helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress \
