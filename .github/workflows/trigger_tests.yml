@@ -145,8 +145,17 @@ jobs:
         helm install istiod istio/istiod -n istio-system --wait
         kubectl create namespace istio-ingress
         kubectl label namespace istio-ingress istio-injection=enabled
-        echo "Installing istio gateway pinned to version 1.27.0"
-        helm install istio-ingress istio/gateway --version 1.27.0 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
+        echo "Installing istio gateway pinned to version 1.26.3"
+        sleep 5
+        kubectl --version
+        helm version
+        echo "=== DRY RUN TEST ==="
+        helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress \
+          --set labels.app=istio-ingress \
+          --set labels.istio=ingressgateway \
+          --dry-run --debug
+        echo "=== REAL INSTALL ==="
+        helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
         echo "helm install complete"
 
     - name: Install Helm chart from Git repo
