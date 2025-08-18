@@ -144,6 +144,11 @@ jobs:
         kubectl create namespace istio-ingress
         kubectl label namespace istio-ingress istio-injection=enabled
         echo "helm install istio-ingress istio/gateway --version 1.27.0 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway"
+        echo "testing"
+        helm version
+        kubectl version --short
+        echo "testing in default namespace without labels"
+        helm install test-gateway istio/gateway --version 1.26.1 -n default --dry-run --debug
         echo "added dataplane-mode=none"
         helm install istio-ingress istio/gateway --version 1.27.0 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway --set 'labels.istio\.io/dataplane-mode=none'
 
