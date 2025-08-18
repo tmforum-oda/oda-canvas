@@ -142,6 +142,7 @@ jobs:
         
         kubectl create namespace istio-ingress
         kubectl label namespace istio-ingress istio-injection=enabled
+        kubectl version 
         echo "Removed --set labels.app=istio-ingress --set labels.istio=ingressgateway"
         helm install istio-ingress istio/gateway -n istio-ingress --wait
 
