@@ -503,7 +503,7 @@ api-operator-apisix:
       enabled: false
       name: nginx
     dataDog:
-      enabled: true
+      enabled: false
   configmap:
     loglevel: '20'
     # publicHostname: 'components.example.com'

@@ -68,10 +68,9 @@ const isServiceMonitorDeployed = async () => {
     // Step 3: Check for Prometheus instance
     console.log('Checking for Prometheus instance...');
     const allServices = await k8sCoreApi.listServiceForAllNamespaces();
+   
     const prometheusService = allServices.body.items.find(svc =>
-      svc.metadata.name.includes('prometheus') &&
-      (svc.metadata.labels?.['app.kubernetes.io/name'] === 'prometheus' ||
-       svc.metadata.labels?.app === 'prometheus')
+      svc.metadata.name.includes('prometheus') 
     );
 
     if (!prometheusService) {
