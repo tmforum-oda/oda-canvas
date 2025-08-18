@@ -144,8 +144,9 @@ jobs:
         kubectl create namespace istio-ingress
         kubectl label namespace istio-ingress istio-injection=enabled
         echo "helm install istio-ingress istio/gateway --version 1.27.0 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway"
-        echo "added --dry-run --debug"
-        helm install istio-ingress istio/gateway --version 1.27.0 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway --dry-run --debug
+        echo "added dataplane-mode=none"
+        helm install istio-ingress istio/gateway --version 1.27.0 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway --set 'labels.istio\.io/dataplane-mode=none'
+
         echo "helm install complete"
 
     - name: Install Helm chart from Git repo
