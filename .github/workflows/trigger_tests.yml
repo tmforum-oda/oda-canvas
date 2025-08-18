@@ -144,7 +144,8 @@ jobs:
         kubectl create namespace istio-ingress
         kubectl label namespace istio-ingress istio-injection=enabled
         echo "helm install istio-ingress istio/gateway --version 1.27.0 -n istio-ingress --set podLabels.app=istio-ingress --set podLabels.istio=ingressgateway"
-        helm install istio-ingress istio/gateway --version 1.27.0 -n istio-ingress --set podLabels.app=istio-ingress --set podLabels.istio=ingressgateway
+        echo "Testing without --set podLabels.app=istio-ingress --set podLabels.istio=ingressgateway"
+        helm install istio-ingress istio/gateway --version 1.27.0 -n istio-ingress
         echo "helm install complete"
 
     - name: Install Helm chart from Git repo
