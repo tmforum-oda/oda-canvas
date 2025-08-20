@@ -3,8 +3,8 @@
 # a component, or a Service Provider's Operations team who may be supporting a component.
 
 @UC012         # tagged as use case 12
-@UC012-F001    # tagged as feature 1 within use case 12
-Feature: UC012-F001 Configure Open-Metrics collection
+@UC012-F002    # tagged as feature 2 within use case 12
+Feature: UC012-F002 Configure Open-Metrics collection
 
     # Skip this scenario if Service Monitor CRD and Prometheus Operator are not deployed
     @ServiceMonitor 

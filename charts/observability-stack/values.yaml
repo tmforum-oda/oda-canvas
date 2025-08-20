@@ -116,4 +116,7 @@ opentelemetry-collector:
           receivers: [otlp]
           processors: [batch]
           exporters: [otlp/jaeger]
-
+      telemetry:
+        metrics:
+          address: 0.0.0.0:8888
+          level: detailed

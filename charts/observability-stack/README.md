@@ -88,6 +88,16 @@ kubectl port-forward svc/observability-jaeger-query 16686:16686 -n monitoring
 ```
 Visit: http://localhost:16686
 
+
+
+### BDD Testing
+
+The Usecase UC012 contains feature tests for the observabiloity. For the tests to work, you need to port-forward the observability-opentelemetry-collector deployment.
+
+```bash
+kubectl port-forward -n monitoring deployment/observability-opentelemetry-collector 8888:8888
+```
+
 ## ODA Component Integration
 
 ### Metrics Collection
