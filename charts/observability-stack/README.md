@@ -2,7 +2,11 @@
 
 This Helm chart deploys a complete open-source observability stack for the TM Forum ODA Canvas, providing monitoring, alerting, and distributed tracing capabilities for ODA Components.
 
-## Components
+Theis observability stack installs ServiceMonitor resources for the OpenMetrics configuration. To configure the Canvas to use ServiceMonitor, set the `openMetricsImplementation` to `ServiceMonitor`. e.g. for the Istio API Operator option, use:
+
+helm upgrade --install canvas charts/canvas-oda -n canvas --set api-operator-istio.deployment.openMetricsImplementation=ServiceMonitor --create-namespace
+
+## Chart-of-Charts
 
 This chart-of-charts includes:
 

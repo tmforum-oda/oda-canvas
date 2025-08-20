@@ -372,19 +372,18 @@ api-operator-istio:
   deployment:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
-    apiopVersion: 1.0.1
-    apiopPrereleaseSuffix:
+    apiopVersion: 1.1.0
+    apiopPrereleaseSuffix: feature-84
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     ingressClass:
       enabled: false
       name: nginx
-    dataDog:
-      enabled: false
-    hostName: "*"
-    httpsRedirect: true
-    credentialName: istio-ingress-cert    
+    openMetricsImplementation: "PrometheusAnnotation"  # Options: ServiceMonitor, PrometheusAnnotation, DataDogAnnotation
+  hostName: "*"
+  httpsRedirect: true
+  credentialName: istio-ingress-cert
   configmap:
     loglevel: '20'
     # publicHostname: 'components.example.com'

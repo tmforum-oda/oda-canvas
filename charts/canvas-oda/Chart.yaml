@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.4-LT2
+version: 1.2.4-LT3
+# version: 1.2.4-LT3 - added PrometheusAnnotation option for openmetrics scraping on APIOpeator for Istio
 # version: 1.2.4-LT2 - added resource-inventory API for viewing components and exposed APIs in the canvas
 # version: 1.2.4-LM1 - Added support for custom/private docker registry and image pull secrets
 # version: 1.2.4-LT1 - added permissionSpecificationSet API for configuring roles
