@@ -150,18 +150,7 @@ jobs:
         sleep 5
         kubectl version
         helm version
-<<<<<<< HEAD
-        echo "=== DRY RUN TEST ==="
-        helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress \
-          --set labels.app=istio-ingress \
-          --set labels.istio=ingressgateway \
-          --dry-run --debug
-        echo "=== REAL INSTALL ==="
-        helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
-        echo "helm install complete"
-=======
         helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway 
->>>>>>> 199949cb9462bb30d5f5aa8f81acf11659efbb03
 
     - name: Install Helm chart from Git repo
       run: |
