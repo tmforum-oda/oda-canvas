@@ -49,19 +49,15 @@ Then('I should see the predefined role assigned to the {string} client for the {
   }
 });
 
-When('I POST a new PermissionSpecificationSet with the following details:', async function (dataTable) {
+When('I POST a new PermissionSpecificationSet to the {string} component with the following details:', async function (componentName, dataTable) {
   console.log('\n=== Starting PermissionSpecificationSet Creation Test ===');
   
   // Extract all rows from the dataTable
   const permissionSpecDataRows = dataTable.hashes(); // Get all rows of data
   console.log(`Processing ${permissionSpecDataRows.length} PermissionSpecificationSet(s)`);
   
-  // Get the component name - using 'productcatalogmanagement' as specified in the feature
-  const componentName = 'productcatalogmanagement';
-  const componentInstance = global.currentReleaseName + '-' + componentName;
-  
   // Get the ExposedAPI resource to find the correct API URL and path
-  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('userrolesandpermissions', componentName, global.currentReleaseName, NAMESPACE);
+  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('userrolesandpermissions', componentName, NAMESPACE);
   
   // Assert that the ExposedAPI resource was found
   assert.ok(exposedAPIResource, 'The userrolesandpermissions ExposedAPI resource should be available');
@@ -139,24 +135,24 @@ When('I POST a new PermissionSpecificationSet with the following details:', asyn
   console.log('=== PermissionSpecificationSet Creation Test Complete ===');
 });
 
-Then('the role {string} should be created in the Identity Platform for client {string}', async function (roleName, clientName) {
+Then('the role {string} should be created in the Identity Platform for {string} component', async function (roleName, componentName) {
   console.log('\n=== Starting Identity Platform Role Verification ===');
-  console.log(`Verifying role '${roleName}' exists for client '${clientName}'`);
-  
+  console.log(`Verifying role '${roleName}' exists for component '${componentName}'`);
+
   // Wait a moment for the async processing to complete
   await new Promise(resolve => setTimeout(resolve, 2000));
   
   try {
-    // Get all roles for the specified client from Keycloak
-    const clientRoles = await identityManagerUtils.getRolesForClient(clientName);
-    
+    // Get all roles for the specified component from Keycloak
+    const componentRoles = await identityManagerUtils.getRolesForClient(componentName);
+
     // Check if the role exists
-    const roleExists = clientRoles.includes(roleName);
-    
+    const roleExists = componentRoles.includes(roleName);
+
     if (roleExists) {
-      console.log(`✅ Role verification successful: '${roleName}' exists in Identity Platform for client '${clientName}'`);
+      console.log(`✅ Role verification successful: '${roleName}' exists in Identity Platform for component '${componentName}'`);
     } else {
-      console.error(`❌ Role verification failed: '${roleName}' not found in Identity Platform for client '${clientName}'`);
+      console.error(`❌ Role verification failed: '${roleName}' not found in Identity Platform for component '${componentName}'`);
       console.error('This could indicate:');
       console.error('- Canvas Identity Config operator is not running');
       console.error('- Event notification was not received by identity listener');
@@ -164,7 +160,7 @@ Then('the role {string} should be created in the Identity Platform for client {s
       console.error('- Keycloak integration is not configured correctly');
     }
     
-    assert.ok(roleExists, `Role '${roleName}' should exist in Identity Platform for client '${clientName}'. Found roles: ${clientRoles.join(', ')}`);
+    assert.ok(roleExists, `Role '${roleName}' should exist in Identity Platform for client '${componentName}'. Found roles: ${componentRoles.join(', ')}`);
     
     console.log('=== Identity Platform Role Verification Complete ===');
     
@@ -172,7 +168,7 @@ Then('the role {string} should be created in the Identity Platform for client {s
     console.error('❌ Error during Identity Platform role verification:', error.message);
     console.error('Error details:');
     console.error(`- Target role: '${roleName}'`);
-    console.error(`- Target client: '${clientName}'`);
+    console.error(`- Target client: '${componentName}'`);
     console.error(`- Error type: ${error.constructor.name}`);
     
     if (error.response) {
@@ -197,32 +193,29 @@ Then('the role {string} should be created in the Identity Platform for client {s
   }
 });
 
-Given('the role {string} exists in the Identity Platform', async function (roleName) {
+Given('the role {string} exists in the Identity Platform for {string} component', async function (roleName, componentName) {
   console.log('\n=== Checking Role Existence in Identity Platform ===');
   console.log(`Checking for existing role: '${roleName}'`);
   
-  // Use the same client naming convention as other tests
-  const componentName = 'productcatalogmanagement';
-  const clientName =  `${global.currentReleaseName}-${componentName}`;
-  
+ 
   try {
     // Get all roles for the specified client from Keycloak
-    const clientRoles = await identityManagerUtils.getRolesForClient(clientName);
+    const componentRoles = await identityManagerUtils.getRolesForClient(componentName);
     
     // Check if the role exists
-    const roleExists = clientRoles.includes(roleName);
+    const roleExists = componentRoles.includes(roleName);
     
     if (roleExists) {
-      console.log(`✅ Role '${roleName}' already exists in Identity Platform for client '${clientName}'`);
+      console.log(`✅ Role '${roleName}' already exists in Identity Platform for client '${componentName}'`);
       // Store the role information for potential use in subsequent steps
-      global.existingRole = { name: roleName, client: clientName };
+      global.existingRole = { name: roleName, client: componentName };
     } else {
-      console.log(`⚠️  Role '${roleName}' does not exist in Identity Platform for client '${clientName}'`);
+      console.log(`⚠️  Role '${roleName}' does not exist in Identity Platform for client '${componentName}'`);
       console.log('This step is verifying a precondition - the role should already exist.');
       console.log('If this is expected, the test scenario should create the role first.');
       
       // For a Given step, we should fail if the precondition is not met
-      assert.ok(roleExists, `Precondition failed: Role '${roleName}' should already exist in Identity Platform for client '${clientName}'. Found roles: ${clientRoles.join(', ')}`);
+      assert.ok(roleExists, `Precondition failed: Role '${roleName}' should already exist in Identity Platform for client '${componentName}'. Found roles: ${componentRoles.join(', ')}`);
     }
     
     console.log('=== Identity Platform Role Existence Check Complete ===');
@@ -231,7 +224,7 @@ Given('the role {string} exists in the Identity Platform', async function (roleN
     console.error('❌ Error during Identity Platform role existence check:', error.message);
     console.error('Error details:');
     console.error(`- Target role: '${roleName}'`);
-    console.error(`- Target client: '${clientName}'`);
+    console.error(`- Target client: '${componentName}'`);
     console.error(`- Error type: ${error.constructor.name}`);
     
     if (error.response) {
@@ -257,14 +250,13 @@ Given('the role {string} exists in the Identity Platform', async function (roleN
   }
 });
 
-When('I DELETE the PermissionSpecificationSet {string} from the TMF672 API', async function (permissionSpecName) {
+When('I DELETE the PermissionSpecificationSet {string} from the {string} component', async function (permissionSpecName, componentName) {
   console.log('\n=== Starting PermissionSpecificationSet Deletion Test ===');
   console.log(`Target PermissionSpecificationSet to delete: '${permissionSpecName}'`);
-  
-  const componentName = 'productcatalogmanagement';
-  
+  console.log(`Target component: '${componentName}'`);
+
   // Get the ExposedAPI resource to find the correct API URL
-  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('userrolesandpermissions', componentName, global.currentReleaseName, NAMESPACE);
+  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('userrolesandpermissions', componentName, NAMESPACE);
   
   assert.ok(exposedAPIResource, 'The userrolesandpermissions ExposedAPI resource should be available');
   assert.ok(exposedAPIResource.status && exposedAPIResource.status.apiStatus && exposedAPIResource.status.apiStatus.url, 'The ExposedAPI should have a URL in its status');
@@ -338,23 +330,23 @@ When('I DELETE the PermissionSpecificationSet {string} from the TMF672 API', asy
   }
 });
 
-Then('the role {string} should be removed from the Identity Platform for client {string}', async function (roleName, clientName) {
+Then('the role {string} should be removed from the Identity Platform for {string} component', async function (roleName, componentName) {
   console.log('\n=== Verifying Role Removal from Identity Platform ===');
-  console.log(`Verifying role '${roleName}' has been removed from client '${clientName}'`);
-  
+  console.log(`Verifying role '${roleName}' has been removed from component '${componentName}'`);
+
   // Wait a moment for the async processing to complete
   await new Promise(resolve => setTimeout(resolve, 2000));
   
   try {
-    // Get all roles for the specified client from Keycloak
-    const clientRoles = await identityManagerUtils.getRolesForClient(clientName);
-    
+    // Get all roles for the specified component from Keycloak
+    const componentRoles = await identityManagerUtils.getRolesForClient(componentName);
+
     // Check if the role no longer exists
-    const roleExists = clientRoles.includes(roleName);
+    const roleExists = componentRoles.includes(roleName);
     
-    assert.ok(!roleExists, `Role '${roleName}' should not exist in Identity Platform for client '${clientName}'. Found roles: ${clientRoles.join(', ')}`);
+    assert.ok(!roleExists, `Role '${roleName}' should not exist in Identity Platform for client '${componentName}'. Found roles: ${componentRoles.join(', ')}`);
     
-    console.log(`Verified role '${roleName}' was removed from Identity Platform for client '${clientName}'`);
+    console.log(`Verified role '${roleName}' was removed from Identity Platform for client '${componentName}'`);
     
   } catch (error) {
     console.error(`Error checking role removal in Identity Platform: ${error.message}`);
@@ -362,15 +354,12 @@ Then('the role {string} should be removed from the Identity Platform for client 
   }
 });
 
-Given('the {string} component has an existing PermissionSpecificationSet {string}', async function (componentPackage, permissionSpecName) {
+Given('the {string} component has an existing PermissionSpecificationSet {string}', async function (componentName, permissionSpecName) {
   console.log('\n=== Starting PermissionSpecificationSet Setup Verification ===');
   console.log(`Required PermissionSpecificationSet: '${permissionSpecName}'`);
   
-  // This step ensures a permission specification set exists before testing updates/deletes
-  const componentName = 'productcatalogmanagement';
-  
   // Get the ExposedAPI resource to find the correct API URL
-  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('userrolesandpermissions', componentName, global.currentReleaseName, NAMESPACE);
+  const exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource('userrolesandpermissions', componentName, NAMESPACE);
   
   assert.ok(exposedAPIResource, 'The userrolesandpermissions ExposedAPI resource should be available');
   assert.ok(exposedAPIResource.status && exposedAPIResource.status.apiStatus && exposedAPIResource.status.apiStatus.url, 'The ExposedAPI should have a URL in its status');
@@ -465,21 +454,21 @@ Given('the {string} component has an existing PermissionSpecificationSet {string
   }
 });
 
-Then('the client {string} should be removed from the Identity Platform', async function (clientName) {
+Then('the client {string} should be removed from the Identity Platform', async function (componentName) {
   console.log('\n=== Starting Identity Platform Client Removal Verification ===');
-  console.log(`Verifying client '${clientName}' has been removed from Identity Platform`);
+  console.log(`Verifying client '${componentName}' has been removed from Identity Platform`);
   
   // Wait a moment for the async processing to complete
   await new Promise(resolve => setTimeout(resolve, 2000));
   
   try {
     // Check if the client still exists in Keycloak
-    const clientExists = await identityManagerUtils.clientExists(clientName);
+    const clientExists = await identityManagerUtils.clientExists(componentName);
     
     if (!clientExists) {
-      console.log(`✅ Client removal verification successful: '${clientName}' has been removed from Identity Platform`);
+      console.log(`✅ Client removal verification successful: '${componentName}' has been removed from Identity Platform`);
     } else {
-      console.error(`❌ Client removal verification failed: '${clientName}' still exists in Identity Platform`);
+      console.error(`❌ Client removal verification failed: '${componentName}' still exists in Identity Platform`);
       console.error('This could indicate:');
       console.error('- Canvas Identity Config operator is not running');
       console.error('- Component deletion event was not received by identity listener');
@@ -488,14 +477,14 @@ Then('the client {string} should be removed from the Identity Platform', async f
       console.error('- Client deletion is not implemented in the identity management workflow');
     }
     
-    assert.ok(!clientExists, `Client '${clientName}' should not exist in Identity Platform after removal`);
+    assert.ok(!clientExists, `Client '${componentName}' should not exist in Identity Platform after removal`);
     
     console.log('=== Identity Platform Client Removal Verification Complete ===');
     
   } catch (error) {
     console.error('❌ Error during Identity Platform client removal verification:', error.message);
     console.error('Error details:');
-    console.error(`- Target client: '${clientName}'`);
+    console.error(`- Target client: '${componentName}'`);
     console.error(`- Error type: ${error.constructor.name}`);
     
     if (error.response) {

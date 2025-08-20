@@ -82,6 +82,23 @@ The utilities follow a modular architecture where each utility module focuses on
 
 **Usage**: Used across multiple step definition files (`ComponentManagementSteps.js`, `APIManagementSteps.js`, `IdentityManagementSteps.js`, `APIGatewayManagementSteps.js`) for Kubernetes resource management and validation.
 
+### 5. observability-utils-kubernetes
+**Purpose**: Provides utilities for testing ODA Canvas observability features, specifically ServiceMonitor resources used by the Prometheus Operator for metrics collection.
+
+**Key Functions**:
+- `getServiceMonitor(serviceMonitorName, namespace)` - Retrieves ServiceMonitor resources
+- `listServiceMonitors(namespace)` - Lists all ServiceMonitor resources in a namespace
+- `serviceMonitorExists(serviceMonitorName, namespace)` - Checks if a ServiceMonitor exists
+- `validateServiceMonitorConfig(serviceMonitor, expectedConfig)` - Validates ServiceMonitor configuration
+- `waitForServiceMonitor(serviceMonitorName, namespace, timeoutMs)` - Waits for ServiceMonitor creation
+- `waitForServiceMonitorDeletion(serviceMonitorName, namespace, timeoutMs)` - Waits for ServiceMonitor deletion
+- `getServiceMonitorConfig(serviceMonitorName, namespace)` - Extracts ServiceMonitor configuration details
+
+**Dependencies**:
+- `@kubernetes/client-node` - Kubernetes API client for custom resources
+
+**Usage**: Used in `ObservabilitySteps.js` for testing ServiceMonitor creation, configuration, and cleanup as part of ODA Component observability testing.
+
 ## Standards and Structure
 
 ### File Naming Convention

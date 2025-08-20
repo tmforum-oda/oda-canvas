@@ -12,8 +12,8 @@ Feature: UC002-F005 Install Component into other namespace
         Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
 
     Examples:
-    | PackageName       | ReleaseName | Namespace   | ExposedAPIName           | ComponentName            |
-    | productcatalog-v1 |  pcother    | odacompns-1 | productcatalogmanagement | productcatalogmanagement |
-    | productcatalog-v1 |  pcother    | odacompns-1 | metrics                  | productcatalogmanagement |
-    | productcatalog-v1 |  pcother    | odacompns-1 | partyrole                | productcatalogmanagement |
+    | PackageName       | ReleaseName | Namespace   | ExposedAPIName           | ComponentName                    |
+    | productcatalog-v1 |  pcother    | odacompns-1 | productcatalogmanagement | pcother-productcatalogmanagement |
+    | productcatalog-v1 |  pcother    | odacompns-1 | metrics                  | pcother-productcatalogmanagement |
+    | productcatalog-v1 |  pcother    | odacompns-1 | partyrole                | pcother-productcatalogmanagement |
 
