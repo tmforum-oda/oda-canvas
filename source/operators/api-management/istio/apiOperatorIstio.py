@@ -143,7 +143,7 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
     """
 
     try:
-            
+
         componentName = labels["oda.tmforum.org/componentName"]
 
         logWrapper(
@@ -239,7 +239,7 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e)  # allow the operator to retry
     except Exception as e:
-        logWrapper.error(f"Unhandled exception {e}: {traceback.format_exc()}")    
+        logWrapper.error(f"Unhandled exception {e}: {traceback.format_exc()}")
 
 
 def createOrPatchObservability(patch, spec, namespace, name, inHandler, componentName):
@@ -354,12 +354,6 @@ def createOrPatchPrometheusAnnotation(
             pod.metadata.annotations = {}
 
         pod.metadata.annotations["prometheus.io/scrape"] = "true"
-
-        # Optionally, set path and port if available in spec
-        if "path" in spec.keys():
-            pod.metadata.annotations["prometheus.io/path"] = spec["path"]
-        if "port" in spec.keys():
-            pod.metadata.annotations["prometheus.io/port"] = str(spec["port"])
 
         logWrapper(
             logging.INFO,
@@ -1370,7 +1364,7 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
     """
 
     try:
-            
+
         if "apiStatus" in status.keys():
             if "url" in status["apiStatus"].keys():
                 if "ownerReferences" in meta.keys():
@@ -1379,12 +1373,14 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
 
                     try:
                         custom_objects_api = kubernetes.client.CustomObjectsApi()
-                        parent_component = custom_objects_api.get_namespaced_custom_object(
-                            group=GROUP,
-                            version=VERSION,
-                            namespace=namespace,
-                            plural=COMPONENTS_PLURAL,
-                            name=parent_component_name,
+                        parent_component = (
+                            custom_objects_api.get_namespaced_custom_object(
+                                group=GROUP,
+                                version=VERSION,
+                                namespace=namespace,
+                                plural=COMPONENTS_PLURAL,
+                                name=parent_component_name,
+                            )
                         )
                     except ApiException as e:
                         # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
@@ -1415,9 +1411,9 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
                                 parent_component["status"]["coreAPIs"][key]["uid"]
                                 == meta["uid"]
                             ):
-                                parent_component["status"]["coreAPIs"][key]["url"] = status[
-                                    "apiStatus"
-                                ]["url"]
+                                parent_component["status"]["coreAPIs"][key]["url"] = (
+                                    status["apiStatus"]["url"]
+                                )
                                 logWrapper(
                                     logging.INFO,
                                     "updateAPIStatus",
@@ -1433,14 +1429,16 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
                                     ] = status["apiStatus"]["developerUI"]
 
                     if "managementAPIs" in parent_component["status"].keys():
-                        for key in range(len(parent_component["status"]["managementAPIs"])):
+                        for key in range(
+                            len(parent_component["status"]["managementAPIs"])
+                        ):
                             if (
                                 parent_component["status"]["managementAPIs"][key]["uid"]
                                 == meta["uid"]
                             ):
-                                parent_component["status"]["managementAPIs"][key]["url"] = (
-                                    status["apiStatus"]["url"]
-                                )
+                                parent_component["status"]["managementAPIs"][key][
+                                    "url"
+                                ] = status["apiStatus"]["url"]
                                 logWrapper(
                                     logging.INFO,
                                     "updateAPIStatus",
@@ -1456,14 +1454,16 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
                                     ] = status["apiStatus"]["developerUI"]
 
                     if "securityAPIs" in parent_component["status"].keys():
-                        for key in range(len(parent_component["status"]["securityAPIs"])):
+                        for key in range(
+                            len(parent_component["status"]["securityAPIs"])
+                        ):
                             if (
                                 parent_component["status"]["securityAPIs"][key]["uid"]
                                 == meta["uid"]
                             ):
-                                parent_component["status"]["securityAPIs"][key]["url"] = (
-                                    status["apiStatus"]["url"]
-                                )
+                                parent_component["status"]["securityAPIs"][key][
+                                    "url"
+                                ] = status["apiStatus"]["url"]
                                 logWrapper(
                                     logging.INFO,
                                     "updateAPIStatus",
@@ -1488,7 +1488,7 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e)  # allow the operator to retry
     except Exception as e:
-        logWrapper.error(f"Unhandled exception {e}: {traceback.format_exc()}")     
+        logWrapper.error(f"Unhandled exception {e}: {traceback.format_exc()}")
 
 
 @kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.implementation", retries=5)
@@ -1512,7 +1512,7 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
     :meta public:
     """
     try:
-            
+
         if "ready" in status["implementation"].keys():
             if status["implementation"]["ready"] == True:
                 if "ownerReferences" in meta.keys():
@@ -1521,12 +1521,14 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
 
                     try:
                         custom_objects_api = kubernetes.client.CustomObjectsApi()
-                        parent_component = custom_objects_api.get_namespaced_custom_object(
-                            GROUP,
-                            VERSION,
-                            namespace,
-                            COMPONENTS_PLURAL,
-                            parent_component_name,
+                        parent_component = (
+                            custom_objects_api.get_namespaced_custom_object(
+                                GROUP,
+                                VERSION,
+                                namespace,
+                                COMPONENTS_PLURAL,
+                                parent_component_name,
+                            )
                         )
                     except ApiException as e:
                         # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
@@ -1602,7 +1604,9 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
                             parent_component["status"]["securityAPIs"][key]["uid"]
                             == meta["uid"]
                         ):
-                            parent_component["status"]["securityAPIs"][key]["ready"] = True
+                            parent_component["status"]["securityAPIs"][key][
+                                "ready"
+                            ] = True
                             logWrapper(
                                 logging.INFO,
                                 "updateAPIReady",
@@ -1620,11 +1624,12 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
                             )
                             return None
         return None
-    
+
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e)  # allow the operator to retry
     except Exception as e:
-        logWrapper.error(f"Unhandled exception {e}: {traceback.format_exc()}")  
+        logWrapper.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+
 
 async def patchComponent(namespace, name, component, inHandler):
     """Helper function to patch a component.
