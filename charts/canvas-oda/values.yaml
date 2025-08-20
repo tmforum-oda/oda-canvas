@@ -403,8 +403,7 @@ api-operator-kong:
       ingressClass:
         enabled: false
         name: nginx
-      dataDog:
-        enabled: true
+    openMetricsImplementation: "PrometheusAnnotation"  # Options: ServiceMonitor, PrometheusAnnotation, DataDogAnnotation
     configmap:
       loglevel: '20'
       # publicHostname: 'components.example.com'
@@ -452,8 +451,8 @@ api-operator-kong:
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
       kongopImage: tmforumodacanvas/api-operator-kong
-      kongopVersion: 1.0.1
-      kongopPrereleaseSuffix:
+      kongopVersion: 1.1.0
+      kongopPrereleaseSuffix: feature-84
       pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
 
@@ -488,8 +487,8 @@ api-operator-apisix:
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
     apisixopImage: tmforumodacanvas/api-operator-apisix
-    apisixopVersion: 1.0.1
-    apisixopPrereleaseSuffix:
+    apisixopVersion: 1.1.0
+    apisixopPrereleaseSuffix: feature-84
     pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
@@ -501,8 +500,7 @@ api-operator-apisix:
     ingressClass:
       enabled: false
       name: nginx
-    dataDog:
-      enabled: false
+    openMetricsImplementation: "PrometheusAnnotation"  # Options: ServiceMonitor, PrometheusAnnotation, DataDogAnnotation
   configmap:
     loglevel: '20'
     # publicHostname: 'components.example.com'

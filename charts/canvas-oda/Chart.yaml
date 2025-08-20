@@ -17,7 +17,7 @@ type: application
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
 version: 1.2.4-LT3
-# version: 1.2.4-LT3 - added PrometheusAnnotation option for openmetrics scraping on APIOpeator for Istio
+# version: 1.2.4-LT3 - added PrometheusAnnotation option for openmetrics scraping on APIOpeator for Istio, Kong and apisix
 # version: 1.2.4-LT2 - added resource-inventory API for viewing components and exposed APIs in the canvas
 # version: 1.2.4-LM1 - Added support for custom/private docker registry and image pull secrets
 # version: 1.2.4-LT1 - added permissionSpecificationSet API for configuring roles
@@ -89,7 +89,7 @@ dependencies:
     version: "1.2.7"
     repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
-    version: "1.1.3"
+    version: "1.1.4"
     repository: 'file://../api-operator-istio'
     condition: api-operator-istio.enabled
   - name: dependentapi-simple-operator
@@ -107,11 +107,11 @@ dependencies:
     version: "1.2.2"
     repository: 'file://../oda-webhook'
   - name: api-operator-kong
-    version: "1.0.3"
+    version: "1.1.0"
     repository: 'file://../kong-gateway'
     condition: kong-gateway-install.enabled
   - name: api-operator-apisix
-    version: "1.0.3"
+    version: "1.1.0"
     repository: 'file://../apisix-gateway'
     condition: apisix-gateway-install.enabled
   - name: canvas-info-service

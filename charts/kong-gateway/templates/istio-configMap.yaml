@@ -10,9 +10,7 @@ data:
   {{- if .Values.deployment.ingressClass.enabled }}
   INGRESS_CLASS: {{ .Values.deployment.ingressClass.name }}
   {{ end }}
-  {{- if .Values.deployment.dataDog.enabled }}
-  OPENMETRICS_IMPLEMENTATION: "DataDogAnnotation"
-  {{ end }}
+  OPENMETRICS_IMPLEMENTATION: {{ .Values.deployment.openMetricsImplementation }}
   {{- if .Values.configmap.publicHostname }}
   APIOPERATORISTIO_PUBLICHOSTNAME: {{ .Values.configmap.publicHostname }}
   {{ end }}
