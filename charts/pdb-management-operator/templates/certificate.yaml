@@ -1,0 +1,28 @@
+{{- if .Values.deployment.enableWebhook }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-serving-cert
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+spec:
+  dnsNames:
+  - {{ include "pdb-management-operator.fullname" . }}-webhook-service.{{ .Release.Namespace }}.svc
+  - {{ include "pdb-management-operator.fullname" . }}-webhook-service.{{ .Release.Namespace }}.svc.cluster.local
+  secretName: {{ include "pdb-management-operator.fullname" . }}-webhook-server-cert
+  privateKey:
+    rotationPolicy: Always
+  issuerRef:
+    name: {{ include "pdb-management-operator.fullname" . }}-selfsigned-issuer
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-selfsigned-issuer
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+spec:
+  selfSigned: {}
+{{- end }}

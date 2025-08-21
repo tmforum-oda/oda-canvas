@@ -1,0 +1,53 @@
+imagePullSecrets: []
+
+deployment:
+  operatorName: pdb-management-operator
+  image: tmforumodacanvas/pdb-management-operator
+  version: 1.0.0
+  prereleaseSuffix: 
+  imagePullPolicy: IfNotPresent
+  replicas: 2
+  watchNamespace: ''
+  enableWebhook: true
+  enableMetrics: true
+  metricsAddr: "0.0.0.0:8080"
+  probeAddr: "0.0.0.0:8081"
+
+observability:
+  logLevel: "info"
+  tracing:
+    enabled: false
+    backend: ""
+    jaegerEndpoint: ""
+    otlpEndpoint: ""
+    sampleRate: "1.0"
+
+configuration:
+  enablePDB: true
+  defaultNamespace: "default"
+  metricsNamespace: "canvas"
+  leaderElectionNamespace: "canvas"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+serviceAccount:
+  create: true
+  name: pdb-management-operator
+
+service:
+  create: true
+  name: pdb-management-operator-service
+  port: 443
+  targetPort: 8443
+
+extraEnvVars: []
+
+extraVolumes: []
+
+extraVolumeMounts: []

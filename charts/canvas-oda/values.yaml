@@ -370,25 +370,27 @@ pdb-management-operator:
   # Deployment configuration
   deployment:
     operatorName: pdb-management-operator
-    monitoredNamespaces: 'components,odacompns-*'
+    watchNamespace: ''
     enableWebhook: true
     enableMetrics: true
-    enableTracing: true
     metricsAddr: "0.0.0.0:8080"
     probeAddr: "0.0.0.0:8081"
   
   # Observability configuration
   observability:
-    # INFO=20, DEBUG=10
-    logLevel: 20
-    enableAuditLogging: true
-    enableStructuredLogging: true
+    logLevel: "info"
+    tracing:
+      enabled: false
+      jaegerEndpoint: ""
+      otlpEndpoint: ""
+      sampleRate: "1.0"
     
-  # Policy enforcement configuration
-  enforcement:
-    defaultMode: "flexible"  # strict|flexible|advisory
-    allowOverride: true
-    requireOverrideReason: true
+  # Operator configuration
+  configuration:
+    enablePDB: true
+    defaultNamespace: "default"
+    metricsNamespace: "canvas"
+    leaderElectionNamespace: "canvas"
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
