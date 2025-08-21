@@ -15,7 +15,9 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.3.1
+version: 1.4.1
+# version: 1.4.1 - Added support for custom/private docker registry and image pull secrets
+# version: 1.4.0 - Added support for User Roles and Permissions API
 # version: 1.3.1 - issue 448 - support multiple component namespaces: remove namespaced role, fix KOPF command
 # version: 1.3.0 - updated to use v1 of CRD spec
 # version: 1.2.2 - changed seccon user to canvassystem and keycloak realm to odari

@@ -5,24 +5,24 @@ const packageManagerUtils = require('package-manager-utils-helm');
 const identityManagerUtils = require('identity-manager-utils-keycloak');
 
 const { Given, When, Then, After, setDefaultTimeout, Before } = require('@cucumber/cucumber');
-const chai = require('chai')
-const chaiHttp = require('chai-http')
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const assert = require('assert');
-chai.use(chaiHttp)
+chai.use(chaiHttp);
 
-const NAMESPACE = 'components'
-const DEFAULT_RELEASE_NAME = 'ctk'
-const COMPONENT_DEPLOY_TIMEOUT = 100 * 1000 // 100 seconds
-const API_DEPLOY_TIMEOUT = 10 * 1000 // 10 seconds
-const API_URL_TIMEOUT = 60 * 1000 // 60 seconds
-const API_READY_TIMEOUT = 120 * 1000 // 60 seconds
-const TIMEOUT_BUFFER = 5 * 1000 // 5 seconds as additional buffer to the timeouts above for the wrapping function
-const CLEANUP_PACKAGE = false // set to true to uninstall the package after each Scenario
-const DEBUG_LOGS = true // set to true to log the controller logs after each failed Scenario
+const NAMESPACE = 'components';
+const DEFAULT_RELEASE_NAME = 'ctk';
+const COMPONENT_DEPLOY_TIMEOUT = 100 * 1000; // 100 seconds
+const API_DEPLOY_TIMEOUT = 10 * 1000; // 10 seconds
+const API_URL_TIMEOUT = 60 * 1000; // 60 seconds
+const API_READY_TIMEOUT = 120 * 1000; // 120 seconds
+const TIMEOUT_BUFFER = 5 * 1000; // 5 seconds as additional buffer to the timeouts above for the wrapping function
+const CLEANUP_PACKAGE = false; // set to true to uninstall the package after each Scenario
+const DEBUG_LOGS = false; // set to true to log the controller logs after each failed Scenario
 global.currentReleaseName = null;
 global.namespace = null;
 
-setDefaultTimeout( 20 * 1000);
+setDefaultTimeout(20 * 1000);
 
 
 
@@ -41,11 +41,44 @@ Before({ tags: '@SkipTest' }, async function () {
  * @param {string} componentName - The name of the component.
  * @param {string} numberOfAPIs - The expected number of ExposedAPIs in the component segment.
  * @param {string} componentSegmentName - The name of the component segment.
+ * @returns {Promise<void>} - A Promise that resolves when the verification is complete.
  */
 Given('an example package {string} with a {string} component with {string} ExposedAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
-  exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
-  // assert that there are the correct number of ExposedAPIs in the componentSegment
-  assert.ok(exposedAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " ExposedAPI")
+  console.log('\n=== Starting Package ExposedAPI Verification ===');
+  console.log(`Verifying package '${componentPackage}' component '${componentName}' has ${numberOfAPIs} ExposedAPI(s) in '${componentSegmentName}' segment`);
+  
+  try {
+    const exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName);
+    
+    // Assert that there are the correct number of ExposedAPIs in the componentSegment
+    assert.ok(exposedAPIs.length == numberOfAPIs, `The '${componentSegmentName}' segment should contain ${numberOfAPIs} ExposedAPI(s), but found ${exposedAPIs.length}`);
+    
+    console.log(`✅ Successfully verified ${exposedAPIs.length} ExposedAPI(s) in '${componentSegmentName}' segment`);
+    
+    if (DEBUG_LOGS) {
+      console.log('Found ExposedAPIs:', JSON.stringify(exposedAPIs, null, 2));
+    }
+    
+    console.log('=== Package ExposedAPI Verification Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error during package ExposedAPI verification: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Package: '${componentPackage}'`);
+    console.error(`- Component: '${componentName}'`);
+    console.error(`- Expected ExposedAPIs: ${numberOfAPIs}`);
+    console.error(`- Component segment: '${componentSegmentName}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    console.error('Possible causes:');
+    console.error('- Package does not exist or is not accessible');
+    console.error('- Component segment not found in package');
+    console.error('- ExposedAPI definitions missing or malformed in package');
+    console.error('- Package manager utility configuration issue');
+    
+    console.log('=== Package ExposedAPI Verification Failed ===');
+    throw error;
+  }
 });
 
 /**
@@ -55,22 +88,89 @@ Given('an example package {string} with a {string} component with {string} Expos
  * @param {string} componentName - The name of the component.
  * @param {string} numberOfAPIs - The expected number of DependentAPIs in the component segment.
  * @param {string} componentSegmentName - The name of the component segment.
+ * @returns {Promise<void>} - A Promise that resolves when the verification is complete.
  */
 Given('an example package {string} with a {string} component with {string} DependentAPI in its {string} segment', async function (componentPackage, componentName, numberOfAPIs, componentSegmentName) {
-  dependentAPIs = packageManagerUtils.getDependentAPIsFromPackage(componentPackage, 'ctk', componentSegmentName)
-  // assert that there are the correct number of DependentAPI in the componentSegment
-  assert.ok(dependentAPIs.length == numberOfAPIs, "The componentSegment should contain " + numberOfAPIs + " DependentAPI")
+  console.log('\n=== Starting Package DependentAPI Verification ===');
+  console.log(`Verifying package '${componentPackage}' component '${componentName}' has ${numberOfAPIs} DependentAPI(s) in '${componentSegmentName}' segment`);
+  
+  try {
+    const dependentAPIs = packageManagerUtils.getDependentAPIsFromPackage(componentPackage, 'ctk', componentSegmentName);
+    
+    // Assert that there are the correct number of DependentAPI in the componentSegment
+    assert.ok(dependentAPIs.length == numberOfAPIs, `The '${componentSegmentName}' segment should contain ${numberOfAPIs} DependentAPI(s), but found ${dependentAPIs.length}`);
+    
+    console.log(`✅ Successfully verified ${dependentAPIs.length} DependentAPI(s) in '${componentSegmentName}' segment`);
+    
+    if (DEBUG_LOGS) {
+      console.log('Found DependentAPIs:', JSON.stringify(dependentAPIs, null, 2));
+    }
+    
+    console.log('=== Package DependentAPI Verification Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error during package DependentAPI verification: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Package: '${componentPackage}'`);
+    console.error(`- Component: '${componentName}'`);
+    console.error(`- Expected DependentAPIs: ${numberOfAPIs}`);
+    console.error(`- Component segment: '${componentSegmentName}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    console.error('Possible causes:');
+    console.error('- Package does not exist or is not accessible');
+    console.error('- Component segment not found in package');
+    console.error('- DependentAPI definitions missing or malformed in package');
+    console.error('- Package manager utility configuration issue');
+    
+    console.log('=== Package DependentAPI Verification Failed ===');
+    throw error;
+  }
 });
 
 /**
  * Install a specified package using the packageManagerUtils.installPackage function. Use the default release name.
  *
  * @param {string} componentPackage - The name of the package to install.
+ * @returns {Promise<void>} - A Promise that resolves when the package is installed.
  */
 When('I install the {string} package', async function (componentPackage) {
-	global.currentReleaseName = DEFAULT_RELEASE_NAME
-	global.namespace = null
-  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+  console.log('\n=== Starting Package Installation ===');
+  console.log(`Installing package '${componentPackage}' with default release name '${DEFAULT_RELEASE_NAME}'`);
+  
+  try {
+    global.currentReleaseName = DEFAULT_RELEASE_NAME;
+    global.namespace = null
+    await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE);
+    
+    console.log(`✅ Successfully installed package '${componentPackage}' as release '${global.currentReleaseName}'`);
+    console.log('=== Package Installation Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error during package installation: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Package: '${componentPackage}'`);
+    console.error(`- Release name: '${DEFAULT_RELEASE_NAME}'`);
+    console.error(`- Namespace: '${NAMESPACE}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    if (error.response) {
+      console.error('HTTP Response error details:');
+      console.error(`- Status: ${error.response.status}`);
+      console.error(`- Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      console.error(`- Body: ${JSON.stringify(error.response.body, null, 2)}`);
+    }
+    
+    console.error('Possible causes:');
+    console.error('- Package not found in configured repositories');
+    console.error('- Helm/package manager not properly configured');
+    console.error('- Insufficient permissions to install packages');
+    console.error('- Network connectivity issues to package repository');
+    console.error('- Kubernetes cluster access issues');
+    
+    console.log('=== Package Installation Failed ===');
+    throw error;
+  }
 });
 
 /**
@@ -145,6 +245,61 @@ When('I upgrade the {string} package as release {string}', async function (compo
 Given('an example package {string} has been installed', async function (componentPackage) {
   global.currentReleaseName = DEFAULT_RELEASE_NAME
   await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
+});
+
+/**
+ * Ensure only the specified package is installed by uninstalling all other helm packages except CTK releases,
+ * then installing the named package as release ctk.
+ *
+ * @param {string} componentPackage - The name of the package that should be the only one installed.
+ */
+Given('only the {string} package is installed', async function (componentPackage) {
+  console.log('\n=== Starting Clean Installation Setup ===');
+  console.log(`Ensuring only '${componentPackage}' package is installed as release 'ctk'`);
+  
+  try {
+    // First, get a list of all installed helm releases
+    console.log('Getting list of all installed helm releases...');
+    const releases = packageManagerUtils.listInstalledPackages(NAMESPACE);
+    
+    // Uninstall all releases except those starting with 'ctk'
+    for (const release of releases) {
+      if (!release.name.startsWith('ctk')) {
+        console.log(`Uninstalling release '${release.name}'...`);
+        await packageManagerUtils.uninstallPackage(release.name, NAMESPACE);
+      } else {
+        console.log(`Keeping CTK release '${release.name}'`);
+      }
+    }
+    
+    // Set the global release name to ctk
+    global.currentReleaseName = 'ctk';
+    global.namespace = null;
+    
+    // Install the specified package as release 'ctk'
+    console.log(`Installing '${componentPackage}' as release 'ctk'...`);
+    await packageManagerUtils.installPackage(componentPackage, 'ctk', NAMESPACE);
+    
+    console.log(`✅ Successfully ensured only '${componentPackage}' is installed as release 'ctk'`);
+    console.log('=== Clean Installation Setup Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error during clean installation setup: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Package: '${componentPackage}'`);
+    console.error(`- Namespace: '${NAMESPACE}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    console.error('Possible causes:');
+    console.error('- Package not found in configured repositories');
+    console.error('- Helm/package manager not properly configured');
+    console.error('- Insufficient permissions to install/uninstall packages');
+    console.error('- Network connectivity issues to package repository');
+    console.error('- Kubernetes cluster access issues');
+    
+    console.log('=== Clean Installation Setup Failed ===');
+    throw error;
+  }
 });
 
 /**
@@ -356,9 +511,14 @@ Then('I should not see the {string} component after {string} release uninstall f
  * Code executed before each scenario.
  */
 Before(async function (scenario) {
+  console.log('\n\n============================================================================')
+  console.log(`Feature:    ${scenario.gherkinDocument.feature.name}`);
+  console.log(`Tags:       ${scenario.pickle.tags.map(tag => tag.name).join(', ')}`);
+  console.log(`Scenario:   ${scenario.pickle.name}`);
+
+
   if (DEBUG_LOGS) {
-    console.log()
-    console.log('==================================================================')
+    console.log('\n============================================================================')
     const scenarioName = scenario.pickle.name;
     console.log(`Running scenario: ${scenarioName}`);
     console.log('Scenario started at: ' + new Date().toISOString())

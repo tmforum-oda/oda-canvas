@@ -257,3 +257,19 @@ pdb-management-operator:
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
+tmf639-resource-inventory-api:
+  displayName: TMF-639 Resource Inventory API
+  fileName: tmf639-resource-inventory-api
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .resource-inventory.image
+  valuesPathVersion: .resource-inventory.version
+  valuesPathPrereleaseSuffix: .resource-inventory.prereleaseSuffix
+  
+  paths:
+    - source/tmf-services/TMF639_Resource_Inventory/**/*
+  buildContext: source/tmf-services/TMF639_Resource_Inventory
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile: 
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64

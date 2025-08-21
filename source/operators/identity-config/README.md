@@ -24,7 +24,7 @@ kind: IdentityConfig
 metadata:
   name: ctk-productcatalogmanagementproductcatalogmanagement # Kubernetes resource name for the instance of the IdentityConfig
 spec:
-  canvasSystemRole: Admin
+  canvasSystemRole: CanvasRole
   componentRole:
   - description: Product Catalogue Administrator
     name: pcadmin
@@ -34,7 +34,7 @@ spec:
     name: cat2owner
 ```
 
-IdentityConfig with dynamically defined roles. At present this uses the TMF669 Party Role Management API; In the future this will be updated to use the TMF672 User Roles and Permissions API.
+IdentityConfig with dynamically defined roles. At present, this uses the TMF672 User Roles and Permissions API, while support for the TMF669 Party Role Management API will be deprecated in the future.
 
 ```yaml
 apiVersion: oda.tmforum.org/v1
@@ -42,7 +42,20 @@ kind: IdentityConfig
 metadata:
   name: ctk-productcatalogmanagementproductcatalogmanagement # Kubernetes resource name for the instance of the IdentityConfig
 spec:
-  canvasSystemRole: Admin
+  canvasSystemRole: CanvasRole
+  permissionSpecificationSetAPI:
+    implementation: ctk-permissionspecapi
+    path: /ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5
+    port: 8080
+```
+
+```yaml
+apiVersion: oda.tmforum.org/v1
+kind: IdentityConfig
+metadata:
+  name: ctk-productcatalogmanagementproductcatalogmanagement # Kubernetes resource name for the instance of the IdentityConfig
+spec:
+  canvasSystemRole: CanvasRole
   partyRoleAPI:
     implementation: ctk-partyroleapi
     path: /ctk-productcatalogmanagement/tmf-api/partyRoleManagement/v4
