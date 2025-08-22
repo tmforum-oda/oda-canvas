@@ -5,7 +5,7 @@ metadata:
     control-plane: controller-manager
     app.kubernetes.io/name: pdb-management
     app.kubernetes.io/managed-by: kustomize
-  name: controller-manager-metrics-service
+  name: metrics
   namespace: canvas
 spec:
   ports:
