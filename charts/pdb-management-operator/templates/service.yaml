@@ -21,7 +21,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "pdb-management-operator.fullname" . }}-controller-manager-metrics-service
+  name: {{ include "pdb-management-operator.fullname" . }}-metrics
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "pdb-management-operator.labels" . | nindent 4 }}
