@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: production-app
+  namespace: pdb-demo
+  labels:
+    env: production
+  annotations:
+    oda.tmforum.org/availability-class: "standard"  # Developer wants 50%
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: prod
+  template:
+    metadata:
+      labels:
+        app: prod
+        env: production
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine

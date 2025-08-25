@@ -1,0 +1,25 @@
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: security-policy-high
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible
+  componentSelector:
+    matchLabels:
+      security-tier: critical
+  priority: 500
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: security-policy-mission
+  namespace: canvas
+spec:
+  availabilityClass: mission-critical
+  enforcement: strict
+  componentSelector:
+    matchLabels:
+      security-tier: critical
+  priority: 800  # Higher priority

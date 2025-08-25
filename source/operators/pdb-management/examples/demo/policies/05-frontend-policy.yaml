@@ -1,0 +1,13 @@
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: frontend-policy
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      tier: frontend
+  priority: 100
+  enforcement: advisory  # Default - we'll explore this

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-proxy
+  namespace: pdb-demo
+  labels:
+    app.kubernetes.io/name: oauth2-proxy
+    app.kubernetes.io/component: authentication
+    security-tier: critical
+  annotations:
+    oda.tmforum.org/availability-class: "standard"  # Note: will be auto-upgraded
+    oda.tmforum.org/component-function: "security"
+    oda.tmforum.org/componentName: "TMF669-PartyRole-OAuth2Proxy"
+    oda.tmforum.org/description: "OAuth2 authentication proxy for all API access"
+    oda.tmforum.org/compliance-required: "GDPR,SOX,PCI-DSS"
+    security.oda.tmforum.org/auth-provider: "Azure-AD"
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        app: oauth2-proxy
+        security-component: "true"
+    spec:
+      containers:
+      - name: oauth2-proxy
+        image: quay.io/oauth2-proxy/oauth2-proxy:latest
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        env:
+        - name: OAUTH2_PROXY_PROVIDER
+          value: "azure"

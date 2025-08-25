@@ -1,0 +1,40 @@
+# APAC Policy
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: apac-policy
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible
+  minimumClass: standard
+  componentSelector:
+    matchLabels:
+      region: apac
+  maintenanceWindows:
+  - start: "02:00"
+    end: "04:00"
+    timezone: "Asia/Singapore"
+    daysOfWeek: [0, 6]
+  priority: 100
+
+---
+# EU Policy (GDPR Compliance)
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: eu-policy
+  namespace: canvas
+spec:
+  availabilityClass: mission-critical
+  enforcement: strict  # GDPR requires strict control
+  componentSelector:
+    matchLabels:
+      region: eu
+      data-processing: "true"
+  maintenanceWindows:
+  - start: "03:00"
+    end: "05:00"
+    timezone: "Europe/London"
+    daysOfWeek: [0]
+  priority: 200

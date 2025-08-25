@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resource-hungry
+  namespace: pdb-demo
+  annotations:
+    oda.tmforum.org/availability-class: "mission-critical"
+    oda.tmforum.org/description: "Testing resource constraint handling"
+spec:
+  replicas: 100  # More than cluster can handle
+  selector:
+    matchLabels:
+      app: resource-test
+  template:
+    metadata:
+      labels:
+        app: resource-test
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
+        resources:
+          requests:
+            memory: "10Gi"  # Intentionally large
+            cpu: "8000m"

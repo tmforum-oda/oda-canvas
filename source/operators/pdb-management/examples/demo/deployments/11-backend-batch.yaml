@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-batch
+  namespace: pdb-demo
+  labels:
+    tier: backend
+  annotations:
+    oda.tmforum.org/availability-class: "non-critical"  # Only 20%
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: backend-batch
+  template:
+    metadata:
+      labels:
+        app: backend-batch
+        tier: backend
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine

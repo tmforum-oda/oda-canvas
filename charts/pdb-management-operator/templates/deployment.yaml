@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "pdb-management-operator.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        {{- include "pdb-management-operator.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "pdb-management-operator.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: manager
+        image: {{ include "pdb-management-operator.dockerImage" . }}
+        imagePullPolicy: {{ include "pdb-management-operator.imagePullPolicy" . }}
+        command:
+        - /manager
+        args:
+        - --leader-elect
+        - --health-probe-bind-address={{ .Values.deployment.probeAddr }}
+        - --metrics-bind-address={{ .Values.deployment.metricsAddr }}
+        - --log-level={{ .Values.observability.logLevel }}
+        {{- if .Values.deployment.enableWebhook }}
+        - --enable-webhook=true
+        {{- else }}
+        - --enable-webhook=false
+        {{- end }}
+        {{- if .Values.observability.tracing.enabled }}
+        - --enable-tracing=true
+        {{- else }}
+        - --enable-tracing=false
+        {{- end }}
+        {{- if .Values.deployment.watchNamespace }}
+        - --watch-namespace={{ .Values.deployment.watchNamespace }}
+        {{- end }}
+        ports:
+        {{- if .Values.deployment.enableWebhook }}
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        {{- end }}
+        {{- if .Values.deployment.enableMetrics }}
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        {{- end }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - "ALL"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        env:
+        - name: ENABLE_PDB
+          value: {{ .Values.configuration.enablePDB | quote }}
+        - name: DEFAULT_NAMESPACE
+          value: {{ .Values.configuration.defaultNamespace | quote }}
+        - name: METRICS_NAMESPACE
+          value: {{ .Values.configuration.metricsNamespace | quote }}
+        - name: LEADER_ELECTION_NAMESPACE
+          value: {{ .Values.configuration.leaderElectionNamespace | quote }}
+        {{- if .Values.observability.tracing.enabled }}
+        {{- if .Values.observability.tracing.jaegerEndpoint }}
+        - name: JAEGER_ENDPOINT
+          value: {{ .Values.observability.tracing.jaegerEndpoint | quote }}
+        {{- end }}
+        {{- if .Values.observability.tracing.otlpEndpoint }}
+        - name: OTLP_ENDPOINT
+          value: {{ .Values.observability.tracing.otlpEndpoint | quote }}
+        {{- end }}
+        - name: TRACE_SAMPLE_RATE
+          value: {{ .Values.observability.tracing.sampleRate | quote }}
+        {{- end }}
+        {{- if .Values.extraEnvVars }}
+        {{- toYaml .Values.extraEnvVars | nindent 8 }}
+        {{- end }}
+        volumeMounts:
+        {{- if .Values.deployment.enableWebhook }}
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+        {{- end }}
+        {{- if .Values.extraVolumeMounts }}
+        {{- toYaml .Values.extraVolumeMounts | nindent 8 }}
+        {{- end }}
+      volumes:
+      {{- if .Values.deployment.enableWebhook }}
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: {{ include "pdb-management-operator.fullname" . }}-webhook-server-cert
+      {{- end }}
+      {{- if .Values.extraVolumes }}
+      {{- toYaml .Values.extraVolumes | nindent 6 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 10

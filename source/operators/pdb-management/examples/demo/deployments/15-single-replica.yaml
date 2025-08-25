@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: single-replica
+  namespace: pdb-demo
+  annotations:
+    oda.tmforum.org/availability-class: "mission-critical"
+spec:
+  replicas: 1  # Only one replica
+  selector:
+    matchLabels:
+      app: single
+  template:
+    metadata:
+      labels:
+        app: single
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine

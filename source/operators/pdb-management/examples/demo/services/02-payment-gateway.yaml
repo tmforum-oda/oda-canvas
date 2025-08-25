@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-gateway
+  namespace: pdb-demo
+  labels:
+    app.kubernetes.io/name: payment-gateway
+    app.kubernetes.io/component: payment
+    environment: production
+    tier: critical
+  annotations:
+    oda.tmforum.org/availability-class: "high-availability"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "PaymentGateway-v4.2.1"
+    oda.tmforum.org/description: "Critical payment processing service - handles all customer transactions"
+    oda.tmforum.org/sla-requirement: "99.9%"
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: payment-gateway
+  template:
+    metadata:
+      labels:
+        app: payment-gateway
+        version: v4.2.1
+    spec:
+      containers:
+      - name: payment-gateway
+        image: nginx:alpine
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"

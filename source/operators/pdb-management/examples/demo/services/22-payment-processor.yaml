@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-processor
+  namespace: pdb-demo
+  labels:
+    financial-service: "true"
+    compliance-tier: "pci-dss"
+    service-type: "payment"
+    region: "us-east-1"
+    app.kubernetes.io/name: payment-processor
+  annotations:
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "PaymentProcessor-PCI"
+    compliance.oda.tmforum.org/certification: "PCI-DSS-Level-1"
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: payment-processor
+  template:
+    metadata:
+      labels:
+        app: payment-processor
+        financial-service: "true"
+    spec:
+      containers:
+      - name: payment-processor
+        image: nginx:alpine  # Placeholder for demo
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        env:
+        - name: COMPLIANCE_MODE
+          value: "PCI_DSS_STRICT"

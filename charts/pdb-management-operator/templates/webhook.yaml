@@ -1,0 +1,71 @@
+{{- if .Values.deployment.enableWebhook }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-webhook-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+spec:
+  ports:
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 9443
+  selector:
+    {{- include "pdb-management-operator.selectorLabels" . | nindent 4 }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-availabilitypolicy-mutating-webhook-configuration
+  annotations:
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "pdb-management-operator.fullname" . }}-serving-cert
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+webhooks:
+- name: availabilitypolicy.availability.oda.tmforum.org
+  rules:
+  - apiGroups: ["availability.oda.tmforum.org"]
+    apiVersions: ["v1alpha1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["availabilitypolicies"]
+    scope: "Namespaced"
+  clientConfig:
+    service:
+      namespace: {{ .Release.Namespace }}
+      name: {{ include "pdb-management-operator.fullname" . }}-webhook-service
+      path: /mutate-availability-oda-tmforum-org-v1alpha1-availabilitypolicy
+      port: 443
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 10
+  failurePolicy: Fail
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-availabilitypolicy-validating-webhook-configuration
+  annotations:
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "pdb-management-operator.fullname" . }}-serving-cert
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+webhooks:
+- name: availabilitypolicy.availability.oda.tmforum.org
+  rules:
+  - apiGroups: ["availability.oda.tmforum.org"]
+    apiVersions: ["v1alpha1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["availabilitypolicies"]
+    scope: "Namespaced"
+  clientConfig:
+    service:
+      namespace: {{ .Release.Namespace }}
+      name: {{ include "pdb-management-operator.fullname" . }}-webhook-service
+      path: /validate-availability-oda-tmforum-org-v1alpha1-availabilitypolicy
+      port: 443
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 10
+  failurePolicy: Fail
+{{- end }}

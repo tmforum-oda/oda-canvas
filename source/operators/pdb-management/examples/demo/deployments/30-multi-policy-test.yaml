@@ -1,0 +1,139 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multi-policy-test
+  namespace: pdb-demo
+  labels:
+    app-type: web
+    tier: critical  # Matches high-priority-policy
+  annotations:
+    oda.tmforum.org/availability-class: "standard"  # Will be overridden by strict policy
+    oda.tmforum.org/description: "Demo deployment matching multiple policies"
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: multi-policy
+  template:
+    metadata:
+      labels:
+        app: multi-policy
+        app-type: web
+        tier: critical
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+---
+# Deployment that tests flexible enforcement
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flexible-test-allowed
+  namespace: pdb-demo
+  labels:
+    enforcement-demo: flexible
+  annotations:
+    oda.tmforum.org/availability-class: "mission-critical"  # Higher than minimum, will be accepted
+    oda.tmforum.org/description: "Demo showing annotation accepted in flexible mode"
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: flexible-allowed
+  template:
+    metadata:
+      labels:
+        app: flexible-allowed
+        enforcement-demo: flexible
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
+---
+# Deployment that tests flexible enforcement rejection
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flexible-test-rejected
+  namespace: pdb-demo
+  labels:
+    enforcement-demo: flexible
+  annotations:
+    oda.tmforum.org/availability-class: "non-critical"  # Lower than minimum, will be rejected
+    oda.tmforum.org/description: "Demo showing annotation rejected in flexible mode"
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: flexible-rejected
+  template:
+    metadata:
+      labels:
+        app: flexible-rejected
+        enforcement-demo: flexible
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
+---
+# Deployment that tests advisory enforcement with reason
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: advisory-test-with-reason
+  namespace: pdb-demo
+  labels:
+    enforcement-demo: advisory
+  annotations:
+    oda.tmforum.org/availability-class: "non-critical"
+    oda.tmforum.org/override-reason: "Development testing environment"
+    oda.tmforum.org/description: "Demo showing annotation accepted with reason in advisory mode"
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: advisory-with-reason
+  template:
+    metadata:
+      labels:
+        app: advisory-with-reason
+        enforcement-demo: advisory
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
+---
+# Deployment that tests advisory enforcement without reason (will be rejected)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: advisory-test-no-reason
+  namespace: pdb-demo
+  labels:
+    enforcement-demo: advisory
+  annotations:
+    oda.tmforum.org/availability-class: "non-critical"
+    # Missing override-reason annotation - will be rejected
+    oda.tmforum.org/description: "Demo showing annotation rejected without reason in advisory mode"
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: advisory-no-reason
+  template:
+    metadata:
+      labels:
+        app: advisory-no-reason
+        enforcement-demo: advisory
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine

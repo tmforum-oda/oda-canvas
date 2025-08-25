@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: security-service
+  namespace: pdb-demo
+  labels:
+    security-tier: critical
+  annotations:
+    oda.tmforum.org/availability-class: "standard"  # Will be overridden
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: security-service
+  template:
+    metadata:
+      labels:
+        app: security-service
+    spec:
+      containers:
+      - name: security
+        image: nginx:alpine

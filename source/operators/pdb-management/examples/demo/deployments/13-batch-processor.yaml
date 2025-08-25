@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: batch-processor
+  namespace: pdb-demo
+  labels:
+    tier: web
+  annotations:
+    oda.tmforum.org/availability-class: "non-critical"
+    oda.tmforum.org/override-reason: "Batch job - runs during off-hours"
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: batch
+  template:
+    metadata:
+      labels:
+        app: batch
+        tier: web
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine

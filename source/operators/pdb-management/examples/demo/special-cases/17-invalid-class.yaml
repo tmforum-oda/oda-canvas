@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invalid-class
+  namespace: pdb-demo
+  annotations:
+    oda.tmforum.org/availability-class: "super-critical"  # Not a valid class
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: invalid
+  template:
+    metadata:
+      labels:
+        app: invalid
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine

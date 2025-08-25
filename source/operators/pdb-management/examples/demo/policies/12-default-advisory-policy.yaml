@@ -1,0 +1,16 @@
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: default-advisory
+  namespace: canvas
+spec:
+  availabilityClass: standard
+  enforcement: advisory
+  allowOverride: true
+  overrideRequiresReason: true
+  overrideRequiresAnnotation: "oda.tmforum.org/override-reason"
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      tier: web
+  priority: 50
