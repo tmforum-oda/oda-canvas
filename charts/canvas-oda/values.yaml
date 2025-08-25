@@ -364,7 +364,7 @@ pdb-management-operator:
   enabled: true
   image: tmforumodacanvas/pdb-management-operator
   version: 1.0.0
-  prereleaseSuffix: -alpha
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   
   # Deployment configuration
