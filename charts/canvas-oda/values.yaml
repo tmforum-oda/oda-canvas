@@ -362,14 +362,14 @@ secretsmanagement-operator:
 
 pdb-management-operator:
   enabled: true
-  image: tmforumodacanvas/pdb-management-operator
-  version: 1.0.0
-  prereleaseSuffix:
-  imagePullPolicy: IfNotPresent
   
   # Deployment configuration
   deployment:
     operatorName: pdb-management-operator
+    image: tmforumodacanvas/pdb-management-operator
+    version: 1.0.0
+    prereleaseSuffix: -alpha
+    imagePullPolicy: IfNotPresent
     watchNamespace: ''
     enableWebhook: true
     enableMetrics: true

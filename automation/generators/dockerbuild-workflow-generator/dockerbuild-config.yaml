@@ -245,9 +245,9 @@ pdb-management-operator:
   fileName: pdb-management-operator
   
   valuesYamlFile: charts/canvas-oda/values.yaml
-  valuesPathImage: .pdb-management-operator.image
-  valuesPathVersion: .pdb-management-operator.version
-  valuesPathPrereleaseSuffix: .pdb-management-operator.prereleaseSuffix
+  valuesPathImage: .pdb-management-operator.deployment.image
+  valuesPathVersion: .pdb-management-operator.deployment.version
+  valuesPathPrereleaseSuffix: .pdb-management-operator.deployment.prereleaseSuffix
   
   paths:
     - source/operators/pdb-management/*
