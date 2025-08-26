@@ -257,3 +257,22 @@ tmf639-resource-inventory-api:
   #buildDockerfile: 
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
+
+
+testimage:
+  displayName: Testimage
+  fileName: testimage
+  
+  valuesYamlFile: baseimages/testimage/version.yaml
+  valuesPathImage: .image
+  valuesPathVersion: .version
+  valuesPathPrereleaseSuffix: .prereleaseSuffix
+  
+  paths:
+    - baseimages/testimage/**/*
+  buildContext: baseimages/testimage
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile:   
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
