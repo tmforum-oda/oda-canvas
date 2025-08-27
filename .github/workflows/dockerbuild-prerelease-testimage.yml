@@ -15,6 +15,11 @@ on:
     - odaa-*
     paths: 
       - baseimages/testimage/**/*
+  pull_request:
+    branches:
+      - main      
+    paths: 
+      - baseimages/testimage/**/*
 
 jobs:
   build-testimage-prerelease-dockerfile-job:
