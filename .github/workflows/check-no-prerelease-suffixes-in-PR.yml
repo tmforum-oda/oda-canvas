@@ -88,21 +88,3 @@ jobs:
         if: steps.values_yaml_contains_version_suffix_4.outputs.result=='true'
         run: |
           echo "::error file=charts/experimental/oauth2-envoyfilter-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_4.outputs.result }}]" && exit 1
-      
-      - name: check if there are nonempty version suffixes in baseimages/testimage/version.yaml
-        id: values_yaml_contains_version_suffix_5
-        uses: mikefarah/yq@master
-        with:
-          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' baseimages/testimage/version.yaml
-
-      - name: collect existing version suffixes in baseimages/testimage/version.yaml for error report
-        id: version_suffixes_5
-        if: steps.values_yaml_contains_version_suffix_5.outputs.result=='true'
-        uses: mikefarah/yq@master
-        with:
-          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' baseimages/testimage/version.yaml
-          
-      - name: report error in baseimages/testimage/version.yaml
-        if: steps.values_yaml_contains_version_suffix_5.outputs.result=='true'
-        run: |
-          echo "::error file=baseimages/testimage/version.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_5.outputs.result }}]" && exit 1

@@ -539,3 +539,11 @@ On Failure, the docker build of the version is canceled and the broken tests are
 
 ![failed tests in GitHub Action](images/failed-tests-in-github-action.png)
 
+
+## How to work with forks
+
+For security reasons, it is not possible for PRs from a forked repository to build dockerimages, 
+as the credentials are not accessible in the GitHub Action.
+
+As a workaround the dockerimages can be created using a feature-branch and merging the same forked sources into this branch using a secondary PR. Then the prerelease docker images will be built and are available in the primary PR for running the BDD tests.
+
