@@ -368,7 +368,7 @@ pdb-management-operator:
     operatorName: pdb-management-operator
     image: tmforumodacanvas/pdb-management-operator
     version: 1.0.0
-    prereleaseSuffix: -alpha
+    prereleaseSuffix: alpha
     imagePullPolicy: IfNotPresent
     watchNamespace: ''
     enableWebhook: true
