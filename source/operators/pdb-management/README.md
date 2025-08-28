@@ -49,7 +49,7 @@ kubectl apply -k config/webhook/
 kubectl apply -k config/default/
 
 # Enable webhooks
-kubectl patch deployment pdb-management-controller-manager -n canvas \
+kubectl patch deployment canvas-pdb-management-operator -n canvas \
   --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": ["--leader-elect", "--enable-webhook=true"]}]'
 ```
 
@@ -385,7 +385,7 @@ Full OpenTelemetry integration:
 
 ```bash
 # Enable tracing
-kubectl set env deployment/pdb-management-controller-manager -n canvas \
+kubectl set env deployment/canvas-pdb-management-operator -n canvas \
   ENABLE_TRACING=true \
   OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
 ```
@@ -398,7 +398,7 @@ kubectl set env deployment/pdb-management-controller-manager -n canvas \
 
 ```bash
 # Check operator logs
-kubectl logs -n canvas deployment/pdb-management-controller-manager
+kubectl logs -n canvas deployment/canvas-pdb-management-operator
 
 # Common causes:
 # - Single replica deployment (replicas < 2)
@@ -413,7 +413,7 @@ kubectl logs -n canvas deployment/pdb-management-controller-manager
 kubectl get availabilitypolicy -A -o wide
 
 # Debug policy resolution
-kubectl logs -n canvas deployment/pdb-management-controller-manager | grep "resolveConfiguration"
+kubectl logs -n canvas deployment/canvas-pdb-management-operator | grep "resolveConfiguration"
 ```
 
 #### Webhook Validation Errors
@@ -426,14 +426,14 @@ kubectl get validatingwebhookconfiguration
 kubectl get certificate serving-cert -n canvas
 
 # Debug webhook logs
-kubectl logs -n canvas deployment/pdb-management-controller-manager | grep webhook
+kubectl logs -n canvas deployment/canvas-pdb-management-operator | grep webhook
 ```
 
 ### Debug Mode
 
 ```bash
 # Enable debug logging
-kubectl patch deployment pdb-management-controller-manager -n canvas \
+kubectl patch deployment canvas-pdb-management-operator -n canvas \
   --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": ["--leader-elect", "--log-level=debug"]}]'
 ```
 

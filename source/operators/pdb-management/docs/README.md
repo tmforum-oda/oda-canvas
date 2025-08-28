@@ -349,7 +349,7 @@ The operator supports configurable log levels:
 
 ```bash
 # Set log level via environment variable
-kubectl set env deployment/pdb-management-controller-manager \
+kubectl set env deployment/canvas-pdb-management-operator \
   -n canvas LOG_LEVEL=debug
 
 # Available levels: debug, info, warn, error
@@ -361,15 +361,15 @@ Use structured logging for advanced analysis:
 
 ```bash
 # Filter logs by trace ID
-kubectl logs -n canvas deployment/pdb-management-controller-manager | \
+kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
   jq 'select(.trace.trace_id == "2b4148def0c46c496b41c1ade1c7cc7f")'
 
 # Find all audit logs for a specific resource
-kubectl logs -n canvas deployment/pdb-management-controller-manager | \
+kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
   jq 'select(.msg == "Audit log" and .details.resource == "my-app-pdb")'
 
 # Track reconciliation flow
-kubectl logs -n canvas deployment/pdb-management-controller-manager | \
+kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
   jq 'select(.reconcileID == "deployment-f959cd46-f5c8-497f-b84d-b6d0d0ce04a2")'
 ```
 
@@ -388,13 +388,13 @@ kubectl logs -n canvas deployment/pdb-management-controller-manager | \
 
 ```bash
 # Check operator logs
-kubectl -n canvas logs deployment/pdb-management-controller-manager
+kubectl -n canvas logs deployment/canvas-pdb-management-operator
 
 # Verify annotations
 kubectl get deployment my-app -o jsonpath='{.metadata.annotations}'
 
 # Check if PDB management is enabled
-kubectl -n canvas get deployment pdb-management-controller-manager -o yaml | grep ENABLE_PDB
+kubectl -n canvas get deployment canvas-pdb-management-operator -o yaml | grep ENABLE_PDB
 ```
 
 **Policy not matching deployments?**
@@ -417,7 +417,7 @@ kubectl get deployment my-app --show-labels
 curl http://operator-pod:8080/metrics | grep cache
 
 # Enable debug logging
-kubectl set env deployment/pdb-management-controller-manager \
+kubectl set env deployment/canvas-pdb-management-operator \
   -n canvas LOG_LEVEL=debug
 ```
 

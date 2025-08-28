@@ -997,19 +997,19 @@ Advanced log analysis capabilities:
 
 ```bash
 # Filter by trace ID for distributed tracing
-kubectl logs -n canvas deployment/pdb-management-controller-manager | \
+kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
   jq 'select(.trace.trace_id == "2b4148def0c46c496b41c1ade1c7cc7f")'
 
 # Find all audit logs for a specific resource
-kubectl logs -n canvas deployment/pdb-management-controller-manager | \
+kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
   jq 'select(.msg == "Audit log" and .details.resource == "my-app-pdb")'
 
 # Track complete reconciliation flow
-kubectl logs -n canvas deployment/pdb-management-controller-manager | \
+kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
   jq 'select(.reconcileID == "deployment-f959cd46-f5c8-497f-b84d-b6d0d0ce04a2")'
 
 # Analyze enforcement decisions
-kubectl logs -n canvas deployment/pdb-management-controller-manager | \
+kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
   jq 'select(.details.enforcement) | .details'
 ```
 
@@ -1103,7 +1103,7 @@ kubectl get deployment my-app -o jsonpath='{.metadata.annotations}'
 Check operator logs:
 
 ```bash
-kubectl logs -n canvas deployment/pdb-management-controller-manager
+kubectl logs -n canvas deployment/canvas-pdb-management-operator
 ```
 
 2. **Policy Not Matching**
@@ -1139,7 +1139,7 @@ curl http://operator-pod:8080/metrics | grep enforcement_decisions
 Verify timezone:
 
 ```bash
-kubectl exec -n canvas deployment/pdb-management-controller-manager -- date
+kubectl exec -n canvas deployment/canvas-pdb-management-operator -- date
 ```
 
 Check maintenance window configuration:
@@ -1168,7 +1168,7 @@ kubectl get deployments -A -o json | jq '.items | length'
 Enable debug logging:
 
 ```bash
-kubectl -n canvas set env deployment/pdb-management-controller-manager LOG_LEVEL=debug
+kubectl -n canvas set env deployment/canvas-pdb-management-operator LOG_LEVEL=debug
 ```
 
 ### Health Checks
