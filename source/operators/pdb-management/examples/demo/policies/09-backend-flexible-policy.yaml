@@ -1,0 +1,14 @@
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: backend-flexible
+  namespace: canvas
+spec:
+  availabilityClass: high-availability  # Default is 75%
+  enforcement: flexible
+  minimumClass: standard  # But allow nothing less than 50%
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      tier: backend
+  priority: 150

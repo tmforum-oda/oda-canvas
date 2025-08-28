@@ -1,0 +1,272 @@
+{{- if .Values.serviceAccount.create -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "pdb-management-operator.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-role
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - availability.oda.tmforum.org
+  resources:
+  - availabilitypolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - availability.oda.tmforum.org
+  resources:
+  - availabilitypolicies/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - availability.oda.tmforum.org
+  resources:
+  - availabilitypolicies/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - policy
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-rolebinding
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "pdb-management-operator.fullname" . }}-role
+subjects:
+- kind: ServiceAccount
+  name: {{ include "pdb-management-operator.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-leader-election-role
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-leader-election-rolebinding
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "pdb-management-operator.fullname" . }}-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: {{ include "pdb-management-operator.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-availabilitypolicy-admin-role
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - availability.oda.tmforum.org
+  resources:
+  - availabilitypolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - availability.oda.tmforum.org
+  resources:
+  - availabilitypolicies/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-availabilitypolicy-editor-role
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - availability.oda.tmforum.org
+  resources:
+  - availabilitypolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - availability.oda.tmforum.org
+  resources:
+  - availabilitypolicies/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-availabilitypolicy-viewer-role
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - availability.oda.tmforum.org
+  resources:
+  - availabilitypolicies
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - availability.oda.tmforum.org
+  resources:
+  - availabilitypolicies/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-metrics-auth-role
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-metrics-auth-rolebinding
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "pdb-management-operator.fullname" . }}-metrics-auth-role
+subjects:
+- kind: ServiceAccount
+  name: {{ include "pdb-management-operator.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pdb-management-operator.fullname" . }}-metrics-reader
+  labels:
+    {{- include "pdb-management-operator.labels" . | nindent 4 }}
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get

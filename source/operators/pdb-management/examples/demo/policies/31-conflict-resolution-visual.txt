@@ -1,0 +1,148 @@
+================================================================================
+                    PDB OPERATOR - POLICY CONFLICT RESOLUTION
+================================================================================
+1. PRIORITY RESOLUTION (When Multiple Policies Match)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Deployment: "my-app" Matching Policies:
+   Labels:                                  
+     - app-type: web ──────────► Policy A (priority: 100)
+     - tier: critical ──────────► Policy B (priority: 500)
+     - env: production ──────────► Policy C (priority: 900) ✓ WINS!
+
+RESULT: Policy with highest priority (900) is selected
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. ENFORCEMENT MODE RESOLUTION (After Policy Selection)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ STRICT ENFORCEMENT                                              │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ Policy: mission-critical (90%)                                  │
+   │ Annotation: standard (50%)                                      │
+   │                                                                 │
+   │ RESULT: Policy WINS → PDB: 90% minAvailable                     │
+   │ Event: "PolicyEnforced - Annotation override blocked"           │
+   └─────────────────────────────────────────────────────────────────┘
+
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ FLEXIBLE ENFORCEMENT                                            │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ Policy: high-availability (75%)                                 │
+   │ Minimum: standard (50%)                                         │
+   │ Annotation: mission-critical (90%)                              │
+   │                                                                 │
+   │ RESULT: Annotation ACCEPTED → PDB: 90% minAvailable             │
+   │ Event: "AnnotationAccepted - Meets minimum requirement"         │
+   └─────────────────────────────────────────────────────────────────┘
+
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ FLEXIBLE ENFORCEMENT (Below Minimum)                            │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ Policy: high-availability (75%)                                 │
+   │ Minimum: standard (50%)                                         │
+   │ Annotation: non-critical (20%)                                  │
+   │                                                                 │
+   │ RESULT: Minimum ENFORCED → PDB: 50% minAvailable                │
+   │ Event: "BelowMinimum - Using minimum class"                     │
+   └─────────────────────────────────────────────────────────────────┘
+
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ ADVISORY ENFORCEMENT                                            │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ Policy: standard (50%)                                          │
+   │ Annotation: non-critical (20%)                                  │
+   │ Override Reason: "Batch job - runs off-hours"                   │
+   │                                                                 │
+   │ RESULT: Annotation WINS → PDB: 20% minAvailable                 │
+   │ Event: "OverrideAllowed - Reason provided"                      │
+   └─────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. COMPLETE RESOLUTION FLOWCHART
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                         Deployment Created/Updated
+                                    │
+                                    ▼
+                        ┌────────────────────────┐
+                        │ Find Matching Policies │
+                        └────────────────────────┘
+                                    │
+                        ┌───────────▼───────────┐
+                        │   Policies Found?     │
+                        └───────────────────────┘
+                         No │              │ Yes
+                            ▼              ▼
+                    ┌──────────────┐  ┌──────────────────┐
+                    │Use Annotation│  │ Select Highest   │
+                    │  (if exists) │  │ Priority Policy  │
+                    └──────────────┘  └──────────────────┘
+                                              │
+                                    ┌─────────▼─────────┐
+                                    │ Check Enforcement │
+                                    └─────────┬─────────┘
+                                              │
+                        ┌─────────────────────┼─────────────────────┐
+                        │                     │                     │
+                    STRICT               FLEXIBLE              ADVISORY
+                        │                     │                     │
+                        ▼                     ▼                     ▼
+                ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+                │ Policy Wins  │     │ Check Against│     │ Check Reason │
+                │   Always     │     │   Minimum    │     │   Required   │
+                └──────────────┘     └──────────────┘     └──────────────┘
+                        │                     │                     │
+                        └─────────────────────┼─────────────────────┘
+                                              │
+                                    ┌─────────▼─────────┐
+                                    │   Create/Update   │
+                                    │       PDB         │
+                                    └───────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. AVAILABILITY CLASS HIERARCHY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   HIGHEST ┌─────────────────────┐
+           │ mission-critical    │ 90% minAvailable
+           │     (Level 4)       │
+           └─────────────────────┘
+                      ▲
+           ┌─────────────────────┐
+           │ high-availability   │ 75% minAvailable
+           │     (Level 3)       │
+           └─────────────────────┘
+                      ▲
+           ┌─────────────────────┐
+           │    standard         │ 50% minAvailable
+           │     (Level 2)       │
+           └─────────────────────┘
+                      ▲
+   LOWEST  ┌─────────────────────┐
+           │   non-critical      │ 20% minAvailable
+           │     (Level 1)       │
+           └─────────────────────┘
+
+   Flexible enforcement allows annotations >= minimum class level
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. QUICK REFERENCE TABLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+┌────────────┬──────────────┬─────────────────────┬──────────────────────┐
+│ Scenario   │ Policy       │ Annotation          │ Result               │
+├────────────┼──────────────┼─────────────────────┼──────────────────────┤
+│ No Policy  │ -            │ standard            │ Annotation wins      │
+│ No Policy  │ -            │ -                   │ No PDB created       │
+├────────────┼──────────────┼─────────────────────┼──────────────────────┤
+│ Strict     │ mission-crit │ standard            │ Policy wins (90%)    │
+│ Strict     │ mission-crit │ -                   │ Policy wins (90%)    │
+├────────────┼──────────────┼─────────────────────┼──────────────────────┤
+│ Flexible   │ high (min:   │ mission-critical    │ Annotation wins (90%)│
+│            │ standard)    │                     │                      │
+│ Flexible   │ high (min:   │ non-critical        │ Minimum wins (50%)   │
+│            │ standard)    │                     │                      │
+├────────────┼──────────────┼─────────────────────┼──────────────────────┤
+│ Advisory   │ standard     │ non-critical +      │ Annotation wins (20%)│
+│            │              │ reason              │                      │
+│ Advisory   │ standard     │ non-critical        │ Policy wins (50%)    │
+│            │              │ (no reason)         │                      │
+└────────────┴──────────────┴─────────────────────┴──────────────────────┘
+================================================================================

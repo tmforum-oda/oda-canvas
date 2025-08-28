@@ -1,0 +1,26 @@
+# Dev environment - flexible
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: dev-policy
+  namespace: canvas
+spec:
+  availabilityClass: standard
+  enforcement: advisory
+  componentSelector:
+    namespaces: ["dev", "development"]
+  priority: 10
+
+---
+# Production - strict
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: prod-policy
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: strict
+  componentSelector:
+    namespaces: ["prod", "production"]
+  priority: 100
