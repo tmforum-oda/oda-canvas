@@ -1,0 +1,165 @@
+name: local_test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - feature/pdb-management-operator
+
+jobs:
+  test-canvas-installation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Docker (for act)
+      if: ${{ env.ACT }}
+      run: |
+        echo "Running in act environment"
+        
+    - name: Install tools
+      run: |
+        # Install kubectl
+        if ! command -v kubectl &> /dev/null; then
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+        fi
+        kubectl version --client
+        
+        # Install kind
+        if ! command -v kind &> /dev/null; then
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+        fi
+        
+        # Install Helm
+        if ! command -v helm &> /dev/null; then
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh --version v3.15.4
+        fi
+        
+    - name: Create kind cluster
+      run: |
+        # Create kind config for faster testing
+        cat <<EOF > kind-config.yaml
+        kind: Cluster
+        apiVersion: kind.x-k8s.io/v1alpha4
+        nodes:
+        - role: control-plane
+          kubeadmConfigPatches:
+          - |
+            kind: InitConfiguration
+            nodeRegistration:
+              kubeletExtraArgs:
+                node-labels: "ingress-ready=true"
+          extraPortMappings:
+          - containerPort: 80
+            hostPort: 80
+            protocol: TCP
+          - containerPort: 443
+            hostPort: 443
+            protocol: TCP
+        EOF
+        
+        kind create cluster --config=kind-config.yaml
+        kubectl get nodes
+        
+    - name: Install Istio (minimal)
+      run: |
+        helm repo add istio https://istio-release.storage.googleapis.com/charts
+        helm repo update
+        
+        kubectl create namespace istio-system
+        helm install istio-base istio/base -n istio-system --set defaultRevision=default
+        helm install istiod istio/istiod -n istio-system --wait --timeout=5m \
+          --set pilot.resources.requests.cpu=50m \
+          --set pilot.resources.requests.memory=128Mi \
+          --set global.proxy.resources.requests.cpu=10m \
+          --set global.proxy.resources.requests.memory=64Mi
+        
+        kubectl create namespace istio-ingress
+        kubectl label namespace istio-ingress istio-injection=enabled
+        helm install istio-ingress istio/gateway -n istio-ingress \
+          --set labels.app=istio-ingress \
+          --set labels.istio=ingressgateway \
+          --set resources.requests.cpu=50m \
+          --set resources.requests.memory=128Mi
+          
+    - name: Install helm-git plugin
+      run: |
+        helm plugin list | grep helm-git || helm plugin install https://github.com/aslafy-z/helm-git.git
+        
+    - name: Update Helm dependencies
+      run: |
+        # Only update critical dependencies
+        helm dependency update ./charts/cert-manager-init
+        helm dependency update ./charts/pdb-management-operator
+        helm dependency update ./charts/canvas-oda
+        
+    - name: Install Canvas ODA
+      run: |
+        # Install with minimal configuration for faster testing
+        helm install canvas ./charts/canvas-oda \
+          --namespace canvas \
+          --create-namespace \
+          --set keycloak.enabled=false \
+          --set canvas-vault.enabled=false \
+          --timeout=10m \
+          --wait
+          
+    - name: Verify installation
+      run: |
+        echo "=== Canvas Namespace ==="
+        kubectl get all -n canvas
+        
+        echo "=== PDB Operator Check ==="
+        kubectl get deployment -n canvas | grep pdb-management
+        kubectl get service -n canvas | grep pdb-management
+        
+        echo "=== CRDs Check ==="
+        kubectl get crd | grep oda
+        
+        echo "=== Logs ==="
+        kubectl logs -n canvas -l app.kubernetes.io/name=pdb-management --tail=50 || true
+        
+    - name: Test PDB functionality
+      run: |
+        # Create a test AvailabilityPolicy
+        cat <<EOF | kubectl apply -f -
+        apiVersion: availability.oda.tmforum.org/v1alpha1
+        kind: AvailabilityPolicy
+        metadata:
+          name: test-policy
+          namespace: canvas
+        spec:
+          selector:
+            matchLabels:
+              app: test
+          targetAvailability: "99.9"
+          minAvailable: 2
+          maxUnavailable: 1
+          enforcement: Advisory
+        EOF
+        
+        # Check if it was created
+        kubectl get availabilitypolicy -n canvas
+        
+        # Create a test deployment
+        kubectl create deployment test-app --image=nginx --replicas=3 -n canvas
+        kubectl label deployment test-app app=test -n canvas
+        
+        # Wait and check for PDB creation
+        sleep 10
+        kubectl get pdb -n canvas
+        
+    - name: Cleanup
+      if: always()
+      run: |
+        kubectl delete deployment test-app -n canvas --ignore-not-found=true
+        kubectl delete availabilitypolicy test-policy -n canvas --ignore-not-found=true
+        kind delete cluster

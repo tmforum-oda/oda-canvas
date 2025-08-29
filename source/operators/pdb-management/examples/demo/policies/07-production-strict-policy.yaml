@@ -1,0 +1,13 @@
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: production-strict
+  namespace: canvas
+spec:
+  availabilityClass: mission-critical
+  enforcement: strict  # Policy always wins
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      env: production
+  priority: 200
