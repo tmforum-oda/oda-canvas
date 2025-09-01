@@ -274,6 +274,207 @@ const resourceInventoryUtils = {
     } catch (error) {
       return false
     }
+  },
+
+  /**
+   * Function that gets a PDB resource
+   * @param    {String} pdbName           Name of the PDB
+   * @param    {String} inNamespace       Namespace of the PDB
+   * @return   {Object}                 The PDB resource object, or null if not found
+   */
+  getPDBResource: async function (pdbName, inNamespace) {
+    try {
+      const k8sPolicyApi = kc.makeApiClient(k8s.PolicyV1Api)
+      const response = await k8sPolicyApi.readNamespacedPodDisruptionBudget(pdbName, inNamespace)
+      return response.body
+    } catch (error) {
+      if (error.response && error.response.statusCode === 404) {
+        return null // PDB not found
+      }
+      throw error
+    }
+  },
+
+  /**
+   * Function that creates a deployment for testing purposes
+   * @param    {String} deploymentName    Name of the deployment
+   * @param    {String} inNamespace       Namespace where to create the deployment
+   * @param    {Number} replicas          Number of replicas
+   * @param    {Object} annotations       Annotations to add to the deployment
+   * @param    {Object} labels           Labels to add to the deployment
+   * @return   {Object}                   The created deployment object
+   */
+  createTestDeployment: async function (deploymentName, inNamespace, replicas, annotations = {}, labels = {}) {
+    const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+    const deployment = {
+      apiVersion: 'apps/v1',
+      kind: 'Deployment',
+      metadata: {
+        name: deploymentName,
+        namespace: inNamespace,
+        annotations: annotations,
+        labels: {
+          app: deploymentName,
+          ...labels
+        }
+      },
+      spec: {
+        replicas: replicas,
+        selector: {
+          matchLabels: {
+            app: deploymentName
+          }
+        },
+        template: {
+          metadata: {
+            labels: {
+              app: deploymentName,
+              ...labels
+            }
+          },
+          spec: {
+            containers: [{
+              name: 'test-container',
+              image: 'nginx:latest',
+              resources: {
+                requests: {
+                  memory: '64Mi',
+                  cpu: '50m'
+                },
+                limits: {
+                  memory: '128Mi',
+                  cpu: '100m'
+                }
+              }
+            }]
+          }
+        }
+      }
+    }
+
+    const response = await k8sAppsApi.createNamespacedDeployment(inNamespace, deployment)
+    return response.body
+  },
+
+  /**
+   * Function that scales a test deployment
+   * @param    {String} deploymentName    Name of the deployment
+   * @param    {String} inNamespace       Namespace of the deployment
+   * @param    {Number} replicas          New number of replicas
+   */
+  scaleTestDeployment: async function (deploymentName, inNamespace, replicas) {
+    const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+    const patch = [{
+      op: 'replace',
+      path: '/spec/replicas',
+      value: replicas
+    }]
+    
+    await k8sAppsApi.patchNamespacedDeployment(
+      deploymentName,
+      inNamespace,
+      patch,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/json-patch+json' } }
+    )
+  },
+
+  /**
+   * Function that updates deployment annotations
+   * @param    {String} deploymentName    Name of the deployment
+   * @param    {String} inNamespace       Namespace of the deployment
+   * @param    {Object} annotations       New annotations
+   */
+  updateDeploymentAnnotations: async function (deploymentName, inNamespace, annotations) {
+    const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+    const patch = [{
+      op: 'replace',
+      path: '/metadata/annotations',
+      value: annotations
+    }]
+    
+    await k8sAppsApi.patchNamespacedDeployment(
+      deploymentName,
+      inNamespace,
+      patch,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/json-patch+json' } }
+    )
+  },
+
+  /**
+   * Function that creates an AvailabilityPolicy custom resource
+   * @param    {String} policyName        Name of the policy
+   * @param    {String} inNamespace       Namespace where to create the policy
+   * @param    {Object} spec              Policy specification
+   * @return   {Object}                   The created policy object
+   */
+  createAvailabilityPolicy: async function (policyName, inNamespace, spec) {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+    const policy = {
+      apiVersion: 'availability.oda.tmforum.org/v1alpha1',
+      kind: 'AvailabilityPolicy',
+      metadata: {
+        name: policyName,
+        namespace: inNamespace
+      },
+      spec: spec
+    }
+
+    const response = await k8sCustomApi.createNamespacedCustomObject(
+      'availability.oda.tmforum.org',
+      'v1alpha1',
+      inNamespace,
+      'availabilitypolicies',
+      policy
+    )
+    return response.body
+  },
+
+  /**
+   * Function that deletes an AvailabilityPolicy custom resource
+   * @param    {String} policyName        Name of the policy to delete
+   * @param    {String} inNamespace       Namespace where the policy is located
+   */
+  deleteAvailabilityPolicy: async function (policyName, inNamespace) {
+    try {
+      const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+      await k8sCustomApi.deleteNamespacedCustomObject(
+        'availability.oda.tmforum.org',
+        'v1alpha1',
+        inNamespace,
+        'availabilitypolicies',
+        policyName
+      )
+    } catch (error) {
+      if (error.response && error.response.statusCode !== 404) {
+        throw error
+      }
+      // Ignore 404 errors (policy already deleted)
+    }
+  },
+
+  /**
+   * Function that deletes a test deployment
+   * @param    {String} deploymentName    Name of the deployment to delete
+   * @param    {String} inNamespace       Namespace where the deployment is located
+   */
+  deleteTestDeployment: async function (deploymentName, inNamespace) {
+    try {
+      const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+      await k8sAppsApi.deleteNamespacedDeployment(deploymentName, inNamespace)
+    } catch (error) {
+      if (error.response && error.response.statusCode !== 404) {
+        throw error
+      }
+      // Ignore 404 errors (deployment already deleted)
+    }
   }
 }
 
