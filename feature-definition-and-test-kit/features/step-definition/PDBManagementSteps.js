@@ -5,7 +5,7 @@ const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 const { Given, When, Then, setDefaultTimeout } = require('@cucumber/cucumber');
 const assert = require('assert');
 
-const NAMESPACE = 'components';
+const NAMESPACE = 'pdb-test';
 const PDB_CREATION_TIMEOUT = 30 * 1000; // 30 seconds
 const PDB_READY_TIMEOUT = 60 * 1000; // 60 seconds  
 const TIMEOUT_BUFFER = 5 * 1000; // 5 seconds as additional buffer to the timeouts above

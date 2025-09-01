@@ -304,8 +304,8 @@ const resourceInventoryUtils = {
    * @param    {String} namespaceName     Name of the namespace
    */
   ensureNamespaceExists: async function (namespaceName) {
+    const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api);
     try {
-      const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api);
       await k8sCoreApi.readNamespace(namespaceName);
     } catch (error) {
       if (error.response && error.response.statusCode === 404) {
@@ -533,6 +533,77 @@ const resourceInventoryUtils = {
         throw error
       }
       // Ignore 404 errors (deployment already deleted)
+    }
+  },
+
+  /**
+   * Function that deletes a test deployment
+   * @param    {String} deploymentName    Name of the deployment
+   * @param    {String} inNamespace       Namespace where the deployment should be deleted
+   */
+  deleteTestDeployment: async function (deploymentName, inNamespace) {
+    try {
+      const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+      await k8sAppsApi.deleteNamespacedDeployment(deploymentName, inNamespace)
+    } catch (error) {
+      if (error.response && error.response.statusCode !== 404) {
+        throw error
+      }
+      // Ignore 404 errors (deployment already deleted)
+    }
+  },
+
+  /**
+   * Function that scales a test deployment
+   * @param    {String} deploymentName    Name of the deployment
+   * @param    {String} inNamespace       Namespace where the deployment exists
+   * @param    {Number} replicas          Number of replicas to scale to
+   */
+  scaleTestDeployment: async function (deploymentName, inNamespace, replicas) {
+    try {
+      const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+      const patch = [
+        {
+          op: 'replace',
+          path: '/spec/replicas',
+          value: replicas
+        }
+      ]
+      await k8sAppsApi.patchNamespacedDeployment(
+        deploymentName,
+        inNamespace,
+        patch,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { headers: { 'Content-Type': 'application/json-patch+json' } }
+      )
+    } catch (error) {
+      throw new Error(`Failed to scale deployment ${deploymentName}: ${error.message}`)
+    }
+  },
+
+  /**
+   * Function that deletes an availability policy
+   * @param    {String} policyName        Name of the policy
+   * @param    {String} inNamespace       Namespace where the policy should be deleted
+   */
+  deleteAvailabilityPolicy: async function (policyName, inNamespace) {
+    try {
+      const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+      await k8sCustomApi.deleteNamespacedCustomObject(
+        'oda.tmforum.org',
+        'v1alpha1',
+        inNamespace,
+        'availabilitypolicies',
+        policyName
+      )
+    } catch (error) {
+      if (error.response && error.response.statusCode !== 404) {
+        throw error
+      }
+      // Ignore 404 errors (policy already deleted)
     }
   }
 }
