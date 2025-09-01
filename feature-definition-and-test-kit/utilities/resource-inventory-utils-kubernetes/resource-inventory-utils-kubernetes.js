@@ -284,14 +284,46 @@ const resourceInventoryUtils = {
    */
   getPDBResource: async function (pdbName, inNamespace) {
     try {
-      const k8sPolicyApi = kc.makeApiClient(k8s.PolicyV1Api)
-      const response = await k8sPolicyApi.readNamespacedPodDisruptionBudget(pdbName, inNamespace)
-      return response.body
+      // Use execSync to get PDB via kubectl as a workaround
+      const result = execSync(
+        `kubectl get pdb ${pdbName} -n ${inNamespace} -o json 2>/dev/null`,
+        { encoding: 'utf-8' }
+      );
+      return JSON.parse(result);
+    } catch (error) {
+      // If kubectl returns error (PDB not found), return null
+      if (error.status === 1 || error.message.includes('NotFound')) {
+        return null;
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Function that ensures a namespace exists
+   * @param    {String} namespaceName     Name of the namespace
+   */
+  ensureNamespaceExists: async function (namespaceName) {
+    try {
+      const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api);
+      await k8sCoreApi.readNamespace(namespaceName);
     } catch (error) {
       if (error.response && error.response.statusCode === 404) {
-        return null // PDB not found
+        // Namespace doesn't exist, create it
+        const namespace = {
+          apiVersion: 'v1',
+          kind: 'Namespace',
+          metadata: {
+            name: namespaceName
+          }
+        };
+        try {
+          await k8sCoreApi.createNamespace(namespace);
+          console.log(`Created namespace: ${namespaceName}`);
+        } catch (createError) {
+          console.warn(`Failed to create namespace ${namespaceName}:`, createError.message);
+        }
       }
-      throw error
     }
   },
 
@@ -305,55 +337,63 @@ const resourceInventoryUtils = {
    * @return   {Object}                   The created deployment object
    */
   createTestDeployment: async function (deploymentName, inNamespace, replicas, annotations = {}, labels = {}) {
-    const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
-    const deployment = {
-      apiVersion: 'apps/v1',
-      kind: 'Deployment',
-      metadata: {
-        name: deploymentName,
-        namespace: inNamespace,
-        annotations: annotations,
-        labels: {
-          app: deploymentName,
-          ...labels
-        }
-      },
-      spec: {
-        replicas: replicas,
-        selector: {
-          matchLabels: {
-            app: deploymentName
+    try {
+      // Ensure namespace exists first
+      await this.ensureNamespaceExists(inNamespace);
+      
+      const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+      const deployment = {
+        apiVersion: 'apps/v1',
+        kind: 'Deployment',
+        metadata: {
+          name: deploymentName,
+          namespace: inNamespace,
+          annotations: annotations,
+          labels: {
+            app: deploymentName,
+            ...labels
           }
         },
-        template: {
-          metadata: {
-            labels: {
-              app: deploymentName,
-              ...labels
+        spec: {
+          replicas: replicas,
+          selector: {
+            matchLabels: {
+              app: deploymentName
             }
           },
-          spec: {
-            containers: [{
-              name: 'test-container',
-              image: 'nginx:latest',
-              resources: {
-                requests: {
-                  memory: '64Mi',
-                  cpu: '50m'
-                },
-                limits: {
-                  memory: '128Mi',
-                  cpu: '100m'
-                }
+          template: {
+            metadata: {
+              labels: {
+                app: deploymentName,
+                ...labels
               }
-            }]
+            },
+            spec: {
+              containers: [{
+                name: 'test-container',
+                image: 'nginx:latest',
+                resources: {
+                  requests: {
+                    memory: '64Mi',
+                    cpu: '50m'
+                  },
+                  limits: {
+                    memory: '128Mi',
+                    cpu: '100m'
+                  }
+                }
+              }]
+            }
           }
         }
       }
-    }
 
-    const response = await k8sAppsApi.createNamespacedDeployment(inNamespace, deployment)
-    return response.body
+      const response = await k8sAppsApi.createNamespacedDeployment(inNamespace, deployment)
+      return response.body
+    } catch (error) {
+      console.error(`Failed to create deployment ${deploymentName} in namespace ${inNamespace}:`, error.message);
+      throw error;
+    }
   },
 
   /**
@@ -363,23 +403,28 @@ const resourceInventoryUtils = {
    * @param    {Number} replicas          New number of replicas
    */
   scaleTestDeployment: async function (deploymentName, inNamespace, replicas) {
-    const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
-    const patch = [{
-      op: 'replace',
-      path: '/spec/replicas',
-      value: replicas
-    }]
-    
-    await k8sAppsApi.patchNamespacedDeployment(
-      deploymentName,
-      inNamespace,
-      patch,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers: { 'Content-Type': 'application/json-patch+json' } }
-    )
+    try {
+      const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+      const patch = [{
+        op: 'replace',
+        path: '/spec/replicas',
+        value: replicas
+      }]
+      
+      await k8sAppsApi.patchNamespacedDeployment(
+        deploymentName,
+        inNamespace,
+        patch,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { headers: { 'Content-Type': 'application/json-patch+json' } }
+      )
+    } catch (error) {
+      console.error(`Failed to scale deployment ${deploymentName} in namespace ${inNamespace}:`, error.message);
+      throw error;
+    }
   },
 
   /**
@@ -389,23 +434,28 @@ const resourceInventoryUtils = {
    * @param    {Object} annotations       New annotations
    */
   updateDeploymentAnnotations: async function (deploymentName, inNamespace, annotations) {
-    const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
-    const patch = [{
-      op: 'replace',
-      path: '/metadata/annotations',
-      value: annotations
-    }]
-    
-    await k8sAppsApi.patchNamespacedDeployment(
-      deploymentName,
-      inNamespace,
-      patch,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { headers: { 'Content-Type': 'application/json-patch+json' } }
-    )
+    try {
+      const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+      const patch = [{
+        op: 'replace',
+        path: '/metadata/annotations',
+        value: annotations
+      }]
+      
+      await k8sAppsApi.patchNamespacedDeployment(
+        deploymentName,
+        inNamespace,
+        patch,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { headers: { 'Content-Type': 'application/json-patch+json' } }
+      )
+    } catch (error) {
+      console.error(`Failed to update annotations for deployment ${deploymentName} in namespace ${inNamespace}:`, error.message);
+      throw error;
+    }
   },
 
   /**
@@ -416,25 +466,34 @@ const resourceInventoryUtils = {
    * @return   {Object}                   The created policy object
    */
   createAvailabilityPolicy: async function (policyName, inNamespace, spec) {
-    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
-    const policy = {
-      apiVersion: 'availability.oda.tmforum.org/v1alpha1',
-      kind: 'AvailabilityPolicy',
-      metadata: {
-        name: policyName,
-        namespace: inNamespace
-      },
-      spec: spec
-    }
+    try {
+      // Ensure namespace exists first
+      await this.ensureNamespaceExists(inNamespace);
+      
+      const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+      const policy = {
+        apiVersion: 'availability.oda.tmforum.org/v1alpha1',
+        kind: 'AvailabilityPolicy',
+        metadata: {
+          name: policyName,
+          namespace: inNamespace
+        },
+        spec: spec
+      }
 
-    const response = await k8sCustomApi.createNamespacedCustomObject(
-      'availability.oda.tmforum.org',
-      'v1alpha1',
-      inNamespace,
-      'availabilitypolicies',
-      policy
-    )
-    return response.body
+      const response = await k8sCustomApi.createNamespacedCustomObject(
+        'availability.oda.tmforum.org',
+        'v1alpha1',
+        inNamespace,
+        'availabilitypolicies',
+        policy
+      )
+      return response.body
+    } catch (error) {
+      console.error(`Failed to create AvailabilityPolicy ${policyName} in namespace ${inNamespace}:`, error.message);
+      // Don't throw the error here - let tests handle the validation
+      return null;
+    }
   },
 
   /**
