@@ -257,6 +257,23 @@ const resourceInventoryUtils = {
       operatorLogs = await k8sCoreApi.readNamespacedPodLog(operatorPodName, operatorPodNamespace)
     }
     return operatorLogs.body
+  },
+
+  /**
+   * Function that checks if the PDB Management Operator is ready
+   * @return   {Boolean}                  True if operator is ready, false otherwise
+   */
+  isPDBOperatorReady: async function () {
+    try {
+      const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+      const response = await k8sAppsApi.readNamespacedDeployment(
+        'canvas-pdb-management-operator',
+        'canvas'
+      )
+      return response.body.status && response.body.status.readyReplicas > 0
+    } catch (error) {
+      return false
+    }
   }
 }
 
