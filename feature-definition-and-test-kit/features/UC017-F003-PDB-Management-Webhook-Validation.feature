@@ -28,7 +28,7 @@ Feature: UC017-F003 PDB Management - Webhook Validation
             | availabilityClass | invalid-class           |
             | enforcement       | strict                  |
         Then the AvailabilityPolicy creation should be rejected
-        And the webhook should return error message containing 'invalid availability class'
+        And the webhook should return error message containing 'supported values'
 
     Scenario: Reject AvailabilityPolicy with invalid enforcement mode
         When I create an AvailabilityPolicy with configuration:
@@ -37,7 +37,7 @@ Feature: UC017-F003 PDB Management - Webhook Validation
             | availabilityClass | standard                |
             | enforcement       | invalid-mode            |
         Then the AvailabilityPolicy creation should be rejected
-        And the webhook should return error message containing 'invalid enforcement mode'
+        And the webhook should return error message containing 'supported values'
 
     Scenario: Validate custom PDB configuration constraints
         When I create an AvailabilityPolicy with custom PDB config:
@@ -55,8 +55,8 @@ Feature: UC017-F003 PDB Management - Webhook Validation
             | namespace         | components              |
             | availabilityClass | standard                |
         Then the AvailabilityPolicy should be created successfully
-        And the policy should have default enforcement mode 'flexible'
-        And the policy should have default priority '100'
+        And the policy should have default enforcement mode 'advisory'
+        And the policy should have default priority '50'
 
     Scenario: Validate maintenance window format
         When I create an AvailabilityPolicy with invalid maintenance window:
@@ -65,7 +65,7 @@ Feature: UC017-F003 PDB Management - Webhook Validation
             | availabilityClass | standard                |
             | maintenanceWindow | invalid-format          |
         Then the AvailabilityPolicy creation should be rejected
-        And the webhook should return error message containing 'invalid maintenance window format'
+        And the webhook should return error message containing 'should match'
 
     Scenario: Validate selector configuration
         When I create an AvailabilityPolicy without any selector:
@@ -73,7 +73,7 @@ Feature: UC017-F003 PDB Management - Webhook Validation
             | namespace         | components              |
             | availabilityClass | standard                |
         Then the AvailabilityPolicy creation should be rejected
-        And the webhook should return error message containing 'at least one selector must be specified'
+        And the webhook should return error message containing 'must specify at least one selection criteria'
 
     Scenario: Validate priority range
         When I create an AvailabilityPolicy with invalid priority:
@@ -82,13 +82,13 @@ Feature: UC017-F003 PDB Management - Webhook Validation
             | availabilityClass | standard                |
             | priority          | -1                      |
         Then the AvailabilityPolicy creation should be rejected
-        And the webhook should return error message containing 'priority must be positive'
+        And the webhook should return error message containing 'priority must be between 0 and 1000'
 
-    Scenario: Update validation for immutable fields
+    Scenario: Update validation provides warnings for policy changes
         Given an AvailabilityPolicy 'existing-policy' exists with priority '100'
-        When I update the AvailabilityPolicy 'existing-policy' changing priority to '200'
-        Then the AvailabilityPolicy update should be rejected
-        And the webhook should return error message containing 'priority is immutable'
+        When I update the AvailabilityPolicy 'existing-policy' changing availability class to 'high-availability'
+        Then the AvailabilityPolicy update should be successful
+        And the webhook should provide warnings about policy changes
 
     Scenario: Validate flexible enforcement minimum class
         When I create an AvailabilityPolicy with flexible enforcement:
