@@ -4,7 +4,7 @@
   "scripts": {
     "start": "cucumber-js  --publish",
     "start:tags": "cucumber-js --publish --tags",
-    "use-case-2": "cucumber-js --publish --tags @UC001",
+    "use-case-2": "cucumber-js --publish --tags @UC002",
     "use-case-2-feature-1": "cucumber-js --publish --tags @UC002-F001",
     "get-tags": "node getTags.js",
     "test:pdb": "cucumber-js --publish --tags @UC017",
