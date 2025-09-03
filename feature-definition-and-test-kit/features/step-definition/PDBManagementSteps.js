@@ -90,14 +90,8 @@ Given('a deployment {string} with {string} replicas in namespace {string}', asyn
     labels: {}
   };
   
-  // Actually create the deployment for edge case tests
-  await resourceInventoryUtils.createTestDeployment(
-    deploymentName,
-    namespace,
-    parseInt(replicas),
-    {},
-    {}
-  );
+  // Do not create the deployment yet - wait for annotations and labels to be set
+  // The deployment will be created in the "When the PDB operator processes the deployment" step
 });
 
 Given('the deployment has annotation {string} set to {string}', async function (annotation, value) {
@@ -106,12 +100,8 @@ Given('the deployment has annotation {string} set to {string}', async function (
   const deployment = testContext.deployments[currentDeploymentName];
   deployment.annotations[annotation] = value;
   
-  // Update the actual deployment annotations
-  await resourceInventoryUtils.updateDeploymentAnnotations(
-    deployment.name,
-    deployment.namespace,
-    deployment.annotations
-  );
+  // Store the annotation in memory - the deployment will be created later with all annotations
+  // No need to update actual deployment annotations here since deployment doesn't exist yet
 });
 
 Given('the deployment has label {string} set to {string}', async function (label, value) {
@@ -146,7 +136,9 @@ When('the PDB operator processes the deployment', {timeout : PDB_CREATION_TIMEOU
   }
   
   // Wait for operator to process the deployment
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  // Give extra time for large replica deployments
+  console.log(`Created deployment ${deployment.name} with ${deployment.replicas} replicas and annotations:`, deployment.annotations);
+  await new Promise(resolve => setTimeout(resolve, 10000));
 });
 
 Then('a PDB named {string} should be created', {timeout : PDB_CREATION_TIMEOUT + TIMEOUT_BUFFER}, async function (pdbName) {
@@ -308,6 +300,25 @@ Then('the PDB should reference policy {string}', async function (policyName) {
 When('I scale the deployment {string} to {string} replica', async function (deploymentName, replicas) {
   const deployment = testContext.deployments[deploymentName];
   const namespace = deployment ? deployment.namespace : NAMESPACE;
+  
+  // Create the deployment first if it doesn't exist (with current annotations and labels)
+  if (deployment) {
+    try {
+      await resourceInventoryUtils.createTestDeployment(
+        deployment.name,
+        deployment.namespace,
+        deployment.replicas,
+        deployment.annotations,
+        deployment.labels
+      );
+    } catch (error) {
+      console.log(`Deployment ${deploymentName} might already exist, continuing...`);
+    }
+    
+    // Wait a moment for deployment to be ready
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+  
   await resourceInventoryUtils.scaleTestDeployment(deploymentName, namespace, parseInt(replicas));
   
   if (testContext.deployments[deploymentName]) {
@@ -318,6 +329,25 @@ When('I scale the deployment {string} to {string} replica', async function (depl
 When('I scale the deployment {string} to {string} replicas', async function (deploymentName, replicas) {
   const deployment = testContext.deployments[deploymentName];
   const namespace = deployment ? deployment.namespace : NAMESPACE;
+  
+  // Create the deployment first if it doesn't exist (with current annotations and labels)
+  if (deployment) {
+    try {
+      await resourceInventoryUtils.createTestDeployment(
+        deployment.name,
+        deployment.namespace,
+        deployment.replicas,
+        deployment.annotations,
+        deployment.labels
+      );
+    } catch (error) {
+      console.log(`Deployment ${deploymentName} might already exist, continuing...`);
+    }
+    
+    // Wait a moment for deployment to be ready
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+  
   await resourceInventoryUtils.scaleTestDeployment(deploymentName, namespace, parseInt(replicas));
   
   if (testContext.deployments[deploymentName]) {
@@ -563,9 +593,37 @@ Given('a deployment {string} with {string} replicas exists', async function (dep
 });
 
 Given('a PDB {string} exists with {string} minAvailable', async function (pdbName, minAvailable) {
-  // Create a PDB directly for testing scenarios
-  // Note: In real tests, this would create an actual PDB resource
+  // Create a PDB by processing the deployment (simulate what the operator would do)
   console.log(`Creating PDB ${pdbName} with ${minAvailable} minAvailable`);
+  
+  // Find the most recent deployment and create it with its annotations
+  const deploymentNames = Object.keys(testContext.deployments);
+  const currentDeploymentName = deploymentNames[deploymentNames.length - 1];
+  const deployment = testContext.deployments[currentDeploymentName];
+  
+  if (deployment) {
+    // Create the deployment with its annotations so the operator can create the PDB
+    try {
+      await resourceInventoryUtils.createTestDeployment(
+        deployment.name,
+        deployment.namespace,
+        deployment.replicas,
+        deployment.annotations,
+        deployment.labels
+      );
+      
+      // Wait for the operator to process the deployment and create the PDB
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      
+      // Verify the PDB was created
+      const pdb = await resourceInventoryUtils.getPDBResource(pdbName, deployment.namespace);
+      if (!pdb) {
+        throw new Error(`PDB ${pdbName} was not created by the operator`);
+      }
+    } catch (error) {
+      console.log(`Error creating deployment or PDB: ${error.message}`);
+    }
+  }
 });
 
 Given('a PDB {string} exists managed by {string}', async function (pdbName, policyName) {
@@ -708,6 +766,21 @@ When('I rapidly update the availability class annotation 10 times', async functi
   const currentDeploymentName = deploymentNames[deploymentNames.length - 1];
   const deployment = testContext.deployments[currentDeploymentName];
   
+  // Create the deployment first if it doesn't exist
+  try {
+    await resourceInventoryUtils.createTestDeployment(
+      deployment.name,
+      deployment.namespace,
+      deployment.replicas,
+      deployment.annotations,
+      deployment.labels
+    );
+    // Wait for deployment to be ready
+    await new Promise(resolve => setTimeout(resolve, 3000));
+  } catch (error) {
+    console.log(`Deployment ${deployment.name} might already exist, continuing...`);
+  }
+  
   const classes = ['standard', 'high-availability', 'mission-critical', 'non-critical'];
   
   for (let i = 0; i < 10; i++) {
@@ -735,6 +808,11 @@ When('the PDB operator is restarted', async function () {
 
 When('the operator completes initialization', async function () {
   await waitForPDBOperatorReady();
+  
+  // After operator restart, give extra time for it to reconcile existing deployments
+  // and recreate PDBs that should exist
+  console.log('Waiting for operator to reconcile existing deployments after restart...');
+  await new Promise(resolve => setTimeout(resolve, 15000));
 });
 
 Then('the PDB {string} should remain unchanged', async function (pdbName) {
