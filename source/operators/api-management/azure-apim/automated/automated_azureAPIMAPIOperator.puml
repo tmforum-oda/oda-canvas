@@ -1,0 +1,79 @@
+@startuml
+!theme plain
+' Title for the diagram
+title apiOperatorAzureAPIM - Create/Update Sequence
+
+!theme materia-outline
+
+' Define the participants in the sequence
+actor Developer
+participant "Kubernetes API" as K8s
+participant "apiOperatorAzureAPIM" as Operator
+participant "ODA Component\nService & Deployment" as ODA_K8s
+participant "Azure Key Vault" as Vault
+participant "Azure APIM" as APIM
+
+' --- Begin Sequence ---
+
+group 1. Trigger
+    Developer -> K8s: kubectl apply -f ExposedAPI.yaml
+    K8s ->> Operator: Notifies of CR create/update
+end
+
+group 2. Operator Reconciliation Loop
+    
+    activate Operator
+    
+    Operator -> Vault: GET secrets (APIM name, RG, etc.)
+    activate Vault
+    Vault ->> Operator: Secrets values
+    deactivate Vault
+    
+    ' This highlights the new, crucial observability step
+    group **Component Observability Patching**
+        note right of Operator: This is the new\nobservability injection step.
+        
+        Operator -> K8s: GET Service (from spec.implementation)
+        activate K8s
+        K8s ->> Operator: Service details (incl. selector)
+        deactivate K8s
+        
+        Operator -> ODA_K8s: **PATCH Service** (add labels)
+        
+        Operator -> K8s: GET Deployment (using selector)
+        activate K8s
+        K8s ->> Operator: Deployment details
+        deactivate K8s
+        
+        Operator -> ODA_K8s: **PATCH Deployment** (add labels/annotations)
+    end
+    
+    group Ingress Management
+        Operator -> K8s: Create/Update Ingress
+    end
+    
+    group Azure APIM Configuration
+        Operator -> K8s: GET Ingress URL
+        activate K8s
+        K8s ->> Operator: Ingress external URL
+        deactivate K8s
+        
+        Operator -> APIM: **1. Create/Update API**
+        note right of Operator: Operator waits for this\nlong-running operation\nto complete.
+        activate APIM
+        APIM ->> Operator: OK
+        
+        Operator -> APIM: **2. Create/Update Policy** (Trace, JWT, CORS, etc.)
+        APIM ->> Operator: OK
+        deactivate APIM
+    end
+
+    group 3. Finalize Status
+        Operator -> K8s: PATCH ExposedAPI status
+    end
+    
+    deactivate Operator
+    
+end
+
+@enduml
