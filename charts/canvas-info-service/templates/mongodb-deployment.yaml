@@ -14,9 +14,13 @@ spec:
       labels:
         app: {{.Release.Name}}-svcinv-mongodb
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- include "image-pull-secrets" . |nindent 6 }}
+      {{- end }}
       containers:
       - name: {{.Release.Name}}-svcinv-mongodb
-        image: {{ .Values.mongodb.image }}
+        image: {{ include "docker.registry" .}}{{ .Values.mongodb.image }}
         ports:
         - name: svcinv-mongodb
           containerPort: {{.Values.mongodb.port}}

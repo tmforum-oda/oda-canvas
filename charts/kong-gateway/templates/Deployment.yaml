@@ -14,9 +14,13 @@ spec:
         app: {{ .Release.Name }}-kongistio-operator
     spec:
       serviceAccountName: kongapioperator-account
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- include "image-pull-secrets" . |nindent 6 }}
+      {{- end }}
       initContainers:
         - name: wait-kong-admin
-          image: {{ .Values.initContainerImage }}
+          image: {{ include "docker.registry" .}}{{ .Values.initContainerImage }}
           command:
             - sh
             - -c

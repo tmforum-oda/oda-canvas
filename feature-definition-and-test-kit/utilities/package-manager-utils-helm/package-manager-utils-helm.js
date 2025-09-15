@@ -239,6 +239,21 @@ const packageManagerUtils = {
       await executeHelmCommand(`helm install ${releaseName} ${repoName}/${packageName} -n ${namespace}`);
     }
   },
+
+  /**
+   * List all installed helm releases in the specified namespace.
+   * @param {string} namespace - The namespace to list releases from.
+   * @return {Array} Array of release objects with name, namespace, revision, updated, status, chart, app_version properties.
+   */
+  listInstalledPackages: function (namespace) {
+    try {
+      const helmList = execSync(`helm list -o json -n ${namespace}`, { encoding: 'utf-8' });
+      return JSON.parse(helmList);
+    } catch (error) {
+      console.error(`Error listing installed packages: ${error.message}`);
+      return [];
+    }
+  },
 }
 
 module.exports = packageManagerUtils

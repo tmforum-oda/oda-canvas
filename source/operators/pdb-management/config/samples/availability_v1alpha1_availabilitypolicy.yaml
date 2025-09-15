@@ -1,0 +1,62 @@
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: oda-core-components
+  namespace: canvas
+  labels:
+    oda.tmforum.org/component-type: policy
+spec:
+  availabilityClass: high-availability
+  componentSelector:
+    componentFunctions:
+      - core
+    matchLabels:
+      oda.tmforum.org/componentType: core
+  maintenanceWindows:
+    - start: "02:00"
+      end: "04:00"
+      timezone: "UTC"
+      daysOfWeek: [0, 6]  # Sunday and Saturday
+  priority: 10
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: oda-security-components
+  namespace: canvas
+  labels:
+    oda.tmforum.org/component-type: policy
+spec:
+  availabilityClass: mission-critical
+  componentSelector:
+    componentFunctions:
+      - security
+    matchLabels:
+      oda.tmforum.org/componentType: security
+  maintenanceWindows:
+    - start: "03:00"
+      end: "05:00"
+      timezone: "UTC"
+      daysOfWeek: [0]  # Sunday only
+  priority: 20
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: oda-management-components
+  namespace: canvas
+  labels:
+    oda.tmforum.org/component-type: policy
+spec:
+  availabilityClass: standard
+  componentSelector:
+    componentFunctions:
+      - management
+    matchLabels:
+      oda.tmforum.org/componentType: management
+  maintenanceWindows:
+    - start: "01:00"
+      end: "03:00"
+      timezone: "UTC"
+      daysOfWeek: [0, 1, 2, 3, 4, 5, 6]  # Every day
+  priority: 5

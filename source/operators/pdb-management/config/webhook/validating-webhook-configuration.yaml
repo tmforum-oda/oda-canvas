@@ -1,0 +1,25 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: availabilitypolicy-validating-webhook-configuration
+  namespace: canvas
+  annotations:
+    cert-manager.io/inject-ca-from: canvas/serving-cert
+webhooks:
+- name: availabilitypolicy.availability.oda.tmforum.org
+  rules:
+  - apiGroups: ["availability.oda.tmforum.org"]
+    apiVersions: ["v1alpha1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["availabilitypolicies"]
+    scope: "Namespaced"
+  clientConfig:
+    service:
+      namespace: canvas
+      name: webhook-service
+      path: /validate-availability-oda-tmforum-org-v1alpha1-availabilitypolicy
+      port: 443
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 10
+  failurePolicy: Fail 

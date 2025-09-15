@@ -1,0 +1,307 @@
+const { expect } = require('chai');
+const sinon = require('sinon');
+const request = require('supertest');
+const express = require('express');
+
+// Import the modules we need to test
+const ExpressServer = require('../../expressServer');
+const KubernetesResourceService = require('../../services/KubernetesResourceService');
+const {
+  mockODAComponent,
+  mockExposedAPI,
+  mockExposedAPINotReady
+} = require('../fixtures/mockKubernetesData');
+
+describe('TMF639 Resource Inventory API Integration Tests', () => {
+  let app;
+  let server;
+  let mockK8sService;
+
+  before(async () => {
+    // Create a test Express app
+    app = express();
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    
+    // Mock KubernetesResourceService
+    mockK8sService = sinon.createStubInstance(KubernetesResourceService);
+    
+    // Setup default mock responses
+    mockK8sService.listResources.resolves([
+      {
+        id: 'test-component',
+        href: '/tmf-api/resourceInventoryManagement/v5/resource/test-component',
+        '@type': 'LogicalResource',
+        '@baseType': 'Resource',
+        name: 'test-component',
+        description: 'Test ODA Component',
+        category: 'ODAComponent',
+        resourceStatus: 'available',
+        operationalState: 'enable',
+        administrativeState: 'unlocked',
+        usageState: 'active',
+        resourceCharacteristic: [
+          {
+            '@type': 'Characteristic',
+            name: 'namespace',
+            value: 'components'
+          }
+        ],
+        place: [{
+          id: 'components',
+          name: 'components',
+          '@type': 'Namespace'
+        }],
+        relatedResource: []
+      }
+    ]);
+
+    mockK8sService.getResourceById.resolves({
+      id: 'test-component',
+      href: '/tmf-api/resourceInventoryManagement/v5/resource/test-component',
+      '@type': 'LogicalResource',
+      name: 'test-component',
+      category: 'ODAComponent'
+    });
+
+    // Setup API routes
+    const ResourceController = require('../../controllers/ResourceController');
+    
+    // Mock the KubernetesResourceService in the controller
+    const ResourceService = require('../../services/ResourceService');
+    ResourceService.__k8sService = mockK8sService;
+
+    // Add API routes
+    app.get('/tmf-api/resourceInventoryManagement/v5/resource', ResourceController.listResource);
+    app.get('/tmf-api/resourceInventoryManagement/v5/resource/:id', ResourceController.retrieveResource);
+    
+    // Add health check
+    app.get('/hello', (req, res) => res.send('Hello World. TMF639 Resource Inventory'));
+  });
+
+  after(() => {
+    if (server) {
+      server.close();
+    }
+    sinon.restore();
+  });
+
+  describe('Health Check', () => {
+    it('should respond to health check endpoint', async () => {
+      const response = await request(app)
+        .get('/hello')
+        .expect(200);
+
+      expect(response.text).to.include('TMF639 Resource Inventory');
+    });
+  });
+
+  describe('GET /tmf-api/resourceInventoryManagement/v5/resource', () => {
+    it('should list all resources', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(200);
+
+      expect(response.body).to.be.an('array');
+      expect(response.body).to.have.length(1);
+      expect(response.body[0]).to.have.property('id', 'test-component');
+      expect(response.body[0]).to.have.property('@type', 'LogicalResource');
+      expect(response.body[0]).to.have.property('category', 'ODAComponent');
+    });
+
+    it('should handle empty resource list', async () => {
+      mockK8sService.listResources.resolves([]);
+
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(200);
+
+      expect(response.body).to.be.an('array');
+      expect(response.body).to.have.length(0);
+    });
+
+    it('should handle Kubernetes API errors', async () => {
+      mockK8sService.listResources.rejects(new Error('Kubernetes API error'));
+
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(500);
+
+      expect(response.body).to.have.property('message');
+    });
+
+    it('should support query parameters', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource?fields=id,name,category&offset=0&limit=10')
+        .expect(200);
+
+      expect(response.body).to.be.an('array');
+      // Verify that the service was called (mocked behavior should still return data)
+      expect(mockK8sService.listResources).to.have.been.called;
+    });
+  });
+
+  describe('GET /tmf-api/resourceInventoryManagement/v5/resource/:id', () => {
+    it('should retrieve a specific resource', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource/test-component')
+        .expect(200);
+
+      expect(response.body).to.be.an('object');
+      expect(response.body).to.have.property('id', 'test-component');
+      expect(response.body).to.have.property('@type', 'LogicalResource');
+      expect(response.body).to.have.property('category', 'ODAComponent');
+    });
+
+    it('should return 404 for non-existent resource', async () => {
+      mockK8sService.getResourceById.withArgs('nonexistent').resolves(null);
+
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource/nonexistent')
+        .expect(404);
+
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.include('not found');
+    });
+
+    it('should handle Kubernetes API errors for specific resource', async () => {
+      mockK8sService.getResourceById.withArgs('error-resource').rejects(new Error('Kubernetes API error'));
+
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource/error-resource')
+        .expect(500);
+
+      expect(response.body).to.have.property('message');
+    });
+
+    it('should support fields query parameter', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource/test-component?fields=id,name')
+        .expect(200);
+
+      expect(response.body).to.be.an('object');
+      expect(mockK8sService.getResourceById).to.have.been.calledWith('test-component');
+    });
+  });
+
+  describe('TMF639 Compliance', () => {
+    it('should return resources in TMF639 format', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(200);
+
+      const resource = response.body[0];
+      
+      // Verify TMF639 required fields
+      expect(resource).to.have.property('id');
+      expect(resource).to.have.property('href');
+      expect(resource).to.have.property('@type', 'LogicalResource');
+      expect(resource).to.have.property('@baseType', 'Resource');
+      expect(resource).to.have.property('name');
+      expect(resource).to.have.property('category');
+      expect(resource).to.have.property('resourceStatus');
+      expect(resource).to.have.property('operationalState');
+      expect(resource).to.have.property('administrativeState');
+      expect(resource).to.have.property('usageState');
+      
+      // Verify characteristics structure
+      expect(resource).to.have.property('resourceCharacteristic');
+      expect(resource.resourceCharacteristic).to.be.an('array');
+      
+      if (resource.resourceCharacteristic.length > 0) {
+        const characteristic = resource.resourceCharacteristic[0];
+        expect(characteristic).to.have.property('@type', 'Characteristic');
+        expect(characteristic).to.have.property('name');
+        expect(characteristic).to.have.property('value');
+      }
+      
+      // Verify place structure
+      expect(resource).to.have.property('place');
+      expect(resource.place).to.be.an('array');
+      
+      if (resource.place.length > 0) {
+        const place = resource.place[0];
+        expect(place).to.have.property('id');
+        expect(place).to.have.property('name');
+        expect(place).to.have.property('@type');
+      }
+    });
+
+    it('should use correct href format', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(200);
+
+      const resource = response.body[0];
+      expect(resource.href).to.match(/^\/tmf-api\/resourceInventoryManagement\/v5\/resource\/.+/);
+    });
+
+    it('should have valid resource status values', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(200);
+
+      const resource = response.body[0];
+      const validResourceStatuses = ['available', 'reserved', 'standby', 'installing'];
+      expect(validResourceStatuses).to.include(resource.resourceStatus);
+    });
+
+    it('should have valid operational state values', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(200);
+
+      const resource = response.body[0];
+      const validOperationalStates = ['enable', 'disable'];
+      expect(validOperationalStates).to.include(resource.operationalState);
+    });
+  });
+
+  describe('Content-Type and Headers', () => {
+    it('should return JSON content-type', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(200);
+
+      expect(response.headers['content-type']).to.match(/application\/json/);
+    });
+
+    it('should handle CORS headers if configured', async () => {
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(200);
+
+      // Check if CORS headers are present (they should be if CORS middleware is configured)
+      // This is optional based on the server configuration
+    });
+  });
+
+  describe('Error Response Format', () => {
+    it('should return structured error responses', async () => {
+      mockK8sService.listResources.rejects(new Error('Test error'));
+
+      const response = await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource')
+        .expect(500);
+
+      expect(response.body).to.be.an('object');
+      expect(response.body).to.have.property('message');
+    });
+
+    it('should return appropriate HTTP status codes', async () => {
+      // Test 404
+      mockK8sService.getResourceById.withArgs('not-found').resolves(null);
+      
+      await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource/not-found')
+        .expect(404);
+
+      // Test 500
+      mockK8sService.getResourceById.withArgs('server-error').rejects(new Error('Server error'));
+      
+      await request(app)
+        .get('/tmf-api/resourceInventoryManagement/v5/resource/server-error')
+        .expect(500);
+    });
+  });
+});

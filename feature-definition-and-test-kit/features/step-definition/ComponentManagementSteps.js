@@ -248,6 +248,61 @@ Given('an example package {string} has been installed', async function (componen
 });
 
 /**
+ * Ensure only the specified package is installed by uninstalling all other helm packages except CTK releases,
+ * then installing the named package as release ctk.
+ *
+ * @param {string} componentPackage - The name of the package that should be the only one installed.
+ */
+Given('only the {string} package is installed', async function (componentPackage) {
+  console.log('\n=== Starting Clean Installation Setup ===');
+  console.log(`Ensuring only '${componentPackage}' package is installed as release 'ctk'`);
+  
+  try {
+    // First, get a list of all installed helm releases
+    console.log('Getting list of all installed helm releases...');
+    const releases = packageManagerUtils.listInstalledPackages(NAMESPACE);
+    
+    // Uninstall all releases except those starting with 'ctk'
+    for (const release of releases) {
+      if (!release.name.startsWith('ctk')) {
+        console.log(`Uninstalling release '${release.name}'...`);
+        await packageManagerUtils.uninstallPackage(release.name, NAMESPACE);
+      } else {
+        console.log(`Keeping CTK release '${release.name}'`);
+      }
+    }
+    
+    // Set the global release name to ctk
+    global.currentReleaseName = 'ctk';
+    global.namespace = null;
+    
+    // Install the specified package as release 'ctk'
+    console.log(`Installing '${componentPackage}' as release 'ctk'...`);
+    await packageManagerUtils.installPackage(componentPackage, 'ctk', NAMESPACE);
+    
+    console.log(`✅ Successfully ensured only '${componentPackage}' is installed as release 'ctk'`);
+    console.log('=== Clean Installation Setup Complete ===');
+
+  } catch (error) {
+    console.error(`❌ Error during clean installation setup: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Package: '${componentPackage}'`);
+    console.error(`- Namespace: '${NAMESPACE}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+    
+    console.error('Possible causes:');
+    console.error('- Package not found in configured repositories');
+    console.error('- Helm/package manager not properly configured');
+    console.error('- Insufficient permissions to install/uninstall packages');
+    console.error('- Network connectivity issues to package repository');
+    console.error('- Kubernetes cluster access issues');
+    
+    console.log('=== Clean Installation Setup Failed ===');
+    throw error;
+  }
+});
+
+/**
  * Installing a package from a repository.
  */
 When('I install the {string} package as release {string} from the {string} repository', async function (packageName, releaseName, repoName) {

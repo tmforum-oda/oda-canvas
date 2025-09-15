@@ -1,0 +1,23 @@
+# This is a template for creating a maintenance window deployment
+# Replace WINDOW_START and WINDOW_END with actual timestamps
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-demo
+  namespace: pdb-demo
+  annotations:
+    oda.tmforum.org/availability-class: "high-availability"
+    oda.tmforum.org/maintenance-window: "WINDOW_START-WINDOW_END UTC"
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: maintenance
+  template:
+    metadata:
+      labels:
+        app: maintenance
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
