@@ -5,13 +5,17 @@ This service provides CRUD operations for managing Component Registries, Compone
 and their Exposed APIs following the TM Forum ODA Canvas specification.
 """
 
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import FastAPI, HTTPException, Depends, Query, Request
+
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import uvicorn
-
+import os
 import models, crud, database
+
 
 # Create database tables
 database.create_tables()
@@ -23,6 +27,12 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+
+# Set up Jinja2 templates
+TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
 
 # Add CORS middleware
 app.add_middleware(
@@ -48,6 +58,22 @@ def get_db():
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "service": "component-registry-service"}
+
+
+# ROOT ENDPOINT
+@app.get("/", response_class=HTMLResponse, tags=["Root"])
+def root(request: Request):
+    """Root page with links to OpenAPI docs and Component GUI"""
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+# COMPONENTS GUI ENDPOINT
+@app.get("/components-gui", response_class=HTMLResponse, tags=["Components"])
+def components_gui(request: Request, db: Session = Depends(get_db)):
+    """GUI page to display all registered components"""
+    components = crud.ComponentCRUD.get_all(db)
+    # Attach labels for each component (as in API response)
+    return templates.TemplateResponse("components.html", {"request": request, "components": components})
 
 
 # ComponentRegistry endpoints

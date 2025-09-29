@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registered Components</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Registered Components</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Registry</th>
+                <th>Description</th>
+                <th>ExposedAPIs</th>
+                <th>Labels</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for component in components %}
+            <tr>
+                <td>{{ component.component_name }}</td>
+                <td>{{ component.component_registry_ref }}</td>
+                <td>{{ component.description or '' }}</td>
+                <td>
+                  {% if component.exposed_apis %}
+                    {% for exposed_api in component.exposed_apis %}
+                      <span>{{ exposed_api.name }}({{ exposed_api.url }})</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                  {% else %}-{% endif %}
+                </td>
+                <td>
+                  {% if component.labels %}
+                    {% for key, value in component.labels.items() %}
+                      <span>{{ key }}={{ value }}</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                  {% else %}-{% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
