@@ -37,6 +37,12 @@ def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "service": "ODA Canvas Microservice"}
 
+# ROOT ENDPOINT
+@app.get("/", response_class=HTMLResponse, tags=["Root"])
+def root(request: Request):
+    """Root page with links to OpenAPI docs and Component GUI"""
+    return templates.TemplateResponse("index.html", {"request": request})
+
 # LABEL ENDPOINTS
 @app.post("/labels/", response_model=schemas.Label, status_code=status.HTTP_201_CREATED, tags=["Labels"])
 def create_label(label: schemas.LabelCreate, db: Session = Depends(get_db)):
