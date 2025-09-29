@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  labels:
+    app: compreg
+  name: compreg-vs
+spec:
+  gateways:
+  - {{ .Values.componentGateway }}
+  hosts:
+  - canvas-info.{{ .Values.domain }}
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: compreg.canvas.svc.cluster.local
+        port:
+          number: 80

@@ -1,64 +1,42 @@
-# Component Registry
-
-The Component Registry is a service for registering and querying components.
-
-## Usage
-
 ## Data Model
 
-### componentRegistry
+
+### Registry
 
 * name
+* type - upstream/downstream/self
 * url
-* type (upstream/downstream/self)
 * arrayOfLabels
-** labelKey
-** labelValue
+* arrayOfComponents
 
 
 ### Component
 
 * registryName
-* componentName
+* name
 * arrayOfLabels
-** labelKey
-** labelValue
 * arrayOfExposedAPIs
 
 
-### Exposed API
+### ExposedAPI
 
 * registryName
 * componentName
-* oasSpecification
+* name
 * url
-* visibility
+* oasSpecification
+* status - pending/ready
 * arrayOfLabels
-** labelKey
-** labelValue
 
 
-### Upstream Registries
+### Label
 
-* componentRegistryURL
+A label is a simple Key-Value Pair
+
+* key
+* value
 
 
-## Methods
-
-* create/updateComponent
-* deleteComponent
-* [opt] getComponent
-* create/updateExposedAPI
-* deleteExposedAPI
-* [opt] getExposedAPI
-* searchExposedAPI
-** oasSpecification
-** [opt] labelsSelector
-* requestConnection
-* registerUpstreamRegistry
-* unregisterUpstreamRegistry
-* syncToUpstream
-* syncFromDownstream
 
 
 ## Events
