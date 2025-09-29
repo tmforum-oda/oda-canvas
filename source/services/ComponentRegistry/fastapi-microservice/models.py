@@ -52,6 +52,22 @@ class Registry(Base):
     components = relationship("Component", back_populates="registry")
     registry_labels = relationship("RegistryLabel", back_populates="registry", cascade="all, delete-orphan")
 
+class ExposedAPI(Base):
+    """ExposedAPI entity representing APIs exposed by components"""
+    __tablename__ = "exposed_apis"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    registry_name = Column(String(100), ForeignKey("registries.name"), nullable=False)
+    name = Column(String(100), nullable=False, index=True)
+    url = Column(String(500), nullable=False)
+    oas_specification = Column(Text)  # OpenAPI Specification
+    status = Column(Enum(APIStatusEnum), default=APIStatusEnum.pending)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    registry = relationship("Registry")
+    exposed_api_labels = relationship("ExposedAPILabel", back_populates="exposed_api", cascade="all, delete-orphan")
+
 class Component(Base):
     """Component entity representing ODA components"""
     __tablename__ = "components"
@@ -64,23 +80,6 @@ class Component(Base):
     # Relationships
     registry = relationship("Registry", back_populates="components")
     component_labels = relationship("ComponentLabel", back_populates="component", cascade="all, delete-orphan")
-
-class ExposedAPI(Base):
-    """ExposedAPI entity representing APIs exposed by components"""
-    __tablename__ = "exposed_apis"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    registry_name = Column(String(100), ForeignKey("registries.name"), nullable=False)
-    component_name = Column(String(100), nullable=False)
-    name = Column(String(100), nullable=False, index=True)
-    url = Column(String(500), nullable=False)
-    oas_specification = Column(Text)  # OpenAPI Specification
-    status = Column(Enum(APIStatusEnum), default=APIStatusEnum.pending)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    registry = relationship("Registry")
-    exposed_api_labels = relationship("ExposedAPILabel", back_populates="exposed_api", cascade="all, delete-orphan")
 
 # Association tables for many-to-many relationships with labels
 
