@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  component-registry-service:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./component_registry.db:/app/component_registry.db
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
