@@ -18,23 +18,6 @@ Ein umfassender Python-Microservice mit FastAPI, der CRUD-Operationen für ein E
 
 ### Entitäten und Relationen
 
-1. **User** (Benutzer)
-   - id, username, email, full_name, created_at
-   - Hat viele Orders (1:n Relation)
-
-2. **Product** (Produkt)
-   - id, name, description, price, stock_quantity, created_at
-   - Hat viele OrderItems (1:n Relation)
-
-3. **Order** (Bestellung)
-   - id, user_id, total_amount, status, created_at
-   - Gehört zu einem User (n:1 Relation)
-   - Hat viele OrderItems (1:n Relation)
-
-4. **OrderItem** (Bestellposition)
-   - id, order_id, product_id, quantity, unit_price
-   - Gehört zu einer Order (n:1 Relation)
-   - Gehört zu einem Product (n:1 Relation)
 
 ## Installation und Setup
 
@@ -69,26 +52,6 @@ Nach dem Start des Servers ist die automatische API-Dokumentation verfügbar unt
 
 ## API-Endpunkte
 
-### Benutzer (Users)
-- `POST /users/` - Neuen Benutzer erstellen
-- `GET /users/{user_id}` - Benutzer nach ID abrufen
-- `GET /users/` - Alle Benutzer auflisten (mit Paginierung)
-- `PUT /users/{user_id}` - Benutzer aktualisieren
-- `DELETE /users/{user_id}` - Benutzer löschen
-
-### Produkte (Products)
-- `POST /products/` - Neues Produkt erstellen
-- `GET /products/{product_id}` - Produkt nach ID abrufen
-- `GET /products/` - Alle Produkte auflisten (mit Paginierung und Suche)
-- `PUT /products/{product_id}` - Produkt aktualisieren
-- `DELETE /products/{product_id}` - Produkt löschen
-
-### Bestellungen (Orders)
-- `POST /orders/` - Neue Bestellung erstellen
-- `GET /orders/{order_id}` - Bestellung nach ID abrufen
-- `GET /orders/` - Alle Bestellungen auflisten (mit Paginierung und Benutzerfilter)
-- `PATCH /orders/{order_id}/status` - Bestellstatus aktualisieren
-- `DELETE /orders/{order_id}` - Bestellung löschen
 
 ### Weitere Endpunkte
 - `GET /health` - Health Check
@@ -96,45 +59,6 @@ Nach dem Start des Servers ist die automatische API-Dokumentation verfügbar unt
 
 ## Beispiel-Requests
 
-### Benutzer erstellen
-```bash
-curl -X POST "http://localhost:8000/users/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "testuser",
-    "email": "test@example.com",
-    "full_name": "Test User"
-  }'
-```
-
-### Produkt erstellen
-```bash
-curl -X POST "http://localhost:8000/products/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Test Product",
-    "description": "A test product",
-    "price": 99.99,
-    "stock_quantity": 10
-  }'
-```
-
-### Bestellung erstellen
-```bash
-curl -X POST "http://localhost:8000/orders/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "status": "pending",
-    "order_items": [
-      {
-        "product_id": 1,
-        "quantity": 2,
-        "unit_price": 99.99
-      }
-    ]
-  }'
-```
 
 ## Projektstruktur
 

@@ -27,12 +27,11 @@ def test_imports():
         print("✓ Database session creation works")
         
         # Test schema validation
-        user_data = {
-            "username": "testuser",
-            "email": "test@example.com",
-            "full_name": "Test User"
+        label_data = {
+            "key": "mykey",
+            "value": "myvalue",
         }
-        user_create = schemas.UserCreate(**user_data)
+        label_create = schemas.LabelCreate(**label_data)
         print("✓ Pydantic schema validation works")
         
         print("\n🎉 All components validated successfully!")
@@ -54,26 +53,12 @@ def test_imports():
 def show_api_endpoints():
     """Display available API endpoints"""
     print("\n📡 Available API Endpoints:")
-    print("\n👥 Users:")
-    print("  POST   /users/              - Create new user")
-    print("  GET    /users/{user_id}     - Get user by ID")
-    print("  GET    /users/              - List all users (paginated)")
-    print("  PUT    /users/{user_id}     - Update user")
-    print("  DELETE /users/{user_id}     - Delete user")
-    
-    print("\n📦 Products:")
-    print("  POST   /products/           - Create new product")
-    print("  GET    /products/{product_id} - Get product by ID")
-    print("  GET    /products/           - List all products (paginated, searchable)")
-    print("  PUT    /products/{product_id} - Update product")
-    print("  DELETE /products/{product_id} - Delete product")
-    
-    print("\n🛒 Orders:")
-    print("  POST   /orders/             - Create new order")
-    print("  GET    /orders/{order_id}   - Get order by ID")
-    print("  GET    /orders/             - List all orders (paginated, filterable)")
-    print("  PATCH  /orders/{order_id}/status - Update order status")
-    print("  DELETE /orders/{order_id}   - Delete order")
+    print("\n👥 Labels:")
+    print("  POST   /labels/              - Create new label")
+    print("  GET    /labels/{label_id}     - Get label by ID")
+    print("  GET    /labels/              - List all labels (paginated)")
+    print("  PUT    /labels/{label_id}     - Update label")
+    print("  DELETE /labels/{label_id}     - Delete label")
     
     print("\n📊 Additional:")
     print("  GET    /health              - Health check")

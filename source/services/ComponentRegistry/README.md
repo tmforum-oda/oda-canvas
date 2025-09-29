@@ -63,6 +63,15 @@ curl -sX 'GET'   'https://canvas-info.ihc-dt.cluster-2.de/service'   -H 'accept:
   3b8b010d-d8d0-410e-a256-0afdf84158f8
 ```
 
+# sync to compreg
+
+```
+cd custom-resource-collector
+python cli.py sync demo-a-productcatalogmanagement --namespace components
+python cli.py sync demo-b-productcatalogmanagement --namespace components
+```
+
+
 ## Logfile of DependentAPI Operator
 
 ```

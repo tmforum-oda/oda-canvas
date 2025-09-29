@@ -13,7 +13,7 @@ class Settings:
     
     # API settings
     API_TITLE: str = "E-Commerce Microservice"
-    API_DESCRIPTION: str = "A comprehensive microservice for managing users, products, and orders"
+    API_DESCRIPTION: str = "A comprehensive microservice for managing a ODA Component Registry"
     API_VERSION: str = "1.0.0"
     
     # Server settings
