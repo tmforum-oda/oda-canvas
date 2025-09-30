@@ -1,0 +1,4 @@
+image: ocfork/custom-resource-collector
+imageVersion: 0.1.2
+registryUrl: https://compreg.ihc-dt.cluster-2.de
+schedule: "* * * * *"   # "At every minute.." (crontab.guru)

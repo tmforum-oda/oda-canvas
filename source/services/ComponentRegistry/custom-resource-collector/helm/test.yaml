@@ -1,0 +1,38 @@
+# Source: custom-resource-collector/templates/cronjob.yaml
+apiVersion: apps/v1
+kind: CronJob
+metadata:
+  name: custom-resource-collector
+  labels:
+    app: custom-resource-collector
+spec:
+  schedule: "* * * * *"
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          serviceAccountName: custom-resource-collector-sa
+          containers:
+          - name: collector
+            image: ocfork/custom-resource-collector:0.1.0
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: REGISTRY_URL
+              value: compreg.ihc-dt.cluster-2.de
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              runAsUser: 1000
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                - ALL
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
+          restartPolicy: Never
+      backoffLimit: 0
