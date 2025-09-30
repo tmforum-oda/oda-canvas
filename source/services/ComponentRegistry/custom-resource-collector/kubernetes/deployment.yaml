@@ -1,0 +1,200 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: collector-config
+  namespace: oda-canvas
+  labels:
+    app: custom-resource-collector
+data:
+  # Component Registry Configuration
+  COMPONENT_REGISTRY_URL: "http://oda-canvas-microservice:8000"
+  COMPONENT_REGISTRY_TIMEOUT: "30"
+  COMPONENT_REGISTRY_RETRY_ATTEMPTS: "3"
+  COMPONENT_REGISTRY_RETRY_DELAY: "5"
+  
+  # Kubernetes Configuration
+  KUBERNETES_NAMESPACE: "oda-canvas"
+  KUBERNETES_IN_CLUSTER: "true"
+  KUBERNETES_WATCH_TIMEOUT: "300"
+  
+  # ODA Component Configuration
+  ODA_COMPONENT_GROUP: "oda.tmforum.org"
+  ODA_COMPONENT_VERSION: "v1beta3"
+  ODA_COMPONENT_PLURAL: "components"
+  
+  # Logging Configuration
+  LOG_LEVEL: "INFO"
+  
+  # Monitoring Configuration
+  MONITORING_ENABLED: "true"
+  MONITORING_PORT: "8080"
+  MONITORING_ENDPOINT: "/metrics"
+  
+  # Synchronization Configuration
+  SYNC_INTERVAL: "60"
+  BATCH_SIZE: "10"
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: custom-resource-collector
+  namespace: oda-canvas
+  labels:
+    app: custom-resource-collector
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: custom-resource-collector
+  labels:
+    app: custom-resource-collector
+rules:
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list"]
+- apiGroups: ["oda.tmforum.org"]
+  resources: ["components"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: custom-resource-collector
+  labels:
+    app: custom-resource-collector
+subjects:
+- kind: ServiceAccount
+  name: custom-resource-collector
+  namespace: oda-canvas
+roleRef:
+  kind: ClusterRole
+  name: custom-resource-collector
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-resource-collector
+  namespace: oda-canvas
+  labels:
+    app: custom-resource-collector
+    component: oda-canvas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-resource-collector
+  template:
+    metadata:
+      labels:
+        app: custom-resource-collector
+        component: oda-canvas
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: custom-resource-collector
+      containers:
+      - name: collector
+        image: oda-canvas/custom-resource-collector:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: metrics
+          containerPort: 8080
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: collector-config
+        env:
+        - name: COMPONENT_REGISTRY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: collector-secrets
+              key: registry-api-key
+              optional: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-resource-collector
+  namespace: oda-canvas
+  labels:
+    app: custom-resource-collector
+    component: oda-canvas
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: custom-resource-collector
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: collector-secrets
+  namespace: oda-canvas
+  labels:
+    app: custom-resource-collector
+type: Opaque
+data:
+  # Base64 encoded API key for Component Registry (optional)
+  # registry-api-key: <base64-encoded-api-key>

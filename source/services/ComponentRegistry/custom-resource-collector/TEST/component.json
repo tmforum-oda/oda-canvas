@@ -1,0 +1,263 @@
+{
+  "apiVersion": "oda.tmforum.org/v1beta3",
+  "kind": "Component",
+  "metadata": {
+    "annotations": {
+      "kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"componentMetadata\":{\"description\":\"Simple Product Catalog ODA-Component from Open-API reference implementation.\",\"functionalBlock\":\"CoreCommerce\",\"id\":\"TMFC001\",\"maintainers\":[{\"email\":\"lester.thomas@vodafone.com\",\"name\":\"Lester Thomas\"}],\"name\":\"productcatalogmanagement\",\"owners\":[{\"email\":\"lester.thomas@vodafone.com\",\"name\":\"Lester Thomas\"}],\"publicationDate\":\"2024-09-17T00:00:00.000Z\",\"status\":\"specified\",\"version\":\"0.0.1\"},\"coreFunction\":{\"dependentAPIs\":[],\"exposedAPIs\":[{\"apiType\":\"openapi\",\"developerUI\":\"/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs\",\"implementation\":\"demo-a-prodcatapi\",\"name\":\"productcatalogmanagement\",\"path\":\"/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4\",\"port\":8080,\"specification\":[{\"url\":\"https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json\"}]}]},\"eventNotification\":{\"publishedEvents\":[],\"subscribedEvents\":[]},\"managementFunction\":{\"exposedAPIs\":[{\"apiType\":\"prometheus\",\"implementation\":\"demo-a-productcatalogmanagement-sm\",\"name\":\"metrics\",\"path\":\"/demo-a-productcatalogmanagement/metrics\",\"port\":4000}]},\"securityFunction\":{\"canvasSystemRole\":\"Admin\",\"exposedAPIs\":[{\"apiType\":\"openapi\",\"developerUI\":\"/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4/docs\",\"implementation\":\"demo-a-partyroleapi\",\"name\":\"partyrole\",\"path\":\"/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4\",\"port\":8080,\"specification\":[{\"url\":\"https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json\"}]}]}},\"metadata\":{\"labels\":{\"app.kubernetes.io/managed-by\":\"Helm\",\"oda.tmforum.org/componentName\":\"demo-a-productcatalogmanagement\"},\"annotations\":{\"meta.helm.sh/release-name\":\"demo-a\",\"meta.helm.sh/release-namespace\":\"components\"}},\"status\":{\"coreAPIs\":[{\"developerUI\":\"https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs\",\"implementation\":\"demo-a-prodcatapi\",\"ip\":\"components.ihc-dt.cluster-2.de\",\"name\":\"demo-a-productcatalogmanagement-productcatalogmanagement\",\"path\":\"/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4\",\"port\":8080,\"ready\":true,\"uid\":\"d4463a16-1050-440c-a1a0-97f970a1fe4f\",\"url\":\"https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4\"}],\"coreDependentAPIs\":[],\"identityConfig\":{\"identityProvider\":\"Keycloak\",\"listenerRegistered\":true},\"identityConfig/status.summary/status.deployment_status\":\"identityConfig resource unchanged\",\"managementAPIs\":[{\"implementation\":\"demo-a-productcatalogmanagement-sm\",\"ip\":\"components.ihc-dt.cluster-2.de\",\"name\":\"demo-a-productcatalogmanagement-metrics\",\"path\":\"/demo-a-productcatalogmanagement/metrics\",\"port\":4000,\"ready\":true,\"uid\":\"739f0a33-b18d-455f-954a-5f0ccfc16c8d\",\"url\":\"https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/metrics\"}],\"publishedEvents\":[],\"securityAPIs\":[{\"developerUI\":\"https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4/docs\",\"implementation\":\"demo-a-partyroleapi\",\"ip\":\"components.ihc-dt.cluster-2.de\",\"name\":\"demo-a-productcatalogmanagement-partyrole\",\"path\":\"/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4\",\"port\":8080,\"ready\":true,\"uid\":\"9a2b990f-3356-460b-a7ea-df2aa61058cc\",\"url\":\"https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4\"}],\"securitySecretsManagement\":{},\"subscribedEvents\":[],\"summary/status\":{\"coreAPIsummary\":\"https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4 \",\"coreDependentAPIsummary\":\"\",\"deployment_status\":\"Complete\",\"developerUIsummary\":\"https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4/docs \",\"managementAPIsummary\":\"https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/metrics \",\"securityAPIsummary\":\"https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4 \",\"securitySecretsManagementSummary\":\"\"}}}\n",
+      "meta.helm.sh/release-name": "demo-a",
+      "meta.helm.sh/release-namespace": "components",
+      "webhookconverted": "Webhook converted From oda.tmforum.org/v1 to oda.tmforum.org/v1beta3"
+    },
+    "creationTimestamp": "2025-09-28T16:41:19Z",
+    "generation": 66,
+    "labels": {
+      "app.kubernetes.io/managed-by": "Helm",
+      "oda.tmforum.org/componentName": "demo-a-productcatalogmanagement"
+    },
+    "managedFields": [
+      {
+        "apiVersion": "oda.tmforum.org/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              ".": {},
+              "f:meta.helm.sh/release-name": {},
+              "f:meta.helm.sh/release-namespace": {}
+            },
+            "f:labels": {
+              ".": {},
+              "f:app.kubernetes.io/managed-by": {},
+              "f:oda.tmforum.org/componentName": {}
+            }
+          },
+          "f:spec": {
+            ".": {},
+            "f:componentMetadata": {
+              ".": {},
+              "f:description": {},
+              "f:functionalBlock": {},
+              "f:id": {},
+              "f:maintainers": {},
+              "f:name": {},
+              "f:owners": {},
+              "f:publicationDate": {},
+              "f:status": {},
+              "f:version": {}
+            },
+            "f:coreFunction": {
+              ".": {},
+              "f:dependentAPIs": {},
+              "f:exposedAPIs": {}
+            },
+            "f:eventNotification": {
+              ".": {},
+              "f:publishedEvents": {},
+              "f:subscribedEvents": {}
+            },
+            "f:managementFunction": {
+              ".": {},
+              "f:exposedAPIs": {}
+            },
+            "f:securityFunction": {
+              ".": {},
+              "f:canvasSystemRole": {},
+              "f:exposedAPIs": {}
+            }
+          }
+        },
+        "manager": "helm",
+        "operation": "Update",
+        "time": "2025-09-28T16:41:19Z"
+      },
+      {
+        "apiVersion": "oda.tmforum.org/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:status": {
+            "f:coreAPIs": {},
+            "f:identityConfig": {
+              ".": {},
+              "f:identityProvider": {},
+              "f:listenerRegistered": {}
+            },
+            "f:managementAPIs": {},
+            "f:securityAPIs": {}
+          }
+        },
+        "manager": "OpenAPI-Generator",
+        "operation": "Update",
+        "time": "2025-09-28T16:41:57Z"
+      },
+      {
+        "apiVersion": "oda.tmforum.org/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              "f:kopf.zalando.org/last-handled-configuration": {}
+            }
+          },
+          "f:status": {
+            ".": {},
+            "f:coreDependentAPIs": {},
+            "f:identityConfig/status.summary/status.deployment_status": {},
+            "f:kopf": {
+              ".": {},
+              "f:progress": {}
+            },
+            "f:publishedEvents": {},
+            "f:securitySecretsManagement": {},
+            "f:subscribedEvents": {},
+            "f:summary/status": {
+              ".": {},
+              "f:coreAPIsummary": {},
+              "f:coreDependentAPIsummary": {},
+              "f:deployment_status": {},
+              "f:developerUIsummary": {},
+              "f:managementAPIsummary": {},
+              "f:securityAPIsummary": {},
+              "f:securitySecretsManagementSummary": {}
+            }
+          }
+        },
+        "manager": "kopf",
+        "operation": "Update",
+        "time": "2025-09-28T16:42:00Z"
+      }
+    ],
+    "name": "demo-a-productcatalogmanagement",
+    "namespace": "components",
+    "resourceVersion": "1759077720544655003",
+    "uid": "cb19b7d0-5a0e-458c-9320-80ce7c420f2e"
+  },
+  "spec": {
+    "coreFunction": {
+      "dependentAPIs": [],
+      "exposedAPIs": [
+        {
+          "apiType": "openapi",
+          "developerUI": "/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
+          "implementation": "demo-a-prodcatapi",
+          "name": "productcatalogmanagement",
+          "path": "/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+          "port": 8080,
+          "specification": [
+            "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+          ]
+        }
+      ]
+    },
+    "description": "Simple Product Catalog ODA-Component from Open-API reference implementation.",
+    "eventNotification": {
+      "publishedEvents": [],
+      "subscribedEvents": []
+    },
+    "functionalBlock": "CoreCommerce",
+    "id": "TMFC001",
+    "maintainers": [
+      {
+        "email": "lester.thomas@vodafone.com",
+        "name": "Lester Thomas"
+      }
+    ],
+    "managementFunction": {
+      "exposedAPIs": [
+        {
+          "apiType": "prometheus",
+          "implementation": "demo-a-productcatalogmanagement-sm",
+          "name": "metrics",
+          "path": "/demo-a-productcatalogmanagement/metrics",
+          "port": 4000
+        }
+      ]
+    },
+    "name": "productcatalogmanagement",
+    "owners": [
+      {
+        "email": "lester.thomas@vodafone.com",
+        "name": "Lester Thomas"
+      }
+    ],
+    "publicationDate": "2024-09-17T00:00:00.000Z",
+    "securityFunction": {
+      "controllerRole": "Admin",
+      "exposedAPIs": [
+        {
+          "apiType": "openapi",
+          "developerUI": "/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4/docs",
+          "implementation": "demo-a-partyroleapi",
+          "name": "partyrole",
+          "path": "/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4",
+          "port": 8080,
+          "specification": [
+            "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
+          ]
+        }
+      ]
+    },
+    "status": "specified",
+    "version": "0.0.1"
+  },
+  "status": {
+    "coreAPIs": [
+      {
+        "developerUI": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
+        "implementation": "demo-a-prodcatapi",
+        "ip": "components.ihc-dt.cluster-2.de",
+        "name": "demo-a-productcatalogmanagement-productcatalogmanagement",
+        "path": "/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
+        "port": 8080,
+        "ready": true,
+        "uid": "d4463a16-1050-440c-a1a0-97f970a1fe4f",
+        "url": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+      }
+    ],
+    "coreDependentAPIs": [],
+    "identityConfig": {
+      "identityProvider": "Keycloak",
+      "listenerRegistered": true
+    },
+    "identityConfig/status.summary/status.deployment_status": "identityConfig resource unchanged",
+    "kopf": {
+      "progress": {}
+    },
+    "managementAPIs": [
+      {
+        "implementation": "demo-a-productcatalogmanagement-sm",
+        "ip": "components.ihc-dt.cluster-2.de",
+        "name": "demo-a-productcatalogmanagement-metrics",
+        "path": "/demo-a-productcatalogmanagement/metrics",
+        "port": 4000,
+        "ready": true,
+        "uid": "739f0a33-b18d-455f-954a-5f0ccfc16c8d",
+        "url": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/metrics"
+      }
+    ],
+    "publishedEvents": [],
+    "securityAPIs": [
+      {
+        "developerUI": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4/docs",
+        "implementation": "demo-a-partyroleapi",
+        "ip": "components.ihc-dt.cluster-2.de",
+        "name": "demo-a-productcatalogmanagement-partyrole",
+        "path": "/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4",
+        "port": 8080,
+        "ready": true,
+        "uid": "9a2b990f-3356-460b-a7ea-df2aa61058cc",
+        "url": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4"
+      }
+    ],
+    "securitySecretsManagement": {},
+    "subscribedEvents": [],
+    "summary/status": {
+      "coreAPIsummary": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4 ",
+      "coreDependentAPIsummary": "",
+      "deployment_status": "Complete",
+      "developerUIsummary": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4/docs ",
+      "managementAPIsummary": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/metrics ",
+      "securityAPIsummary": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/partyRoleManagement/v4 ",
+      "securitySecretsManagementSummary": ""
+    }
+  }
+}

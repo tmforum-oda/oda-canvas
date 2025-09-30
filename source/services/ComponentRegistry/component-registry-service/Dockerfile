@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Remove transient files
-RUN rm -rf .env *.db data/
+RUN rm -rf .env *.db data/ __pycache__/ .pytest_cache/
 
 # Expose port
 EXPOSE 8080

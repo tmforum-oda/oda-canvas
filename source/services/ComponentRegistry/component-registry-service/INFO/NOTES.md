@@ -1,12 +1,22 @@
+# Deploy ComponentRegistry Helm Charts
+
+```
+helm upgrade --install compreg -n compreg --create-namespace helm/component-registry
+```
+
+
+
+
 # create componentregistry
 
 ```json
 {
   "name": "self",
-  "url": "http://localhost:8000",
+  "url": "http://localhost:8080",
   "type": "self",
   "labels": {
-    "regname": "reg-A"
+    "regname": "reg-A",
+    "cluster": "two"
   }
 }
 ```
@@ -15,15 +25,16 @@ curl
 
 ```
 curl -X 'POST' \
-  'http://localhost:8000/registries' \
+  'http://localhost:8080/registries' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "name": "self",
-  "url": "http://localhost:8000",
+  "url": "http://localhost:8080",
   "type": "self",
   "labels": {
-    "regname": "reg-A"
+    "regname": "reg-A",
+    "cluster": "two"
   }
 }'
 ```
@@ -34,6 +45,8 @@ curl -X 'POST' \
 {
   "component_registry_ref": "self",
   "component_name": "comp_name",
+  "component_version": "0.1.0",
+  "description": "dummy component entry",
   "exposed_apis": [
     {
       "name": "expapi1",
@@ -50,18 +63,21 @@ curl -X 'POST' \
     "unit": "b2b"
   }
 }
+
 ```
 
 curl
 
 ```
 curl -X 'POST' \
-  'http://localhost:8000/components' \
+  'http://localhost:8080/components' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "component_registry_ref": "self",
   "component_name": "comp_name",
+  "component_version": "0.1.0",
+  "description": "dummy component entry",
   "exposed_apis": [
     {
       "name": "expapi1",
@@ -77,5 +93,6 @@ curl -X 'POST' \
     "team": "oda-fans",
     "unit": "b2b"
   }
-}'
+}
+'
 ```
