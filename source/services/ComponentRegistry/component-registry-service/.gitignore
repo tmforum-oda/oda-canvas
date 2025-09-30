@@ -1,2 +1,5 @@
-component_registry.db
+*.db
 /.pytest_cache/
+__pycache__/
+*.pyc
+
