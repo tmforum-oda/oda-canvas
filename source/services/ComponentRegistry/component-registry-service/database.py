@@ -59,6 +59,8 @@ class ComponentDB(Base):
     id = Column(String, primary_key=True, index=True)  # Composite key: component_registry_ref:component_name
     component_registry_ref = Column(String, ForeignKey("component_registries.name"), nullable=False)
     component_name = Column(String, nullable=False)
+    component_version = Column(String, nullable=False, default="1.0.0")
+    description = Column(String, nullable=True)
     labels = Column(JSON, default=dict)
 
     # Relationships

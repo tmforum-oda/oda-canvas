@@ -125,36 +125,40 @@ class ComponentCRUD:
             component.component_registry_ref, component.component_name
         )
 
+        # Create the component record with all fields from ComponentCreate
         db_component = database.ComponentDB(
             id=component_id,
             component_registry_ref=component.component_registry_ref,
             component_name=component.component_name,
-            labels=component.labels
+            component_version=component.component_version,
+            description=component.description,
+            labels=component.labels or {}
         )
         db.add(db_component)
         db.flush()  # Flush to get the component ID
 
-        # Create exposed APIs
+        # Create exposed APIs if they exist
         exposed_apis = []
-        for api in component.exposed_apis:
-            api_id = ComponentCRUD._create_api_id(
-                component.component_registry_ref, component.component_name, api.name
-            )
-            db_api = database.ExposedAPIDB(
-                id=api_id,
-                name=api.name,
-                oas_specification=api.oas_specification,
-                url=api.url,
-                labels=api.labels,
-                component_id=component_id
-            )
-            db.add(db_api)
-            exposed_apis.append(models.ExposedAPI(
-                name=api.name,
-                oas_specification=api.oas_specification,
-                url=api.url,
-                labels=api.labels
-            ))
+        if component.exposed_apis:
+            for api in component.exposed_apis:
+                api_id = ComponentCRUD._create_api_id(
+                    component.component_registry_ref, component.component_name, api.name
+                )
+                db_api = database.ExposedAPIDB(
+                    id=api_id,
+                    name=api.name,
+                    oas_specification=api.oas_specification,
+                    url=api.url,
+                    labels=api.labels or {},
+                    component_id=component_id
+                )
+                db.add(db_api)
+                exposed_apis.append(models.ExposedAPI(
+                    name=api.name,
+                    oas_specification=api.oas_specification,
+                    url=api.url,
+                    labels=api.labels or {}
+                ))
 
         db.commit()
         db.refresh(db_component)
@@ -162,6 +166,8 @@ class ComponentCRUD:
         return models.Component(
             component_registry_ref=db_component.component_registry_ref,
             component_name=db_component.component_name,
+            component_version=db_component.component_version,
+            description=db_component.description,
             exposed_apis=exposed_apis,
             labels=db_component.labels or {}
         )
@@ -190,6 +196,8 @@ class ComponentCRUD:
         return models.Component(
             component_registry_ref=db_component.component_registry_ref,
             component_name=db_component.component_name,
+            component_version=db_component.component_version,
+            description=db_component.description,
             exposed_apis=exposed_apis,
             labels=db_component.labels or {}
         )
@@ -214,6 +222,8 @@ class ComponentCRUD:
             components.append(models.Component(
                 component_registry_ref=db_component.component_registry_ref,
                 component_name=db_component.component_name,
+                component_version=db_component.component_version,
+                description=db_component.description,
                 exposed_apis=exposed_apis,
                 labels=db_component.labels or {}
             ))
@@ -242,6 +252,8 @@ class ComponentCRUD:
             components.append(models.Component(
                 component_registry_ref=db_component.component_registry_ref,
                 component_name=db_component.component_name,
+                component_version=db_component.component_version,
+                description=db_component.description,
                 exposed_apis=exposed_apis,
                 labels=db_component.labels or {}
             ))
@@ -260,8 +272,11 @@ class ComponentCRUD:
             return None
 
         # Update component fields
-        if component_update.labels is not None:
-            db_component.labels = component_update.labels
+        update_data = component_update.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            if field == "exposed_apis":
+                continue  # Handle separately
+            setattr(db_component, field, value)
 
         # Update exposed APIs if provided
         if component_update.exposed_apis is not None:
@@ -278,7 +293,7 @@ class ComponentCRUD:
                     name=api.name,
                     oas_specification=api.oas_specification,
                     url=api.url,
-                    labels=api.labels,
+                    labels=api.labels or {},
                     component_id=component_id
                 )
                 db.add(db_api)
