@@ -28,14 +28,14 @@ We will test the Reference Implementation Canvas against a range of kubernetes v
 
 | Kubernetes deployment | Tested | Notes                                                                                                                     |
 | --------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| AWS EKS | yes | EKS 1.29
+| AWS EKS               | yes    | EKS 1.29                                                                                                                  |
 | Rancher on AWS        | Yes    | [Open Digital Lab environment]                                                                                            |
 | Azure AKS             | Yes    |                                                                                                                           |
 | GCP GKE               | Yes    | [Innovation Hub environment]                                                                                              |
-| Microk8s              | Yes    |                                                                                                                           |
+| Microk8s              | Yes    | Enable `metallb` and `hostpath-storage` before installing canvas                                                          |
 | MiniKube              | Yes    | v1.34.0 =< Istio is installed by default so only the itsio/gateway chart needs configuring                                |
 | Docker Desktop        | Yes    | see also [devcontainer.md](../devcontainer.md)                                                                            |
-| Kind                  | Yes    | Used in all the GitHub action automated testing.                                                                  |
+| Kind                  | Yes    | Used in all the GitHub action automated testing.                                                                          |
 | K3s                   | Yes    |                                                                                                                           |
 | (other)               |        | To suggest additional environments please add to this [issue](https://github.com/tmforum-oda/oda-canvas-charts/issues/52) |
 

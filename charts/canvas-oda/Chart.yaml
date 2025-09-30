@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.4-LT3
+version: 1.2.4-BB1
+# version: 1.2.4-BB1 - added image override for bitnamilegacy Keycloak and Keycloak.PostgreSQL images
 # version: 1.2.4-LT3 - added PDB Management Operator for automated Pod Disruption Budget management
 # version: 1.2.4-LT2 - added resource-inventory API for viewing components and exposed APIs in the canvas
 # version: 1.2.4-LM1 - Added support for custom/private docker registry and image pull secrets
