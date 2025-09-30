@@ -1,8 +1,10 @@
 fastapi  # ==0.104.1
-uvicorn[standard]  # ==0.24.0
+httpx  # ==0.25.2
+jinja2  # ==3.1.6
 pydantic  # ==2.5.0
-sqlalchemy  # ==2.0.23
-python-multipart  # ==0.0.6
 pytest  # ==7.4.3
 pytest-asyncio  # ==0.21.1
-httpx  # ==0.25.2
+python-dotenv  # ==1.0.0
+python-multipart  # ==0.0.6
+sqlalchemy  # ==2.0.23
+uvicorn[standard]  # ==0.24.0

@@ -5,6 +5,9 @@ This service provides CRUD operations for managing Component Registries, Compone
 and their Exposed APIs following the TM Forum ODA Canvas specification.
 """
 
+from dotenv import load_dotenv
+load_dotenv()  # take environment variables
+
 from fastapi import FastAPI, HTTPException, Depends, Query, Request
 
 from fastapi.middleware.cors import CORSMiddleware

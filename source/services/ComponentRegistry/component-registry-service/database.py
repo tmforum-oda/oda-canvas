@@ -10,9 +10,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, Session
 from typing import Dict, Any
 import json
+import os
 
 # Database configuration
-SQLALCHEMY_DATABASE_URL = "sqlite:///./component_registry.db"
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL", "sqlite:///./data/component_registry.db")
+print(f"Using database URL: {SQLALCHEMY_DATABASE_URL}")
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}

@@ -15,6 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
+# Remove transient files
+RUN rm -rf .env *.db data/
+
 # Expose port
 EXPOSE 8080
 
