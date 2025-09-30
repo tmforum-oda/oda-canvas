@@ -351,29 +351,6 @@ class KubernetesComponentReader:
             logging.error(f"Failed to configure Kubernetes client: {e}")
             raise
 
-
-    def _initialize_client(self):
-        """Initialize Kubernetes client"""
-        try:
-            if self.config.in_cluster:
-                logger.info("Loading in-cluster Kubernetes configuration")
-                config.load_incluster_config()
-            else:
-                logger.info("Loading Kubernetes configuration from file")
-                config.load_kube_config(config_file=self.config.config_path)
-            if self.config.k8s_proxy:
-                client.Configuration._default.proxy = self.config.k8s_proxy
-                print(f"set proxy to {self.config.k8s_proxy}")
-            
-            self.api_client = client.ApiClient()
-            self.custom_objects_api = client.CustomObjectsApi(self.api_client)
-            logger.info("Kubernetes client initialized successfully")
-            
-        except Exception as e:
-            logger.error(f"Failed to initialize Kubernetes client: {e}")
-            raise
-
-
     
     def get_components(self, namespaces: List[str]) -> List[Dict[str, Any]]:
         """
@@ -536,7 +513,8 @@ Examples:
     parser.add_argument(
         '--registry-url',
         type=str,
-        help='URL of the Component Registry Service (e.g., http://localhost:8080)'
+        help='URL of the Component Registry Service (e.g., http://localhost:8080)',
+        default=os.getenv('REGISTRY_URL', None)
     )
     
     parser.add_argument(
@@ -591,7 +569,7 @@ Examples:
     # Determine registry URL
     registry_url = args.registry_url or config_data.get('registry', {}).get('url')
     if not registry_url:
-        logging.error("Registry URL must be specified via --registry-url or config file")
+        logging.error("Registry URL must be specified via --registry-url, config file or env variable REGISTRY_URL")
         return 1
     
     # Determine namespaces
@@ -624,6 +602,6 @@ Examples:
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        sys.argv = ["k8s_component_sync.py", "--registry-url=http://localhost:8080", "--namespace=components"]
+    #if len(sys.argv) == 1:
+    #    sys.argv = ["k8s_component_sync.py", "--registry-url=http://localhost:8080", "--namespace=components"]
     sys.exit(main())
