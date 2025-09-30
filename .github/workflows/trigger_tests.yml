@@ -222,6 +222,7 @@ jobs:
          /tmp/component-operator.log
          /tmp/api-operator-istio.log
          /tmp/test_results.log
+         /tmp/cucumber.json
   
     - name: Delete kind cluster
       if: always()
@@ -241,3 +242,64 @@ jobs:
         else
           echo OK, no test failures.
         fi
+    - name: Parse cucumber results 
+      if: always()
+      id: parse_results
+      run: |
+        failed=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( any($s[]; .=="failed") ) ] | length' /tmp/cucumber.json)
+        undefined=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( (any($s[]; .=="failed")|not) and any($s[]; .=="undefined" or .=="pending" or .=="ambiguous") ) ] | length' /tmp/cucumber.json)
+        skipped=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( (any($s[]; .=="failed" or .=="undefined" or .=="pending" or .=="ambiguous")|not) and ($s|length>0) and all($s[]; .=="skipped") ) ] | length' /tmp/cucumber.json)
+        passed=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( (any($s[]; .=="failed" or .=="undefined" or .=="pending" or .=="ambiguous")|not) and any($s[]; .=="passed") ) ] | length' /tmp/cucumber.json)
+
+        echo "passed=$passed" >> $GITHUB_OUTPUT
+        echo "failed=$failed" >> $GITHUB_OUTPUT
+        echo "undefined=$undefined" >> $GITHUB_OUTPUT
+        echo "skipped=$skipped" >> $GITHUB_OUTPUT
+
+    - name: Badge - Passed
+      if: always()
+      uses: RubbaBoy/BYOB@v1.3.0
+      with: 
+        name: bdd-passed
+        label: Passed
+        message: ${{ steps.parse_results.outputs.passed }}
+        color: brightgreen
+        namedLogo: cucumber
+        ghToken: ${{ secrets.GITHUB_TOKEN  }}
+        branchName: byob-badges
+
+    - name: Badge - Failed 
+      if: always()
+      uses: RubbaBoy/BYOB@v1.3.0
+      with: 
+        name: bdd-failed
+        label: Failed
+        message: ${{ steps.parse_results.outputs.failed }}
+        color: ${{ steps.parse_results.outputs.failed == '0' && 'brightgreen' || 'red' }}
+        namedLogo: cucumber
+        ghToken: ${{ secrets.GITHUB_TOKEN  }}
+        branchName: byob-badges
+
+    - name: Badge - Undefined
+      if: always()
+      uses: RubbaBoy/BYOB@v1.3.0
+      with:
+        name: bdd-undefined
+        label: Undefined
+        message: ${{ steps.parse_results.outputs.undefined }}
+        color: ${{ steps.parse_results.outputs.undefined == '0' && 'brightgreen' || 'orange' }}
+        namedLogo: cucumber
+        ghToken: ${{ secrets.GITHUB_TOKEN }}
+        branchName: byob-badges
+
+    - name: Badge - Skipped
+      if: always()
+      uses: RubbaBoy/BYOB@v1.3.0
+      with:
+        name: bdd-skipped
+        label: Skipped
+        message: ${{ steps.parse_results.outputs.skipped }}
+        color: ${{ steps.parse_results.outputs.skipped == '0' && 'brightgreen' || 'lightblue' }}
+        namedLogo: cucumber
+        ghToken: ${{ secrets.GITHUB_TOKEN }}
+        branchName: byob-badges
