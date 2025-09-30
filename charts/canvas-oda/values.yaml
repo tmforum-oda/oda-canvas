@@ -19,7 +19,7 @@ global:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
   hookImages:
-    kubectl: bitnami/kubectl:latest
+    kubectl: bitnamilegacy/kubectl:latest
     kubectlCurl: tmforumodacanvas/baseimage-kubectl-curl:1.30.5
     busybox: busybox:1.35
 
@@ -70,6 +70,7 @@ cert-manager-init:
 keycloak:
   enabled: true
   image:
+    repository: bitnamilegacy/keycloak
     tag: 20.0.5-debian-11-r2
   auth:
     adminUser: "admin"
@@ -77,6 +78,7 @@ keycloak:
   postgresql:
     enabled: true
     image:
+      repository: bitnamilegacy/postgresql
       tag: 15.2.0-debian-11-r31
     auth:
       username: "keycloak"

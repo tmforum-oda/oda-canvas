@@ -20,8 +20,8 @@ The credentials management operator is intended only for the ODA Canvas Referenc
 | deployment.hostName | string | * ||
 | deployment.httpsRedirect | bool | true ||
 | deployment.credentialName | string | istio-ingress-cert ||
-| credentials.client_id | string | credentialsmanagement-operator ||
-| credentials.client_secret | string |||
-| configmap.kcbase | string | http://canvas-keycloak-headless.canvas:8083/auth | "http://\<oda-canvas release name\>-keycloak-headless.\<oda-canvas release namespace\>:\<keycloak http port\>/auth" |
-| configmap.kcrealm | string | odari ||
+| credentials.client_id | string | credentialsmanagement-operator | clientId of Credentials-Management-Operator client in Keycloak, created during Keycloak installation |
+| credentials.client_secret | string || secret of Credentials-Management-Operator client in Keycloak, needs to be manually retrieved from Keycloak and add it before installing the operator |
+| configmap.kcbase | string | http://canvas-keycloak-headless.canvas:8083/auth | Keycloak's base url, configured according to : "http://\<oda-canvas release name\>-keycloak-headless.\<oda-canvas release namespace\>:\<keycloak http port\>/auth" |
+| configmap.kcrealm | string | odari | Keycloak's realm, configured during Keycloak installation |
 | configmap.loglevel | string | 20 |
