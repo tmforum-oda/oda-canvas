@@ -559,6 +559,76 @@ entries:
     version: 1.2.4-LM1
   - apiVersion: v2
     appVersion: v1
+    created: "2025-09-30T13:49:15.411918084Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.1.2
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.3.1
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.2
+    - name: component-operator
+      repository: file://../component-operator
+      version: 1.4.1
+    - name: identityconfig-operator-keycloak
+      repository: file://../identityconfig-operator-keycloak
+      version: 1.2.7
+    - condition: api-operator-istio.enabled
+      name: api-operator-istio
+      repository: file://../api-operator-istio
+      version: 1.1.3
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 1.0.3
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 1.0.2
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 1.0.2
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.2.2
+    - condition: kong-gateway-install.enabled
+      name: api-operator-kong
+      repository: file://../kong-gateway
+      version: 1.0.3
+    - condition: apisix-gateway-install.enabled
+      name: api-operator-apisix
+      repository: file://../apisix-gateway
+      version: 1.0.3
+    - condition: canvas-info-service.enabled
+      name: canvas-info-service
+      repository: file://../canvas-info-service
+      version: 1.0.1
+    - condition: resource-inventory.enabled
+      name: resource-inventory
+      repository: file://../resource-inventory
+      version: 1.0.0
+    - condition: pdb-management-operator.enabled
+      name: pdb-management-operator
+      repository: file://../pdb-management-operator
+      version: 0.1.0
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 224d0353b17648a5c6a2cda90c4f3f5b7488fdf66b13cde5d16c4af7e6834fea
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.2.4-BB1/canvas-oda-1.2.4-BB1.tgz
+    version: 1.2.4-BB1
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-06-13T15:35:44.626349176Z"
     dependencies:
     - name: cert-manager-init
@@ -2766,4 +2836,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2025-08-29T17:12:12.97455568Z"
+generated: "2025-09-30T13:49:15.607501122Z"
