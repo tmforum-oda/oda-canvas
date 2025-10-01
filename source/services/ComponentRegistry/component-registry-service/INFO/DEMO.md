@@ -84,6 +84,23 @@ curl -X 'POST' \
 }'
 ```
 
+in localhost
+
+```
+curl -X 'POST' \
+  'http://localhost:8080/registries' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "compreg-ab",
+  "url": "https://compreg-ab.ihc-dt.cluster-2.de",
+  "type": "upstream",
+  "labels": {
+    "description": "Registry compreg-ab for Kubernetes ODA Components"
+  }
+}'
+```
+
 
 ## look dependentapi custom resource
 

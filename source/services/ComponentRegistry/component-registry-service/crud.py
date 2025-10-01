@@ -61,6 +61,22 @@ class ComponentRegistryCRUD:
         ]
 
     @staticmethod
+    def get_by_type(db: Session, registry_type: str) -> List[models.ComponentRegistry]:
+        """Get all ComponentRegistries by type."""
+        db_registries = db.query(database.ComponentRegistryDB).filter(
+            database.ComponentRegistryDB.type == registry_type
+        ).all()
+        return [
+            models.ComponentRegistry(
+                name=db_registry.name,
+                url=db_registry.url,
+                type=db_registry.type,
+                labels=db_registry.labels or {}
+            )
+            for db_registry in db_registries
+        ]
+
+    @staticmethod
     def update(db: Session, name: str, registry_update: models.ComponentRegistryUpdate) -> Optional[models.ComponentRegistry]:
         """Update a ComponentRegistry."""
         db_registry = db.query(database.ComponentRegistryDB).filter(
