@@ -285,7 +285,7 @@ jobs:
           icon: cucumber
           github_token: ${{ secrets.GITHUB_TOKEN  }}
           branch: byob-badges
-          path: bdd-passed.svg
+          path: bdd-passed.json
 
       - name: Badge - Failed 
         if: always()
@@ -298,7 +298,7 @@ jobs:
           icon: cucumber
           github_token: ${{ secrets.GITHUB_TOKEN  }}
           branch: byob-badges
-          path: bdd-failed.svg
+          path: bdd-failed.json
 
       - name: Badge - Undefined
         if: always()
@@ -311,7 +311,7 @@ jobs:
           icon: cucumber
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: byob-badges
-          path: bdd-undefined.svg
+          path: bdd-undefined.json
 
       - name: Badge - Skipped
         if: always()
@@ -324,4 +324,4 @@ jobs:
           icon: cucumber
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: byob-badges
-          path: bdd-skipped.svg
+          path: bdd-skipped.json
