@@ -1,11 +1,16 @@
 # Deploy ComponentRegistry Helm Charts
 
 ```
-helm upgrade --install compreg -n compreg --create-namespace helm/component-registry
+helm upgrade --install compreg-a -n compreg-a --create-namespace helm/component-registry
+helm upgrade --install compreg-b -n compreg-b --create-namespace helm/component-registry
 ```
 
 
+# Undeploy Component Registries
 
+```
+helm uninstall -n compreg compreg
+```
 
 # create componentregistry
 

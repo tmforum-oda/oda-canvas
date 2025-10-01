@@ -21,8 +21,5 @@ RUN useradd --create-home --shell /bin/bash appuser
 RUN chown -R appuser:appuser /app
 USER appuser
 
-# Set entrypoint
-ENTRYPOINT ["python", "k8s_component_sync.py"]
-
 # Default command (can be overridden)
-#CMD ["--help"]
+CMD ["python", "k8s_component_sync.py"]

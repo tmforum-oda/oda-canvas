@@ -42,6 +42,7 @@ import os
 class RegistryConfig:
     """Configuration for Component Registry Service connection."""
     url: str
+    external_name: str = None
     timeout: int = 30
     verify_ssl: bool = True
     headers: Dict[str, str] = None
@@ -81,37 +82,24 @@ class ComponentTransformer:
         """
         metadata = k8s_component.get('metadata', {})
         spec = k8s_component.get('spec', {})
+        status = k8s_component.get('status', {})
         
         # Extract basic component information
         component_name = metadata.get('name', '')
-        component_version = spec.get('version', '1.0.0')
+        component_version = spec.get('version', '')
         description = spec.get('description', '')
         
         # Transform exposed APIs from coreFunction
         exposed_apis = []
         core_function = spec.get('coreFunction', {})
         core_exposed_apis = core_function.get('exposedAPIs', [])
+        status_core_apis = status.get("coreAPIs", [])
         
         for api in core_exposed_apis:
-            transformed_api = ComponentTransformer._transform_exposed_api(api, component_name)
-            if transformed_api:
-                exposed_apis.append(transformed_api)
-        
-        # Add management APIs if present
-        management_function = spec.get('managementFunction', {})
-        management_apis = management_function.get('exposedAPIs', [])
-        
-        for api in management_apis:
-            transformed_api = ComponentTransformer._transform_exposed_api(api, component_name, api_type='management')
-            if transformed_api:
-                exposed_apis.append(transformed_api)
-        
-        # Add security APIs if present
-        security_function = spec.get('securityFunction', {})
-        security_apis = security_function.get('exposedAPIs', [])
-        
-        for api in security_apis:
-            transformed_api = ComponentTransformer._transform_exposed_api(api, component_name, api_type='security')
+            api_name = api.get("name",None)
+            api_full_name = f"{component_name}-{api_name}"
+            api_status = next((apistat for apistat in status_core_apis if apistat.get("name",None)==api_full_name), None)
+            transformed_api = ComponentTransformer._transform_exposed_api(api, api_status, component_name)
             if transformed_api:
                 exposed_apis.append(transformed_api)
         
@@ -122,13 +110,8 @@ class ComponentTransformer:
         # Add ODA-specific labels
         if 'functionalBlock' in spec:
             labels['functionalBlock'] = spec['functionalBlock']
-        if 'id' in spec:
-            labels['componentId'] = spec['id']
-        if 'status' in spec:
-            labels['status'] = spec['status']
         
         # Add sync metadata
-        labels['syncedFrom'] = 'kubernetes'
         labels['syncedAt'] = datetime.now().isoformat()
         labels['namespace'] = metadata.get('namespace', 'default')
         
@@ -142,12 +125,13 @@ class ComponentTransformer:
         }
     
     @staticmethod
-    def _transform_exposed_api(api: Dict[str, Any], component_name: str, api_type: str = 'core') -> Optional[Dict[str, Any]]:
+    def _transform_exposed_api(api: Dict[str, Any], api_status: Dict[str, Any],component_name: str, api_type: str = 'core') -> Optional[Dict[str, Any]]:
         """
         Transform a Kubernetes exposed API to Component Registry Service format.
         
         Args:
             api: Kubernetes API definition
+            api_status: Status information for the API
             component_name: Name of the parent component
             api_type: Type of API (core, management, security)
             
@@ -155,41 +139,22 @@ class ComponentTransformer:
             Dict containing the exposed API in Component Registry Service format
         """
         api_name = api.get('name', '')
-        if not api_name:
-            return None
-        
-        # Construct the API URL
-        path = api.get('path', '')
-        port = api.get('port', 80)
-        implementation = api.get('implementation', '')
-        
-        # Try to get URL from status if available, otherwise construct it
-        api_url = f"http://{implementation}:{port}{path}"
-        
-        # Get OpenAPI specification URL
+        api_url = api_status.get('url', None)
+        api_type = api.get('apiType', None)
         specifications = api.get('specification', [])
-        oas_url = specifications[0] if specifications else f"{api_url}/swagger.json"
-        
-        # Handle different specification formats
-        if isinstance(specifications, list) and specifications:
-            if isinstance(specifications[0], dict):
-                oas_url = specifications[0].get('url', oas_url)
-            else:
-                oas_url = specifications[0]
+        oas_url = specifications[0] if specifications else None
+        ready = api_status.get('ready', False)
         
         # Create labels for the API
-        labels = {
-            'apiType': api.get('apiType', 'openapi'),
-            'implementation': implementation,
-            'componentType': api_type,
-            'port': str(port)
-        }
-        
+        labels = {}
+        if api_type:
+            labels['apiType'] = api_type
         if 'developerUI' in api:
             labels['developerUI'] = api['developerUI']
+        labels['status'] = "ready" if ready else "pending"
         
         return {
-            'name': f"{component_name}-{api_name}",
+            'name': api_name,
             'oas_specification': oas_url,
             'url': api_url,
             'labels': labels
@@ -204,7 +169,7 @@ class RegistryClient:
         self.session = requests.Session()
         self.session.headers.update(config.headers)
         
-    def create_registry(self, registry_name: str, description: str = "") -> bool:
+    def create_registry(self, registry_name: str, external_name: str, description: str) -> bool:
         """
         Create or ensure a component registry exists.
         
@@ -221,7 +186,7 @@ class RegistryClient:
             "type": "self",
             "labels": {
                 "description": f"Registry {registry_name} for Kubernetes ODA Components",
-                "regName": "local",
+                "externalName": external_name,
                 "createdAt": datetime.now().isoformat()
             }
         }
@@ -414,6 +379,7 @@ class ComponentSyncTool:
             if not self.config.dry_run:
                 if not self.registry_client.create_registry(
                     self.config.registry_name,
+                    self.config.registry.external_name,
                     "Kubernetes ODA Components Registry"
                 ):
                     logging.error("Failed to create/verify registry")
@@ -532,6 +498,13 @@ Examples:
     )
     
     parser.add_argument(
+        '--external-name',
+        type=str,
+        default=os.getenv('REGISTRY_EXTERNAL_NAME', None),
+        help='External name for the registry in the Component Registry Service (default: from env variable REGISTRY_EXTERNAL_NAME)'
+    )
+    
+    parser.add_argument(
         '--config', '-c',
         type=str,
         help='Path to YAML configuration file'
@@ -572,15 +545,25 @@ Examples:
         logging.error("Registry URL must be specified via --registry-url, config file or env variable REGISTRY_URL")
         return 1
     
+    # Determine registry URL
+    external_name = args.external_name or config_data.get('registry', {}).get('external_name')
+    if not external_name:
+        logging.error("External name must be specified via --external-name, config file or env variable REGISTRY_EXTERNAL_NAME")
+        return 1
+    
     # Determine namespaces
-    namespaces = args.namespaces or config_data.get('namespaces', ['components'])
+    env_namspaces = os.getenv('MONITORED_NAMESPACES', [])
+    if env_namspaces:
+        env_namspaces = env_namspaces.split(',')
+    namespaces = args.namespaces or config_data.get('namespaces', env_namspaces)
     if not namespaces:
-        logging.error("At least one namespace must be specified")
+        logging.error("At least one namespace must be specified via --namespace, config file or env variable MONITORED_NAMESPACES")
         return 1
     
     # Create configuration objects
     registry_config = RegistryConfig(
         url=registry_url,
+        external_name=external_name,
         timeout=args.timeout
     )
     
@@ -592,7 +575,7 @@ Examples:
         verbose=args.verbose or config_data.get('verbose', False)
     )
     
-    logging.info(f"Configuration: Registry={registry_config.url}, Namespaces={namespaces}, DryRun={sync_config.dry_run}")
+    logging.info(f"Configuration: Registry={registry_config.external_name}: {registry_config.url}, Namespaces={namespaces}, DryRun={sync_config.dry_run}")
     
     # Run synchronization
     sync_tool = ComponentSyncTool(sync_config)
@@ -602,6 +585,7 @@ Examples:
 
 
 if __name__ == '__main__':
-    #if len(sys.argv) == 1:
-    #    sys.argv = ["k8s_component_sync.py", "--registry-url=http://localhost:8080", "--namespace=components"]
+    # if len(sys.argv) == 1:
+    #     sys.argv = ["k8s_component_sync.py", "--registry-url=http://localhost:8080", "--namespace=components"]
+    #     sys.argv = ["k8s_component_sync.py", "--registry-url=https://compreg-a.ihc-dt.cluster-2.de", "--external-name=compreg-a", "--namespace=components"]
     sys.exit(main())

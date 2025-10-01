@@ -75,8 +75,12 @@ def root(request: Request):
 def components_gui(request: Request, db: Session = Depends(get_db)):
     """GUI page to display all registered components"""
     components = crud.ComponentCRUD.get_all(db)
+    selfCompReg = crud.ComponentRegistryCRUD.get(db, "self")
+    selfname = "?"
+    if selfCompReg and selfCompReg.labels and "externalName" in selfCompReg.labels:
+        selfname = selfCompReg.labels["externalName"]
     # Attach labels for each component (as in API response)
-    return templates.TemplateResponse("components.html", {"request": request, "components": components})
+    return templates.TemplateResponse("components.html", {"request": request, "components": components, "selfname": selfname})
 
 
 # ComponentRegistry endpoints

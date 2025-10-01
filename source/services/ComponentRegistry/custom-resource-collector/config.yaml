@@ -4,6 +4,7 @@
 # Component Registry Service configuration
 registry:
   url: http://localhost:8080
+  external_name: component-registry
   timeout: 30
   verify_ssl: true
 

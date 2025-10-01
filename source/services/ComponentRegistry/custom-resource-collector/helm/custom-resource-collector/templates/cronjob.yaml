@@ -1,19 +1,19 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: custom-resource-collector
+  name: {{ .Release.Name }}-custom-resource-collector
   labels:
-    app: custom-resource-collector
+    app: {{ .Release.Name }}-custom-resource-collector
 spec:
   schedule: "{{ .Values.schedule }}"
-  successfulJobsHistoryLimit: 0
+  successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       ttlSecondsAfterFinished: 3600
       template:
         spec:
-          serviceAccountName: custom-resource-collector-sa
+          serviceAccountName: {{ .Release.Name }}-custom-resource-collector-sa
           containers:
           - name: collector
             image: {{ .Values.image }}:{{ .Values.imageVersion }}
@@ -21,6 +21,10 @@ spec:
             env:
             - name: REGISTRY_URL
               value: {{ .Values.registryUrl }}
+            - name: REGISTRY_EXTERNAL_NAME
+              value: {{ .Values.registryExternalName }}
+            - name: MONITORED_NAMESPACES
+              value: {{ .Values.monitoredNamespaces }}              
             securityContext:
               allowPrivilegeEscalation: false
               runAsNonRoot: true
