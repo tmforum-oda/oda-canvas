@@ -285,25 +285,24 @@ async def register_upstream(upstream_registry: models.ComponentRegistry, own_reg
 @app.post("/sync-upstream", tags=["Synchronization"])
 async def sync_upstream(db: Session = Depends(get_db)):
     """
-    Synchronize local component data to all upstream ComponentRegistries.
+    Synchronize all local component registries and their components to all upstream ComponentRegistries.
     
     This endpoint:
     1. Finds all upstream ComponentRegistries
-    2. Gets all components from the 'self' registry
-    3. Sends each component to all upstream registries
-    4. Returns a summary of the synchronization results
+    2. Gets all local component registries (self, downstream) 
+    3. Registers each local registry with upstream registries if needed
+    4. Gets all components and syncs them to upstream registries
+    5. Returns a comprehensive summary of the synchronization results
     """
     try:
-
-
         own_registry = crud.ComponentRegistryCRUD.get(db, "self")
-        external_name = own_registry.labels.get("externalName", None) if own_registry and own_registry.labels else None
-        
-        if not external_name:
-            raise HTTPException(
-                status_code=400,
-                detail="The 'self' ComponentRegistry must have an 'externalName' label to identify this registry to upstreams."
-            )
+        if not own_registry is None:
+            external_name = own_registry.labels.get("externalName", None) if own_registry.labels else None
+            if not external_name:
+                raise HTTPException(
+                    status_code=400,
+                    detail="The 'self' ComponentRegistry must have an 'externalName' label to identify this registry to upstreams."
+                )
     
         # Get all upstream registries
         upstream_registries = crud.ComponentRegistryCRUD.get_by_type(db, "upstream")
@@ -312,17 +311,24 @@ async def sync_upstream(db: Session = Depends(get_db)):
             return {
                 "message": "No upstream registries found",
                 "upstream_registries": 0,
+                "registries_synced": 0,
                 "components_synced": 0,
                 "sync_results": []
             }
         
-        # Get all components from the 'self' registry
-        self_components = crud.ComponentCRUD.get_all(db)
+        # Get all local registries (self and downstream) to sync
+        self_registries = crud.ComponentRegistryCRUD.get_by_type(db, "self")
+        downstream_registries = crud.ComponentRegistryCRUD.get_by_type(db, "downstream")
+        local_registries = self_registries + downstream_registries
         
-        if not self_components:
+        # Get all components from all registries
+        all_components = crud.ComponentCRUD.get_all(db)
+        
+        if not all_components:
             return {
-                "message": "No components found in own registry to sync",
+                "message": "No components found in any registry to sync",
                 "upstream_registries": len(upstream_registries),
+                "registries_synced": len(local_registries),
                 "components_synced": 0,
                 "sync_results": []
             }
@@ -330,31 +336,62 @@ async def sync_upstream(db: Session = Depends(get_db)):
         sync_results = []
         total_success = 0
         total_failed = 0
+        total_registries_registered = 0
         
-        # Sync each component to each upstream registry
+        # Sync to each upstream registry
         async with httpx.AsyncClient(timeout=30.0) as client:
             for upstream_registry in upstream_registries:
-                await register_upstream(upstream_registry, own_registry, external_name)
                 registry_results = {
                     "registry_name": upstream_registry.name,
                     "registry_url": upstream_registry.url,
+                    "local_registries_registered": 0,
                     "components_sent": 0,
                     "components_success": 0,
                     "components_failed": 0,
                     "errors": []
                 }
                 
-                for component in self_components:
+                # First, register all local registries with this upstream
+                for local_registry in local_registries:
+                    try:
+                        # Determine the external name for this registry
+                        if local_registry.name == "self":
+                            registry_external_name = external_name
+                        else:
+                            # For downstream registries, use their externalName label or fallback to name
+                            registry_external_name = local_registry.labels.get("externalName", local_registry.name) if local_registry.labels else local_registry.name
+                        
+                        # Register this local registry with upstream
+                        registration_success = await register_upstream(upstream_registry, local_registry, registry_external_name)
+                        if registration_success:
+                            registry_results["local_registries_registered"] += 1
+                            total_registries_registered += 1
+                            logging.info(f"Successfully registered registry '{registry_external_name}' with upstream '{upstream_registry.name}'")
+                        
+                    except Exception as reg_error:
+                        error_msg = f"Error registering registry '{local_registry.name}': {str(reg_error)}"
+                        registry_results["errors"].append(error_msg)
+                        logging.error(error_msg)
+                
+                # Now sync all components to this upstream registry
+                for component in all_components:
                     registry_results["components_sent"] += 1
                     
                     try:
-                        
+                        # Determine the correct registry reference name for this component
                         comp_reg_name = component.component_registry_ref
+                        
+                        # Map registry names to their external names
                         if comp_reg_name == 'self':
                             comp_reg_name = external_name
-                            
+                        else:
+                            # For other registries, try to get their external name
+                            source_registry = crud.ComponentRegistryCRUD.get(db, comp_reg_name)
+                            if source_registry and source_registry.labels and "externalName" in source_registry.labels:
+                                comp_reg_name = source_registry.labels["externalName"]
+                            # Otherwise keep the original name
+                        
                         # Prepare component data for upstream registry
-                        # Convert ExposedAPI objects to dictionaries for JSON serialization
                         component_data = {
                             "component_registry_ref": comp_reg_name,
                             "component_name": component.component_name,
@@ -385,7 +422,7 @@ async def sync_upstream(db: Session = Depends(get_db)):
                             total_success += 1
                             logging.info(
                                 f"Successfully synced component '{component.component_name}' "
-                                f"to upstream registry '{upstream_registry.name}'"
+                                f"from registry '{component.component_registry_ref}' to upstream '{upstream_registry.name}'"
                             )
                         elif response.status_code == 400 and "already exists" in response.text:
                             # Component already exists, try to update it instead
@@ -416,46 +453,48 @@ async def sync_upstream(db: Session = Depends(get_db)):
                                     total_success += 1
                                     logging.info(
                                         f"Successfully updated component '{component.component_name}' "
-                                        f"in upstream registry '{upstream_registry.name}'"
+                                        f"from registry '{component.component_registry_ref}' in upstream '{upstream_registry.name}'"
                                     )
                                 else:
                                     registry_results["components_failed"] += 1
                                     total_failed += 1
-                                    error_msg = f"Failed to update component '{component.component_name}': {update_response.status_code} - {update_response.text}"
+                                    error_msg = f"Failed to update component '{component.component_name}' from registry '{component.component_registry_ref}': {update_response.status_code} - {update_response.text}"
                                     registry_results["errors"].append(error_msg)
                                     logging.error(error_msg)
                             except Exception as update_error:
                                 registry_results["components_failed"] += 1
                                 total_failed += 1
-                                error_msg = f"Error updating component '{component.component_name}': {str(update_error)}"
+                                error_msg = f"Error updating component '{component.component_name}' from registry '{component.component_registry_ref}': {str(update_error)}"
                                 registry_results["errors"].append(error_msg)
                                 logging.error(error_msg)
                         else:
                             registry_results["components_failed"] += 1
                             total_failed += 1
-                            error_msg = f"Failed to sync component '{component.component_name}': {response.status_code} - {response.text}"
+                            error_msg = f"Failed to sync component '{component.component_name}' from registry '{component.component_registry_ref}': {response.status_code} - {response.text}"
                             registry_results["errors"].append(error_msg)
                             logging.error(error_msg)
                             
                     except httpx.RequestError as req_error:
                         registry_results["components_failed"] += 1
                         total_failed += 1
-                        error_msg = f"Request error for component '{component.component_name}': {str(req_error)}"
+                        error_msg = f"Request error for component '{component.component_name}' from registry '{component.component_registry_ref}': {str(req_error)}"
                         registry_results["errors"].append(error_msg)
                         logging.error(error_msg)
                     except Exception as sync_error:
                         registry_results["components_failed"] += 1
                         total_failed += 1
-                        error_msg = f"Unexpected error syncing component '{component.component_name}': {str(sync_error)}"
+                        error_msg = f"Unexpected error syncing component '{component.component_name}' from registry '{component.component_registry_ref}': {str(sync_error)}"
                         registry_results["errors"].append(error_msg)
                         logging.error(error_msg)
                 
                 sync_results.append(registry_results)
         
         return {
-            "message": f"Synchronization completed. {total_success} components synced successfully, {total_failed} failed.",
+            "message": f"Synchronization completed. {total_registries_registered} registries registered, {total_success} components synced successfully, {total_failed} failed.",
             "upstream_registries": len(upstream_registries),
-            "components_synced": len(self_components),
+            "local_registries_synced": len(local_registries),
+            "components_synced": len(all_components),
+            "total_registries_registered": total_registries_registered,
             "total_success": total_success,
             "total_failed": total_failed,
             "sync_results": sync_results

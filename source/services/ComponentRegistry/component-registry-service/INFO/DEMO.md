@@ -6,6 +6,7 @@ cd source/services/ComponentRegistry/component-registry-service
 helm upgrade --install compreg-a -n compreg-a --create-namespace helm/component-registry
 helm upgrade --install compreg-b -n compreg-b --create-namespace helm/component-registry
 helm upgrade --install compreg-ab -n compreg-ab --create-namespace helm/component-registry
+helm upgrade --install compreg-abup -n compreg-abup --create-namespace helm/component-registry
 ```
 
 
@@ -83,6 +84,24 @@ curl -X 'POST' \
   }
 }'
 ```
+
+in compreg-ab
+
+```
+curl -X 'POST' \
+  'https://compreg-ab.ihc-dt.cluster-2.de/registries' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "compreg-abup",
+  "url": "https://compreg-abup.ihc-dt.cluster-2.de",
+  "type": "upstream",
+  "labels": {
+    "description": "Registry compreg-abup for Kubernetes ODA Components"
+  }
+}'
+```
+
 
 in localhost
 
