@@ -140,6 +140,7 @@ class ComponentTransformer:
         """
         api_name = api.get('name', '')
         api_url = api_status.get('url', None)
+        base_url = f"{api_url}/".replace("//","##").split("/")[0].replace("##", "//")
         api_type = api.get('apiType', None)
         specifications = api.get('specification', [])
         oas_url = specifications[0] if specifications else None
@@ -150,7 +151,10 @@ class ComponentTransformer:
         if api_type:
             labels['apiType'] = api_type
         if 'developerUI' in api:
-            labels['developerUI'] = api['developerUI']
+            developer_ui = api['developerUI']
+            if developer_ui and not developer_ui.startswith('http'):
+                developer_ui = f'{base_url}{developer_ui}'
+            labels['developerUI'] = developer_ui
         labels['status'] = "ready" if ready else "pending"
         
         return {
