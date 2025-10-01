@@ -5,6 +5,7 @@ cd C:\Users\A307131\git\oda-canvas
 cd source/services/ComponentRegistry/component-registry-service
 helm upgrade --install compreg-a -n compreg-a --create-namespace helm/component-registry
 helm upgrade --install compreg-b -n compreg-b --create-namespace helm/component-registry
+helm upgrade --install compreg-ab -n compreg-ab --create-namespace helm/component-registry
 ```
 
 
@@ -20,7 +21,7 @@ helm upgrade --install collector-b -n compreg-b --create-namespace helm/custom-r
 
 # Components
 
-## uninstall old
+## uninstall old Components
 
 ```
 helm uninstall demo-a -n odacompns-a
@@ -43,8 +44,46 @@ curl -sX GET   https://canvas-info.ihc-dt.cluster-2.de/service -H "accept:applic
 ## deploy consumer (component with dependency to exposed api)
 
 ```
-helm install demo-b -n components feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install demo-b -n odacompns-b --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
 ```
+
+
+## configure upstream repo
+
+in compreg-a
+
+```
+curl -X 'POST' \
+  'https://compreg-a.ihc-dt.cluster-2.de/registries' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "compreg-ab",
+  "url": "https://compreg-ab.ihc-dt.cluster-2.de",
+  "type": "upstream",
+  "labels": {
+    "description": "Registry compreg-ab for Kubernetes ODA Components"
+  }
+}'
+```
+
+in compreg-b
+
+```
+curl -X 'POST' \
+  'https://compreg-b.ihc-dt.cluster-2.de/registries' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "compreg-ab",
+  "url": "https://compreg-ab.ihc-dt.cluster-2.de",
+  "type": "upstream",
+  "labels": {
+    "description": "Registry compreg-ab for Kubernetes ODA Components"
+  }
+}'
+```
+
 
 ## look dependentapi custom resource
 
