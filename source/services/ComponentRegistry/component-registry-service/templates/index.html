@@ -2,21 +2,270 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ODA Canvas Microservice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Registry Overview - {{ selfname }}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 2em; }
-        h1 { color: #2c3e50; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin: 1em 0; }
-        a { font-size: 1.2em; color: #2980b9; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #495057;
+            margin-top: 30px;
+            border-bottom: 2px solid #6c757d;
+            padding-bottom: 5px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #e8f4fd;
+        }
+        .registry-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .type-self { background-color: #d4edda; color: #155724; }
+        .type-upstream { background-color: #d1ecf1; color: #0c5460; }
+        .type-downstream { background-color: #f8d7da; color: #721c24; }
+        .api-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .api-link:hover {
+            text-decoration: underline;
+        }
+        .labels {
+            font-size: 0.9em;
+        }
+        .label-item {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 1px;
+            display: inline-block;
+        }
+        .no-data {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .section-info {
+            background-color: #e7f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .sync-button {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .sync-button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
-    <h1>ODA Canvas Microservice</h1>
-    <ul>
-        <li><a href="/docs">OpenAPI Documentation</a></li>
-        <li><a href="/components-gui">Component Registry GUI</a></li>
-    </ul>
+    <div class="container">
+        <h1>Component Registry Overview - {{ selfname }}</h1>
+        
+        <div class="section-info">
+            <strong>Registry Service:</strong> {{ selfname }}<br>
+            <strong>Total Registries:</strong> {{ registries|length }}<br>
+            <strong>Total Components:</strong> {{ components|length }}
+        </div>
+
+        <!-- Component Registries Section -->
+        <h2>🏛️ Component Registries</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>URL</th>
+                    <th>Labels</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if registries %}
+                {% for registry in registries %}
+                    <tr>
+                        <td><strong>{{ registry.name }}</strong></td>
+                        <td>
+                            <span class="registry-type type-{{ registry.type }}">
+                                {{ registry.type.upper() }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if registry.url %}
+                                <a href="{{ registry.url }}" class="api-link" target="_blank">{{ registry.url }}</a>
+                            {% else %}
+                                <span class="no-data">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="labels">
+                            {% if registry.labels %}
+                                {% for key, value in registry.labels.items() %}
+                                    <span class="label-item">{{ key }}={{ value }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="no-data">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="no-data" style="text-align: center;">No registries found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Sync Controls -->
+        <div style="margin: 20px 0;">
+            <button class="sync-button" onclick="syncUpstream()">🔄 Sync to Upstream Registries</button>
+        </div>
+
+        <!-- Components Section -->
+        <h2>📦 Registered Components</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component Name</th>
+                    <th>Registry</th>
+                    <th>Version</th>
+                    <th>Description</th>
+                    <th>Exposed APIs</th>
+                    <th>Labels</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if components %}
+                {% for component in components %}
+                    <tr>
+                        <td><strong>{{ component.component_name }}</strong></td>
+                        <td>{{ component.component_registry_ref }}</td>
+                        <td>{{ component.component_version }}</td>
+                        <td>{{ component.description or '-' }}</td>
+                        <td>
+                            {% if component.exposed_apis %}
+                                {% for api in component.exposed_apis %}
+                                    <div style="margin: 2px 0;">
+                                        <strong>{{ api.name }}:</strong><br>
+                                        {% if api.labels and api.labels.developerUI %}
+                                            <a href="{{ api.url }}" class="api-link" target="_blank">{{ api.url }}</a><br>
+                                            (<a href="{{ api.labels.developerUI }}" class="api-link" target="_blank">Developer UI</a>)
+                                        {% else %}
+                                            <a href="{{ api.url }}" class="api-link" target="_blank">{{ api.url }}</a>
+                                        {% endif %}
+                                    </div>
+                                    {% if not loop.last %}<hr style="margin: 4px 0;">{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="no-data">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="labels">
+                            {% if component.labels %}
+                                {% for key, value in component.labels.items() %}
+                                    <span class="label-item">{{ key }}={{ value }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="no-data">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="no-data" style="text-align: center;">No components found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Footer Navigation -->
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <p><strong>Navigation:</strong></p>
+            <ul>
+                <li><a href="/docs" class="api-link" target="_blank">API Documentation (Swagger UI)</a></li>
+                <li><a href="/registries" class="api-link">Registries API</a></li>
+                <li><a href="/components" class="api-link">Components API</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function syncUpstream() {
+            const button = document.querySelector('.sync-button');
+            const originalText = button.textContent;
+            
+            button.disabled = true;
+            button.textContent = '🔄 Syncing...';
+            
+            try {
+                const response = await fetch('/sync-upstream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(`Sync completed!\n\n${result.message}\n\nSuccess: ${result.total_success || 0}\nFailed: ${result.total_failed || 0}`);
+                    // Reload page to show updated data
+                    window.location.reload();
+                } else {
+                    alert(`Sync failed: ${result.detail || 'Unknown error'}`);
+                }
+            } catch (error) {
+                alert(`Sync error: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+    </script>
 </body>
 </html>

@@ -66,24 +66,28 @@ async def health_check():
     return {"status": "healthy", "service": "component-registry-service"}
 
 
-# ROOT ENDPOINT
-@app.get("/", response_class=HTMLResponse, tags=["Root"])
-def root(request: Request):
-    """Root page with links to OpenAPI docs and Component GUI"""
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
-# COMPONENTS GUI ENDPOINT
-@app.get("/components-gui", response_class=HTMLResponse, tags=["Components"])
-def components_gui(request: Request, db: Session = Depends(get_db)):
-    """GUI page to display all registered components"""
+# ROOT ENDPOINT (COMPONENT REGISTRY OVERVIEW GUI)
+@app.get("/", response_class=HTMLResponse, tags=["Component Registries", "Components"])
+def root(request: Request, db: Session = Depends(get_db)):
+    """GUI page to display all component registries and their components"""
+    # Get all component registries
+    registries = crud.ComponentRegistryCRUD.get_all(db)
+    
+    # Get all components
     components = crud.ComponentCRUD.get_all(db)
+    
+    # Get self registry info for title
     selfCompReg = crud.ComponentRegistryCRUD.get(db, "self")
-    selfname = "?"
+    selfname = "Component Registry Service"
     if selfCompReg and selfCompReg.labels and "externalName" in selfCompReg.labels:
         selfname = selfCompReg.labels["externalName"]
-    # Attach labels for each component (as in API response)
-    return templates.TemplateResponse("components.html", {"request": request, "components": components, "selfname": selfname})
+    
+    return templates.TemplateResponse("index.html", {
+        "request": request, 
+        "registries": registries, 
+        "components": components, 
+        "selfname": selfname
+    })
 
 
 # ComponentRegistry endpoints
