@@ -206,6 +206,83 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        .refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .refresh-button {
+            background-color: #17a2b8;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 18px;
+            vertical-align: top;
+        }
+        .refresh-button:hover {
+            background-color: #138496;
+        }
+        .refresh-button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .auto-refresh-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .auto-refresh-status {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -266,9 +343,17 @@
         </table>
 
         <!-- Sync Controls -->
-        <div style="margin: 20px 0;">
+        <div class="refresh-controls">
             <button class="sync-button" onclick="syncUpstream()">🔄 Sync to Upstream Registries</button>
             <button class="register-button" onclick="openRegisterModal()">Register New Upstream Registry</button>
+            <button class="refresh-button" onclick="manualRefresh()">↻ Refresh Page</button>
+            <div class="auto-refresh-toggle">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoRefreshCheckbox" checked>
+                    <span class="slider"></span>
+                </label>
+                <span class="auto-refresh-status" id="autoRefreshStatus">Auto-refresh: On (15s)</span>
+            </div>
         </div>
 
         <!-- Components Section -->
@@ -457,6 +542,50 @@
             } finally {
                 button.disabled = false;
                 button.textContent = originalText;
+            }
+        }
+
+        function manualRefresh() {
+            window.location.reload();
+        }
+
+        // Auto-refresh functionality
+        let autoRefreshInterval = null;
+
+        // Initialize auto-refresh on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('autoRefreshCheckbox');
+            if (checkbox.checked) {
+                startAutoRefresh();
+            }
+        });
+
+        document.getElementById('autoRefreshCheckbox').addEventListener('change', function() {
+            const isChecked = this.checked;
+            const statusText = document.getElementById('autoRefreshStatus');
+
+            if (isChecked) {
+                statusText.textContent = 'Auto-refresh: On (15s)';
+                startAutoRefresh();
+            } else {
+                statusText.textContent = 'Auto-refresh: Off';
+                stopAutoRefresh();
+            }
+        });
+
+        function startAutoRefresh() {
+            // Clear any existing interval first
+            stopAutoRefresh();
+            // Set up interval to refresh page every 15 seconds
+            autoRefreshInterval = setInterval(() => {
+                window.location.reload();
+            }, 15000); // 15 seconds interval
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
             }
         }
     </script>
