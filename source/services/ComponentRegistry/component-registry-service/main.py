@@ -405,6 +405,14 @@ async def get_registry_components(name: str, db: Session = Depends(get_db)):
     return crud.ComponentCRUD.get_by_registry(db, name)
 
 
+@app.get("/registries/by-type/upstream", response_model=List[models.ComponentRegistry], tags=["Component Registries"])
+async def get_upstream_component_registries(db: Session = Depends(get_db)):
+    """
+    Get all upstream ComponentRegistries.
+    """
+    return crud.ComponentRegistryCRUD.get_by_type(db, "upstream")
+
+
 async def check_registry_exists(upstream_registry, external_name) -> bool:
     """Check if a registry exists in the upstream registry."""
     try:
