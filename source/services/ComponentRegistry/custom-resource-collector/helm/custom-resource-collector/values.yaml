@@ -1,5 +1,5 @@
 image: ocfork/custom-resource-collector
-imageVersion: 0.1.4
+imageVersion: 0.1.5
 
 schedule: "* * * * *"   # "At every minute.." (crontab.guru)
 

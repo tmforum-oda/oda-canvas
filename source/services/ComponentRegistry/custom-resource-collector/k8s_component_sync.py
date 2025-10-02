@@ -42,7 +42,6 @@ import os
 class RegistryConfig:
     """Configuration for Component Registry Service connection."""
     url: str
-    external_name: str = None
     timeout: int = 30
     verify_ssl: bool = True
     headers: Dict[str, str] = None
@@ -86,8 +85,9 @@ class ComponentTransformer:
         
         # Extract basic component information
         component_name = metadata.get('name', '')
-        component_version = spec.get('version', '')
-        description = spec.get('description', '')
+        comp_metadata = spec.get('componentMetadata', {})
+        component_version = comp_metadata.get('version', '')
+        description = comp_metadata.get('description', '')
         
         # Transform exposed APIs from coreFunction
         exposed_apis = []
@@ -105,12 +105,14 @@ class ComponentTransformer:
         
         # Create labels from metadata and spec
         labels = {}
-        labels.update(metadata.get('labels', {}))
-        
+        tmf_comp_labels = metadata.get('labels', {})
+        tmf_comp_labels = {(k[16:],v) for (k,v) in tmf_comp_labels.items() if k.startswith("oda.tmforum.org/")}
+        labels.update(tmf_comp_labels)
         # Add ODA-specific labels
-        if 'functionalBlock' in spec:
-            labels['functionalBlock'] = spec['functionalBlock']
-        
+        if 'functionalBlock' in comp_metadata:
+            labels['functionalBlock'] = comp_metadata['functionalBlock']
+        if 'id' in comp_metadata:
+            labels['id'] = comp_metadata['id']
         # Add sync metadata
         labels['syncedAt'] = datetime.now().isoformat()
         labels['namespace'] = metadata.get('namespace', 'default')
@@ -143,7 +145,7 @@ class ComponentTransformer:
         base_url = f"{api_url}/".replace("//","##").split("/")[0].replace("##", "//")
         api_type = api.get('apiType', None)
         specifications = api.get('specification', [])
-        oas_url = specifications[0] if specifications else None
+        oas_url = specifications[0].get("url", None) if specifications else None  # TODO[FH]: support multiple specs
         ready = api_status.get('ready', False)
         
         # Create labels for the API
@@ -173,62 +175,6 @@ class RegistryClient:
         self.session = requests.Session()
         self.session.headers.update(config.headers)
         
-    def create_registry(self, registry_name: str, external_name: str, description: str) -> bool:
-        """
-        Create or ensure a component registry exists.
-        
-        Args:
-            registry_name: Name of the registry
-            description: Description of the registry
-            
-        Returns:
-            True if successful, False otherwise
-        """
-        registry_data = {
-            "name": registry_name,
-            "url": self.config.url,
-            "type": "self",
-            "labels": {
-                "description": f"Registry {registry_name} for Kubernetes ODA Components",
-                "externalName": external_name,
-                "createdAt": datetime.now().isoformat()
-            }
-        }
-        
-        try:
-            # Check if registry already exists
-            response = self.session.get(
-                f"{self.config.url}/registries/{registry_name}",
-                timeout=self.config.timeout,
-                verify=self.config.verify_ssl
-            )
-            
-            if response.status_code == 200:
-                logging.info(f"Registry '{registry_name}' already exists")
-                return True
-            elif response.status_code == 404:
-                # Registry doesn't exist, create it
-                response = self.session.post(
-                    f"{self.config.url}/registries",
-                    json=registry_data,
-                    timeout=self.config.timeout,
-                    verify=self.config.verify_ssl
-                )
-                
-                if response.status_code == 200:
-                    logging.info(f"Created registry '{registry_name}'")
-                    return True
-                else:
-                    logging.error(f"Failed to create registry: {response.status_code} - {response.text}")
-                    return False
-            else:
-                logging.error(f"Unexpected response checking registry: {response.status_code} - {response.text}")
-                return False
-                
-        except requests.RequestException as e:
-            logging.error(f"Error creating/checking registry: {e}")
-            return False
-    
     def sync_component(self, component_data: Dict[str, Any]) -> bool:
         """
         Sync a component to the registry service.
@@ -339,7 +285,7 @@ class KubernetesComponentReader:
                 
                 response = self.custom_api.list_namespaced_custom_object(
                     group="oda.tmforum.org",
-                    version="v1beta3",
+                    version="v1",
                     namespace=namespace,
                     plural="components"
                 )
@@ -379,19 +325,7 @@ class ComponentSyncTool:
         logging.info("Starting ODA Component synchronization...")
         
         try:
-            # Step 1: Ensure registry exists
-            if not self.config.dry_run:
-                if not self.registry_client.create_registry(
-                    self.config.registry_name,
-                    self.config.registry.external_name,
-                    "Kubernetes ODA Components Registry"
-                ):
-                    logging.error("Failed to create/verify registry")
-                    return False
-            else:
-                logging.info(f"[DRY RUN] Would create/verify registry '{self.config.registry_name}'")
-            
-            # Step 2: Read components from Kubernetes
+            # Step 1: Read components from Kubernetes
             components = self.k8s_reader.get_components(self.config.namespaces)
             logging.info(f"Found {len(components)} ODA Components across all namespaces")
             
@@ -502,13 +436,6 @@ Examples:
     )
     
     parser.add_argument(
-        '--external-name',
-        type=str,
-        default=os.getenv('REGISTRY_EXTERNAL_NAME', None),
-        help='External name for the registry in the Component Registry Service (default: from env variable REGISTRY_EXTERNAL_NAME)'
-    )
-    
-    parser.add_argument(
         '--config', '-c',
         type=str,
         help='Path to YAML configuration file'
@@ -549,12 +476,6 @@ Examples:
         logging.error("Registry URL must be specified via --registry-url, config file or env variable REGISTRY_URL")
         return 1
     
-    # Determine registry URL
-    external_name = args.external_name or config_data.get('registry', {}).get('external_name')
-    if not external_name:
-        logging.error("External name must be specified via --external-name, config file or env variable REGISTRY_EXTERNAL_NAME")
-        return 1
-    
     # Determine namespaces
     env_namspaces = os.getenv('MONITORED_NAMESPACES', [])
     if env_namspaces:
@@ -567,7 +488,6 @@ Examples:
     # Create configuration objects
     registry_config = RegistryConfig(
         url=registry_url,
-        external_name=external_name,
         timeout=args.timeout
     )
     
@@ -579,7 +499,7 @@ Examples:
         verbose=args.verbose or config_data.get('verbose', False)
     )
     
-    logging.info(f"Configuration: Registry={registry_config.external_name}: {registry_config.url}, Namespaces={namespaces}, DryRun={sync_config.dry_run}")
+    logging.info(f"Configuration: Registry={registry_config.url}, Namespaces={namespaces}, DryRun={sync_config.dry_run}")
     
     # Run synchronization
     sync_tool = ComponentSyncTool(sync_config)
@@ -591,5 +511,5 @@ Examples:
 if __name__ == '__main__':
     # if len(sys.argv) == 1:
     #     sys.argv = ["k8s_component_sync.py", "--registry-url=http://localhost:8080", "--namespace=components"]
-    #     sys.argv = ["k8s_component_sync.py", "--registry-url=https://compreg-a.ihc-dt.cluster-2.de", "--external-name=compreg-a", "--namespace=components"]
+    #     sys.argv = ["k8s_component_sync.py", "--registry-url=https://compreg-a.ihc-dt.cluster-2.de", "--namespace=components"]
     sys.exit(main())

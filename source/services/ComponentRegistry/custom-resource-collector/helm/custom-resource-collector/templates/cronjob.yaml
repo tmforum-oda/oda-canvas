@@ -21,8 +21,6 @@ spec:
             env:
             - name: REGISTRY_URL
               value: {{ .Values.registryUrl }}
-            - name: REGISTRY_EXTERNAL_NAME
-              value: {{ .Values.registryExternalName }}
             - name: MONITORED_NAMESPACES
               value: {{ .Values.monitoredNamespaces }}              
             securityContext:
