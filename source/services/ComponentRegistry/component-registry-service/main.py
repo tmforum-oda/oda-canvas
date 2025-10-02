@@ -874,5 +874,23 @@ async def propagate_component_to_upstreams(
         except:
             pass
 
+@app.get("/components/by-oas-specification", response_model=List[models.Component], tags=["Components"])
+async def get_components_by_oas_specification(
+    oas_specification: str = Query(..., description="OAS specification string to filter by"),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all Components that have at least one ExposedAPI with the given oas_specification.
+    """
+    all_components = crud.ComponentCRUD.get_all(db)
+    matching_components = []
+    for component in all_components:
+        if any(
+            getattr(api, "oas_specification", None) == oas_specification
+            for api in getattr(component, "exposed_apis", [])
+        ):
+            matching_components.append(component)
+    return matching_components
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
