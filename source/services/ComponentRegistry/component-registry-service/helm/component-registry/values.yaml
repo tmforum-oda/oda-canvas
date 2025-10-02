@@ -8,7 +8,7 @@ image:
   repository: ocfork/component-registry
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.3.7"
+  tag: "0.3.8"
 
 imagePullSecrets: []
 nameOverride: ""
