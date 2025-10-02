@@ -67,6 +67,10 @@ spec:
           {{- end }}
           env:
             {{- toYaml .Values.env | nindent 12 }}
+            - name: OWN_REGISTRY_URL
+              value: "{{ .Release.Name }}.{{ .Values.domain }}"
+            - name: OWN_REGISTRY_EXTERNAL_NAME
+              value: "{{ .Release.Name }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.persistence.enabled }}

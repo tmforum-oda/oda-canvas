@@ -7,6 +7,7 @@ helm upgrade --install compreg-a -n compreg-a --create-namespace helm/component-
 helm upgrade --install compreg-b -n compreg-b --create-namespace helm/component-registry
 helm upgrade --install compreg-ab -n compreg-ab --create-namespace helm/component-registry
 helm upgrade --install compreg-abup -n compreg-abup --create-namespace helm/component-registry
+
 ```
 
 
@@ -187,9 +188,12 @@ curl -sX GET   https://canvas-info.ihc-dt.cluster-2.de/service -H "accept:applic
 helm uninstall -n compreg-b collector-b
 helm uninstall -n compreg-a collector-a
 
+helm uninstall -n compreg-abup compreg-abup
+helm uninstall -n compreg-ab compreg-ab
 helm uninstall -n compreg-b compreg-b
 helm uninstall -n compreg-a compreg-a
 
-kubectl delete namespace compreg-b compreg-a
+kubectl delete namespace compreg-abup compreg-ab compreg-b compreg-a
+
 ```
 
