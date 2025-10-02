@@ -5,7 +5,7 @@ This module provides database operations for ComponentRegistry, ExposedAPI, and 
 """
 
 from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 import models, database
 
 

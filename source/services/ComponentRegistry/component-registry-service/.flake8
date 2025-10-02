@@ -1,0 +1,15 @@
+[flake8]
+max-line-length = 120
+exclude = 
+    __pycache__,
+    .git,
+    .pytest_cache,
+    venv,
+    env,
+    .env
+
+# Ignore specific errors for Pydantic validators
+# N805: first argument of a method should be named 'self'
+# Per-file ignores for specific patterns
+per-file-ignores =
+    models.py:N805

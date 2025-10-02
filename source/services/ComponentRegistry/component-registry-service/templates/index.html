@@ -97,9 +97,114 @@
             border-radius: 4px;
             cursor: pointer;
             margin: 10px 0;
+            font-size: 14px;
+            line-height: 18px;
+            vertical-align: top;
         }
         .sync-button:hover {
             background-color: #218838;
+        }
+        .register-button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+            line-height: 18px;
+            vertical-align: top;
+        }
+        .register-button:hover {
+            background-color: #0056b3;
+        }
+        .register-button::before {
+            content: "+ ";
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 4px;
+        }
+        .cancel-button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+            line-height: 18px;
+            vertical-align: top;
+        }
+        .cancel-button:hover {
+            background-color: #0056b3;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .modal-header {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
@@ -163,6 +268,7 @@
         <!-- Sync Controls -->
         <div style="margin: 20px 0;">
             <button class="sync-button" onclick="syncUpstream()">🔄 Sync to Upstream Registries</button>
+            <button class="register-button" onclick="openRegisterModal()">Register New Upstream Registry</button>
         </div>
 
         <!-- Components Section -->
@@ -230,7 +336,34 @@
                 <li><a href="/docs" class="api-link" target="_blank">API Documentation (Swagger UI)</a></li>
                 <li><a href="/registries" class="api-link">Registries API</a></li>
                 <li><a href="/components" class="api-link">Components API</a></li>
+                <li><a href="/health" class="api-link">Health Check</a></li>
             </ul>
+        </div>
+
+        <!-- Register Modal -->
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Register New Upstream Registry</h2>
+                    <span class="close" onclick="closeRegisterModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p style="margin-bottom: 15px; color: #6c757d;">
+                        Enter the URL of an upstream Component Registry. The system will automatically 
+                        fetch the registry information from the upstream's 'self' registry.
+                    </p>
+                    <div class="form-group">
+                        <label for="upstreamUrl">Upstream Registry URL *</label>
+                        <input type="url" id="upstreamUrl" placeholder="https://upstream-registry.example.com" required>
+                        <small style="color: #6c757d;">The base URL of the upstream Component Registry</small>
+                    </div>
+                    <div class="status-message" id="registerStatus"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="sync-button" onclick="registerUpstreamRegistry()">✅ Register Upstream Registry</button>
+                    <button class="cancel-button" onclick="closeRegisterModal()">❌ Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -261,6 +394,66 @@
                 }
             } catch (error) {
                 alert(`Sync error: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        function openRegisterModal() {
+            document.getElementById('registerModal').style.display = 'block';
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').style.display = 'none';
+        }
+
+        async function registerUpstreamRegistry() {
+            const url = document.getElementById('upstreamUrl').value.trim();
+
+            if (!url) {
+                alert('Upstream Registry URL is required!');
+                return;
+            }
+
+            const button = document.querySelector('.modal-footer .sync-button');
+            const originalText = button.textContent;
+            const statusElement = document.getElementById('registerStatus');
+            statusElement.style.display = 'none';
+
+            button.disabled = true;
+            button.textContent = '✅ Registering...';
+
+            try {
+                const response = await fetch('/registries/upstream-from-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    statusElement.textContent = `Registry '${result.name}' registered successfully!`;
+                    statusElement.className = 'status-message status-success';
+                    statusElement.style.display = 'block';
+                    setTimeout(() => {
+                        closeRegisterModal();
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    statusElement.textContent = `Error: ${result.detail || 'Unknown error'}`;
+                    statusElement.className = 'status-message status-error';
+                    statusElement.style.display = 'block';
+                }
+            } catch (error) {
+                statusElement.textContent = `Error: ${error.message}`;
+                statusElement.className = 'status-message status-error';
+                statusElement.style.display = 'block';
             } finally {
                 button.disabled = false;
                 button.textContent = originalText;

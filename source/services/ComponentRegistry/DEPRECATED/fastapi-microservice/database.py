@@ -5,7 +5,6 @@ Uses SQLite as embedded database for simplicity.
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base
 import os
 
 # SQLite database URL (embedded database)

@@ -32,12 +32,14 @@ class ComponentRegistry(BaseModel):
     type: ComponentRegistryType = Field(..., description="Type of registry")
     labels: Dict[str, str] = Field(default_factory=dict, description="Key-value pairs for labeling")
 
+    @classmethod
     @validator('name')
     def validate_name(cls, v):
         if not v or not v.strip():
             raise ValueError('Name cannot be empty or contain only whitespace')
         return v.strip()
 
+    @classmethod
     @validator('url')
     def validate_url(cls, v):
         if not v or not v.strip():
@@ -68,12 +70,14 @@ class ComponentRegistryCreate(BaseModel):
     type: ComponentRegistryType = Field(..., description="Type of registry")
     labels: Dict[str, str] = Field(default_factory=dict, description="Key-value pairs for labeling")
 
+    @classmethod
     @validator('name')
     def validate_name(cls, v):
         if not v or not v.strip():
             raise ValueError('Name cannot be empty or contain only whitespace')
         return v.strip()
 
+    @classmethod
     @validator('url')
     def validate_url(cls, v):
         if not v or not v.strip():
@@ -90,6 +94,7 @@ class ComponentRegistryUpdate(BaseModel):
     type: Optional[ComponentRegistryType] = Field(None, description="Updated type of registry")
     labels: Optional[Dict[str, str]] = Field(None, description="Updated key-value pairs for labeling")
 
+    @classmethod
     @validator('url')
     def validate_url(cls, v):
         if v is not None:
@@ -100,6 +105,11 @@ class ComponentRegistryUpdate(BaseModel):
                 raise ValueError('URL must start with http:// or https://')
             return v.strip()
         return v
+
+
+class UpstreamRegistryRequest(BaseModel):
+    """Request model for creating upstream registry from URL."""
+    url: str = Field(..., description="URL of the upstream component registry")
 
 
 class ExposedAPI(BaseModel):
@@ -117,12 +127,14 @@ class ExposedAPI(BaseModel):
     url: str = Field(..., description="Endpoint for accessing the exposed API")
     labels: Dict[str, str] = Field(default_factory=dict, description="Key-value pairs for labeling")
 
+    @classmethod
     @validator('name')
     def validate_name(cls, v):
         if not v or not v.strip():
             raise ValueError('Name cannot be empty or contain only whitespace')
         return v.strip()
 
+    @classmethod
     @validator('oas_specification', 'url')
     def validate_urls(cls, v):
         if not v or not v.strip():
@@ -153,12 +165,14 @@ class ExposedAPICreate(BaseModel):
     url: str = Field(..., description="Endpoint for accessing the exposed API")
     labels: Dict[str, str] = Field(default_factory=dict, description="Key-value pairs for labeling")
 
+    @classmethod
     @validator('name')
     def validate_name(cls, v):
         if not v or not v.strip():
             raise ValueError('Name cannot be empty or contain only whitespace')
         return v.strip()
 
+    @classmethod
     @validator('oas_specification', 'url')
     def validate_urls(cls, v):
         if not v or not v.strip():
@@ -175,6 +189,7 @@ class ExposedAPIUpdate(BaseModel):
     url: Optional[str] = Field(None, description="Updated endpoint for accessing the exposed API")
     labels: Optional[Dict[str, str]] = Field(None, description="Updated key-value pairs for labeling")
 
+    @classmethod
     @validator('oas_specification', 'url')
     def validate_urls(cls, v):
         if v is not None:
@@ -206,6 +221,7 @@ class Component(BaseModel):
     exposed_apis: List[ExposedAPI] = Field(default_factory=list, description="List of APIs exposed by this component")
     labels: Dict[str, str] = Field(default_factory=dict, description="Key-value pairs for labeling")
 
+    @classmethod
     @validator('component_registry_ref', 'component_name', 'component_version')
     def validate_required_fields(cls, v):
         if not v or not v.strip():
@@ -244,6 +260,7 @@ class ComponentCreate(BaseModel):
     exposed_apis: List[ExposedAPICreate] = Field(default_factory=list, description="List of APIs exposed by this component")
     labels: Dict[str, str] = Field(default_factory=dict, description="Key-value pairs for labeling")
 
+    @classmethod
     @validator('component_registry_ref', 'component_name', 'component_version')
     def validate_required_fields(cls, v):
         if not v or not v.strip():
@@ -258,6 +275,7 @@ class ComponentUpdate(BaseModel):
     exposed_apis: Optional[List[ExposedAPICreate]] = Field(None, description="Updated list of APIs exposed by this component")
     labels: Optional[Dict[str, str]] = Field(None, description="Updated key-value pairs for labeling")
 
+    @classmethod
     @validator('component_version')
     def validate_version(cls, v):
         if v is not None:

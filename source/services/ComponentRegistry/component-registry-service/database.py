@@ -6,10 +6,7 @@ and Component data.
 """
 
 from sqlalchemy import create_engine, Column, String, JSON, ForeignKey, UniqueConstraint
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, Session
-from typing import Dict, Any
-import json
+from sqlalchemy.orm import sessionmaker, relationship, Session, declarative_base
 import os
 
 # Database configuration
@@ -84,3 +81,9 @@ def get_db() -> Session:
 def create_tables():
     """Create all database tables."""
     Base.metadata.create_all(bind=engine)
+
+
+# Initialize database
+def init_db():
+    """Initialize database with tables"""
+    create_tables()

@@ -9,26 +9,59 @@ from dotenv import load_dotenv
 load_dotenv()  # take environment variables
 
 from fastapi import FastAPI, HTTPException, Depends, Query, Request
+from contextlib import asynccontextmanager
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from database import get_db, init_db
+import models, crud
 from typing import List, Optional
 import uvicorn
 import os
-import models, crud, database
 import httpx
-import asyncio
 import logging
 
 
-# Create database tables
-database.create_tables()
+
+OWN_REGISTRY_URL = os.getenv("OWN_REGISTRY_URL")
+OWN_REGISTRY_EXTERNAL_NAME = os.getenv("OWN_REGISTRY_EXTERNAL_NAME")
+
+if not OWN_REGISTRY_URL or not OWN_REGISTRY_EXTERNAL_NAME:
+    raise ValueError("Environment variables OWN_REGISTRY_URL and OWN_REGISTRY_EXTERNAL_NAME must be set")
+
+
+def initialize_own_registry_entry(db: Session):
+    """Ensure the 'self' ComponentRegistry exists in the database."""
+    existing = crud.ComponentRegistryCRUD.get(db, "self")
+    if not existing:
+        self_registry = models.ComponentRegistryCreate(
+            name="self",
+            url=OWN_REGISTRY_URL,
+            type="self",
+            labels={"externalName": OWN_REGISTRY_EXTERNAL_NAME}
+        )
+        try:
+            crud.ComponentRegistryCRUD.create(db, self_registry)
+            logging.info("Initialized 'self' ComponentRegistry in the database.")
+        except ValueError as e:
+            logging.error(f"Error initializing 'self' ComponentRegistry: {str(e)}")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+    init_db()
+    initialize_own_registry_entry(next(get_db()))
+    yield
+    # shutdown
+
 
 app = FastAPI(
-    title="Component Registry Service",
-    description="REST API for managing ODA Component Registries, Components, and Exposed APIs",
+    lifespan=lifespan,
+    title=f"Component Registry {OWN_REGISTRY_EXTERNAL_NAME}",
+    description="REST API for managing ODA Components and Exposed APIs",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -49,15 +82,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Dependency to get database session
-def get_db():
-    db = database.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
+    
 
 # Health check endpoint
 @app.get("/health", tags=["Health"])
@@ -108,45 +133,109 @@ async def create_component_registry(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/registries", response_model=List[models.ComponentRegistry], tags=["Component Registries"])
-async def get_component_registries(
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return"),
-    db: Session = Depends(get_db)
-):
-    """Get all Component Registries."""
-    return crud.ComponentRegistryCRUD.get_all(db, skip=skip, limit=limit)
-
-
 @app.get("/registries/{name}", response_model=models.ComponentRegistry, tags=["Component Registries"])
 async def get_component_registry(name: str, db: Session = Depends(get_db)):
-    """Get a Component Registry by name."""
+    """Get a ComponentRegistry by name."""
     registry = crud.ComponentRegistryCRUD.get(db, name)
     if not registry:
         raise HTTPException(status_code=404, detail=f"ComponentRegistry '{name}' not found")
     return registry
 
 
-@app.put("/registries/{name}", response_model=models.ComponentRegistry, tags=["Component Registries"])
-async def update_component_registry(
-    name: str,
-    registry_update: models.ComponentRegistryUpdate,
+@app.get("/registries", response_model=List[models.ComponentRegistry], tags=["Component Registries"])
+async def get_all_component_registries(
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return"),
     db: Session = Depends(get_db)
 ):
-    """Update a Component Registry."""
-    registry = crud.ComponentRegistryCRUD.update(db, name, registry_update)
-    if not registry:
-        raise HTTPException(status_code=404, detail=f"ComponentRegistry '{name}' not found")
-    return registry
+    """Get all ComponentRegistries."""
+    return crud.ComponentRegistryCRUD.get_all(db, skip=skip, limit=limit)
 
 
-@app.delete("/registries/{name}", tags=["Component Registries"])
-async def delete_component_registry(name: str, db: Session = Depends(get_db)):
-    """Delete a Component Registry."""
-    success = crud.ComponentRegistryCRUD.delete(db, name)
-    if not success:
-        raise HTTPException(status_code=404, detail=f"ComponentRegistry '{name}' not found")
-    return {"message": f"ComponentRegistry '{name}' deleted successfully"}
+@app.post("/registries/upstream-from-url", response_model=models.ComponentRegistry, tags=["Component Registries"])
+async def create_upstream_registry_from_url(
+    request: models.UpstreamRegistryRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Create a new upstream ComponentRegistry by fetching data from the upstream's 'self' registry.
+    
+    This endpoint takes only a URL and fetches the registry information from the upstream's
+    'self' ComponentRegistry to populate name, labels, and other metadata.
+    """
+    try:
+        # Fetch the 'self' registry from the upstream URL
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            upstream_url = request.url.rstrip('/')
+            
+            try:
+                response = await client.get(f"{upstream_url}/registries/self")
+                
+                if response.status_code != 200:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Could not fetch 'self' registry from upstream URL. Status: {response.status_code}"
+                    )
+                
+                upstream_self_data = response.json()
+                
+            except httpx.RequestError as req_error:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Error connecting to upstream registry: {str(req_error)}"
+                )
+            except Exception as parse_error:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Error parsing response from upstream registry: {str(parse_error)}"
+                )
+        
+        # Extract data from the upstream's self registry
+        upstream_name = upstream_self_data.get("name")
+        upstream_labels = upstream_self_data.get("labels", {})
+        
+        # Use externalName from labels if available, otherwise use the name
+        registry_name = upstream_labels.get("externalName", upstream_name)
+        
+        if not registry_name:
+            raise HTTPException(
+                status_code=400,
+                detail="Upstream 'self' registry does not have a valid name or externalName"
+            )
+        
+        # Check if registry with this name already exists
+        existing = crud.ComponentRegistryCRUD.get(db, registry_name)
+        if existing:
+            raise HTTPException(
+                status_code=400,
+                detail=f"ComponentRegistry '{registry_name}' already exists"
+            )
+        
+        # Create the upstream registry
+        upstream_registry = models.ComponentRegistryCreate(
+            name=registry_name,
+            url=request.url,
+            type="upstream",
+            labels=upstream_labels
+        )
+        
+        created_registry = crud.ComponentRegistryCRUD.create(db, upstream_registry)
+        
+        logging.info(f"Successfully created upstream registry '{registry_name}' from URL '{request.url}'")
+        
+        return created_registry
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logging.error(f"Unexpected error creating upstream registry from URL: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error: {str(e)}"
+        )
 
 
 # Component endpoints
@@ -506,18 +595,6 @@ async def sync_upstream(db: Session = Depends(get_db)):
             status_code=500,
             detail=f"Internal server error during synchronization: {str(e)}"
         )
-
-
-@app.get("/desc", tags=["Description"])
-async def description():
-    """Root endpoint with service information."""
-    return {
-        "service": "Component Registry Service",
-        "description": "REST API for managing ODA Component Registries, Components, and Exposed APIs",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "health": "/health"
-    }
 
 
 if __name__ == "__main__":
