@@ -8,7 +8,7 @@ and their Exposed APIs following the TM Forum ODA Canvas specification.
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables
 
-from fastapi import FastAPI, HTTPException, Depends, Query, Request
+from fastapi import FastAPI, HTTPException, Depends, Query, Request, BackgroundTasks
 from contextlib import asynccontextmanager
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +22,8 @@ import uvicorn
 import os
 import httpx
 import logging
+import asyncio
+import json
 
 
 
@@ -242,9 +244,10 @@ async def create_upstream_registry_from_url(
 @app.post("/components", response_model=models.Component, tags=["Components"])
 async def create_component(
     component: models.ComponentCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """Create a new Component."""
+    """Create a new Component and asynchronously propagate to upstream registries."""
     try:
         # Check if component already exists
         existing = crud.ComponentCRUD.get(db, component.component_registry_ref, component.component_name)
@@ -254,7 +257,19 @@ async def create_component(
                 detail=f"Component '{component.component_name}' already exists in registry '{component.component_registry_ref}'"
             )
         
-        return crud.ComponentCRUD.create(db, component)
+        # Create the component
+        created_component = crud.ComponentCRUD.create(db, component)
+        
+        # Add background task to propagate to upstream registries
+        background_tasks.add_task(
+            propagate_component_to_upstreams,
+            created_component,
+            component.component_registry_ref,
+            component.component_name,
+            "create"
+        )
+        
+        return created_component
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -293,15 +308,52 @@ async def update_component(
     registry_ref: str,
     component_name: str,
     component_update: models.ComponentUpdate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """Update a Component."""
+
+    try:
+        old_db_component = crud.ComponentCRUD.get(db, registry_ref, component_name)
+        old_component = old_db_component.model_dump()
+        old_json = json.dumps(old_component, sort_keys=True)
+        update_component = component_update.model_dump()
+        update_component["component_registry_ref"] = old_component["component_registry_ref"]
+        update_component["component_name"] = old_component["component_name"]
+        update_component["labels"]["syncedAt"] = old_component["labels"]["syncedAt"] 
+        update_json = json.dumps(update_component, sort_keys=True)
+        if old_json == update_json:
+            logging.info(f"No changes detected for component '{component_name}' in registry '{registry_ref}'. Skipping update.")
+            return old_db_component
+    except Exception:
+        old_json = ""
+        
+    """Update a Component and asynchronously propagate changes to upstream registries."""
     component = crud.ComponentCRUD.update(db, registry_ref, component_name, component_update)
     if not component:
         raise HTTPException(
             status_code=404,
             detail=f"Component '{component_name}' not found in registry '{registry_ref}'"
         )
+
+    try:
+        new_component = component.model_dump()
+        new_component["labels"]["syncedAt"] = old_component["labels"]["syncedAt"]
+        new_json = json.dumps(new_component, sort_keys=True)
+        if (old_json == new_json):
+            logging.info(f"No changes detected for component '{component_name}' in registry '{registry_ref}'. Skipping propagation.")
+            return component
+    except Exception:
+        pass
+    
+    # Add background task to propagate updates to upstream registries
+    background_tasks.add_task(
+        propagate_component_to_upstreams,
+        component,
+        registry_ref,
+        component_name,
+        "update"
+    )
+    
     return component
 
 
@@ -309,15 +361,35 @@ async def update_component(
 async def delete_component(
     registry_ref: str,
     component_name: str,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """Delete a Component."""
+    """Delete a Component and asynchronously propagate deletion to upstream registries."""
+    # Get component data before deletion for upstream propagation
+    component = crud.ComponentCRUD.get(db, registry_ref, component_name)
+    if not component:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Component '{component_name}' not found in registry '{registry_ref}'"
+        )
+    
+    # Delete the component from local database
     success = crud.ComponentCRUD.delete(db, registry_ref, component_name)
     if not success:
         raise HTTPException(
             status_code=404,
             detail=f"Component '{component_name}' not found in registry '{registry_ref}'"
         )
+    
+    # Add background task to propagate deletion to upstream registries
+    background_tasks.add_task(
+        propagate_component_to_upstreams,
+        component,
+        registry_ref,
+        component_name,
+        "delete"
+    )
+    
     return {"message": f"Component '{component_name}' deleted successfully from registry '{registry_ref}'"}
 
 
@@ -596,6 +668,169 @@ async def sync_upstream(db: Session = Depends(get_db)):
             detail=f"Internal server error during synchronization: {str(e)}"
         )
 
+
+async def propagate_component_to_upstreams(
+    component: models.Component,
+    registry_ref: str,
+    component_name: str,
+    operation: str = "update"
+):
+    """
+    Background task to asynchronously propagate component changes to all upstream registries.
+    
+    Args:
+        component: The component data to propagate
+        registry_ref: The registry reference of the component
+        component_name: The name of the component
+        operation: The operation type ('create', 'update', 'delete')
+    """
+    try:
+        # Get database session for background task
+        db = next(get_db())
+        
+        # Get self registry info for external name mapping
+        own_registry = crud.ComponentRegistryCRUD.get(db, "self")
+        if not own_registry or not own_registry.labels or "externalName" not in own_registry.labels:
+            logging.error("Cannot propagate to upstreams: 'self' registry missing externalName")
+            return
+        
+        external_name = own_registry.labels["externalName"]
+        
+        # Get all upstream registries
+        upstream_registries = crud.ComponentRegistryCRUD.get_by_type(db, "upstream")
+        
+        if not upstream_registries:
+            logging.info("No upstream registries found for component propagation")
+            return
+        
+        logging.info(f"Starting asynchronous propagation of component '{component_name}' ({operation}) to {len(upstream_registries)} upstream registries")
+        
+        # Map registry reference to external name
+        comp_reg_name = registry_ref
+        if registry_ref == 'self':
+            comp_reg_name = external_name
+        else:
+            # Try to get external name for other registries
+            source_registry = crud.ComponentRegistryCRUD.get(db, registry_ref)
+            if source_registry and source_registry.labels and "externalName" in source_registry.labels:
+                comp_reg_name = source_registry.labels["externalName"]
+        
+        # Propagate to each upstream registry
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            for upstream_registry in upstream_registries:
+                try:
+                    upstream_url = upstream_registry.url.rstrip('/')
+                    
+                    if operation == "delete":
+                        # Send DELETE request for component deletion
+                        response = await client.delete(
+                            f"{upstream_url}/components/{comp_reg_name}/{component_name}",
+                            headers={"Content-Type": "application/json"}
+                        )
+                        
+                        if response.status_code in [200, 204, 404]:  # 404 is OK for delete (already deleted)
+                            logging.info(f"Successfully deleted component '{component_name}' from upstream '{upstream_registry.name}'")
+                        else:
+                            logging.error(f"Failed to delete component '{component_name}' from upstream '{upstream_registry.name}': {response.status_code} - {response.text}")
+                    
+                    else:
+                        # Prepare component data for create/update operations
+                        component_data = {
+                            "component_registry_ref": comp_reg_name,
+                            "component_name": component.component_name,
+                            "component_version": component.component_version,
+                            "description": component.description,
+                            "exposed_apis": [
+                                {
+                                    "name": api.name,
+                                    "oas_specification": api.oas_specification,
+                                    "url": api.url,
+                                    "labels": api.labels
+                                }
+                                for api in component.exposed_apis
+                            ],
+                            "labels": component.labels
+                        }
+                        
+                        if operation == "create":
+                            # Try to create the component
+                            response = await client.post(
+                                f"{upstream_url}/components",
+                                json=component_data,
+                                headers={"Content-Type": "application/json"}
+                            )
+                            
+                            if response.status_code in [200, 201]:
+                                logging.info(f"Successfully created component '{component_name}' in upstream '{upstream_registry.name}'")
+                            elif response.status_code == 400 and "already exists" in response.text:
+                                # Component already exists, try to update it instead
+                                update_data = {
+                                    "component_version": component.component_version,
+                                    "description": component.description,
+                                    "exposed_apis": component_data["exposed_apis"],
+                                    "labels": component.labels
+                                }
+                                
+                                update_response = await client.put(
+                                    f"{upstream_url}/components/{comp_reg_name}/{component.component_name}",
+                                    json=update_data,
+                                    headers={"Content-Type": "application/json"}
+                                )
+                                
+                                if update_response.status_code == 200:
+                                    logging.info(f"Successfully updated existing component '{component_name}' in upstream '{upstream_registry.name}'")
+                                else:
+                                    logging.error(f"Failed to update existing component '{component_name}' in upstream '{upstream_registry.name}': {update_response.status_code} - {update_response.text}")
+                            else:
+                                logging.error(f"Failed to create component '{component_name}' in upstream '{upstream_registry.name}': {response.status_code} - {response.text}")
+                        
+                        elif operation == "update":
+                            # Send PUT request for component update
+                            update_data = {
+                                "component_version": component.component_version,
+                                "description": component.description,
+                                "exposed_apis": component_data["exposed_apis"],
+                                "labels": component.labels
+                            }
+                            
+                            response = await client.put(
+                                f"{upstream_url}/components/{comp_reg_name}/{component_name}",
+                                json=update_data,
+                                headers={"Content-Type": "application/json"}
+                            )
+                            
+                            if response.status_code == 200:
+                                logging.info(f"Successfully updated component '{component_name}' in upstream '{upstream_registry.name}'")
+                            elif response.status_code == 404:
+                                # Component doesn't exist, try to create it
+                                create_response = await client.post(
+                                    f"{upstream_url}/components",
+                                    json=component_data,
+                                    headers={"Content-Type": "application/json"}
+                                )
+                                
+                                if create_response.status_code in [200, 201]:
+                                    logging.info(f"Successfully created missing component '{component_name}' in upstream '{upstream_registry.name}'")
+                                else:
+                                    logging.error(f"Failed to create missing component '{component_name}' in upstream '{upstream_registry.name}': {create_response.status_code} - {create_response.text}")
+                            else:
+                                logging.error(f"Failed to update component '{component_name}' in upstream '{upstream_registry.name}': {response.status_code} - {response.text}")
+                
+                except httpx.RequestError as req_error:
+                    logging.error(f"Request error propagating component '{component_name}' to upstream '{upstream_registry.name}': {str(req_error)}")
+                except Exception as propagation_error:
+                    logging.error(f"Unexpected error propagating component '{component_name}' to upstream '{upstream_registry.name}': {str(propagation_error)}")
+        
+        logging.info(f"Completed asynchronous propagation of component '{component_name}' ({operation}) to upstream registries")
+        
+    except Exception as e:
+        logging.error(f"Error in background task for component propagation: {str(e)}")
+    finally:
+        # Ensure database session is closed
+        try:
+            db.close()
+        except:
+            pass
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
