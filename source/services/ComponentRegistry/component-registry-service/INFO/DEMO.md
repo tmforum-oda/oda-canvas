@@ -18,6 +18,7 @@ cd C:\Users\A307131\git\oda-canvas
 cd source/services/ComponentRegistry/custom-resource-collector
 helm upgrade --install collector-a -n compreg-a --create-namespace helm/custom-resource-collector --set=registryUrl=https://compreg-a.ihc-dt.cluster-2.de --set=registryExternalName=compreg-a --set=monitoredNamespaces=odacompns-a
 helm upgrade --install collector-b -n compreg-b --create-namespace helm/custom-resource-collector --set=registryUrl=https://compreg-b.ihc-dt.cluster-2.de --set=registryExternalName=compreg-b --set=monitoredNamespaces=odacompns-b
+
 ```
 
 
@@ -50,11 +51,44 @@ helm upgrade --install demo-b -n odacompns-b --create-namespace feature-definiti
 ```
 
 
-## configure upstream repo
+## configure upstream repos
 
-in compreg-a
+# compreg-a, compreg-b, compreg-ab
 
 ```
+curl -X 'POST' \
+  'https://compreg-a.ihc-dt.cluster-2.de/registries/upstream-from-url' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"url": "https://compreg-ab.ihc-dt.cluster-2.de"}'
+
+curl -X 'POST' \
+  'https://compreg-b.ihc-dt.cluster-2.de/registries/upstream-from-url' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"url": "https://compreg-ab.ihc-dt.cluster-2.de"}'
+
+curl -X 'POST' \
+  'https://compreg-ab.ihc-dt.cluster-2.de/registries/upstream-from-url' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"url": "https://compreg-abup.ihc-dt.cluster-2.de"}'
+
+```
+
+for windows:
+
+```
+curl -X POST https://compreg-a.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-ab.ihc-dt.cluster-2.de\"}"
+
+curl -X POST https://compreg-b.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-ab.ihc-dt.cluster-2.de\"}"
+
+curl -X POST https://compreg-ab.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-abup.ihc-dt.cluster-2.de\"}"
+
+```
+  
+
+
 curl -X 'POST' \
   'https://compreg-a.ihc-dt.cluster-2.de/registries' \
   -H 'accept: application/json' \
