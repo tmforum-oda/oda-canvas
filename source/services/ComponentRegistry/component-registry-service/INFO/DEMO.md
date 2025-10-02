@@ -11,7 +11,46 @@ helm upgrade --install compreg-abup -n compreg-abup --create-namespace helm/comp
 ```
 
 
-# Install collector
+# configure upstream repos
+
+## compreg-a, compreg-b, compreg-ab
+
+```
+curl -X 'POST' \
+  'https://compreg-a.ihc-dt.cluster-2.de/registries/upstream-from-url' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"url": "https://compreg-ab.ihc-dt.cluster-2.de"}'
+
+curl -X 'POST' \
+  'https://compreg-b.ihc-dt.cluster-2.de/registries/upstream-from-url' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"url": "https://compreg-ab.ihc-dt.cluster-2.de"}'
+
+curl -X 'POST' \
+  'https://compreg-ab.ihc-dt.cluster-2.de/registries/upstream-from-url' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{"url": "https://compreg-abup.ihc-dt.cluster-2.de"}'
+
+```
+
+for windows:
+
+```
+curl -X POST https://compreg-a.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-ab.ihc-dt.cluster-2.de\"}"
+
+curl -X POST https://compreg-b.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-ab.ihc-dt.cluster-2.de\"}"
+
+curl -X POST https://compreg-ab.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-abup.ihc-dt.cluster-2.de\"}"
+
+```
+  
+
+
+
+# Install collectors
 
 ```
 cd C:\Users\A307131\git\oda-canvas
@@ -50,110 +89,6 @@ curl -sX GET   https://canvas-info.ihc-dt.cluster-2.de/service -H "accept:applic
 helm upgrade --install demo-b -n odacompns-b --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
 ```
 
-
-## configure upstream repos
-
-# compreg-a, compreg-b, compreg-ab
-
-```
-curl -X 'POST' \
-  'https://compreg-a.ihc-dt.cluster-2.de/registries/upstream-from-url' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{"url": "https://compreg-ab.ihc-dt.cluster-2.de"}'
-
-curl -X 'POST' \
-  'https://compreg-b.ihc-dt.cluster-2.de/registries/upstream-from-url' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{"url": "https://compreg-ab.ihc-dt.cluster-2.de"}'
-
-curl -X 'POST' \
-  'https://compreg-ab.ihc-dt.cluster-2.de/registries/upstream-from-url' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{"url": "https://compreg-abup.ihc-dt.cluster-2.de"}'
-
-```
-
-for windows:
-
-```
-curl -X POST https://compreg-a.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-ab.ihc-dt.cluster-2.de\"}"
-
-curl -X POST https://compreg-b.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-ab.ihc-dt.cluster-2.de\"}"
-
-curl -X POST https://compreg-ab.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-abup.ihc-dt.cluster-2.de\"}"
-
-```
-  
-
-
-curl -X 'POST' \
-  'https://compreg-a.ihc-dt.cluster-2.de/registries' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "name": "compreg-ab",
-  "url": "https://compreg-ab.ihc-dt.cluster-2.de",
-  "type": "upstream",
-  "labels": {
-    "description": "Registry compreg-ab for Kubernetes ODA Components"
-  }
-}'
-```
-
-in compreg-b
-
-```
-curl -X 'POST' \
-  'https://compreg-b.ihc-dt.cluster-2.de/registries' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "name": "compreg-ab",
-  "url": "https://compreg-ab.ihc-dt.cluster-2.de",
-  "type": "upstream",
-  "labels": {
-    "description": "Registry compreg-ab for Kubernetes ODA Components"
-  }
-}'
-```
-
-in compreg-ab
-
-```
-curl -X 'POST' \
-  'https://compreg-ab.ihc-dt.cluster-2.de/registries' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "name": "compreg-abup",
-  "url": "https://compreg-abup.ihc-dt.cluster-2.de",
-  "type": "upstream",
-  "labels": {
-    "description": "Registry compreg-abup for Kubernetes ODA Components"
-  }
-}'
-```
-
-
-in localhost
-
-```
-curl -X 'POST' \
-  'http://localhost:8080/registries' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "name": "compreg-ab",
-  "url": "https://compreg-ab.ihc-dt.cluster-2.de",
-  "type": "upstream",
-  "labels": {
-    "description": "Registry compreg-ab for Kubernetes ODA Components"
-  }
-}'
-```
 
 
 ## look dependentapi custom resource

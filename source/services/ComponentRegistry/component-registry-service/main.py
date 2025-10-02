@@ -677,6 +677,7 @@ async def propagate_component_to_upstreams(
 ):
     """
     Background task to asynchronously propagate component changes to all upstream registries.
+    Also ensures that the ComponentRegistry exists upstream before propagating components.
     
     Args:
         component: The component data to propagate
@@ -705,14 +706,19 @@ async def propagate_component_to_upstreams(
         
         logging.info(f"Starting asynchronous propagation of component '{component_name}' ({operation}) to {len(upstream_registries)} upstream registries")
         
+        # Get the source registry information for upstream registration
+        source_registry = crud.ComponentRegistryCRUD.get(db, registry_ref)
+        if not source_registry:
+            logging.error(f"Source registry '{registry_ref}' not found for component propagation")
+            return
+        
         # Map registry reference to external name
         comp_reg_name = registry_ref
         if registry_ref == 'self':
             comp_reg_name = external_name
         else:
             # Try to get external name for other registries
-            source_registry = crud.ComponentRegistryCRUD.get(db, registry_ref)
-            if source_registry and source_registry.labels and "externalName" in source_registry.labels:
+            if source_registry.labels and "externalName" in source_registry.labels:
                 comp_reg_name = source_registry.labels["externalName"]
         
         # Propagate to each upstream registry
@@ -721,6 +727,42 @@ async def propagate_component_to_upstreams(
                 try:
                     upstream_url = upstream_registry.url.rstrip('/')
                     
+                    # First, ensure the ComponentRegistry exists upstream (except for delete operations)
+                    if operation != "delete":
+                        registry_exists = await check_registry_exists(upstream_registry, comp_reg_name)
+                        
+                        if not registry_exists:
+                            logging.info(f"ComponentRegistry '{comp_reg_name}' does not exist in upstream '{upstream_registry.name}'. Registering it first.")
+                            
+                            # Prepare registry data for upstream
+                            registry_data = {
+                                "name": comp_reg_name,
+                                "url": source_registry.url,
+                                "type": "downstream",  # This registry appears as downstream to the upstream
+                                "labels": source_registry.labels or {}
+                            }
+                            
+                            # Register the ComponentRegistry upstream
+                            try:
+                                registry_response = await client.post(
+                                    f"{upstream_url}/registries",
+                                    json=registry_data,
+                                    headers={"Content-Type": "application/json"}
+                                )
+                                
+                                if registry_response.status_code in [200, 201]:
+                                    logging.info(f"Successfully registered ComponentRegistry '{comp_reg_name}' in upstream '{upstream_registry.name}'")
+                                elif registry_response.status_code == 400 and "already exists" in registry_response.text:
+                                    logging.info(f"ComponentRegistry '{comp_reg_name}' already exists in upstream '{upstream_registry.name}'")
+                                else:
+                                    logging.error(f"Failed to register ComponentRegistry '{comp_reg_name}' in upstream '{upstream_registry.name}': {registry_response.status_code} - {registry_response.text}")
+                                    continue  # Skip component propagation if registry registration failed
+                                    
+                            except Exception as reg_error:
+                                logging.error(f"Error registering ComponentRegistry '{comp_reg_name}' in upstream '{upstream_registry.name}': {str(reg_error)}")
+                                continue  # Skip component propagation if registry registration failed
+                    
+                    # Now propagate the component
                     if operation == "delete":
                         # Send DELETE request for component deletion
                         response = await client.delete(
