@@ -381,7 +381,10 @@
                             {% if component.exposed_apis %}
                                 {% for api in component.exposed_apis %}
                                     <div style="margin: 2px 0;">
-                                        <strong>{{ api.name }}:</strong><br>
+                                        <strong>{{ api.name }}:</strong>
+                                        {% if api.labels and api.labels.status %}
+                                            <span class="label-item" style="margin-left:6px;">Status: {{ api.labels.status|capitalize }}</span>
+                                        {% endif %}<br>
                                         {% if api.labels and api.labels.developerUI %}
                                             <a href="{{ api.url }}" class="api-link" target="_blank">API URL</a><br>
                                             <a href="{{ api.labels.developerUI }}" class="api-link" target="_blank">Developer UI</a>
