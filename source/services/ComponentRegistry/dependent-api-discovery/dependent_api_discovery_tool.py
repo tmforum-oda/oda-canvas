@@ -11,41 +11,46 @@ import os
 import sys
 import argparse
 import requests
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Set
 
-
-def find_exposed_apis(component_registry_url: str, oas_specification: str) -> List[Dict[str, Any]]:
+class ComponentRegistryClient:
     """
-    Query the given ComponentRegistry for ExposedAPIs matching the oas_specification.
-    Returns a list of matching ExposedAPIs (with their parent Component info).
+    Helper class to communicate with a ComponentRegistry endpoint.
     """
-    try:
-        url = f"{component_registry_url.rstrip('/')}/components/by-oas-specification"
-        response = requests.get(url, params={"oas_specification": oas_specification}, timeout=10)
-        response.raise_for_status()
-        return response.json()  # List of Components, each with filtered ExposedAPIs
-    except Exception as e:
-        print(f"Error querying {component_registry_url}: {e}", file=sys.stderr)
-        return []
+    def __init__(self, base_url: str):
+        self.base_url = base_url.rstrip('/')
+
+    def find_exposed_apis(self, oas_specification: str) -> List[Dict[str, Any]]:
+        """
+        Query the ComponentRegistry for ExposedAPIs matching the oas_specification.
+        Returns a list of matching ExposedAPIs (with their parent Component info).
+        """
+        try:
+            url = f"{self.base_url}/components/by-oas-specification"
+            response = requests.get(url, params={"oas_specification": oas_specification}, timeout=10)
+            response.raise_for_status()
+            return response.json()  # List of Components, each with filtered ExposedAPIs
+        except Exception as e:
+            print(f"Error querying {self.base_url}: {e}", file=sys.stderr)
+            return []
+
+    def get_upstream_registries(self) -> List[str]:
+        """
+        Query the ComponentRegistry for its upstream registries.
+        Returns a list of upstream registry URLs.
+        """
+        try:
+            url = f"{self.base_url}/registries/by-type/upstream"
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            registries = response.json()  # List of ComponentRegistry objects
+            return [reg["url"] for reg in registries if "url" in reg]
+        except Exception as e:
+            print(f"Error fetching upstream registries from {self.base_url}: {e}", file=sys.stderr)
+            return []
 
 
-def get_upstream_registries(component_registry_url: str) -> List[str]:
-    """
-    Query the given ComponentRegistry for its upstream registries.
-    Returns a list of upstream registry URLs.
-    """
-    try:
-        url = f"{component_registry_url.rstrip('/')}/registries/by-type/upstream"
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        registries = response.json()  # List of ComponentRegistry objects
-        return [reg["url"] for reg in registries if "url" in reg]
-    except Exception as e:
-        print(f"Error fetching upstream registries from {component_registry_url}: {e}", file=sys.stderr)
-        return []
-
-
-def recursive_api_discovery(component_registry_url: str, oas_specification: str, visited: set = None) -> List[Dict[str, Any]]:
+def recursive_api_discovery(component_registry_url: str, oas_specification: str, visited: Set[str] = None) -> List[Dict[str, Any]]:
     """
     Recursively search for ExposedAPIs implementing the oas_specification, starting from the given registry.
     Returns a list of matching ExposedAPIs (with their parent Component info).
@@ -56,13 +61,14 @@ def recursive_api_discovery(component_registry_url: str, oas_specification: str,
         return []  # Prevent cycles
     visited.add(component_registry_url)
 
+    client = ComponentRegistryClient(component_registry_url)
     # 1. Search local registry
-    matches = find_exposed_apis(component_registry_url, oas_specification)
+    matches = client.find_exposed_apis(oas_specification)
     if matches:
         return matches
 
     # 2. Query upstream registries recursively
-    upstreams = get_upstream_registries(component_registry_url)
+    upstreams = client.get_upstream_registries()
     for upstream_url in upstreams:
         result = recursive_api_discovery(upstream_url, oas_specification, visited)
         if result:
