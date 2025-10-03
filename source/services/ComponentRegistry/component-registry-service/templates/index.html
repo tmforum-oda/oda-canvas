@@ -383,11 +383,12 @@
                                     <div style="margin: 2px 0;">
                                         <strong>{{ api.name }}:</strong><br>
                                         {% if api.labels and api.labels.developerUI %}
-                                            <a href="{{ api.url }}" class="api-link" target="_blank">{{ api.url }}</a><br>
-                                            (<a href="{{ api.labels.developerUI }}" class="api-link" target="_blank">Developer UI</a>)
+                                            <a href="{{ api.url }}" class="api-link" target="_blank">API URL</a><br>
+                                            <a href="{{ api.labels.developerUI }}" class="api-link" target="_blank">Developer UI</a>
                                         {% else %}
                                             <a href="{{ api.url }}" class="api-link" target="_blank">{{ api.url }}</a>
-                                        {% endif %}
+                                        {% endif %}<br/>
+                                        <a href="{{ api.oas_specification }}" class="api-link" target="_blank">OpenAPI Spec</a>
                                     </div>
                                     {% if not loop.last %}<hr style="margin: 4px 0;">{% endif %}
                                 {% endfor %}
@@ -418,7 +419,7 @@
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
             <p><strong>Navigation:</strong></p>
             <ul>
-                <li><a href="/docs" class="api-link" target="_blank">API Documentation (Swagger UI)</a></li>
+                <li><a href="/docs" class="api-link" target="_blank">ComponentRegistry Swagger UI</a></li>
                 <li><a href="/registries" class="api-link">Registries API</a></li>
                 <li><a href="/components" class="api-link">Components API</a></li>
                 <li><a href="/health" class="api-link">Health Check</a></li>
