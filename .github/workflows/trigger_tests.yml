@@ -157,6 +157,7 @@ jobs:
         echo DEBUG: helm install canvas -n canvas
         helm install canvas -n canvas --create-namespace ./charts/canvas-oda
         echo DEBUG: finished Install Helm chart from Git repo
+        helm list --all-namespaces
 
     - name: Port Forwarding Keycloak Service
       run: |
