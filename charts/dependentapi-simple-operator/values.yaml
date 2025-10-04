@@ -3,4 +3,4 @@ version: 1.0.1
 prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 loglevel: '20'
-#componentRegistry: http://compreg-canvas.canvas.svc.cluster.local
+#componentRegistryUrl: http://compreg-canvas.canvas.svc.cluster.local

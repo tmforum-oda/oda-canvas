@@ -8,7 +8,7 @@ NOTES.txt - Instructions displayed after Helm installation
    curl https://{{ .Release.Name }}.{{ .Values.domain }}/docs
 
 3. Web UI:
-   curl https://{{ .Release.Name }}.{{ .Values.domain }}/
+   https://{{ .Release.Name }}.{{ .Values.domain }}
 
 Component Registry Service Information:
 - Service Name: {{ include "component-registry.fullname" . }}

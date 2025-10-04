@@ -205,8 +205,8 @@ dependentapi-simple-operator:
   prereleaseSuffix: issue384
   imagePullPolicy: IfNotPresent
   loglevel: '20'
-  #componentRegistry: http://compreg-canvas.canvas.svc.cluster.local
-  componentRegistry: https://compreg-a.ihc-dt.cluster-2.de
+  #componentRegistryUrl: http://compreg-canvas.canvas.svc.cluster.local
+  componentRegistryUrl: https://compreg-a.ihc-dt.cluster-2.de
 
 canvas-vault:
   enabled: true

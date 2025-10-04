@@ -66,9 +66,206 @@ helm upgrade --install collector-b -n compreg-b --create-namespace helm/custom-r
 ## uninstall old Components
 
 ```
-helm uninstall demo-a -n odacompns-a
-helm uninstall demo-b -n odacompns-b
+helm uninstall -n odacompns-a r-cat
+helm uninstall -n odacompns-b f-cat
 ```
+
+
+# From BDD UC007-F002 (inst) - Configure DependentAPI for single downstream productcatalog component
+
+```
+Scenario Outline: Configure DependentAPI for single downstream productcatalog component
+  # Install a downstream retail productcatalog component as release r-cat
+  Given I install the 'productcatalog-v1' package as release 'r-cat'
+  And the 'productcatalogmanagement' component has a deployment status of 'Complete'
+  And I should see the 'productcatalogmanagement' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
+  # Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
+  When I install the 'productcatalog-dependendent-API-v1' package as release 'f-cat'
+  Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'productcatalogmanagement' component with a ready status
+  And the 'productcatalogmanagement' component has a deployment status of 'Complete'
+```
+
+## Install a downstream retail productcatalog component as release r-cat
+
+Given I install the 'productcatalog-v1' package as release 'r-cat'
+
+```
+cd C:\Users\A307131\git\oda-canvas
+helm upgrade --install r-cat -n odacompns-a --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
+
+  Release "r-cat" does not exist. Installing it now.
+  NAME: r-cat
+  LAST DEPLOYED: Sat Oct  4 17:44:05 2025
+  NAMESPACE: odacompns-a
+  STATUS: deployed
+  REVISION: 1
+  TEST SUITE: None
+```
+
+And the 'productcatalogmanagement' component has a deployment status of 'Complete'
+
+```
+kubectl get component r-cat-productcatalogmanagement -n odacompns-a
+
+  NAMESPACE     NAME                             DEPLOYMENT_STATUS
+  odacompns-a   r-cat-productcatalogmanagement   Complete
+```
+
+And I should see the 'productcatalogmanagement' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
+
+```
+kubectl get exposedapi -n odacompns-a
+
+  NAME                                                      API_ENDPOINT                                                                                                IMPLEMENTATION_READY
+  r-cat-productcatalogmanagement-metrics                    https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/metrics                               true
+  r-cat-productcatalogmanagement-partyrole                  https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/partyRoleManagement/v4        true
+  r-cat-productcatalogmanagement-productcatalogmanagement   https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4   true
+```
+
+
+## Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
+
+When I install the 'productcatalog-dependendent-API-v1' package as release 'f-cat'
+
+```
+cd C:\Users\A307131\git\oda-canvas
+helm upgrade --install f-cat -n odacompns-b --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+
+  Release "f-cat" does not exist. Installing it now.
+  NAME: f-cat
+  LAST DEPLOYED: Sat Oct  4 20:52:52 2025
+  NAMESPACE: odacompns-b
+  STATUS: deployed
+  REVISION: 1
+  TEST SUITE: None
+```
+
+
+Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'productcatalogmanagement' component with a ready status
+
+```
+kubectl get depapis -n odacompns-b   f-cat-productcatalogmanagement-downstreamproductcatalog
+
+  NAMESPACE     NAME                                                      READY   AGE   SVCINVID                               URL
+  odacompns-b   f-cat-productcatalogmanagement-downstreamproductcatalog   true    53s   0e16d068-fc39-4cf5-80a0-5e5826b02d10   https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+```
+
+And the 'productcatalogmanagement' component has a deployment status of 'Complete'
+
+```
+kubectl get components -n odacompns-b   f-cat-productcatalogmanagement
+
+  NAME                             DEPLOYMENT_STATUS
+  f-cat-productcatalogmanagement   Complete
+```
+
+
+# From BDD UC007-F002 (data) - Populate and verify data in federated product catalog
+
+```
+Scenario Outline: Populate and verify data in federated product catalog
+  # Populate the retail product catalog with sample data
+  Given the 'productcatalogmanagement' component in the 'r-cat' release has the following 'category' data:
+    | name                      | description                                       |
+    | Internet line of product  | Fiber and ADSL broadband products                 |
+    | Mobile line of product    | Mobile phones and packages                        |
+    | IoT line of product       | IoT devices and solutions                         |
+  # Verify that the federated product catalog exposes the populated catalogs
+  When I query the 'productcatalogmanagement' component in the 'f-cat' release for 'category' data:
+  Then I should see the following 'category' data in the federated product catalog:
+    | name                      | description                                       |
+    | Internet line of product  | Fiber and ADSL broadband products                 |
+    | Mobile line of product    | Mobile phones and packages                        |
+    | IoT line of product       | IoT devices and solutions                         |   
+```
+
+## Populate the retail product catalog with sample data
+
+Given the 'productcatalogmanagement' component in the 'r-cat' release has the following 'category' data:
+
+| name                      | description                                       |
+| ------------------------- | ------------------------------------------------- |
+| Internet line of product  | Fiber and ADSL broadband products                 |
+| Mobile line of product    | Mobile phones and packages                        |
+| IoT line of product       | IoT devices and solutions                         |
+
+```
+curl -X POST "http://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" \
+     -H  "accept: application/json;charset=utf-8" \
+     -H  "Content-Type: application/json;charset=utf-8" \
+     -d "{  \"name\": \"Internet line of product\",  \"description\": \"Fiber and ADSL broadband products\"  }"
+
+curl -X POST "http://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" \
+     -H  "accept: application/json;charset=utf-8" \
+     -H  "Content-Type: application/json;charset=utf-8" \
+     -d "{  \"name\": \"Mobile line of product\",  \"description\": \"Mobile phones and packages\"  }"
+
+curl -X POST "http://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" \
+     -H  "accept: application/json;charset=utf-8" \
+     -H  "Content-Type: application/json;charset=utf-8" \
+     -d "{  \"name\": \"IoT line of product\",  \"description\": \"IoT devices and solutions\"  }"
+```
+
+
+##  Verify that the federated product catalog exposes the populated catalogs
+
+When I query the 'productcatalogmanagement' component in the 'f-cat' release for 'category' data:  
+Then I should see the following 'category' data in the federated product catalog:
+  
+| name                      | description                                       |
+| ------------------------- | ------------------------------------------------- |
+| Internet line of product  | Fiber and ADSL broadband products                 |
+| Mobile line of product    | Mobile phones and packages                        |
+| IoT line of product       | IoT devices and solutions                         |   
+
+```
+curl -X GET "http://components.ihc-dt.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" | jq .
+```
+
+
+# show access of r-cat in f-cat logs:
+
+```
+kubectl logs deployment/f-cat-prodcatapi -n odacompns-b
+
+  ...
+  listCategory :: GET /f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category components.ihc-dt.cluster-2.de
+  utils/downstreamAPI/listFromDownstreamAPI :: resourceType =  category
+  utils/downstreamAPI/getDownstreamAPIs :: returning 1 downstream APIs
+  utils/downstreamAPI/listFromDownstreamAPI :: getting data from downstream API at https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category
+  utils/downstreamAPI/listFromDownstreamAPI :: received 5 records
+```
+
+
+
+
+## query r-cat categories
+
+```
+curl -X GET "http://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8"
+```
+
+## query f-cat categories
+
+```
+curl -X GET "http://components.ihc-dt.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8"
+```
+
+
+## 
+
+productcatalog-dependendent-API-v1
+
+
+{
+  "description": "Fiber and ADSL broadband products",
+  "name": "Internet line of product"
+}
+
+curl -X POST "http://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"description\": \"Fiber and ADSL broadband products\",  \"name\": \"Internet line of product\"}"
+
+
+# Manual tests
 
 ## deploy exposed api
 
@@ -168,9 +365,17 @@ helm dependency update ./charts/cert-manager-init
 helm dependency update ./charts/kong-gateway
 helm dependency update ./charts/apisix-gateway
 helm dependency update ./charts/canvas-vault
+helm dependency update ./charts/pdb-management-operator
 helm dependency update ./charts/canvas-oda
 
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%
+helm dependency update --skip-refresh ./charts/cert-manager-init
+helm dependency update --skip-refresh ./charts/kong-gateway
+helm dependency update --skip-refresh ./charts/apisix-gateway
+helm dependency update --skip-refresh ./charts/canvas-vault
+helm dependency update --skip-refresh ./charts/pdb-management-operator
+helm dependency update --skip-refresh ./charts/canvas-oda
+
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli 
 
 ```
 
