@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: security-override-test
+  namespace: pdb-demo
+  labels:
+    security-tier: critical
+  annotations:
+    oda.tmforum.org/availability-class: "standard"  # Trying to use lower availability
+    oda.tmforum.org/description: "Demo showing strict policy blocking annotation override"
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: security-override
+  template:
+    metadata:
+      labels:
+        app: security-override
+        security-tier: critical
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"

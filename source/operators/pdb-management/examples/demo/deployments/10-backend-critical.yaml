@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-critical
+  namespace: pdb-demo
+  labels:
+    tier: backend
+  annotations:
+    oda.tmforum.org/availability-class: "mission-critical"  # Higher than policy
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: backend-critical
+  template:
+    metadata:
+      labels:
+        app: backend-critical
+        tier: backend
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine

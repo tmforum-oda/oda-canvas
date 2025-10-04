@@ -1,0 +1,10 @@
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: invalid-policy
+  namespace: pdb-demo
+spec:
+  availabilityClass: custom  # Custom requires customPDBConfig
+  componentSelector:
+    namespaces: ["pdb-demo"]
+  # Missing required customPDBConfig!

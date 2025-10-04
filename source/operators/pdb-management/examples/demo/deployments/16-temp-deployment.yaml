@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temp-deployment
+  namespace: pdb-demo
+  annotations:
+    oda.tmforum.org/availability-class: "standard"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: temp
+  template:
+    metadata:
+      labels:
+        app: temp
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine

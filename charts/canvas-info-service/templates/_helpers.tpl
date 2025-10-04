@@ -2,7 +2,7 @@
 build the full dependent api docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "canvas-info-service.dockerimage" -}}
-  {{- .Values.image -}}:{{- .Values.version -}}
+  {{ include "docker.registry" .}}{{- .Values.image -}}:{{- .Values.version -}}
   {{- if .Values.prereleaseSuffix -}}
     -{{- .Values.prereleaseSuffix -}}
   {{- end -}}

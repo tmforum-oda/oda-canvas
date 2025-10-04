@@ -67,6 +67,57 @@ It can interact with Issues, Pull Requests and code assets.
 
 ---
 
+## Claude Code
+
+This section gives guidance on using [Claude Code](https://claude.ai/code) from Anthropic. 
+Claude Code is an interactive CLI tool that helps with software engineering tasks, offering deep codebase understanding, multi-file operations, and integration with development workflows.
+
+### Claude Code: Best Practices
+
+Claude Code is an advanced AI assistant designed specifically for software development. When used effectively, it can accelerate development of Canvas operators, Kubernetes manifests, BDD tests, and complex multi-component integrations.
+
+### Recommended Usage Scenarios
+- Analyze and refactor complex operator implementations across multiple files
+- Generate comprehensive BDD test scenarios and step definitions
+- Create and maintain Kubernetes CRDs and operator logic
+- Debug multi-language integrations (Python operators, Java services, Node.js APIs)
+- Implement TMF API specifications and Canvas component workflows
+
+### Prompt Engineering Tips
+- Provide clear context about the specific Canvas component or operator you're working with
+- Reference the ODA Component Specification version when making changes
+- Specify whether you're working with KOPF-based operators, Spring Boot services, or Vue.js components
+- Include relevant Kubernetes resource types and TMF API standards
+
+```bash
+# Example: Ask Claude Code to analyze a component operator
+claude analyze the component-management operator and suggest improvements for handling v1beta4 to v1 migrations
+```
+
+### Claude Code Configuration
+
+Claude Code automatically reads repo-specific context from the `CLAUDE.md` file. This file provides essential information about:
+
+- Development commands for different technology stacks
+- Architecture patterns and operator types
+- Testing approaches and BDD scenarios
+- Canvas-specific concepts and terminology
+
+See [CLAUDE.md](CLAUDE.md) for the complete configuration and development guidance.
+
+### Advanced Features
+
+Claude Code supports complex multi-step operations ideal for Canvas development:
+
+- **Multi-file refactoring**: Update operator implementations across related files
+- **Cross-technology integration**: Work with Python operators, Java services, and JavaScript frontends simultaneously
+- **BDD workflow support**: Create features, scenarios, and step definitions as cohesive units
+- **Kubernetes resource management**: Generate, validate, and update CRDs, operators, and Helm charts
+
+For detailed documentation on Claude Code capabilities, see the [official Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code).
+
+---
+
 ## Gemini Code Assist
 
 [https://codeassist.google/](https://codeassist.google/)

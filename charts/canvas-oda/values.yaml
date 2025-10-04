@@ -5,11 +5,21 @@
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
 global:
+  image:
+    # docker registry to pull images from, e.g. "myreg.io/" (include the trailing slash)
+    registry: ""
+  
+  # image pull secret to pull images from private registry
+  imagePullSecrets: []
+  # imagePullSecrts:
+  # - imagepullsecret1
+  # - imagepullsecret2
+
   certificate:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
   hookImages:
-    kubectl: bitnami/kubectl:latest
+    kubectl: bitnamilegacy/kubectl:latest
     kubectlCurl: tmforumodacanvas/baseimage-kubectl-curl:1.30.5
     busybox: busybox:1.35
 
@@ -60,6 +70,7 @@ cert-manager-init:
 keycloak:
   enabled: true
   image:
+    repository: bitnamilegacy/keycloak
     tag: 20.0.5-debian-11-r2
   auth:
     adminUser: "admin"
@@ -67,6 +78,7 @@ keycloak:
   postgresql:
     enabled: true
     image:
+      repository: bitnamilegacy/postgresql
       tag: 15.2.0-debian-11-r31
     auth:
       username: "keycloak"
@@ -152,7 +164,7 @@ component-operator:
   deployment:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
-    compopVersion: 1.0.0
+    compopVersion: 1.1.0
     compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
@@ -165,13 +177,13 @@ identityconfig-operator-keycloak:
   deployment:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
-    idkopVersion: 1.0.3
-    idkopPrereleaseSuffix:
+    idkopVersion: 1.1.0
+    idkopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
-    idlistkeyVersion: 0.7.3
-    idlistkeyPrereleaseSuffix: 
+    idlistkeyVersion: 1.1.0
+    idlistkeyPrereleaseSuffix:  
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     keycloak: *portKeycloak
     hostName: "*"
@@ -348,6 +360,41 @@ secretsmanagement-operator:
   #  name: enc-secrets
   #  key: hvacTokenEnc
 
+# -----------------------------------------------------------------------------
+# PDB Management Operator and sub-chart parameters
+# -----------------------------------------------------------------------------
+
+pdb-management-operator:
+  enabled: true
+  
+  # Deployment configuration
+  deployment:
+    operatorName: pdb-management-operator
+    image: tmforumodacanvas/pdb-management-operator
+    version: 1.0.0
+    prereleaseSuffix:
+    imagePullPolicy: IfNotPresent
+    watchNamespace: ''
+    enableWebhook: true
+    enableMetrics: true
+    metricsAddr: "0.0.0.0:8080"
+    probeAddr: "0.0.0.0:8081"
+  
+  # Observability configuration
+  observability:
+    logLevel: "info"
+    tracing:
+      enabled: false
+      jaegerEndpoint: ""
+      otlpEndpoint: ""
+      sampleRate: "1.0"
+    
+  # Operator configuration
+  configuration:
+    enablePDB: true
+    defaultNamespace: "default"
+    metricsNamespace: "canvas"
+    leaderElectionNamespace: "canvas"
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
@@ -519,3 +566,10 @@ canvas-info-service:
     storageClassName:
 
 
+resource-inventory:
+  enabled: true
+  image: tmforumodacanvas/tmf639-resource-inventory-api
+  version: 1.0.0
+  prereleaseSuffix: 
+  imagePullPolicy: IfNotPresent
+  serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5

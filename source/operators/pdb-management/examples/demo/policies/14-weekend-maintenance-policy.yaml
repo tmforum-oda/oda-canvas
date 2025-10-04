@@ -1,0 +1,17 @@
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: weekend-maintenance
+  namespace: canvas
+spec:
+  availabilityClass: mission-critical
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      maintenance: scheduled
+  maintenanceWindows:
+  - start: "02:00"
+    end: "04:00"
+    timezone: "UTC"
+    daysOfWeek: [0, 6]  # Sunday and Saturday
+  priority: 100

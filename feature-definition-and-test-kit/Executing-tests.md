@@ -7,13 +7,13 @@ To execute the tests, first you install the necessary packages and set the envir
 - install necessary packages
 
   ```bash
-  cd identity-manager-utils-keycloak
+  cd utilities/identity-manager-utils-keycloak
   npm install
   cd ../package-manager-utils-helm
   npm install
   cd ../resource-inventory-utils-kubernetes
   npm install
-  cd ..
+  cd ../..
   npm install
   ```
 
@@ -47,13 +47,13 @@ npm start -- features/UC003-F001-Expose-APIs-Create-API-Resource.feature
 The use cases and features are tagged. You can run the tests for a given use case with the following command:
 
 ```
-npm start -- --tags '@UC003'
+npm run start:tags "@UC003"
 ```
 
 Or run the tests for a single feature with the following command:
 
 ```
-npm start -- --tags '@UC003-F001'
+npm run start:tags "@UC003-F001"
 ```
 
 ## Updating the master test status

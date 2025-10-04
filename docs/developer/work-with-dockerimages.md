@@ -212,6 +212,12 @@ helm dependency build
 cd ../../charts/secretsmanagement-operator
 helm dependency update
 helm dependency build
+cd ../../charts/resource-inventory
+helm dependency update
+helm dependency build
+cd ../../charts/canvas-info-service
+helm dependency update
+helm dependency build
 cd ../../charts/canvas-oda
 helm dependency update
 helm dependency build
@@ -225,8 +231,10 @@ Now we are ready to install/upgrade the canvas.
 Again from the root of the local git repository execute the following command:
 
 ```
-$ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace 
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace 
+```
 
+```
   Release "canvas" has been upgraded. Happy Helming!
   NAME: canvas
   LAST DEPLOYED: Tue Jul 30 16:23:41 2024
@@ -530,4 +538,12 @@ So, the test dockerfile uses the previously built image as "$FROM_IMAGE" and dur
 On Failure, the docker build of the version is canceled and the broken tests are visible in the GitHub action.
 
 ![failed tests in GitHub Action](images/failed-tests-in-github-action.png)
+
+
+## How to work with forks
+
+For security reasons, it is not possible for PRs from a forked repository to build dockerimages, 
+as the credentials are not accessible in the GitHub Action.
+
+As a workaround the dockerimages can be created using a feature-branch and merging the same forked sources into this branch using a secondary PR. Then the prerelease docker images will be built and are available in the primary PR for running the BDD tests.
 

@@ -1,0 +1,23 @@
+apiVersion: oda.tmforum.org/v1
+kind: IdentityConfig
+metadata:
+  name: example-component-with-permissions # Kubernetes resource name for the instance of the IdentityConfig
+spec:
+  canvasSystemRole: CanvasRole
+  
+  # Existing partyRoleAPI support (unchanged)
+  partyRoleAPI:
+    implementation: example-partyrole-service
+    path: /example-component/partyRoleManagement/v4
+    port: 8080
+  
+  # New permissionSpecificationSetAPI support
+  permissionSpecificationSetAPI:
+    implementation: example-permissionspec-service
+    path: /example-component/rolesAndPermissionsManagement/v5
+    port: 8080
+  
+  # Optional static component roles
+  componentRole:
+    - name: "ComponentAdmin"
+    - name: "ComponentUser"

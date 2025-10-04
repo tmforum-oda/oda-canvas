@@ -1,0 +1,398 @@
+# Advanced AvailabilityPolicy Examples for ODA Canvas
+
+---
+# Performance-optimized policy with caching configuration
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: performance-optimized-policy
+  namespace: canvas
+  annotations:
+    # Performance tuning annotations
+    oda.tmforum.org/cache-ttl: "300s"           # 5 minute cache TTL
+    oda.tmforum.org/list-cache-ttl: "60s"       # 1 minute list cache
+    oda.tmforum.org/maintenance-cache-ttl: "30s" # 30 second maintenance cache
+    oda.tmforum.org/batch-size: "50"            # Process in batches of 50
+    oda.tmforum.org/reconcile-interval: "30s"   # Reconcile every 30 seconds
+spec:
+  availabilityClass: standard
+  enforcement: flexible
+  minimumClass: non-critical
+  componentSelector:
+    matchLabels:
+      oda.tmforum.org/performance-tier: "optimized"
+    namespaces:
+      - "production"
+      - "components"
+  maintenanceWindows:
+    - start: "02:00"
+      end: "03:00"
+      timezone: "UTC"
+      daysOfWeek: [0, 6]
+  priority: 15
+
+---
+# Custom availability policy with specific PDB configuration
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: critical-telecom-services
+  namespace: canvas
+  labels:
+    policy-type: telecom-critical
+spec:
+  availabilityClass: custom
+  enforcement: strict  # Critical telecom services must use these exact settings
+  customPDBConfig:
+    minAvailable: "85%"
+    unhealthyPodEvictionPolicy: "AlwaysAllow"
+  componentSelector:
+    matchLabels:
+      oda.tmforum.org/service-tier: "tier-1"
+      oda.tmforum.org/criticality: "high"
+    componentFunctions:
+      - core
+      - security
+  maintenanceWindows:
+    - start: "02:00"
+      end: "04:00"
+      timezone: "UTC"
+      daysOfWeek: [0]  # Sunday only
+    - start: "02:00"
+      end: "03:00"
+      timezone: "UTC"
+      daysOfWeek: [3]  # Wednesday (shorter window)
+  priority: 100
+  enforceMinReplicas: true
+
+---
+# Circuit breaker integration policy
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: circuit-breaker-optimized
+  namespace: canvas
+  annotations:
+    # Circuit breaker tuning
+    oda.tmforum.org/circuit-breaker-threshold: "10"
+    oda.tmforum.org/circuit-breaker-timeout: "60s"
+    oda.tmforum.org/circuit-breaker-reset-timeout: "120s"
+    oda.tmforum.org/adaptive-timeout: "true"
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible
+  minimumClass: standard
+  componentSelector:
+    matchLabels:
+      oda.tmforum.org/circuit-breaker: "enabled"
+    matchExpressions:
+      - key: "oda.tmforum.org/api-type"
+        operator: In
+        values: ["external", "critical"]
+  priority: 40
+
+---
+# Monitoring and observability enhanced policy
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: observability-enhanced
+  namespace: canvas
+  annotations:
+    # Monitoring configuration
+    oda.tmforum.org/metrics-enabled: "true"
+    oda.tmforum.org/detailed-metrics: "true"
+    oda.tmforum.org/audit-logging: "enabled"
+    oda.tmforum.org/tracing-enabled: "true"
+    oda.tmforum.org/event-recording: "comprehensive"
+spec:
+  availabilityClass: high-availability
+  enforcement: advisory
+  allowOverride: true
+  overrideRequiresReason: true
+  overrideRequiresAnnotation: "oda.tmforum.org/monitoring-approval"
+  componentSelector:
+    matchLabels:
+      monitoring: "comprehensive"
+      oda.tmforum.org/observability: "enabled"
+  maintenanceWindows:
+    - start: "02:00"
+      end: "04:00"
+      timezone: "UTC"
+      daysOfWeek: [0, 6]
+  priority: 35
+
+---
+# Namespace-specific policy for development environments
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: dev-environment-policy
+  namespace: canvas
+spec:
+  availabilityClass: non-critical
+  enforcement: advisory  # Developers can override as needed
+  allowOverride: true    # Explicit permission to override
+  componentSelector:
+    namespaces:
+      - "dev"
+      - "staging"
+      - "test"
+    matchLabels:
+      environment: "non-production"
+  maintenanceWindows:
+    - start: "00:00"
+      end: "23:59"
+      timezone: "UTC"
+      daysOfWeek: [0, 1, 2, 3, 4, 5, 6]  # Any time
+  priority: 1
+
+---
+# Component name-specific policy for known critical services
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: specific-components-policy
+  namespace: canvas
+spec:
+  availabilityClass: mission-critical
+  enforcement: flexible  # Allow upgrades only
+  minimumClass: high-availability  # Cannot go below high-availability
+  componentSelector:
+    componentNames:
+      - "productcatalog"
+      - "partyrole"
+      - "servicecatalog"
+    namespaces:
+      - "components"
+      - "production"
+  maintenanceWindows:
+    - start: "03:00"
+      end: "04:00"
+      timezone: "UTC"
+      daysOfWeek: [0]  # Sunday only, 1-hour window
+  priority: 50
+
+---
+# Label selector with expressions for complex matching
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: label-expression-policy
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: advisory  # Default behavior
+  allowOverride: true
+  overrideRequiresReason: true  # Must document why override is needed
+  overrideRequiresAnnotation: "oda.tmforum.org/approved-by"  # Must have approval
+  componentSelector:
+    matchExpressions:
+      - key: "oda.tmforum.org/api-version"
+        operator: In
+        values: ["v4", "v5"]
+      - key: "oda.tmforum.org/component-type"
+        operator: NotIn
+        values: ["test", "mock"]
+      - key: "oda.tmforum.org/production-ready"
+        operator: Exists
+    matchLabels:
+      tier: "production"
+  priority: 30
+
+---
+# Geo-specific policy with timezone-aware maintenance
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: apac-region-policy
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible  # Regional flexibility
+  minimumClass: standard  # Minimum for APAC region
+  componentSelector:
+    matchLabels:
+      oda.tmforum.org/region: "apac"
+      oda.tmforum.org/component-type: "api"
+  maintenanceWindows:
+    - start: "02:00"
+      end: "04:00"
+      timezone: "Asia/Singapore"
+      daysOfWeek: [0, 6]  # Weekends in APAC timezone
+  priority: 25
+
+---
+# Event-driven policy with comprehensive event recording
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: event-driven-policy
+  namespace: canvas
+  annotations:
+    # Event recording configuration
+    oda.tmforum.org/event-recording: "comprehensive"
+    oda.tmforum.org/audit-events: "enabled"
+    oda.tmforum.org/compliance-events: "required"
+    oda.tmforum.org/configuration-events: "detailed"
+spec:
+  availabilityClass: high-availability
+  enforcement: strict
+  componentSelector:
+    matchLabels:
+      oda.tmforum.org/audit-required: "true"
+      compliance: "required"
+  priority: 60
+
+---
+# Global security baseline - cannot be overridden
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: global-security-baseline
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: strict  # Security is non-negotiable
+  componentSelector:
+    componentFunctions:
+      - security
+    # No namespace restriction - applies everywhere
+  priority: 500  # Very high priority
+
+---
+# Staging environment with controlled flexibility
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: staging-environment-flexible
+  namespace: canvas
+spec:
+  availabilityClass: standard
+  enforcement: flexible
+  minimumClass: non-critical  # Can go down to non-critical but not disable
+  componentSelector:
+    namespaces:
+      - "staging"
+      - "pre-prod"
+    matchExpressions:
+      - key: "oda.tmforum.org/stage"
+        operator: In
+        values: ["staging", "pre-production"]
+  maintenanceWindows:
+    - start: "00:00"
+      end: "06:00"
+      timezone: "UTC"
+      daysOfWeek: [1, 2, 3, 4, 5]  # Weekdays only
+  priority: 20
+
+---
+# TMF API Components with override controls
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: tmf-api-components
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: advisory
+  allowOverride: true
+  overrideRequiresReason: true
+  overrideRequiresAnnotation: "oda.tmforum.org/architecture-approval"
+  componentSelector:
+    matchLabels:
+      oda.tmforum.org/component-type: "tmf-api"
+    matchExpressions:
+      - key: "oda.tmforum.org/tmf-api"
+        operator: Exists
+  priority: 40
+
+---
+# Database tier with absolute requirements
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: database-tier-strict
+  namespace: canvas
+spec:
+  availabilityClass: custom
+  enforcement: strict  # Databases must follow these rules
+  customPDBConfig:
+    minAvailable: 2  # Always keep at least 2 instances
+    unhealthyPodEvictionPolicy: "IfHealthyBudget"
+  componentSelector:
+    matchLabels:
+      tier: "database"
+    matchExpressions:
+      - key: "oda.tmforum.org/data-tier"
+        operator: In
+        values: ["primary", "critical"]
+  priority: 200
+  enforceMinReplicas: true
+
+---
+# Multi-region policy with different rules per region
+# Europe - Strict compliance required
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: emea-compliance-policy
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: strict  # GDPR compliance requires strict control
+  componentSelector:
+    matchLabels:
+      oda.tmforum.org/region: "emea"
+    namespaces:
+      - "prod-eu"
+      - "prod-uk"
+  maintenanceWindows:
+    - start: "03:00"
+      end: "05:00"
+      timezone: "Europe/London"
+      daysOfWeek: [0]
+  priority: 300
+
+---
+# Americas - Flexible approach
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: americas-flexible-policy
+  namespace: canvas
+spec:
+  availabilityClass: standard
+  enforcement: flexible
+  minimumClass: standard
+  componentSelector:
+    matchLabels:
+      oda.tmforum.org/region: "americas"
+    namespaces:
+      - "prod-us"
+      - "prod-ca"
+      - "prod-br"
+  maintenanceWindows:
+    - start: "02:00"
+      end: "04:00"
+      timezone: "America/New_York"
+      daysOfWeek: [0, 6]
+  priority: 250
+
+---
+# Example: Emergency override capability for incidents
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: incident-response-override
+  namespace: canvas
+spec:
+  availabilityClass: standard
+  enforcement: advisory
+  allowOverride: true
+  overrideRequiresAnnotation: "oda.tmforum.org/incident-id"  # Must reference incident
+  overrideRequiresReason: true
+  componentSelector:
+    matchLabels:
+      oda.tmforum.org/incident-override-allowed: "true"
+  priority: 15  # Low priority - only applies if tagged
