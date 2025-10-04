@@ -151,6 +151,31 @@ curl -sX GET   https://canvas-info.ihc-dt.cluster-2.de/service -H "accept:applic
 
 
 
+# update canvas
+
+```
+cd ~/git/oda-canvas
+
+set DOMAIN=ihc-dt.cluster-2.de
+set TLS_SECRET_NAME=domain-tls-secret
+
+helm repo add jetstack https://charts.jetstack.io
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+
+helm dependency update ./charts/cert-manager-init
+helm dependency update ./charts/kong-gateway
+helm dependency update ./charts/apisix-gateway
+helm dependency update ./charts/canvas-vault
+helm dependency update ./charts/canvas-oda
+
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%
+
+```
+
+
+
 # Undeploy Component Registries
 
 ```
