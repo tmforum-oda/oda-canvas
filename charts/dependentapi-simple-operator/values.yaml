@@ -1,5 +1,6 @@
 image: tmforumodacanvas/dependentapi-simple-operator
-version: 1.0.0
+version: 1.0.1
 prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 loglevel: '20'
+#componentRegistry: http://compreg-canvas.canvas.svc.cluster.local

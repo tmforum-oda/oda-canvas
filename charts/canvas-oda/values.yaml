@@ -189,10 +189,12 @@ identityconfig-operator-keycloak:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 1.0.0
-  prereleaseSuffix: 
+  version: 1.0.1
+  prereleaseSuffix: issue384
   imagePullPolicy: IfNotPresent
   loglevel: '20'
+  #componentRegistry: http://compreg-canvas.canvas.svc.cluster.local
+  componentRegistry: https://compreg-a.ihc-dt.cluster-2.de
 
 canvas-vault:
   enabled: true

@@ -2,10 +2,12 @@ from utils import safe_get
 import kopf
 import logging
 import os
+from typing import List, Dict, Any
 import kubernetes.client
 from kubernetes.client.rest import ApiException
 
 from service_inventory_client import ServiceInventoryAPI
+from component_reg_client import ComponentRegistryClient
 
 from log_wrapper import LogWrapper, logwrapper
 
@@ -52,6 +54,12 @@ CANVAS_INFO_ENDPOINT = os.getenv(
 logger.info(f"CANVAS_INFO_ENDPOINT=%s", CANVAS_INFO_ENDPOINT)
 
 componentname_label = os.getenv("COMPONENTNAME_LABEL", "oda.tmforum.org/componentName")
+
+# for local testing set environment variable $COMPONENT_REGISTRY_URL to "http://localhost:8080"
+# COMPONENT_REGISTRY_URL = os.getenv("COMPONENT_REGISTRY_URL", "http://canvas-compreg.canvas.svc.cluster-local")
+COMPONENT_REGISTRY_URL = os.getenv("COMPONENT_REGISTRY_URL", None)
+if COMPONENT_REGISTRY_URL:
+    logger.info("COMPONENT_REGISTRY_URL=%s", COMPONENT_REGISTRY_URL)
 
 INSTANCES = {}
 
@@ -106,9 +114,48 @@ def get_expapi(logw: LogWrapper):
 
 
 @logwrapper
-def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
-    dep_api = get_depapi_spec(logw, depapi_name, depapi_namespace)
-    depapi_specification = dep_api["specification"]
+def compreg_service_discovery(logw: LogWrapper, oas_specification: str) -> List[Dict[str, Any]]:
+    """
+    Recursively search for ExposedAPIs implementing the oas_specification, starting from the given registry.
+    Returns a list of matching ExposedAPIs (with their parent Component info).
+    """
+    logw.info(f"searching for spec", oas_specification)
+    component_registry_urls = [COMPONENT_REGISTRY_URL]
+    visited = set()
+    while (component_registry_urls):
+        current_url = component_registry_urls.pop(0)
+        if current_url in visited:
+            continue
+        visited.add(current_url)
+
+        client = ComponentRegistryClient(current_url)
+        # 1. Search local registry
+        matches = client.find_exposed_apis(oas_specification)
+        logw.debugInfo(f"found {len(matches)} in {current_url}", matches)
+        if matches:
+            for comp in matches:
+                comp_name = comp.get('component_name', 'unknown')
+                comp_reg = comp.get('component_registry_ref', 'unknown')
+                logw.debug(f"Component: {comp_name} (Registry: {comp_reg})")
+                for api in comp.get('exposed_apis', []):
+                    api_name = api.get('name', None)
+                    api_url = api.get('url', None)  
+                    api_status = api.get('labels', {}).get('status', None)
+                    logw.debug(f"  - API: {api_name}, status: {api_status}, URL: {api_url}")
+                    if api_status == "ready" and api_url:
+                        logw.info(f"return url {api_url} for api {api_name} from component {comp_name} in registry {comp_reg}")
+                        return api_url
+
+        # 2. Query upstream registries
+        upstreams = client.get_upstream_registries()
+        component_registry_urls.extend(upstreams)
+
+    return []  # No matches found in any registry
+
+
+
+@logwrapper
+def customresource_service_discovery(logw: LogWrapper, spec_url:str) -> str:
     exp_apis = get_expapi()
     for exp_api in exp_apis["items"]:
         if not ("specification" in exp_api["spec"].keys()):
@@ -117,11 +164,30 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
             if (
                 exp_api["spec"]["apiType"] == "openapi"
                 and exp_api["spec"]["specification"][0]["url"]
-                == depapi_specification[0]["url"]
+                == spec_url
                 and safe_get(False, exp_api, "status", "implementation", "ready")
                 == True
             ):
                 return exp_api["status"]["apiStatus"]["url"]
+    return None
+
+
+@logwrapper
+def service_discovery(logw: LogWrapper, spec_url:str) -> str:
+    if COMPONENT_REGISTRY_URL:
+        return compreg_service_discovery(logw, spec_url)
+    return customresource_service_discovery(logw, spec_url)
+
+
+@logwrapper
+def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
+    dep_api = get_depapi_spec(logw, depapi_name, depapi_namespace)
+    depapi_specifications = dep_api.get("specification", [])
+    for depapi_specification in depapi_specifications:
+        if "url" in depapi_specification.keys():
+            service_url = service_discovery(logw, depapi_specification["url"])
+            if service_url:
+                return service_url
     return None
 
 

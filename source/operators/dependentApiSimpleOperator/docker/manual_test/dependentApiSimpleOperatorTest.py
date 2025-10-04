@@ -131,7 +131,7 @@ def test_dependentApiCreate():
 
 
 def test_dependentApiUpdate():
-    body_json_file = "testdata/UPDATE_prodcat.json"
+    body_json_file = "testdata/UPDATE_prodcat2.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -300,9 +300,9 @@ def test_updateDepedentAPIReady():
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=False)
+    k8s_load_config(proxy=True)
     test_kubeconfig()
     # test_dependentApiCreate()
-    # test_dependentApiUpdate()
-    test_dependentApiDelete()
+    test_dependentApiUpdate()
+    # test_dependentApiDelete()
     # test_updateDepedentAPIReady()
