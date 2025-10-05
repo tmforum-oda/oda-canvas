@@ -155,9 +155,9 @@ jobs:
         echo DEBUG: update ./charts/canvas-oda
         helm dependency update ./charts/canvas-oda
         echo DEBUG: helm install canvas -n canvas
-        helm install canvas -n canvas --create-namespace ./charts/canvas-oda
+        helm install canvas -n canvas --create-namespace ./charts/canvas-oda \
+          --set keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli
         echo DEBUG: finished Install Helm chart from Git repo
-        helm list --all-namespaces
 
     - name: Port Forwarding Keycloak Service
       run: |
