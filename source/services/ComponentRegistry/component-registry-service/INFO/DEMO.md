@@ -1,5 +1,13 @@
 # Deploy ComponentRegistry Helm Charts
 
+canvas compreg:
+
+```
+set DOMAIN=ihc-dt-b.cluster-2.de
+helm upgrade --install compreg -n canvas --create-namespace helm/component-registry --set=domain=%DOMAIN% --set=externalName=compreg-b
+
+```
+
 ```
 cd C:\Users\A307131\git\oda-canvas
 cd source/services/ComponentRegistry/component-registry-service
@@ -351,9 +359,10 @@ curl -sX GET   https://canvas-info.ihc-dt.cluster-2.de/service -H "accept:applic
 # update canvas
 
 ```
-cd ~/git/oda-canvas
+cd %USERPROFILE%/git/oda-canvas
 
-set DOMAIN=ihc-dt.cluster-2.de
+REM set DOMAIN=ihc-dt.cluster-2.de
+set DOMAIN=ihc-dt-b.cluster-2.de
 set TLS_SECRET_NAME=domain-tls-secret
 
 helm repo add jetstack https://charts.jetstack.io
@@ -379,6 +388,12 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 
 ```
 
+optional install canvas-vs
+
+```
+helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  --set=componentGateway=canvas/component-gateway
+
+```
 
 
 # Undeploy Component Registries

@@ -70,7 +70,7 @@ spec:
             - name: OWN_REGISTRY_URL
               value: "https://{{ .Release.Name }}.{{ .Values.domain }}"
             - name: OWN_REGISTRY_EXTERNAL_NAME
-              value: "{{ .Release.Name }}"
+              value: "{{ include "component-registry.externalName" . }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.persistence.enabled }}
