@@ -71,7 +71,7 @@ External name, defaults to release name if not explicitly set
 
 
 {{/*
-build the full dependent api docker image name from image + version + prereleaseSuffix
+build the full component registry docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "component-registry.dockerimage" -}}
   {{ include "docker.registry" .}}{{- .Values.image -}}:{{- .Values.version -}}

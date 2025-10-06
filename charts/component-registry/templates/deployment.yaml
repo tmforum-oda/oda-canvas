@@ -34,8 +34,8 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ include "dependentapi-simple-operator.dockerimage" . }}"
-          imagePullPolicy: "{{ include "dependentapi-simple-operator.imagePullPolicy" . }}"
+          image: "{{ include "component-registry.dockerimage" . }}"
+          imagePullPolicy: "{{ include "component-registry.imagePullPolicy" . }}"
           ports:
             - name: http
               containerPort: 8080
