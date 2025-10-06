@@ -573,3 +573,27 @@ resource-inventory:
   prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
+  
+# Default values for component-registry.
+# This is a YAML-formatted file.
+# Declare variables to be substituted into your templates.
+
+
+component-registry:
+   enabled: true
+   image: tmforumodacanvas/component-registry
+   version: 0.1.0
+   prereleaseSuffix: issue384
+   imagePullPolicy: IfNotPresent
+   
+   # Environment variables
+   env:
+     - name: LOGGING
+       value: "10"  # 10=DEBUG, 20=INFO 
+   
+   # Persistence for SQLite database file
+   persistence:
+     enabled: true
+     accessMode: ReadWriteOnce
+     size: 1Gi
+   

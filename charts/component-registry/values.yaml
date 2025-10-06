@@ -1,0 +1,100 @@
+# Default values for component-registry.
+# This is a YAML-formatted file.
+# Declare variables to be substituted into your templates.
+
+image: tmforumodacanvas/component-registry
+version: 0.1.0
+prereleaseSuffix: issue384
+imagePullPolicy: IfNotPresent
+
+# Environment variables
+env:
+  - name: LOGGING
+    value: "10"  # 10=DEBUG, 20=INFO 
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+
+resources: 
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Database configuration
+database:
+  # For production, use external database
+  # For development, SQLite file is used
+  type: sqlite
+  # External database configuration (if type != sqlite)
+  external:
+    host: ""
+    port: 5432
+    name: component_registry
+    username: ""
+    password: ""
+    sslMode: require
+
+# Persistence for SQLite database file
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+# Probes configuration
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readiness:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+    successThreshold: 1
+
+# ODA Canvas specific labels
+odaCanvas:
+  labels:
+    "oda.tmforum.org/componentName": "component-registry"
+    "oda.tmforum.org/componentType": "microservice"
+    "oda.tmforum.org/version": "1.0.0"
+    

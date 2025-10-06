@@ -26,6 +26,15 @@ import asyncio
 import json
 
 
+# Setup logging
+logging_level = os.environ.get("LOGGING", logging.INFO)
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+logger = logging.getLogger("depapiop")
+logger.setLevel(int(logging_level))
+logger.info("Logging set to %s", logging_level)
+logger.debug("debug logging is on")
+
 
 OWN_REGISTRY_URL = os.getenv("OWN_REGISTRY_URL")
 OWN_REGISTRY_EXTERNAL_NAME = os.getenv("OWN_REGISTRY_EXTERNAL_NAME")
@@ -46,9 +55,9 @@ def initialize_own_registry_entry(db: Session):
         )
         try:
             crud.ComponentRegistryCRUD.create(db, self_registry)
-            logging.info("Initialized 'self' ComponentRegistry in the database.")
+            logger.info("Initialized 'self' ComponentRegistry in the database.")
         except ValueError as e:
-            logging.error(f"Error initializing 'self' ComponentRegistry: {str(e)}")
+            logger.error(f"Error initializing 'self' ComponentRegistry: {str(e)}")
 
 
 @asynccontextmanager
@@ -223,7 +232,7 @@ async def create_upstream_registry_from_url(
         
         created_registry = crud.ComponentRegistryCRUD.create(db, upstream_registry)
         
-        logging.info(f"Successfully created upstream registry '{registry_name}' from URL '{request.url}'")
+        logger.info(f"Successfully created upstream registry '{registry_name}' from URL '{request.url}'")
         
         return created_registry
         
@@ -233,7 +242,7 @@ async def create_upstream_registry_from_url(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logging.error(f"Unexpected error creating upstream registry from URL: {str(e)}")
+        logger.error(f"Unexpected error creating upstream registry from URL: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Internal server error: {str(e)}"
@@ -322,7 +331,7 @@ async def update_component(
         update_component["labels"]["syncedAt"] = old_component["labels"]["syncedAt"] 
         update_json = json.dumps(update_component, sort_keys=True)
         if old_json == update_json:
-            logging.info(f"No changes detected for component '{component_name}' in registry '{registry_ref}'. Skipping update.")
+            logger.info(f"No changes detected for component '{component_name}' in registry '{registry_ref}'. Skipping update.")
             return old_db_component
     except Exception:
         old_json = ""
@@ -340,7 +349,7 @@ async def update_component(
         new_component["labels"]["syncedAt"] = old_component["labels"]["syncedAt"]
         new_json = json.dumps(new_component, sort_keys=True)
         if (old_json == new_json):
-            logging.info(f"No changes detected for component '{component_name}' in registry '{registry_ref}'. Skipping propagation.")
+            logger.info(f"No changes detected for component '{component_name}' in registry '{registry_ref}'. Skipping propagation.")
             return component
     except Exception:
         pass
@@ -447,7 +456,7 @@ async def register_upstream(upstream_registry: models.ComponentRegistry, own_reg
                 )
                 return response.status_code in [200, 201]
     except Exception as e:
-        logging.error(f"Error during registration with upstream registry '{upstream_registry.name}': {str(e)}")
+        logger.error(f"Error during registration with upstream registry '{upstream_registry.name}': {str(e)}")
         return False
 
 
@@ -535,12 +544,12 @@ async def sync_upstream(db: Session = Depends(get_db)):
                         if registration_success:
                             registry_results["local_registries_registered"] += 1
                             total_registries_registered += 1
-                            logging.info(f"Successfully registered registry '{registry_external_name}' with upstream '{upstream_registry.name}'")
+                            logger.info(f"Successfully registered registry '{registry_external_name}' with upstream '{upstream_registry.name}'")
                         
                     except Exception as reg_error:
                         error_msg = f"Error registering registry '{local_registry.name}': {str(reg_error)}"
                         registry_results["errors"].append(error_msg)
-                        logging.error(error_msg)
+                        logger.error(error_msg)
                 
                 # Now sync all components to this upstream registry
                 for component in all_components:
@@ -589,7 +598,7 @@ async def sync_upstream(db: Session = Depends(get_db)):
                         if response.status_code in [200, 201]:
                             registry_results["components_success"] += 1
                             total_success += 1
-                            logging.info(
+                            logger.info(
                                 f"Successfully synced component '{component.component_name}' "
                                 f"from registry '{component.component_registry_ref}' to upstream '{upstream_registry.name}'"
                             )
@@ -620,7 +629,7 @@ async def sync_upstream(db: Session = Depends(get_db)):
                                 if update_response.status_code == 200:
                                     registry_results["components_success"] += 1
                                     total_success += 1
-                                    logging.info(
+                                    logger.info(
                                         f"Successfully updated component '{component.component_name}' "
                                         f"from registry '{component.component_registry_ref}' in upstream '{upstream_registry.name}'"
                                     )
@@ -629,32 +638,32 @@ async def sync_upstream(db: Session = Depends(get_db)):
                                     total_failed += 1
                                     error_msg = f"Failed to update component '{component.component_name}' from registry '{component.component_registry_ref}': {update_response.status_code} - {update_response.text}"
                                     registry_results["errors"].append(error_msg)
-                                    logging.error(error_msg)
+                                    logger.error(error_msg)
                             except Exception as update_error:
                                 registry_results["components_failed"] += 1
                                 total_failed += 1
                                 error_msg = f"Error updating component '{component.component_name}' from registry '{component.component_registry_ref}': {str(update_error)}"
                                 registry_results["errors"].append(error_msg)
-                                logging.error(error_msg)
+                                logger.error(error_msg)
                         else:
                             registry_results["components_failed"] += 1
                             total_failed += 1
                             error_msg = f"Failed to sync component '{component.component_name}' from registry '{component.component_registry_ref}': {response.status_code} - {response.text}"
                             registry_results["errors"].append(error_msg)
-                            logging.error(error_msg)
+                            logger.error(error_msg)
                             
                     except httpx.RequestError as req_error:
                         registry_results["components_failed"] += 1
                         total_failed += 1
                         error_msg = f"Request error for component '{component.component_name}' from registry '{component.component_registry_ref}': {str(req_error)}"
                         registry_results["errors"].append(error_msg)
-                        logging.error(error_msg)
+                        logger.error(error_msg)
                     except Exception as sync_error:
                         registry_results["components_failed"] += 1
                         total_failed += 1
                         error_msg = f"Unexpected error syncing component '{component.component_name}' from registry '{component.component_registry_ref}': {str(sync_error)}"
                         registry_results["errors"].append(error_msg)
-                        logging.error(error_msg)
+                        logger.error(error_msg)
                 
                 sync_results.append(registry_results)
         
@@ -670,7 +679,7 @@ async def sync_upstream(db: Session = Depends(get_db)):
         }
         
     except Exception as e:
-        logging.error(f"Error during upstream synchronization: {str(e)}")
+        logger.error(f"Error during upstream synchronization: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Internal server error during synchronization: {str(e)}"
@@ -700,7 +709,7 @@ async def propagate_component_to_upstreams(
         # Get self registry info for external name mapping
         own_registry = crud.ComponentRegistryCRUD.get(db, "self")
         if not own_registry or not own_registry.labels or "externalName" not in own_registry.labels:
-            logging.error("Cannot propagate to upstreams: 'self' registry missing externalName")
+            logger.error("Cannot propagate to upstreams: 'self' registry missing externalName")
             return
         
         external_name = own_registry.labels["externalName"]
@@ -709,15 +718,15 @@ async def propagate_component_to_upstreams(
         upstream_registries = crud.ComponentRegistryCRUD.get_by_type(db, "upstream")
         
         if not upstream_registries:
-            logging.info("No upstream registries found for component propagation")
+            logger.info("No upstream registries found for component propagation")
             return
         
-        logging.info(f"Starting asynchronous propagation of component '{component_name}' ({operation}) to {len(upstream_registries)} upstream registries")
+        logger.info(f"Starting asynchronous propagation of component '{component_name}' ({operation}) to {len(upstream_registries)} upstream registries")
         
         # Get the source registry information for upstream registration
         source_registry = crud.ComponentRegistryCRUD.get(db, registry_ref)
         if not source_registry:
-            logging.error(f"Source registry '{registry_ref}' not found for component propagation")
+            logger.error(f"Source registry '{registry_ref}' not found for component propagation")
             return
         
         # Map registry reference to external name
@@ -740,7 +749,7 @@ async def propagate_component_to_upstreams(
                         registry_exists = await check_registry_exists(upstream_registry, comp_reg_name)
                         
                         if not registry_exists:
-                            logging.info(f"ComponentRegistry '{comp_reg_name}' does not exist in upstream '{upstream_registry.name}'. Registering it first.")
+                            logger.info(f"ComponentRegistry '{comp_reg_name}' does not exist in upstream '{upstream_registry.name}'. Registering it first.")
                             
                             # Prepare registry data for upstream
                             registry_data = {
@@ -759,15 +768,15 @@ async def propagate_component_to_upstreams(
                                 )
                                 
                                 if registry_response.status_code in [200, 201]:
-                                    logging.info(f"Successfully registered ComponentRegistry '{comp_reg_name}' in upstream '{upstream_registry.name}'")
+                                    logger.info(f"Successfully registered ComponentRegistry '{comp_reg_name}' in upstream '{upstream_registry.name}'")
                                 elif registry_response.status_code == 400 and "already exists" in registry_response.text:
-                                    logging.info(f"ComponentRegistry '{comp_reg_name}' already exists in upstream '{upstream_registry.name}'")
+                                    logger.info(f"ComponentRegistry '{comp_reg_name}' already exists in upstream '{upstream_registry.name}'")
                                 else:
-                                    logging.error(f"Failed to register ComponentRegistry '{comp_reg_name}' in upstream '{upstream_registry.name}': {registry_response.status_code} - {registry_response.text}")
+                                    logger.error(f"Failed to register ComponentRegistry '{comp_reg_name}' in upstream '{upstream_registry.name}': {registry_response.status_code} - {registry_response.text}")
                                     continue  # Skip component propagation if registry registration failed
                                     
                             except Exception as reg_error:
-                                logging.error(f"Error registering ComponentRegistry '{comp_reg_name}' in upstream '{upstream_registry.name}': {str(reg_error)}")
+                                logger.error(f"Error registering ComponentRegistry '{comp_reg_name}' in upstream '{upstream_registry.name}': {str(reg_error)}")
                                 continue  # Skip component propagation if registry registration failed
                     
                     # Now propagate the component
@@ -779,9 +788,9 @@ async def propagate_component_to_upstreams(
                         )
                         
                         if response.status_code in [200, 204, 404]:  # 404 is OK for delete (already deleted)
-                            logging.info(f"Successfully deleted component '{component_name}' from upstream '{upstream_registry.name}'")
+                            logger.info(f"Successfully deleted component '{component_name}' from upstream '{upstream_registry.name}'")
                         else:
-                            logging.error(f"Failed to delete component '{component_name}' from upstream '{upstream_registry.name}': {response.status_code} - {response.text}")
+                            logger.error(f"Failed to delete component '{component_name}' from upstream '{upstream_registry.name}': {response.status_code} - {response.text}")
                     
                     else:
                         # Prepare component data for create/update operations
@@ -811,7 +820,7 @@ async def propagate_component_to_upstreams(
                             )
                             
                             if response.status_code in [200, 201]:
-                                logging.info(f"Successfully created component '{component_name}' in upstream '{upstream_registry.name}'")
+                                logger.info(f"Successfully created component '{component_name}' in upstream '{upstream_registry.name}'")
                             elif response.status_code == 400 and "already exists" in response.text:
                                 # Component already exists, try to update it instead
                                 update_data = {
@@ -828,11 +837,11 @@ async def propagate_component_to_upstreams(
                                 )
                                 
                                 if update_response.status_code == 200:
-                                    logging.info(f"Successfully updated existing component '{component_name}' in upstream '{upstream_registry.name}'")
+                                    logger.info(f"Successfully updated existing component '{component_name}' in upstream '{upstream_registry.name}'")
                                 else:
-                                    logging.error(f"Failed to update existing component '{component_name}' in upstream '{upstream_registry.name}': {update_response.status_code} - {update_response.text}")
+                                    logger.error(f"Failed to update existing component '{component_name}' in upstream '{upstream_registry.name}': {update_response.status_code} - {update_response.text}")
                             else:
-                                logging.error(f"Failed to create component '{component_name}' in upstream '{upstream_registry.name}': {response.status_code} - {response.text}")
+                                logger.error(f"Failed to create component '{component_name}' in upstream '{upstream_registry.name}': {response.status_code} - {response.text}")
                         
                         elif operation == "update":
                             # Send PUT request for component update
@@ -850,7 +859,7 @@ async def propagate_component_to_upstreams(
                             )
                             
                             if response.status_code == 200:
-                                logging.info(f"Successfully updated component '{component_name}' in upstream '{upstream_registry.name}'")
+                                logger.info(f"Successfully updated component '{component_name}' in upstream '{upstream_registry.name}'")
                             elif response.status_code == 404:
                                 # Component doesn't exist, try to create it
                                 create_response = await client.post(
@@ -860,21 +869,21 @@ async def propagate_component_to_upstreams(
                                 )
                                 
                                 if create_response.status_code in [200, 201]:
-                                    logging.info(f"Successfully created missing component '{component_name}' in upstream '{upstream_registry.name}'")
+                                    logger.info(f"Successfully created missing component '{component_name}' in upstream '{upstream_registry.name}'")
                                 else:
-                                    logging.error(f"Failed to create missing component '{component_name}' in upstream '{upstream_registry.name}': {create_response.status_code} - {create_response.text}")
+                                    logger.error(f"Failed to create missing component '{component_name}' in upstream '{upstream_registry.name}': {create_response.status_code} - {create_response.text}")
                             else:
-                                logging.error(f"Failed to update component '{component_name}' in upstream '{upstream_registry.name}': {response.status_code} - {response.text}")
+                                logger.error(f"Failed to update component '{component_name}' in upstream '{upstream_registry.name}': {response.status_code} - {response.text}")
                 
                 except httpx.RequestError as req_error:
-                    logging.error(f"Request error propagating component '{component_name}' to upstream '{upstream_registry.name}': {str(req_error)}")
+                    logger.error(f"Request error propagating component '{component_name}' to upstream '{upstream_registry.name}': {str(req_error)}")
                 except Exception as propagation_error:
-                    logging.error(f"Unexpected error propagating component '{component_name}' to upstream '{upstream_registry.name}': {str(propagation_error)}")
+                    logger.error(f"Unexpected error propagating component '{component_name}' to upstream '{upstream_registry.name}': {str(propagation_error)}")
         
-        logging.info(f"Completed asynchronous propagation of component '{component_name}' ({operation}) to upstream registries")
+        logger.info(f"Completed asynchronous propagation of component '{component_name}' ({operation}) to upstream registries")
         
     except Exception as e:
-        logging.error(f"Error in background task for component propagation: {str(e)}")
+        logger.error(f"Error in background task for component propagation: {str(e)}")
     finally:
         # Ensure database session is closed
         try:

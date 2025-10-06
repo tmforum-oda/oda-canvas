@@ -127,4 +127,8 @@ dependencies:
     version: "0.1.0"
     repository: 'file://../pdb-management-operator'
     condition: pdb-management-operator.enabled
+  - name: component-registry
+    version: "0.1.0"
+    repository: 'file://../component-registry'
+    condition: component-registry.enabled
 
