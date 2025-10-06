@@ -202,7 +202,7 @@ dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 1.0.1
-  prereleaseSuffix: issue384b
+  prereleaseSuffix: issue384
   imagePullPolicy: IfNotPresent
   loglevel: '20'
   # comment out 'componentRegistryUrl' if ComponentRegistry is not used

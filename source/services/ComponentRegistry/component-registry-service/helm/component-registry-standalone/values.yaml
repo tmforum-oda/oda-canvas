@@ -95,4 +95,5 @@ odaCanvas:
     "oda.tmforum.org/componentName": "component-registry"
     "oda.tmforum.org/componentType": "microservice"
     "oda.tmforum.org/version": "1.0.0"
-    
+
+componentGateway: canvas/component-gateway  

@@ -1,13 +1,12 @@
 # Deploy ComponentRegistry Helm Charts
 
 
-## deploy standalone compreg:
+## deploy global compreg:
 
 ```
 set DOMAIN=ihc-dt.cluster-2.de
-set COMPREG_EXTNAME=global-compreg
-
-helm upgrade --install compreg -n compreg --create-namespace helm/component-registry --set=domain=%DOMAIN% --set=externalName=%COMPREG_EXTNAME%
+cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service
+helm upgrade --install global-compreg -n compreg --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% 
 
 ```
 
@@ -398,7 +397,7 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 optional install canvas-vs
 
 ```
-helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  --set=componentGateway=canvas/component-gateway
+helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
 
 ```
 
@@ -441,7 +440,7 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 canvas-vs
 
 ```
-helm upgrade --install -n canvas canvas-vs ~/git/oda-canvas-notes/virtualservices/canvas --set=domain=$DOMAIN  --set=componentGateway=canvas/component-gateway
+helm upgrade --install -n canvas canvas-vs ~/git/oda-canvas-notes/virtualservices/canvas --set=domain=$DOMAIN
 ```
 
 
