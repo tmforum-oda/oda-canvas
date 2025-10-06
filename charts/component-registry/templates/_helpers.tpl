@@ -91,3 +91,19 @@ overwrite imagePullSecret with "Always" if prereleaseSuffix is set
     {{- .Values.imagePullPolicy -}}
   {{- end -}}
 {{- end -}}
+
+
+{{/*
+Return the own registry URL, either from values or constructed from fullname and domain
+*/}}
+{{- define "component-registry.own-registry-url" -}}
+  {{- if .Values.ownRegistryURL -}}
+    {{ .Values.ownRegistryURL }}
+  {{- else if .Values.domain -}}
+    https://{{ include "component-registry.fullname" . }}.{{ .Values.domain }}
+  {{- else -}}
+    http://{{ include "component-registry.fullname" . }}.canvas.svc.cluster.local
+  {{- end -}}
+{{- end }}
+
+

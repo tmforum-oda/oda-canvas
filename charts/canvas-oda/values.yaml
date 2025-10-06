@@ -586,10 +586,8 @@ component-registry:
    prereleaseSuffix: issue384
    imagePullPolicy: IfNotPresent
    
-   # Environment variables
-   env:
-     - name: LOGGING
-       value: "10"  # 10=DEBUG, 20=INFO 
+   # define log level, 10=DEBUG, 20=INFO
+   loglevel: "10"
    
    # Persistence for SQLite database file
    persistence:

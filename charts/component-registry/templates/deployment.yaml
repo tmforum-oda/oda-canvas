@@ -8,9 +8,6 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "component-registry.selectorLabels" . | nindent 6 }}
@@ -37,8 +34,8 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ include "dependentapi-simple-operator.dockerimage" . }}"
+          imagePullPolicy: "{{ include "dependentapi-simple-operator.imagePullPolicy" . }}"
           ports:
             - name: http
               containerPort: 8080
@@ -66,11 +63,12 @@ spec:
             successThreshold: {{ .Values.probes.readiness.successThreshold }}
           {{- end }}
           env:
-            {{- toYaml .Values.env | nindent 12 }}
             - name: OWN_REGISTRY_URL
-              value: "https://{{ .Release.Name }}.{{ .Values.domain }}"
+              value: "{{ include "component-registry.own-registry-url" . }}"
             - name: OWN_REGISTRY_EXTERNAL_NAME
               value: "{{ include "component-registry.externalName" . }}"
+            - name: LOGGING
+              value: "{{ .Values.loglevel }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.persistence.enabled }}
