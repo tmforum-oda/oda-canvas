@@ -402,6 +402,24 @@ async def delete_component(
     return {"message": f"Component '{component_name}' deleted successfully from registry '{registry_ref}'"}
 
 
+# ComponentRegistry deletion endpoint
+@app.delete("/registries/{name}", tags=["Component Registries"])
+async def delete_component_registry(
+    name: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Delete a ComponentRegistry by name.
+    """
+    registry = crud.ComponentRegistryCRUD.get(db, name)
+    if not registry:
+        raise HTTPException(status_code=404, detail=f"ComponentRegistry '{name}' not found")
+    success = crud.ComponentRegistryCRUD.delete(db, name)
+    if not success:
+        raise HTTPException(status_code=404, detail=f"ComponentRegistry '{name}' not found or could not be deleted")
+    return {"message": f"ComponentRegistry '{name}' deleted successfully"}
+
+
 # Additional utility endpoints
 @app.get("/registries/{name}/components", response_model=List[models.Component], tags=["Component Registries"])
 async def get_registry_components(name: str, db: Session = Depends(get_db)):

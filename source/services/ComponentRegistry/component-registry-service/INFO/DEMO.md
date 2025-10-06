@@ -363,9 +363,13 @@ curl -sX GET   https://canvas-info.ihc-dt.cluster-2.de/service -H "accept:applic
 ```
 cd %USERPROFILE%/git/oda-canvas
 
-REM set DOMAIN=ihc-dt.cluster-2.de
-set DOMAIN=ihc-dt-b.cluster-2.de
 set TLS_SECRET_NAME=domain-tls-secret
+
+set DOMAIN=ihc-dt.cluster-2.de
+set COMPREG_EXTNAME=cluster-a
+
+set DOMAIN=ihc-dt-b.cluster-2.de
+set COMPREG_EXTNAME=cluster-b
 
 helm repo add jetstack https://charts.jetstack.io
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -386,7 +390,7 @@ helm dependency update --skip-refresh ./charts/canvas-vault
 helm dependency update --skip-refresh ./charts/pdb-management-operator
 helm dependency update --skip-refresh ./charts/canvas-oda
 
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli 
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli -set=component-registry.externalName=%COMPREG_EXTNAME%
 
 ```
 
@@ -402,9 +406,13 @@ helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/vi
 ```
 cd ~/git/oda-canvas
 
-export DOMAIN=ihc-dt.cluster-2.de
-# export DOMAIN=ihc-dt-b.cluster-2.de
 export TLS_SECRET_NAME=domain-tls-secret
+
+export DOMAIN=ihc-dt.cluster-2.de
+export COMPREG_EXTNAME=compreg-a
+
+export DOMAIN=ihc-dt-b.cluster-2.de
+export COMPREG_EXTNAME=compreg-b
 
 helm repo add jetstack https://charts.jetstack.io
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -425,7 +433,8 @@ helm dependency update --skip-refresh ./charts/canvas-vault
 helm dependency update --skip-refresh ./charts/pdb-management-operator
 helm dependency update --skip-refresh ./charts/canvas-oda
 
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.$DOMAIN --set api-operator-istio.deployment.credentialName=$TLS_SECRET_NAME --set api-operator-istio.configmap.publicHostname=components.$DOMAIN --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.$DOMAIN  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli 
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.$DOMAIN --set api-operator-istio.deployment.credentialName=$TLS_SECRET_NAME --set api-operator-istio.configmap.publicHostname=components.$DOMAIN --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.$DOMAIN  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli --set=component-registry.externalName=$COMPREG_EXTNAME
+
 ```
 
 canvas-vs
