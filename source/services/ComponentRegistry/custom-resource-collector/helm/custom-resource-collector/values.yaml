@@ -1,8 +1,8 @@
 image: ocfork/custom-resource-collector
-imageVersion: 0.1.5
+imageVersion: 0.1.6
 
 schedule: "* * * * *"   # "At every minute.." (crontab.guru)
 
-registryUrl: https://compreg.ihc-dt.cluster-2.de
+registryUrl: http://canvas-compreg.canvas.svc.cluster.local
 registryExternalName: compreg
 monitoredNamespaces: components

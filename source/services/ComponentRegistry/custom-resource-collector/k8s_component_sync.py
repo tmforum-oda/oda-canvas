@@ -241,6 +241,59 @@ class RegistryClient:
         except requests.RequestException as e:
             logging.error(f"Error syncing component '{component_name}': {e}")
             return False
+        
+    def remove_component(self, component_data: Dict[str, Any]) -> bool:
+        """
+        Remove a component from the registry service.
+        
+        Args:
+            component_data: Component data dict (must contain 'component_registry_ref' and 'component_name')
+            
+        Returns:
+            True if deletion was successful or component not found, False otherwise.
+        """
+        registry_name = component_data.get('component_registry_ref')
+        component_name = component_data.get('component_name')
+        if not registry_name or not component_name:
+            logging.error("Missing 'component_registry_ref' or 'component_name' in component_data for removal.")
+            return False
+        try:
+            response = self.session.delete(
+                f"{self.config.url}/components/{registry_name}/{component_name}",
+                timeout=self.config.timeout,
+                verify=self.config.verify_ssl
+            )
+            if response.status_code in [200, 204, 404]:
+                logging.info(f"Removed component '{component_name}' from registry '{registry_name}' (status: {response.status_code})")
+                return True
+            else:
+                logging.error(f"Failed to remove component '{component_name}': {response.status_code} - {response.text}")
+                return False
+        except requests.RequestException as e:
+            logging.error(f"Error removing component '{component_name}': {e}")
+            return False
+
+    def get_all_components(self) -> list:
+        """
+        Retrieve all components from the registry service.
+        
+        Returns:
+            List of components (dicts), or empty list if error occurs.
+        """
+        try:
+            response = self.session.get(
+                f"{self.config.url}/components",
+                timeout=self.config.timeout,
+                verify=self.config.verify_ssl
+            )
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logging.error(f"Failed to get all components: {response.status_code} - {response.text}")
+                return []
+        except requests.RequestException as e:
+            logging.error(f"Error retrieving all components: {e}")
+            return []
 
 
 class KubernetesComponentReader:
@@ -325,17 +378,21 @@ class ComponentSyncTool:
         logging.info("Starting ODA Component synchronization...")
         
         try:
+            # Step 1: Read components from Component Registry
+            reg_components = self.registry_client.get_all_components()
+            # TODO[FH]: move filter to component registry service
+            reg_components = [reg_component for reg_component in reg_components if reg_component.get('component_registry_ref') == self.config.registry_name]
+            logging.info(f"Found {len(reg_components)} components in the registry")
+            
             # Step 1: Read components from Kubernetes
             components = self.k8s_reader.get_components(self.config.namespaces)
-            logging.info(f"Found {len(components)} ODA Components across all namespaces")
-            
-            if not components:
-                logging.info("No components found to sync")
-                return True
+            logging.info(f"Found {len(components)} ODA Components across monitored namespaces")
             
             # Step 3: Transform and sync each component
+            unchanged_count = 0
             success_count = 0
             error_count = 0
+            deleted_count = 0
             
             for k8s_component in components:
                 try:
@@ -345,8 +402,24 @@ class ComponentSyncTool:
                         self.config.registry_name
                     )
                     
+                    reg_component_name = registry_component.get('component_name')
+                    reg_component_namespace = registry_component.get('labels', {}).get('namespace', 'default')
+                    # Remove from reg_components list to track which components are still present in K8s
+                    reg_component = [rc for rc in reg_components if rc.get('component_name') == reg_component_name and rc.get('labels', {}).get('namespace', 'default') == reg_component_namespace]
+                    if reg_component:
+                        reg_component = reg_component[0]
+                        reg_components.remove(reg_component)
+                        
                     if self.config.verbose:
                         logging.info(f"Transformed component: {json.dumps(registry_component, indent=2)}")
+                        logging.info(f"Reg component: {json.dumps(reg_component, indent=2)}")
+                    
+                    # ignore syncedAt labels to avoid unnecessary updates
+                    reg_component.get("labels", {})["syncedAt"] = registry_component.get("labels", {}).get("syncedAt")
+                    if reg_component == registry_component:
+                        logging.info(f"Component '{registry_component['component_name']}' is up-to-date, skipping")
+                        unchanged_count += 1
+                        continue
                     
                     # Sync to registry
                     if not self.config.dry_run:
@@ -362,9 +435,21 @@ class ComponentSyncTool:
                     error_count += 1
                     component_name = k8s_component.get('metadata', {}).get('name', 'unknown')
                     logging.error(f"Failed to process component '{component_name}': {e}")
+
+            # Step 4: Remove components from registry that no longer exist in K8s
+            if error_count == 0:
+                for reg_component in reg_components:
+                    if not self.config.dry_run:
+                        if self.registry_client.remove_component(reg_component):
+                            deleted_count += 1
+                        else:
+                            error_count += 1
+                    else:
+                        logging.info(f"[DRY RUN] Would delete component '{reg_component['component_name']}'")
+                        success_count += 1                
             
-            # Step 4: Report results
-            logging.info(f"Sync completed: {success_count} successful, {error_count} errors")
+            # Step 5: Report results
+            logging.info(f"Sync completed: {success_count} successful, {deleted_count} deleted, {unchanged_count} unchanged, {error_count} errors")
             
             if error_count > 0:
                 logging.warning(f"{error_count} components failed to sync")

@@ -1,6 +1,30 @@
 # Deploy ComponentRegistry Helm Charts
 
 
+## set env
+
+Green
+
+```
+set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt-a
+tmfihcdta
+```
+
+Magenta
+
+```
+set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt-b
+tmfihcdtb
+```
+
+Blue
+
+```
+set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt
+tmfihcdt
+```
+
+
 ## deploy global compreg:
 
 ```
@@ -48,6 +72,13 @@ curl -X 'POST' \
 
 for windows:
 
+
+
+```
+curl -X POST https://compreg.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://global-compreg.ihc-dt.cluster-2.de\"}"
+curl -X POST https://compreg.ihc-dt-b.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://global-compreg.ihc-dt.cluster-2.de\"}"
+```
+
 ```
 curl -X POST https://compreg-a.ihc-dt.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json"  -d "{\"url\": \"https://compreg-ab.ihc-dt.cluster-2.de\"}"
 
@@ -65,8 +96,11 @@ curl -X POST https://compreg-ab.ihc-dt.cluster-2.de/registries/upstream-from-url
 ```
 cd C:\Users\A307131\git\oda-canvas
 cd source/services/ComponentRegistry/custom-resource-collector
-helm upgrade --install collector-a -n compreg-a --create-namespace helm/custom-resource-collector --set=registryUrl=https://compreg-a.ihc-dt.cluster-2.de --set=registryExternalName=compreg-a --set=monitoredNamespaces=odacompns-a
-helm upgrade --install collector-b -n compreg-b --create-namespace helm/custom-resource-collector --set=registryUrl=https://compreg-b.ihc-dt.cluster-2.de --set=registryExternalName=compreg-b --set=monitoredNamespaces=odacompns-b
+helm upgrade --install collector -n canvas --create-namespace helm/custom-resource-collector 
+
+
+helm upgrade --install collector-a -n compreg-a --create-namespace helm/custom-resource-collector --set=registryUrl=https://compreg-a.ihc-dt.cluster-2.de --set=registryExternalName=compreg-a --set=monitoredNamespaces=components
+helm upgrade --install collector-b -n compreg-b --create-namespace helm/custom-resource-collector --set=registryUrl=https://compreg-b.ihc-dt.cluster-2.de --set=registryExternalName=compreg-b --set=monitoredNamespaces=components
 
 ```
 
@@ -76,8 +110,8 @@ helm upgrade --install collector-b -n compreg-b --create-namespace helm/custom-r
 ## uninstall old Components
 
 ```
-helm uninstall -n odacompns-a r-cat
-helm uninstall -n odacompns-b f-cat
+helm uninstall -n components r-cat
+helm uninstall -n components f-cat
 ```
 
 
@@ -101,12 +135,12 @@ Given I install the 'productcatalog-v1' package as release 'r-cat'
 
 ```
 cd C:\Users\A307131\git\oda-canvas
-helm upgrade --install r-cat -n odacompns-a --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
+helm upgrade --install r-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
 
   Release "r-cat" does not exist. Installing it now.
   NAME: r-cat
   LAST DEPLOYED: Sat Oct  4 17:44:05 2025
-  NAMESPACE: odacompns-a
+  NAMESPACE: components
   STATUS: deployed
   REVISION: 1
   TEST SUITE: None
@@ -115,16 +149,16 @@ helm upgrade --install r-cat -n odacompns-a --create-namespace feature-definitio
 And the 'productcatalogmanagement' component has a deployment status of 'Complete'
 
 ```
-kubectl get component r-cat-productcatalogmanagement -n odacompns-a
+kubectl get component r-cat-productcatalogmanagement -n components
 
   NAMESPACE     NAME                             DEPLOYMENT_STATUS
-  odacompns-a   r-cat-productcatalogmanagement   Complete
+  components   r-cat-productcatalogmanagement   Complete
 ```
 
 And I should see the 'productcatalogmanagement' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
 
 ```
-kubectl get exposedapi -n odacompns-a
+kubectl get exposedapi -n components
 
   NAME                                                      API_ENDPOINT                                                                                                IMPLEMENTATION_READY
   r-cat-productcatalogmanagement-metrics                    https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/metrics                               true
@@ -139,12 +173,12 @@ When I install the 'productcatalog-dependendent-API-v1' package as release 'f-ca
 
 ```
 cd C:\Users\A307131\git\oda-canvas
-helm upgrade --install f-cat -n odacompns-b --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
 
   Release "f-cat" does not exist. Installing it now.
   NAME: f-cat
   LAST DEPLOYED: Sat Oct  4 20:52:52 2025
-  NAMESPACE: odacompns-b
+  NAMESPACE: components
   STATUS: deployed
   REVISION: 1
   TEST SUITE: None
@@ -154,16 +188,16 @@ helm upgrade --install f-cat -n odacompns-b --create-namespace feature-definitio
 Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'productcatalogmanagement' component with a ready status
 
 ```
-kubectl get depapis -n odacompns-b   f-cat-productcatalogmanagement-downstreamproductcatalog
+kubectl get depapis -n components   f-cat-productcatalogmanagement-downstreamproductcatalog
 
   NAMESPACE     NAME                                                      READY   AGE   SVCINVID                               URL
-  odacompns-b   f-cat-productcatalogmanagement-downstreamproductcatalog   true    53s   0e16d068-fc39-4cf5-80a0-5e5826b02d10   https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+  components   f-cat-productcatalogmanagement-downstreamproductcatalog   true    53s   0e16d068-fc39-4cf5-80a0-5e5826b02d10   https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4
 ```
 
 And the 'productcatalogmanagement' component has a deployment status of 'Complete'
 
 ```
-kubectl get components -n odacompns-b   f-cat-productcatalogmanagement
+kubectl get components -n components   f-cat-productcatalogmanagement
 
   NAME                             DEPLOYMENT_STATUS
   f-cat-productcatalogmanagement   Complete
@@ -236,7 +270,7 @@ curl -X GET "http://components.ihc-dt.cluster-2.de/f-cat-productcatalogmanagemen
 # show access of r-cat in f-cat logs:
 
 ```
-kubectl logs deployment/f-cat-prodcatapi -n odacompns-b
+kubectl logs deployment/f-cat-prodcatapi -n components
 
   ...
   listCategory :: GET /f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category components.ihc-dt.cluster-2.de
@@ -281,7 +315,7 @@ curl -X POST "http://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanageme
 
 ```
 cd C:\Users\A307131\git\oda-canvas
-helm upgrade --install demo-a -n odacompns-a --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
+helm upgrade --install demo-a -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
 ```
 
 ## query deployed services
@@ -293,7 +327,7 @@ curl -sX GET   https://canvas-info.ihc-dt.cluster-2.de/service -H "accept:applic
 ## deploy consumer (component with dependency to exposed api)
 
 ```
-helm upgrade --install demo-b -n odacompns-b --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install demo-b -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
 ```
 
 
@@ -358,18 +392,19 @@ curl -sX GET   https://canvas-info.ihc-dt.cluster-2.de/service -H "accept:applic
 
 
 
-# update canvas
+# update canvas WINDOWS
 
 ```
-cd %USERPROFILE%/git/oda-canvas
-
-set TLS_SECRET_NAME=domain-tls-secret
-
-set DOMAIN=ihc-dt.cluster-2.de
+set DOMAIN=ihc-dt-a.cluster-2.de
 set COMPREG_EXTNAME=compreg-a
 
 set DOMAIN=ihc-dt-b.cluster-2.de
 set COMPREG_EXTNAME=compreg-b
+
+
+cd %USERPROFILE%/git/oda-canvas
+
+set TLS_SECRET_NAME=domain-tls-secret
 
 helm repo add jetstack https://charts.jetstack.io
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -390,7 +425,7 @@ helm dependency update --skip-refresh ./charts/canvas-vault
 helm dependency update --skip-refresh ./charts/pdb-management-operator
 helm dependency update --skip-refresh ./charts/canvas-oda
 
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli --set=component-registry.externalName=%COMPREG_EXTNAME%
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli --set=component-registry.externalName=%COMPREG_EXTNAME%  --set=component-registry.domain=%DOMAIN%
 
 ```
 
@@ -409,6 +444,9 @@ cd ~/git/oda-canvas
 export TLS_SECRET_NAME=domain-tls-secret
 
 export DOMAIN=ihc-dt.cluster-2.de
+export COMPREG_EXTNAME=compreg-a
+
+export DOMAIN=ihc-dt-a.cluster-2.de
 export COMPREG_EXTNAME=compreg-a
 
 export DOMAIN=ihc-dt-b.cluster-2.de
@@ -433,7 +471,7 @@ helm dependency update --skip-refresh ./charts/canvas-vault
 helm dependency update --skip-refresh ./charts/pdb-management-operator
 helm dependency update --skip-refresh ./charts/canvas-oda
 
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.$DOMAIN --set api-operator-istio.deployment.credentialName=$TLS_SECRET_NAME --set api-operator-istio.configmap.publicHostname=components.$DOMAIN --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.$DOMAIN  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli --set=component-registry.externalName=$COMPREG_EXTNAME
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.$DOMAIN --set api-operator-istio.deployment.credentialName=$TLS_SECRET_NAME --set api-operator-istio.configmap.publicHostname=components.$DOMAIN --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.$DOMAIN  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli --set=component-registry.externalName=$COMPREG_EXTNAME --set=component-registry.domain=$DOMAIN
 
 ```
 
