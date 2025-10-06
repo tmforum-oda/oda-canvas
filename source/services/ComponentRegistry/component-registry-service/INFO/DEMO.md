@@ -4,6 +4,7 @@
 canvas compreg:
 
 ```
+REM set DOMAIN=ihc-dt.cluster-2.de
 set DOMAIN=ihc-dt-b.cluster-2.de
 helm upgrade --install compreg -n canvas --create-namespace helm/component-registry --set=domain=%DOMAIN% --set=externalName=compreg-b
 
@@ -395,6 +396,47 @@ optional install canvas-vs
 helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  --set=componentGateway=canvas/component-gateway
 
 ```
+
+## Linux
+
+```
+cd ~/git/oda-canvas
+
+export DOMAIN=ihc-dt.cluster-2.de
+# export DOMAIN=ihc-dt-b.cluster-2.de
+export TLS_SECRET_NAME=domain-tls-secret
+
+helm repo add jetstack https://charts.jetstack.io
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+
+helm dependency update ./charts/cert-manager-init
+helm dependency update ./charts/kong-gateway
+helm dependency update ./charts/apisix-gateway
+helm dependency update ./charts/canvas-vault
+helm dependency update ./charts/pdb-management-operator
+helm dependency update ./charts/canvas-oda
+
+helm dependency update --skip-refresh ./charts/cert-manager-init
+helm dependency update --skip-refresh ./charts/kong-gateway
+helm dependency update --skip-refresh ./charts/apisix-gateway
+helm dependency update --skip-refresh ./charts/canvas-vault
+helm dependency update --skip-refresh ./charts/pdb-management-operator
+helm dependency update --skip-refresh ./charts/canvas-oda
+
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.$DOMAIN --set api-operator-istio.deployment.credentialName=$TLS_SECRET_NAME --set api-operator-istio.configmap.publicHostname=components.$DOMAIN --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.$DOMAIN  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli 
+```
+
+canvas-vs
+
+```
+helm upgrade --install -n canvas canvas-vs ~/git/oda-canvas-notes/virtualservices/canvas --set=domain=$DOMAIN  --set=componentGateway=canvas/component-gateway
+```
+
+
+
+
 
 
 # Undeploy Component Registries
