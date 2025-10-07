@@ -1,0 +1,6 @@
+apiVersion: v2
+name: canvas-component-gateway
+description: Standalone Component Gateway which is normally part of canva installation
+type: application
+version: 1.0.0
+appVersion: "v1"

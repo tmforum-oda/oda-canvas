@@ -234,6 +234,35 @@ async def create_upstream_registry_from_url(
         
         logger.info(f"Successfully created upstream registry '{registry_name}' from URL '{request.url}'")
         
+        # --- Sync own registry to the new upstream registry ---
+        try:
+            own_registry = crud.ComponentRegistryCRUD.get(db, "self")
+            if own_registry and own_registry.labels and "externalName" in own_registry.labels:
+                own_external_name = own_registry.labels["externalName"]
+                registry_data = {
+                    "name": own_external_name,
+                    "url": own_registry.url,
+                    "type": "downstream",
+                    "labels": own_registry.labels or {}
+                }
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    reg_response = await client.post(
+                        f"{upstream_url}/registries",
+                        json=registry_data,
+                        headers={"Content-Type": "application/json"}
+                    )
+                    if reg_response.status_code in [200, 201]:
+                        logger.info(f"Registered own registry '{own_external_name}' with new upstream '{registry_name}'")
+                    elif reg_response.status_code == 400 and "already exists" in reg_response.text:
+                        logger.info(f"Own registry '{own_external_name}' already registered with new upstream '{registry_name}'")
+                    else:
+                        logger.error(f"Failed to register own registry '{own_external_name}' with new upstream '{registry_name}': {reg_response.status_code} - {reg_response.text}")
+            else:
+                logger.error("Own registry ('self') not found or missing externalName label; cannot sync to new upstream.")
+        except Exception as sync_error:
+            logger.error(f"Error syncing own registry to new upstream: {str(sync_error)}")
+        # --- End sync own registry ---
+
         return created_registry
         
     except HTTPException:
