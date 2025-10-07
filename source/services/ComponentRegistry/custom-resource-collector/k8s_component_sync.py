@@ -409,13 +409,15 @@ class ComponentSyncTool:
                     if reg_component:
                         reg_component = reg_component[0]
                         reg_components.remove(reg_component)
+                        reg_component.get("labels", {})["syncedAt"] = registry_component.get("labels", {}).get("syncedAt")
+                    else:
+                        reg_component = {}
                         
                     if self.config.verbose:
                         logging.info(f"Transformed component: {json.dumps(registry_component, indent=2)}")
                         logging.info(f"Reg component: {json.dumps(reg_component, indent=2)}")
                     
                     # ignore syncedAt labels to avoid unnecessary updates
-                    reg_component.get("labels", {})["syncedAt"] = registry_component.get("labels", {}).get("syncedAt")
                     if reg_component == registry_component:
                         logging.info(f"Component '{registry_component['component_name']}' is up-to-date, skipping")
                         unchanged_count += 1
