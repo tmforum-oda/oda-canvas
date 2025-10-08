@@ -118,6 +118,61 @@ For detailed documentation on Claude Code capabilities, see the [official Claude
 
 ---
 
+## Windsurf (formerly Codeium)
+
+This section gives guidance on using [Windsurf](https://windsurf.com/) from Codeium.
+Windsurf is an agentic IDE built on VS Code that combines familiar interface with AI agents capable of understanding entire codebases and performing autonomous multi-step development tasks.
+
+### Windsurf: Best Practices
+
+Windsurf distinguishes itself through **Cascade** - deep codebase understanding that goes beyond file-level context. It can reason across entire Canvas project architectures and execute complex, goal-oriented development workflows autonomously.
+
+### Recommended Usage Scenarios
+- Implement complete Canvas features autonomously across multiple operators and services
+- Perform complex refactoring across Python, Java, and Node.js codebases while maintaining consistency
+- Migrate ODA Component specifications (v1beta4 to v1) across entire component ecosystems
+- Debug multi-operator integration issues with cross-file dependency analysis
+- Generate comprehensive BDD test scenarios with corresponding step definitions
+
+### Prompt Engineering Tips
+- Describe high-level goals rather than specific implementation steps
+- Provide Canvas architectural context and ODA Component specification requirements
+- Set clear boundaries for which files/directories should be modified
+- Reference specific operator types (KOPF, Spring Boot, Vue.js) and Canvas versions
+
+```bash
+# Example: Agentic task for Windsurf
+"Implement dependency resolution for Canvas components that validates TMF API dependencies across all operator versions, including BDD tests and integration with existing lifecycle management"
+```
+
+### Windsurf Configuration
+
+Windsurf leverages Canvas project structure automatically:
+
+- Reads `.windsurf/rules/oda-canvas.md` for Canvas development commands and architectural patterns
+- Understands multi-technology relationships between KOPF operators, Spring Boot services, and Vue.js components
+- Recognizes Canvas-specific patterns like component decomposition and API exposure
+
+### Windsurf Modes
+
+Windsurf provides two distinct interaction modes:
+
+- **Chat Mode**: Interactive conversation for code analysis, questions, and guidance
+- **Agent Mode**: Autonomous execution of complex multi-step development tasks with minimal supervision
+
+### Advanced Features
+
+Windsurf's agentic capabilities excel at Canvas development:
+
+- **Cascade codebase understanding**: Traces dependencies and relationships across the entire Canvas project
+- **Autonomous workflow execution**: Plans and executes multi-step development tasks without constant guidance
+- **Cross-file consistency**: Maintains coherence across operators, CRDs, and Helm charts simultaneously
+- **Self-correction**: Identifies and fixes issues during execution, adapting approach as needed
+
+For detailed documentation on Windsurf capabilities, see the [official Windsurf documentation](https://docs.windsurf.com/).
+
+---
+
 ## Gemini Code Assist
 
 [https://codeassist.google/](https://codeassist.google/)
