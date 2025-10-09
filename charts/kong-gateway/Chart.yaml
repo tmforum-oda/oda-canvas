@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.0.3
+version: 1.0.4
+# version: 1.0.4 - updated bitnami images related changes for kong chart
 # version: 1.0.3 - Added support for custom/private docker registry and image pull secrets
 # version: 1.0.2 - updated chart name
 # version: 1.0.1 - Templatized hardcoded images

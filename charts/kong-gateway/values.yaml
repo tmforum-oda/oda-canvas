@@ -71,6 +71,7 @@ kong:
       password: "kong"
       database: "kong"
     image:
+      repository: bitnamilegacy/postgresql
       tag: "13.11.0-debian-11-r20"
   enterprise:
     enabled: true
