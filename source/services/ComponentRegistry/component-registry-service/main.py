@@ -24,6 +24,7 @@ import httpx
 import logging
 import asyncio
 import json
+from models import Resource, Resource_Create, Resource_Update
 
 
 # Setup logging
@@ -956,6 +957,337 @@ async def get_components_by_oas_specification(
             filtered_component.exposed_apis = matching_apis
             filtered_components.append(filtered_component)
     return filtered_components
+
+
+# TMF639 Resource Inventory Management API Endpoints
+from fastapi import status
+
+# Category constants for resource types
+CATEGORY_COMPONENT_REGISTRY = "ComponentRegistry"
+CATEGORY_COMPONENT = "Component"
+
+# Helper functions for mapping between internal models and TMF639 Resource
+
+def component_registry_to_resource(registry: models.ComponentRegistry) -> Resource:
+    """Convert ComponentRegistry to TMF639 Resource"""
+    return Resource(
+        id=registry.name,
+        href=f"/resource/{registry.name}",
+        name=registry.name,
+        category=CATEGORY_COMPONENT_REGISTRY,
+        description=registry.labels.get("description") if registry.labels else None,
+        resourceVersion=registry.labels.get("version") if registry.labels else None,
+        resourceCharacteristic=[
+            {"name": "url", "value": registry.url},
+            {"name": "type", "value": registry.type},
+        ],
+        resourceStatus="available" if registry.type == "self" else "reserved"
+    )
+
+def component_to_resource(component: models.Component) -> Resource:
+    """Convert Component to TMF639 Resource"""
+    # Create unique ID by combining registry and component name
+    resource_id = f"{component.component_registry_ref}:{component.component_name}"
+    
+    # Map exposed APIs to resource characteristics
+    api_characteristics = []
+    for api in component.exposed_apis:
+        api_characteristics.extend([
+            {"name": f"api_{api.name}_url", "value": api.url},
+            {"name": f"api_{api.name}_specification", "value": api.oas_specification}
+        ])
+    
+    return Resource(
+        id=resource_id,
+        href=f"/resource/{resource_id}",
+        name=component.component_name,
+        category=CATEGORY_COMPONENT,
+        description=component.description,
+        resourceVersion=component.component_version,
+        resourceCharacteristic=[
+            {"name": "component_registry_ref", "value": component.component_registry_ref},
+            {"name": "component_version", "value": component.component_version}
+        ] + api_characteristics,
+        resourceStatus="available"
+    )
+
+def resource_to_component_registry_create(resource: Resource_Create) -> models.ComponentRegistryCreate:
+    """Convert TMF639 Resource_Create to ComponentRegistryCreate"""
+    # Extract URL from resource characteristics if available
+    url = ""
+    registry_type = "self"
+    
+    if resource.resourceCharacteristic:
+        for char in resource.resourceCharacteristic:
+            if char.get("name") == "url":
+                url = char.get("value", "")
+            elif char.get("name") == "type":
+                registry_type = char.get("value", "self")
+    
+    # Fallback to resourceVersion for URL if not in characteristics
+    if not url and resource.resourceVersion:
+        url = resource.resourceVersion
+    
+    return models.ComponentRegistryCreate(
+        name=resource.name,
+        url=url or "http://localhost:8080",  # Default URL if none provided
+        type=registry_type,
+        labels={"description": resource.description or ""}
+    )
+
+def resource_to_component_create(resource: Resource_Create) -> tuple[models.ComponentCreate, str]:
+    """Convert TMF639 Resource_Create to ComponentCreate. Returns (component_create, registry_ref)"""
+    # Extract registry reference from resource characteristics or name
+    registry_ref = "self"  # Default
+    
+    if resource.resourceCharacteristic:
+        for char in resource.resourceCharacteristic:
+            if char.get("name") == "component_registry_ref":
+                registry_ref = char.get("value", "self")
+                break
+    
+    # If name contains colon, split it as registry_ref:component_name
+    component_name = resource.name
+    if ":" in resource.name:
+        registry_ref, component_name = resource.name.split(":", 1)
+    
+    return models.ComponentCreate(
+        component_registry_ref=registry_ref,
+        component_name=component_name,
+        component_version=resource.resourceVersion or "1.0.0",
+        description=resource.description or "",
+        exposed_apis=[],  # APIs can be added later via resource characteristics
+        labels={}
+    ), registry_ref
+
+@app.get("/resource", response_model=List[Resource], tags=["resource"])
+async def list_resource(
+    fields: Optional[str] = Query(None, description="Comma-separated properties to be provided in response"),
+    offset: int = Query(0, ge=0, description="Requested index for start of resources to be provided in response"),
+    limit: int = Query(100, ge=1, le=1000, description="Requested number of resources to be provided in response"),
+    category: Optional[str] = Query(None, description="Filter by resource category (ComponentRegistry or Component)"),
+    db: Session = Depends(get_db)
+):
+    """
+    TMF639: List or find Resource objects (ComponentRegistries and Components)
+    """
+    resources = []
+    
+    # Get ComponentRegistries if not filtered or if explicitly requested
+    if not category or category == CATEGORY_COMPONENT_REGISTRY:
+        registries = crud.ComponentRegistryCRUD.get_all(db, skip=offset, limit=limit)
+        resources.extend([component_registry_to_resource(reg) for reg in registries])
+    
+    # Get Components if not filtered or if explicitly requested
+    if not category or category == CATEGORY_COMPONENT:
+        components = crud.ComponentCRUD.get_all(db, skip=offset, limit=limit)
+        resources.extend([component_to_resource(comp) for comp in components])
+    
+    # Apply field filtering if requested
+    if fields:
+        field_list = [f.strip() for f in fields.split(",") if f.strip()]
+        filtered_resources = []
+        for resource in resources:
+            resource_dict = resource.dict()
+            filtered_dict = {k: v for k, v in resource_dict.items() if k in field_list}
+            filtered_resources.append(filtered_dict)
+        return filtered_resources
+    
+    return resources
+
+@app.post("/resource", response_model=Resource, status_code=status.HTTP_201_CREATED, tags=["resource"])
+async def create_resource(
+    resource: Resource_Create,
+    db: Session = Depends(get_db)
+):
+    """
+    TMF639: Creates a Resource (ComponentRegistry or Component based on category)
+    """
+    if not resource.category:
+        raise HTTPException(status_code=400, detail="Category field is required. Use 'ComponentRegistry' or 'Component'.")
+    
+    if resource.category == CATEGORY_COMPONENT_REGISTRY:
+        # Create ComponentRegistry
+        try:
+            registry_create = resource_to_component_registry_create(resource)
+            
+            # Check if registry already exists
+            existing = crud.ComponentRegistryCRUD.get(db, registry_create.name)
+            if existing:
+                raise HTTPException(status_code=409, detail=f"ComponentRegistry '{registry_create.name}' already exists")
+            
+            created_registry = crud.ComponentRegistryCRUD.create(db, registry_create)
+            return component_registry_to_resource(created_registry)
+            
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    
+    elif resource.category == CATEGORY_COMPONENT:
+        # Create Component
+        try:
+            component_create, registry_ref = resource_to_component_create(resource)
+            
+            # Check if component already exists
+            existing = crud.ComponentCRUD.get(db, registry_ref, component_create.component_name)
+            if existing:
+                raise HTTPException(status_code=409, detail=f"Component '{component_create.component_name}' already exists in registry '{registry_ref}'")
+            
+            created_component = crud.ComponentCRUD.create(db, component_create)
+            return component_to_resource(created_component)
+            
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    
+    else:
+        raise HTTPException(status_code=400, detail="Invalid category. Use 'ComponentRegistry' or 'Component'.")
+
+@app.get("/resource/{id}", response_model=Resource, tags=["resource"])
+async def retrieve_resource(
+    id: str,
+    fields: Optional[str] = Query(None, description="Comma-separated properties to provide in response"),
+    db: Session = Depends(get_db)
+):
+    """
+    TMF639: Retrieves a Resource by ID (ComponentRegistry or Component)
+    """
+    # Try ComponentRegistry first (simple ID format)
+    registry = crud.ComponentRegistryCRUD.get(db, id)
+    if registry:
+        resource = component_registry_to_resource(registry)
+    else:
+        # Try Component (ID format: registry_ref:component_name)
+        if ":" not in id:
+            raise HTTPException(status_code=404, detail=f"Resource '{id}' not found")
+        
+        try:
+            registry_ref, component_name = id.split(":", 1)
+            component = crud.ComponentCRUD.get(db, registry_ref, component_name)
+            if not component:
+                raise HTTPException(status_code=404, detail=f"Resource '{id}' not found")
+            resource = component_to_resource(component)
+        except ValueError:
+            raise HTTPException(status_code=404, detail=f"Resource '{id}' not found")
+    
+    # Apply field filtering if requested
+    if fields:
+        field_list = [f.strip() for f in fields.split(",") if f.strip()]
+        resource_dict = resource.dict()
+        return {k: v for k, v in resource_dict.items() if k in field_list}
+    
+    return resource
+
+@app.patch("/resource/{id}", response_model=Resource, tags=["resource"])
+async def patch_resource(
+    id: str,
+    resource_update: Resource_Update,
+    db: Session = Depends(get_db)
+):
+    """
+    TMF639: Updates partially a Resource (ComponentRegistry or Component)
+    """
+    # Try ComponentRegistry first (simple ID format)
+    registry = crud.ComponentRegistryCRUD.get(db, id)
+    if registry:
+        # Update ComponentRegistry
+        update_data = {}
+        
+        if resource_update.name and resource_update.name != registry.name:
+            # Name changes are not typically allowed for registries
+            raise HTTPException(status_code=400, detail="ComponentRegistry name cannot be changed")
+        
+        if resource_update.description:
+            if not registry.labels:
+                registry.labels = {}
+            registry.labels["description"] = resource_update.description
+            update_data["labels"] = registry.labels
+        
+        if resource_update.resourceVersion:
+            if not registry.labels:
+                registry.labels = {}
+            registry.labels["version"] = resource_update.resourceVersion
+            update_data["labels"] = registry.labels
+        
+        # Extract URL and type from resource characteristics if provided
+        if resource_update.resourceCharacteristic:
+            for char in resource_update.resourceCharacteristic:
+                if char.get("name") == "url":
+                    update_data["url"] = char.get("value")
+                elif char.get("name") == "type":
+                    update_data["type"] = char.get("value")
+        
+        if update_data:
+            updated_registry = crud.ComponentRegistryCRUD.update(db, id, models.ComponentRegistryUpdate(**update_data))
+            return component_registry_to_resource(updated_registry)
+        else:
+            return component_registry_to_resource(registry)
+    
+    else:
+        # Try Component (ID format: registry_ref:component_name)
+        if ":" not in id:
+            raise HTTPException(status_code=404, detail=f"Resource '{id}' not found")
+        
+        try:
+            registry_ref, component_name = id.split(":", 1)
+            component = crud.ComponentCRUD.get(db, registry_ref, component_name)
+            if not component:
+                raise HTTPException(status_code=404, detail=f"Resource '{id}' not found")
+            
+            # Update Component
+            update_data = {}
+            
+            if resource_update.name and resource_update.name != component_name:
+                # Component name changes require special handling
+                raise HTTPException(status_code=400, detail="Component name cannot be changed")
+            
+            if resource_update.description:
+                update_data["description"] = resource_update.description
+            
+            if resource_update.resourceVersion:
+                update_data["component_version"] = resource_update.resourceVersion
+            
+            if update_data:
+                updated_component = crud.ComponentCRUD.update(db, registry_ref, component_name, models.ComponentUpdate(**update_data))
+                return component_to_resource(updated_component)
+            else:
+                return component_to_resource(component)
+                
+        except ValueError:
+            raise HTTPException(status_code=404, detail=f"Resource '{id}' not found")
+
+@app.delete("/resource/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["resource"])
+async def delete_resource(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    TMF639: Deletes a Resource (ComponentRegistry or Component)
+    """
+    # Try ComponentRegistry first (simple ID format)
+    registry = crud.ComponentRegistryCRUD.get(db, id)
+    if registry:
+        success = crud.ComponentRegistryCRUD.delete(db, id)
+        if not success:
+            raise HTTPException(status_code=404, detail=f"Resource '{id}' not found or could not be deleted")
+        return
+    
+    else:
+        # Try Component (ID format: registry_ref:component_name)
+        if ":" not in id:
+            raise HTTPException(status_code=404, detail=f"Resource '{id}' not found")
+        
+        try:
+            registry_ref, component_name = id.split(":", 1)
+            component = crud.ComponentCRUD.get(db, registry_ref, component_name)
+            if not component:
+                raise HTTPException(status_code=404, detail=f"Resource '{id}' not found")
+            
+            success = crud.ComponentCRUD.delete(db, registry_ref, component_name)
+            if not success:
+                raise HTTPException(status_code=404, detail=f"Resource '{id}' not found or could not be deleted")
+            return
+            
+        except ValueError:
+            raise HTTPException(status_code=404, detail=f"Resource '{id}' not found")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)

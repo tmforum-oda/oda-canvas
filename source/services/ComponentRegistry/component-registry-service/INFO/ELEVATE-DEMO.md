@@ -425,8 +425,8 @@ show after 1 min disappears in upup-compreg
   https://canvas-compreg.ihc-dt-b.cluster-2.de
 * GLOBAL COMPREG
   https://global-compreg.ihc-dt.cluster-2.de
-* Canvas-Info_Service IHC-DT-A
-  https://canvas-info.ihc-dt-a.cluster-2.de/api-docs/
+* Canvas-Info_Service IHC-DT-B
+  https://canvas-info.ihc-dt-b.cluster-2.de/api-docs/
 * UC007-F002
   https://github.com/tmforum-oda/oda-canvas/blob/feature/384_mainly_simple_dependent_operator/feature-definition-and-test-kit/features/UC007-F002-Dependent-APIs-Configure-Dependent-APIs-Single-Downstream.feature
 * GitHub Copilot Benefits

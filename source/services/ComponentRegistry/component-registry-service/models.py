@@ -283,3 +283,94 @@ class ComponentUpdate(BaseModel):
                 raise ValueError('Version cannot be empty or contain only whitespace')
             return v.strip()
         return v
+
+
+# TMF639 Resource Models
+class Resource(BaseModel):
+    """
+    TMF639 Resource model based on swagger definition
+    """
+    id: str = Field(..., description="Identifier of an instance of the resource")
+    href: Optional[str] = Field(None, description="The URI for the object itself")
+    category: Optional[str] = Field(None, description="Category of the concrete resource")
+    description: Optional[str] = Field(None, description="free-text description of the resource")
+    endOperatingDate: Optional[str] = Field(None, description="The date till the resource is operating")
+    name: Optional[str] = Field(None, description="A string used to give a name to the resource")
+    resourceVersion: Optional[str] = Field(None, description="A field that identifies the specific version of an instance of a resource")
+    startOperatingDate: Optional[str] = Field(None, description="The date from which the resource is operating")
+    activationFeature: Optional[List[Dict]] = Field(None, description="Configuration features")
+    administrativeState: Optional[str] = Field(None, description="Tracks the lifecycle status of the resource")
+    attachment: Optional[List[Dict]] = Field(None, description="Attachments")
+    note: Optional[List[Dict]] = Field(None, description="Notes")
+    operationalState: Optional[str] = Field(None, description="Operational state of the resource")
+    place: Optional[Dict] = Field(None, description="Place information")
+    relatedParty: Optional[List[Dict]] = Field(None, description="Related parties")
+    resourceCharacteristic: Optional[List[Dict]] = Field(None, description="Resource characteristics")
+    resourceRelationship: Optional[List[Dict]] = Field(None, description="Resource relationships")
+    resourceSpecification: Optional[Dict] = Field(None, description="Resource specification")
+    resourceStatus: Optional[str] = Field(None, description="Resource status")
+    usageState: Optional[str] = Field(None, description="Usage state")
+    baseType: Optional[str] = Field(None, alias="@baseType", description="When sub-classing, this defines the super-class")
+    schemaLocation: Optional[str] = Field(None, alias="@schemaLocation", description="A URI to a JSON-Schema file")
+    type: Optional[str] = Field(None, alias="@type", description="When sub-classing, this defines the sub-class Extensible name")
+
+    class Config:
+        allow_population_by_field_name = True
+
+class Resource_Create(BaseModel):
+    """
+    TMF639 Resource_Create model based on swagger definition
+    """
+    category: Optional[str] = Field(None, description="Category of the concrete resource")
+    description: Optional[str] = Field(None, description="free-text description of the resource")
+    endOperatingDate: Optional[str] = Field(None, description="The date till the resource is operating")
+    name: str = Field(..., description="A string used to give a name to the resource")
+    resourceVersion: Optional[str] = Field(None, description="A field that identifies the specific version of an instance of a resource")
+    startOperatingDate: Optional[str] = Field(None, description="The date from which the resource is operating")
+    activationFeature: Optional[List[Dict]] = Field(None, description="Configuration features")
+    administrativeState: Optional[str] = Field(None, description="Tracks the lifecycle status of the resource")
+    attachment: Optional[List[Dict]] = Field(None, description="Attachments")
+    note: Optional[List[Dict]] = Field(None, description="Notes")
+    operationalState: Optional[str] = Field(None, description="Operational state of the resource")
+    place: Optional[Dict] = Field(None, description="Place information")
+    relatedParty: Optional[List[Dict]] = Field(None, description="Related parties")
+    resourceCharacteristic: Optional[List[Dict]] = Field(None, description="Resource characteristics")
+    resourceRelationship: Optional[List[Dict]] = Field(None, description="Resource relationships")
+    resourceSpecification: Optional[Dict] = Field(None, description="Resource specification")
+    resourceStatus: Optional[str] = Field(None, description="Resource status")
+    usageState: Optional[str] = Field(None, description="Usage state")
+    baseType: Optional[str] = Field(None, alias="@baseType", description="When sub-classing, this defines the super-class")
+    schemaLocation: Optional[str] = Field(None, alias="@schemaLocation", description="A URI to a JSON-Schema file")
+    type: Optional[str] = Field(None, alias="@type", description="When sub-classing, this defines the sub-class Extensible name")
+
+    class Config:
+        allow_population_by_field_name = True
+
+class Resource_Update(BaseModel):
+    """
+    TMF639 Resource_Update model based on swagger definition
+    """
+    category: Optional[str] = Field(None, description="Category of the concrete resource")
+    description: Optional[str] = Field(None, description="free-text description of the resource")
+    endOperatingDate: Optional[str] = Field(None, description="The date till the resource is operating")
+    name: Optional[str] = Field(None, description="A string used to give a name to the resource")
+    resourceVersion: Optional[str] = Field(None, description="A field that identifies the specific version of an instance of a resource")
+    startOperatingDate: Optional[str] = Field(None, description="The date from which the resource is operating")
+    activationFeature: Optional[List[Dict]] = Field(None, description="Configuration features")
+    administrativeState: Optional[str] = Field(None, description="Tracks the lifecycle status of the resource")
+    attachment: Optional[List[Dict]] = Field(None, description="Attachments")
+    note: Optional[List[Dict]] = Field(None, description="Notes")
+    operationalState: Optional[str] = Field(None, description="Operational state of the resource")
+    place: Optional[Dict] = Field(None, description="Place information")
+    relatedParty: Optional[List[Dict]] = Field(None, description="Related parties")
+    resourceCharacteristic: Optional[List[Dict]] = Field(None, description="Resource characteristics")
+    resourceRelationship: Optional[List[Dict]] = Field(None, description="Resource relationships")
+    resourceSpecification: Optional[Dict] = Field(None, description="Resource specification")
+    resourceStatus: Optional[str] = Field(None, description="Resource status")
+    usageState: Optional[str] = Field(None, description="Usage state")
+    baseType: Optional[str] = Field(None, alias="@baseType", description="When sub-classing, this defines the super-class")
+    schemaLocation: Optional[str] = Field(None, alias="@schemaLocation", description="A URI to a JSON-Schema file")
+    type: Optional[str] = Field(None, alias="@type", description="When sub-classing, this defines the sub-class Extensible name")
+
+    class Config:
+        allow_population_by_field_name = True
