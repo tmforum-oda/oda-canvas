@@ -574,6 +574,7 @@ resource-inventory:
   prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
+  serviceType: LoadBalancer
   
 # Default values for component-registry.
 # This is a YAML-formatted file.
