@@ -1,0 +1,76 @@
+{
+  "@type": "LogicalResource",
+  "@baseType": "Resource",
+  "category": "string",
+  "description": "string",
+  "endOperatingDate": "2025-10-15T16:05:15.310Z",
+  "name": "string2",
+  "resourceVersion": "string",
+  "startOperatingDate": "2025-10-15T16:05:15.311Z",
+  "administrativeState": "locked",
+  "operationalState": "enable",
+  "resourceStatus": "standby",
+  "usageState": "idle",
+  "resourceCharacteristic": [
+    {
+      "name": "string2",
+      "value": "string2",
+      "valueType": "string",
+      "id": "string2"
+    }
+  ],
+  "relatedParty": [
+    {
+      "name": "string2",
+      "role": "string",
+      "id": "string2",
+      "href": "string2",
+      "@referredType": "string"
+    }
+  ],
+  "note": [
+    {
+      "author": "string",
+      "date": "2025-10-15T16:05:15.311Z",
+      "text": "string",
+      "id": "string2",
+      "href": "string2"
+    }
+  ],
+  "attachment": [
+    {
+      "attachmentType": "string",
+      "content": "string",
+      "description": "string",
+      "mimeType": "string",
+      "name": "string",
+      "url": "string",
+      "id": "string2",
+      "href": "string2"
+    }
+  ],
+  "resourceRelationship": [
+    {
+      "id": "string2",
+      "href": "string2",
+      "relationshipType": "string",
+      "resource": {
+        "id": "string2",
+        "href": "string2",
+        "name": "string2"
+      }
+    }
+  ],
+  "resourceSpecification": {
+    "id": "string2",
+    "href": "string2",
+    "name": "string2",
+    "version": "string"
+  },
+  "place": {
+    "id": "string2",
+    "href": "string2",
+    "name": "string2",
+    "role": "string"
+  }
+}

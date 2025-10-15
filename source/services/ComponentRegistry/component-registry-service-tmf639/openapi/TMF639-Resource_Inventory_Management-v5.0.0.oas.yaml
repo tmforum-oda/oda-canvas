@@ -1,0 +1,3927 @@
+openapi: 3.0.1
+info:
+  title: Resource Inventory Management
+  description: |-
+    Resource Inventory  API goal is to provide the ability to manage Resources.
+    ### Operations
+    Resource Inventory API performs the following operations on the resources :
+    - Retrieve an entity or a collection of entities depending on filter criteria
+    - Partial update of an entity (including updating rules)
+    - Create an entity (including default values and creation rules)
+    - Delete an entity (for administration purposes)
+    - Manage notification of events
+  version: 5.0.0
+servers:
+  - url: '{apiRoot}'
+    variables:
+      apiRoot:
+        default: 'https://serverRoot/resourceInventory/v5'
+        enum:
+          - 'https://serverRoot/resourceInventory/v5'
+tags:
+  - name: resource
+    description: Operations for Resource Resource
+  - name: notification listener
+    description: Notifications for Resource Lifecycle and event notifications
+  - name: events subscription
+    description: Endpoints to register and terminate an Event Listener
+paths:
+  /hub:
+    post:
+      operationId: createHub
+      summary: Create a subscription (hub) to receive Events
+      description: Sets the communication endpoint to receive Events.
+      tags:
+        - events subscription
+      requestBody:
+        $ref: '#/components/requestBodies/Hub_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/Hub'
+        default:
+          $ref: '#/components/responses/Error'
+  '/hub/{id}':
+    get:
+      operationId: hubGet
+      summary: Retrieve a subscription (hub)
+      description: This operation retrieves the subscription to receive Events.
+      tags:
+        - events subscription
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          $ref: '#/components/responses/Hub'
+        default:
+          $ref: '#/components/responses/Error'
+    delete:
+      operationId: hubDelete
+      summary: Remove a subscription (hub) to receive Events
+      description: This operation removes the subscription to receive Events.
+      tags:
+        - events subscription
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Deleted
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/resourceAttributeValueChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ResourceAttributeValueChangeEvent
+      description: >-
+        Example of a client listener for receiving the notification
+        ResourceAttributeValueChangeEvent
+      operationId: resourceAttributeValueChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ResourceAttributeValueChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/resourceCreateEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ResourceCreateEvent
+      description: Example of a client listener for receiving the notification ResourceCreateEvent
+      operationId: resourceCreateEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ResourceCreateEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/resourceDeleteEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ResourceDeleteEvent
+      description: Example of a client listener for receiving the notification ResourceDeleteEvent
+      operationId: resourceDeleteEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ResourceDeleteEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/resourceStateChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ResourceStateChangeEvent
+      description: Example of a client listener for receiving the notification ResourceStateChangeEvent
+      operationId: resourceStateChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ResourceStateChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /resource:
+    get:
+      tags:
+        - resource
+      summary: List or find Resource objects
+      description: List or find Resource objects
+      operationId: listResource
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Before'
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          $ref: '#/components/responses/200ResourceArray'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    post:
+      tags:
+        - resource
+      summary: Creates a Resource
+      description: This operation creates a Resource entity.
+      operationId: createResource
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/Resource_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/201Resource'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  '/resource/{id}':
+    get:
+      tags:
+        - resource
+      summary: Retrieves a Resource by ID
+      description: >-
+        This operation retrieves a Resource entity. Attribute selection enabled for all first level
+        attributes.
+      operationId: retrieveResource
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          $ref: '#/components/responses/200Resource_Get'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    patch:
+      tags:
+        - resource
+      summary: Updates partially a Resource
+      description: This operation updates partially a Resource entity.
+      operationId: patchResource
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/Resource_MVO'
+      responses:
+        '200':
+          $ref: '#/components/responses/200Resource_Patch'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    delete:
+      tags:
+        - resource
+      summary: Deletes a Resource
+      description: This operation deletes a Resource entity.
+      operationId: deleteResource
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '202':
+          $ref: '#/components/responses/202'
+        '204':
+          $ref: '#/components/responses/204'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+components:
+  schemas:
+    Addressable:
+      type: object
+      description: Base schema for addressable entities
+      properties:
+        href:
+          type: string
+          description: Hyperlink reference
+        id:
+          type: string
+          description: unique identifier
+    AttachmentRef:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Attachment reference. An attachment complements the description of an element (for
+            instance a product) through video, pictures
+          properties:
+            description:
+              type: string
+              description: A narrative text describing the content of the attachment
+            url:
+              description: Link to the attachment media/content
+              type: string
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          AttachmentRef: '#/components/schemas/AttachmentRef'
+    AttachmentRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Attachment reference. An attachment complements the description of an element (for
+            instance a product) through video, pictures
+          properties:
+            description:
+              type: string
+              description: A narrative text describing the content of the attachment
+            url:
+              description: Link to the attachment media/content
+              type: string
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          AttachmentRef: '#/components/schemas/AttachmentRef_FVO'
+    AttachmentRef_MVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_MVO'
+        - type: object
+          description: >-
+            Attachment reference. An attachment complements the description of an element (for
+            instance a product) through video, pictures
+          properties:
+            description:
+              type: string
+              description: A narrative text describing the content of the attachment
+            url:
+              description: Link to the attachment media/content
+              type: string
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          AttachmentRef: '#/components/schemas/AttachmentRef_MVO'
+    BaseEvent:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: Base event with common attributes.
+          properties:
+            event:
+              type: object
+              description: The event linked to the involved resource object
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOcurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BaseEvent: '#/components/schemas/BaseEvent'
+    Characteristic:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Describes a given characteristic of an object or entity through a name/value pair. This
+            is an abstract base class, the actual value is in one of the strongly-typed subclasses :
+            StringCharacteristic, ObjectCharacteristic, FloatCharacteristic, BooleanCharacteristic,
+            NumberCharacteristic, IntegerCharacteristic, StringArrayCharacteristic,
+            ObjectArrayCharacteristic, BooleanArrayCharacteristic, NumberArrayCharacteristic,
+            IntegerArrayCharacteristic...
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            name:
+              type: string
+              description: Name of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              description: Collection of characteristic relationships
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Characteristic: '#/components/schemas/Characteristic'
+    CharacteristicRelationship:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship'
+    CharacteristicRelationship_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+          required:
+            - id
+            - relationshipType
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship_FVO'
+    CharacteristicRelationship_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship_MVO'
+    Characteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Describes a given characteristic of an object or entity through a name/value pair. This
+            is an abstract base class, the actual value is in one of the strongly-typed subclasses :
+            StringCharacteristic, ObjectCharacteristic, FloatCharacteristic, BooleanCharacteristic,
+            NumberCharacteristic, IntegerCharacteristic, StringArrayCharacteristic,
+            ObjectArrayCharacteristic, BooleanArrayCharacteristic, NumberArrayCharacteristic,
+            IntegerArrayCharacteristic...
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            name:
+              type: string
+              description: Name of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              description: Collection of characteristic relationships
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship_FVO'
+          required:
+            - name
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Characteristic: '#/components/schemas/Characteristic_FVO'
+    Characteristic_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Describes a given characteristic of an object or entity through a name/value pair. This
+            is an abstract base class, the actual value is in one of the strongly-typed subclasses :
+            StringCharacteristic, ObjectCharacteristic, FloatCharacteristic, BooleanCharacteristic,
+            NumberCharacteristic, IntegerCharacteristic, StringArrayCharacteristic,
+            ObjectArrayCharacteristic, BooleanArrayCharacteristic, NumberArrayCharacteristic,
+            IntegerArrayCharacteristic...
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            name:
+              type: string
+              description: Name of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              description: Collection of characteristic relationships
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Characteristic: '#/components/schemas/Characteristic_MVO'
+    Entity:
+      type: object
+      description: Base entity schema for use in TMForum Open-APIs. Property.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/Addressable'
+    EntityRef:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/Addressable'
+        - type: object
+          description: Entity reference schema to be use for all entityRef class.
+          properties:
+            id:
+              type: string
+              description: The identifier of the referred entity.
+            href:
+              type: string
+              description: The URI of the referred entity.
+            name:
+              type: string
+              description: Name of the referred entity.
+            '@referredType':
+              type: string
+              description: The actual type of the target instance when needed for disambiguation.
+          required:
+            - id
+    EntityRef_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/Addressable'
+        - type: object
+          description: Entity reference schema to be use for all entityRef class.
+          properties:
+            id:
+              type: string
+              description: The identifier of the referred entity.
+            href:
+              type: string
+              description: The URI of the referred entity.
+            name:
+              type: string
+              description: Name of the referred entity.
+            '@referredType':
+              type: string
+              description: The actual type of the target instance when needed for disambiguation.
+    Event:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: event with common attributes.
+          properties:
+            href:
+              type: string
+              description: Hyperlink reference
+            id:
+              type: string
+              description: unique identifier
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanation of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOccurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+            source:
+              $ref: '#/components/schemas/EntityRef'
+            reportingSystem:
+              $ref: '#/components/schemas/EntityRef'
+            relatedParty:
+              type: array
+              description: Collection of related parties
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+            analyticCharacteristic:
+              type: array
+              description: Collection of analytic characteristics
+              items:
+                $ref: '#/components/schemas/Characteristic'
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            event:
+              description: The event linked to the involved resource object
+              type: object
+    Extensible:
+      type: object
+      description: >-
+        Base Extensible schema for use in TMForum Open-APIs - When used for in a schema it means
+        that the Entity described by the schema  MUST be extended with the @type
+      properties:
+        '@type':
+          type: string
+          description: 'When sub-classing, this defines the sub-class Extensible name'
+        '@baseType':
+          type: string
+          description: 'When sub-classing, this defines the super-class'
+        '@schemaLocation':
+          type: string
+          description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      required:
+        - '@type'
+    ExternalIdentifier:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            An identification of an entity that is owned by or originates in a software system
+            different from the current system, for example a ProductOrder handed off from a commerce
+            platform into an order handling system. The structure identifies the system itself, the
+            nature of the entity within the system (e.g. class name) and the unique ID of the entity
+            within the system. It is anticipated that multiple external IDs can be held for a single
+            entity, e.g. if the entity passed through multiple systems on the way to the current
+            system. In this case the consumer is expected to sequence the IDs in the array in
+            reverse order of provenance, i.e. most recent system first in the list.
+          properties:
+            owner:
+              type: string
+              description: Name of the external system that owns the entity.
+              example: MagentoCommerce
+            externalIdentifierType:
+              type: string
+              description: >-
+                Type of the identification, typically would be the type of the entity within the
+                external system
+              example: ProductOrder
+            id:
+              type: string
+              description: identification of the entity within the external system.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ExternalIdentifier: '#/components/schemas/ExternalIdentifier'
+    ExternalIdentifier_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            An identification of an entity that is owned by or originates in a software system
+            different from the current system, for example a ProductOrder handed off from a commerce
+            platform into an order handling system. The structure identifies the system itself, the
+            nature of the entity within the system (e.g. class name) and the unique ID of the entity
+            within the system. It is anticipated that multiple external IDs can be held for a single
+            entity, e.g. if the entity passed through multiple systems on the way to the current
+            system. In this case the consumer is expected to sequence the IDs in the array in
+            reverse order of provenance, i.e. most recent system first in the list.
+          properties:
+            owner:
+              type: string
+              description: Name of the external system that owns the entity.
+              example: MagentoCommerce
+            externalIdentifierType:
+              type: string
+              description: >-
+                Type of the identification, typically would be the type of the entity within the
+                external system
+              example: ProductOrder
+            id:
+              type: string
+              description: identification of the entity within the external system.
+          required:
+            - id
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ExternalIdentifier: '#/components/schemas/ExternalIdentifier_FVO'
+    ExternalIdentifier_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            An identification of an entity that is owned by or originates in a software system
+            different from the current system, for example a ProductOrder handed off from a commerce
+            platform into an order handling system. The structure identifies the system itself, the
+            nature of the entity within the system (e.g. class name) and the unique ID of the entity
+            within the system. It is anticipated that multiple external IDs can be held for a single
+            entity, e.g. if the entity passed through multiple systems on the way to the current
+            system. In this case the consumer is expected to sequence the IDs in the array in
+            reverse order of provenance, i.e. most recent system first in the list.
+          properties:
+            owner:
+              type: string
+              description: Name of the external system that owns the entity.
+              example: MagentoCommerce
+            externalIdentifierType:
+              type: string
+              description: >-
+                Type of the identification, typically would be the type of the entity within the
+                external system
+              example: ProductOrder
+            id:
+              type: string
+              description: identification of the entity within the external system.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ExternalIdentifier: '#/components/schemas/ExternalIdentifier_MVO'
+    Feature:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Configuration feature.
+          properties:
+            isBundle:
+              description: True if this is a feature group. Default is false.
+              type: boolean
+            featureRelationship:
+              type: array
+              description: Collection of feature relationships
+              items:
+                $ref: '#/components/schemas/FeatureRelationship'
+            featureCharacteristic:
+              description: This is a list of Characteristics for a particular feature.
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic'
+            policyConstraint:
+              description: Reference to manage a list of feature specification policy constraints
+              type: array
+              items:
+                $ref: '#/components/schemas/PolicyRef'
+            isEnabled:
+              description: True if this feature is enabled. Default is true.
+              type: boolean
+            id:
+              type: string
+              description: unique identifier
+            name:
+              description: This is the name for the feature.
+              type: string
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Feature: '#/components/schemas/Feature'
+    FeatureRelationship:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: Configuration feature
+          properties:
+            relationshipType:
+              description: This is the type of the feature relationship.
+              type: string
+              enum:
+                - excluded
+                - includes
+                - may include
+                - requires
+            name:
+              description: This is the name of the target feature.
+              type: string
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          FeatureRelationship: '#/components/schemas/FeatureRelationship'
+    FeatureRelationship_FVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: Configuration feature
+          properties:
+            relationshipType:
+              description: This is the type of the feature relationship.
+              type: string
+              enum:
+                - excluded
+                - includes
+                - may include
+                - requires
+            name:
+              description: This is the name of the target feature.
+              type: string
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+          required:
+            - relationshipType
+            - id
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          FeatureRelationship: '#/components/schemas/FeatureRelationship_FVO'
+    FeatureRelationship_MVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_MVO'
+        - type: object
+          description: Configuration feature
+          properties:
+            relationshipType:
+              description: This is the type of the feature relationship.
+              type: string
+              enum:
+                - excluded
+                - includes
+                - may include
+                - requires
+            name:
+              description: This is the name of the target feature.
+              type: string
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          FeatureRelationship: '#/components/schemas/FeatureRelationship_MVO'
+    Feature_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Configuration feature.
+          properties:
+            isBundle:
+              description: True if this is a feature group. Default is false.
+              type: boolean
+            featureRelationship:
+              type: array
+              description: Collection of feature relationships
+              items:
+                $ref: '#/components/schemas/FeatureRelationship_FVO'
+            featureCharacteristic:
+              description: This is a list of Characteristics for a particular feature.
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_FVO'
+            policyConstraint:
+              description: Reference to manage a list of feature specification policy constraints
+              type: array
+              items:
+                $ref: '#/components/schemas/PolicyRef_FVO'
+            isEnabled:
+              description: True if this feature is enabled. Default is true.
+              type: boolean
+            id:
+              type: string
+              description: unique identifier
+            name:
+              description: This is the name for the feature.
+              type: string
+          required:
+            - name
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Feature: '#/components/schemas/Feature_FVO'
+    Feature_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Configuration feature.
+          properties:
+            isBundle:
+              description: True if this is a feature group. Default is false.
+              type: boolean
+            featureRelationship:
+              type: array
+              description: Collection of feature relationships
+              items:
+                $ref: '#/components/schemas/FeatureRelationship_MVO'
+            featureCharacteristic:
+              description: This is a list of Characteristics for a particular feature.
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_MVO'
+            policyConstraint:
+              description: Reference to manage a list of feature specification policy constraints
+              type: array
+              items:
+                $ref: '#/components/schemas/PolicyRef_MVO'
+            isEnabled:
+              description: True if this feature is enabled. Default is true.
+              type: boolean
+            id:
+              type: string
+              description: unique identifier
+            name:
+              description: This is the name for the feature.
+              type: string
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Feature: '#/components/schemas/Feature_MVO'
+    IntentRef:
+      type: object
+      description: 'Intent reference, for when Intent is used by other entities'
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          IntentRef: '#/components/schemas/IntentRef'
+    IntentRef_FVO:
+      type: object
+      description: 'Intent reference, for when Intent is used by other entities'
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          IntentRef: '#/components/schemas/IntentRef_FVO'
+    IntentRef_MVO:
+      type: object
+      description: 'Intent reference, for when Intent is used by other entities'
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          IntentRef: '#/components/schemas/IntentRef_MVO'
+    LogicalResource:
+      allOf:
+        - $ref: '#/components/schemas/Resource'
+        - type: object
+          description: >-
+            Logic resource is a type of resource that describes the common set of attributes shared
+            by all concrete logical resources (e.g. TPE, MSISDN, IP Addresses) in the inventory.
+          properties:
+            value:
+              type: string
+              description: the value of the logical resource. E.g '0746712345' for  MSISDN's
+    LogicalResource_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Resource_FVO'
+        - type: object
+          description: >-
+            Logic resource is a type of resource that describes the common set of attributes shared
+            by all concrete logical resources (e.g. TPE, MSISDN, IP Addresses) in the inventory.
+          properties:
+            value:
+              type: string
+              description: the value of the logical resource. E.g '0746712345' for  MSISDN's
+    LogicalResource_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Resource_MVO'
+        - type: object
+          description: >-
+            Logic resource is a type of resource that describes the common set of attributes shared
+            by all concrete logical resources (e.g. TPE, MSISDN, IP Addresses) in the inventory.
+          properties:
+            value:
+              type: string
+              description: the value of the logical resource. E.g '0746712345' for  MSISDN's
+    Note:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Extra information about a given entity
+          properties:
+            id:
+              type: string
+              description: Identifier of the note within its containing entity
+              example: afa9-3d90aaa8da0f
+            author:
+              type: string
+              description: Author of the note
+              example: Mr. N. Bene
+            date:
+              type: string
+              format: date-time
+              description: Date of the note
+              example: '2020-11-20T08:00:00Z'
+            text:
+              type: string
+              description: Text of the note
+              example: This is important
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Note: '#/components/schemas/Note'
+    Note_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Extra information about a given entity
+          properties:
+            id:
+              type: string
+              description: Identifier of the note within its containing entity
+              example: afa9-3d90aaa8da0f
+            author:
+              type: string
+              description: Author of the note
+              example: Mr. N. Bene
+            date:
+              type: string
+              format: date-time
+              description: Date of the note
+              example: '2020-11-20T08:00:00Z'
+            text:
+              type: string
+              description: Text of the note
+              example: This is important
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Note: '#/components/schemas/Note_FVO'
+    Note_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Extra information about a given entity
+          properties:
+            id:
+              type: string
+              description: Identifier of the note within its containing entity
+              example: afa9-3d90aaa8da0f
+            author:
+              type: string
+              description: Author of the note
+              example: Mr. N. Bene
+            date:
+              type: string
+              format: date-time
+              description: Date of the note
+              example: '2020-11-20T08:00:00Z'
+            text:
+              type: string
+              description: Text of the note
+              example: This is important
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Note: '#/components/schemas/Note_MVO'
+    OrderItemActionType:
+      enum:
+        - add
+        - modify
+        - delete
+        - noChange
+      type: string
+      description: action to be performed on the product
+    PartyRef:
+      type: object
+      description: A Party reference
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef'
+    PartyRefOrPartyRoleRef:
+      type: object
+      description: ''
+      oneOf:
+        - $ref: '#/components/schemas/PartyRef'
+        - $ref: '#/components/schemas/PartyRoleRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef'
+          PartyRoleRef: '#/components/schemas/PartyRoleRef'
+    PartyRefOrPartyRoleRef_FVO:
+      type: object
+      description: ''
+      oneOf:
+        - $ref: '#/components/schemas/PartyRef_FVO'
+        - $ref: '#/components/schemas/PartyRoleRef_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef_FVO'
+          PartyRoleRef: '#/components/schemas/PartyRoleRef_FVO'
+    PartyRefOrPartyRoleRef_MVO:
+      type: object
+      description: ''
+      oneOf:
+        - $ref: '#/components/schemas/PartyRef_MVO'
+        - $ref: '#/components/schemas/PartyRoleRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef_MVO'
+          PartyRoleRef: '#/components/schemas/PartyRoleRef_MVO'
+    PartyRef_FVO:
+      type: object
+      description: A Party reference
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef_FVO'
+    PartyRef_MVO:
+      type: object
+      description: A Party reference
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef_MVO'
+    PartyRoleRef:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Party role reference. A party role represents the part played by a party in a given
+            context.
+          properties:
+            partyId:
+              type: string
+              description: The identifier of the engaged party that is linked to the PartyRole object.
+            partyName:
+              type: string
+              description: The name of the engaged party that is linked to the PartyRole object.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRoleRef: '#/components/schemas/PartyRoleRef'
+    PartyRoleRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Party role reference. A party role represents the part played by a party in a given
+            context.
+          properties:
+            partyId:
+              type: string
+              description: The identifier of the engaged party that is linked to the PartyRole object.
+            partyName:
+              type: string
+              description: The name of the engaged party that is linked to the PartyRole object.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRoleRef: '#/components/schemas/PartyRoleRef_FVO'
+    PartyRoleRef_MVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_MVO'
+        - type: object
+          description: >-
+            Party role reference. A party role represents the part played by a party in a given
+            context.
+          properties:
+            partyId:
+              type: string
+              description: The identifier of the engaged party that is linked to the PartyRole object.
+            partyName:
+              type: string
+              description: The name of the engaged party that is linked to the PartyRole object.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRoleRef: '#/components/schemas/PartyRoleRef_MVO'
+    PhysicalResource:
+      allOf:
+        - $ref: '#/components/schemas/Resource'
+        - type: object
+          description: >-
+            Physical resource is a type of resource that describes the common set of attributes
+            shared by all concrete physical resources (e.g. EQUIPMENT) in the inventory.
+          properties:
+            manufactureDate:
+              type: string
+              format: date-time
+              description: >-
+                This is a string attribute that defines the date of manufacture of this item in the
+                fixed format "dd/mm/yyyy". This is an optional attribute.
+            powerState:
+              type: string
+              description: |-
+                This defines the current power status of the hardware item. Values include:
+
+                  0:  Unknown
+                  1:  Not Applicable
+                  2:  No Power Applied
+                  3: Full Power Applied
+                  4:  Power Save - Normal
+                  5:  Power Save - Degraded
+                  6:  Power Save - Standby
+                  7:  Power Save - Critical
+                  8:  Power Save - Low Power Mode
+                  9:  Power Save - Unknown
+                 10: Power Cycle
+                 11: Power Warning
+                 12: Power Off
+            serialNumber:
+              type: string
+              description: >-
+                This is a string that represents a manufacturer-allocated number used to identify
+                different instances of the same hardware item. The ModelNumber and PartNumber
+                attributes are used to identify different types of hardware items. This is a
+                REQUIRED attribute.
+            versionNumber:
+              type: string
+              description: >-
+                This is a string that identifies the version of this physical resource. This is an
+                optional attribute.
+    PhysicalResource_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Resource_FVO'
+        - type: object
+          description: >-
+            Physical resource is a type of resource that describes the common set of attributes
+            shared by all concrete physical resources (e.g. EQUIPMENT) in the inventory.
+          properties:
+            manufactureDate:
+              type: string
+              format: date-time
+              description: >-
+                This is a string attribute that defines the date of manufacture of this item in the
+                fixed format "dd/mm/yyyy". This is an optional attribute.
+            powerState:
+              type: string
+              description: |-
+                This defines the current power status of the hardware item. Values include:
+
+                  0:  Unknown
+                  1:  Not Applicable
+                  2:  No Power Applied
+                  3: Full Power Applied
+                  4:  Power Save - Normal
+                  5:  Power Save - Degraded
+                  6:  Power Save - Standby
+                  7:  Power Save - Critical
+                  8:  Power Save - Low Power Mode
+                  9:  Power Save - Unknown
+                 10: Power Cycle
+                 11: Power Warning
+                 12: Power Off
+            serialNumber:
+              type: string
+              description: >-
+                This is a string that represents a manufacturer-allocated number used to identify
+                different instances of the same hardware item. The ModelNumber and PartNumber
+                attributes are used to identify different types of hardware items. This is a
+                REQUIRED attribute.
+            versionNumber:
+              type: string
+              description: >-
+                This is a string that identifies the version of this physical resource. This is an
+                optional attribute.
+    PhysicalResource_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Resource_MVO'
+        - type: object
+          description: >-
+            Physical resource is a type of resource that describes the common set of attributes
+            shared by all concrete physical resources (e.g. EQUIPMENT) in the inventory.
+          properties:
+            manufactureDate:
+              type: string
+              format: date-time
+              description: >-
+                This is a string attribute that defines the date of manufacture of this item in the
+                fixed format "dd/mm/yyyy". This is an optional attribute.
+            powerState:
+              type: string
+              description: |-
+                This defines the current power status of the hardware item. Values include:
+
+                  0:  Unknown
+                  1:  Not Applicable
+                  2:  No Power Applied
+                  3: Full Power Applied
+                  4:  Power Save - Normal
+                  5:  Power Save - Degraded
+                  6:  Power Save - Standby
+                  7:  Power Save - Critical
+                  8:  Power Save - Low Power Mode
+                  9:  Power Save - Unknown
+                 10: Power Cycle
+                 11: Power Warning
+                 12: Power Off
+            serialNumber:
+              type: string
+              description: >-
+                This is a string that represents a manufacturer-allocated number used to identify
+                different instances of the same hardware item. The ModelNumber and PartNumber
+                attributes are used to identify different types of hardware items. This is a
+                REQUIRED attribute.
+            versionNumber:
+              type: string
+              description: >-
+                This is a string that identifies the version of this physical resource. This is an
+                optional attribute.
+    PlaceRef:
+      type: object
+      description: Place reference.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PlaceRef: '#/components/schemas/PlaceRef'
+    PlaceRef_FVO:
+      type: object
+      description: Place reference.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PlaceRef: '#/components/schemas/PlaceRef_FVO'
+    PlaceRef_MVO:
+      type: object
+      description: Place reference.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PlaceRef: '#/components/schemas/PlaceRef_MVO'
+    PolicyRef:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: Reference to managed Policy object
+          properties:
+            id:
+              type: string
+              description: unique identifier
+            href:
+              type: string
+              description: Hyperlink reference
+            version:
+              type: string
+            '@type':
+              type: string
+              description: 'When sub-classing, this defines the sub-class Extensible name'
+            '@baseType':
+              type: string
+              description: 'When sub-classing, this defines the super-class'
+            '@schemaLocation':
+              type: string
+              description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PolicyRef: '#/components/schemas/PolicyRef'
+    PolicyRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: Reference to managed Policy object
+          properties:
+            id:
+              type: string
+              description: unique identifier
+            href:
+              type: string
+              description: Hyperlink reference
+            version:
+              type: string
+            '@type':
+              type: string
+              description: 'When sub-classing, this defines the sub-class Extensible name'
+            '@baseType':
+              type: string
+              description: 'When sub-classing, this defines the super-class'
+            '@schemaLocation':
+              type: string
+              description: A URI to a JSON-Schema file that defines additional attributes and relationships
+          required:
+            - id
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PolicyRef: '#/components/schemas/PolicyRef_FVO'
+    PolicyRef_MVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_MVO'
+        - type: object
+          description: Reference to managed Policy object
+          properties:
+            id:
+              type: string
+              description: unique identifier
+            href:
+              type: string
+              description: Hyperlink reference
+            version:
+              type: string
+            '@type':
+              type: string
+              description: 'When sub-classing, this defines the sub-class Extensible name'
+            '@baseType':
+              type: string
+              description: 'When sub-classing, this defines the super-class'
+            '@schemaLocation':
+              type: string
+              description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PolicyRef: '#/components/schemas/PolicyRef_MVO'
+    RelatedPartyRefOrPartyRoleRef:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedParty reference. A related party defines party or party role or its reference,
+            linked to a specific entity
+          properties:
+            role:
+              description: >-
+                Role played by the related party or party role in the context of the specific entity
+                it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'
+              type: string
+            partyOrPartyRole:
+              $ref: '#/components/schemas/PartyRefOrPartyRoleRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPartyRefOrPartyRoleRef: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+    RelatedPartyRefOrPartyRoleRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedParty reference. A related party defines party or party role or its reference,
+            linked to a specific entity
+          properties:
+            role:
+              description: >-
+                Role played by the related party or party role in the context of the specific entity
+                it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'
+              type: string
+            partyOrPartyRole:
+              $ref: '#/components/schemas/PartyRefOrPartyRoleRef_FVO'
+          required:
+            - role
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPartyRefOrPartyRoleRef: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO'
+    RelatedPartyRefOrPartyRoleRef_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedParty reference. A related party defines party or party role or its reference,
+            linked to a specific entity
+          properties:
+            role:
+              description: >-
+                Role played by the related party or party role in the context of the specific entity
+                it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'
+              type: string
+            partyOrPartyRole:
+              $ref: '#/components/schemas/PartyRefOrPartyRoleRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPartyRefOrPartyRoleRef: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_MVO'
+    RelatedPlaceRef:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Entity reference. The polymorphic attributes @type, @schemaLocation & @referredType are
+            related to the RelatedPlace entity and not the RelatedPlaceRef class itself
+          properties:
+            role:
+              type: string
+            place:
+              $ref: '#/components/schemas/PlaceRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPlaceRef: '#/components/schemas/RelatedPlaceRef'
+    RelatedPlaceRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Entity reference. The polymorphic attributes @type, @schemaLocation & @referredType are
+            related to the RelatedPlace entity and not the RelatedPlaceRef class itself
+          properties:
+            role:
+              type: string
+            place:
+              $ref: '#/components/schemas/PlaceRef_FVO'
+          required:
+            - role
+            - place
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPlaceRef: '#/components/schemas/RelatedPlaceRef_FVO'
+    RelatedPlaceRef_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Entity reference. The polymorphic attributes @type, @schemaLocation & @referredType are
+            related to the RelatedPlace entity and not the RelatedPlaceRef class itself
+          properties:
+            role:
+              type: string
+            place:
+              $ref: '#/components/schemas/PlaceRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPlaceRef: '#/components/schemas/RelatedPlaceRef_MVO'
+    RelatedResourceOrderItem:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedResourceOrderItem (a ResourceOrder item) .The resource order item which triggered
+            resource creation/change/termination.
+          properties:
+            '@referredType':
+              type: string
+              description: The actual type of the target instance when needed for disambiguation.
+            resourceOrderHref:
+              type: string
+              description: Reference of the related entity.
+            resourceOrderId:
+              type: string
+              description: Unique identifier of a related entity.
+            itemAction:
+              $ref: '#/components/schemas/OrderItemActionType'
+            itemId:
+              type: string
+              description: Identifier of the order item where the resource was managed
+            role:
+              type: string
+              description: role of the resource order item for this resource
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedResourceOrderItem: '#/components/schemas/RelatedResourceOrderItem'
+    RelatedResourceOrderItem_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedResourceOrderItem (a ResourceOrder item) .The resource order item which triggered
+            resource creation/change/termination.
+          properties:
+            '@referredType':
+              type: string
+              description: The actual type of the target instance when needed for disambiguation.
+            resourceOrderHref:
+              type: string
+              description: Reference of the related entity.
+            resourceOrderId:
+              type: string
+              description: Unique identifier of a related entity.
+            itemAction:
+              $ref: '#/components/schemas/OrderItemActionType'
+            itemId:
+              type: string
+              description: Identifier of the order item where the resource was managed
+            role:
+              type: string
+              description: role of the resource order item for this resource
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedResourceOrderItem: '#/components/schemas/RelatedResourceOrderItem_FVO'
+    RelatedResourceOrderItem_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedResourceOrderItem (a ResourceOrder item) .The resource order item which triggered
+            resource creation/change/termination.
+          properties:
+            '@referredType':
+              type: string
+              description: The actual type of the target instance when needed for disambiguation.
+            resourceOrderHref:
+              type: string
+              description: Reference of the related entity.
+            resourceOrderId:
+              type: string
+              description: Unique identifier of a related entity.
+            itemAction:
+              $ref: '#/components/schemas/OrderItemActionType'
+            itemId:
+              type: string
+              description: Identifier of the order item where the resource was managed
+            role:
+              type: string
+              description: role of the resource order item for this resource
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedResourceOrderItem: '#/components/schemas/RelatedResourceOrderItem_MVO'
+    Resource:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: >-
+            Resource is an abstract entity that describes the common set of attributes shared by all
+            concrete resources (e.g. TPE, EQUIPMENT) in the inventory.
+          properties:
+            category:
+              type: string
+              description: 'Category of the concrete resource. e.g Gold, Silver for MSISDN concrete resource'
+            description:
+              type: string
+              description: free-text description of the resource
+            name:
+              type: string
+              description: the name of the resource
+            endOperatingDate:
+              type: string
+              format: date-time
+              description: A date time( DateTime). The date till the resource is operating
+            administrativeState:
+              $ref: '#/components/schemas/ResourceAdministrativeStateType'
+            operationalState:
+              $ref: '#/components/schemas/ResourceOperationalStateType'
+            resourceStatus:
+              $ref: '#/components/schemas/ResourceStatusType'
+            usageState:
+              $ref: '#/components/schemas/ResourceUsageStateType'
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            note:
+              type: array
+              items:
+                $ref: '#/components/schemas/Note'
+            resourceOrderItem:
+              type: array
+              description: A list of resource order items related to this resource
+              items:
+                $ref: '#/components/schemas/RelatedResourceOrderItem'
+            place:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPlaceRef'
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+            supportingResource:
+              type: array
+              description: >-
+                A list of supporting resources (SupportingResource [*]). A collection of resources
+                that support this resource (bundling, link ResourceSpecification)
+              items:
+                $ref: '#/components/schemas/ResourceRefOrValue'
+            resourceRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResourceRelationship'
+            resourceCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic'
+            attachment:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttachmentRef'
+            resourceSpecification:
+              $ref: '#/components/schemas/ResourceSpecificationRef'
+            startOperatingDate:
+              type: string
+              format: date-time
+              description: A date time( DateTime). The date from which the resource is operating
+            resourceVersion:
+              type: string
+              description: A field that identifies the specific version of an instance of a resource.
+            activationFeature:
+              description: Configuration features
+              type: array
+              items:
+                $ref: '#/components/schemas/Feature'
+            intent:
+              $ref: '#/components/schemas/IntentRef'
+            externalIdentifier:
+              type: array
+              description: >-
+                An identification of this resource that is owned by or originates in a software
+                system different from the current system. The structure identifies the system
+                itself, the nature of the resource within the system and the unique ID of the
+                resource within the system. It is anticipated that multiple external IDs can be held
+                for a single resource, e.g. if the resource passed through multiple systems on the
+                way to the current system.
+              items:
+                $ref: '#/components/schemas/ExternalIdentifier'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          LogicalResource: '#/components/schemas/LogicalResource'
+          PhysicalResource: '#/components/schemas/PhysicalResource'
+          Resource: '#/components/schemas/Resource'
+          ResourceCollection: '#/components/schemas/ResourceCollection'
+    ResourceAdministrativeStateType:
+      enum:
+        - locked
+        - unlocked
+        - shutdown
+      type: string
+      description: >-
+        ResourceAdministrativeStateType enumerations; values defined by ITU X.731: 'locked': The
+        resource is administratively prohibited from performing services for its users; 'shutdown':
+        Use of the resource is administratively permitted to existing instances of use only. While
+        the system remains in the shutting down state the manager may at any time cause the managed
+        object to revert to the unlocked state; 'unlocked': The resource is administratively
+        permitted to perform services for its users. This is independent of its inherent
+        operability.
+    ResourceAttributeValueChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ResourceAttributeValueChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ResourceAttributeValueChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceAttributeValueChangeEvent: '#/components/schemas/ResourceAttributeValueChangeEvent'
+    ResourceAttributeValueChangeEventPayload:
+      type: object
+      description: ResourceAttributeValueChangeEventPayload generic structure
+      properties:
+        resource:
+          $ref: '#/components/schemas/Resource'
+    ResourceCollection:
+      allOf:
+        - $ref: '#/components/schemas/Resource'
+        - type: object
+          description: a collection of Resources handled as one Resource
+          properties:
+            containedResource:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResourceRefOrValue'
+              description: The Resource members of the collection.
+    ResourceCollection_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Resource_FVO'
+        - type: object
+          description: a collection of Resources handled as one Resource
+          properties:
+            containedResource:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResourceRefOrValue_FVO'
+              description: The Resource members of the collection.
+    ResourceCollection_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Resource_MVO'
+        - type: object
+          description: a collection of Resources handled as one Resource
+          properties:
+            containedResource:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResourceRefOrValue_MVO'
+              description: The Resource members of the collection.
+    ResourceCreateEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ResourceCreateEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ResourceCreateEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceCreateEvent: '#/components/schemas/ResourceCreateEvent'
+    ResourceCreateEventPayload:
+      type: object
+      description: ResourceCreateEventPayload generic structure
+      properties:
+        resource:
+          $ref: '#/components/schemas/Resource'
+    ResourceDeleteEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ResourceDeleteEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ResourceDeleteEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceDeleteEvent: '#/components/schemas/ResourceDeleteEvent'
+    ResourceDeleteEventPayload:
+      type: object
+      description: ResourceDeleteEventPayload generic structure
+      properties:
+        resource:
+          $ref: '#/components/schemas/Resource'
+    ResourceOperationalStateType:
+      enum:
+        - enable
+        - disable
+      type: string
+      description: >-
+        ResourceOperationalStateType enumerations; values defined by ITU X.731: 'disable': The
+        resource is totally inoperable and unable to provide service to the user(s); 'enable': The
+        resource is partially or fully operable and available for use.
+    ResourceRef:
+      type: object
+      description: 'Resource reference, for when Resource is used by other entities.'
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceRef: '#/components/schemas/ResourceRef'
+    ResourceRefOrValue:
+      type: object
+      description: >-
+        The polymorphic attributes @type, @schemaLocation & @referredType are related to the
+        Resource entity and not the ResourceRefOrValue class itself
+      oneOf:
+        - $ref: '#/components/schemas/Resource'
+        - $ref: '#/components/schemas/ResourceRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Resource: '#/components/schemas/Resource'
+          ResourceRef: '#/components/schemas/ResourceRef'
+          ResourceCollection: '#/components/schemas/ResourceCollection'
+          PhysicalResource: '#/components/schemas/PhysicalResource'
+          LogicalResource: '#/components/schemas/LogicalResource'
+    ResourceRefOrValue_FVO:
+      type: object
+      description: >-
+        The polymorphic attributes @type, @schemaLocation & @referredType are related to the
+        Resource entity and not the ResourceRefOrValue class itself
+      oneOf:
+        - $ref: '#/components/schemas/Resource_FVO'
+        - $ref: '#/components/schemas/ResourceRef_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Resource: '#/components/schemas/Resource_FVO'
+          ResourceRef: '#/components/schemas/ResourceRef_FVO'
+          ResourceCollection: '#/components/schemas/ResourceCollection_FVO'
+          PhysicalResource: '#/components/schemas/PhysicalResource_FVO'
+          LogicalResource: '#/components/schemas/LogicalResource_FVO'
+    ResourceRefOrValue_MVO:
+      type: object
+      description: >-
+        The polymorphic attributes @type, @schemaLocation & @referredType are related to the
+        Resource entity and not the ResourceRefOrValue class itself
+      oneOf:
+        - $ref: '#/components/schemas/Resource_MVO'
+        - $ref: '#/components/schemas/ResourceRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Resource: '#/components/schemas/Resource_MVO'
+          ResourceRef: '#/components/schemas/ResourceRef_MVO'
+          ResourceCollection: '#/components/schemas/ResourceCollection_MVO'
+          PhysicalResource: '#/components/schemas/PhysicalResource_MVO'
+          LogicalResource: '#/components/schemas/LogicalResource_MVO'
+    ResourceRef_FVO:
+      type: object
+      description: 'Resource reference, for when Resource is used by other entities.'
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceRef: '#/components/schemas/ResourceRef_FVO'
+    ResourceRef_MVO:
+      type: object
+      description: 'Resource reference, for when Resource is used by other entities.'
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceRef: '#/components/schemas/ResourceRef_MVO'
+    ResourceRelationship:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Linked resources to the one instantiate, such as [bundled] if the resource is a bundle
+            and you want to describe the bundled resources inside this bundle; [reliesOn] if the
+            resource needs another already owned resource to rely on (e.g. an option on an already
+            owned mobile access resource) [targets] or [isTargeted] (depending on the way of
+            expressing the link) for any other kind of links that may be useful
+          properties:
+            resourceRelationshipCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic'
+            resource:
+              $ref: '#/components/schemas/ResourceRefOrValue'
+            relationshipType:
+              type: string
+              description: >-
+                Type of the resource relationship, such as [bundled] if the resource is a bundle and
+                you want to describe the bundled resources inside this bundle; [reliesOn] if the
+                resource needs another already owned resource to rely on (eg: an option on an
+                already owned mobile access resource) [targets] or [isTargeted] (depending on the
+                way of expressing the link) for any other kind of links that may be useful
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceRelationship: '#/components/schemas/ResourceRelationship'
+    ResourceRelationship_FVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Linked resources to the one instantiate, such as [bundled] if the resource is a bundle
+            and you want to describe the bundled resources inside this bundle; [reliesOn] if the
+            resource needs another already owned resource to rely on (e.g. an option on an already
+            owned mobile access resource) [targets] or [isTargeted] (depending on the way of
+            expressing the link) for any other kind of links that may be useful
+          properties:
+            resourceRelationshipCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_FVO'
+            resource:
+              $ref: '#/components/schemas/ResourceRefOrValue_FVO'
+            relationshipType:
+              type: string
+              description: >-
+                Type of the resource relationship, such as [bundled] if the resource is a bundle and
+                you want to describe the bundled resources inside this bundle; [reliesOn] if the
+                resource needs another already owned resource to rely on (eg: an option on an
+                already owned mobile access resource) [targets] or [isTargeted] (depending on the
+                way of expressing the link) for any other kind of links that may be useful
+          required:
+            - relationshipType
+            - resource
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceRelationship: '#/components/schemas/ResourceRelationship_FVO'
+    ResourceRelationship_MVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_MVO'
+        - type: object
+          description: >-
+            Linked resources to the one instantiate, such as [bundled] if the resource is a bundle
+            and you want to describe the bundled resources inside this bundle; [reliesOn] if the
+            resource needs another already owned resource to rely on (e.g. an option on an already
+            owned mobile access resource) [targets] or [isTargeted] (depending on the way of
+            expressing the link) for any other kind of links that may be useful
+          properties:
+            resourceRelationshipCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_MVO'
+            resource:
+              $ref: '#/components/schemas/ResourceRefOrValue_MVO'
+            relationshipType:
+              type: string
+              description: >-
+                Type of the resource relationship, such as [bundled] if the resource is a bundle and
+                you want to describe the bundled resources inside this bundle; [reliesOn] if the
+                resource needs another already owned resource to rely on (eg: an option on an
+                already owned mobile access resource) [targets] or [isTargeted] (depending on the
+                way of expressing the link) for any other kind of links that may be useful
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceRelationship: '#/components/schemas/ResourceRelationship_MVO'
+    ResourceSpecificationRef:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Resources are physical or non-physical components (or some combination of these) within
+            an enterprise's infrastructure or inventory. They are typically consumed or used by
+            services (for example a physical port assigned to a service) or contribute to the
+            realization of a Product (for example, a SIM card). They can be drawn from the
+            Application, Computing and Network domains, and include, for example, Network Elements,
+            software, IT systems, content and information, and technology components.
+
+            A ResourceSpecification is an abstract base class for representing a generic means for
+            implementing a particular type of Resource. In essence, a ResourceSpecification defines
+            the common attributes and relationships of a set of related Resources, while Resource
+            defines a specific instance that is based on a particular ResourceSpecification.
+          properties:
+            version:
+              type: string
+              description: Resource Specification version
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceSpecificationRef: '#/components/schemas/ResourceSpecificationRef'
+    ResourceSpecificationRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Resources are physical or non-physical components (or some combination of these) within
+            an enterprise's infrastructure or inventory. They are typically consumed or used by
+            services (for example a physical port assigned to a service) or contribute to the
+            realization of a Product (for example, a SIM card). They can be drawn from the
+            Application, Computing and Network domains, and include, for example, Network Elements,
+            software, IT systems, content and information, and technology components.
+
+            A ResourceSpecification is an abstract base class for representing a generic means for
+            implementing a particular type of Resource. In essence, a ResourceSpecification defines
+            the common attributes and relationships of a set of related Resources, while Resource
+            defines a specific instance that is based on a particular ResourceSpecification.
+          properties:
+            version:
+              type: string
+              description: Resource Specification version
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceSpecificationRef: '#/components/schemas/ResourceSpecificationRef_FVO'
+    ResourceSpecificationRef_MVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_MVO'
+        - type: object
+          description: >-
+            Resources are physical or non-physical components (or some combination of these) within
+            an enterprise's infrastructure or inventory. They are typically consumed or used by
+            services (for example a physical port assigned to a service) or contribute to the
+            realization of a Product (for example, a SIM card). They can be drawn from the
+            Application, Computing and Network domains, and include, for example, Network Elements,
+            software, IT systems, content and information, and technology components.
+
+            A ResourceSpecification is an abstract base class for representing a generic means for
+            implementing a particular type of Resource. In essence, a ResourceSpecification defines
+            the common attributes and relationships of a set of related Resources, while Resource
+            defines a specific instance that is based on a particular ResourceSpecification.
+          properties:
+            version:
+              type: string
+              description: Resource Specification version
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceSpecificationRef: '#/components/schemas/ResourceSpecificationRef_MVO'
+    ResourceStateChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ResourceStateChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ResourceStateChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ResourceStateChangeEvent: '#/components/schemas/ResourceStateChangeEvent'
+    ResourceStateChangeEventPayload:
+      type: object
+      description: ResourceStateChangeEventPayload generic structure
+      properties:
+        resource:
+          $ref: '#/components/schemas/Resource'
+    ResourceStatusType:
+      enum:
+        - alarm
+        - available
+        - installed
+        - not exists
+        - pendingRemoval
+        - planned
+        - reserved
+        - standby
+        - suspended
+        - unknown
+      type: string
+      description: ResourceStatusType enumerations
+    ResourceUsageStateType:
+      enum:
+        - idle
+        - active
+        - busy
+      type: string
+      description: >-
+        ResourceUsageStateType enumerations; values defined by ITU X.731: 'idle': The resource is
+        not currently in use; 'active': The resource is in use, and has sufficient spare operating
+        capacity to provide for additional users simultaneously; 'busy': The resource is in use, but
+        it has no spare operating capacity to provide for additional users at this instant.
+    Resource_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: >-
+            Resource is an abstract entity that describes the common set of attributes shared by all
+            concrete resources (e.g. TPE, EQUIPMENT) in the inventory.
+          properties:
+            category:
+              type: string
+              description: 'Category of the concrete resource. e.g Gold, Silver for MSISDN concrete resource'
+            description:
+              type: string
+              description: free-text description of the resource
+            name:
+              type: string
+              description: the name of the resource
+            endOperatingDate:
+              type: string
+              format: date-time
+              description: A date time( DateTime). The date till the resource is operating
+            administrativeState:
+              $ref: '#/components/schemas/ResourceAdministrativeStateType'
+            operationalState:
+              $ref: '#/components/schemas/ResourceOperationalStateType'
+            resourceStatus:
+              $ref: '#/components/schemas/ResourceStatusType'
+            usageState:
+              $ref: '#/components/schemas/ResourceUsageStateType'
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            note:
+              type: array
+              items:
+                $ref: '#/components/schemas/Note_FVO'
+            resourceOrderItem:
+              type: array
+              description: A list of resource order items related to this resource
+              items:
+                $ref: '#/components/schemas/RelatedResourceOrderItem_FVO'
+            place:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPlaceRef_FVO'
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO'
+            supportingResource:
+              type: array
+              description: >-
+                A list of supporting resources (SupportingResource [*]). A collection of resources
+                that support this resource (bundling, link ResourceSpecification)
+              items:
+                $ref: '#/components/schemas/ResourceRefOrValue_FVO'
+            resourceRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResourceRelationship_FVO'
+            resourceCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_FVO'
+            attachment:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttachmentRef_FVO'
+            resourceSpecification:
+              $ref: '#/components/schemas/ResourceSpecificationRef_FVO'
+            startOperatingDate:
+              type: string
+              format: date-time
+              description: A date time( DateTime). The date from which the resource is operating
+            resourceVersion:
+              type: string
+              description: A field that identifies the specific version of an instance of a resource.
+            activationFeature:
+              description: Configuration features
+              type: array
+              items:
+                $ref: '#/components/schemas/Feature_FVO'
+            intent:
+              $ref: '#/components/schemas/IntentRef_FVO'
+            externalIdentifier:
+              type: array
+              description: >-
+                An identification of this resource that is owned by or originates in a software
+                system different from the current system. The structure identifies the system
+                itself, the nature of the resource within the system and the unique ID of the
+                resource within the system. It is anticipated that multiple external IDs can be held
+                for a single resource, e.g. if the resource passed through multiple systems on the
+                way to the current system.
+              items:
+                $ref: '#/components/schemas/ExternalIdentifier_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          LogicalResource: '#/components/schemas/LogicalResource_FVO'
+          PhysicalResource: '#/components/schemas/PhysicalResource_FVO'
+          Resource: '#/components/schemas/Resource_FVO'
+          ResourceCollection: '#/components/schemas/ResourceCollection_FVO'
+    Resource_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: >-
+            Resource is an abstract entity that describes the common set of attributes shared by all
+            concrete resources (e.g. TPE, EQUIPMENT) in the inventory.
+          properties:
+            category:
+              type: string
+              description: 'Category of the concrete resource. e.g Gold, Silver for MSISDN concrete resource'
+            description:
+              type: string
+              description: free-text description of the resource
+            name:
+              type: string
+              description: the name of the resource
+            endOperatingDate:
+              type: string
+              format: date-time
+              description: A date time( DateTime). The date till the resource is operating
+            administrativeState:
+              $ref: '#/components/schemas/ResourceAdministrativeStateType'
+            operationalState:
+              $ref: '#/components/schemas/ResourceOperationalStateType'
+            resourceStatus:
+              $ref: '#/components/schemas/ResourceStatusType'
+            usageState:
+              $ref: '#/components/schemas/ResourceUsageStateType'
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            note:
+              type: array
+              items:
+                $ref: '#/components/schemas/Note_MVO'
+            resourceOrderItem:
+              type: array
+              description: A list of resource order items related to this resource
+              items:
+                $ref: '#/components/schemas/RelatedResourceOrderItem_MVO'
+            place:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPlaceRef_MVO'
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_MVO'
+            supportingResource:
+              type: array
+              description: >-
+                A list of supporting resources (SupportingResource [*]). A collection of resources
+                that support this resource (bundling, link ResourceSpecification)
+              items:
+                $ref: '#/components/schemas/ResourceRefOrValue_MVO'
+            resourceRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResourceRelationship_MVO'
+            resourceCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_MVO'
+            attachment:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttachmentRef_MVO'
+            resourceSpecification:
+              $ref: '#/components/schemas/ResourceSpecificationRef_MVO'
+            startOperatingDate:
+              type: string
+              format: date-time
+              description: A date time( DateTime). The date from which the resource is operating
+            resourceVersion:
+              type: string
+              description: A field that identifies the specific version of an instance of a resource.
+            activationFeature:
+              description: Configuration features
+              type: array
+              items:
+                $ref: '#/components/schemas/Feature_MVO'
+            intent:
+              $ref: '#/components/schemas/IntentRef_MVO'
+            externalIdentifier:
+              type: array
+              description: >-
+                An identification of this resource that is owned by or originates in a software
+                system different from the current system. The structure identifies the system
+                itself, the nature of the resource within the system and the unique ID of the
+                resource within the system. It is anticipated that multiple external IDs can be held
+                for a single resource, e.g. if the resource passed through multiple systems on the
+                way to the current system.
+              items:
+                $ref: '#/components/schemas/ExternalIdentifier_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          LogicalResource: '#/components/schemas/LogicalResource_MVO'
+          PhysicalResource: '#/components/schemas/PhysicalResource_MVO'
+          Resource: '#/components/schemas/Resource_MVO'
+          ResourceCollection: '#/components/schemas/ResourceCollection_MVO'
+    Resource_RES:
+      type: object
+      description: Response object for Resource
+      allOf:
+        - $ref: '#/components/schemas/Resource'
+      required:
+        - id
+        - href
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          LogicalResource: '#/components/schemas/LogicalResource'
+          PhysicalResource: '#/components/schemas/PhysicalResource'
+          Resource: '#/components/schemas/Resource'
+          ResourceCollection: '#/components/schemas/ResourceCollection'
+    TimePeriod:
+      type: object
+      description: 'A period of time, either as a deadline (endDateTime only) a startDateTime only, or both'
+      properties:
+        startDateTime:
+          description: 'Start of the time period, using IETC-RFC-3339 format'
+          type: string
+          format: date-time
+          example: '1985-04-12T23:20:50.52Z'
+        endDateTime:
+          description: 'End of the time period, using IETC-RFC-3339 format'
+          type: string
+          format: date-time
+          example: '1985-04-12T23:20:50.52Z'
+    Error:
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Error: '#/components/schemas/Error'
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          required:
+            - code
+            - reason
+          properties:
+            code:
+              type: string
+              description: 'Application relevant detail, defined in the API or a common list.'
+            reason:
+              type: string
+              description: Explanation of the reason for the error which can be shown to a client user.
+            message:
+              type: string
+              description: >-
+                More details and corrective actions related to the error which can be shown to a
+                client user.
+            status:
+              type: string
+              description: HTTP Error code extension
+            referenceError:
+              type: string
+              description: URI of documentation describing the error.
+      description: 'Used when an API throws an Error, typically with a HTTP error response-code (3xx, 4xx, 5xx)'
+    Hub_FVO:
+      type: object
+      description: >-
+        Sets the communication endpoint address the service instance must use to deliver
+        notification information
+      required:
+        - callback
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - properties:
+            callback:
+              type: string
+              description: The callback being registered.
+            query:
+              type: string
+              description: additional data to be passed
+    Hub:
+      type: object
+      description: >-
+        Sets the communication endpoint address the service instance must use to deliver
+        notification information
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - properties:
+            id:
+              type: string
+              description: Id of the listener
+            callback:
+              type: string
+              description: The callback being registered.
+            query:
+              type: string
+              description: additional data to be passed
+          required:
+            - callback
+    JsonPatch:
+      type: object
+      description: A JSONPatch document as defined by RFC 6902
+      required:
+        - op
+        - path
+      properties:
+        op:
+          type: string
+          description: The operation to be performed
+          enum:
+            - add
+            - remove
+            - replace
+            - move
+            - copy
+            - test
+        path:
+          type: string
+          description: A JSON-Pointer
+        value:
+          description: The value to be used within the operations.
+        from:
+          type: string
+          description: A string containing a JSON Pointer value.
+    JsonPatchOperations:
+      description: JSONPatch Operations document as defined by RFC 6902
+      type: array
+      items:
+        $ref: '#/components/schemas/JsonPatch'
+  parameters:
+    Id:
+      name: id
+      required: true
+      schema:
+        type: string
+      in: path
+      description: Identifier of the Resource
+    Fields:
+      name: fields
+      in: query
+      description: Comma-separated properties to be provided in response
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: Requested index for start of resources to be provided in response
+      schema:
+        type: integer
+    Limit:
+      name: limit
+      in: query
+      description: Requested number of resources to be provided in response
+      schema:
+        type: integer
+    Before:
+      name: before
+      in: query
+      description: An opaque string value representing the page results before the cursor value
+      schema:
+        type: string
+    After:
+      name: after
+      in: query
+      description: An opaque string value representing the page results after the cursor value
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: >-
+        The default direction is Ascending order, the use of the modifier in front of the sort field
+        name, “-“, changes the sort order direction.
+      schema:
+        type: string
+    Filter:
+      name: filter
+      in: query
+      description: Filter a collection using JSONPath
+      schema:
+        type: string
+        example: 'attachment[?(@size==300)]'
+  requestBodies:
+    Resource_FVO:
+      description: The Resource to be created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Resource_FVO'
+          examples:
+            CreateResource_with_references_to_SubResource:
+              $ref: '#/components/examples/CreateResource_with_references_to_SubResource_request'
+            CreateResource:
+              $ref: '#/components/examples/CreateResource_request'
+      required: true
+    Resource_MVO:
+      description: The Resource to be patched
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Resource_MVO'
+          examples:
+            updateResource_using_json:
+              $ref: '#/components/examples/updateResource_using_json_request'
+        application/merge-patch+json:
+          schema:
+            $ref: '#/components/schemas/Resource_MVO'
+          examples:
+            updateResource_using_merge-patch_json:
+              $ref: '#/components/examples/updateResource_using_merge-patch_json_request'
+        application/json-patch+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+          examples:
+            updateResource_using_json-patch_json:
+              $ref: '#/components/examples/updateResource_using_json-patch_json_request'
+        application/json-patch-query+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+          examples:
+            updateResource_using_json-patch-query_json:
+              $ref: '#/components/examples/updateResource_using_json-patch-query_json_request'
+      required: true
+    ResourceCreateEvent:
+      description: Resource create Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResourceCreateEvent'
+          examples:
+            ResourceCreateEvent:
+              $ref: '#/components/examples/ResourceCreateEvent_request'
+      required: true
+    ResourceAttributeValueChangeEvent:
+      description: Resource attributeValueChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResourceAttributeValueChangeEvent'
+          examples:
+            ResourceAttributeValueChangeEvent:
+              $ref: '#/components/examples/ResourceAttributeValueChangeEvent_request'
+      required: true
+    ResourceStateChangeEvent:
+      description: Resource stateChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResourceStateChangeEvent'
+          examples:
+            ResourceStateChangeEvent:
+              $ref: '#/components/examples/ResourceStateChangeEvent_request'
+      required: true
+    ResourceDeleteEvent:
+      description: Resource delete Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResourceDeleteEvent'
+          examples:
+            ResourceDeleteEvent:
+              $ref: '#/components/examples/ResourceDeleteEvent_request'
+      required: true
+    Hub_FVO:
+      description: Data containing the callback endpoint to deliver the information
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Hub_FVO'
+          examples:
+            Basic Hub Example Request:
+              value:
+                '@type': Hub
+                callback: 'https://host/tmf-api/specificAPIName/v5/listener/specificEventListener'
+                query: data
+      required: true
+  responses:
+    '200':
+      description: OK
+    '202':
+      description: Accepted
+    '204':
+      description: Deleted
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Bad Request Error
+              value:
+                '@type': Error
+                code: ERR400
+                reason: Bad Request
+                message: >-
+                  The server could not understand the request due to invalid syntax. Please correct
+                  the syntax and try again.
+                referenceError: 'https://host/errors'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Unauthorized Error
+              value:
+                '@type': Error
+                code: ERR401
+                reason: Unauthorized
+                message: >-
+                  You are not authorized to access the requested resource. Please provide the
+                  correct credentials.
+                referenceError: 'https://host/errors'
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Forbidden Error
+              value:
+                '@type': Error
+                code: ERR403
+                reason: Forbidden
+                message: >-
+                  You don't have the permission to access the requested resource. It is either
+                  read-protected or not readable by the server.
+                referenceError: 'https://host/errors'
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Not Found Error
+              value:
+                '@type': Error
+                code: ERR404
+                reason: Not Found
+                message: The requested URL was not found on the server.
+                referenceError: 'https://host/errors'
+    '405':
+      description: Method Not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Method Not allowed Error
+              value:
+                '@type': Error
+                code: ERR405
+                reason: Method Not allowed
+                message: The method is not allowed for the requested URL.
+                referenceError: 'https://host/errors'
+    '409':
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Conflict Error
+              value:
+                '@type': Error
+                code: ERR409
+                reason: Conflict
+                message: >-
+                  The request could not be completed due to a conflict with the current state of the
+                  target resource.
+                referenceError: 'https://host/errors'
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Internal Server Error example
+              value:
+                '@type': Error
+                code: ERR500
+                reason: Internal Server Error
+                message: The server encountered an internal error. Please contact the system administrator.
+                referenceError: 'https://host/errors'
+    '501':
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Not Implemented Error
+              value:
+                '@type': Error
+                code: ERR501
+                reason: The requested operation is not implemented
+                message: >-
+                  The requested operation is not implemented. Please contact the system
+                  administrator.
+                referenceError: 'https://host/errors'
+    '503':
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Service Unavailable Error
+              value:
+                '@type': Error
+                code: ERR503
+                reason: Service Unavailable
+                message: The service is currently unavailable. Please try again later.
+                referenceError: 'https://host/errors'
+    200ResourceArray:
+      description: Success
+      headers:
+        X-Total-Count:
+          $ref: '#/components/headers/X-Total-Count'
+        X-Result-Count:
+          $ref: '#/components/headers/X-Result-Count'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Resource_RES'
+          examples:
+            Resource_list_example:
+              $ref: '#/components/examples/Resource_list_example_response'
+    200Resource_Get:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Resource_RES'
+          examples:
+            Resource_retrieve_example_1:
+              $ref: '#/components/examples/Resource_retrieve_example_1_response'
+            Resource_retrieve_example_2:
+              $ref: '#/components/examples/Resource_retrieve_example_2_response'
+    200Resource_Patch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Resource_RES'
+          examples:
+            updateResource_using_json:
+              $ref: '#/components/examples/updateResource_using_json_response'
+    201Resource:
+      description: OK/Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Resource_RES'
+          examples:
+            CreateResource_with_references_to_SubResource:
+              $ref: '#/components/examples/CreateResource_with_references_to_SubResource_response'
+            CreateResource:
+              $ref: '#/components/examples/CreateResource_response'
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Error example
+              value:
+                '@type': Error
+                code: ERR001
+                reason: Missing information
+                message: Please provide the additional example information
+                referenceError: 'https://host/errors'
+    Hub:
+      description: Notified
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Hub'
+          examples:
+            basic:
+              summary: Hub example
+              value:
+                '@type': Hub
+                callback: 'https://host/tmf-api/specificAPIName/v5/listener/specificEventListener'
+  headers:
+    X-Total-Count:
+      description: Total number of items matching criteria
+      schema:
+        type: integer
+    X-Result-Count:
+      description: Actual number of items returned in the response body
+      schema:
+        type: integer
+  securitySchemes: {}
+  examples:
+    Resource_list_example_response:
+      value:
+        - id: '8044'
+          href: 'http://server:port/resourceInventoryManagement/v5/resource/8044'
+          description: >-
+            This is a Router resource with the category Router and with a reserved resourceStatus
+            for organisations.
+          category: Router
+          startOperatingDate: '2020-03-04T00:00:00.000Z'
+          endOperatingDate: '2023-09-04T08:00:00.000Z'
+          administrativeState: locked
+          operationalState: enable
+          usageState: active
+          resourceStatus: reserved
+          version: v2
+          '@type': Resource
+          relatedParty:
+            - role: user
+              '@type': RelatedPartyRefOrPartyRoleRef
+              partyOrPartyRole:
+                href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+                id: '456'
+                name: John Doe
+                '@type': PartyRef
+                '@referredType': Individual
+          note:
+            - text: something about this resource
+              '@type': Note
+          place:
+            - role: installationAddress
+              '@type': RelatedPlaceRef
+              place:
+                id: '9912'
+                href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9912'
+                '@type': PlaceRef
+                '@referredType': GeographicAddress
+          resourceRelationship:
+            - relationshipType: contains
+              '@type': ResourceRelationship
+              resource:
+                id: '44'
+                href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+                '@type': ResourceRef
+            - relationshipType: contains
+              '@type': ResourceRelationship
+              resource:
+                id: '45'
+                href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+                '@type': ResourceRef
+          resourceSpecification:
+            id: '4'
+            href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+            '@type': ResourceSpecificationRef
+            '@referredType': ResourceSpecification
+          externalIdentifier:
+            - externalIdentifierType: Supplier-Router-Id
+              id: XYZ-1174-B
+              owner: Supplier-A
+              '@type': ExternalIdentifier
+          supportingResource:
+            - id: '918273'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/918273'
+              '@type': ResourceRef
+          resourceCharacteristic:
+            - name: casing size
+              valueType: String
+              value: 19"
+              '@type': StringCharacteristic
+          resourceOrderItem:
+            - role: supplier purchase
+              itemAction: add
+              itemId: '1'
+              resourceOrderId: 66588438-2
+              resourceOrderHref: 'http://server:port/resourceOrderManagement/v5/resourceOrder/66588438-2'
+              '@type': RelatedResourceOrderItem
+              '@referredType': ResourceOrderItem
+          attachment:
+            - id: D-2024-05-13-X47
+              href: 'http://server:port/documentManagement/v5/document/D-2024-05-13-X47'
+              description: delivery note
+              '@type': AttachmentRef
+              '@referredType': Document
+      description: >-
+        Here's an example of a request for retrieving a list of Resource(s). The given criteria is
+        the category (Router) and state (active).
+    Resource_retrieve_example_1_response:
+      value:
+        id: '8044'
+        href: 'http://server:port/resourceInventoryManagement/v5/resource/8044'
+        description: >-
+          This is a Router resource with the category Router and with a reserved resourceStatus for
+          organisations.
+        category: Router
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        endOperatingDate: '2023-09-04T08:00:00.000Z'
+        administrativeState: locked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        relatedParty:
+          - role: user
+            '@type': RelatedPartyRefOrPartyRoleRef
+            partyOrPartyRole:
+              href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+              id: '456'
+              name: John Doe
+              '@type': PartyRef
+              '@referredType': Individual
+        note:
+          - text: something about this resource
+            '@type': Note
+        place:
+          - role: installationAddress
+            '@type': RelatedPlaceRef
+            place:
+              id: '9912'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9912'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+        resourceRelationship:
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '44'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+              '@type': ResourceRef
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '45'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+              '@type': ResourceRef
+        resourceSpecification:
+          id: '4'
+          href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+        externalIdentifier:
+          - externalIdentifierType: Supplier-Router-Id
+            id: XYZ-1174-B
+            owner: Supplier-A
+            '@type': ExternalIdentifier
+        supportingResource:
+          - id: '918273'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/918273'
+            '@type': ResourceRef
+        resourceCharacteristic:
+          - name: casing size
+            valueType: String
+            value: 19"
+            '@type': StringCharacteristic
+        resourceOrderItem:
+          - role: supplier purchase
+            itemAction: add
+            itemId: '1'
+            resourceOrderId: 66588438-2
+            resourceOrderHref: 'http://server:port/resourceOrderManagement/v5/resourceOrder/66588438-2'
+            '@type': RelatedResourceOrderItem
+            '@referredType': ResourceOrderItem
+        attachment:
+          - id: D-2024-05-13-X47
+            href: 'http://server:port/documentManagement/v5/document/D-2024-05-13-X47'
+            description: delivery note
+            '@type': AttachmentRef
+            '@referredType': Document
+      description: >-
+        Here's an example of a request for retrieving a Resource. The given criteria is the Resource
+        id 8044.
+    Resource_retrieve_example_2_response:
+      value:
+        id: '8045'
+        href: 'http://server:port/resourceInventoryManagement/v5/resource/8045'
+        category: Router
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        administrativeState: locked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        resourceCharacteristic:
+          - name: premiumValue
+            valueType: string
+            value: gold
+            '@type': StringCharacteristic
+        resourceSpecification:
+          id: '4'
+          href: 'http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+      description: >-
+        Here's an example of a request for retrieving a Resource. The given criteria is the Resource
+        id 8045.
+    CreateResource_with_references_to_SubResource_request:
+      value:
+        category: Router
+        name: Name of the resource
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        administrativeState: locked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        relatedParty:
+          - role: user
+            '@type': RelatedPartyRefOrPartyRoleRef
+            partyOrPartyRole:
+              href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+              id: '456'
+              name: John Doe
+              '@type': PartyRef
+              '@referredType': Individual
+        note:
+          - text: router installed at the user's premise
+            '@type': Note
+        place:
+          - role: installationAddress
+            '@type': RelatedPlaceRef
+            place:
+              id: '9912'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9912'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+        resourceRelationship:
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '44'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+              '@type': Resource
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '45'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+              '@type': Resource
+        resourceSpecification:
+          id: '4'
+          href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+      description: >-
+        POST Resource request example - only a subset of Resource attributes are used in this
+        example
+    CreateResource_with_references_to_SubResource_response:
+      value:
+        id: '8044'
+        href: 'http://server:port/resourceInventoryManagement/v5/resource/8044'
+        category: Router
+        name: Name of the resource
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        administrativeState: locked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        relatedParty:
+          - role: user
+            '@type': RelatedPartyRefOrPartyRoleRef
+            partyOrPartyRole:
+              href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+              id: '456'
+              name: John Doe
+              '@type': PartyRef
+              '@referredType': Individual
+        note:
+          - text: router installed at the user's premise
+            '@type': Note
+        place:
+          - role: installationAddress
+            '@type': RelatedPlaceRef
+            place:
+              id: '9912'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9912'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+        resourceRelationship:
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '44'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+              '@type': Resource
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '45'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+              '@type': Resource
+        resourceSpecification:
+          id: '4'
+          href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+        externalIdentifier:
+          - externalIdentifierType: Supplier-Router-Id
+            id: XYZ-1174-B
+            owner: Supplier-A
+            '@type': ExternalIdentifier
+        supportingResource:
+          - id: '918273'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/918273'
+            '@type': ResourceRef
+        resourceCharacteristic:
+          - name: casing size
+            valueType: String
+            value: 19"
+            '@type': StringCharacteristic
+        resourceOrderItem:
+          - role: supplier purchase
+            itemAction: add
+            itemId: '1'
+            resourceOrderId: 66588438-2
+            resourceOrderHref: 'http://server:port/resourceOrderManagement/v5/resourceOrder/66588438-2'
+            '@type': RelatedResourceOrderItem
+            '@referredType': ResourceOrderItem
+        attachment:
+          - id: D-2024-05-13-X47
+            href: 'http://server:port/documentManagement/v5/document/D-2024-05-13-X47'
+            description: delivery note
+            '@type': AttachmentRef
+            '@referredType': Document
+      description: POST Resource response description.
+    CreateResource_request:
+      value:
+        category: Router
+        name: Name of the resource
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        administrativeState: locked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        relatedParty:
+          - role: user
+            '@type': RelatedPartyRefOrPartyRoleRef
+            partyOrPartyRole:
+              href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+              id: '456'
+              name: John Doe
+              '@type': PartyRef
+              '@referredType': Individual
+        note:
+          - text: router installed at the user's premise
+            '@type': Note
+        place:
+          - role: installationAddress
+            '@type': RelatedPlaceRef
+            place:
+              id: '9912'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9912'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+        resourceRelationship:
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '44'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+              '@type': Resource
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '45'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+              '@type': Resource
+        resourceSpecification:
+          id: '4'
+          href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+      description: >-
+        POST Resource request example - only a subset of Resource attributes are used in this
+        example
+    CreateResource_response:
+      value:
+        id: '8044'
+        href: 'http://server:port/resourceInventoryManagement/v5/resource/8044'
+        category: Router
+        name: Name of the resource
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        administrativeState: locked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        relatedParty:
+          - role: user
+            '@type': RelatedPartyRefOrPartyRoleRef
+            partyOrPartyRole:
+              href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+              id: '456'
+              name: John Doe
+              '@type': PartyRef
+              '@referredType': Individual
+        note:
+          - text: router installed at the user's premise
+            '@type': Note
+        place:
+          - role: installationAddress
+            '@type': RelatedPlaceRef
+            place:
+              id: '9912'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9912'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+        resourceRelationship:
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '44'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+              '@type': Resource
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '45'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+              '@type': Resource
+        resourceSpecification:
+          id: '4'
+          href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+        externalIdentifier:
+          - externalIdentifierType: Supplier-Router-Id
+            id: XYZ-1174-B
+            owner: Supplier-A
+            '@type': ExternalIdentifier
+        supportingResource:
+          - id: '918273'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/918273'
+            '@type': ResourceRef
+        resourceCharacteristic:
+          - name: casing size
+            valueType: String
+            value: 19"
+            '@type': StringCharacteristic
+        resourceOrderItem:
+          - role: supplier purchase
+            itemAction: add
+            itemId: '1'
+            resourceOrderId: 66588438-2
+            resourceOrderHref: 'http://server:port/resourceOrderManagement/v5/resourceOrder/66588438-2'
+            '@type': RelatedResourceOrderItem
+            '@referredType': ResourceOrderItem
+        attachment:
+          - id: D-2024-05-13-X47
+            href: 'http://server:port/documentManagement/v5/document/D-2024-05-13-X47'
+            description: delivery note
+            '@type': AttachmentRef
+            '@referredType': Document
+      description: POST Resource response description.
+    updateResource_using_json-patch-query_json_request:
+      value:
+        - op: replace
+          path: '.note[?(@.date==''2024-05-18T010:54:42.690Z'')]'
+          value:
+            text: Port 1 configured
+      description: PATCH Resource request leveraging json-patch-query+json application example
+    updateResource_using_json-patch-query_json_response:
+      value:
+        id: '8044'
+        href: 'http://server:port/resourceInventoryManagement/v5/resource/8044'
+        category: Router
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        administrativeState: unlocked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        relatedParty:
+          - role: user
+            '@type': RelatedPartyRefOrPartyRoleRef
+            partyOrPartyRole:
+              href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+              id: '456'
+              name: John Doe
+              '@type': PartyRef
+              '@referredType': Individual
+        note:
+          - text: router installed at the user's premise
+            '@type': Note
+          - text: Port 1 configured
+            author: Maria Doe
+            date: '2024-05-18T010:54:42.690Z'
+            '@type': Note
+        place:
+          - role: installationAddress
+            '@type': RelatedPlaceRef
+            place:
+              id: '9912'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9912'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+        resourceRelationship:
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '44'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+              description: This is Port 1 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '45'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+              description: This is Port 2 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '56'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/56'
+              description: This is Port 15 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+        resourceSpecification:
+          id: '4'
+          href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+        externalIdentifier:
+          - externalIdentifierType: Supplier-Router-Id
+            id: XYZ-1174-B
+            owner: Supplier-A
+            '@type': ExternalIdentifier
+        supportingResource:
+          - id: '918273'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/918273'
+            '@type': ResourceRef
+        resourceCharacteristic:
+          - name: casing size
+            valueType: String
+            value: 19"
+            '@type': StringCharacteristic
+        resourceOrderItem:
+          - role: supplier purchase
+            itemAction: add
+            itemId: '1'
+            resourceOrderId: 66588438-2
+            resourceOrderHref: 'http://server:port/resourceOrderManagement/v5/resourceOrder/66588438-2'
+            '@type': RelatedResourceOrderItem
+            '@referredType': ResourceOrderItem
+        attachment:
+          - id: D-2024-05-13-X47
+            href: 'http://server:port/documentManagement/v5/document/D-2024-05-13-X47'
+            description: delivery note
+            '@type': AttachmentRef
+            '@referredType': Document
+      description: Resource representation.
+    updateResource_using_json-patch_json_request:
+      value:
+        - op: replace
+          path: /administrativeState
+          value: unlocked
+        - op: add
+          path: /resourceRelationship
+          value:
+            relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              description: This is Port 15 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+      description: PATCH Resource request leveraging json-patch+json application example
+    updateResource_using_json-patch_json_response:
+      value:
+        id: '8044'
+        href: 'http://server:port/resourceInventoryManagement/v5/resource/8044'
+        category: Router
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        administrativeState: unlocked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        relatedParty:
+          - role: user
+            '@type': RelatedPartyRefOrPartyRoleRef
+            partyOrPartyRole:
+              href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+              id: '456'
+              name: John Doe
+              '@type': PartyRef
+              '@referredType': Individual
+        note:
+          - text: router installed at the user's premise
+            '@type': Note
+        place:
+          - role: installationAddress
+            '@type': RelatedPlaceRef
+            place:
+              id: '9912'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9912'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+        resourceRelationship:
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '44'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+              description: This is Port 1 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '45'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+              description: This is Port 2 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '56'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/56'
+              description: This is Port 15 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+        resourceSpecification:
+          id: '4'
+          href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+      description: Resource representation.
+    updateResource_using_merge-patch_json_request:
+      value:
+        '@type': Resource
+        place:
+          - '@type': RelatedPlaceRef
+            role: installationAddress
+            place:
+              id: '9012'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9012'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+      description: PATCH Resource request leveraging merge-patch+json application example
+    updateResource_using_merge-patch_json_response:
+      value:
+        id: '8044'
+        href: 'http://server:port/resourceInventoryManagement/v5/resource/8044'
+        category: Router
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        administrativeState: locked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        relatedParty:
+          - role: user
+            '@type': RelatedPartyRefOrPartyRoleRef
+            partyOrPartyRole:
+              href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+              id: '456'
+              name: John Doe
+              '@type': PartyRef
+              '@referredType': Individual
+        note:
+          - text: router installed at the user's premise
+            '@type': Note
+        place:
+          - role: installationAddress
+            '@type': RelatedPlaceRef
+            place:
+              id: '9012'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9012'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+        resourceRelationship:
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '44'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+              description: This is Port 1 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '45'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+              description: This is Port 2 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+        resourceSpecification:
+          id: '4'
+          href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+        externalIdentifier:
+          - externalIdentifierType: Supplier-Router-Id
+            id: XYZ-1174-B
+            owner: Supplier-A
+            '@type': ExternalIdentifier
+        supportingResource:
+          - id: '918273'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/918273'
+            '@type': ResourceRef
+        resourceCharacteristic:
+          - name: casing size
+            valueType: String
+            value: 19"
+            '@type': StringCharacteristic
+        resourceOrderItem:
+          - role: supplier purchase
+            itemAction: add
+            itemId: '1'
+            resourceOrderId: 66588438-2
+            resourceOrderHref: 'http://server:port/resourceOrderManagement/v5/resourceOrder/66588438-2'
+            '@type': RelatedResourceOrderItem
+            '@referredType': ResourceOrderItem
+        attachment:
+          - id: D-2024-05-13-X47
+            href: 'http://server:port/documentManagement/v5/document/D-2024-05-13-X47'
+            description: delivery note
+            '@type': AttachmentRef
+            '@referredType': Document
+      description: Resource representation.
+    updateResource_using_json_request:
+      value:
+        '@type': Resource
+        place:
+          - '@type': RelatedPlaceRef
+            role: installationAddress
+            place:
+              id: '9012'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9012'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+      description: PATCH Resource request leveraging json application example
+    updateResource_using_json_response:
+      value:
+        id: '8044'
+        href: 'http://server:port/resourceInventoryManagement/v5/resource/8044'
+        category: Router
+        startOperatingDate: '2020-08-04T00:00:00.000Z'
+        administrativeState: locked
+        operationalState: enable
+        usageState: active
+        resourceStatus: reserved
+        version: v2
+        '@type': Resource
+        relatedParty:
+          - role: user
+            '@type': RelatedPartyRefOrPartyRoleRef
+            partyOrPartyRole:
+              href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+              id: '456'
+              name: John Doe
+              '@type': PartyRef
+              '@referredType': Individual
+        note:
+          - text: router installed at the user's premise
+            '@type': Note
+        place:
+          - role: installationAddress
+            '@type': RelatedPlaceRef
+            place:
+              id: '9012'
+              href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9012'
+              '@type': PlaceRef
+              '@referredType': GeographicAddress
+        resourceRelationship:
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '44'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+              description: This is Port 1 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+          - relationshipType: contains
+            '@type': ResourceRelationship
+            resource:
+              id: '45'
+              href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+              description: This is Port 2 contained in the Router.
+              category: Port
+              '@type': Resource
+              resourceSpecification:
+                id: '1004'
+                href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/1004'
+                '@type': ResourceSpecificationRef
+                '@referredType': ResourceSpecification
+        resourceSpecification:
+          id: '4'
+          href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+          '@type': ResourceSpecificationRef
+          '@referredType': ResourceSpecification
+        externalIdentifier:
+          - externalIdentifierType: Supplier-Router-Id
+            id: XYZ-1174-B
+            owner: Supplier-A
+            '@type': ExternalIdentifier
+        supportingResource:
+          - id: '918273'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/918273'
+            '@type': ResourceRef
+        resourceCharacteristic:
+          - name: casing size
+            valueType: String
+            value: 19"
+            '@type': StringCharacteristic
+        resourceOrderItem:
+          - role: supplier purchase
+            itemAction: add
+            itemId: '1'
+            resourceOrderId: 66588438-2
+            resourceOrderHref: 'http://server:port/resourceOrderManagement/v5/resourceOrder/66588438-2'
+            '@type': RelatedResourceOrderItem
+            '@referredType': ResourceOrderItem
+        attachment:
+          - id: D-2024-05-13-X47
+            href: 'http://server:port/documentManagement/v5/document/D-2024-05-13-X47'
+            description: delivery note
+            '@type': AttachmentRef
+            '@referredType': Document
+      description: Resource representation.
+    ResourceCreateEvent_request:
+      value:
+        correlationId: 73d0c149-b4e0
+        description: ResourceCreateEvent illustration
+        domain: Commercial
+        eventId: 411f-a2c0-bd4519deeaa2
+        eventTime: '2022-08-25T12:19:41.419Z'
+        eventType: ResourceCreateEvent
+        priority: '4'
+        timeOcurred: '2022-08-25T12:19:34.183Z'
+        title: ResourceCreateEvent
+        event:
+          resource:
+            id: '8044'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/8044'
+            description: >-
+              This is a Router resource with the category Router and with a reserved resourceStatus
+              for organisations.
+            category: Router
+            startOperatingDate: '2020-03-04T00:00:00.000Z'
+            endOperatingDate: '2023-09-04T08:00:00.000Z'
+            administrativeState: locked
+            operationalState: enable
+            usageState: active
+            resourceStatus: reserved
+            resourceVersion: v2
+            '@type': Resource
+            relatedParty:
+              - role: user
+                '@type': RelatedPartyRefOrPartyRoleRef
+                partyOrPartyRole:
+                  href: 'https://server:port/tmf-api/partyManagement/v5/individual/456'
+                  id: '456'
+                  name: John Doe
+                  '@type': PartyRef
+                  '@referredType': Individual
+            note:
+              - text: something about this resource
+                '@type': Note
+            place:
+              - role: installationAddress
+                '@type': RelatedPlaceRef
+                place:
+                  id: '9912'
+                  href: 'https://host:port/geographicAddressManagement/v5/geographicAddress/9912'
+                  '@type': PlaceRef
+                  '@referredType': GeographicAddress
+            resourceRelationship:
+              - relationshipType: contains
+                '@type': ResourceRelationship
+                resource:
+                  id: '44'
+                  href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+                  '@type': ResourceRef
+              - relationshipType: contains
+                '@type': ResourceRelationship
+                resource:
+                  id: '45'
+                  href: 'http://server:port/resourceInventoryManagement/v5/resource/45'
+                  '@type': ResourceRef
+            resourceSpecification:
+              id: '4'
+              href: ' http://server:port/resourceCatalogManagement/v5/resourceSpecification/4'
+              '@type': ResourceSpecificationRef
+              '@referredType': ResourceSpecification
+            externalIdentifier:
+              - externalIdentifierType: Supplier-Router-Id
+                id: XYZ-1174-B
+                owner: Supplier-A
+                '@type': ExternalIdentifier
+            supportingResource:
+              - id: '918273'
+                href: 'http://server:port/resourceInventoryManagement/v5/resource/918273'
+                '@type': ResourceRef
+            resourceCharacteristic:
+              - name: casing size
+                valueType: String
+                value: 19"
+                '@type': StringCharacteristic
+            resourceOrderItem:
+              - role: supplier purchase
+                itemAction: add
+                itemId: '1'
+                resourceOrderId: 66588438-2
+                resourceOrderHref: 'http://server:port/resourceOrderManagement/v5/resourceOrder/66588438-2'
+                '@type': RelatedResourceOrderItem
+                '@referredType': ResourceOrderItem
+            attachment:
+              - id: D-2024-05-13-X47
+                href: 'http://server:port/documentManagement/v5/document/D-2024-05-13-X47'
+                description: delivery note
+                '@type': AttachmentRef
+                '@referredType': Document
+        reportingSystem:
+          id: '445'
+          name: APP-655
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '62'
+          name: APP-182
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ResourceCreateEvent
+      description: Message example for ResourceCreateEvent event
+    ResourceAttributeValueChangeEvent_request:
+      value:
+        correlationId: da76162e-c8ca
+        description: ResourceAttributeValueChangeEvent illustration
+        domain: Commercial
+        eventId: 4d1f-ac04-980d628aabcc
+        eventTime: '2022-08-25T12:19:41.429Z'
+        eventType: ResourceAttributeValueChangeEvent
+        priority: '3'
+        timeOcurred: '2022-08-25T12:19:38.049Z'
+        title: ResourceAttributeValueChangeEvent
+        event:
+          resource:
+            id: '44'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+            name: Port 1
+            '@type': Resource
+        reportingSystem:
+          id: '445'
+          name: APP-655
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '62'
+          name: APP-182
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ResourceAttributeValueChangeEvent
+      description: Message example for ResourceAttributeValueChangeEvent event
+    ResourceStateChangeEvent_request:
+      value:
+        correlationId: c9ac271e-1cf8
+        description: ResourceStateChangeEvent illustration
+        domain: Commercial
+        eventId: 48cf-bf1d-53aec2ec89f8
+        eventTime: '2022-08-25T12:19:41.440Z'
+        eventType: ResourceStateChangeEvent
+        priority: '4'
+        timeOcurred: '2022-08-25T12:19:38.764Z'
+        title: ResourceStateChangeEvent
+        event:
+          resource:
+            id: '44'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+            operationalState: disable
+            '@type': Resource
+        reportingSystem:
+          id: '445'
+          name: APP-655
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '62'
+          name: APP-182
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ResourceStateChangeEvent
+      description: Message example for ResourceStateChangeEvent event
+    ResourceDeleteEvent_request:
+      value:
+        correlationId: dbd2cdb0-3631
+        description: ResourceDeleteEvent illustration
+        domain: Commercial
+        eventId: 403f-810a-354d44291cc0
+        eventTime: '2022-08-25T12:19:41.451Z'
+        eventType: ResourceDeleteEvent
+        priority: '1'
+        timeOcurred: '2022-08-25T12:19:36.643Z'
+        title: ResourceDeleteEvent
+        event:
+          resource:
+            id: '44'
+            href: 'http://server:port/resourceInventoryManagement/v5/resource/44'
+            '@type': Resource
+        reportingSystem:
+          id: '445'
+          name: APP-655
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '62'
+          name: APP-182
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ResourceDeleteEvent
+      description: Message example for ResourceDeleteEvent event
