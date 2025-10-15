@@ -1,0 +1,348 @@
+[
+	{
+		"id": "r-cat-productcatalogmanagement",
+		"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement",
+		"@type": "LogicalResource",
+		"@baseType": "Resource",
+		"name": "r-cat-productcatalogmanagement",
+		"description": "ODA Component: r-cat-productcatalogmanagement",
+		"category": "ODAComponent",
+		"resourceSpecification": {
+			"@type": "ResourceSpecificationRef",
+			"id": "ODAComponent",
+			"name": "ODA Component"
+		},
+		"resourceCharacteristic": [
+			{
+				"@type": "Characteristic",
+				"name": "namespace",
+				"value": "components"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "deploymentStatus",
+				"value": "Unknown"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "description",
+				"value": "Simple Product Catalog ODA-Component from Open-API reference implementation."
+			},
+			{
+				"@type": "Characteristic",
+				"name": "functionalBlock",
+				"value": "CoreCommerce"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "id",
+				"value": "TMFC001"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "maintainers",
+				"value": [
+					{
+						"email": "lester.thomas@vodafone.com",
+						"name": "Lester Thomas"
+					}
+				]
+			},
+			{
+				"@type": "Characteristic",
+				"name": "name",
+				"value": "productcatalogmanagement"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "owners",
+				"value": [
+					{
+						"email": "lester.thomas@vodafone.com",
+						"name": "Lester Thomas"
+					}
+				]
+			},
+			{
+				"@type": "Characteristic",
+				"name": "publicationDate",
+				"value": "2024-09-17T00:00:00.000Z"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "status",
+				"value": "specified"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "version",
+				"value": "0.0.1"
+			}
+		],
+		"resourceStatus": "standby",
+		"operationalState": "disable",
+		"administrativeState": "unlocked",
+		"usageState": "active",
+		"startDate": "2025-10-15T12:17:30Z",
+		"place": [
+			{
+				"id": "components",
+				"name": "components",
+				"@type": "Namespace"
+			}
+		],
+		"relatedResource": [
+			{
+				"@type": "ResourceRef",
+				"id": "r-cat-productcatalogmanagement-metrics",
+				"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement-metrics",
+				"name": "r-cat-productcatalogmanagement-metrics",
+				"@referredType": "LogicalResource",
+				"category": "API",
+				"relationshipType": "exposes"
+			},
+			{
+				"@type": "ResourceRef",
+				"id": "r-cat-productcatalogmanagement-partyrole",
+				"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement-partyrole",
+				"name": "r-cat-productcatalogmanagement-partyrole",
+				"@referredType": "LogicalResource",
+				"category": "API",
+				"relationshipType": "exposes"
+			},
+			{
+				"@type": "ResourceRef",
+				"id": "r-cat-productcatalogmanagement-productcatalogmanagement",
+				"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement-productcatalogmanagement",
+				"name": "r-cat-productcatalogmanagement-productcatalogmanagement",
+				"@referredType": "LogicalResource",
+				"category": "API",
+				"relationshipType": "exposes"
+			}
+		]
+	},
+	{
+		"id": "r-cat-productcatalogmanagement-metrics",
+		"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement-metrics",
+		"@type": "LogicalResource",
+		"@baseType": "Resource",
+		"name": "r-cat-productcatalogmanagement-metrics",
+		"description": "Exposed API: metrics",
+		"category": "API",
+		"resourceSpecification": {
+			"@type": "ResourceSpecificationRef",
+			"id": "API",
+			"name": "API"
+		},
+		"resourceCharacteristic": [
+			{
+				"@type": "Characteristic",
+				"name": "namespace",
+				"value": "components"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiName",
+				"value": "metrics"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiType",
+				"value": "prometheus"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "url",
+				"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/metrics"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "implementation",
+				"value": "r-cat-productcatalogmanagement-sm"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiDocs"
+			}
+		],
+		"resourceStatus": "standby",
+		"operationalState": "disable",
+		"administrativeState": "unlocked",
+		"usageState": "active",
+		"startDate": "2025-10-15T12:17:31Z",
+		"place": [
+			{
+				"id": "components",
+				"name": "components",
+				"@type": "Namespace"
+			}
+		],
+		"relatedResource": [
+			{
+				"@type": "ResourceRef",
+				"id": "r-cat-productcatalogmanagement",
+				"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement",
+				"name": "r-cat-productcatalogmanagement",
+				"@referredType": "LogicalResource",
+				"category": "ODAComponent",
+				"relationshipType": "exposedBy"
+			}
+		]
+	},
+	{
+		"id": "r-cat-productcatalogmanagement-partyrole",
+		"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement-partyrole",
+		"@type": "LogicalResource",
+		"@baseType": "Resource",
+		"name": "r-cat-productcatalogmanagement-partyrole",
+		"description": "Exposed API: partyrole",
+		"category": "API",
+		"resourceSpecification": {
+			"@type": "ResourceSpecificationRef",
+			"id": "API",
+			"name": "API"
+		},
+		"resourceCharacteristic": [
+			{
+				"@type": "Characteristic",
+				"name": "namespace",
+				"value": "components"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiName",
+				"value": "partyrole"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiType",
+				"value": "openapi"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "url",
+				"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/partyRoleManagement/v4"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "implementation",
+				"value": "r-cat-partyroleapi"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "specification",
+				"value": [
+					{
+						"url": "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
+					}
+				]
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiDocs",
+				"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/partyRoleManagement/v4/docs"
+			}
+		],
+		"resourceStatus": "standby",
+		"operationalState": "disable",
+		"administrativeState": "unlocked",
+		"usageState": "active",
+		"startDate": "2025-10-15T12:17:31Z",
+		"place": [
+			{
+				"id": "components",
+				"name": "components",
+				"@type": "Namespace"
+			}
+		],
+		"relatedResource": [
+			{
+				"@type": "ResourceRef",
+				"id": "r-cat-productcatalogmanagement",
+				"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement",
+				"name": "r-cat-productcatalogmanagement",
+				"@referredType": "LogicalResource",
+				"category": "ODAComponent",
+				"relationshipType": "exposedBy"
+			}
+		]
+	},
+	{
+		"id": "r-cat-productcatalogmanagement-productcatalogmanagement",
+		"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement-productcatalogmanagement",
+		"@type": "LogicalResource",
+		"@baseType": "Resource",
+		"name": "r-cat-productcatalogmanagement-productcatalogmanagement",
+		"description": "Exposed API: productcatalogmanagement",
+		"category": "API",
+		"resourceSpecification": {
+			"@type": "ResourceSpecificationRef",
+			"id": "API",
+			"name": "API"
+		},
+		"resourceCharacteristic": [
+			{
+				"@type": "Characteristic",
+				"name": "namespace",
+				"value": "components"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiName",
+				"value": "productcatalogmanagement"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiType",
+				"value": "openapi"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "url",
+				"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "implementation",
+				"value": "r-cat-prodcatapi"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "specification",
+				"value": [
+					{
+						"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+					}
+				]
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiDocs",
+				"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs"
+			}
+		],
+		"resourceStatus": "standby",
+		"operationalState": "disable",
+		"administrativeState": "unlocked",
+		"usageState": "active",
+		"startDate": "2025-10-15T12:17:31Z",
+		"place": [
+			{
+				"id": "components",
+				"name": "components",
+				"@type": "Namespace"
+			}
+		],
+		"relatedResource": [
+			{
+				"@type": "ResourceRef",
+				"id": "r-cat-productcatalogmanagement",
+				"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement",
+				"name": "r-cat-productcatalogmanagement",
+				"@referredType": "LogicalResource",
+				"category": "ODAComponent",
+				"relationshipType": "exposedBy"
+			}
+		]
+	}
+]

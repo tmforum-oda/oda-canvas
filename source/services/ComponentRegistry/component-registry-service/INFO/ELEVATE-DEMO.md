@@ -43,8 +43,8 @@ helm upgrade --install component-gateway -n canvas --create-namespace %USERPROFI
 
 ```
 # [green] - IHC-DT-A
-cd C:\Users\A307131\git\oda-canvas
-cd source/services/ComponentRegistry/custom-resource-collector
+	cd %USERPROFILE%\git\oda-canvas
+	cd source/services/ComponentRegistry/custom-resource-collector
 helm upgrade --install collector -n canvas --create-namespace helm/custom-resource-collector 
 ```
 
@@ -53,7 +53,7 @@ helm upgrade --install collector -n canvas --create-namespace helm/custom-resour
 
 ```
 # [magenta] - IHC-DT-B
-cd C:\Users\A307131\git\oda-canvas
+cd %USERPROFILE%\git\oda-canvas
 cd source/services/ComponentRegistry/custom-resource-collector
 helm upgrade --install collector -n canvas --create-namespace helm/custom-resource-collector 
 ```
@@ -231,7 +231,7 @@ Given I install the 'productcatalog-v1' package as release 'r-cat'
 
 ```
 # [green] IHC-DT-A
-cd C:\Users\A307131\git\oda-canvas
+cd %USERPROFILE%\git\oda-canvas
 helm upgrade --install r-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
 
   Release "r-cat" does not exist. Installing it now.
@@ -272,7 +272,7 @@ When I install the 'productcatalog-dependendent-API-v1' package as release 'f-ca
 
 ```
 # [magenta] IHC-DT-B
-cd C:\Users\A307131\git\oda-canvas
+cd %USERPROFILE%\git\oda-canvas
 helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
 
   Release "f-cat" does not exist. Installing it now.
