@@ -34,9 +34,14 @@ async def list_resources(
     db: Session = Depends(get_db)
 ):
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
-    response.headers["X-Result-Count"] = str(len(resources))
+    # For each resource, dynamically add resourceRelationship from the relationship table
+    result = []
+    for r in resources:
+        db_resource = crud.get_resource(db, r.id)
+        result.append(schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at))
+    response.headers["X-Result-Count"] = str(len(result))
     response.headers["X-Total-Count"] = str(total_count)
-    return [schemas.Resource(id=r.id, data=r.data, created_at=r.created_at, updated_at=r.updated_at) for r in resources]
+    return result
 
 
 @app.post(

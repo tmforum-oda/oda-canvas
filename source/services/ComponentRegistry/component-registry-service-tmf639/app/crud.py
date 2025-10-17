@@ -9,9 +9,11 @@ from app import models, schemas
 
 
 def create_resource(db: Session, resource: dict, base_url: str) -> models.Resource:
-    """Create a new resource as a JSON object."""
+    """Create a new resource as a JSON object, extract and persist relationships separately."""
     resource_id = resource.get("id") or str(uuid.uuid4())
     resource["id"] = resource_id
+    # Remove resourceRelationship from the resource JSON before persisting
+    relationships = resource.pop("resourceRelationship", [])
     db_resource = models.Resource(
         id=resource_id,
         data=resource,
@@ -20,7 +22,7 @@ def create_resource(db: Session, resource: dict, base_url: str) -> models.Resour
     db.commit()
     db.refresh(db_resource)
     # Handle resourceRelationship separately
-    for rel in resource.get("resourceRelationship", []):
+    for rel in relationships:
         rel_type = rel.get("relationshipType")
         related_resource = rel.get("resource", {})
         related_resource_id = related_resource.get("id")
@@ -43,8 +45,38 @@ def create_resource(db: Session, resource: dict, base_url: str) -> models.Resour
 
 
 def get_resource(db: Session, id: str) -> Optional[models.Resource]:
-    """Retrieve a resource by ID."""
-    return db.query(models.Resource).filter(models.Resource.id == id).first()
+    """Retrieve a resource by ID and dynamically add resourceRelationship from the relationship table."""
+    db_resource = db.query(models.Resource).filter(models.Resource.id == id).first()
+    if not db_resource:
+        return None
+    # Dynamically add resourceRelationship
+    relationships = db.query(models.ResourceRelationship).filter(models.ResourceRelationship.resource_id == id).all()
+    resource_data = dict(db_resource.data)  # Make a copy
+    resource_relationships = []
+    for rel in relationships:
+        # Fetch related resource for href and type if available
+        related = db.query(models.Resource).filter(models.Resource.id == rel.related_resource_id).first()
+        related_resource = {
+            "id": rel.related_resource_id
+        }
+        if related and "href" in related.data:
+            related_resource["href"] = related.data["href"]
+        if related and "@type" in related.data:
+            related_resource["@type"] = related.data["@type"]
+        resource_relationships.append({
+            "@type": "ResourceRelationship",
+            "relationshipType": rel.relation_type,
+            "resource": related_resource
+        })
+    if resource_relationships:
+        resource_data["resourceRelationship"] = resource_relationships
+    # Return a Resource object with the dynamic relationships
+    return models.Resource(
+        id=db_resource.id,
+        data=resource_data,
+        created_at=db_resource.created_at,
+        updated_at=db_resource.updated_at
+    )
 
 
 def get_resources(
