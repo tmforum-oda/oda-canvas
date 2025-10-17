@@ -1,4 +1,4 @@
-"""SQLAlchemy models for TMF639 Resource Inventory."""
+"""SQLAlchemy models for TMF639 Resource Inventory v5.0.0."""
 
 from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Integer, Boolean
 from sqlalchemy.orm import relationship
@@ -27,12 +27,24 @@ class Resource(Base):
     schemaLocation = Column(String)
     type = Column(String)
     
+    # v5.0.0 new fields
+    validFor_startDateTime = Column(DateTime, nullable=True)
+    validFor_endDateTime = Column(DateTime, nullable=True)
+    intent_id = Column(String, nullable=True)
+    intent_href = Column(String, nullable=True)
+    intent_name = Column(String, nullable=True)
+    
     # Relationships
     characteristics = relationship("ResourceCharacteristic", back_populates="resource", cascade="all, delete-orphan")
     related_parties = relationship("ResourceRelatedParty", back_populates="resource", cascade="all, delete-orphan")
     notes = relationship("ResourceNote", back_populates="resource", cascade="all, delete-orphan")
     attachments = relationship("ResourceAttachment", back_populates="resource", cascade="all, delete-orphan")
     resource_relationships = relationship("ResourceRelationshipModel", back_populates="resource", cascade="all, delete-orphan")
+    places = relationship("ResourcePlace", back_populates="resource", cascade="all, delete-orphan")
+    resource_order_items = relationship("ResourceOrderItem", back_populates="resource", cascade="all, delete-orphan")
+    supporting_resources = relationship("SupportingResource", back_populates="resource", cascade="all, delete-orphan")
+    activation_features = relationship("ActivationFeature", back_populates="resource", cascade="all, delete-orphan")
+    external_identifiers = relationship("ResourceExternalIdentifier", back_populates="resource", cascade="all, delete-orphan")
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -61,8 +73,8 @@ class ResourceRelatedParty(Base):
     resource_id = Column(String, ForeignKey("resources.id"))
     href = Column(String)
     name = Column(String)
-    role = Column(String)
-    referredType = Column(String, nullable=False)
+    role = Column(String, nullable=False)
+    referredType = Column(String)
     
     resource = relationship("Resource", back_populates="related_parties")
 
@@ -113,6 +125,77 @@ class ResourceRelationshipModel(Base):
     related_resource_href = Column(String)
     
     resource = relationship("Resource", back_populates="resource_relationships")
+
+
+class ResourcePlace(Base):
+    """Place reference for a resource (v5.0.0 - now array)."""
+    
+    __tablename__ = "resource_places"
+    
+    id = Column(String, primary_key=True, index=True)
+    resource_id = Column(String, ForeignKey("resources.id"))
+    href = Column(String)
+    name = Column(String)
+    role = Column(String)
+    referredType = Column(String)
+    
+    resource = relationship("Resource", back_populates="places")
+
+
+class ResourceOrderItem(Base):
+    """Related resource order item (v5.0.0 new)."""
+    
+    __tablename__ = "resource_order_items"
+    
+    id = Column(String, primary_key=True, index=True)
+    resource_id = Column(String, ForeignKey("resources.id"))
+    href = Column(String)
+    resourceOrderId = Column(String)
+    role = Column(String)
+    
+    resource = relationship("Resource", back_populates="resource_order_items")
+
+
+class SupportingResource(Base):
+    """Supporting resource reference (v5.0.0 new)."""
+    
+    __tablename__ = "supporting_resources"
+    
+    id = Column(String, primary_key=True, index=True)
+    resource_id = Column(String, ForeignKey("resources.id"))
+    supporting_resource_id = Column(String, nullable=False)
+    href = Column(String)
+    name = Column(String)
+    referredType = Column(String)
+    
+    resource = relationship("Resource", back_populates="supporting_resources")
+
+
+class ActivationFeature(Base):
+    """Activation feature (v5.0.0 new)."""
+    
+    __tablename__ = "activation_features"
+    
+    id = Column(String, primary_key=True, index=True)
+    resource_id = Column(String, ForeignKey("resources.id"))
+    name = Column(String)
+    isEnabled = Column(Boolean, default=True)
+    isBundle = Column(Boolean, default=False)
+    
+    resource = relationship("Resource", back_populates="activation_features")
+
+
+class ResourceExternalIdentifier(Base):
+    """External identifier (v5.0.0 new)."""
+    
+    __tablename__ = "resource_external_identifiers"
+    
+    id = Column(String, primary_key=True, index=True)
+    resource_id = Column(String, ForeignKey("resources.id"))
+    owner = Column(String)
+    externalIdentifierType = Column(String)
+    
+    resource = relationship("Resource", back_populates="external_identifiers")
 
 
 class EventSubscription(Base):

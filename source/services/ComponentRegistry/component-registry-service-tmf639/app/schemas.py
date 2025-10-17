@@ -1,4 +1,4 @@
-"""Pydantic schemas for TMF639 Resource Inventory API."""
+"""Pydantic schemas for TMF639 Resource Inventory API v5.0.0."""
 
 from pydantic import BaseModel, Field
 from typing import Optional, List, Any
@@ -27,6 +27,10 @@ class ResourceStatusType(str, Enum):
     reserved = "reserved"
     unknown = "unknown"
     suspended = "suspended"
+    installed = "installed"
+    not_exists = "not exists"
+    pendingRemoval = "pendingRemoval"
+    planned = "planned"
 
 
 class ResourceUsageStateType(str, Enum):
@@ -34,6 +38,12 @@ class ResourceUsageStateType(str, Enum):
     idle = "idle"
     active = "active"
     busy = "busy"
+
+
+class TimePeriod(BaseModel):
+    """Time period schema."""
+    startDateTime: Optional[datetime] = None
+    endDateTime: Optional[datetime] = None
 
 
 class CharacteristicBase(BaseModel):
@@ -48,17 +58,13 @@ class Characteristic(CharacteristicBase):
     id: Optional[str] = None
 
 
-class RelatedPartyBase(BaseModel):
-    """Base schema for RelatedParty."""
-    name: Optional[str] = None
-    role: Optional[str] = None
-
-
-class RelatedParty(RelatedPartyBase):
-    """Related party schema."""
-    id: str
+class RelatedPartyRefOrPartyRoleRef(BaseModel):
+    """Related party reference or party role reference."""
+    role: str
+    id: Optional[str] = None
     href: Optional[str] = None
-    referredType: str = Field(..., alias="@referredType")
+    name: Optional[str] = None
+    referredType: Optional[str] = Field(None, alias="@referredType")
 
     class Config:
         populate_by_name = True
@@ -77,7 +83,7 @@ class Note(NoteBase):
     href: Optional[str] = None
 
 
-class AttachmentRefOrValueBase(BaseModel):
+class AttachmentRefBase(BaseModel):
     """Base schema for Attachment."""
     attachmentType: Optional[str] = None
     content: Optional[str] = None
@@ -87,7 +93,7 @@ class AttachmentRefOrValueBase(BaseModel):
     url: Optional[str] = None
 
 
-class AttachmentRefOrValue(AttachmentRefOrValueBase):
+class AttachmentRef(AttachmentRefBase):
     """Attachment schema."""
     id: Optional[str] = None
     href: Optional[str] = None
@@ -101,19 +107,27 @@ class ResourceSpecificationRef(BaseModel):
     version: Optional[str] = None
 
 
-class RelatedPlaceRefOrValue(BaseModel):
-    """Related place reference or value."""
+class RelatedPlaceRef(BaseModel):
+    """Related place reference."""
     id: Optional[str] = None
     href: Optional[str] = None
     name: Optional[str] = None
-    role: str
+    role: Optional[str] = None
+    referredType: Optional[str] = Field(None, alias="@referredType")
+
+    class Config:
+        populate_by_name = True
 
 
 class ResourceRefOrValue(BaseModel):
     """Resource reference or value."""
     id: str
-    href: str
+    href: Optional[str] = None
     name: Optional[str] = None
+    referredType: Optional[str] = Field(None, alias="@referredType")
+
+    class Config:
+        populate_by_name = True
 
 
 class ResourceRelationship(BaseModel):
@@ -122,6 +136,39 @@ class ResourceRelationship(BaseModel):
     href: Optional[str] = None
     relationshipType: str
     resource: ResourceRefOrValue
+    resourceRelationshipCharacteristic: Optional[List[Characteristic]] = None
+
+
+class RelatedResourceOrderItem(BaseModel):
+    """Related resource order item."""
+    id: str
+    href: Optional[str] = None
+    resourceOrderId: Optional[str] = None
+    role: Optional[str] = None
+
+
+class ExternalIdentifier(BaseModel):
+    """External identifier from other systems."""
+    id: str
+    owner: Optional[str] = None
+    externalIdentifierType: Optional[str] = None
+
+
+class Feature(BaseModel):
+    """Configuration feature."""
+    id: Optional[str] = None
+    name: Optional[str] = None
+    isEnabled: Optional[bool] = True
+    isBundle: Optional[bool] = False
+    featureCharacteristic: Optional[List[Characteristic]] = None
+
+
+class IntentRef(BaseModel):
+    """Intent reference."""
+    id: str
+    href: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
 
 
 class ResourceBase(BaseModel):
@@ -136,13 +183,19 @@ class ResourceBase(BaseModel):
     operationalState: Optional[ResourceOperationalStateType] = None
     resourceStatus: Optional[ResourceStatusType] = None
     usageState: Optional[ResourceUsageStateType] = None
+    validFor: Optional[TimePeriod] = None
     resourceCharacteristic: Optional[List[Characteristic]] = None
-    relatedParty: Optional[List[RelatedParty]] = None
+    relatedParty: Optional[List[RelatedPartyRefOrPartyRoleRef]] = None
     note: Optional[List[Note]] = None
-    attachment: Optional[List[AttachmentRefOrValue]] = None
+    attachment: Optional[List[AttachmentRef]] = None
     resourceRelationship: Optional[List[ResourceRelationship]] = None
     resourceSpecification: Optional[ResourceSpecificationRef] = None
-    place: Optional[RelatedPlaceRefOrValue] = None
+    place: Optional[List[RelatedPlaceRef]] = None
+    resourceOrderItem: Optional[List[RelatedResourceOrderItem]] = None
+    supportingResource: Optional[List[ResourceRefOrValue]] = None
+    activationFeature: Optional[List[Feature]] = None
+    intent: Optional[IntentRef] = None
+    externalIdentifier: Optional[List[ExternalIdentifier]] = None
 
 
 class ResourceCreate(ResourceBase):
@@ -169,14 +222,14 @@ class Resource(ResourceBase):
         populate_by_name = True
 
 
-class EventSubscriptionInput(BaseModel):
-    """Schema for event subscription input."""
+class HubInput(BaseModel):
+    """Schema for hub/event subscription input."""
     callback: str
     query: Optional[str] = None
 
 
-class EventSubscription(BaseModel):
-    """Schema for event subscription."""
+class Hub(BaseModel):
+    """Schema for hub/event subscription."""
     id: str
     callback: str
     query: Optional[str] = None
@@ -192,3 +245,9 @@ class Error(BaseModel):
     message: Optional[str] = None
     status: Optional[str] = None
     referenceError: Optional[str] = None
+    baseType: Optional[str] = Field(None, alias="@baseType")
+    schemaLocation: Optional[str] = Field(None, alias="@schemaLocation")
+    type: Optional[str] = Field(None, alias="@type")
+
+    class Config:
+        populate_by_name = True
