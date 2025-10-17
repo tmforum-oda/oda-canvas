@@ -131,20 +131,12 @@ class ResourceRefOrValue(BaseModel):
 
 
 class ResourceRelationship(BaseModel):
-    """Resource relationship schema."""
-    id: Optional[str] = None
-    href: Optional[str] = None
-    relationshipType: str
-    resource: ResourceRefOrValue
-    resourceRelationshipCharacteristic: Optional[List[Characteristic]] = None
-
-
-class RelatedResourceOrderItem(BaseModel):
-    """Related resource order item."""
-    id: str
-    href: Optional[str] = None
-    resourceOrderId: Optional[str] = None
-    role: Optional[str] = None
+    """ResourceRelationship schema."""
+    id: Optional[int]
+    resource_id: str
+    related_resource_id: str
+    relation_type: str
+    created_at: Optional[datetime]
 
 
 class ExternalIdentifier(BaseModel):
@@ -171,55 +163,24 @@ class IntentRef(BaseModel):
     description: Optional[str] = None
 
 
-class ResourceBase(BaseModel):
-    """Base schema for Resource."""
-    category: Optional[str] = None
-    description: Optional[str] = None
-    endOperatingDate: Optional[datetime] = None
-    name: Optional[str] = None
-    resourceVersion: Optional[str] = None
-    startOperatingDate: Optional[datetime] = None
-    administrativeState: Optional[ResourceAdministrativeStateType] = None
-    operationalState: Optional[ResourceOperationalStateType] = None
-    resourceStatus: Optional[ResourceStatusType] = None
-    usageState: Optional[ResourceUsageStateType] = None
-    validFor: Optional[TimePeriod] = None
-    resourceCharacteristic: Optional[List[Characteristic]] = None
-    relatedParty: Optional[List[RelatedPartyRefOrPartyRoleRef]] = None
-    note: Optional[List[Note]] = None
-    attachment: Optional[List[AttachmentRef]] = None
-    resourceRelationship: Optional[List[ResourceRelationship]] = None
-    resourceSpecification: Optional[ResourceSpecificationRef] = None
-    place: Optional[List[RelatedPlaceRef]] = None
-    resourceOrderItem: Optional[List[RelatedResourceOrderItem]] = None
-    supportingResource: Optional[List[ResourceRefOrValue]] = None
-    activationFeature: Optional[List[Feature]] = None
-    intent: Optional[IntentRef] = None
-    externalIdentifier: Optional[List[ExternalIdentifier]] = None
-
-
-class ResourceCreate(ResourceBase):
-    """Schema for creating a Resource."""
-    id: Optional[str] = None
-    name: str
-
-
-class ResourceUpdate(ResourceBase):
-    """Schema for updating a Resource."""
-    pass
-
-
-class Resource(ResourceBase):
-    """Full Resource schema."""
+class Resource(BaseModel):
+    """Resource schema as a generic JSON object."""
     id: str
-    href: str
-    baseType: Optional[str] = Field(None, alias="@baseType")
-    schemaLocation: Optional[str] = Field(None, alias="@schemaLocation")
-    type: Optional[str] = Field(None, alias="@type")
+    data: dict
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
+
+class ResourceCreate(BaseModel):
+    """Resource creation schema as a generic dict."""
     class Config:
-        from_attributes = True
-        populate_by_name = True
+        extra = "allow"
+
+
+class ResourceUpdate(BaseModel):
+    """Resource update schema as a generic dict."""
+    class Config:
+        extra = "allow"
 
 
 class HubInput(BaseModel):

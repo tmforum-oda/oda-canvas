@@ -4,10 +4,8 @@ from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import os
-
 from app import models, schemas, crud
 from app.database import engine, get_db, Base
-from app.serializers import resource_to_schema
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -21,52 +19,28 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Base path for API v5.0.0
-BASE_PATH = "/resourceInventory/v5"
-
-
-def get_base_url(request: Request) -> str:
-    """Get base URL for href generation."""
-    return f"{request.url.scheme}://{request.url.netloc}"
-
 
 @app.get(
-    f"{BASE_PATH}/resource",
+    "/resource",
     response_model=List[schemas.Resource],
     tags=["resource"],
     summary="List or find Resource objects",
     description="List or find Resource objects"
 )
 async def list_resources(
-    fields: Optional[str] = None,
     offset: Optional[int] = 0,
     limit: Optional[int] = 100,
-    before: Optional[str] = None,
-    after: Optional[str] = None,
-    sort: Optional[str] = None,
-    filter: Optional[str] = None,
     response: Response = None,
     db: Session = Depends(get_db)
 ):
-    """List resources with pagination and filtering."""
-    resources, total_count = crud.get_resources(
-        db, 
-        offset=offset, 
-        limit=limit,
-        filter_param=filter,
-        sort=sort
-    )
-    
-    # Add pagination headers
+    resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
     response.headers["X-Result-Count"] = str(len(resources))
     response.headers["X-Total-Count"] = str(total_count)
-    
-    # Convert database models to schemas with relationships
-    return [resource_to_schema(r) for r in resources]
+    return [schemas.Resource(id=r.id, data=r.data, created_at=r.created_at, updated_at=r.updated_at) for r in resources]
 
 
 @app.post(
-    f"{BASE_PATH}/resource",
+    "/resource",
     response_model=schemas.Resource,
     status_code=status.HTTP_201_CREATED,
     tags=["resource"],
@@ -74,19 +48,17 @@ async def list_resources(
     description="This operation creates a Resource entity."
 )
 async def create_resource(
-    resource: schemas.ResourceCreate,
-    fields: Optional[str] = None,
+    resource: dict,  # Accept arbitrary JSON directly
     request: Request = None,
     db: Session = Depends(get_db)
 ):
-    """Create a new resource."""
-    base_url = get_base_url(request)
+    base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.create_resource(db, resource, base_url)
-    return resource_to_schema(db_resource)
+    return schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
 
 
 @app.get(
-    f"{BASE_PATH}/resource/{{id}}",
+    "/resource/{id}",
     response_model=schemas.Resource,
     tags=["resource"],
     summary="Retrieves a Resource by ID",
@@ -94,21 +66,19 @@ async def create_resource(
 )
 async def retrieve_resource(
     id: str,
-    fields: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
-    """Retrieve a resource by ID."""
     db_resource = crud.get_resource(db, id)
     if db_resource is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Resource with id {id} not found"
         )
-    return resource_to_schema(db_resource)
+    return schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
 
 
 @app.patch(
-    f"{BASE_PATH}/resource/{{id}}",
+    "/resource/{id}",
     response_model=schemas.Resource,
     tags=["resource"],
     summary="Updates partially a Resource",
@@ -116,22 +86,20 @@ async def retrieve_resource(
 )
 async def patch_resource(
     id: str,
-    resource: schemas.ResourceUpdate,
-    fields: Optional[str] = None,
+    resource: dict,  # Accept arbitrary JSON directly
     db: Session = Depends(get_db)
 ):
-    """Partially update a resource."""
     db_resource = crud.update_resource(db, id, resource)
     if db_resource is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Resource with id {id} not found"
         )
-    return resource_to_schema(db_resource)
+    return schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
 
 
 @app.delete(
-    f"{BASE_PATH}/resource/{{id}}",
+    "/resource/{id}",
     status_code=status.HTTP_204_NO_CONTENT,
     tags=["resource"],
     summary="Deletes a Resource",
@@ -141,7 +109,6 @@ async def delete_resource(
     id: str,
     db: Session = Depends(get_db)
 ):
-    """Delete a resource."""
     success = crud.delete_resource(db, id)
     if not success:
         raise HTTPException(
@@ -152,7 +119,7 @@ async def delete_resource(
 
 
 @app.post(
-    f"{BASE_PATH}/hub",
+    "/hub",
     response_model=schemas.Hub,
     status_code=status.HTTP_201_CREATED,
     tags=["events subscription"],
@@ -169,7 +136,7 @@ async def create_hub(
 
 
 @app.get(
-    f"{BASE_PATH}/hub/{{id}}",
+    "/hub/{id}",
     response_model=schemas.Hub,
     tags=["events subscription"],
     summary="Retrieve a subscription (hub)",
@@ -190,7 +157,7 @@ async def get_hub(
 
 
 @app.delete(
-    f"{BASE_PATH}/hub/{{id}}",
+    "/hub/{id}",
     status_code=status.HTTP_204_NO_CONTENT,
     tags=["events subscription"],
     summary="Remove a subscription (hub) to receive Events",
