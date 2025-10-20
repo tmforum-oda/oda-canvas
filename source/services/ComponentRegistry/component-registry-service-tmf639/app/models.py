@@ -32,3 +32,15 @@ class ResourceRelationship(Base):
 
     resource = relationship("Resource", foreign_keys=[resource_id], backref="outgoing_relationships")
     related_resource = relationship("Resource", foreign_keys=[related_resource_id], backref="incoming_relationships")
+
+
+class Hub(Base):
+    """Hub model for event subscriptions."""
+    
+    __tablename__ = "hubs"
+    
+    id = Column(String, primary_key=True, index=True)
+    callback = Column(String, nullable=False)
+    query = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -36,7 +36,8 @@ async def notify_hubs(event_type: str, resource: schemas.Resource, db: Session):
     async with httpx.AsyncClient() as client:
         for hub in hubs:
             try:
-                await client.post(hub.callback, json=event_payload, timeout=5)
+                event_payload_q = {**event_payload, "query": hub.query} if hub.query else event_payload
+                await client.post(hub.callback, json=event_payload_q, timeout=5)
             except Exception as e:
                 # Log error, but do not block main operation
                 print(f"Failed to notify hub {hub.callback}: {e}")
