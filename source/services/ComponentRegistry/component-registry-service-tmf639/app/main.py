@@ -25,13 +25,13 @@ app = FastAPI(
 )
 
 
-async def notify_hubs(event_type: str, resource: schemas.Resource, db: Session):
+async def notify_hubs(event_type: str, resource_data: dict, db: Session):
     """Send event notification to all registered hubs."""
     hubs = crud.get_all_hubs(db)
     event_payload = {
         "eventType": event_type,
         "eventTime": datetime.utcnow().isoformat() + "Z",
-        "resource": resource.json(),  # Use JSON string to avoid datetime serialization issues
+        "resource": resource_data,  # Send only the resource data without wrapper
     }
     async with httpx.AsyncClient() as client:
         for hub in hubs:
@@ -80,9 +80,8 @@ async def create_resource(
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.create_resource(db, resource, base_url)
-    # Notify hubs
-    result = schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
-    await notify_hubs("ResourceCreated", result, db)
+    # Notify hubs with resource data only
+    await notify_hubs("ResourceCreated", db_resource.data, db)
     return db_resource.data  # Return only the data content
 
 
@@ -122,9 +121,8 @@ async def patch_resource(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Resource with id {id} not found"
         )
-    # Notify hubs
-    result = schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
-    await notify_hubs("ResourceChanged", result, db)
+    # Notify hubs with resource data only
+    await notify_hubs("ResourceChanged", db_resource.data, db)
     return db_resource.data  # Return only the data content
 
 
@@ -145,9 +143,8 @@ async def delete_resource(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Resource with id {id} not found"
         )
-    # Notify hubs (send minimal event)
-    event_payload = schemas.Resource(id=id, data={}, created_at=None, updated_at=None)
-    await notify_hubs("ResourceDeleted", event_payload, db)
+    # Notify hubs with minimal event data (just the id)
+    await notify_hubs("ResourceDeleted", {"id": id}, db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
