@@ -25,18 +25,19 @@ app = FastAPI(
 )
 
 
-async def notify_hubs(event_type: str, resource_data: dict, db: Session):
+async def notify_hubs(event_type: str, id: str, resource_data: dict, db: Session):
     """Send event notification to all registered hubs."""
     hubs = crud.get_all_hubs(db)
     event_payload = {
         "eventType": event_type,
         "eventTime": datetime.utcnow().isoformat() + "Z",
+        "id": id,
         "resource": resource_data,  # Send only the resource data without wrapper
     }
     async with httpx.AsyncClient() as client:
         for hub in hubs:
             try:
-                event_payload_q = {**event_payload, "query": hub.query} if hub.query else event_payload
+                event_payload_q = {"query": hub.query, **event_payload} if hub.query else event_payload
                 await client.post(hub.callback, json=event_payload_q, timeout=5)
             except Exception as e:
                 # Log error, but do not block main operation
@@ -81,7 +82,7 @@ async def create_resource(
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.create_resource(db, resource, base_url)
     # Notify hubs with resource data only
-    await notify_hubs("ResourceCreated", db_resource.data, db)
+    await notify_hubs("ResourceCreated", db_resource.id, db_resource.data, db)
     return db_resource.data  # Return only the data content
 
 
@@ -122,7 +123,7 @@ async def patch_resource(
             detail=f"Resource with id {id} not found"
         )
     # Notify hubs with resource data only
-    await notify_hubs("ResourceChanged", db_resource.data, db)
+    await notify_hubs("ResourceChanged", id, db_resource.data, db)
     return db_resource.data  # Return only the data content
 
 
@@ -144,7 +145,7 @@ async def delete_resource(
             detail=f"Resource with id {id} not found"
         )
     # Notify hubs with minimal event data (just the id)
-    await notify_hubs("ResourceDeleted", {"id": id}, db)
+    await notify_hubs("ResourceDeleted", id, {}, db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
