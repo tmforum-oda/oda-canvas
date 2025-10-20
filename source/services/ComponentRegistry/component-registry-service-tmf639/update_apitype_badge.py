@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+import codecs
+
+html_content = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -500,3 +502,10 @@
     </script>
 </body>
 </html>
+"""
+
+output_path = r"C:\Users\A307131\git\oda-canvas\source\services\ComponentRegistry\component-registry-service-tmf639\app\templates\index.html"
+with codecs.open(output_path, 'w', 'utf-8') as f:
+    f.write(html_content)
+
+print("Template updated successfully! Now showing apiType instead of category in badges.")

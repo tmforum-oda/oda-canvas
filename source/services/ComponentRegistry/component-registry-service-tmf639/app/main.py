@@ -323,6 +323,37 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # Get all relationships
     relationships = db.query(models.ResourceRelationship).all()
     
+    # Build a map of ODA Components to their exposed APIs
+    # Find APIs that have "exposedBy" relationship to ODA Components
+    oda_component_apis = {}
+    for resource in resources_with_data:
+        if resource.data.get('category') == 'ODAComponent':
+            component_id = resource.id
+            oda_component_apis[component_id] = []
+            
+            # Find all resources that have an "exposedBy" relationship to this component
+            for potential_api in resources_with_data:
+                api_relationships = potential_api.data.get('resourceRelationship', [])
+                for rel in api_relationships:
+                    if rel.get('relationshipType') == 'exposedBy':
+                        related_resource = rel.get('resource', {})
+                        if related_resource.get('id') == component_id:
+                            # Extract apiType from resourceCharacteristic
+                            api_type = '-'
+                            for char in potential_api.data.get('resourceCharacteristic', []):
+                                if char.get('name') == 'apiType':
+                                    api_type = char.get('value', '-')
+                                    break
+                            
+                            # This API is exposed by this component
+                            oda_component_apis[component_id].append({
+                                'id': potential_api.id,
+                                'name': potential_api.data.get('name', '-'),
+                                'type': potential_api.data.get('@type', 'API'),
+                                'category': potential_api.data.get('category', '-'),
+                                'apiType': api_type
+                            })
+    
     return templates.TemplateResponse(
         "index.html",
         {
@@ -330,7 +361,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
             "service_name": os.getenv("SERVICE_NAME", "Resource Inventory Service"),
             "resources": resources_with_data,
             "hubs": hubs,
-            "relationships": relationships
+            "relationships": relationships,
+            "oda_component_apis": oda_component_apis
         }
     )
 
