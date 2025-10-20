@@ -358,6 +358,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                                         if spec_url:
                                             specifications.append(spec_url)
                             
+                            status = potential_api.data.get('resourceStatus', "?")
+                            
                             # This API is exposed by this component
                             oda_component_apis[component_id].append({
                                 'id': potential_api.id,
@@ -367,7 +369,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                                 'apiType': api_type,
                                 'url': url,
                                 'apiDocs': api_docs,
-                                'specifications': specifications
+                                'specifications': specifications,
+                                'status': status
                             })
     
     return templates.TemplateResponse(

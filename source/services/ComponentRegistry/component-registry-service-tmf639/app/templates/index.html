@@ -232,10 +232,10 @@
             color: white;
         }
         .api-badge.url-badge {
-            background-color: #28a745;
+            background-color: #804040;
         }
         .api-badge.url-badge:hover {
-            background-color: #218838;
+            background-color: #A06060;
         }
         .api-badge.devui-badge {
             background-color: #ffc107;
@@ -252,6 +252,12 @@
         }
         .api-badge.oas-badge-nolink {
             background-color: #b0b0b0;
+        }
+        .api-badge.status-available-badge {
+            background-color: #28a745;
+        }
+        .api-badge.status-unavailable-badge {
+            background-color: #FF0000;
         }
     </style>
 </head>
@@ -369,6 +375,11 @@
                                             {% endif %}
                                             {% if api.apiDocs %}
                                                 <a href="{{ api.apiDocs }}" class="api-badge devui-badge" target="_blank">DEV UI</a>
+                                            {% endif %}
+                                            {% if api.status == 'available' %}
+												<span class="api-badge status-available-badge">{{ api.status }}</span>
+                                            {% else %}
+												<span class="api-badge status-unavailable-badge">{{ api.status }}</span>
                                             {% endif %}
                                         </div>
                                     </li>
