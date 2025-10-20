@@ -8,6 +8,9 @@ import os
 # Database URL - can be configured via environment variable
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./resource_inventory.db")
 
+# Resource href prefix - can be configured via environment variable
+RESOURCE_HREF_PREFIX = os.getenv("RESOURCE_HREF_PREFIX", "/resource/")
+
 # Create SQLAlchemy engine
 engine = create_engine(
     DATABASE_URL,

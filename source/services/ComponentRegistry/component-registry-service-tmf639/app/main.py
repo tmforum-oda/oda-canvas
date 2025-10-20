@@ -58,14 +58,16 @@ async def notify_hubs(event_type: str, id: str, resource_data: dict, db: Session
 async def list_resources(
     offset: Optional[int] = 0,
     limit: Optional[int] = 100,
+    request: Request = None,
     response: Response = None,
     db: Session = Depends(get_db)
 ):
+    base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
     # For each resource, dynamically add resourceRelationship from the relationship table
     result = []
     for r in resources:
-        db_resource = crud.get_resource(db, r.id)
+        db_resource = crud.get_resource(db, r.id, base_url)
         result.append(db_resource.data)  # Return only the data content
     response.headers["X-Result-Count"] = str(len(result))
     response.headers["X-Total-Count"] = str(total_count)
@@ -86,6 +88,8 @@ async def create_resource(
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.create_resource(db, resource, base_url)
+    # Get the resource with dynamically generated href
+    db_resource = crud.get_resource(db, db_resource.id, base_url)
     # Notify hubs with resource data only
     await notify_hubs("ResourceCreated", db_resource.id, db_resource.data, db)
     return db_resource.data  # Return only the data content
@@ -99,9 +103,11 @@ async def create_resource(
 )
 async def retrieve_resource(
     id: str,
+    request: Request = None,
     db: Session = Depends(get_db)
 ):
-    db_resource = crud.get_resource(db, id)
+    base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
+    db_resource = crud.get_resource(db, id, base_url)
     if db_resource is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -119,14 +125,18 @@ async def retrieve_resource(
 async def patch_resource(
     id: str,
     resource: dict,  # Accept arbitrary JSON directly
+    request: Request = None,
     db: Session = Depends(get_db)
 ):
+    base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.update_resource(db, id, resource)
     if db_resource is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Resource with id {id} not found"
         )
+    # Get the resource with dynamically generated href
+    db_resource = crud.get_resource(db, id, base_url)
     # Notify hubs with resource data only
     await notify_hubs("ResourceChanged", id, db_resource.data, db)
     return db_resource.data  # Return only the data content
@@ -228,12 +238,14 @@ async def health_check():
 )
 async def sync_callback(
     event: dict,
+    request: Request = None,
     db: Session = Depends(get_db)
 ):
     """
     Callback endpoint for synchronization via hub subscriptions.
     Processes ResourceCreated, ResourceChanged, and ResourceDeleted events.
     """
+    base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     event_type = event.get("eventType")
     event_time = event.get("eventTime")
     resource_data = event.get("resource", {})
@@ -249,7 +261,7 @@ async def sync_callback(
     try:
         if event_type == "ResourceCreated":
             # Check if resource already exists
-            existing_resource = crud.get_resource(db, resource_id)
+            existing_resource = crud.get_resource(db, resource_id, base_url)
             if existing_resource:
                 # Update if it already exists (to handle race conditions)
                 crud.update_resource(db, resource_id, resource_data)
@@ -267,7 +279,7 @@ async def sync_callback(
         
         elif event_type == "ResourceChanged":
             # Update the resource
-            existing_resource = crud.get_resource(db, resource_id)
+            existing_resource = crud.get_resource(db, resource_id, base_url)
             if existing_resource:
                 crud.update_resource(db, resource_id, resource_data)
                 return {
@@ -313,11 +325,12 @@ async def sync_callback(
 @app.get("/", response_class=HTMLResponse, tags=["dashboard"])
 async def dashboard(request: Request, db: Session = Depends(get_db)):
     """Display dashboard with resources, hubs, and relationships."""
+    base_url = f"{request.url.scheme}://{request.url.netloc}"
     # Get all resources
     resources, _ = crud.get_resources(db)
     resources_with_data = []
     for r in resources:
-        db_resource = crud.get_resource(db, r.id)
+        db_resource = crud.get_resource(db, r.id, base_url)
         resources_with_data.append(db_resource)
     
     # Get all hubs

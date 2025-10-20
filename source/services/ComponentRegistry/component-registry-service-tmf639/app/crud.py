@@ -6,14 +6,15 @@ from typing import List, Optional
 import uuid
 from datetime import datetime
 from app import models, schemas
+from app.database import RESOURCE_HREF_PREFIX
 
 
 def create_resource(db: Session, resource: dict, base_url: str) -> models.Resource:
     """Create a new resource as a JSON object, extract and persist relationships separately."""
     resource_id = resource.get("id") or str(uuid.uuid4())
     
-    # Remove id from resource data - it will be stored in the id column only
-    resource_data = {k: v for k, v in resource.items() if k != "id"}
+    # Remove id and href from resource data - they will be generated dynamically
+    resource_data = {k: v for k, v in resource.items() if k not in ["id", "href"]}
     
     # Remove resourceRelationship from the resource JSON before persisting
     relationships = resource_data.pop("resourceRelationship", [])
@@ -32,8 +33,8 @@ def create_resource(db: Session, resource: dict, base_url: str) -> models.Resour
         related_resource_id = related_resource.get("id")
         # Optionally create the related resource if it does not exist
         if related_resource_id and not db.query(models.Resource).filter(models.Resource.id == related_resource_id).first():
-            # Remove id from related resource data as well
-            related_resource_data = {k: v for k, v in related_resource.items() if k != "id"}
+            # Remove id and href from related resource data as well
+            related_resource_data = {k: v for k, v in related_resource.items() if k not in ["id", "href"]}
             db_related = models.Resource(
                 id=related_resource_id,
                 data=related_resource_data,
@@ -50,7 +51,7 @@ def create_resource(db: Session, resource: dict, base_url: str) -> models.Resour
     return db_resource
 
 
-def get_resource(db: Session, id: str) -> Optional[models.Resource]:
+def get_resource(db: Session, id: str, base_url: str = "") -> Optional[models.Resource]:
     """Retrieve a resource by ID and dynamically add resourceRelationship from the relationship table."""
     db_resource = db.query(models.Resource).filter(models.Resource.id == id).first()
     if not db_resource:
@@ -59,18 +60,18 @@ def get_resource(db: Session, id: str) -> Optional[models.Resource]:
     relationships = db.query(models.ResourceRelationship).filter(models.ResourceRelationship.resource_id == id).all()
     resource_data = dict(db_resource.data)  # Make a copy
     
-    # Dynamically add id from the database id column
+    # Dynamically add id and href from the database id column
     resource_data["id"] = db_resource.id
+    resource_data["href"] = f"{base_url}{RESOURCE_HREF_PREFIX}{db_resource.id}"
     
     resource_relationships = []
     for rel in relationships:
         # Fetch related resource for href and type if available
         related = db.query(models.Resource).filter(models.Resource.id == rel.related_resource_id).first()
         related_resource = {
-            "id": rel.related_resource_id
+            "id": rel.related_resource_id,
+            "href": f"{base_url}{RESOURCE_HREF_PREFIX}{rel.related_resource_id}"
         }
-        if related and "href" in related.data:
-            related_resource["href"] = related.data["href"]
         if related and "@type" in related.data:
             related_resource["@type"] = related.data["@type"]
         resource_relationships.append({
@@ -109,8 +110,8 @@ def update_resource(db: Session, id: str, resource_update: dict) -> Optional[mod
     if not db_resource:
         return None
     
-    # Remove id from resource_update before storing - id is immutable and stored in id column
-    resource_data = {k: v for k, v in resource_update.items() if k != "id"}
+    # Remove id and href from resource_update before storing - they are generated dynamically
+    resource_data = {k: v for k, v in resource_update.items() if k not in ["id", "href"]}
     
     db_resource.data = resource_data
     db.commit()
