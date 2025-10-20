@@ -45,7 +45,6 @@ async def notify_hubs(event_type: str, resource: schemas.Resource, db: Session):
 
 @app.get(
     "/resource",
-    response_model=List[schemas.Resource],
     tags=["resource"],
     summary="List or find Resource objects",
     description="List or find Resource objects"
@@ -61,7 +60,7 @@ async def list_resources(
     result = []
     for r in resources:
         db_resource = crud.get_resource(db, r.id)
-        result.append(schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at))
+        result.append(db_resource.data)  # Return only the data content
     response.headers["X-Result-Count"] = str(len(result))
     response.headers["X-Total-Count"] = str(total_count)
     return result
@@ -69,7 +68,6 @@ async def list_resources(
 
 @app.post(
     "/resource",
-    response_model=schemas.Resource,
     status_code=status.HTTP_201_CREATED,
     tags=["resource"],
     summary="Creates a Resource",
@@ -82,15 +80,14 @@ async def create_resource(
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.create_resource(db, resource, base_url)
-    result = schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
     # Notify hubs
+    result = schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
     await notify_hubs("ResourceCreated", result, db)
-    return result
+    return db_resource.data  # Return only the data content
 
 
 @app.get(
     "/resource/{id}",
-    response_model=schemas.Resource,
     tags=["resource"],
     summary="Retrieves a Resource by ID",
     description="This operation retrieves a Resource entity. Attribute selection enabled for all first level attributes."
@@ -105,12 +102,11 @@ async def retrieve_resource(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Resource with id {id} not found"
         )
-    return schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
+    return db_resource.data  # Return only the data content
 
 
 @app.patch(
     "/resource/{id}",
-    response_model=schemas.Resource,
     tags=["resource"],
     summary="Updates partially a Resource",
     description="This operation updates partially a Resource entity."
@@ -126,10 +122,10 @@ async def patch_resource(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Resource with id {id} not found"
         )
-    result = schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
     # Notify hubs
+    result = schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
     await notify_hubs("ResourceChanged", result, db)
-    return result
+    return db_resource.data  # Return only the data content
 
 
 @app.delete(
