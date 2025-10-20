@@ -237,6 +237,7 @@ async def sync_callback(
     event_type = event.get("eventType")
     event_time = event.get("eventTime")
     resource_data = event.get("resource", {})
+    # ID can be at event level or in resource data
     resource_id = event.get("id") or resource_data.get("id")
     
     if not event_type:
@@ -253,8 +254,9 @@ async def sync_callback(
                 # Update if it already exists (to handle race conditions)
                 crud.update_resource(db, resource_id, resource_data)
             else:
-                # Create new resource
-                crud.create_resource(db, resource_data, base_url="")
+                # Ensure id is in resource_data for create
+                resource_data_with_id = {**resource_data, "id": resource_id}
+                crud.create_resource(db, resource_data_with_id, base_url="")
             
             return {
                 "status": "synchronized",
@@ -276,7 +278,8 @@ async def sync_callback(
                 }
             else:
                 # Create if it doesn't exist (to handle missing resources)
-                crud.create_resource(db, resource_data, base_url="")
+                resource_data_with_id = {**resource_data, "id": resource_id}
+                crud.create_resource(db, resource_data_with_id, base_url="")
                 return {
                     "status": "synchronized",
                     "eventType": event_type,

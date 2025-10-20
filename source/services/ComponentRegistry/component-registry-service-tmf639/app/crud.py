@@ -11,12 +11,16 @@ from app import models, schemas
 def create_resource(db: Session, resource: dict, base_url: str) -> models.Resource:
     """Create a new resource as a JSON object, extract and persist relationships separately."""
     resource_id = resource.get("id") or str(uuid.uuid4())
-    resource["id"] = resource_id
+    
+    # Remove id from resource data - it will be stored in the id column only
+    resource_data = {k: v for k, v in resource.items() if k != "id"}
+    
     # Remove resourceRelationship from the resource JSON before persisting
-    relationships = resource.pop("resourceRelationship", [])
+    relationships = resource_data.pop("resourceRelationship", [])
+    
     db_resource = models.Resource(
         id=resource_id,
-        data=resource,
+        data=resource_data,
     )
     db.add(db_resource)
     db.commit()
@@ -28,9 +32,11 @@ def create_resource(db: Session, resource: dict, base_url: str) -> models.Resour
         related_resource_id = related_resource.get("id")
         # Optionally create the related resource if it does not exist
         if related_resource_id and not db.query(models.Resource).filter(models.Resource.id == related_resource_id).first():
+            # Remove id from related resource data as well
+            related_resource_data = {k: v for k, v in related_resource.items() if k != "id"}
             db_related = models.Resource(
                 id=related_resource_id,
-                data=related_resource,
+                data=related_resource_data,
             )
             db.add(db_related)
             db.commit()
@@ -52,6 +58,10 @@ def get_resource(db: Session, id: str) -> Optional[models.Resource]:
     # Dynamically add resourceRelationship
     relationships = db.query(models.ResourceRelationship).filter(models.ResourceRelationship.resource_id == id).all()
     resource_data = dict(db_resource.data)  # Make a copy
+    
+    # Dynamically add id from the database id column
+    resource_data["id"] = db_resource.id
+    
     resource_relationships = []
     for rel in relationships:
         # Fetch related resource for href and type if available
@@ -98,7 +108,11 @@ def update_resource(db: Session, id: str, resource_update: dict) -> Optional[mod
     db_resource = db.query(models.Resource).filter(models.Resource.id == id).first()
     if not db_resource:
         return None
-    db_resource.data = resource_update
+    
+    # Remove id from resource_update before storing - id is immutable and stored in id column
+    resource_data = {k: v for k, v in resource_update.items() if k != "id"}
+    
+    db_resource.data = resource_data
     db.commit()
     db.refresh(db_resource)
     return db_resource
