@@ -214,6 +214,94 @@ async def health_check():
     return {"status": "healthy", "version": "5.0.0"}
 
 
+@app.post(
+    "/sync",
+    status_code=status.HTTP_200_OK,
+    tags=["synchronization"],
+    summary="Synchronization callback endpoint",
+    description="Receives events from other instances to keep resources synchronized."
+)
+async def sync_callback(
+    event: dict,
+    db: Session = Depends(get_db)
+):
+    """
+    Callback endpoint for synchronization via hub subscriptions.
+    Processes ResourceCreated, ResourceChanged, and ResourceDeleted events.
+    """
+    event_type = event.get("eventType")
+    event_time = event.get("eventTime")
+    resource_data = event.get("resource", {})
+    resource_id = event.get("id") or resource_data.get("id")
+    
+    if not event_type:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing eventType in event payload"
+        )
+    
+    try:
+        if event_type == "ResourceCreated":
+            # Check if resource already exists
+            existing_resource = crud.get_resource(db, resource_id)
+            if existing_resource:
+                # Update if it already exists (to handle race conditions)
+                crud.update_resource(db, resource_id, resource_data)
+            else:
+                # Create new resource
+                crud.create_resource(db, resource_data, base_url="")
+            
+            return {
+                "status": "synchronized",
+                "eventType": event_type,
+                "resourceId": resource_id,
+                "action": "created"
+            }
+        
+        elif event_type == "ResourceChanged":
+            # Update the resource
+            existing_resource = crud.get_resource(db, resource_id)
+            if existing_resource:
+                crud.update_resource(db, resource_id, resource_data)
+                return {
+                    "status": "synchronized",
+                    "eventType": event_type,
+                    "resourceId": resource_id,
+                    "action": "updated"
+                }
+            else:
+                # Create if it doesn't exist (to handle missing resources)
+                crud.create_resource(db, resource_data, base_url="")
+                return {
+                    "status": "synchronized",
+                    "eventType": event_type,
+                    "resourceId": resource_id,
+                    "action": "created_from_update"
+                }
+        
+        elif event_type == "ResourceDeleted":
+            # Delete the resource
+            success = crud.delete_resource(db, resource_id)
+            return {
+                "status": "synchronized",
+                "eventType": event_type,
+                "resourceId": resource_id,
+                "action": "deleted" if success else "already_deleted"
+            }
+        
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unknown eventType: {event_type}"
+            )
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error processing sync event: {str(e)}"
+        )
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
