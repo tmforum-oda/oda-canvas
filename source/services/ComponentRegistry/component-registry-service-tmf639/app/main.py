@@ -338,12 +338,25 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                     if rel.get('relationshipType') == 'exposedBy':
                         related_resource = rel.get('resource', {})
                         if related_resource.get('id') == component_id:
-                            # Extract apiType from resourceCharacteristic
+                            # Extract apiType, url, apiDocs from resourceCharacteristic
                             api_type = '-'
+                            url = None
+                            api_docs = None
+                            # OAS specifications
+                            specifications = []
                             for char in potential_api.data.get('resourceCharacteristic', []):
                                 if char.get('name') == 'apiType':
                                     api_type = char.get('value', '-')
-                                    break
+                                elif char.get('name') == 'url':
+                                    url = char.get('value')
+                                elif char.get('name') == 'apiDocs':
+                                    api_docs = char.get('value')
+                                elif char.get('name') == 'specification':
+                                    specs = char.get('value', [])
+                                    for spec in specs:
+                                        spec_url = spec.get('url')
+                                        if spec_url:
+                                            specifications.append(spec_url)
                             
                             # This API is exposed by this component
                             oda_component_apis[component_id].append({
@@ -351,7 +364,10 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                                 'name': potential_api.data.get('name', '-'),
                                 'type': potential_api.data.get('@type', 'API'),
                                 'category': potential_api.data.get('category', '-'),
-                                'apiType': api_type
+                                'apiType': api_type,
+                                'url': url,
+                                'apiDocs': api_docs,
+                                'specifications': specifications
                             })
     
     return templates.TemplateResponse(

@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+import codecs
+
+html_content = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -250,9 +252,6 @@
         .api-badge.oas-badge:hover {
             background-color: #138496;
         }
-        .api-badge.oas-badge-nolink {
-            background-color: #b0b0b0;
-        }
     </style>
 </head>
 <body>
@@ -357,19 +356,16 @@
                                             <a href="/resource/{{ api.id }}" class="api-link" target="_blank">{{ api.name }}</a>
                                         </span>
                                         <div class="api-badges">
-                                            {% if api.specifications %}
-                                              {% for spec_url in api.specifications %}
-                                                <a href="{{ spec_url }}" class="api-badge oas-badge" target="_blank">{{ api.apiType }}</a>
-                                              {% endfor %}
-                                            {% else %}
-												<span class="api-badge oas-badge-nolink">{{ api.apiType }}</span>
-                                            {% endif %}
+                                            <span class="api-badge">{{ api.apiType }}</span>
                                             {% if api.url %}
                                                 <a href="{{ api.url }}" class="api-badge url-badge" target="_blank">URL</a>
                                             {% endif %}
                                             {% if api.apiDocs %}
                                                 <a href="{{ api.apiDocs }}" class="api-badge devui-badge" target="_blank">DEV UI</a>
                                             {% endif %}
+                                            {% for spec_url in api.specifications %}
+                                                <a href="{{ spec_url }}" class="api-badge oas-badge" target="_blank">OAS</a>
+                                            {% endfor %}
                                         </div>
                                     </li>
                                 {% endfor %}
@@ -554,3 +550,10 @@
     </script>
 </body>
 </html>
+"""
+
+output_path = r"C:\Users\A307131\git\oda-canvas\source\services\ComponentRegistry\component-registry-service-tmf639\app\templates\index.html"
+with codecs.open(output_path, 'w', 'utf-8') as f:
+    f.write(html_content)
+
+print("Template updated successfully with URL, DEV UI, and OAS badges!")
