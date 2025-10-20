@@ -160,3 +160,13 @@ def delete_hub(db: Session, id: str) -> bool:
     db.delete(db_hub)
     db.commit()
     return True
+
+
+def get_all_hubs(db: Session) -> List[schemas.Hub]:
+    """Return all hubs (resources with a callback field)."""
+    hubs = db.query(models.Resource).all()
+    result = []
+    for hub in hubs:
+        if isinstance(hub.data, dict) and "callback" in hub.data:
+            result.append(schemas.Hub(id=hub.id, callback=hub.data["callback"], query=hub.data.get("query")))
+    return result

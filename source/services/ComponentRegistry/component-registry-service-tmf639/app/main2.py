@@ -1,7 +1,7 @@
 """Main FastAPI application for TMF639 Resource Inventory Management v5.0.0."""
 
 from dotenv import load_dotenv
-load_dotenv()  # take environment variables
+load_dotenv(".env2")  # take environment variables
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from sqlalchemy.orm import Session
@@ -9,8 +9,6 @@ from typing import List, Optional
 import os
 from app import models, schemas, crud
 from app.database import engine, get_db, Base
-import httpx
-from datetime import datetime
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -23,23 +21,6 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
-
-
-async def notify_hubs(event_type: str, resource: schemas.Resource, db: Session):
-    """Send event notification to all registered hubs."""
-    hubs = crud.get_all_hubs(db)
-    event_payload = {
-        "eventType": event_type,
-        "eventTime": datetime.utcnow().isoformat() + "Z",
-        "resource": resource.json(),  # Use JSON string to avoid datetime serialization issues
-    }
-    async with httpx.AsyncClient() as client:
-        for hub in hubs:
-            try:
-                await client.post(hub.callback, json=event_payload, timeout=5)
-            except Exception as e:
-                # Log error, but do not block main operation
-                print(f"Failed to notify hub {hub.callback}: {e}")
 
 
 @app.get(
@@ -81,10 +62,7 @@ async def create_resource(
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.create_resource(db, resource, base_url)
-    result = schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
-    # Notify hubs
-    await notify_hubs("ResourceCreated", result, db)
-    return result
+    return schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
 
 
 @app.get(
@@ -125,10 +103,7 @@ async def patch_resource(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Resource with id {id} not found"
         )
-    result = schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
-    # Notify hubs
-    await notify_hubs("ResourceChanged", result, db)
-    return result
+    return schemas.Resource(id=db_resource.id, data=db_resource.data, created_at=db_resource.created_at, updated_at=db_resource.updated_at)
 
 
 @app.delete(
@@ -148,9 +123,6 @@ async def delete_resource(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Resource with id {id} not found"
         )
-    # Notify hubs (send minimal event)
-    event_payload = schemas.Resource(id=id, data={}, created_at=None, updated_at=None)
-    await notify_hubs("ResourceDeleted", event_payload, db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -224,6 +196,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",
         host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", 8080)),
+        port=int(os.getenv("PORT", 8082)),
         reload=True
     )
