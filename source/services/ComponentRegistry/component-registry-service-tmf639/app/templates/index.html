@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TMF639 Resource Inventory Management - {{ service_name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #495057;
+            margin-top: 30px;
+            border-bottom: 2px solid #6c757d;
+            padding-bottom: 5px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #e8f4fd;
+        }
+        .api-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .api-link:hover {
+            text-decoration: underline;
+        }
+        .no-data {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .section-info {
+            background-color: #e7f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .refresh-button {
+            background-color: #17a2b8;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .refresh-button:hover {
+            background-color: #138496;
+        }
+        .auto-refresh-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .auto-refresh-status {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: 10px;
+        }
+        .resource-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .oda-component-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .hub-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .label-item {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 1px;
+            display: inline-block;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗂️ TMF639 Resource Inventory Management - {{ service_name }}</h1>
+        
+        <div class="section-info">
+            <strong>Service:</strong> {{ service_name }}<br>
+            <strong>API Version:</strong> TMF639 v5.0.0<br>
+            <strong>Description:</strong> Resource Inventory Management API for ODA Canvas Components
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">
+                    {% set oda_count = 0 %}
+                    {% for resource in resources %}
+                        {% if resource.data.get('category') == 'ODAComponent' %}
+                            {% set oda_count = oda_count + 1 %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ oda_count }}
+                </div>
+                <div class="stat-label">ODA Components</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ resources|length }}</div>
+                <div class="stat-label">Total Resources</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ hubs|length }}</div>
+                <div class="stat-label">Event Subscriptions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ relationships|length }}</div>
+                <div class="stat-label">Resource Relationships</div>
+            </div>
+        </div>
+
+        <!-- Refresh Controls -->
+        <div class="refresh-controls">
+            <button class="refresh-button" onclick="manualRefresh()">↻ Refresh Page</button>
+            <div class="auto-refresh-toggle">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoRefreshCheckbox" checked>
+                    <span class="slider"></span>
+                </label>
+                <span class="auto-refresh-status" id="autoRefreshStatus">Auto-refresh: On (15s)</span>
+            </div>
+        </div>
+
+        <!-- ODA Components Section -->
+        <h2>🔷 ODA Components</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Version</th>
+                    <th>Exposed APIs</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% set oda_components = [] %}
+            {% for resource in resources %}
+                {% if resource.data.get('category') == 'ODAComponent' %}
+                    {% set _ = oda_components.append(resource) %}
+                {% endif %}
+            {% endfor %}
+            {% if oda_components %}
+                {% for component in oda_components %}
+                    <tr>
+                        <td><code>{{ component.id }}</code></td>
+                        <td><strong>{{ component.data.get('name', '-') }}</strong></td>
+                        <td>
+                            <span class="oda-component-type">
+                                {{ component.data.get('@type', 'ODAComponent') }}
+                            </span>
+                        </td>
+                        <td>{{ component.data.get('resourceStatus', '-') }}</td>
+                        <td>
+                            {% set version_char = namespace(found=false) %}
+                            {% for char in component.data.get('resourceCharacteristic', []) %}
+                                {% if char.get('name') == 'version' %}
+                                    {{ char.get('value', '-') }}
+                                    {% set version_char.found = true %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if not version_char.found %}-{% endif %}
+                        </td>
+                        <td>
+                            {% set api_count = 0 %}
+                            {% for rel in component.data.get('resourceRelationship', []) %}
+                                {% if rel.get('relationshipType') == 'exposes' %}
+                                    {% set api_count = api_count + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if api_count > 0 %}
+                                <span class="label-item">{{ api_count }} API(s)</span>
+                            {% else %}
+                                <span class="no-data">No APIs</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/resource/{{ component.id }}" class="api-link" target="_blank">View Details</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7" class="no-data" style="text-align: center;">No ODA Components found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Resources Section -->
+        <h2>📦 Resources</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if resources %}
+                {% for resource in resources %}
+                    <tr>
+                        <td><code>{{ resource.id }}</code></td>
+                        <td>
+                            <span class="resource-type">
+                                {{ resource.data.get('@type', 'Resource') }}
+                            </span>
+                        </td>
+                        <td><strong>{{ resource.data.get('name', '-') }}</strong></td>
+                        <td>{{ resource.data.get('category', '-') }}</td>
+                        <td>{{ resource.data.get('resourceStatus', '-') }}</td>
+                        <td>
+                            <a href="/resource/{{ resource.id }}" class="api-link" target="_blank">View Details</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="no-data" style="text-align: center;">No resources found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Event Subscriptions (Hubs) Section -->
+        <h2>🔔 Event Subscriptions (Hubs)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Callback URL</th>
+                    <th>Query</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if hubs %}
+                {% for hub in hubs %}
+                    <tr>
+                        <td><code>{{ hub.id }}</code></td>
+                        <td><a href="{{ hub.callback }}" class="api-link" target="_blank">{{ hub.callback }}</a></td>
+                        <td>{{ hub.query or '-' }}</td>
+                        <td><span class="hub-status">Active</span></td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="no-data" style="text-align: center;">No event subscriptions found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Resource Relationships Section -->
+        <h2>🔗 Resource Relationships</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>From Resource</th>
+                    <th>Relationship Type</th>
+                    <th>To Resource</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if relationships %}
+                {% for rel in relationships %}
+                    <tr>
+                        <td><code>{{ rel.resource_id }}</code></td>
+                        <td><strong>{{ rel.relation_type }}</strong></td>
+                        <td><code>{{ rel.related_resource_id }}</code></td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="3" class="no-data" style="text-align: center;">No resource relationships found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Footer Navigation -->
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <p><strong>Navigation:</strong></p>
+            <ul>
+                <li><a href="/docs" class="api-link" target="_blank">Swagger UI - Interactive API Documentation</a></li>
+                <li><a href="/redoc" class="api-link" target="_blank">ReDoc - API Documentation</a></li>
+                <li><a href="/resource" class="api-link">Resources API Endpoint</a></li>
+                <li><a href="/hub" class="api-link">Hub API Endpoint (Event Subscriptions)</a></li>
+                <li><a href="/sync" class="api-link">Sync Endpoint (Callback for Synchronization)</a></li>
+                <li><a href="/health" class="api-link">Health Check</a></li>
+            </ul>
+            
+            <p><strong>Synchronization:</strong></p>
+            <p style="color: #6c757d; font-size: 0.9em;">
+                This service supports bidirectional synchronization with other TMF639 Resource Inventory instances. 
+                Use the <code>/hub</code> endpoint to register event subscriptions and the <code>/sync</code> endpoint 
+                as a callback URL to keep multiple instances synchronized.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function manualRefresh() {
+            window.location.reload();
+        }
+
+        // Auto-refresh functionality
+        let autoRefreshInterval = null;
+
+        // Initialize auto-refresh on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('autoRefreshCheckbox');
+            if (checkbox.checked) {
+                startAutoRefresh();
+            }
+        });
+
+        document.getElementById('autoRefreshCheckbox').addEventListener('change', function() {
+            const isChecked = this.checked;
+            const statusText = document.getElementById('autoRefreshStatus');
+
+            if (isChecked) {
+                statusText.textContent = 'Auto-refresh: On (15s)';
+                startAutoRefresh();
+            } else {
+                statusText.textContent = 'Auto-refresh: Off';
+                stopAutoRefresh();
+            }
+        });
+
+        function startAutoRefresh() {
+            // Clear any existing interval first
+            stopAutoRefresh();
+            // Set up interval to refresh page every 15 seconds
+            autoRefreshInterval = setInterval(() => {
+                window.location.reload();
+            }, 15000); // 15 seconds interval
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+    </script>
+</body>
+</html>

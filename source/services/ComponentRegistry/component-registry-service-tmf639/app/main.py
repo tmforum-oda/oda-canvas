@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 load_dotenv()  # take environment variables
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import os
@@ -23,6 +25,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# Setup templates
+templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
 
 async def notify_hubs(event_type: str, id: str, resource_data: dict, db: Session):
@@ -300,6 +305,34 @@ async def sync_callback(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error processing sync event: {str(e)}"
         )
+
+
+@app.get("/", response_class=HTMLResponse, tags=["dashboard"])
+async def dashboard(request: Request, db: Session = Depends(get_db)):
+    """Display dashboard with resources, hubs, and relationships."""
+    # Get all resources
+    resources, _ = crud.get_resources(db)
+    resources_with_data = []
+    for r in resources:
+        db_resource = crud.get_resource(db, r.id)
+        resources_with_data.append(db_resource)
+    
+    # Get all hubs
+    hubs = crud.get_all_hubs(db)
+    
+    # Get all relationships
+    relationships = db.query(models.ResourceRelationship).all()
+    
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "service_name": os.getenv("SERVICE_NAME", "Resource Inventory Service"),
+            "resources": resources_with_data,
+            "hubs": hubs,
+            "relationships": relationships
+        }
+    )
 
 
 if __name__ == "__main__":
