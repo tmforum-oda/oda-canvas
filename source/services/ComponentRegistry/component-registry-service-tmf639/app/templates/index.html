@@ -259,6 +259,27 @@
         .api-badge.status-unavailable-badge {
             background-color: #FF0000;
         }
+        .delete-btn {
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-left: 8px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .delete-btn-container {
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -417,7 +438,12 @@
                         <td>{{ resource.data.get('category', '-') }}</td>
                         <td>{{ resource.data.get('resourceStatus', '-') }}</td>
                         <td>
-                            <a href="/resource/{{ resource.id }}" class="api-link" target="_blank">View Details</a>
+                            <div class="action-buttons">
+                                <a href="/resource/{{ resource.id }}" class="api-link" target="_blank">View Details</a>
+                                <div class="delete-btn-container">
+                                    <button class="delete-btn" onclick="deleteResource('{{ resource.id }}')" title="Delete Resource">🗑️</button>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}
@@ -438,6 +464,7 @@
                     <th>Callback URL</th>
                     <th>Query</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -448,11 +475,14 @@
                         <td><a href="{{ hub.callback }}" class="api-link" target="_blank">{{ hub.callback }}</a></td>
                         <td>{{ hub.query or '-' }}</td>
                         <td><span class="hub-status">Active</span></td>
+                        <td style="text-align: right;">
+                            <button class="delete-btn" onclick="deleteHub(\'{{ hub.id }}\')" title="Delete Hub">🗑️</button>
+                        </td>
                     </tr>
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="4" class="no-data" style="text-align: center;">No event subscriptions found</td>
+                    <td colspan="5" class="no-data" style="text-align: center;">No event subscriptions found</td>
                 </tr>
             {% endif %}
             </tbody>
@@ -507,6 +537,48 @@
     </div>
 
     <script>
+
+        async function deleteResource(resourceId) {
+            if (!confirm(`Are you sure you want to delete resource: ${resourceId}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/resource/${resourceId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert(`Resource ${resourceId} deleted successfully`);
+                    window.location.reload();
+                } else {
+                    alert(`Failed to delete resource: ${response.statusText}`);
+                }
+            } catch (error) {
+                alert(`Error deleting resource: ${error.message}`);
+            }
+        }
+
+        async function deleteHub(hubId) {
+            if (!confirm(`Are you sure you want to delete hub: ${hubId}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/hub/${hubId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert(`Hub ${hubId} deleted successfully`);
+                    window.location.reload();
+                } else {
+                    alert(`Failed to delete hub: ${response.statusText}`);
+                }
+            } catch (error) {
+                alert(`Error deleting hub: ${error.message}`);
+            }
+        }
         function manualRefresh() {
             window.location.reload();
         }
