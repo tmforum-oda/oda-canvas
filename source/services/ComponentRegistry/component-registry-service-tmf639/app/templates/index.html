@@ -318,7 +318,6 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Type</th>
                     <th>Status</th>
                     <th>Version</th>
                     <th>Exposed APIs</th>
@@ -337,11 +336,6 @@
                     <tr>
                         <td><code>{{ component.id }}</code></td>
                         <td><strong>{{ component.data.get('name', '-') }}</strong></td>
-                        <td>
-                            <span class="oda-component-type">
-                                {{ component.data.get('@type', 'ODAComponent') }}
-                            </span>
-                        </td>
                         <td>{{ component.data.get('resourceStatus', '-') }}</td>
                         <td>
                             {% set version_char = namespace(found=false) %}
@@ -396,7 +390,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="7" class="no-data" style="text-align: center;">No ODA Components found</td>
+                    <td colspan="6" class="no-data" style="text-align: center;">No ODA Components found</td>
                 </tr>
             {% endif %}
             </tbody>
@@ -408,7 +402,6 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Type</th>
                     <th>Name</th>
                     <th>Category</th>
                     <th>Status</th>
@@ -420,11 +413,6 @@
                 {% for resource in resources %}
                     <tr>
                         <td><code>{{ resource.id }}</code></td>
-                        <td>
-                            <span class="resource-type">
-                                {{ resource.data.get('@type', 'Resource') }}
-                            </span>
-                        </td>
                         <td><strong>{{ resource.data.get('name', '-') }}</strong></td>
                         <td>{{ resource.data.get('category', '-') }}</td>
                         <td>{{ resource.data.get('resourceStatus', '-') }}</td>
@@ -435,7 +423,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="6" class="no-data" style="text-align: center;">No resources found</td>
+                    <td colspan="5" class="no-data" style="text-align: center;">No resources found</td>
                 </tr>
             {% endif %}
             </tbody>
