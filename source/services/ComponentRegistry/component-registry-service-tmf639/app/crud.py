@@ -147,7 +147,7 @@ def get_resource_relationships(db: Session, resource_id: str) -> List[models.Res
 
 def create_hub(db: Session, hub_data: schemas.HubInput) -> schemas.Hub:
     """Create a new event subscription hub."""
-    hub_id = str(uuid.uuid4())
+    hub_id = hub_data.id or str(uuid.uuid4())
     db_hub = models.Hub(
         id=hub_id,
         callback=hub_data.callback,

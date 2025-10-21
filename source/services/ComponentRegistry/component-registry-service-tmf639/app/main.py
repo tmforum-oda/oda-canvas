@@ -252,6 +252,43 @@ async def sync_callback(
     # ID can be at event level or in resource data
     resource_id = event.get("id") or resource_data.get("id")
     
+    # Parse query parameter for source mapping
+    query = event.get("query", "")
+    source_prefix = None
+    if query and "source=" in query:
+        # Extract source value from query string (e.g., "source=localdev82")
+        for param in query.split("&"):
+            if param.startswith("source="):
+                source_value = param.split("=", 1)[1]
+                source_prefix = f"{source_value}:"
+                break
+    
+    # Helper function to replace "self:" prefix with source prefix in IDs
+    def replace_self_prefix(value, source_prefix):
+        """Recursively replace 'self:' prefix with source prefix in dict/list structures."""
+        if not source_prefix:
+            return value
+        
+        if isinstance(value, str):
+            if value.startswith("self:"):
+                return value.replace("self:", source_prefix, 1)
+            return value
+        elif isinstance(value, dict):
+            return {k: replace_self_prefix(v, source_prefix) for k, v in value.items()}
+        elif isinstance(value, list):
+            return [replace_self_prefix(item, source_prefix) for item in value]
+        else:
+            return value
+    
+    # Apply source prefix replacement to resource_id and resource_data
+    if source_prefix:
+        if resource_id and resource_id.startswith("self:"):
+            resource_id = resource_id.replace("self:", source_prefix, 1)
+        resource_data = replace_self_prefix(resource_data, source_prefix)
+        # Ensure the id in resource_data matches the transformed resource_id
+        if "id" in resource_data:
+            resource_data["id"] = resource_id
+    
     if not event_type:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -185,6 +185,7 @@ class ResourceUpdate(BaseModel):
 
 class HubInput(BaseModel):
     """Schema for hub/event subscription input."""
+    id: Optional[str] = None
     callback: str
     query: Optional[str] = None
 
