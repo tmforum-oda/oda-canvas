@@ -19,7 +19,7 @@ global:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
   hookImages:
-    kubectl: bitnami/kubectl:latest
+    kubectl: bitnamilegacy/kubectl:latest
     kubectlCurl: tmforumodacanvas/baseimage-kubectl-curl:1.30.5
     busybox: busybox:1.35
 
@@ -70,6 +70,7 @@ cert-manager-init:
 keycloak:
   enabled: true
   image:
+    repository: bitnamilegacy/keycloak
     tag: 20.0.5-debian-11-r2
   auth:
     adminUser: "admin"
@@ -77,6 +78,7 @@ keycloak:
   postgresql:
     enabled: true
     image:
+      repository: bitnamilegacy/postgresql
       tag: 15.2.0-debian-11-r31
     auth:
       username: "keycloak"
@@ -104,6 +106,7 @@ keycloak:
   keycloakConfigCli:
     enabled: true
     image:
+      repository: bitnamilegacy/keycloak-config-cli
       tag: 5.5.0-debian-11-r35
     backoffLimit: 1
     command: [ "java", "-jar", "/opt/keycloak-config-cli.jar" ]
@@ -356,6 +359,41 @@ secretsmanagement-operator:
   #  name: enc-secrets
   #  key: hvacTokenEnc
 
+# -----------------------------------------------------------------------------
+# PDB Management Operator and sub-chart parameters
+# -----------------------------------------------------------------------------
+
+pdb-management-operator:
+  enabled: true
+  
+  # Deployment configuration
+  deployment:
+    operatorName: pdb-management-operator
+    image: tmforumodacanvas/pdb-management-operator
+    version: 1.0.0
+    prereleaseSuffix:
+    imagePullPolicy: IfNotPresent
+    watchNamespace: ''
+    enableWebhook: true
+    enableMetrics: true
+    metricsAddr: "0.0.0.0:8080"
+    probeAddr: "0.0.0.0:8081"
+  
+  # Observability configuration
+  observability:
+    logLevel: "info"
+    tracing:
+      enabled: false
+      jaegerEndpoint: ""
+      otlpEndpoint: ""
+      sampleRate: "1.0"
+    
+  # Operator configuration
+  configuration:
+    enablePDB: true
+    defaultNamespace: "default"
+    metricsNamespace: "canvas"
+    leaderElectionNamespace: "canvas"
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook

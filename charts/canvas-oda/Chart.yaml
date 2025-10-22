@@ -16,8 +16,12 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.4-LT3
-# version: 1.2.4-LT3 - added PrometheusAnnotation option for openmetrics scraping on APIOpeator for Istio, Kong and apisix
+
+version: 1.2.4-LT4
+# version: 1.2.4-LT4 - added opentelemetry sub-chart and tests
+# version: 1.2.4-AK1 - added image override for bitnamilegacy Keycloak-config-cli image
+# version: 1.2.4-BB1 - added image override for bitnamilegacy Keycloak and Keycloak.PostgreSQL images
+# version: 1.2.4-LT3 - added PDB Management Operator for automated Pod Disruption Budget management
 # version: 1.2.4-LT2 - added resource-inventory API for viewing components and exposed APIs in the canvas
 # version: 1.2.4-LM1 - Added support for custom/private docker registry and image pull secrets
 # version: 1.2.4-LT1 - added permissionSpecificationSet API for configuring roles
@@ -79,7 +83,7 @@ dependencies:
     repository: 'file://../oda-crds'
     condition: oda-crds.enabled
   - name: keycloak
-    version: "13.0.2"
+    version: "13.0.3"
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: component-operator
@@ -122,4 +126,8 @@ dependencies:
     version: "1.0.0"
     repository: 'file://../resource-inventory'
     condition: resource-inventory.enabled
+  - name: pdb-management-operator
+    version: "0.1.0"
+    repository: 'file://../pdb-management-operator'
+    condition: pdb-management-operator.enabled
 

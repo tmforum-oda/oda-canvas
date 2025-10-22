@@ -1,0 +1,313 @@
+# Example: Basic deployment with ODA Canvas availability annotations
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-service
+  namespace: components
+  labels:
+    app: example-service
+    oda.tmforum.org/componentType: core
+  annotations:
+    # ODA Canvas PDB Management annotations
+    oda.tmforum.org/availability-class: "high-availability"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "example-service"
+    oda.tmforum.org/maintenance-window: "02:00-04:00 UTC"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: example-service
+  template:
+    metadata:
+      labels:
+        app: example-service
+    spec:
+      containers:
+        - name: service
+          image: nginx:1.21
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+# Example: Custom PDB configuration with JSON annotation
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-pdb-service
+  namespace: components
+  labels:
+    app: custom-pdb-service
+  annotations:
+    # Custom PDB configuration - will override availability class defaults
+    oda.tmforum.org/availability-class: "custom"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "custom-pdb-service"
+    oda.tmforum.org/custom-pdb-config: |
+      {
+        "minAvailable": 2,
+        "unhealthyPodEvictionPolicy": "IfHealthyBudget"
+      }
+    oda.tmforum.org/maintenance-window: "03:00-05:00 Europe/London"
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: custom-pdb-service
+  template:
+    metadata:
+      labels:
+        app: custom-pdb-service
+    spec:
+      containers:
+        - name: service
+          image: nginx:1.21
+---
+# Example: Security component with automatic availability upgrade
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: security-service
+  namespace: components
+  labels:
+    app: security-service
+    oda.tmforum.org/componentType: security
+  annotations:
+    # Security function automatically upgrades standard to high-availability (75%)
+    oda.tmforum.org/availability-class: "standard"  # Will be upgraded to high-availability
+    oda.tmforum.org/component-function: "security"
+    oda.tmforum.org/componentName: "security-service"
+    oda.tmforum.org/maintenance-window: "01:00-02:00 UTC"  # Shorter window for security
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: security-service
+  template:
+    metadata:
+      labels:
+        app: security-service
+    spec:
+      containers:
+        - name: service
+          image: security-service:v2.1.0
+---
+# Example: Policy override with proper annotations
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: override-example
+  namespace: components
+  labels:
+    app: override-example
+  annotations:
+    # Override policy with required documentation
+    oda.tmforum.org/availability-class: "non-critical"  # Override to lower class
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "override-example"
+    
+    # Override annotations (required when policy enforcement allows overrides)
+    oda.tmforum.org/override-reason: "Development testing - temporary deployment"
+    oda.tmforum.org/approved-by: "engineering-team"
+    oda.tmforum.org/incident-id: "INC-2024-001"  # Optional incident reference
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: override-example
+  template:
+    metadata:
+      labels:
+        app: override-example
+    spec:
+      containers:
+        - name: service
+          image: test-service:latest
+---
+# Example: Performance optimized deployment with monitoring
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: performance-optimized-service
+  namespace: components
+  labels:
+    app: performance-service
+    oda.tmforum.org/scale: "large"  # Performance hint
+  annotations:
+    # Standard PDB configuration
+    oda.tmforum.org/availability-class: "high-availability"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "performance-service"
+    oda.tmforum.org/maintenance-window: "02:00-04:00 UTC"
+    
+    # Performance optimization annotations
+    oda.tmforum.org/cache-key: "perf-service-prod"  # Unique cache identifier
+    oda.tmforum.org/reconcile-priority: "high"      # Higher processing priority
+    oda.tmforum.org/batch-group: "group-1"          # Batch processing group
+    
+    # Monitoring annotations
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: performance-service
+  template:
+    metadata:
+      labels:
+        app: performance-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: service
+          image: performance-service:v1.5.0
+          ports:
+            - containerPort: 8080
+              name: metrics
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+# Example: Management component
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-service
+  namespace: canvas  # Management components often in canvas namespace
+  labels:
+    app: management-service
+    oda.tmforum.org/componentType: management
+  annotations:
+    oda.tmforum.org/availability-class: "standard"  # 50% for management components
+    oda.tmforum.org/component-function: "management"
+    oda.tmforum.org/componentName: "management-service"
+    oda.tmforum.org/maintenance-window: "00:00-06:00 UTC"  # Flexible maintenance
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: management-service
+  template:
+    metadata:
+      labels:
+        app: management-service
+    spec:
+      containers:
+        - name: service
+          image: management-service:latest
+---
+# Example: Mission-critical deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mission-critical-service
+  namespace: production
+  labels:
+    app: mission-critical-service
+    tier: "critical"
+  annotations:
+    # Mission-critical gets 90% availability
+    oda.tmforum.org/availability-class: "mission-critical"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "mission-critical-service"
+    oda.tmforum.org/maintenance-window: "03:00-04:00 UTC"  # Very short window
+    
+    # Additional safeguards
+    oda.tmforum.org/min-replicas: "5"  # Enforce minimum replicas
+    oda.tmforum.org/priority: "100"    # High priority override
+spec:
+  replicas: 10  # High replica count for mission-critical
+  selector:
+    matchLabels:
+      app: mission-critical-service
+  template:
+    metadata:
+      labels:
+        app: mission-critical-service
+    spec:
+      containers:
+        - name: service
+          image: mission-critical:v3.0.0
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+---
+# Example: Legacy annotation support (still works)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy-service
+  namespace: components
+  labels:
+    app: legacy-service
+  annotations:
+    # Legacy annotation (still supported)
+    cell.runtime.pdb: "standard"
+    
+    # Can mix legacy and new annotations
+    oda.tmforum.org/componentName: "legacy-service"
+    oda.tmforum.org/maintenance-window: "02:00-04:00 UTC"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: legacy-service
+  template:
+    metadata:
+      labels:
+        app: legacy-service
+    spec:
+      containers:
+        - name: service
+          image: nginx:1.21
+          ports:
+            - containerPort: 80
+---
+# Example: Multi-timezone maintenance windows
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: global-service-apac
+  namespace: components
+  labels:
+    app: global-service
+    region: apac
+  annotations:
+    oda.tmforum.org/availability-class: "high-availability"
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "global-service-apac"
+    # APAC timezone maintenance window
+    oda.tmforum.org/maintenance-window: "02:00-04:00 Asia/Singapore"
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: global-service
+      region: apac
+  template:
+    metadata:
+      labels:
+        app: global-service
+        region: apac
+    spec:
+      containers:
+        - name: service
+          image: global-service:apac-v1.0.0

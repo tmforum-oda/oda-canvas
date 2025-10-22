@@ -161,7 +161,7 @@ A Helm of helm to orchestrate the ODA installation
 | dependentapi-simple-operator.version | string | `"1.0.0"` |  |
 | global.certificate.appName | string | `"compcrdwebhook"` | Name of the certificate and webhook | |
 | global.hookImages.busybox | string | `"busybox:1.35"` |  |
-| global.hookImages.kubectl | string | `"bitnami/kubectl:latest"` |  |
+| global.hookImages.kubectl | string | `"bitnamilegacy/kubectl:latest"` |  |
 | global.hookImages.kubectlCurl | string | `"tmforumodacanvas/baseimage-kubectl-curl:1.30.5"` |  |
 | identityconfig-operator-keycloak.configmap.kcrealm | string | `"odari"` |  |
 | identityconfig-operator-keycloak.configmap.loglevel | string | `"20"` | Log level [python] (https://docs.python.org/3/library/logging.html |
