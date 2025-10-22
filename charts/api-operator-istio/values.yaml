@@ -9,8 +9,7 @@ deployment:
   ingressClass:
     enabled: false
     name: nginx
-  dataDog:
-    enabled: false
+  openMetricsImplementation: "PrometheusAnnotation"  # Options: ServiceMonitor, PrometheusAnnotation, DataDogAnnotation
   keycloak:
     port: 8080
   hostName: "*"

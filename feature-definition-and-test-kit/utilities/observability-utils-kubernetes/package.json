@@ -1,0 +1,22 @@
+{
+  "name": "observability-utils-kubernetes",
+  "version": "1.0.0",
+  "description": "Kubernetes utilities for testing ODA Canvas observability features",
+  "main": "observability-utils-kubernetes.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "kubernetes",
+    "observability",
+    "prometheus",
+    "servicemonitor",
+    "oda-canvas"
+  ],
+  "author": "TM Forum ODA Canvas Team",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.19.0",
+    "axios": "^1.6.0"
+  }
+}
