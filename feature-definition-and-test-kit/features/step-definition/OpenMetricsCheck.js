@@ -29,7 +29,7 @@ const isServiceMonitorDeployed = async () => {
     );
 
     if (!serviceMonitorCRD) {
-      console.error('❌ ServiceMonitor CRD is not present. Ensure the Prometheus Operator is installed.');
+      console.warn('⚠️ ServiceMonitor CRD is not present. Ensure the Prometheus Operator is installed.');
       return false;
     }
 
@@ -44,7 +44,7 @@ const isServiceMonitorDeployed = async () => {
     );
 
     if (!prometheusOperatorDeployment) {
-      console.error('❌ Prometheus Operator deployment not found.');
+      console.warn('⚠️ Prometheus Operator deployment not found.');
       return false;
     }
 

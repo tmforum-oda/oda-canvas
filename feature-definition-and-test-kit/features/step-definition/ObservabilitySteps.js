@@ -40,14 +40,42 @@ Before({ tags: '@ServiceMonitor' }, async function () {
     console.log('=== Service Monitor Check Complete ===');
 
   } catch (error) {
-    console.error(`❌ Error checking Service Monitor deployment: ${error.message}`);
-    console.error('Possible causes:');
-    console.error('- Service Monitor not installed or configured properly');
-    console.error('- Kubernetes cluster access issues');
-    console.error('- Required Gateway API CRDs not installed');
+    console.warn(`⚠️ Warning checking Service Monitor deployment: ${error.message}`);
+    console.warn('Possible causes:');
+    console.warn('- Service Monitor not installed or configured properly');
+    console.warn('- Kubernetes cluster access issues');
+    console.warn('- Required Gateway API CRDs not installed');
     throw error;
   }
 });
+
+// Skip if there is no OpenTelemetry Collector deployed
+Before({ tags: '@OpenTelemetryCollector' }, async function () {
+  console.log('\n=== OpenTelemetry Collector Check ===');
+  console.log('Checking if OpenTelemetry Collector is deployed and reachable...');
+
+  try {
+    const collectorReachable = await observabilityUtils.isCollectorReachable(4318);
+
+    if (!collectorReachable) {
+      console.log('OpenTelemetry Collector is not deployed or reachable. Skipping scenario.');
+      return 'skipped';
+    }
+
+    console.log('✅ OpenTelemetry Collector is deployed and reachable. Proceeding with scenario.');
+    console.log('=== OpenTelemetry Collector Check Complete ===');
+
+  } catch (error) {
+    console.warn(`⚠️ Warning checking OpenTelemetry Collector deployment: ${error.message}`);
+    console.warn('Possible causes:');
+    console.warn('- OpenTelemetry Collector not installed or configured properly');
+    console.warn('- Kubernetes cluster access issues');
+    console.warn('- Port-forwarding not set up (kubectl port-forward -n monitoring deployment/observability-opentelemetry-collector 4318:4318)');
+    return 'skipped';
+  }
+});
+
+
 
 /**
  * Verify that a ServiceMonitor resource exists for the component
