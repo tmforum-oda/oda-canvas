@@ -451,6 +451,14 @@ api-operator-kong:
     kong:
       postgresql:
         nameOverride: "postgresql-kong"
+        enabled: true
+        auth:
+          username: "kong"
+          password: "kong"
+          database: "kong"
+        image:
+          repository: bitnamilegacy/postgresql
+          tag: "13.11.0-debian-11-r20"
         #enabled: true
         #namespace: "kong"
       # Direct configurations to the kong sub-chart if needed
