@@ -13,9 +13,36 @@ from app import models, schemas, crud
 from app.database import engine, get_db, Base
 import httpx
 from datetime import datetime
+from contextlib import asynccontextmanager
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
+
+from app.simple_ipc import SimpleIPC
+
+
+ipc = SimpleIPC(delayed_init=True)
+
+# see https://www.nashruddinamin.com/blog/running-scheduled-jobs-in-fastapi
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+scheduler = AsyncIOScheduler()
+@scheduler.scheduled_job('interval', seconds=10)  # ('cron', hour=13, minute=05)
+async def process_events():
+    print(f"scheduled on worker {ipc._process_num} (pid={os.getpid()}), PROCESSES: {ipc.get_process_ids()} {'LEADER' if ipc.is_leader() else ''}")
+    ipc.alive()
+    ipc.cleanup()
+ 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ipc.init()
+    scheduler.start()
+    yield
+    scheduler.shutdown()
+    ipc.shutdown()
+    
+    
+
 
 # Create FastAPI app
 app = FastAPI(
@@ -23,7 +50,8 @@ app = FastAPI(
     description="TMF639 - Resource Inventory Management API v5.0.0",
     version="5.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Setup templates
@@ -226,7 +254,7 @@ async def delete_hub(
 @app.get("/health", tags=["health"])
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "version": "5.0.0"}
+    return {"status": "healthy", "version": "5.0.0", "worker_pid": os.getpid()}
 
 
 @app.post(
@@ -438,12 +466,15 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         }
     )
 
+print(f"THIS IS WORKER {os.getpid()}")
 
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
         "app.main:app",
         host=os.getenv("HOST", "0.0.0.0"),
         port=int(os.getenv("PORT", 8080)),
-        reload=True
+        #reload=True,
+        workers=2,
     )
