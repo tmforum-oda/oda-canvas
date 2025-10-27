@@ -1,5 +1,6 @@
 import os
 import time
+import pickle
 from typing import List
 from multiprocessing import shared_memory
 
@@ -7,10 +8,18 @@ from multiprocessing import shared_memory
 MAX_PROCESSES = 16
 
 
+
+def show_buf(data_bytes):
+    result = ""
+    for b in data_bytes: 
+        result = f"{result} {b:02x}"
+    print(result)
+
 class SimpleIPC:
 
     # Class-level shared resources
     _initialized = False
+    _myshm = None 
     _myshl = None 
     _process_id = None
     _process_num = None
@@ -20,18 +29,31 @@ class SimpleIPC:
         if cls._initialized:
             return
         cls._process_id = os.getpid()
-        #     lock | pid[n]            | last_update[n]    | data[n]
-        data = [0] + [0]*MAX_PROCESSES + [0]*MAX_PROCESSES + ['a'*256]*MAX_PROCESSES
-        myshl_init = shared_memory.ShareableList(data)
+
         try:
-            myshm = shared_memory.SharedMemory(name="SimpleIPC", create=True, size=myshl_init.shm.size)
-            print("CREATED NEW SimpleIPC shared memory")
-            for i in range(myshl_init.shm.size):
-                myshm.buf[i] = myshl_init.shm.buf[i]
+            #     | lock| pid[n]            | last_update[n]    | data[n]               |
+            data = [0] + [0]*MAX_PROCESSES + [0]*MAX_PROCESSES + ['a'*256]*MAX_PROCESSES
+            myshl_init = shared_memory.ShareableList(data)
+            data_bytes = pickle.dumps(myshl_init)
+            cls._myshm = shared_memory.SharedMemory(name="SimpleIPC", create=True, size=len(data_bytes))
+            print(f"CREATED NEW SimpleIPC shared memory {os.getpid()}")
+            cls._myshm.buf[:] = data_bytes[:]
+            print(f"COPIED SimpleIPC shared memory {os.getpid()}")
         except FileExistsError:
-            print("REUSE EXISTING SimpleIPC shared memory")
-            pass
-        cls._myshl = shared_memory.ShareableList(name="SimpleIPC")
+            print(f"INIT {os.getpid()}")
+            cls._myshm = shared_memory.SharedMemory(name="SimpleIPC")
+            print(f"REUSE EXISTING SimpleIPC shared memory {os.getpid()}")
+            time.sleep(0.25)
+            
+        while True:
+            try:
+                cls._myshl = pickle.loads(cls._myshm.buf)
+                if (not isinstance(cls._myshl, shared_memory.ShareableList)):
+                    raise ValueError("wrong depickled")
+                break
+            except:
+                time.sleep(0.25)
+                pass
         cls._initialized = True
 
     def get_shm_lock(self) -> int:
@@ -86,9 +108,13 @@ class SimpleIPC:
     
     def register_own_process(self) -> int:
         for i in range(1, MAX_PROCESSES+1):
-            if self.get_shm_pid(i) == self._process_id:
-                self._process_num = i
-                return self._process_num
+            try:
+                if self.get_shm_pid(i) == self._process_id:
+                    self._process_num = i
+                    return self._process_num
+            except ValueError as e:
+                print(f"ERROR {e} at index {i} in {os.getpid()}")
+                time.sleep(0.1)
         for i in range(1, MAX_PROCESSES+1):
             if self.get_shm_pid(i) == 0:
                 self.set_shm_pid(i, self._process_id)
