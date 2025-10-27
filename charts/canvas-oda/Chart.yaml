@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.4-RJ1
+version: 1.2.4
+# version: 1.2.4     - New release ahead of Innovate Asia
 # version: 1.2.4-RJ1 - added image override for bitnamilegacy charts related to kong gateway
 # version: 1.2.4-AK1 - added image override for bitnamilegacy Keycloak-config-cli image
 # version: 1.2.4-BB1 - added image override for bitnamilegacy Keycloak and Keycloak.PostgreSQL images
