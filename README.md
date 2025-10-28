@@ -47,6 +47,7 @@ Security principles for the ODA Canvas design are documented in [ODA Security Pr
 
 | Version    | Release notes                         |
 |:----------:|---------------------------------------|
+| 1.2.4      | October 2025 release ahead of Innovate Asia                                      |
 | 1.2.3      | June 2025 release ahead of DTW                                                   |
 | 1.2.2      | First update incorporating fixes since general availability launch               |
 | 1.2.0      | Release of `v1` component specification and general availability of ODA Canvas   |
