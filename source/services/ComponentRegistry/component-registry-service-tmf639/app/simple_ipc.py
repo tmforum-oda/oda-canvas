@@ -1,12 +1,12 @@
 import os
 import time
-import pickle
 from typing import List
 from multiprocessing import shared_memory
 
 
+APP_NAME = "CompReg"
 MAX_PROCESSES = 16
-MAX_DATA_SIZE = 1024
+MAX_DATA_SIZE = 256
 PROCESS_ALIVE_TIMEOUT = 60  # seconds
 
 
@@ -23,18 +23,23 @@ class SimpleIPC:
         if cls._initialized:
             return
         cls._process_id = os.getpid()
+
+        shm_name = f"SimpleIPC.{APP_NAME}"
+
         #     lock | pid[n]            | last_update[n]    | data[n]
-        data = [0] + [0]*MAX_PROCESSES + [0]*MAX_PROCESSES + ['a'*256]*MAX_PROCESSES
+        data = [0] + [0]*MAX_PROCESSES + [0]*MAX_PROCESSES + ['a'*MAX_DATA_SIZE]*MAX_PROCESSES
         myshl_init = shared_memory.ShareableList(data)
         try:
-            myshm = shared_memory.SharedMemory(name="SimpleIPC", create=True, size=myshl_init.shm.size)
+            myshm = shared_memory.SharedMemory(name=shm_name, create=True, size=myshl_init.shm.size)
+            myshm.buf[:] = myshl_init.shm.buf[:]
             print("CREATED NEW SimpleIPC shared memory")
-            for i in range(myshl_init.shm.size):
-                myshm.buf[i] = myshl_init.shm.buf[i]
         except FileExistsError:
-            print("REUSE EXISTING SimpleIPC shared memory")
-            pass
-        cls._myshl = shared_memory.ShareableList(name="SimpleIPC")
+            myshm = shared_memory.SharedMemory(name=shm_name)
+            print("FOUND EXISTING SimpleIPC shared memory")
+            time.sleep(0.5)  # give time for initialization
+            print("REUSING")
+            
+        cls._myshl = shared_memory.ShareableList(name=shm_name)
         cls._initialized = True
 
     def get_shm_lock(self) -> int:
@@ -106,17 +111,6 @@ class SimpleIPC:
             if self.get_shm_pid(i) != 0:
                 result.append(self.get_shm_pid(i))
         return result
-    
-    def serialize_data(self, data):
-        pickled = pickle.dumps(data)
-        if len(pickled) > MAX_DATA_SIZE:
-            raise Exception("Data too large to serialize")
-        return pickled
-        
-    def deserialize_data(self, pickled):
-        result = pickle.loads(pickled)
-        return result
-        
     
     def shutdown(self):
         if self._process_num is not None:
