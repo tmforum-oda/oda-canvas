@@ -7,7 +7,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Optional
 import os
 from app import models, schemas, crud
 from app.database import engine, get_db, Base

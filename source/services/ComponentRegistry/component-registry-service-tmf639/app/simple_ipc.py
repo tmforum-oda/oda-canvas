@@ -1,5 +1,6 @@
 import os
 import time
+import pickle
 from typing import List
 from multiprocessing import shared_memory
 
@@ -10,10 +11,18 @@ MAX_DATA_SIZE = 256
 PROCESS_ALIVE_TIMEOUT = 60  # seconds
 
 
+
+def show_buf(data_bytes):
+    result = ""
+    for b in data_bytes: 
+        result = f"{result} {b:02x}"
+    print(result)
+
 class SimpleIPC:
 
     # Class-level shared resources
     _initialized = False
+    _myshm = None 
     _myshl = None 
     _process_id = None
     _process_num = None
@@ -94,9 +103,13 @@ class SimpleIPC:
     
     def register_own_process(self) -> int:
         for i in range(1, MAX_PROCESSES+1):
-            if self.get_shm_pid(i) == self._process_id:
-                self._process_num = i
-                return self._process_num
+            try:
+                if self.get_shm_pid(i) == self._process_id:
+                    self._process_num = i
+                    return self._process_num
+            except ValueError as e:
+                print(f"ERROR {e} at index {i} in {os.getpid()}")
+                time.sleep(0.1)
         for i in range(1, MAX_PROCESSES+1):
             if self.get_shm_pid(i) == 0:
                 self.set_shm_pid(i, self._process_id)
