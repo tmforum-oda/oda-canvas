@@ -1,6 +1,5 @@
 import os
 import time
-import pickle
 from typing import List
 from multiprocessing import shared_memory
 
@@ -11,13 +10,6 @@ MAX_DATA_SIZE = 256
 PROCESS_ALIVE_TIMEOUT = 60  # seconds
 
 
-
-def show_buf(data_bytes):
-    result = ""
-    for b in data_bytes: 
-        result = f"{result} {b:02x}"
-    print(result)
-
 class SimpleIPC:
 
     # Class-level shared resources
@@ -26,29 +18,29 @@ class SimpleIPC:
     _myshl = None 
     _process_id = None
     _process_num = None
+    _shm_name = None
 
     @classmethod
     def init_shm(cls):
         if cls._initialized:
             return
         cls._process_id = os.getpid()
-
-        shm_name = f"SimpleIPC.{APP_NAME}"
+        cls._shm_name = f"SimpleIPC.{APP_NAME}"
 
         #     lock | pid[n]            | last_update[n]    | data[n]
         data = [0] + [0]*MAX_PROCESSES + [0]*MAX_PROCESSES + ['a'*MAX_DATA_SIZE]*MAX_PROCESSES
         myshl_init = shared_memory.ShareableList(data)
         try:
-            myshm = shared_memory.SharedMemory(name=shm_name, create=True, size=myshl_init.shm.size)
+            myshm = shared_memory.SharedMemory(name=cls._shm_name, create=True, size=myshl_init.shm.size)
             myshm.buf[:] = myshl_init.shm.buf[:]
-            print("CREATED NEW SimpleIPC shared memory")
+            print(f"CREATED NEW SimpleIPC shared memory {cls._shm_name}")
         except FileExistsError:
-            myshm = shared_memory.SharedMemory(name=shm_name)
-            print("FOUND EXISTING SimpleIPC shared memory")
+            myshm = shared_memory.SharedMemory(name=cls._shm_name)
+            print(f"FOUND EXISTING SimpleIPC shared memory {cls._shm_name}")
             time.sleep(0.5)  # give time for initialization
             print("REUSING")
             
-        cls._myshl = shared_memory.ShareableList(name=shm_name)
+        cls._myshl = shared_memory.ShareableList(name=cls._shm_name)
         cls._initialized = True
 
     def get_shm_lock(self) -> int:
@@ -88,7 +80,7 @@ class SimpleIPC:
     def init(self):
         self.init_shm()
         self.register_own_process()
-        print(f"Process {self._process_id} registered as process number {self._process_num}")
+        print(f"Process {self._process_id} registered as process number {self._process_num} in {self._shm_name}")
 
 
     def leader_election(self) -> int:
@@ -116,7 +108,7 @@ class SimpleIPC:
                 self.set_shm_lastupdate(i, int(time.time()))
                 time.sleep(0.1)
                 return self.register_own_process()
-        raise Exception("Maximum number of processes reached")
+        raise Exception(f"Maximum number of processes reached {self._shm_name}")
 
     def get_process_ids(self) -> List[int]:
         result = []
@@ -130,5 +122,5 @@ class SimpleIPC:
             self.set_shm_pid(self._process_num, 0)
             self.set_shm_lastupdate(self._process_num, 0)
             self.set_shm_data(self._process_num, 'a'*256)
-            print(f"Process {self._process_id} unregistered from process number {self._process_num}")
+            print(f"Process {self._process_id} unregistered from process number {self._process_num} in {self._shm_name}")
             self._process_num = None
