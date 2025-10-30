@@ -29,6 +29,8 @@ For more information, see:
 
 import os
 import json
+import time
+import datetime
 import asyncio
 import urllib3
 
@@ -42,6 +44,13 @@ from threading import Thread, Lock, Event
 #NAMESPACE = "canvas"
 NAMESPACE = "components"
 
+
+
+def curr_sec() -> int:
+    return int(time.time())
+
+def sec2tim(seconds: int) -> str:
+    return datetime.datetime.fromtimestamp(seconds).isoformat()
 
 
 # Improved version without busy-waiting
@@ -103,101 +112,6 @@ def init_k8s(proxy=None):
         raise
     
 
-class ComponentsConsumerThread(Thread):
-
-    def __init__(self, client, queue, *args, **kwargs):
-        kwargs.setdefault('daemon', True)
-        super().__init__(*args, **kwargs)
-        self.client = client
-        self.queue = queue
-
-    def run(self):
-        api = self.client.resources.get(api_version="v1", group="oda.tmforum.org", kind="Component")
-        # Setting resource_version=None means the server will send synthetic
-        # ADDED events for all resources that exist when the watch starts.
-        resource_version = ""
-        while True:
-            print("Starting component watch with resource_version=%s" % resource_version)
-            try:
-                for event in api.watch(
-                    namespace=NAMESPACE,
-                    resource_version=resource_version,
-                    allow_watch_bookmarks=True,
-                    timeout=10,
-                ):
-                    # Remember the last resourceVersion we saw, so we can resume
-                    # watching from there if the connection is lost.
-                    ev_type = event['type']
-                    name = event['object'].metadata.name,
-                    kind = event['object'].kind
-                    resource_version = event['object'].metadata.resourceVersion
-                     
-                    if event['type'] != "BOOKMARK":
-                        self.queue.put({"type": ev_type, "kind": kind, "name": name, "resourceVersion": resource_version})
-    
-            except ApiException as err:
-                if err.status == 410:
-                    print("ERROR: The requested resource version is no longer available.")
-                    resource_version = ""
-                else:
-                    raise
-    
-            except urllib3.exceptions.ProtocolError:
-                print("Lost connection to the k8s API server. Reconnecting...")
-
-
-class PodsConsumerThread(Thread):
-
-    def __init__(self, client, queue, *args, **kwargs):
-        kwargs.setdefault('daemon', True)
-        super().__init__(*args, **kwargs)
-        self.client = client
-        self.queue = queue
-
-    def run(self):
-        api = self.client.resources.get(api_version="v1", kind="Pod")
-        # Setting resource_version=None means the server will send synthetic
-        # ADDED events for all resources that exist when the watch starts.
-        resource_version = "1"
-        while True:
-            print(f'Starting pod watch with resource_version "{resource_version}"')
-            try:
-                for event in api.watch(
-                    namespace=NAMESPACE,
-                    resource_version=resource_version,
-                    allow_watch_bookmarks=True,
-                    # timeout=10,
-                ):
-                    ev_type = event['type']
-                    name = event["raw_object"].get("metadata").get("name")
-                    kind = event["raw_object"].get("kind")
-                    # Remember the last resourceVersion we saw, so we can resume
-                    # watching from there if the connection is lost.
-                    resource_version = event["raw_object"].get("metadata").get("resourceVersion")
-                    if ev_type != "BOOKMARK":
-                        self.queue.put({"type": ev_type, "kind": kind, "name": name, "resourceVersion": resource_version})
-    
-            except ApiException as err:
-                if err.status == 410:
-                    print(f"ERROR: The requested resource version {resource_version} is no longer available.")
-                    # https://kubernetes.io/docs/reference/using-api/api-concepts/#efficient-detection-of-changes
-                    result = api.get(namespace=NAMESPACE)
-                    # result = self._v1_api.list_namespaced_pod(namespace)
-                    resource_version = result.metadata.resourceVersion    # resource version of the list query, not the items
-                    print(f"list pods rv: {resource_version}")
-                    
-                    for item in result.items:
-                        name = item.metadata.name
-                        kind = item.kind
-                        rv = item.metadata.resourceVersion
-                        self.queue.put({"type": "RESYNC_AFTER_410", "kind": kind, "name": name, "resourceVersion": rv})
-                else:
-                    raise
-    
-            except urllib3.exceptions.ProtocolError:
-                print("Lost connection to the k8s API server. Reconnecting...")
-
-
 class WatchResourceChangesThread(Thread):
 
     def __init__(self, dyn_client, queue, api_version, kind, group=None, namespace=NAMESPACE, *args, **kwargs):
@@ -211,15 +125,15 @@ class WatchResourceChangesThread(Thread):
         self._namespace = namespace
         
 
-    def run_with_retry(self):
+    def run(self):
         while True:
             try:
-                self.run()
+                self.run_inner()
             except Exception as e:
                 print(f"Exception in WatchResourceChangesThread for {self._kind}: {e}. Restarting watch...")
         
 
-    def run(self):
+    def run_inner(self):
         api = self._dyn_client.resources.get(api_version=self._api_version, group=self._group, kind=self._kind)
         # Setting resource_version=None means the server will send synthetic
         # ADDED events for all resources that exist when the watch starts.
@@ -240,7 +154,7 @@ class WatchResourceChangesThread(Thread):
                     # watching from there if the connection is lost.
                     resource_version = event["raw_object"].get("metadata").get("resourceVersion")
                     if ev_type != "BOOKMARK":
-                        self._queue.put({"type": ev_type, "kind": kind, "name": name, "resourceVersion": resource_version})
+                        self._queue.put({"type": ev_type, "kind": kind, "name": name, "resourceVersion": resource_version, "last_update": curr_sec()})
     
             except ApiException as err:
                 if err.status == 410:
@@ -255,7 +169,7 @@ class WatchResourceChangesThread(Thread):
                         name = item.metadata.name
                         kind = item.kind
                         rv = item.metadata.resourceVersion
-                        self._queue.put({"type": "RESYNC", "kind": kind, "name": name, "resourceVersion": rv})
+                        self._queue.put({"type": "RESYNC", "kind": kind, "name": name, "resourceVersion": rv, "last_update": curr_sec()})
                 else:
                     raise
     
@@ -264,12 +178,10 @@ class WatchResourceChangesThread(Thread):
                 api = self._dyn_client.resources.get(api_version=self._api_version, group=self._group, kind=self._kind)
 
 
-
-
 async def show_events(queue:ThreadSafeEventQueue, num_events:int):
     for _ in range(num_events):
         event = await queue.next()
-        print(f"[SHOW] {event['type']} {event['kind']} {event['name']}: {event['resourceVersion']}")
+        print(f"[SHOW] {event['type']} {event['kind']} {event['name']}: {event['resourceVersion']} ({sec2tim(event['last_update'])})")
 
 
 def main():
@@ -287,7 +199,7 @@ def main():
     comp_thread.start()
     pod_thread.start()
     print("starting show events")
-    asyncio.run(show_events(queue, 100))
+    asyncio.run(show_events(queue, 1000))
     print("Main thread finished work, not waiting for threads to finish, exiting.")
     
 
