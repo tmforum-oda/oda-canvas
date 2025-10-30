@@ -1,10 +1,13 @@
 import os
 import time
+import pickle
 from typing import List
 from multiprocessing import shared_memory
 
 
 MAX_PROCESSES = 16
+MAX_DATA_SIZE = 1024
+PROCESS_ALIVE_TIMEOUT = 60  # seconds
 
 
 class SimpleIPC:
@@ -56,7 +59,7 @@ class SimpleIPC:
             self.register_own_process()
         self.set_shm_lastupdate(self._process_num, int(time.time()))
     def cleanup(self):
-        expired = int(time.time()) - 60  # 1 minute expiration
+        expired = int(time.time()) - PROCESS_ALIVE_TIMEOUT
         for i in range(1, MAX_PROCESSES+1):
             if self.get_shm_pid(i) != 0 and self.get_shm_lastupdate(i) < expired:
                 self.set_shm_pid(i, 0)
@@ -103,6 +106,17 @@ class SimpleIPC:
             if self.get_shm_pid(i) != 0:
                 result.append(self.get_shm_pid(i))
         return result
+    
+    def serialize_data(self, data):
+        pickled = pickle.dumps(data)
+        if len(pickled) > MAX_DATA_SIZE:
+            raise Exception("Data too large to serialize")
+        return pickled
+        
+    def deserialize_data(self, pickled):
+        result = pickle.loads(pickled)
+        return result
+        
     
     def shutdown(self):
         if self._process_num is not None:
