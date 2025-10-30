@@ -248,9 +248,12 @@ jobs:
           images=$(kubectl get deployments -n canvas -o=jsonpath='{range .items[*]}{range .spec.template.spec.containers[*]}{.image}{"\n"}{end}')
           
           for image in $images; do
-            echo "Scanning image:$image" | tee -a $log_file
-            trivy image --quiet $image >> $log_file 2>&1
-            trivy image --quiet $image | grep -m 1 'Total:'
+            echo "Scanning image:$image" | tee -a "$log_file"
+            if ! trivy image --quiet "$image" >> "$log_file" 2>&1; then
+              echo "Trivy error for $image (see log)" | tee -a "$log_file"
+              continue
+            fi
+            trivy image --quiet "$image" | grep -m 1 'Total:' || echo "No 'Total:' summary for $image (see log)"
           done
           
       - name: Upload Helm Installation Reports
