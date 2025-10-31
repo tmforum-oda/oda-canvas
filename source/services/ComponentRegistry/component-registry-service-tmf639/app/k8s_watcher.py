@@ -138,6 +138,7 @@ class WatchResourceChangesThread(Thread):
                     # watching from there if the connection is lost.
                     resource_version = event["raw_object"].get("metadata").get("resourceVersion")
                     if ev_type != "BOOKMARK":
+                        print(f"[WATCHER] {ev_type} {kind} {name}: {resource_version}")
                         self._queue.put({"type": ev_type, "kind": kind, "name": name, "resourceVersion": resource_version, "last_update": curr_sec()})
     
             except ApiException as err:
@@ -227,7 +228,7 @@ class K8SWatcher:
     async def event_collector(self):
         next_event = None
         while True:
-            event = next_event if next_event is None else self._queue.get()
+            event = next_event if next_event is not None else self._queue.get()
             next_event = None
             while event is not None:
                 self.update(event)
