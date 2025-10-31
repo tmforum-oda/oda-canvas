@@ -4,3 +4,5 @@ PORT=8082
 DATABASE_URL=sqlite:///./resource_inventory2.db
 
 CANVAS_RESOURCE_INVENTORY=
+
+K8S_PROXY=
