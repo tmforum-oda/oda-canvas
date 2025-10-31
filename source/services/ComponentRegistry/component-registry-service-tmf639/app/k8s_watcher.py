@@ -9,6 +9,9 @@ import time
 import asyncio
 import datetime
 import urllib3
+import fnmatch
+
+from typing import List, Optional
 
 from threading import Thread, Lock, Event
 
@@ -18,7 +21,8 @@ from kubernetes.client.exceptions import ApiException
 from kubernetes.dynamic.client import DynamicClient
 
 
-DEFAULT_NAMESPACE = "components"  # use None for all namespaces
+# DEFAULT_NAMESPACES = ["components", "odacompns-*"]  # use None for all namespaces
+DEFAULT_NAMESPACES = None
 DEFAULT_CALLBACK_DELAY = 10  # seconds
 
 
@@ -98,7 +102,7 @@ def init_k8s(proxy="http://sia-lb.telekom.de:8080"):
 
 class WatchResourceChangesThread(Thread):
 
-    def __init__(self, dyn_client, queue, api_version, kind, group=None, namespace=DEFAULT_NAMESPACE, *args, **kwargs):
+    def __init__(self, dyn_client, queue, api_version, kind, group=None, namespaces:Optional[List[str]]=DEFAULT_NAMESPACES, *args, **kwargs):
         kwargs.setdefault('daemon', True)
         super().__init__(*args, **kwargs)
         self._dyn_client = dyn_client
@@ -106,7 +110,11 @@ class WatchResourceChangesThread(Thread):
         self._api_version = api_version
         self._group = group
         self._kind = kind
-        self._namespace = namespace
+        self._namespaces = namespaces
+        self._search_namespace = None 
+        if namespaces is not None and len(namespaces)==1:
+            if "*" not in namespaces[0] and "?" not in namespaces[0]:
+                self._search_namespace = namespaces[0]
         
 
     def run(self):
@@ -126,35 +134,37 @@ class WatchResourceChangesThread(Thread):
             print(f'Start watching {self._kind} with resource_version "{resource_version}"')
             try:
                 for event in api.watch(
-                    namespace=self._namespace,
+                    namespace=self._search_namespace,
                     resource_version=resource_version,
                     allow_watch_bookmarks=True,
                     # timeout=10,
                 ):
                     ev_type = event['type']
-                    name = event["raw_object"].get("metadata").get("name")
                     kind = event["raw_object"].get("kind")
+                    namespace = event["raw_object"].get("metadata").get("namespace")
+                    name = event["raw_object"].get("metadata").get("name")
                     # Remember the last resourceVersion we saw, so we can resume
                     # watching from there if the connection is lost.
                     resource_version = event["raw_object"].get("metadata").get("resourceVersion")
                     if ev_type != "BOOKMARK":
-                        print(f"[WATCHER] {ev_type} {kind} {name}: {resource_version}")
-                        self._queue.put({"type": ev_type, "kind": kind, "name": name, "resourceVersion": resource_version, "last_update": curr_sec()})
+                        if self.check_namespace_match(namespace):
+                            print(f"[WATCHER] {ev_type} {kind} {namespace}:{name}: {resource_version}")
+                            self._queue.put({"type": ev_type, "kind": kind, "namespace": namespace, "name": name, "resourceVersion": resource_version, "last_update": curr_sec()})
     
             except ApiException as err:
                 if err.status == 410:
                     print(f"ERROR: The requested resource version {resource_version} is no longer available.")
-                    # https://kubernetes.io/docs/reference/using-api/api-concepts/#efficient-detection-of-changes
-                    result = api.get(namespace=self._namespace)
-                    # result = self._v1_api.list_namespaced_pod(namespace)
+                    result = api.get(namespace=self._search_namespace)
                     resource_version = result.metadata.resourceVersion    # resource version of the list query, not the items
                     print(f"list {self._kind} has rv: {resource_version}")
-                    
                     for item in result.items:
-                        name = item.metadata.name
                         kind = item.kind
+                        namespace = item.metadata.namespace
+                        name = item.metadata.name
                         rv = item.metadata.resourceVersion
-                        self._queue.put({"type": "RESYNC", "kind": kind, "name": name, "resourceVersion": rv, "last_update": curr_sec()})
+                        if self.check_namespace_match(namespace):
+                            print(f"[RESYNC] {kind} {namespace}:{name}: {rv}")
+                            self._queue.put({"type": "RESYNC", "kind": kind, "namespace": namespace, "name": name, "resourceVersion": rv, "last_update": curr_sec()})
                 else:
                     raise
     
@@ -163,24 +173,18 @@ class WatchResourceChangesThread(Thread):
                 api = self._dyn_client.resources.get(api_version=self._api_version, group=self._group, kind=self._kind)
 
 
+    def check_namespace_match(self, namespace: str) -> bool:
+        if self._namespaces is None or len(self._namespaces) == 0:
+            return True
+        for ns_pattern in self._namespaces:
+            if fnmatch.fnmatch(namespace, ns_pattern):
+                return True
+        return False
+    
 
 
-class EventCollector:
-
-    def __init__(self, queue, callback):
-        self._queue = queue
-        self._callback = callback
-
-    async def run(self):
-        while True:
-            event = await self._queue.next()
-            self._callback(event)
-            # print(f"[SHOW] {event['type']} {event['kind']} {event['name']}: {event['resourceVersion']} ({sec2tim(event['last_update'])})")
-
-
-
-def event_callback(kind, name, rv, old_rv):
-    print(f"Callback received event for {kind} {name}: new version {rv} was ({old_rv})")
+def event_callback(kind, namespace, name, rv, old_rv):
+    print(f"Callback received event for {kind} {namespace}:{name}: new version {rv} was ({old_rv})")
 
 
 class K8SWatcher:
@@ -198,22 +202,23 @@ class K8SWatcher:
     def update(self, event):
         ev_type = event['type']
         kind = event['kind']
+        namespace = event['namespace']
         name = event['name']
         rv = event['resourceVersion'] if ev_type != "DELETED" else None
         ts = event['last_update']
-        self._updated_versions[(kind, name)] = {"kind": kind, "name": name, "rv": rv, "ts": ts}
+        self._updated_versions[(kind, namespace, name)] = {"kind": kind, "namespace": namespace, "name": name, "rv": rv, "ts": ts}
         
 
     def find_oldest_update(self):
         oldest_update = None
-        for (kind, name), info in self._updated_versions.items():
+        for _, info in self._updated_versions.items():
             ts = info['ts']
             if oldest_update is None or ts < oldest_update['ts']:
                 oldest_update = info
         return oldest_update
          
-    def add_watch(self, api_version, kind, group=None, namespace=DEFAULT_NAMESPACE):
-        watch_thread = WatchResourceChangesThread(self._dyn_client, self._queue, api_version=api_version, group=group, kind=kind, namespace=namespace)
+    def add_watch(self, api_version, kind, group=None, namespaces=DEFAULT_NAMESPACES):
+        watch_thread = WatchResourceChangesThread(self._dyn_client, self._queue, api_version=api_version, group=group, kind=kind, namespaces=namespaces)
         self._threads.append(watch_thread)
         
         
@@ -246,42 +251,29 @@ class K8SWatcher:
 
     def send_callback(self, info):
         kind = info['kind']
+        namespace = info['namespace']
         name = info['name']
         rv = info['rv']
-        old_rv = None if (kind, name) not in self._sent_versions else self._sent_versions[(kind, name)]["rv"]
+        old_rv = None if (kind, namespace, name) not in self._sent_versions else self._sent_versions[(kind, namespace, name)]["rv"]
         if (rv == old_rv):
             return
-        print(f"Sending callback for {kind} {name} with rv {rv} (was {old_rv})")
+        print(f"Sending callback for {kind} {namespace}:{name} with rv {rv} (was {old_rv})")
         try:
-            self._sent_versions[(kind, name)] = info
-            del self._updated_versions[(kind, name)]
-            self._callback(kind, name, rv, old_rv)
+            self._sent_versions[(kind, namespace, name)] = info
+            del self._updated_versions[(kind, namespace, name)]
+            self._callback(kind, namespace, name, rv, old_rv)
         except Exception as e:
-            print(f"Exception in callback for {kind} {name}: {e}")
+            print(f"Exception in callback for {kind} {namespace}:{name}: {e}")
 
 
-def startWatch(callback):
-    init_k8s()
-    client = DynamicClient(api_client.ApiClient())
-    queue = ThreadSafeEventQueue()
-    components_watch_thread = WatchResourceChangesThread(client, queue, api_version="v1", group="oda.tmforum.org", kind="Component")
-    exposedapis_watch_thread = WatchResourceChangesThread(client, queue, api_version="v1", group="oda.tmforum.org", kind="ExposedAPI")
-    print("Starting component and pod consumer threads")
-    collector_thread = EventCollector(queue, callback)
-    components_watch_thread.start()
-    exposedapis_watch_thread.start()
-    #collector_thread.start()
-    asyncio.run(collector_thread.run())
-    #asyncio.run(time.sleep(15))
-    print("Main thread finished work, not waiting for threads to finish, exiting.")
-    
 def main():
     k8sWatcher = K8SWatcher(event_callback)
-    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespace=DEFAULT_NAMESPACE)
-    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespace=DEFAULT_NAMESPACE)
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespaces=["components", "odacompns-*"])
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespaces=["components", "odacompns-*"])
     k8sWatcher.start()
     print("MAIN WAITS 60 SECONDS")
     asyncio.run(time.sleep(60))
+
 
 if __name__ == "__main__":
     main()
