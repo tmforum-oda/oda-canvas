@@ -18,7 +18,8 @@ from kubernetes.client.exceptions import ApiException
 from kubernetes.dynamic.client import DynamicClient
 
 
-NAMESPACE = "components"  # use None for all namespaces
+DEFAULT_NAMESPACE = "components"  # use None for all namespaces
+DEFAULT_CALLBACK_DELAY = 10  # seconds
 
 
 def curr_sec() -> int:
@@ -26,6 +27,9 @@ def curr_sec() -> int:
 
 def sec2tim(seconds: int) -> str:
     return datetime.datetime.fromtimestamp(seconds).isoformat()
+
+def sec_age(seconds: int) -> int:
+    return curr_sec()-seconds
 
 
 # Improved version without busy-waiting
@@ -94,7 +98,7 @@ def init_k8s(proxy="http://sia-lb.telekom.de:8080"):
 
 class WatchResourceChangesThread(Thread):
 
-    def __init__(self, dyn_client, queue, api_version, kind, group=None, namespace=NAMESPACE, *args, **kwargs):
+    def __init__(self, dyn_client, queue, api_version, kind, group=None, namespace=DEFAULT_NAMESPACE, *args, **kwargs):
         kwargs.setdefault('daemon', True)
         super().__init__(*args, **kwargs)
         self._dyn_client = dyn_client
@@ -158,11 +162,6 @@ class WatchResourceChangesThread(Thread):
                 api = self._dyn_client.resources.get(api_version=self._api_version, group=self._group, kind=self._kind)
 
 
-async def show_events(queue:ThreadSafeEventQueue, num_events:int):
-    for _ in range(num_events):
-        event = await queue.next()
-        print(f"[SHOW] {event['type']} {event['kind']} {event['name']}: {event['resourceVersion']} ({sec2tim(event['last_update'])})")
-
 
 
 class EventCollector:
@@ -179,8 +178,86 @@ class EventCollector:
 
 
 
-def event_callback(event):
-    print(f"Callback received event: {event['type']} {event['kind']} {event['name']}: {event['resourceVersion']} ({sec2tim(event['last_update'])})")
+def event_callback(kind, name, rv, old_rv):
+    print(f"Callback received event for {kind} {name}: new version {rv} was ({old_rv})")
+
+
+class K8SWatcher:
+    
+    def __init__(self, callback, callback_delay=DEFAULT_CALLBACK_DELAY):
+        self._callback = callback
+        self._callback_delay = callback_delay
+        self._queue = ThreadSafeEventQueue()
+        self._threads = []
+        init_k8s()
+        self._dyn_client = DynamicClient(api_client.ApiClient())
+        self._updated_versions = {}
+        self._sent_versions = {}
+
+    def update(self, event):
+        ev_type = event['type']
+        kind = event['kind']
+        name = event['name']
+        rv = event['resourceVersion'] if ev_type != "DELETED" else None
+        ts = event['last_update']
+        self._updated_versions[(kind, name)] = {"kind": kind, "name": name, "rv": rv, "ts": ts}
+        
+
+    def find_oldest_update(self):
+        oldest_update = None
+        for (kind, name), info in self._updated_versions.items():
+            ts = info['ts']
+            if oldest_update is None or ts < oldest_update['ts']:
+                oldest_update = info
+        return oldest_update
+         
+    def add_watch(self, api_version, kind, group=None, namespace=DEFAULT_NAMESPACE):
+        watch_thread = WatchResourceChangesThread(self._dyn_client, self._queue, api_version=api_version, group=group, kind=kind, namespace=namespace)
+        self._threads.append(watch_thread)
+        
+        
+    def start(self):
+        print(f"starting {len(self._threads)} watcher threads")
+        for thread in self._threads:
+            thread.start()
+        print("starting collector for callbacks")
+        asyncio.run(self.event_collector())
+
+
+    async def event_collector(self):
+        next_event = None
+        while True:
+            event = next_event if next_event is None else self._queue.get()
+            next_event = None
+            while event is not None:
+                self.update(event)
+                event = self._queue.get()
+            oldest_update = self.find_oldest_update()
+            if oldest_update is not None:
+                age = sec_age(oldest_update['ts'])
+                if age >= self._callback_delay:
+                    self.send_callback(oldest_update)
+                else:
+                    await asyncio.sleep(self._callback_delay-age)
+            else:
+                next_event = await self._queue.next()
+
+
+    def send_callback(self, info):
+        kind = info['kind']
+        name = info['name']
+        rv = info['rv']
+        old_rv = None if (kind, name) not in self._sent_versions else self._sent_versions[(kind, name)]["rv"]
+        if (rv == old_rv):
+            return
+        print(f"Sending callback for {kind} {name} with rv {rv} (was {old_rv})")
+        try:
+            self._sent_versions[(kind, name)] = info
+            del self._updated_versions[(kind, name)]
+            self._callback(kind, name, rv, old_rv)
+        except Exception as e:
+            print(f"Exception in callback for {kind} {name}: {e}")
+
 
 def startWatch(callback):
     init_k8s()
@@ -193,13 +270,17 @@ def startWatch(callback):
     components_watch_thread.start()
     exposedapis_watch_thread.start()
     #collector_thread.start()
-    print("starting collector for callbacks")
     asyncio.run(collector_thread.run())
     #asyncio.run(time.sleep(15))
     print("Main thread finished work, not waiting for threads to finish, exiting.")
     
 def main():
-    startWatch(event_callback)
+    k8sWatcher = K8SWatcher(event_callback)
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespace=DEFAULT_NAMESPACE)
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespace=DEFAULT_NAMESPACE)
+    k8sWatcher.start()
+    print("MAIN WAITS 60 SECONDS")
+    asyncio.run(time.sleep(60))
 
 if __name__ == "__main__":
     main()
