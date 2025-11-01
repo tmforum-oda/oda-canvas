@@ -314,6 +314,17 @@ info("ctor App")
 app = App()
 
 
+def init_background():
+    info("init_background")
+    p = Process(target=bgprocess_run, args=())
+    info("starting bg process")
+    p.start()
+
+
+from app.global_lock import GlobalLock
+gl = GlobalLock("k8s_watcher_lock")
+if gl.acquire(block=False):
+    init_background()
 
 if __name__ == "__main__":
     import uvicorn
