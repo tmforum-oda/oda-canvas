@@ -184,11 +184,6 @@ class WatchResourceChangesThread(Thread):
     
 
 
-def event_callback(kind, namespace, name, rv, old_rv):
-    info("event_callback")
-    print(f"Callback received event for {kind} {namespace}:{name}: new version {rv} was ({old_rv})")
-
-
 class K8SWatcher:
     
     def __init__(self, callback, callback_delay=DEFAULT_CALLBACK_DELAY):
@@ -270,68 +265,3 @@ class K8SWatcher:
 
 
 
-def info(title):
-    print(f"[--- {title} ---]")
-    print('module name:', __name__)
-    print('parent process:', os.getppid())
-    print('process id:', os.getpid())
-
-
-def bgprocess_run():
-    info("bgprocess_run")
-    k8sWatcher = K8SWatcher(event_callback)
-    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespaces=["components"])
-    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespaces=["components", "odacompns-*"])
-    k8sWatcher.start()
-
-
-def main():
-    info("main")
-    p = Process(target=bgprocess_run, args=())
-    info("starting bg process")
-    p.start()
-    # info("joining bg process")
-    # p.join()
-
-class App:
-    async def __call__(self, scope, receive, send):
-        assert scope['type'] == 'http'
-        info("App.__call__()")
-        await send({
-            'type': 'http.response.start',
-            'status': 200,
-            'headers': [
-                [b'content-type', b'text/plain'],
-            ]
-        })
-        await send({
-            'type': 'http.response.body',
-            'body': b'Hello, world!',
-        })
-
-        
-info("ctor App")
-app = App()
-
-
-def init_background():
-    info("init_background")
-    p = Process(target=bgprocess_run, args=())
-    info("starting bg process")
-    p.start()
-
-
-from app.global_lock import GlobalLock
-gl = GlobalLock("k8s_watcher_lock")
-if gl.acquire(block=False):
-    init_background()
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "k8s_watcher:app",
-        host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", 8080)),
-        #reload=True,
-        workers=2,
-    )

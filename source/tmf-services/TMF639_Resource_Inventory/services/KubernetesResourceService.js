@@ -193,6 +193,7 @@ class KubernetesResourceService {
 
         return {
             id: metadata.name,
+			resourceVersion: metadata.resourceVersion,			
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${metadata.name}`,
             '@type': 'LogicalResource',
             '@baseType': 'Resource',
@@ -285,6 +286,7 @@ class KubernetesResourceService {
 
         return {
             id: metadata.name,
+			resourceVersion: metadata.resourceVersion,			
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${metadata.name}`,
             '@type': 'LogicalResource',
             '@baseType': 'Resource',

@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Optional
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from multiprocessing import Process
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from fastapi.responses import HTMLResponse
@@ -17,22 +18,49 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas, crud
 from app.database import engine, get_db, Base
-from app.simple_ipc import SimpleIPC
+from app.global_lock import GlobalLock
 
 
 CANVAS_RESOURCE_INVENTORY = os.getenv("CANVAS_RESOURCE_INVENTORY", None)
 
 
-ipc = SimpleIPC(delayed_init=True)
+global_lock = GlobalLock("GlobalLock.ResourceInventoryApp")
 
-# see https://www.nashruddinamin.com/blog/running-scheduled-jobs-in-fastapi
-scheduler = AsyncIOScheduler()
-@scheduler.scheduled_job('interval', seconds=10)  # ('cron', hour=13, minute=05)
-async def process_events():
-    print(f"scheduled on worker {ipc._process_num} (pid={os.getpid()}), PROCESSES: {ipc.get_process_ids()} {'LEADER' if ipc.is_leader() else ''}")
-    ipc.alive()
-    ipc.cleanup()
+
+#===============================================================================
+# # see https://www.nashruddinamin.com/blog/running-scheduled-jobs-in-fastapi
+# scheduler = AsyncIOScheduler()
+# @scheduler.scheduled_job('interval', seconds=10)  # ('cron', hour=13, minute=05)
+# async def process_events():
+#     print(f"scheduled on worker {ipc._process_num} (pid={os.getpid()}), PROCESSES: {ipc.get_process_ids()} {'LEADER' if ipc.is_leader() else ''}")
+#     ipc.alive()
+#     ipc.cleanup()
+#===============================================================================
  
+started_processes = []
+
+def event_callback(kind, namespace, name, rv, old_rv):
+    print(f"[PID{os.getpid()}]: Callback received event for {kind} {namespace}:{name}: new version {rv} was ({old_rv})")
+
+def bgprocess_run():
+    from app.k8s_watcher import K8SWatcher
+    k8sWatcher = K8SWatcher(event_callback)
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespaces=["components"])
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespaces=["components", "odacompns-*"])
+    k8sWatcher.start()
+
+def start_k8s_watcher_process():
+    print(f"[PID{os.getpid()}]: Starting K8s watcher background process...")
+    p = Process(target=bgprocess_run, args=())
+    p.start()
+    started_processes.append(p)
+
+
+def stop_k8s_watcher_process():
+    for p in started_processes:
+        p.terminate()
+    started_processes.clear()
+    
 
 def initialize_database():
     """Initialize the database with required tables."""
@@ -43,12 +71,11 @@ def initialize_database():
 async def lifespan(app: FastAPI):
     initialize_database()
     if CANVAS_RESOURCE_INVENTORY:
-        ipc.init()
-        scheduler.start()
+        if global_lock.acquire(block=False):
+            start_k8s_watcher_process()
     yield
     if CANVAS_RESOURCE_INVENTORY:
-        scheduler.shutdown()
-        ipc.shutdown()
+        stop_k8s_watcher_process()
     
     
 
