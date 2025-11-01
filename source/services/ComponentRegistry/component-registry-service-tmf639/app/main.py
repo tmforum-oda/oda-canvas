@@ -122,31 +122,13 @@ async def notify_hubs(event_type: str, event_id: str, resource_data: dict, db: S
 async def list_resources(
     offset: Optional[int] = 0,
     limit: Optional[int] = 100,
-    fields: Optional[str] = None,
     request: Request = None,
     response: Response = None,
     db: Session = Depends(get_db)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
-    
-    # Check if fields parameter requests only resourceVersion
-    if fields and fields.strip() == "resourceVersion":
-        # Optimized query: return only id, resourceVersion, href without accessing data column
-        result = []
-        for r in resources:
-            result.append({
-                "id": r.id,
-                "resourceVersion": r.resource_version,
-                "href": f"{base_url}/resource/{r.id}",
-                "@type": "LogicalResource",
-                "@baseType": "Resource"
-            })
-        response.headers["X-Result-Count"] = str(len(result))
-        response.headers["X-Total-Count"] = str(total_count)
-        return result
-    
-    # Default behavior: return full resource data
+    # For each resource, dynamically add resourceRelationship from the relationship table
     result = []
     for r in resources:
         db_resource = crud.get_resource(db, r.id, base_url)
@@ -185,30 +167,10 @@ async def create_resource(
 )
 async def retrieve_resource(
     id: str,
-    fields: Optional[str] = None,
     request: Request = None,
     db: Session = Depends(get_db)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
-    
-    # Check if fields parameter requests only resourceVersion
-    if fields and fields.strip() == "resourceVersion":
-        # Optimized query: fetch only id and resource_version from database
-        db_resource = db.query(models.Resource).filter(models.Resource.id == id).first()
-        if db_resource is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Resource with id {id} not found"
-            )
-        return {
-            "id": db_resource.id,
-            "resourceVersion": db_resource.resource_version,
-            "href": f"{base_url}/resource/{db_resource.id}",
-            "@type": "LogicalResource",
-            "@baseType": "Resource"
-        }
-    
-    # Default behavior: return full resource data
     db_resource = crud.get_resource(db, id, base_url)
     if db_resource is None:
         raise HTTPException(
