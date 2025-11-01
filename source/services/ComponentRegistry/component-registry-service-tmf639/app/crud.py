@@ -13,6 +13,9 @@ def create_resource(db: Session, resource: dict, base_url: str) -> models.Resour
     """Create a new resource as a JSON object, extract and persist relationships separately."""
     resource_id = resource.get("id") or str(uuid.uuid4())
     
+    # Extract resourceVersion from the JSON
+    resource_version = resource.get("resourceVersion")
+    
     # Remove id and href from resource data - they will be generated dynamically
     resource_data = {k: v for k, v in resource.items() if k not in ["id", "href"]}
     
@@ -22,6 +25,7 @@ def create_resource(db: Session, resource: dict, base_url: str) -> models.Resour
     db_resource = models.Resource(
         id=resource_id,
         data=resource_data,
+        resource_version=resource_version,
     )
     db.add(db_resource)
     db.commit()
@@ -110,10 +114,14 @@ def update_resource(db: Session, id: str, resource_update: dict) -> Optional[mod
     if not db_resource:
         return None
     
+    # Extract resourceVersion from the JSON update
+    resource_version = resource_update.get("resourceVersion")
+    
     # Remove id and href from resource_update before storing - they are generated dynamically
     resource_data = {k: v for k, v in resource_update.items() if k not in ["id", "href"]}
     
     db_resource.data = resource_data
+    db_resource.resource_version = resource_version
     db.commit()
     db.refresh(db_resource)
     return db_resource

@@ -14,6 +14,7 @@ class Resource(Base):
     
     id = Column(String, primary_key=True, index=True)
     data = Column(JSON)
+    resource_version = Column(String, nullable=True, index=True)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
