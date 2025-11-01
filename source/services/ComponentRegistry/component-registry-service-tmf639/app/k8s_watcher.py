@@ -124,6 +124,7 @@ class WatchResourceChangesThread(Thread):
                 self.run_inner()
             except Exception as e:
                 print(f"Exception in WatchResourceChangesThread for {self._kind}: {e}. Restarting watch...")
+                time.sleep(5)
         
 
     def run_inner(self):
