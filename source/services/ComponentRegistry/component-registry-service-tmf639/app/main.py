@@ -75,7 +75,7 @@ class ResourceSyncer:
 
     async def k8s_resource_changed_event(self, kind, namespace, name, rv, old_rv):
         print(f"[PID{os.getpid()}]: Callback received event for {kind} {namespace}:{name}: new version {rv} was ({old_rv})")
-        up_id = self.k8s_resource_to_downstream_id(kind, namespace, name)
+        up_id = self.k8s_resource_to_upstream_id(kind, namespace, name)
         if rv == self._resource_versions.get(up_id, None):
             print(f"[PID{os.getpid()}]: No version change detected for {up_id}, skipping sync.")
             return
@@ -85,10 +85,33 @@ class ResourceSyncer:
         else:
             down_id = self.k8s_resource_to_downstream_id(kind, namespace, name)
             resource_data = await self.fetch_from_downstream(down_id)
+            resource_data = self.patch_resource_data(resource_data, self._repo_name)
             await self.send_to_upstream(up_id, resource_data)
             self._resource_versions[up_id] = rv
         
-
+    def patch_resource_data(self, resource_data: dict, repo_name: str) -> dict:
+        """Patch resource data to replace 'self:' prefixes with the repo_name prefix."""
+        res_id = resource_data.get("id", None)
+        up_res_id = f"{repo_name}:{res_id}"
+        resource_data["id"] = up_res_id
+        if "resourceRelationship" in resource_data:
+            for rr in resource_data["resourceRelationship"]:
+                rel_id = rr.get("id", None)
+                up_rel_id = f"{repo_name}:{rel_id}"
+                # rel_type = rr.get("relationshipType", None)  # keep as is
+                rr.pop("id", None)
+                rr.pop("href", None)
+                rr.pop("name", None)
+                rr.pop("@referredType", None)
+                rr.pop("category", None)
+                rr["@type"] = "ResourceRelationship"
+                rr["resource"] = {
+                    "@type": "ResourceRef",
+                    "id": up_rel_id,
+                    "href": f"{self._upstream_url}/resource/{up_rel_id}",
+                }
+        return resource_data
+    
     async def delete_upstream(self, resource_id: str):
         async with httpx.AsyncClient() as client:
             try:
