@@ -181,13 +181,12 @@ class KubernetesResourceService {
                 });
             });
         }        // Build related resources - ExposedAPIs that belong to this Component
-        const relatedResource = relatedExposedAPIs.map(api => ({
+        const resourceRelationship = relatedExposedAPIs.map(api => ({
             '@type': 'ResourceRef',
             id: api.metadata.name,
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${api.metadata.name}`,
             name: api.metadata.name,
             '@referredType': 'LogicalResource',
-            category: 'API',
             relationshipType: 'exposes'
         }));
 
@@ -217,7 +216,7 @@ class KubernetesResourceService {
                 name: metadata.namespace,
                 '@type': 'Namespace'
             }],
-            relatedResource: relatedResource
+            resourceRelationship: resourceRelationship
         };
     }    /**
      * Convert Kubernetes ExposedAPI to TMF639 Resource format
@@ -271,15 +270,14 @@ class KubernetesResourceService {
             name: 'apiDocs',
             value: status.apiStatus?.developerUI
         });        // Build related resources - Component that owns this ExposedAPI
-        const relatedResource = [];
+        const resourceRelationship = [];
         if (relatedComponent) {
-            relatedResource.push({
+            resourceRelationship.push({
                 '@type': 'ResourceRef',
                 id: relatedComponent.metadata.name,
                 href: `/tmf-api/resourceInventoryManagement/v5/resource/${relatedComponent.metadata.name}`,
                 name: relatedComponent.metadata.name,
                 '@referredType': 'LogicalResource',
-                category: 'ODAComponent',
                 relationshipType: 'exposedBy'
             });
         }
@@ -310,7 +308,7 @@ class KubernetesResourceService {
                 name: metadata.namespace,
                 '@type': 'Namespace'
             }],
-            relatedResource: relatedResource
+            resourceRelationship: resourceRelationship
         };
     }
 

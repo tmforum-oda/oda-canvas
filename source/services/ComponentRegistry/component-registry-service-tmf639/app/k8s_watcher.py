@@ -240,14 +240,14 @@ class K8SWatcher:
             if oldest_update is not None:
                 age = sec_age(oldest_update['ts'])
                 if age >= self._callback_delay:
-                    self.send_callback(oldest_update)
+                    await self.send_callback(oldest_update)
                 else:
                     await asyncio.sleep(self._callback_delay-age)
             else:
                 next_event = await self._queue.next()
 
 
-    def send_callback(self, info):
+    async def send_callback(self, info):
         kind = info['kind']
         namespace = info['namespace']
         name = info['name']
@@ -259,7 +259,7 @@ class K8SWatcher:
         try:
             self._sent_versions[(kind, namespace, name)] = info
             del self._updated_versions[(kind, namespace, name)]
-            self._callback(kind, namespace, name, rv, old_rv)
+            await self._callback(kind, namespace, name, rv, old_rv)
         except Exception as e:
             print(f"Exception in callback for {kind} {namespace}:{name}: {e}")
 

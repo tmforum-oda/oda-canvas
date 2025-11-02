@@ -8,8 +8,8 @@ import httpx
 from datetime import datetime
 from typing import Optional
 from contextlib import asynccontextmanager
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from multiprocessing import Process
+import asyncio
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from fastapi.responses import HTMLResponse
@@ -36,6 +36,116 @@ global_lock = GlobalLock("GlobalLock.ResourceInventoryApp")
 #     ipc.alive()
 #     ipc.cleanup()
 #===============================================================================
+
+class ResourceSyncer:
+    def __init__(self, downstream_url: str, upstream_url: str, upstream_repo_name:str="self"):
+        self._downstream_url = downstream_url
+        self._upstream_url = upstream_url
+        self._repo_name = upstream_repo_name
+        self._initialized = False
+        self._resource_versions = {}  # resource_id -> version
+
+    def initialize(self):
+        """Fetch initial resource versions from upstream."""
+        # For simplicity, we assume upstream provides an endpoint to list resources with their versions
+        if self._initialized:
+            return
+        async def fetch_versions():
+            async with httpx.AsyncClient() as client:
+                try:
+                    response = await client.get(f"{self._upstream_url}/resource", params={"fields": "resourceVersion"}, timeout=10)
+                    response.raise_for_status()
+                    resources = response.json()
+                    for res in resources:
+                        resource_id = res.get("id")
+                        resourceVersion = res.get("resourceVersion")
+                        self._resource_versions[resource_id] = resourceVersion
+                    self._initialized = True
+                except Exception as e:
+                    print(f"Failed to initialize ResourceSyncer: {e}")
+
+        asyncio.run(fetch_versions())
+
+
+    def k8s_resource_to_downstream_id(self, kind, namespace, name):
+        return f"{name}"
+    
+    def k8s_resource_to_upstream_id(self, kind, namespace, name):
+        return f"{self._repo_name}:{name}"
+
+    async def k8s_resource_changed_event(self, kind, namespace, name, rv, old_rv):
+        print(f"[PID{os.getpid()}]: Callback received event for {kind} {namespace}:{name}: new version {rv} was ({old_rv})")
+        up_id = self.k8s_resource_to_downstream_id(kind, namespace, name)
+        if rv == self._resource_versions.get(up_id, None):
+            print(f"[PID{os.getpid()}]: No version change detected for {up_id}, skipping sync.")
+            return
+        if rv is None:
+            await self.delete_upstream(up_id)
+            self._resource_versions[up_id] = rv
+        else:
+            down_id = self.k8s_resource_to_downstream_id(kind, namespace, name)
+            resource_data = await self.fetch_from_downstream(down_id)
+            await self.send_to_upstream(up_id, resource_data)
+            self._resource_versions[up_id] = rv
+        
+
+    async def delete_upstream(self, resource_id: str):
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.delete(f"{self._upstream_url}/resource/{resource_id}", timeout=5)
+                response.raise_for_status()
+            except Exception as e:
+                raise RuntimeError(f"Failed to delete resource {resource_id} from upstream: {e}")
+    
+    async def fetch_from_downstream(self, resource_id: str) -> dict:
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(f"{self._downstream_url}/resource/{resource_id}", timeout=5)
+                response.raise_for_status()
+                return response.json()
+            except Exception as e:
+                raise RuntimeError(f"Failed to fetch resource {resource_id} from downstream: {e}")
+
+    async def send_to_upstream(self, resource_id: str, resource_data: dict):
+        if resource_id in self._resource_versions:
+            return await self.udate_upstream(resource_id, resource_data)
+            # todo handle not found error
+        else:
+            return await self.create_upstream(resource_id, resource_data)
+            # todo handle already exists error
+
+
+    async def create_upstream(self, resource_id: str, resource_data: dict):
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(f"{self._upstream_url}/resource", json=resource_data, timeout=5)
+                response.raise_for_status()
+            except Exception as e:
+                raise RuntimeError(f"Failed to send resource {resource_id} to upstream: {e}")
+                    
+    async def udate_upstream(self, resource_id: str, resource_data: dict):
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.patch(f"{self._upstream_url}/resource/{resource_id}", json=resource_data, timeout=5)
+                response.raise_for_status()
+            except Exception as e:
+                raise RuntimeError(f"Failed to send resource {resource_id} to upstream: {e}")
+                        
+                
+    async def send_event(self, event_type: str, event_id: str, resource_data: dict):
+        event_payload = {
+            "eventType": event_type,
+            "eventTime": datetime.utcnow().isoformat() + "Z",
+            "id": event_id,
+            "resource": resource_data,
+        }
+        if self.query:
+            event_payload["query"] = self.query
+        async with httpx.AsyncClient() as client:
+            try:
+                await client.post(self.callback_url, json=event_payload, timeout=5)
+            except Exception as e:
+                print(f"Failed to send event to {self.callback_url}: {e}")
  
 started_processes = []
 
@@ -43,8 +153,10 @@ def event_callback(kind, namespace, name, rv, old_rv):
     print(f"[PID{os.getpid()}]: Callback received event for {kind} {namespace}:{name}: new version {rv} was ({old_rv})")
 
 def bgprocess_run():
+    rsync = ResourceSyncer(downstream_url=CANVAS_RESOURCE_INVENTORY, upstream_url="http://localhost:8080", upstream_repo_name="self")
+    rsync.initialize();
     from app.k8s_watcher import K8SWatcher
-    k8sWatcher = K8SWatcher(event_callback)
+    k8sWatcher = K8SWatcher(rsync.k8s_resource_changed_event)
     k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespaces=["components"])
     k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespaces=["components", "odacompns-*"])
     k8sWatcher.start()
@@ -122,13 +234,31 @@ async def notify_hubs(event_type: str, event_id: str, resource_data: dict, db: S
 async def list_resources(
     offset: Optional[int] = 0,
     limit: Optional[int] = 100,
+    fields: Optional[str] = None,
     request: Request = None,
     response: Response = None,
     db: Session = Depends(get_db)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
-    # For each resource, dynamically add resourceRelationship from the relationship table
+    
+    # Check if fields parameter requests only resourceVersion
+    if fields and fields.strip() == "resourceVersion":
+        # Optimized query: return only id, resourceVersion, href without accessing data column
+        result = []
+        for r in resources:
+            result.append({
+                "id": r.id,
+                "resourceVersion": r.resource_version,
+                "href": f"{base_url}/resource/{r.id}",
+                "@type": "LogicalResource",
+                "@baseType": "Resource"
+            })
+        response.headers["X-Result-Count"] = str(len(result))
+        response.headers["X-Total-Count"] = str(total_count)
+        return result
+    
+    # Default behavior: return full resource data
     result = []
     for r in resources:
         db_resource = crud.get_resource(db, r.id, base_url)
@@ -167,10 +297,30 @@ async def create_resource(
 )
 async def retrieve_resource(
     id: str,
+    fields: Optional[str] = None,
     request: Request = None,
     db: Session = Depends(get_db)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
+    
+    # Check if fields parameter requests only resourceVersion
+    if fields and fields.strip() == "resourceVersion":
+        # Optimized query: fetch only id and resource_version from database
+        db_resource = db.query(models.Resource).filter(models.Resource.id == id).first()
+        if db_resource is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Resource with id {id} not found"
+            )
+        return {
+            "id": db_resource.id,
+            "resourceVersion": db_resource.resource_version,
+            "href": f"{base_url}/resource/{db_resource.id}",
+            "@type": "LogicalResource",
+            "@baseType": "Resource"
+        }
+    
+    # Default behavior: return full resource data
     db_resource = crud.get_resource(db, id, base_url)
     if db_resource is None:
         raise HTTPException(
