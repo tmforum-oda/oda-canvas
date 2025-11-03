@@ -1959,7 +1959,7 @@ components:
         related to the Resource entity and not the ResourceRefOrValue class
         itself
       oneOf:
-        - $ref: '#/components/schemas/Resource'
+        #- $ref: '#/components/schemas/Resource'
         - $ref: '#/components/schemas/ResourceRef'
       discriminator:
         propertyName: '@type'
@@ -1996,7 +1996,7 @@ components:
         related to the Resource entity and not the ResourceRefOrValue class
         itself
       oneOf:
-        - $ref: '#/components/schemas/Resource_MVO'
+        #- $ref: '#/components/schemas/Resource_MVO'
         - $ref: '#/components/schemas/ResourceRef_MVO'
       discriminator:
         propertyName: '@type'
