@@ -1959,7 +1959,10 @@ components:
         related to the Resource entity and not the ResourceRefOrValue class
         itself
       oneOf:
-        #- $ref: '#/components/schemas/Resource'
+        # TODO[FH]: validation caused problems "is valid under each of" here.
+        # we will not embedd resources in the reference part for now.
+        # So, it is okay to remove abigues Resource_FVO alternative:
+        # - $ref: '#/components/schemas/Resource'
         - $ref: '#/components/schemas/ResourceRef'
       discriminator:
         propertyName: '@type'
@@ -1996,7 +1999,10 @@ components:
         related to the Resource entity and not the ResourceRefOrValue class
         itself
       oneOf:
-        #- $ref: '#/components/schemas/Resource_MVO'
+        # TODO[FH]: validation caused problems "is valid under each of" here.
+        # we will not embedd resources in the reference part for now.
+        # So, it is okay to remove abigues Resource_FVO alternative:
+        # - $ref: '#/components/schemas/Resource_MVO'
         - $ref: '#/components/schemas/ResourceRef_MVO'
       discriminator:
         propertyName: '@type'

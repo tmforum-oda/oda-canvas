@@ -310,11 +310,14 @@ class KubernetesResourceService {
             administrativeState: 'unlocked',
             usageState: 'active',
             startDate: metadata.creationTimestamp,
-            place: [{
-                id: metadata.namespace,
-                name: metadata.namespace,
-                '@type': 'Namespace'
-            }],
+			// TODO[FH]: cauesed problems with schema validation
+			//           OAS expects PlaceRef here and Namespace is not defined.
+			//           As namespace info is already in characteristics, omitting for now.
+            // place: [{
+            //     id: metadata.namespace,
+            //     name: metadata.namespace,
+            //     '@type': 'Namespace'
+            // }],
             resourceRelationship: resourceRelationship
         };
     }
