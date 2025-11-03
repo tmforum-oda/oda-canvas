@@ -182,12 +182,14 @@ class KubernetesResourceService {
             });
         }        // Build related resources - ExposedAPIs that belong to this Component
         const resourceRelationship = relatedExposedAPIs.map(api => ({
-            '@type': 'ResourceRef',
-            id: api.metadata.name,
-            href: `/tmf-api/resourceInventoryManagement/v5/resource/${api.metadata.name}`,
-            name: api.metadata.name,
-            '@referredType': 'LogicalResource',
-            relationshipType: 'exposes'
+			'@type': 'ResourceRelationship',
+			relationshipType: 'exposes',
+			id: `expby_${api.metadata.name}`,
+			resource: {
+				'@type': 'ResourceRef',
+			    id: api.metadata.name,
+			    href: `/tmf-api/resourceInventoryManagement/v5/resource/${api.metadata.name}`,
+			}
         }));
 
         return {
@@ -211,11 +213,14 @@ class KubernetesResourceService {
             administrativeState: 'unlocked',
             usageState: 'active',
             startDate: metadata.creationTimestamp,
-            place: [{
-                id: metadata.namespace,
-                name: metadata.namespace,
-                '@type': 'Namespace'
-            }],
+            // TODO[FH]: cauesed problems with schema validation
+			//           OAS expects PlaceRef here and Namespace is not defined.
+			//           As namespace info is already in characteristics, omitting for now.
+			// place: [{
+            //     id: metadata.namespace,
+            //     name: metadata.namespace,
+            //     '@type': 'Namespace'
+            // }],
             resourceRelationship: resourceRelationship
         };
     }    /**
@@ -273,12 +278,14 @@ class KubernetesResourceService {
         const resourceRelationship = [];
         if (relatedComponent) {
             resourceRelationship.push({
-                '@type': 'ResourceRef',
-                id: relatedComponent.metadata.name,
-                href: `/tmf-api/resourceInventoryManagement/v5/resource/${relatedComponent.metadata.name}`,
-                name: relatedComponent.metadata.name,
-                '@referredType': 'LogicalResource',
-                relationshipType: 'exposedBy'
+				'@type': 'ResourceRelationship',
+				relationshipType: 'exposedBy',
+				id: `expby_${relatedComponent.metadata.name}`,
+				resource: {
+					'@type': 'ResourceRef',
+    	            id: relatedComponent.metadata.name,
+        	        href: `/tmf-api/resourceInventoryManagement/v5/resource/${relatedComponent.metadata.name}`,
+				}
             });
         }
 
