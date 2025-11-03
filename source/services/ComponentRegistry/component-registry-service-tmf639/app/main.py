@@ -95,22 +95,15 @@ class ResourceSyncer:
         res_id = resource_data.get("id", None)
         up_res_id = f"{repo_name}:{res_id}"
         resource_data["id"] = up_res_id
+        category = resource_data.get("category", None)
+        if category == "ODAComponent":  # only maintain exposedBy relations in ExposedAPIs
+            resource_data.pop("resourceRelationship", None)
         if "resourceRelationship" in resource_data:
             for rr in resource_data["resourceRelationship"]:
-                rel_id = rr.get("id", None)
+                rel_id = rr.get("resource",{}).get("id", None)
                 up_rel_id = f"{repo_name}:{rel_id}"
-                # rel_type = rr.get("relationshipType", None)  # keep as is
-                rr.pop("id", None)
-                rr.pop("href", None)
-                rr.pop("name", None)
-                rr.pop("@referredType", None)
-                rr.pop("category", None)
-                rr["@type"] = "ResourceRelationship"
-                rr["resource"] = {
-                    "@type": "ResourceRef",
-                    "id": up_rel_id,
-                    "href": f"{self._upstream_url}/resource/{up_rel_id}",
-                }
+                rr.get("resource",{})["id"] = up_rel_id
+                rr.get("resource",{})["href"] = f"{self._upstream_url}/resource/{up_rel_id}"
         return resource_data
     
     async def delete_upstream(self, resource_id: str):
