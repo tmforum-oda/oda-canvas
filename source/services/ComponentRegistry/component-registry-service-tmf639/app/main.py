@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from app import models, schemas, crud
 from app.database import engine, get_db, Base
 from app.global_lock import GlobalLock
+from app.validators import TMF639ResourceValidator
 
 
 CANVAS_RESOURCE_INVENTORY = os.getenv("CANVAS_RESOURCE_INVENTORY", None)
@@ -304,7 +305,11 @@ async def create_resource(
     db: Session = Depends(get_db)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
-    db_resource = crud.create_resource(db, resource, base_url)
+    
+    # Validate resource against TMF639 v5.0.0 specification
+    validated_resource = TMF639ResourceValidator.validate_resource_create(resource)
+    
+    db_resource = crud.create_resource(db, validated_resource, base_url)
     # Get the resource with dynamically generated href
     db_resource = crud.get_resource(db, db_resource.id, base_url)
     # Notify hubs with resource data only

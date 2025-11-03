@@ -5,3 +5,7 @@ pydantic==2.5.3
 pydantic-settings==2.1.0
 python-dotenv==1.0.0
 python-multipart==0.0.6
+httpx==0.26.0
+pyyaml==6.0.1
+openapi-schema-validator==0.6.2
+jsonschema==4.20.0
