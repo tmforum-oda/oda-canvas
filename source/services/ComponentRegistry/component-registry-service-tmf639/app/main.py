@@ -125,11 +125,15 @@ class ResourceSyncer:
 
     async def send_to_upstream(self, resource_id: str, resource_data: dict):
         if resource_id in self._resource_versions:
-            return await self.udate_upstream(resource_id, resource_data)
-            # todo handle not found error
+            try:
+                return await self.update_upstream(resource_id, resource_data)
+            except Exception:
+                return await self.create_upstream(resource_id, resource_data)
         else:
-            return await self.create_upstream(resource_id, resource_data)
-            # todo handle already exists error
+            try:
+                return await self.create_upstream(resource_id, resource_data)
+            except Exception:
+                return await self.update_upstream(resource_id, resource_data)
 
 
     async def create_upstream(self, resource_id: str, resource_data: dict):
@@ -140,7 +144,7 @@ class ResourceSyncer:
             except Exception as e:
                 raise RuntimeError(f"Failed to send resource {resource_id} to upstream: {e}")
                     
-    async def udate_upstream(self, resource_id: str, resource_data: dict):
+    async def update_upstream(self, resource_id: str, resource_data: dict):
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.patch(f"{self._upstream_url}/resource/{resource_id}", json=resource_data, timeout=5)
