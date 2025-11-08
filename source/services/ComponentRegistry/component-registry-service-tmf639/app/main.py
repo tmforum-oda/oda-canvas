@@ -127,14 +127,17 @@ class ResourceSyncer:
         if resource_id in self._resource_versions:
             try:
                 return await self.update_upstream(resource_id, resource_data)
-            except Exception:
-                return await self.create_upstream(resource_id, resource_data)
+            except Exception as e:
+                if "404" in str(e):
+                    return await self.create_upstream(resource_id, resource_data)
+                raise e
         else:
             try:
                 return await self.create_upstream(resource_id, resource_data)
-            except Exception:
-                return await self.update_upstream(resource_id, resource_data)
-
+            except RuntimeError as e:
+                if "409" in str(e):
+                    return await self.update_upstream(resource_id, resource_data)
+                raise e
 
     async def create_upstream(self, resource_id: str, resource_data: dict):
         async with httpx.AsyncClient() as client:
@@ -302,10 +305,20 @@ async def create_resource(
     db: Session = Depends(get_db)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
-    
+
     # Validate resource against TMF639 v5.0.0 specification
     validated_resource = TMF639ResourceValidator.validate_resource_create(resource)
-    
+
+    # Check if resource with same ID already exists
+    resource_id = validated_resource.get("id")
+    if resource_id:
+        existing_resource = db.query(models.Resource).filter(models.Resource.id == resource_id).first()
+        if existing_resource:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Resource with id {resource_id} already exists"
+            )
+
     db_resource = crud.create_resource(db, validated_resource, base_url)
     # Get the resource with dynamically generated href
     db_resource = crud.get_resource(db, db_resource.id, base_url)
