@@ -2,6 +2,7 @@
 
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables
+# load_dotenv(".env2")  # take environment variables
 
 import os
 import httpx

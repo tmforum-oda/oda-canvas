@@ -14,7 +14,7 @@ on:
     - feature/*
     - odaa-*
     paths: 
-      - source/services/ComponentRegistry/component-registry-service/**/*
+      - source/services/ComponentRegistry/component-registry-service-tmf639/**/*
 
 jobs:
   build-component-registry-prerelease-dockerfile-job:
@@ -81,7 +81,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/services/ComponentRegistry/component-registry-service
+          context: source/services/ComponentRegistry/component-registry-service-tmf639
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

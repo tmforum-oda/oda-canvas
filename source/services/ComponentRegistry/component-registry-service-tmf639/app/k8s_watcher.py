@@ -82,7 +82,7 @@ class ThreadSafeEventQueue:
         return result
 
 
-def init_k8s(proxy="http://sia-lb.telekom.de:8080"):
+def init_k8s(proxy=None):  # proxy="http://sia-lb.telekom.de:8080"
     try:
         # Try to load in-cluster config first, then kubeconfig
         try:

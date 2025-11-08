@@ -284,8 +284,8 @@ component-registry:
   valuesPathPrereleaseSuffix: .component-registry.prereleaseSuffix
   
   paths:
-    - source/services/ComponentRegistry/component-registry-service/**/*
-  buildContext: source/services/ComponentRegistry/component-registry-service
+    - source/services/ComponentRegistry/component-registry-service-tmf639/**/*
+  buildContext: source/services/ComponentRegistry/component-registry-service-tmf639
   # default is "Dockerfile" in buildContext
   ## buildDockerfile: 
   #testDockerfile: source/operators/dependentApiSimpleOperator/docker/DockerfileTest
