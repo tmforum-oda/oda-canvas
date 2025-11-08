@@ -21,8 +21,7 @@ class OpenAPIValidator:
         if openapi_spec_path is None:
             # Default path relative to this file
             base_dir = Path(__file__).parent.parent
-            # openapi_spec_path = base_dir / "openapi" / "TMF639-Resource_Inventory_Management-v5.0.0.oas.yaml"
-            openapi_spec_path = base_dir / "openapi" / "OFF" / "TMF639-Resource_Inventory_Management-v5.0.0.oas_PATCHED.yaml"
+            openapi_spec_path = base_dir / "openapi" / "TMF639-Resource_Inventory_Management-v5.0.0.oas.yaml"
         
         self.spec_path = Path(openapi_spec_path)
         self.spec = self._load_spec()
