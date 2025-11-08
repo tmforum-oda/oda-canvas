@@ -63,10 +63,12 @@ spec:
             successThreshold: {{ .Values.probes.readiness.successThreshold }}
           {{- end }}
           env:
-            - name: OWN_REGISTRY_URL
-              value: "{{ include "component-registry.own-registry-url" . }}"
-            - name: OWN_REGISTRY_EXTERNAL_NAME
-              value: "{{ include "component-registry.externalName" . }}"
+            - name: PORT
+              value: "{{ .Values.port }}"
+            - name: DATABASE_URL
+              value: "{{ .Values.databaseUrl }}"
+            - name: CANVAS_RESOURCE_INVENTORY
+              value: "{{ .Values.canvasResourceInventory }}"
             - name: LOGGING
               value: "{{ .Values.loglevel }}"
           resources:

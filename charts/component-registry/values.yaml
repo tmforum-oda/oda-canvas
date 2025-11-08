@@ -9,6 +9,9 @@ imagePullPolicy: IfNotPresent
 
 # define log level, 10=DEBUG, 20=INFO
 loglevel: "10"
+port: 8080
+databaseUrl: sqlite:///./data/resource_inventory.db
+canvasResourceInventory: http://resource-inventory.canvas.svc.cluster.local
 
 imagePullSecrets: []
 nameOverride: ""
