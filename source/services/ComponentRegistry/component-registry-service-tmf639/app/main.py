@@ -24,6 +24,8 @@ from app.validators import TMF639ResourceValidator
 
 
 CANVAS_RESOURCE_INVENTORY = os.getenv("CANVAS_RESOURCE_INVENTORY", None)
+WATCHED_NAMESPACES_STR = os.getenv("WATCHED_NAMESPACES", "")
+WATCHED_NAMESPACES = WATCHED_NAMESPACES_STR.split(",") if WATCHED_NAMESPACES_STR else []
 
 
 global_lock = GlobalLock("GlobalLock.ResourceInventoryApp")
@@ -182,8 +184,8 @@ def bgprocess_run():
     rsync.initialize();
     from app.k8s_watcher import K8SWatcher
     k8sWatcher = K8SWatcher(rsync.k8s_resource_changed_event)
-    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespaces=["components"])
-    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespaces=["components", "odacompns-*"])
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespaces=WATCHED_NAMESPACES)
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespaces=WATCHED_NAMESPACES)
     k8sWatcher.start()
 
 def start_k8s_watcher_process():
