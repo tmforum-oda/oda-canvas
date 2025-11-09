@@ -125,3 +125,15 @@ Return the own registry URL, either from values or constructed from fullname and
 {{- end }}
 
 
+{{/*
+Return the own component registry name, either from values or from release name
+*/}}
+{{- define "component-registry.own-registry-name" -}}
+  {{- if .Values.ownRegistryName -}}
+    {{ .Values.ownRegistryName }}
+  {{- else -}}
+    {{ .Release.Name }}
+  {{- end -}}
+{{- end }}
+
+

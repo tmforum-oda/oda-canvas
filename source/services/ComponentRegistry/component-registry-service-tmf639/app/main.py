@@ -36,6 +36,9 @@ logging.getLogger("uvicorn.access").addFilter(HealthCheckFilter())
 CANVAS_RESOURCE_INVENTORY = os.getenv("CANVAS_RESOURCE_INVENTORY", None)
 WATCHED_NAMESPACES_STR = os.getenv("WATCHED_NAMESPACES", "")
 WATCHED_NAMESPACES = WATCHED_NAMESPACES_STR.split(",") if WATCHED_NAMESPACES_STR else []
+OWN_REGISTRY_NAME = os.getenv("OWN_REGISTRY_NAME", "self")
+
+print(f"OWN_REGISTRY_NAME: {OWN_REGISTRY_NAME}")
 
 global_lock = GlobalLock("GlobalLock.ResourceInventoryApp")
 
@@ -492,7 +495,7 @@ async def delete_hub(
 @app.get("/health", tags=["health"])
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "version": "5.0.0", "worker_pid": os.getpid()}
+    return {"status": "healthy", "version": "5.0.0", "Name": OWN_REGISTRY_NAME, "worker_pid": os.getpid()}
 
 
 @app.post(
@@ -696,7 +699,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "index.html",
         {
             "request": request,
-            "service_name": os.getenv("SERVICE_NAME", "Resource Inventory Service"),
+            "own_registry_name": OWN_REGISTRY_NAME,
             "resources": resources_with_data,
             "hubs": hubs,
             "relationships": relationships,

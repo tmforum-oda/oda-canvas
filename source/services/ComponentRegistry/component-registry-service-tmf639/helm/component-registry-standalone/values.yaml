@@ -13,6 +13,7 @@ port: 8080
 databaseUrl: sqlite:///./data/resource_inventory.db
 #canvasResourceInventory: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
 watchedNamespaces: components,odacompns-*
+#ownRegistryName: own-compreg-name
 
 imagePullSecrets: []
 nameOverride: ""
