@@ -323,8 +323,8 @@ class KubernetesResourceService {
     }
 
     mapComponentStatusToResourceStatus(status) {
-        const summary = status.summary || {};
-        switch (summary.status) {
+        const summary = status["summary/status"] || {};
+        switch (summary.deployment_status) {
             case 'Complete':
                 return 'available';
             case 'InProgress':
@@ -337,8 +337,8 @@ class KubernetesResourceService {
     }
 
     mapComponentStatusToOperationalState(status) {
-        const summary = status.summary || {};
-        switch (summary.status) {
+		const summary = status["summary/status"] || {};
+        switch (summary.deployment_status) {
             case 'Complete':
                 return 'enable';
             case 'InProgress':
