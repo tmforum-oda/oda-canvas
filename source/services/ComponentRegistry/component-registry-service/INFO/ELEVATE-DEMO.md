@@ -2,6 +2,7 @@
 
 ## Setup Environment
 
+
 ### Cluster IHC-DT-A (green)
 
 ```
@@ -27,6 +28,8 @@ tmfihcdtb
 ```
 set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt
 set DOMAIN=ihc-dt.cluster-2.de
+set COMPREG_EXTNAME=global-compreg
+set TLS_SECRET_NAME=domain-tls-secret
 tmfihcdt
 ```
 
@@ -160,7 +163,7 @@ helm list -A
 
 ```
 # [blue] - IHC-DT
-cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service
+cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639
 helm upgrade --install global-compreg -n compreg --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% 
 ```
 
@@ -180,8 +183,16 @@ Klick Register-Upstream-URL: https://global-compreg.ihc-dt.cluster-2.de
 
 For compreg-b use curl to do the same:
 
+(old)
+
 ```
 curl -X POST https://canvas-compreg.ihc-dt-b.cluster-2.de/registries/upstream-from-url -H "accept: application/json" -H "Content-Type: application/json" -d "{\"url\":\"https://global-compreg.ihc-dt.cluster-2.de\"}"
+```
+
+(new) 
+
+```
+curl -X POST https://canvas-compreg.ihc-dt.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=ihc-dt\"}"
 ```
 
 
