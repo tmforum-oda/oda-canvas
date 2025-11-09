@@ -154,7 +154,7 @@ class KubernetesResourceService {
             {
                 '@type': 'Characteristic',
                 name: 'deploymentStatus',
-                value: status.deployment_status || status.summary?.status || 'Unknown'
+                value: status["summary/status"]?.deployment_status || 'Unknown'
             }
         ];
 
