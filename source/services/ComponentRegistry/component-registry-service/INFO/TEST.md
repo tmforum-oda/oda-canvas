@@ -10,6 +10,41 @@ set TLS_SECRET_NAME=domain-tls-secret
 tmfihcdt
 ```
 
+# update canvas WINDOWS
+
+```
+cd %USERPROFILE%/git/oda-canvas
+
+helm repo add jetstack https://charts.jetstack.io
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+
+helm dependency update ./charts/cert-manager-init
+helm dependency update ./charts/kong-gateway
+helm dependency update ./charts/apisix-gateway
+helm dependency update ./charts/canvas-vault
+helm dependency update ./charts/pdb-management-operator
+helm dependency update ./charts/canvas-oda
+
+helm dependency update --skip-refresh ./charts/cert-manager-init
+helm dependency update --skip-refresh ./charts/kong-gateway
+helm dependency update --skip-refresh ./charts/apisix-gateway
+helm dependency update --skip-refresh ./charts/canvas-vault
+helm dependency update --skip-refresh ./charts/pdb-management-operator
+helm dependency update --skip-refresh ./charts/canvas-oda
+
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli --set=component-registry.externalName=%COMPREG_EXTNAME%  --set=component-registry.domain=%DOMAIN%  --set=component-registry.watchedNamespaces=components  --set=resource-inventory.serviceType=ClusterIP
+```
+
+optional install canvas-vs
+
+```
+helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
+
+```
+
+
 
 ## Cleanup
 
@@ -32,7 +67,6 @@ curl -X DELETE https://canvas-compreg.ihc-dt.cluster-2.de/hub/global -H "accept:
 ## Install Global Component-Registry
 
 ```
-# [blue] - IHC-DT
 cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639
 helm upgrade --install global-compreg -n compreg --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% 
 ```

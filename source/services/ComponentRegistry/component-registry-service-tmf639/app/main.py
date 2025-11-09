@@ -6,6 +6,7 @@ load_dotenv()  # take environment variables
 
 import os
 import httpx
+import logging
 from datetime import datetime
 from typing import Optional
 from contextlib import asynccontextmanager
@@ -23,10 +24,18 @@ from app.global_lock import GlobalLock
 from app.validators import TMF639ResourceValidator
 
 
+# Filter to suppress health check logging
+class HealthCheckFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.getMessage().find("/health") == -1
+
+
+# Configure logging to suppress health endpoint
+logging.getLogger("uvicorn.access").addFilter(HealthCheckFilter())
+
 CANVAS_RESOURCE_INVENTORY = os.getenv("CANVAS_RESOURCE_INVENTORY", None)
 WATCHED_NAMESPACES_STR = os.getenv("WATCHED_NAMESPACES", "")
 WATCHED_NAMESPACES = WATCHED_NAMESPACES_STR.split(",") if WATCHED_NAMESPACES_STR else []
-
 
 global_lock = GlobalLock("GlobalLock.ResourceInventoryApp")
 
@@ -54,6 +63,8 @@ class ResourceSyncer:
         # For simplicity, we assume upstream provides an endpoint to list resources with their versions
         if self._initialized:
             return
+        print(f"CANVAS_RESOURCE_INVENTORY: {CANVAS_RESOURCE_INVENTORY}")
+        print(f"WATCHED_NAMESPACES: {WATCHED_NAMESPACES}")
         async def fetch_versions():
             async with httpx.AsyncClient() as client:
                 try:
