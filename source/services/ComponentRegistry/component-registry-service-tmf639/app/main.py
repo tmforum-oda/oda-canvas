@@ -102,7 +102,7 @@ class ResourceSyncer:
             self._resource_versions[up_id] = rv
         else:
             down_id = self.k8s_resource_to_downstream_id(kind, namespace, name)
-            resource_data = await self.fetch_from_downstream(down_id)
+            resource_data = await self.fetch_from_downstream(down_id, namespace)
             resource_data = self.patch_resource_data(resource_data, self._repo_name)
             await self.send_to_upstream(up_id, resource_data)
             self._resource_versions[up_id] = rv
@@ -131,10 +131,13 @@ class ResourceSyncer:
             except Exception as e:
                 raise RuntimeError(f"Failed to delete resource {resource_id} from upstream: {e}")
     
-    async def fetch_from_downstream(self, resource_id: str) -> dict:
+    async def fetch_from_downstream(self, resource_id: str, namespace: str = None) -> dict:
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.get(f"{self._downstream_url}/resource/{resource_id}", timeout=5)
+                url = f"{self._downstream_url}/resource/{resource_id}"
+                if namespace:
+                    url += f"?namespace={namespace}"
+                response = await client.get(url, timeout=5)
                 response.raise_for_status()
                 return response.json()
             except Exception as e:
