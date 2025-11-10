@@ -37,11 +37,11 @@ class ComponentRegistryClient:
         Returns a list of upstream registry URLs.
         """
         try:
-            url = f"{self.base_url}/registries/by-type/upstream"
+            url = f"{self.base_url}/hub"
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             registries = response.json()  # List of ComponentRegistry objects
-            return [reg["url"] for reg in registries if "url" in reg]
+            return [reg["callback"].replace("/sync", "") for reg in registries if "callback" in reg]
         except Exception as e:
             print(f"Error fetching upstream registries from {self.base_url}: {e}", file=sys.stderr)
             return []
