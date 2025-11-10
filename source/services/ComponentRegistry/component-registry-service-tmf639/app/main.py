@@ -8,7 +8,7 @@ import os
 import httpx
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from contextlib import asynccontextmanager
 from multiprocessing import Process
 import asyncio
@@ -477,6 +477,21 @@ async def create_hub(
     """Register an event listener."""
     db_hub = crud.create_hub(db, data)
     return db_hub
+
+
+@app.get(
+    "/hub",
+    response_model=List[schemas.Hub],
+    tags=["events subscription"],
+    summary="List all subscriptions (hubs)",
+    description="This operation retrieves all subscriptions to receive Events."
+)
+async def list_hubs(
+    db: Session = Depends(get_db)
+):
+    """Retrieve all event listeners."""
+    hubs = crud.get_all_hubs(db)
+    return hubs
 
 
 @app.get(

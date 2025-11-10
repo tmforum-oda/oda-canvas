@@ -27,10 +27,12 @@ helm uninstall -n compreg upup-compreg
 
 helm uninstall -n odacompns-a compreg-a
 helm uninstall -n odacompns-b compreg-b
+
+helm uninstall -n odacompns-a r-cat
+helm uninstall -n odacompns-b f-cat
+
 kubectl delete ns compreg odacompns-a odacompns-b
 
-helm uninstall -n components r-cat
-helm uninstall -n components f-cat
 kubectl rollout restart -n canvas deployment canvas-depapi-op
 ```
 
@@ -87,7 +89,7 @@ helm upgrade --install global-compreg -n compreg --create-namespace helm/compone
 
 open in browser:
 
-* http://global-compreg.ihc-dt.cluster-2.de/
+* https://global-compreg.ihc-dt.cluster-2.de/
 
 
 ### upup
