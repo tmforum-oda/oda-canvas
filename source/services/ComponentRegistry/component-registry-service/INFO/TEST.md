@@ -348,7 +348,7 @@ curl -sX GET "http://components.ihc-dt-b.cluster-2.de/f-cat-productcatalogmanage
 
 ```
 # [magenta] IHC-DT-B
-kubectl logs deployment/f-cat-prodcatapi -n components
+kubectl logs deployment/f-cat-prodcatapi -n odacompns-b
 
   ...
   listCategory :: GET /f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category components.ihc-dt.cluster-2.de

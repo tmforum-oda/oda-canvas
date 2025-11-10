@@ -8,6 +8,7 @@ import sys
 import requests
 from typing import List, Dict, Any
 
+
 class ComponentRegistryClient:
     """
     Helper class to communicate with a ComponentRegistry endpoint.
@@ -21,8 +22,9 @@ class ComponentRegistryClient:
         Returns a list of matching ExposedAPIs (with their parent Component info).
         """
         try:
-            url = f"{self.base_url}/components/by-oas-specification"
-            response = requests.get(url, params={"oas_specification": oas_specification}, timeout=10)
+            filter_str = f"$[?(@.resourceCharacteristic[?(@.name=='specification' && @.value[?(@.url=='{oas_specification}')])])]"
+            url = f"{self.base_url}/resource"
+            response = requests.get(url, params={"filter": filter_str}, timeout=10)
             response.raise_for_status()
             return response.json()  # List of Components, each with filtered ExposedAPIs
         except Exception as e:
@@ -35,11 +37,11 @@ class ComponentRegistryClient:
         Returns a list of upstream registry URLs.
         """
         try:
-            url = f"{self.base_url}/registries/by-type/upstream"
+            url = f"{self.base_url}/hub"
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             registries = response.json()  # List of ComponentRegistry objects
-            return [reg["url"] for reg in registries if "url" in reg]
+            return [reg["callback"].replace("/sync", "") for reg in registries if "callback" in reg]
         except Exception as e:
             print(f"Error fetching upstream registries from {self.base_url}: {e}", file=sys.stderr)
             return []
