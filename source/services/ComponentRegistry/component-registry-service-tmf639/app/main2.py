@@ -6,6 +6,7 @@ load_dotenv(".env2")  # take environment variables
 
 import os
 import httpx
+import logging
 from datetime import datetime
 from typing import Optional
 from contextlib import asynccontextmanager
@@ -16,6 +17,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from jsonpath import findall
 
 from app import models, schemas, crud
 from app.database import engine, get_db, Base
@@ -23,8 +25,21 @@ from app.global_lock import GlobalLock
 from app.validators import TMF639ResourceValidator
 
 
-CANVAS_RESOURCE_INVENTORY = os.getenv("CANVAS_RESOURCE_INVENTORY", None)
+# Filter to suppress health check logging
+class HealthCheckFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.getMessage().find("/health") == -1
 
+
+# Configure logging to suppress health endpoint
+logging.getLogger("uvicorn.access").addFilter(HealthCheckFilter())
+
+CANVAS_RESOURCE_INVENTORY = os.getenv("CANVAS_RESOURCE_INVENTORY", None)
+WATCHED_NAMESPACES_STR = os.getenv("WATCHED_NAMESPACES", "")
+WATCHED_NAMESPACES = WATCHED_NAMESPACES_STR.split(",") if WATCHED_NAMESPACES_STR else []
+OWN_REGISTRY_NAME = os.getenv("OWN_REGISTRY_NAME", "self")
+
+print(f"OWN_REGISTRY_NAME: {OWN_REGISTRY_NAME}")
 
 global_lock = GlobalLock("GlobalLock.ResourceInventoryApp")
 
@@ -52,6 +67,8 @@ class ResourceSyncer:
         # For simplicity, we assume upstream provides an endpoint to list resources with their versions
         if self._initialized:
             return
+        print(f"CANVAS_RESOURCE_INVENTORY: {CANVAS_RESOURCE_INVENTORY}")
+        print(f"WATCHED_NAMESPACES: {WATCHED_NAMESPACES}")
         async def fetch_versions():
             async with httpx.AsyncClient() as client:
                 try:
@@ -86,7 +103,7 @@ class ResourceSyncer:
             self._resource_versions[up_id] = rv
         else:
             down_id = self.k8s_resource_to_downstream_id(kind, namespace, name)
-            resource_data = await self.fetch_from_downstream(down_id)
+            resource_data = await self.fetch_from_downstream(down_id, namespace)
             resource_data = self.patch_resource_data(resource_data, self._repo_name)
             await self.send_to_upstream(up_id, resource_data)
             self._resource_versions[up_id] = rv
@@ -115,10 +132,13 @@ class ResourceSyncer:
             except Exception as e:
                 raise RuntimeError(f"Failed to delete resource {resource_id} from upstream: {e}")
     
-    async def fetch_from_downstream(self, resource_id: str) -> dict:
+    async def fetch_from_downstream(self, resource_id: str, namespace: str = None) -> dict:
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.get(f"{self._downstream_url}/resource/{resource_id}", timeout=5)
+                url = f"{self._downstream_url}/resource/{resource_id}"
+                if namespace:
+                    url += f"?namespace={namespace}"
+                response = await client.get(url, timeout=5)
                 response.raise_for_status()
                 return response.json()
             except Exception as e:
@@ -171,7 +191,8 @@ class ResourceSyncer:
                 await client.post(self.callback_url, json=event_payload, timeout=5)
             except Exception as e:
                 print(f"Failed to send event to {self.callback_url}: {e}")
- 
+
+
 started_processes = []
 
 def event_callback(kind, namespace, name, rv, old_rv):
@@ -182,8 +203,8 @@ def bgprocess_run():
     rsync.initialize();
     from app.k8s_watcher import K8SWatcher
     k8sWatcher = K8SWatcher(rsync.k8s_resource_changed_event)
-    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespaces=["components"])
-    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespaces=["components", "odacompns-*"])
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="Component", namespaces=WATCHED_NAMESPACES)
+    k8sWatcher.add_watch(api_version="v1", group="oda.tmforum.org", kind="ExposedAPI", namespaces=WATCHED_NAMESPACES)
     k8sWatcher.start()
 
 def start_k8s_watcher_process():
@@ -260,12 +281,14 @@ async def list_resources(
     offset: Optional[int] = 0,
     limit: Optional[int] = 100,
     fields: Optional[str] = None,
+    filter: Optional[str] = None,
     request: Request = None,
     response: Response = None,
     db: Session = Depends(get_db)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
+    
     
     # Check if fields parameter requests only resourceVersion
     if fields and fields.strip() == "resourceVersion":
@@ -279,6 +302,17 @@ async def list_resources(
                 "@type": "LogicalResource",
                 "@baseType": "Resource"
             })
+        
+        # Apply JSONPath filter if provided
+        if filter:
+            try:
+                result = findall(filter, result)
+            except Exception as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid JSONPath filter: {str(e)}"
+                )
+        
         response.headers["X-Result-Count"] = str(len(result))
         response.headers["X-Total-Count"] = str(total_count)
         return result
@@ -288,6 +322,17 @@ async def list_resources(
     for r in resources:
         db_resource = crud.get_resource(db, r.id, base_url)
         result.append(db_resource.data)  # Return only the data content
+    
+    # Apply JSONPath filter if provided
+    if filter:
+        try:
+            result = findall(filter, result)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid JSONPath filter: {str(e)}"
+            )
+    
     response.headers["X-Result-Count"] = str(len(result))
     response.headers["X-Total-Count"] = str(total_count)
     return result
@@ -479,7 +524,7 @@ async def delete_hub(
 @app.get("/health", tags=["health"])
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "version": "5.0.0", "worker_pid": os.getpid()}
+    return {"status": "healthy", "version": "5.0.0", "Name": OWN_REGISTRY_NAME, "worker_pid": os.getpid()}
 
 
 @app.post(
@@ -555,10 +600,14 @@ async def sync_callback(
             if existing_resource:
                 # Update if it already exists (to handle race conditions)
                 crud.update_resource(db, resource_id, resource_data)
+                db_resource = crud.get_resource(db, resource_id, base_url)
+                await notify_hubs("ResourceChanged", resource_id, db_resource.data, db)
             else:
                 # Ensure id is in resource_data for create
                 resource_data_with_id = {**resource_data, "id": resource_id}
                 crud.create_resource(db, resource_data_with_id, base_url="")
+                db_resource = crud.get_resource(db, resource_id, base_url)
+                await notify_hubs("ResourceCreated", resource_id, db_resource.data, db)
             
             return {
                 "status": "synchronized",
@@ -572,6 +621,8 @@ async def sync_callback(
             existing_resource = crud.get_resource(db, resource_id, base_url)
             if existing_resource:
                 crud.update_resource(db, resource_id, resource_data)
+                db_resource = crud.get_resource(db, resource_id, base_url)
+                await notify_hubs("ResourceChanged", resource_id, db_resource.data, db)
                 return {
                     "status": "synchronized",
                     "eventType": event_type,
@@ -582,6 +633,8 @@ async def sync_callback(
                 # Create if it doesn't exist (to handle missing resources)
                 resource_data_with_id = {**resource_data, "id": resource_id}
                 crud.create_resource(db, resource_data_with_id, base_url="")
+                db_resource = crud.get_resource(db, resource_id, base_url)
+                await notify_hubs("ResourceCreated", resource_id, db_resource.data, db)
                 return {
                     "status": "synchronized",
                     "eventType": event_type,
@@ -592,6 +645,7 @@ async def sync_callback(
         elif event_type == "ResourceDeleted":
             # Delete the resource
             success = crud.delete_resource(db, resource_id)
+            await notify_hubs("ResourceDeleted", resource_id, {}, db)
             return {
                 "status": "synchronized",
                 "eventType": event_type,
@@ -678,12 +732,15 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                                 'specifications': specifications,
                                 'status': status
                             })
-    
+    namespaces = WATCHED_NAMESPACES_STR if CANVAS_RESOURCE_INVENTORY else "N/A"
+    if not namespaces:
+        namespaces = "ALL"
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
-            "service_name": os.getenv("SERVICE_NAME", "Resource Inventory Service"),
+            "own_registry_name": OWN_REGISTRY_NAME,
+            "namespaces": namespaces,
             "resources": resources_with_data,
             "hubs": hubs,
             "relationships": relationships,

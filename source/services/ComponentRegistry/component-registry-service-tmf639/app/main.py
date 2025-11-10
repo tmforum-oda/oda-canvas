@@ -8,7 +8,7 @@ import os
 import httpx
 import logging
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Optional
 from contextlib import asynccontextmanager
 from multiprocessing import Process
 import asyncio
@@ -600,10 +600,14 @@ async def sync_callback(
             if existing_resource:
                 # Update if it already exists (to handle race conditions)
                 crud.update_resource(db, resource_id, resource_data)
+                db_resource = crud.get_resource(db, resource_id, base_url)
+                await notify_hubs("ResourceChanged", resource_id, db_resource.data, db)
             else:
                 # Ensure id is in resource_data for create
                 resource_data_with_id = {**resource_data, "id": resource_id}
                 crud.create_resource(db, resource_data_with_id, base_url="")
+                db_resource = crud.get_resource(db, resource_id, base_url)
+                await notify_hubs("ResourceCreated", resource_id, db_resource.data, db)
             
             return {
                 "status": "synchronized",
@@ -617,6 +621,8 @@ async def sync_callback(
             existing_resource = crud.get_resource(db, resource_id, base_url)
             if existing_resource:
                 crud.update_resource(db, resource_id, resource_data)
+                db_resource = crud.get_resource(db, resource_id, base_url)
+                await notify_hubs("ResourceChanged", resource_id, db_resource.data, db)
                 return {
                     "status": "synchronized",
                     "eventType": event_type,
@@ -627,6 +633,8 @@ async def sync_callback(
                 # Create if it doesn't exist (to handle missing resources)
                 resource_data_with_id = {**resource_data, "id": resource_id}
                 crud.create_resource(db, resource_data_with_id, base_url="")
+                db_resource = crud.get_resource(db, resource_id, base_url)
+                await notify_hubs("ResourceCreated", resource_id, db_resource.data, db)
                 return {
                     "status": "synchronized",
                     "eventType": event_type,
@@ -637,6 +645,7 @@ async def sync_callback(
         elif event_type == "ResourceDeleted":
             # Delete the resource
             success = crud.delete_resource(db, resource_id)
+            await notify_hubs("ResourceDeleted", resource_id, {}, db)
             return {
                 "status": "synchronized",
                 "eventType": event_type,
