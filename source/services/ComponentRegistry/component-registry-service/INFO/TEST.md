@@ -13,6 +13,14 @@ tmfihcdt
 
 # Cleanup
 
+## unregister global-compreg
+
+```
+curl -X DELETE https://canvas-compreg.ihc-dt.cluster-2.de/hub/global -H "accept: */*"
+```
+
+## undeploy compregs and components
+
 ```
 helm uninstall -n compreg global-compreg
 helm uninstall -n compreg upup-compreg
@@ -26,12 +34,6 @@ helm uninstall -n components f-cat
 kubectl rollout restart -n canvas deployment canvas-depapi-op
 ```
 
-
-## unregister global-compreg
-
-```
-curl -X DELETE https://canvas-compreg.ihc-dt.cluster-2.de/hub/global -H "accept: */*"
-```
 
 
 
@@ -222,7 +224,7 @@ And the 'productcatalogmanagement' component has a deployment status of 'Complet
 
 ```
 # [green] IHC-DT-A
-kubectl get component r-cat-productcatalogmanagement -n components
+kubectl get component r-cat-productcatalogmanagement -n odacompns-a
 
   NAMESPACE     NAME                             DEPLOYMENT_STATUS
   components   r-cat-productcatalogmanagement   Complete
@@ -232,7 +234,7 @@ And I should see the 'productcatalogmanagement' ExposedAPI resource on the 'prod
 
 ```
 # [green] IHC-DT-A
-kubectl get exposedapi -n components
+kubectl get exposedapi -n odacompns-a
 
   NAME                                                      API_ENDPOINT                                                                                                IMPLEMENTATION_READY
   r-cat-productcatalogmanagement-metrics                    https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/metrics                               true
@@ -248,7 +250,7 @@ When I install the 'productcatalog-dependendent-API-v1' package as release 'f-ca
 ```
 # [magenta] IHC-DT-B
 cd %USERPROFILE%\git\oda-canvas
-helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install f-cat -n odacompns-b --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
 
   Release "f-cat" does not exist. Installing it now.
   NAME: f-cat
@@ -264,7 +266,7 @@ Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'p
 
 ```
 # [magenta] IHC-DT-B
-kubectl get depapis -n components   f-cat-productcatalogmanagement-downstreamproductcatalog
+kubectl get depapis -n odacompns-b   f-cat-productcatalogmanagement-downstreamproductcatalog
 
   NAMESPACE     NAME                                                      READY   AGE   SVCINVID                               URL
   components   f-cat-productcatalogmanagement-downstreamproductcatalog   true    53s   0e16d068-fc39-4cf5-80a0-5e5826b02d10   https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4
@@ -274,7 +276,7 @@ And the 'productcatalogmanagement' component has a deployment status of 'Complet
 
 ```
 # [magenta] IHC-DT-B
-kubectl get components -n components   f-cat-productcatalogmanagement
+kubectl get components -n odacompns-b   f-cat-productcatalogmanagement
 
   NAME                             DEPLOYMENT_STATUS
   f-cat-productcatalogmanagement   Complete

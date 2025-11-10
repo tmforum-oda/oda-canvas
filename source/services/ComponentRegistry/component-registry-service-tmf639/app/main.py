@@ -8,7 +8,7 @@ import os
 import httpx
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from contextlib import asynccontextmanager
 from multiprocessing import Process
 import asyncio
@@ -17,6 +17,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from jsonpath import findall
 
 from app import models, schemas, crud
 from app.database import engine, get_db, Base
@@ -190,7 +191,8 @@ class ResourceSyncer:
                 await client.post(self.callback_url, json=event_payload, timeout=5)
             except Exception as e:
                 print(f"Failed to send event to {self.callback_url}: {e}")
- 
+
+
 started_processes = []
 
 def event_callback(kind, namespace, name, rv, old_rv):
@@ -279,12 +281,14 @@ async def list_resources(
     offset: Optional[int] = 0,
     limit: Optional[int] = 100,
     fields: Optional[str] = None,
+    filter: Optional[str] = None,
     request: Request = None,
     response: Response = None,
     db: Session = Depends(get_db)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
+    
     
     # Check if fields parameter requests only resourceVersion
     if fields and fields.strip() == "resourceVersion":
@@ -298,6 +302,17 @@ async def list_resources(
                 "@type": "LogicalResource",
                 "@baseType": "Resource"
             })
+        
+        # Apply JSONPath filter if provided
+        if filter:
+            try:
+                result = findall(filter, result)
+            except Exception as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid JSONPath filter: {str(e)}"
+                )
+        
         response.headers["X-Result-Count"] = str(len(result))
         response.headers["X-Total-Count"] = str(total_count)
         return result
@@ -307,6 +322,17 @@ async def list_resources(
     for r in resources:
         db_resource = crud.get_resource(db, r.id, base_url)
         result.append(db_resource.data)  # Return only the data content
+    
+    # Apply JSONPath filter if provided
+    if filter:
+        try:
+            result = findall(filter, result)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid JSONPath filter: {str(e)}"
+            )
+    
     response.headers["X-Result-Count"] = str(len(result))
     response.headers["X-Total-Count"] = str(total_count)
     return result
@@ -697,12 +723,15 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                                 'specifications': specifications,
                                 'status': status
                             })
-    
+    namespaces = WATCHED_NAMESPACES_STR if CANVAS_RESOURCE_INVENTORY else "N/A"
+    if not namespaces:
+        namespaces = "ALL"
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
             "own_registry_name": OWN_REGISTRY_NAME,
+            "namespaces": namespaces,
             "resources": resources_with_data,
             "hubs": hubs,
             "relationships": relationships,
