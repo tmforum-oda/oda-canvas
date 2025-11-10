@@ -71,6 +71,8 @@ spec:
               value: "{{ .Values.canvasResourceInventory }}"
             - name: WATCHED_NAMESPACES
               value: "{{ .Values.watchedNamespaces }}"
+            - name: OWN_REGISTRY_NAME
+              value: "{{ include "component-registry.own-registry-name" . }}"
             - name: LOGGING
               value: "{{ .Values.loglevel }}"
           resources:

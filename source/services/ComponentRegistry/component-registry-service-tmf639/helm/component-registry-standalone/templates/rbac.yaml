@@ -1,11 +1,5 @@
 {{ if .Values.canvasResourceInventory }}
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  namespace: "{{ .Release.Namespace }}"
-  name: {{ include "component-registry.serviceAccountName" . }}
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:

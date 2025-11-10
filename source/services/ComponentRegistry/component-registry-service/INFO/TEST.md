@@ -1,14 +1,39 @@
 # TEST
 
-### Cluster IHC-DT (blue)
+
+# Cluster IHC-DT (blue)
 
 ```
-set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt
+#set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt
 set DOMAIN=ihc-dt.cluster-2.de
-set COMPREG_EXTNAME=global-compreg
+set COMPREG_EXTNAME=ihc-dt-compreg
 set TLS_SECRET_NAME=domain-tls-secret
 tmfihcdt
 ```
+
+# Cleanup
+
+```
+helm uninstall -n compreg global-compreg
+helm uninstall -n compreg upup-compreg
+
+helm uninstall -n odacompns-a compreg-a
+helm uninstall -n odacompns-b compreg-b
+kubectl delete ns compreg odacompns-a odacompns-b
+
+helm uninstall -n components r-cat
+helm uninstall -n components f-cat
+kubectl rollout restart -n canvas deployment canvas-depapi-op
+```
+
+
+## unregister global-compreg
+
+```
+curl -X DELETE https://canvas-compreg.ihc-dt.cluster-2.de/hub/global -H "accept: */*"
+```
+
+
 
 # update canvas WINDOWS
 
@@ -34,33 +59,20 @@ helm dependency update --skip-refresh ./charts/canvas-vault
 helm dependency update --skip-refresh ./charts/pdb-management-operator
 helm dependency update --skip-refresh ./charts/canvas-oda
 
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli --set=component-registry.externalName=%COMPREG_EXTNAME%  --set=component-registry.domain=%DOMAIN%  --set=component-registry.watchedNamespaces=components  --set=resource-inventory.serviceType=ClusterIP
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=keycloak.keycloakConfigCli.image.repository=bitnamilegacy/keycloak-config-cli  --set=resource-inventory.serviceType=ClusterIP --set=resource-inventory.serverUrl=https://canvas-resource-inventory.ihc-dt.cluster-2.de/tmf-api/resourceInventoryManagement/v5 --set=component-registry.ownRegistryName=%COMPREG_EXTNAME%  --set=component-registry.domain=%DOMAIN%  --set=component-registry.watchedNamespaces=components
 ```
 
 optional install canvas-vs
 
 ```
 helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
-
 ```
 
 
+### URLs
 
-## Cleanup
-
-```
-helm uninstall -n compreg global-compreg
-helm uninstall -n compreg upup-compreg
-helm uninstall -n components r-cat
-helm uninstall -n components f-cat
-kubectl rollout restart -n canvas deployment canvas-depapi-op
-```
-
-unregister global-compreg
-
-```
-curl -X DELETE https://canvas-compreg.ihc-dt.cluster-2.de/hub/global -H "accept: */*"
-```
+* https://canvas-compreg.ihc-dt.cluster-2.de
+* https://canvas-resource-inventory.ihc-dt.cluster-2.de/tmf-api/resourceInventoryManagement/v5/api-docs/
 
 
 
@@ -76,6 +88,42 @@ open in browser:
 * http://global-compreg.ihc-dt.cluster-2.de/
 
 
+### upup
+
+```
+cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639
+helm upgrade --install upup-compreg -n compreg --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% 
+```
+
+open in browser:
+
+* https://upup-compreg.ihc-dt.cluster-2.de/
+
+
+
+### compreg with watcher for namespace odacomns-a
+
+```
+cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639
+helm upgrade --install compreg-a -n odacompns-a --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% --set=canvasResourceInventory=http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5 --set=watchedNamespaces=odacompns-a
+```
+
+open in browser:
+
+* https://compreg-a.ihc-dt.cluster-2.de/
+
+
+### compreg with watcher for namespace odacomns-b
+
+```
+cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639
+helm upgrade --install compreg-b -n odacompns-b --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% --set=canvasResourceInventory=http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5 --set=watchedNamespaces=odacompns-b
+```
+
+open in browser:
+
+* https://compreg-b.ihc-dt.cluster-2.de/
+
 
 ## Link registries (in Browser)
 
@@ -87,10 +135,30 @@ Klick Register-Upstream-URL: https://global-compreg.ihc-dt.cluster-2.de
 
 For compreg-b use curl to do the same:
 
+### canvas-compreg -> global-compreg
+
 ```
-curl -X POST https://canvas-compreg.ihc-dt.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=ihc-dt\"}"
+curl -X POST https://canvas-compreg.ihc-dt.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=ihc-dt-compreg\"}"
 ```
 
+### compreg-a -> global-compreg
+
+```
+curl -X POST https://compreg-a.ihc-dt.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-a\"}"
+```
+
+### compreg-b -> global-compreg
+
+```
+curl -X POST https://compreg-b.ihc-dt.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-b\"}"
+```
+
+
+### global-compreg -> upup-compreg
+
+```
+curl -X POST https://global-compreg.ihc-dt.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"upup\",\"callback\":\"https://upup-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=global-compreg\"}"
+```
 
 
 ## Manually run BDD UC007-F002
@@ -139,7 +207,7 @@ Given I install the 'productcatalog-v1' package as release 'r-cat'
 ```
 # [green] IHC-DT-A
 cd %USERPROFILE%\git\oda-canvas
-helm upgrade --install r-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
+helm upgrade --install r-cat -n odacompns-a --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
 
   Release "r-cat" does not exist. Installing it now.
   NAME: r-cat
