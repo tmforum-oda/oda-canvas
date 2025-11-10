@@ -31,8 +31,10 @@ class KubernetesResourceService {
     /**
      * Get ODA Components from Kubernetes
      */
-    async getComponents(namespace = config.KUBERNETES_NAMESPACE) {
+    async getComponents(namespace = null) {
         try {
+			namespace = namespace || config.KUBERNETES_NAMESPACE;
+			logger.info(`Fetching Components from namespace: ${namespace}`);
             const response = await this.customObjectsApi.listNamespacedCustomObject(
                 'oda.tmforum.org',     // group
                 'v1',             // version  
@@ -50,8 +52,10 @@ class KubernetesResourceService {
     /**
      * Get specific ODA Component by name
      */
-    async getComponent(name, namespace = config.KUBERNETES_NAMESPACE) {
+    async getComponent(name, namespace = null) {
         try {
+			namespace = namespace || config.KUBERNETES_NAMESPACE;
+			logger.info(`Fetching Components from namespace: ${namespace}`);
             const response = await this.customObjectsApi.getNamespacedCustomObject(
                 'oda.tmforum.org',     // group
                 'v1',             // version
@@ -73,8 +77,10 @@ class KubernetesResourceService {
     /**
      * Get ExposedAPIs from Kubernetes
      */
-    async getExposedAPIs(namespace = config.KUBERNETES_NAMESPACE) {
+    async getExposedAPIs(namespace = null) {
         try {
+			namespace = namespace || config.KUBERNETES_NAMESPACE;
+			logger.info(`Fetching ExposedAPIs from namespace: ${namespace}`);
             const response = await this.customObjectsApi.listNamespacedCustomObject(
                 'oda.tmforum.org',     // group
                 'v1',             // version
@@ -363,8 +369,11 @@ class KubernetesResourceService {
     }    /**
      * List all resources (Components and ExposedAPIs) as TMF639 Resources
      */
-    async listResources(namespace = config.KUBERNETES_NAMESPACE) {
+    async listResources(namespace = null) {
         try {
+			namespace = namespace || config.KUBERNETES_NAMESPACE;
+			logger.info(`Fetching Resources from namespace: ${namespace}`);
+			
             logger.info('KubernetesResourceService: Starting listResources...');
             
             // Get Components from ODA Canvas
