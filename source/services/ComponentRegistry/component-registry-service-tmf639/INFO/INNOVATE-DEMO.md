@@ -158,11 +158,8 @@ open in browser
 
 * https://canvas-compreg.ihc-dt-a.cluster-2.de
 
-Klick Register-Upstream-URL: https://global-compreg.ihc-dt.cluster-2.de
+Click Register-Upstream-URL: https://global-compreg.ihc-dt.cluster-2.de
 
-```
-curl -X POST https://canvas-compreg.ihc-dt-a.cluster-2.de/hub -H "accept: appl cation/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-a\"}"
-```
 
 For compreg-b use curl to do the same:
 

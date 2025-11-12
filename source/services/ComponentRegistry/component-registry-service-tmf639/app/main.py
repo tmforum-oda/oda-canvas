@@ -466,11 +466,14 @@ def guess_id(url: str) -> Optional[str]:
     if url.endswith("/sync"):
         health_url = url[:-5] + "/health"
         try:
+            print(f"calling health url: {health_url}")
             response = httpx.get(health_url, timeout=5)
             response.raise_for_status()
             health_data = response.json()
+            print(f"got response: {health_data}")
             return health_data.get("Name", None)
         except Exception as e:
+            print(f"exception: {str(e)}")
             return None
 
 
