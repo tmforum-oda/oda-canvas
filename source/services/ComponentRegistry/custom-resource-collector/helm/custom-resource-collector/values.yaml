@@ -1,8 +1,0 @@
-image: ocfork/custom-resource-collector
-imageVersion: 0.1.7
-
-schedule: "* * * * *"   # "At every minute.." (crontab.guru)
-
-registryUrl: http://canvas-compreg.canvas.svc.cluster.local
-registryExternalName: compreg
-monitoredNamespaces: components

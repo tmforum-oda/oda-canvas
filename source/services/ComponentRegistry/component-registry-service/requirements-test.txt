@@ -1,8 +1,0 @@
-pytest>=7.0.0
-pytest-bdd>=6.1.1
-pytest-cov>=4.0.0
-pytest-asyncio>=0.21.0
-httpx>=0.24.0
-fastapi[all]>=0.100.0
-sqlalchemy>=2.0.0
-pydantic>=2.0.0
