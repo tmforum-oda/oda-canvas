@@ -16,7 +16,10 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.4-BB1
+version: 1.2.4
+# version: 1.2.4     - New release ahead of Innovate Asia
+# version: 1.2.4-RJ1 - added image override for bitnamilegacy charts related to kong gateway
+# version: 1.2.4-AK1 - added image override for bitnamilegacy Keycloak-config-cli image
 # version: 1.2.4-BB1 - added image override for bitnamilegacy Keycloak and Keycloak.PostgreSQL images
 # version: 1.2.4-LT3 - added PDB Management Operator for automated Pod Disruption Budget management
 # version: 1.2.4-LT2 - added resource-inventory API for viewing components and exposed APIs in the canvas
@@ -80,7 +83,7 @@ dependencies:
     repository: 'file://../oda-crds'
     condition: oda-crds.enabled
   - name: keycloak
-    version: "13.0.2"
+    version: "13.0.3"
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: component-operator
@@ -108,7 +111,7 @@ dependencies:
     version: "1.2.2"
     repository: 'file://../oda-webhook'
   - name: api-operator-kong
-    version: "1.0.3"
+    version: "1.0.4"
     repository: 'file://../kong-gateway'
     condition: kong-gateway-install.enabled
   - name: api-operator-apisix
