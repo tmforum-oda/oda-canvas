@@ -1,5 +1,5 @@
 {
-  "oas_specification": [
-    "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+  "filter": [
+    "$[?(@.resourceCharacteristic[?(@.name=='specification' && @.value[?(@.url=='https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json')])])]"
   ]
 }

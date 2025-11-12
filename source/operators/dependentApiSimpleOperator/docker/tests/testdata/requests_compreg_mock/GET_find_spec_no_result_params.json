@@ -1,5 +1,5 @@
 {
-  "oas_specification": [
-    "https://invalid.oas/spec.json"
+  "filter": [
+    "$[?(@.resourceCharacteristic[?(@.name=='specification' && @.value[?(@.url=='https://invalid.oas/spec.json')])])]"
   ]
 }

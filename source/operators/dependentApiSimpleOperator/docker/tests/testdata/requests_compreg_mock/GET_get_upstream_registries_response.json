@@ -1,12 +1,7 @@
 [
   {
-    "name": "compreg-a",
-    "url": "https://compreg-a.ihc-dt.cluster-2.de",
-    "type": "upstream",
-    "labels": {
-      "description": "Registry self for Kubernetes ODA Components",
-      "externalName": "compreg-a",
-      "createdAt": "2025-10-01T15:08:06.950248"
-    }
+    "id": "global-compreg",
+    "callback": "https://global-compreg.ihc-dt.cluster-2.de/sync",
+    "query": "source=compreg-a"
   }
 ]

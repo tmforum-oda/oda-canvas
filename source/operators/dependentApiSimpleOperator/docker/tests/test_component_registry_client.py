@@ -40,35 +40,39 @@ def comp_reg() -> ComponentRegistryClient:
     return ComponentRegistryClient(BASE_URL)
 
 
+def getCharacteristicValue(characteristics, name):
+    for charac in characteristics:
+        if charac["name"] == name:
+            return charac["value"]
+    return None
+
+
 def test_find_spec_success(comp_reg, rfmock):
     oas_spec = "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
-    rfmock.mock_get("components/by-oas-specification", f"find_spec_success", 200)
+    rfmock.mock_get("resource", f"find_spec_success", 200)
     comps = comp_reg.find_exposed_apis(oas_spec)
     # print(f"\nFOUND EXPOSED APIS:\n{json.dumps(comps,indent=2)}\n")
     assert len(comps) == 1
-    assert comps[0]["component_name"] == "demo-a-productcatalogmanagement"
-    assert comps[0]["component_registry_ref"] == "self"
-    exp_apis = comps[0]["exposed_apis"]
-    assert len(exp_apis) == 1
-    exp_api = exp_apis[0]
-    assert exp_api["oas_specification"] ==  oas_spec
-    assert exp_api["url"] == "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
-
+    assert comps[0]["name"] == "demo-a-productcatalogmanagement-productcatalogmanagement"
+    assert comps[0]["category"] == "API"
+    assert comps[0]["resourceRelationship"][0]["resource"]["id"] == "self:demo-a-productcatalogmanagement"
+    assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "url") == "https://components.ihc-dt-a.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+    assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "specification")[0]["url"] == oas_spec
 
 def test_find_spec_no_result(comp_reg, rfmock):
     oas_spec = "https://invalid.oas/spec.json"
-    rfmock.mock_get("components/by-oas-specification", f"find_spec_no_result", 200)
+    rfmock.mock_get("resource", f"find_spec_no_result", 200)
     comps = comp_reg.find_exposed_apis(oas_spec)
     # print(f"\nFOUND EXPOSED APIS:\n{json.dumps(comps,indent=2)}\n")
     assert len(comps) == 0
 
 
 def test_get_upstream_registries(comp_reg, rfmock):
-    rfmock.mock_get("registries/by-type/upstream", f"get_upstream_registries", 200)
+    rfmock.mock_get("hub", f"get_upstream_registries", 200)
     regs = comp_reg.get_upstream_registries()
     # print(f"\nUPSTREAM REGISTRIES:\n{json.dumps(regs,indent=2)}\n")
     assert len(regs) == 1
-    assert regs[0] == "https://compreg-a.ihc-dt.cluster-2.de"
+    assert regs[0] == "https://global-compreg.ihc-dt.cluster-2.de"
 
 
 if __name__ == "__main__":

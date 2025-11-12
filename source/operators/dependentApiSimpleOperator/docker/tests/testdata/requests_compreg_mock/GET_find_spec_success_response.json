@@ -1,27 +1,74 @@
 [
   {
-    "component_registry_ref": "self",
-    "component_name": "demo-a-productcatalogmanagement",
-    "component_version": "0.0.1",
-    "description": "Simple Product Catalog ODA-Component from Open-API reference implementation.",
-    "exposed_apis": [
+    "resourceVersion": "1762985924742991024",
+    "@type": "LogicalResource",
+    "@baseType": "Resource",
+    "name": "demo-a-productcatalogmanagement-productcatalogmanagement",
+    "description": "Exposed API: productcatalogmanagement",
+    "category": "API",
+    "resourceSpecification": {
+      "@type": "ResourceSpecificationRef",
+      "id": "API",
+      "name": "API"
+    },
+    "resourceCharacteristic": [
       {
-        "name": "productcatalogmanagement",
-        "oas_specification": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
-        "url": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4",
-        "labels": {
-          "apiType": "openapi",
-          "developerUI": "https://components.ihc-dt.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs",
-          "status": "ready"
+        "@type": "Characteristic",
+        "name": "namespace",
+        "value": "components"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "apiName",
+        "value": "productcatalogmanagement"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "apiType",
+        "value": "openapi"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "url",
+        "value": "https://components.ihc-dt-a.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "implementation",
+        "value": "demo-a-prodcatapi"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "specification",
+        "value": [
+          {
+            "url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+          }
+        ]
+      },
+      {
+        "@type": "Characteristic",
+        "name": "apiDocs",
+        "value": "https://components.ihc-dt-a.cluster-2.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs"
+      }
+    ],
+    "resourceStatus": "available",
+    "operationalState": "enable",
+    "administrativeState": "unlocked",
+    "usageState": "active",
+    "startDate": "2025-11-12T22:17:43Z",
+    "resourceRelationship": [
+      {
+        "@type": "ResourceRelationship",
+        "relationshipType": "exposedBy",
+        "resource": {
+          "id": "self:demo-a-productcatalogmanagement",
+          "href": "http://localhost:8080/resource/self:demo-a-productcatalogmanagement",
+          "@type": "LogicalResource"
         }
       }
     ],
-    "labels": {
-      "componentName": "demo-a-productcatalogmanagement",
-      "functionalBlock": "CoreCommerce",
-      "id": "TMFC001",
-      "syncedAt": "2025-10-02T16:55:01.913324",
-      "namespace": "odacompns-a"
-    }
+    "id": "self:demo-a-productcatalogmanagement-productcatalogmanagement",
+    "href": "http://localhost:8080/resource/self:demo-a-productcatalogmanagement-productcatalogmanagement"
   }
 ]

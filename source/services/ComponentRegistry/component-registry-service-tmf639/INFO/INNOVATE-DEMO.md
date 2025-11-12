@@ -36,6 +36,7 @@ tmfihcdt
 as canvas was deinstalled reinstall the canvas component-gateway standalone
 
 ```
+# [blue] - IHC-DT
 helm upgrade --install component-gateway -n canvas --create-namespace %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639/helm/canvas-somponent-gateway
 ```
 
@@ -160,11 +161,17 @@ open in browser
 
 Click Register-Upstream-URL: https://global-compreg.ihc-dt.cluster-2.de
 
+alternative:
+
+```
+curl -X POST https://canvas-compreg.ihc-dt-a.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-a\"}"
+```
+
 
 For compreg-b use curl to do the same:
 
 ```
-curl -X POST https://canvas-compreg.ihc-dt-b.cluster-2.de/hub -H "accept: appl cation/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-b\"}"
+curl -X POST https://canvas-compreg.ihc-dt-b.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-b\"}"
 ```
 
 
@@ -386,6 +393,7 @@ manually register in gloabl-compreg and sync
 ### [green] undeploy r-cat
 
 ```
+# [blue] - IHC-DT
 # [green] - IHC-DT-A
 helm uninstall -n components r-cat
 ```
@@ -394,9 +402,59 @@ show after 1 min disappears in upup-compreg
 
 
 
+# cleanup all 
+
+
+## cleanup IHC-DT (blue)
+
+```
+# [blue] - IHC-DT
+helm uninstall -n compreg global-compreg
+helm uninstall -n compreg upup-compreg
+helm uninstall -n canvas component-gateway
+kubectl delete ns canvas compreg
+```
+
+
+## cleanup IHC-DT-A (green)
+
+```
+# [green] - IHC-DT-A
+helm uninstall -n components r-cat
+helm uninstall -n canvas canvas canvas-vs
+kubectl delete ns components canvas-vault canvas cert-manager
+```
+
+
+# cleanup all IHC-DT-B (magenta)
+
+```
+# [magenta] - IHC-DT-B
+helm uninstall -n components f-cat
+helm uninstall -n canvas canvas canvas-vs
+kubectl delete ns components canvas-vault canvas cert-manager
+```
+
+
+
+
 # Canvas installation
 
 ```
+cd %USERPROFILE%/git/oda-canvas
+
+helm repo add jetstack https://charts.jetstack.io
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+
+helm dependency update ./charts/cert-manager-init
+helm dependency update ./charts/kong-gateway
+helm dependency update ./charts/apisix-gateway
+helm dependency update ./charts/canvas-vault
+helm dependency update ./charts/pdb-management-operator
+helm dependency update ./charts/canvas-oda
+
 helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=component-registry.ownRegistryName=%COMPREG_EXTNAME%  --set=component-registry.domain=%DOMAIN% --set=resource-inventory.serviceType=ClusterIP --set=resource-inventory.serverUrl=https://canvas-resource-inventory.%DOMAIN%/tmf-api/resourceInventoryManagement/v5
 ```
 
