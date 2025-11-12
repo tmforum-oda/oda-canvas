@@ -1,0 +1,57 @@
+{
+	"id": "self:r-cat-productcatalogmanagement:metrics",
+	"href": "/resource/self:r-cat-productcatalogmanagement:metrics",
+	"@type": "LogicalResource",
+	"@baseType": "Resource",
+	"name": "metrics",
+	"description": "Exposed API: metrics",
+	"category": "API",
+	"resourceSpecification": {
+		"@type": "ResourceSpecificationRef",
+		"id": "API",
+		"name": "API"
+	},
+	"resourceCharacteristic": [
+		{
+			"@type": "Characteristic",
+			"name": "namespace",
+			"value": "components"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "apiName",
+			"value": "metrics"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "apiType",
+			"value": "prometheus"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "url",
+			"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/metrics"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "implementation",
+			"value": "r-cat-productcatalogmanagement-sm"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "apiDocs"
+		}
+	],
+	"resourceStatus": "available",
+	"operationalState": "enable",
+	"administrativeState": "unlocked",
+	"usageState": "active",
+	"startDate": "2025-10-15T12:17:31Z",
+	"place": [
+		{
+			"id": "components",
+			"name": "components",
+			"@type": "Namespace"
+		}
+	]
+}

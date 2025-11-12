@@ -1,0 +1,103 @@
+  {
+    "id": "8044",
+    "href": "http://server:port/resourceInventoryManagement/v5/resource/8044",
+    "description": "This is a Router resource with the category Router and with a reserved resourceStatus for organisations.",
+    "category": "Router",
+    "startOperatingDate": "2020-03-04T00:00:00.000Z",
+    "endOperatingDate": "2023-09-04T08:00:00.000Z",
+    "administrativeState": "locked",
+    "operationalState": "enable",
+    "usageState": "active",
+    "resourceStatus": "reserved",
+    "version": "v2",
+    "@type": "Resource",
+    "note": [
+      {
+        "text": "something about this resource",
+        "@type": "Note"
+      }
+    ],
+    "place": [
+      {
+        "role": "installationAddress",
+        "@type": "RelatedPlaceRef",
+        "place": {
+          "id": "9912",
+          "href": "https://host:port/geographicAddressManagement/v5/geographicAddress/9912",
+          "@type": "PlaceRef",
+          "@referredType": "GeographicAddress"
+        }
+      }
+    ],
+    "resourceRelationship": [
+      {
+        "id": "egal123",
+        "relationshipType": "contains",
+        "@type": "ResourceRelationship",
+        "resource": {
+          "id": "44",
+          "href": "http://server:port/resourceInventoryManagement/v5/resource/44",
+          "@type": "ResourceRef"
+        }
+      },
+      {
+        "id": "egal124",
+        "relationshipType": "contains",
+        "@type": "ResourceRelationship",
+        "resource": {
+          "id": "45",
+          "href": "http://server:port/resourceInventoryManagement/v5/resource/45",
+          "@type": "ResourceRef"
+        }
+      }
+    ],
+    "resourceSpecification": {
+      "id": "4",
+      "href": " http://server:port/resourceCatalogManagement/v5/resourceSpecification/4",
+      "@type": "ResourceSpecificationRef",
+      "@referredType": "ResourceSpecification"
+    },
+    "externalIdentifier": [
+      {
+        "externalIdentifierType": "Supplier-Router-Id",
+        "id": "XYZ-1174-B",
+        "owner": "Supplier-A",
+        "@type": "ExternalIdentifier"
+      }
+    ],
+    "supportingResource": [
+      {
+        "id": "918273",
+        "href": "http://server:port/resourceInventoryManagement/v5/resource/918273",
+        "@type": "ResourceRef"
+      }
+    ],
+    "resourceCharacteristic": [
+      {
+        "name": "casing size",
+        "valueType": "String",
+        "value": "19\"",
+        "@type": "StringCharacteristic"
+      }
+    ],
+    "resourceOrderItem": [
+      {
+        "role": "supplier purchase",
+        "itemAction": "add",
+        "itemId": "1",
+        "resourceOrderId": "66588438-2",
+        "resourceOrderHref": "http://server:port/resourceOrderManagement/v5/resourceOrder/66588438-2",
+        "@type": "RelatedResourceOrderItem",
+        "@referredType": "ResourceOrderItem"
+      }
+    ],
+    "attachment": [
+      {
+        "id": "D-2024-05-13-X47",
+        "href": "http://server:port/documentManagement/v5/document/D-2024-05-13-X47",
+        "description": "delivery note",
+        "@type": "AttachmentRef",
+        "@referredType": "Document"
+      }
+    ]
+  }

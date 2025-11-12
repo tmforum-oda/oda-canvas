@@ -1,0 +1,45 @@
+{
+	"id": "self:r-cat-productcatalogmanagement:prodcatmgmtb",
+	"data": {
+		"id": "self:r-cat-productcatalogmanagement:prodcatmgmtb",
+		"data": {
+			"@type": "LogicalResource",
+			"@baseType": "Resource",
+			"id": "self:r-cat-productcatalogmanagement:prodcatmgmtb",
+			"href": "/resource/self:r-cat-productcatalogmanagement:prodcatmgmtb",
+			"name": "prodcatmgmt",
+			"category": "API",
+			"resourceSpecification": {
+				"@type": "ResourceSpecificationRef",
+				"id": "API",
+				"name": "API"
+			},
+			"resourceCharacteristic": [
+				{
+					"@type": "Characteristic",
+					"name": "apiName",
+					"value": "prodcatmgmt"
+				},
+				{
+					"@type": "Characteristic",
+					"name": "apiType",
+					"value": "openapi"
+				},
+				{
+					"@type": "Characteristic",
+					"name": "url",
+					"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/prodcatmgmt/v4b"
+				},
+				{
+					"@type": "Characteristic",
+					"name": "apiDocs",
+					"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/prodcatmgmt/v4/docs"
+				}
+			]
+		},
+		"created_at": "2025-10-20T07:44:36.313225",
+		"updated_at": "2025-10-20T07:44:36.313225"
+	},
+	"created_at": "2025-10-20T07:44:36.313225",
+	"updated_at": "2025-10-20T07:47:21.909337"
+}

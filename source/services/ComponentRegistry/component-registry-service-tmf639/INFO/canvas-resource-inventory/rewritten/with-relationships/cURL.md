@@ -1,0 +1,102 @@
+# init resources
+
+```
+curl -X 'POST' \
+  'http://localhost:8080/resource' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+	"id": "self:r-cat-productcatalogmanagement",
+	"href": "/resource/self:r-cat-productcatalogmanagement",
+	"@type": "LogicalResource",
+	"@baseType": "Resource",
+	"name": "r-cat-productcatalogmanagement",
+	"description": "ODA Component: r-cat-productcatalogmanagement",
+	"category": "ODAComponent",
+	"resourceSpecification": {
+		"@type": "ResourceSpecificationRef",
+		"id": "ODAComponent",
+		"name": "ODA Component"
+	},
+	"resourceCharacteristic": [
+		{
+			"@type": "Characteristic",
+			"name": "namespace",
+			"value": "components"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "deploymentStatus",
+			"value": "Unknown"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "description",
+			"value": "Simple Product Catalog ODA-Component from Open-API reference implementation."
+		},
+		{
+			"@type": "Characteristic",
+			"name": "functionalBlock",
+			"value": "CoreCommerce"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "id",
+			"value": "TMFC001"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "maintainers",
+			"value": [
+				{
+					"email": "lester.thomas@vodafone.com",
+					"name": "Lester Thomas"
+				}
+			]
+		},
+		{
+			"@type": "Characteristic",
+			"name": "name",
+			"value": "productcatalogmanagement"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "owners",
+			"value": [
+				{
+					"email": "lester.thomas@vodafone.com",
+					"name": "Lester Thomas"
+				}
+			]
+		},
+		{
+			"@type": "Characteristic",
+			"name": "publicationDate",
+			"value": "2024-09-17T00:00:00.000Z"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "status",
+			"value": "specified"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "version",
+			"value": "0.0.1"
+		}
+	],
+	"resourceStatus": "standby",
+	"operationalState": "disable",
+	"administrativeState": "unlocked",
+	"usageState": "active",
+	"startDate": "2025-10-15T12:17:30Z",
+	"place": [
+		{
+			"id": "components",
+			"name": "components",
+			"@type": "Namespace"
+		}
+	]
+}
+'
+```

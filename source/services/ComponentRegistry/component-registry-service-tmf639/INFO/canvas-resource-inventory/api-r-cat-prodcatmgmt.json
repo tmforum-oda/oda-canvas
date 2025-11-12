@@ -1,0 +1,70 @@
+{
+	"id": "r-cat-productcatalogmanagement-productcatalogmanagement",
+	"href": "/tmf-api/resourceInventoryManagement/v5/resource/r-cat-productcatalogmanagement-productcatalogmanagement",
+	"@type": "LogicalResource",
+	"@baseType": "Resource",
+	"name": "r-cat-productcatalogmanagement-productcatalogmanagement",
+	"description": "Exposed API: productcatalogmanagement",
+	"category": "API",
+	"resourceSpecification": {
+		"@type": "ResourceSpecificationRef",
+		"id": "API",
+		"name": "API"
+	},
+	"resourceCharacteristic": [
+		{
+			"@type": "Characteristic",
+			"name": "namespace",
+			"value": "components"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "apiName",
+			"value": "productcatalogmanagement"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "apiType",
+			"value": "openapi"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "url",
+			"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "implementation",
+			"value": "r-cat-prodcatapi"
+		},
+		{
+			"@type": "Characteristic",
+			"name": "specification",
+			"value": [
+				{
+					"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+				},
+				{
+					"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v5.0.0.swagger.json"
+				}
+			]
+		},
+		{
+			"@type": "Characteristic",
+			"name": "apiDocs",
+			"value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs"
+		}
+	],
+	"resourceStatus": "available",
+	"operationalState": "enable",
+	"administrativeState": "unlocked",
+	"usageState": "active",
+	"startDate": "2025-10-15T12:17:31Z",
+	"place": [
+		{
+			"id": "components",
+			"name": "components",
+			"@type": "Namespace"
+		}
+	]
+}

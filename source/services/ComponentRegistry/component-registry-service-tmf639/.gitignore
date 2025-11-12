@@ -28,4 +28,3 @@ htmlcov/
 dist/
 build/
 *.egg-info/
-/INFO/
