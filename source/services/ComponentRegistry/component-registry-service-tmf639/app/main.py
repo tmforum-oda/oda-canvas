@@ -462,6 +462,18 @@ async def delete_resource(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+def guess_id(url: str) -> Optional[str]:
+    if url.endswith("/sync"):
+        health_url = url[:-5] + "/health"
+        try:
+            response = httpx.get(health_url, timeout=5)
+            response.raise_for_status()
+            health_data = response.json()
+            return health_data.get("Name", None)
+        except Exception as e:
+            return None
+
+
 @app.post(
     "/hub",
     response_model=schemas.Hub,
@@ -474,6 +486,8 @@ async def create_hub(
     data: schemas.HubInput,
     db: Session = Depends(get_db)
 ):
+    if data.id is None:
+        data.id = guess_id(data.callback)
     """Register an event listener."""
     db_hub = crud.create_hub(db, data)
     return db_hub

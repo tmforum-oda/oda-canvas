@@ -261,6 +261,7 @@
         }
         .delete-btn {
             color: white;
+            background-color: #dc3545;
             border: none;
             padding: 4px 8px;
             border-radius: 3px;
@@ -279,6 +280,115 @@
         }
         .delete-btn-container {
             text-align: right;
+        }
+        .add-subscription-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 15px 0;
+        }
+        .add-subscription-btn:hover {
+            background-color: #218838;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
@@ -458,6 +568,10 @@
 
         <!-- Event Subscriptions (Hubs) Section -->
         <h2>🔔 Event Subscriptions (Hubs)</h2>
+        
+        <!-- Add Subscription Button -->
+        <button class="add-subscription-btn" onclick="openAddSubscriptionModal()">➕ Add New Upstream Subscription</button>
+        
         <table>
             <thead>
                 <tr>
@@ -537,8 +651,35 @@
         </div>
     </div>
 
-    <script>
+    <!-- Add Subscription Modal -->
+    <div id="addSubscriptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>➕ Add New Upstream Subscription</h3>
+                <span class="close" onclick="closeAddSubscriptionModal()">&times;</span>
+            </div>
+            <form id="addSubscriptionForm">
+                <div class="form-group">
+                    <label for="callbackUrl">Callback URL *</label>
+                    <input type="url" id="callbackUrl" name="callbackUrl" required 
+                           placeholder="https://upstream-registry/sync">
+                    <small style="color: #6c757d;">The endpoint where events will be sent (typically /sync endpoint of upstream registry)</small>
+                </div>
+                <div class="form-group">
+                    <label>Query Parameter</label>
+                    <input type="text" value="source={{ own_registry_name }}" disabled
+                           style="background-color: #e9ecef; cursor: not-allowed;">
+                    <small style="color: #6c757d;">Automatically set to identify the source registry</small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAddSubscriptionModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Subscription</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
+    <script>
         async function deleteResource(resourceId) {
             if (!confirm(`Are you sure you want to delete resource: ${resourceId}?`)) {
                 return;
@@ -580,9 +721,63 @@
                 alert(`Error deleting hub: ${error.message}`);
             }
         }
+
         function manualRefresh() {
             window.location.reload();
         }
+
+        // Modal functions
+        function openAddSubscriptionModal() {
+            document.getElementById('addSubscriptionModal').style.display = 'block';
+        }
+
+        function closeAddSubscriptionModal() {
+            document.getElementById('addSubscriptionModal').style.display = 'none';
+            document.getElementById('addSubscriptionForm').reset();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addSubscriptionModal');
+            if (event.target == modal) {
+                closeAddSubscriptionModal();
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('addSubscriptionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const callbackUrl = document.getElementById('callbackUrl').value;
+            // Always use the registry name as the source parameter
+            const queryParam = 'source={{ own_registry_name }}';
+            
+            const hubData = {
+                callback: callbackUrl,
+                query: queryParam
+            };
+            
+            try {
+                const response = await fetch('/hub', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(hubData)
+                });
+                
+                if (response.ok) {
+                    alert('Subscription created successfully!');
+                    closeAddSubscriptionModal();
+                    window.location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(`Failed to create subscription: ${error.detail || response.statusText}`);
+                }
+            } catch (error) {
+                alert(`Error creating subscription: ${error.message}`);
+            }
+        });
 
         // Auto-refresh functionality
         let autoRefreshInterval = null;
