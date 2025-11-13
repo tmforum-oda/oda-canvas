@@ -35,6 +35,8 @@ it looks in the upstream Component-Registry for an implementation in another ODA
 ### Cluster IHC-DT-A (green)
 
 ```
+# [green] IHC-DT-A
+set PROMPT=$_[IHC-DT-A] $g$s
 set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt-a
 set DOMAIN=ihc-dt-a.cluster-2.de
 set COMPREG_EXTNAME=compreg-a
@@ -45,6 +47,8 @@ tmfihcdta
 ### Cluster IHC-DT-B (magenta)
 
 ```
+# [magenta] - IHC-DT-B
+set PROMPT=$_[IHC-DT-B] $g$s
 set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt-b
 set DOMAIN=ihc-dt-b.cluster-2.de
 set COMPREG_EXTNAME=compreg-b
@@ -55,6 +59,8 @@ tmfihcdtb
 ### Cluster IHC-DT (blue)
 
 ```
+# [blue] - IHC-DT
+set PROMPT=$_[IHC-DT] $g$s
 set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt
 set DOMAIN=ihc-dt.cluster-2.de
 set COMPREG_EXTNAME=global-compreg
@@ -79,6 +85,7 @@ helm upgrade --install component-gateway -n canvas --create-namespace %USERPROFI
 # [blue] - IHC-DT
 helm uninstall -n compreg global-compreg
 helm uninstall -n compreg upup-compreg
+kubectl delete ns compreg
 ```
 
 ### [green] - IHC-DT-A
@@ -100,11 +107,11 @@ kubectl rollout restart -n canvas deployment canvas-depapi-op
 unregister Component-Registries
 
 ```
-curl -X DELETE "https://global-compreg.ihc-dt.cluster-2.de/hub/upup-compreg" -H "accept: */*"
-curl -X DELETE "https://canvas-compreg.ihc-dt-a.cluster-2.de/hub/global-compreg" -H "accept: */*"
-curl -X DELETE "https://canvas-compreg.ihc-dt-b.cluster-2.de/hub/global-compreg" -H "accept: */*"
+# [blue] - IHC-DT
+curl -sX DELETE "https://global-compreg.ihc-dt.cluster-2.de/hub/upup-compreg" -H "accept: */*" | jq
+curl -sX DELETE "https://canvas-compreg.ihc-dt-a.cluster-2.de/hub/global-compreg" -H "accept: */*" | jq
+curl -sX DELETE "https://canvas-compreg.ihc-dt-b.cluster-2.de/hub/global-compreg" -H "accept: */*" | jq
 ```
-
 
 
 ## Show state of IHC-DT-A [GREEN]
@@ -193,14 +200,14 @@ Click Register-Upstream-URL: https://global-compreg.ihc-dt.cluster-2.de
 alternative using curl
 
 ```
-curl -X POST https://canvas-compreg.ihc-dt-a.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-a\"}"
+curl -sX POST https://canvas-compreg.ihc-dt-a.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-a\"}" | jq
 ```
 
 
 For compreg-b use swagger/curl to do the same:
 
 ```
-curl -X POST https://canvas-compreg.ihc-dt-b.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-b\"}"
+curl -sX POST https://canvas-compreg.ihc-dt-b.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-b\"}" | jq
 ```
 
 
@@ -360,11 +367,11 @@ Given the 'productcatalogmanagement' component in the 'r-cat' release has the fo
 
 ```
 # [magenta] IHC-DT-B
-curl -sX POST "http://components.ihc-dt-b.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"Internet line of product\",  \"description\": \"Fiber and ADSL broadband products\"  }" | jq .
+curl -sX POST "http://components.ihc-dt-b.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"Internet line of product\",  \"description\": \"Fiber and ADSL broadband products\"  }" | jq
 
-curl -sX POST "http://components.ihc-dt-b.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"Mobile line of product\",  \"description\": \"Mobile phones and packages\"  }" | jq .
+curl -sX POST "http://components.ihc-dt-b.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"Mobile line of product\",  \"description\": \"Mobile phones and packages\"  }" | jq
 
-curl -sX POST "http://components.ihc-dt-b.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"IoT line of product\",  \"description\": \"IoT devices and solutions\"  }" | jq .
+curl -sX POST "http://components.ihc-dt-b.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"IoT line of product\",  \"description\": \"IoT devices and solutions\"  }" | jq
 
 ```
 
@@ -383,7 +390,7 @@ Then I should see the following 'category' data in the federated product catalog
 
 ```
 # [green] IHC-DT-A
-curl -sX GET "http://components.ihc-dt-a.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" | jq .
+curl -sX GET "http://components.ihc-dt-a.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" | jq
 
 ```
 
@@ -422,7 +429,7 @@ categories not visible any longer in [green] f-cat
 
 ```
 # [green] IHC-DT-A
-curl -sX GET "http://components.ihc-dt-a.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" | jq .
+curl -sX GET "http://components.ihc-dt-a.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" | jq
 ```
 
 also r-cat no longer visible in global-compreg
