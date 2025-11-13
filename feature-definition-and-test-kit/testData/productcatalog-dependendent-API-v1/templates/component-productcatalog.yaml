@@ -23,7 +23,9 @@ spec:
     exposedAPIs: 
     - name: productcatalogmanagement
       specification:
-      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+      # TODO[FH]: clarify BDD Test UC007-F002 (f-cat finds itself). Workaround switch from https to http here
+      #- url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+      - url: "http://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-prodcatapi
       apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
