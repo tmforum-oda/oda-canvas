@@ -242,7 +242,7 @@ Scenario Outline: Configure DependentAPI for single downstream productcatalog co
 
 ### Split actions into ODA Canvas IHC-DT-A and IHC-DT-B
 
-r-cat --> ihc-dt-b [magenta]
+r-cat --> ihc-dt-b [magenta]  
 f-cat --> ihc-dt-a [green]
 
 
@@ -406,10 +406,9 @@ kubectl logs deployment/f-cat-prodcatapi -n components
 ## [green] look into Dependent-API Operator logs
 
 ```
+# [green] IHC-DT-A
 kubectl canvaslogs depapi
 ```
-
-
 
 
 ### [magenta] undeploy r-cat
@@ -419,7 +418,14 @@ kubectl canvaslogs depapi
 helm uninstall -n components r-cat
 ```
 
-show after short time it disappears in global-compreg
+categories not visible any longer in [green] f-cat
+
+```
+# [green] IHC-DT-A
+curl -sX GET "http://components.ihc-dt-a.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" | jq .
+```
+
+also r-cat no longer visible in global-compreg
 
 
 
