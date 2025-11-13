@@ -1,25 +1,29 @@
 # Live-Demo Dependent API Resolution in a Multi-Canvas Scenario using TMF639
 
+The feature was requested in [GitHub Issue #384](https://github.com/tmforum-oda/oda-canvas/issues/384) and is currently still in development.
+
+
 # Service Discovery in Single-Canvas Environment
 
 The current implementation supports service discovery in a single canvas environment.
-Service discovery happens by introspection of the Kubernetes Custom-Resources (Component/ExposedAPI) deployed in the local Kubernetes cluster:
+Service discovery happens by introspecting the Kubernetes Custom-Resources (ExposedAPI) deployed into the local Kubernetes cluster by the Component-Operator:
 
 ![Service Discovery in a single ODA Canvas ](images/Service-Discovery-SingleCanvas.png)
 
 
 # Service Discovery in Multi-Canvas Environment
 
-For a Multi-Canvas environment the information provided by the Kubernetes CustomResources are extracted by the Canvas-Resource-Inventory,
-which is part of the default installation from the Referenc Implementation.
-The Canvas-Resource-Inventory implements the TMF OpenAPI TMF639 to make the Kubernetes objects accessible.
-To make the information accessible outside the own cluster, a Component-Registry can be installed which maintains a state and can be 
-queried for service discovery.
+For a Multi-Canvas environment the information stored locally in the the Kubernetes CustomResources are made accessible 
+as an TMF639 OpenAPI by the Canvas-Resource-Inventory, which is part of the default ODA-Canvas Referenc Implementation.
+
+To make the information accessible outside the own cluster, the information can be replicated and stored into an Component-Registry.
+This Component-Registry can be queried from the service discovery.
 
 ![Service Discovery in a multi ODA Canvas environment using local Component-Registry](images/Service-Discovery-MultiCanvas-1.png)
 
-The Component-Registry also supports syncing upstream Component-Registries which allows building a hierarchy.
-The Service-Discovery can now follow the upstream Component-Registries, if the service can not be found locally:
+The Component-Registry also supports syncing upstream Component-Registries which allows building up a hierarchy.
+The Service-Discovery can now follow the upstream Component-Registries, if the service can not be found in the local ODA-Canvas
+it looks in the upstream Component-Registry for an implementation in another ODA Canvas:
 
 ![Service Discovery in a multi ODA Canvas environment using hierarchical Component-Registries](images/Service-Discovery-MultiCanvas-2.png)
 

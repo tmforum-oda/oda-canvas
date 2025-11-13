@@ -113,6 +113,13 @@ def get_expapi(logw: LogWrapper):
             )
 
 
+def get_characteristic(characteristics: List[Dict[str, Any]], name: str) -> Any:
+    for charac in characteristics:
+        if charac.get("name") == name:
+            return charac.get("value")
+    return None
+
+
 @logwrapper
 def compreg_service_discovery(logw: LogWrapper, oas_specification: str) -> List[Dict[str, Any]]:
     """
@@ -133,18 +140,18 @@ def compreg_service_discovery(logw: LogWrapper, oas_specification: str) -> List[
         matches = client.find_exposed_apis(oas_specification)
         logw.debugInfo(f"found {len(matches)} in {current_url}", matches)
         if matches:
-            for comp in matches:
-                comp_name = comp.get('component_name', 'unknown')
-                comp_reg = comp.get('component_registry_ref', 'unknown')
+            for api in matches:
+                component_id = api["resourceRelationship"][0]["resource"]["id"]
+                comp_reg = component_id.split(":")[0]
+                comp_name = component_id.split(":")[1]
                 logw.debug(f"Component: {comp_name} (Registry: {comp_reg})")
-                for api in comp.get('exposed_apis', []):
-                    api_name = api.get('name', None)
-                    api_url = api.get('url', None)  
-                    api_status = api.get('labels', {}).get('status', None)
-                    logw.debug(f"  - API: {api_name}, status: {api_status}, URL: {api_url}")
-                    if api_status == "ready" and api_url:
-                        logw.info(f"return url {api_url} for api {api_name} from component {comp_name} in registry {comp_reg}")
-                        return api_url
+                api_name = api.get('name', None)
+                api_url = get_characteristic(api["resourceCharacteristic"], 'url')  
+                api_status = api["resourceStatus"]
+                logw.debug(f"  - API: {api_name}, status: {api_status}, URL: {api_url}")
+                if api_status == "available" and api_url:
+                    logw.info(f"return url {api_url} for api {api_name} from component {comp_name} in registry {comp_reg}")
+                    return api_url
 
         # 2. Query upstream registries
         upstreams = client.get_upstream_registries()
