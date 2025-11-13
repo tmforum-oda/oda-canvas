@@ -1,5 +1,30 @@
 # Live-Demo Dependent API Resolution in a Multi-Canvas Scenario using TMF639
 
+# Service Discovery in Single-Canvas Environment
+
+The current implementation supports service discovery in a single canvas environment.
+Service discovery happens by introspection of the Kubernetes Custom-Resources (Component/ExposedAPI) deployed in the local Kubernetes cluster:
+
+![Service Discovery in a single ODA Canvas ](images/Service-Discovery-SingleCanvas.png)
+
+
+# Service Discovery in Multi-Canvas Environment
+
+For a Multi-Canvas environment the information provided by the Kubernetes CustomResources are extracted by the Canvas-Resource-Inventory,
+which is part of the default installation from the Referenc Implementation.
+The Canvas-Resource-Inventory implements the TMF OpenAPI TMF639 to make the Kubernetes objects accessible.
+To make the information accessible outside the own cluster, a Component-Registry can be installed which maintains a state and can be 
+queried for service discovery.
+
+![Service Discovery in a multi ODA Canvas environment using local Component-Registry](images/Service-Discovery-MultiCanvas-1.png)
+
+The Component-Registry also supports syncing upstream Component-Registries which allows building a hierarchy.
+The Service-Discovery can now follow the upstream Component-Registries, if the service can not be found locally:
+
+![Service Discovery in a multi ODA Canvas environment using hierarchical Component-Registries](images/Service-Discovery-MultiCanvas-2.png)
+
+
+
 ## Setup Environment
 
 
@@ -56,7 +81,7 @@ helm uninstall -n compreg upup-compreg
 
 ```
 # [green] - IHC-DT-A
-helm uninstall -n components r-cat
+helm uninstall -n components f-cat
 kubectl rollout restart -n canvas deployment canvas-depapi-op
 ```
 
@@ -64,7 +89,7 @@ kubectl rollout restart -n canvas deployment canvas-depapi-op
 
 ```
 # [green] - IHC-DT-B
-helm uninstall -n components f-cat
+helm uninstall -n components r-cat
 kubectl rollout restart -n canvas deployment canvas-depapi-op
 ```
 
@@ -161,14 +186,14 @@ open in browser
 
 Click Register-Upstream-URL: https://global-compreg.ihc-dt.cluster-2.de
 
-alternative:
+alternative using curl
 
 ```
 curl -X POST https://canvas-compreg.ihc-dt-a.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-a\"}"
 ```
 
 
-For compreg-b use curl to do the same:
+For compreg-b use swagger/curl to do the same:
 
 ```
 curl -X POST https://canvas-compreg.ihc-dt-b.cluster-2.de/hub -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.ihc-dt.cluster-2.de/sync\",\"query\":\"source=compreg-b\"}"
@@ -180,6 +205,9 @@ curl -X POST https://canvas-compreg.ihc-dt-b.cluster-2.de/hub -H "accept: applic
 ## Manually run BDD UC007-F002
 
 https://github.com/tmforum-oda/oda-canvas/blob/feature/384_mainly_simple_dependent_operator/feature-definition-and-test-kit/features/UC007-F002-Dependent-APIs-Configure-Dependent-APIs-Single-Downstream.feature
+
+![BDD UC007-F002 MultiCanvas](images/BDD-UC007-F002-Multicanvas.png)
+
 
 ```
 Scenario Outline: Configure DependentAPI for single downstream productcatalog component
@@ -210,18 +238,18 @@ Scenario Outline: Configure DependentAPI for single downstream productcatalog co
 
 ### Split actions into ODA Canvas IHC-DT-A and IHC-DT-B
 
-r-cat --> ihc-dt-a [green]
-f-cat --> ihc-dt-b [magenta]
+r-cat --> ihc-dt-b [magenta]
+f-cat --> ihc-dt-a [green]
 
 
 # BDD UC007-F002
 
-## [green] Install a downstream retail productcatalog component as release r-cat
+## [magenta] Install a downstream retail productcatalog component as release r-cat
 
 Given I install the 'productcatalog-v1' package as release 'r-cat'
 
 ```
-# [green] IHC-DT-A
+# [magenta] IHC-DT-B
 cd %USERPROFILE%\git\oda-canvas
 helm upgrade --install r-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
 
@@ -237,7 +265,7 @@ helm upgrade --install r-cat -n components --create-namespace feature-definition
 And the 'productcatalogmanagement' component has a deployment status of 'Complete'
 
 ```
-# [green] IHC-DT-A
+# [magenta] IHC-DT-B
 kubectl get component r-cat-productcatalogmanagement -n components
 
   NAMESPACE     NAME                             DEPLOYMENT_STATUS
@@ -247,7 +275,7 @@ kubectl get component r-cat-productcatalogmanagement -n components
 And I should see the 'productcatalogmanagement' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
 
 ```
-# [green] IHC-DT-A
+# [magenta] IHC-DT-B
 kubectl get exposedapi -n components
 
   NAME                                                      API_ENDPOINT                                                                                                IMPLEMENTATION_READY
@@ -257,12 +285,12 @@ kubectl get exposedapi -n components
 ```
 
 
-## [MAGENTA] Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
+## [green] Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
 
 When I install the 'productcatalog-dependendent-API-v1' package as release 'f-cat'
 
 ```
-# [magenta] IHC-DT-B
+# [green] IHC-DT-A
 cd %USERPROFILE%\git\oda-canvas
 helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
 
@@ -279,7 +307,7 @@ helm upgrade --install f-cat -n components --create-namespace feature-definition
 Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'productcatalogmanagement' component with a ready status
 
 ```
-# [magenta] IHC-DT-B
+# [green] IHC-DT-A
 kubectl get depapis -n components   f-cat-productcatalogmanagement-downstreamproductcatalog
 
   NAMESPACE     NAME                                                      READY   AGE   SVCINVID                               URL
@@ -289,7 +317,7 @@ kubectl get depapis -n components   f-cat-productcatalogmanagement-downstreampro
 And the 'productcatalogmanagement' component has a deployment status of 'Complete'
 
 ```
-# [magenta] IHC-DT-B
+# [green] IHC-DT-A
 kubectl get components -n components   f-cat-productcatalogmanagement
 
   NAME                             DEPLOYMENT_STATUS
@@ -297,7 +325,7 @@ kubectl get components -n components   f-cat-productcatalogmanagement
 ```
 
 
-# From BDD UC007-F002 (data) -  [green] Populate and [magenta] verify data in federated product catalog
+# From BDD UC007-F002 (data) -  [magenta] Populate and [green] verify data in federated product catalog
 
 ```
 Scenario Outline: Populate and verify data in federated product catalog
@@ -316,7 +344,7 @@ Scenario Outline: Populate and verify data in federated product catalog
     | IoT line of product       | IoT devices and solutions                         |   
 ```
 
-## [green] Populate the retail product catalog with sample data
+## [magenta] Populate the retail product catalog with sample data
 
 Given the 'productcatalogmanagement' component in the 'r-cat' release has the following 'category' data:
 
@@ -327,18 +355,18 @@ Given the 'productcatalogmanagement' component in the 'r-cat' release has the fo
 | IoT line of product       | IoT devices and solutions                         |
 
 ```
-# [green] IHC-DT-A
-curl -sX POST "http://components.ihc-dt-a.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"Internet line of product\",  \"description\": \"Fiber and ADSL broadband products\"  }" | jq .
+# [magenta] IHC-DT-B
+curl -sX POST "http://components.ihc-dt-b.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"Internet line of product\",  \"description\": \"Fiber and ADSL broadband products\"  }" | jq .
 
-curl -sX POST "http://components.ihc-dt-a.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"Mobile line of product\",  \"description\": \"Mobile phones and packages\"  }" | jq .
+curl -sX POST "http://components.ihc-dt-b.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"Mobile line of product\",  \"description\": \"Mobile phones and packages\"  }" | jq .
 
-curl -sX POST "http://components.ihc-dt-a.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"IoT line of product\",  \"description\": \"IoT devices and solutions\"  }" | jq .
+curl -sX POST "http://components.ihc-dt-b.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"IoT line of product\",  \"description\": \"IoT devices and solutions\"  }" | jq .
 
 ```
 
 
 
-## [magenta] Verify that the federated product catalog exposes the populated catalogs
+## [green] Verify that the federated product catalog exposes the populated catalogs
 
 When I query the 'productcatalogmanagement' component in the 'f-cat' release for 'category' data:  
 Then I should see the following 'category' data in the federated product catalog:
@@ -350,16 +378,16 @@ Then I should see the following 'category' data in the federated product catalog
 | IoT line of product       | IoT devices and solutions                         |   
 
 ```
-# [magenta] IHC-DT-B
-curl -sX GET "http://components.ihc-dt-b.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" | jq .
+# [green] IHC-DT-A
+curl -sX GET "http://components.ihc-dt-a.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/category" -H  "accept: application/json;charset=utf-8" | jq .
 
 ```
 
 
-# [magenta] show access of r-cat in f-cat logs:
+# [green] show access of r-cat in f-cat logs:
 
 ```
-# [magenta] IHC-DT-B
+# [green] IHC-DT-A
 kubectl logs deployment/f-cat-prodcatapi -n components
 
   ...
@@ -371,7 +399,7 @@ kubectl logs deployment/f-cat-prodcatapi -n components
 ```
 
 
-## [magenta] look into Dependent-API Operator logs
+## [green] look into Dependent-API Operator logs
 
 ```
 kubectl canvaslogs depapi
@@ -380,26 +408,26 @@ kubectl canvaslogs depapi
 
 
 
-## Create an Up-Upstream compreg
+### [magenta] undeploy r-cat
+
+```
+# [magenta] IHC-DT-B
+helm uninstall -n components r-cat
+```
+
+show after short time it disappears in global-compreg
+
+
+
+## [optional] Create an Up-Upstream compreg
 
 ```
 # [blue] - IHC-DT
-cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service
+cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639
 helm upgrade --install upup-compreg -n compreg --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% 
 ```
 
 manually register in gloabl-compreg and sync
-
-### [green] undeploy r-cat
-
-```
-# [blue] - IHC-DT
-# [green] - IHC-DT-A
-helm uninstall -n components r-cat
-```
-
-show after 1 min disappears in upup-compreg
-
 
 
 # cleanup all 
@@ -420,7 +448,7 @@ kubectl delete ns canvas compreg
 
 ```
 # [green] - IHC-DT-A
-helm uninstall -n components r-cat
+helm uninstall -n components f-cat
 helm uninstall -n canvas canvas canvas-vs
 kubectl delete ns components canvas-vault canvas cert-manager
 ```
@@ -430,7 +458,7 @@ kubectl delete ns components canvas-vault canvas cert-manager
 
 ```
 # [magenta] - IHC-DT-B
-helm uninstall -n components f-cat
+helm uninstall -n components r-cat
 helm uninstall -n canvas canvas canvas-vs
 kubectl delete ns components canvas-vault canvas cert-manager
 ```
@@ -470,7 +498,7 @@ helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/vi
 # Links
 
 * this document:
-  https://github.com/tmforum-oda/oda-canvas/blob/c0643cf463facf6b24dba8816e25dd5541a87921/source/services/ComponentRegistry/component-registry-service/INFO/ELEVATE-DEMO.md
+  https://github.com/tmforum-oda/oda-canvas/blob/c0643cf463facf6b24dba8816e25dd5541a87921/source/services/ComponentRegistry/component-registry-service-tmf639/INFO/ELEVATE-DEMO.md
 * GitHub Issue #384:
   https://github.com/tmforum-oda/oda-canvas/issues/384
 * Clusters in GCP
