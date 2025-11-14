@@ -45,15 +45,16 @@ REFERENCEGRANT_PLURAL = "referencegrants"
 REFERENCEGRANT_GROUP = "gateway.networking.k8s.io"
 REFERENCEGRANT_VERSION = "v1beta1"
 
-#kong take annotations in ms and apisix in sec so to allow to pass common value in seconds.
+#kong take annotations in ms and apisix in s so to allow to pass common value in seconds.
 def convert_to_ms(value_in_seconds, name):
     """
-    Convert timeout from seconds from value of helm to milliseconds ,required for Kong annotation in milliseconds.
+    Convert timeout from seconds from value of helm to milliseconds ,required for Kong.
     """
     if value_in_seconds is None:
-        logger.warning(f"{name} not set for this API; Kong timeout annotation will be skipped.")
+        logger.warning(f"{name} not set; Kong timeout annotation will be skipped.")
         return None
     try:
+        # allow "60", "60.0" etc
         seconds = float(value_in_seconds)
         return str(int(seconds * 1000))
     except ValueError:
@@ -272,21 +273,40 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
                 ],
             },
         }
-        # Added Kong timeouts for sse,a2a,mcp
+        # Added Kong timeouts for sse
         timeout_types = {"mcp","a2a","sse"}
         api_type = str(spec.get("apiType", "")).lower()
+
         if api_type in timeout_types:
-            httproute_manifest["metadata"]["annotations"].update({
-                "konghq.com/connect-timeout": KONG_CONNECT_TIMEOUT,
-                "konghq.com/read-timeout": KONG_READ_TIMEOUT,
-                "konghq.com/write-timeout": KONG_WRITE_TIMEOUT,
-            })
-            annotate_istio_ingress_timeouts() # add the backing istio-ingress Service same timeouts of kong
+            if all([KONG_CONNECT_TIMEOUT, KONG_READ_TIMEOUT, KONG_WRITE_TIMEOUT]):
+                httproute_manifest["metadata"]["annotations"].update({
+                    "konghq.com/connect-timeout": KONG_CONNECT_TIMEOUT,
+                    "konghq.com/read-timeout": KONG_READ_TIMEOUT,
+                    "konghq.com/write-timeout": KONG_WRITE_TIMEOUT,
+                })
+                annotate_istio_ingress_timeouts()
+                logger.info(
+                    "Applied Kong timeouts for apiType '%s' on HTTPRoute '%s'.",
+                    api_type,
+                    ingress_name,
+                )
+            else:
+                # Env vars missing or invalid 
+                logger.warning(
+                    "apiType '%s' requires long-lived timeouts but one or more of "
+                    "API_CONNECT_TIMEOUT / API_READ_TIMEOUT / API_WRITE_TIMEOUT "
+                    "are missing or invalid; skipping Kong timeout annotations on "
+                    "HTTPRoute '%s'.",
+                    api_type,
+                    ingress_name,
+                )
         else:
-            logger.warning(
-                "API_CONNECT_TIMEOUT / API_READ_TIMEOUT / API_WRITE_TIMEOUT "
-                "not set or invalid; skipping Kong timeout annotations on "
-                f"HTTPRoute '{ingress_name}'."
+            # For openapi only logging as it dont require timeout annotations in place
+            logger.debug(
+                "apiType '%s' does not require Kong timeouts to be applied; "
+                "default timeouts for HTTPRoute '%s'.",
+                api_type,
+                ingress_name,
             )
         # Make it child resource of exposedapis
         kopf.adopt(httproute_manifest)
@@ -682,7 +702,7 @@ def update_httproute_annotations(name, namespace, annotations):
 
 def annotate_istio_ingress_timeouts():
     """
-    Put istio-ingress Service Kong timeout annotations to serve long-lived session for APIs.
+    Ensure istio-ingress Service has Kong timeout annotations to serve long-lived APIs.
     Needed so that long-lived SSE/A2A/MCP type calls are honoured at istio
     the service level.
 
