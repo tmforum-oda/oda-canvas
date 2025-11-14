@@ -111,11 +111,11 @@ dependencies:
     version: "1.2.2"
     repository: 'file://../oda-webhook'
   - name: api-operator-kong
-    version: "1.0.4"
+    version: "1.0.5"
     repository: 'file://../kong-gateway'
     condition: kong-gateway-install.enabled
   - name: api-operator-apisix
-    version: "1.0.3"
+    version: "1.0.4"
     repository: 'file://../apisix-gateway'
     condition: apisix-gateway-install.enabled
   - name: canvas-info-service
