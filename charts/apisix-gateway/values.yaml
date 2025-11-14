@@ -1,6 +1,12 @@
 gateway:
   type: LoadBalancer  # Override the service type
 
+etcd:
+  enabled: true
+  #block for etcd to correct new repo to be used to overwrite bitnami repo.
+  image:
+    repository: bitnamilegacy/etcd
+
 ingress-controller:
   config:
     apisix:
