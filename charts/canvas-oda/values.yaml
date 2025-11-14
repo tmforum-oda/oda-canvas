@@ -524,6 +524,11 @@ api-operator-apisix:
       serviceNamespace: canvas
     gateway:
       type: LoadBalancer  # Override the service type
+    etcd:
+      enabled: true
+      #block for etcd to correct repo to be used to overwrite bitnami old repo.
+      image:
+        repository: bitnamilegacy/etcd
     ingress-controller:
       enabled: true   # Enable the ingress controller
       config:
