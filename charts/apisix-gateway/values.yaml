@@ -28,3 +28,6 @@ configmap:
   loglevel: '20'
   # publicHostname: 'components.example.com'
   componentGateway: 'canvas/component-gateway'
+  API_CONNECT_TIMEOUT: 60   #value in seconds supported
+  API_READ_TIMEOUT: 900     #value in seconds supported
+  API_WRITE_TIMEOUT: 900    #value in seconds supported
