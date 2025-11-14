@@ -45,7 +45,8 @@ REFERENCEGRANT_PLURAL = "referencegrants"
 REFERENCEGRANT_GROUP = "gateway.networking.k8s.io"
 REFERENCEGRANT_VERSION = "v1beta1"
 
-#kong take annotations in ms and apisix in s so to allow to pass common value in seconds.
+
+# kong take annotations in ms and apisix in s so to allow to pass common value in seconds.
 def convert_to_ms(value_in_seconds, name):
     """
     Convert timeout from seconds from value of helm to milliseconds ,required for Kong.
@@ -64,18 +65,18 @@ def convert_to_ms(value_in_seconds, name):
         )
         return None
 
+
 DEFAULT_CONNECT_TIMEOUT = "60"
 DEFAULT_READ_TIMEOUT = "900"
 DEFAULT_WRITE_TIMEOUT = "900"
 
 API_CONNECT_TIMEOUT = os.getenv("API_CONNECT_TIMEOUT", DEFAULT_CONNECT_TIMEOUT)
-API_READ_TIMEOUT    = os.getenv("API_READ_TIMEOUT",    DEFAULT_READ_TIMEOUT)
-API_WRITE_TIMEOUT   = os.getenv("API_WRITE_TIMEOUT",   DEFAULT_WRITE_TIMEOUT)
+API_READ_TIMEOUT = os.getenv("API_READ_TIMEOUT", DEFAULT_READ_TIMEOUT)
+API_WRITE_TIMEOUT = os.getenv("API_WRITE_TIMEOUT", DEFAULT_WRITE_TIMEOUT)
 
 KONG_CONNECT_TIMEOUT = convert_to_ms(API_CONNECT_TIMEOUT, "API_CONNECT_TIMEOUT")
 KONG_READ_TIMEOUT = convert_to_ms(API_READ_TIMEOUT, "API_READ_TIMEOUT")
 KONG_WRITE_TIMEOUT = convert_to_ms(API_WRITE_TIMEOUT, "API_WRITE_TIMEOUT")
-
 
 
 group = "gateway.networking.k8s.io"  # API group for Gateway API
@@ -274,16 +275,18 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
             },
         }
         # Added Kong timeouts for sse
-        timeout_types = {"mcp","a2a","sse"}
+        timeout_types = {"mcp", "a2a", "sse"}
         api_type = str(spec.get("apiType", "")).lower()
 
         if api_type in timeout_types:
             if all([KONG_CONNECT_TIMEOUT, KONG_READ_TIMEOUT, KONG_WRITE_TIMEOUT]):
-                httproute_manifest["metadata"]["annotations"].update({
-                    "konghq.com/connect-timeout": KONG_CONNECT_TIMEOUT,
-                    "konghq.com/read-timeout": KONG_READ_TIMEOUT,
-                    "konghq.com/write-timeout": KONG_WRITE_TIMEOUT,
-                })
+                httproute_manifest["metadata"]["annotations"].update(
+                    {
+                        "konghq.com/connect-timeout": KONG_CONNECT_TIMEOUT,
+                        "konghq.com/read-timeout": KONG_READ_TIMEOUT,
+                        "konghq.com/write-timeout": KONG_WRITE_TIMEOUT,
+                    }
+                )
                 annotate_istio_ingress_timeouts()
                 logger.info(
                     "Applied Kong timeouts for apiType '%s' on HTTPRoute '%s'.",
@@ -291,7 +294,7 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
                     ingress_name,
                 )
             else:
-                # Env vars missing or invalid 
+                # Env vars missing or invalid
                 logger.warning(
                     "apiType '%s' requires long-lived timeouts but one or more of "
                     "API_CONNECT_TIMEOUT / API_READ_TIMEOUT / API_WRITE_TIMEOUT "
@@ -699,6 +702,7 @@ def update_httproute_annotations(name, namespace, annotations):
             f"Failed to update plugins/policies for HTTPRoute '{ingress_name}': {e}"
         )
         return False
+
 
 def annotate_istio_ingress_timeouts():
     """

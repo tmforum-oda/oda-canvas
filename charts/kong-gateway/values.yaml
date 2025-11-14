@@ -91,7 +91,7 @@ kongoperatorreplicaCount: 1
 kongistiooperatordeploymentnamespace: canvas
 kongoperatorimage:
   kongopImage: tmforumodacanvas/api-operator-kong
-  kongopVersion: 1.0.1
+  kongopVersion: 1.0.2
   kongopPrereleaseSuffix:
   pullPolicy: IfNotPresent
   

@@ -18,7 +18,7 @@ apisixoperatorreplicaCount: 1
 apisixistiooperatordeploymentnamespace: canvas
 apisixoperatorimage:
   apisixopImage: tmforumodacanvas/api-operator-apisix
-  apisixopVersion: 1.0.1
+  apisixopVersion: 1.0.2
   apisixopPrereleaseSuffix:
   pullPolicy: IfNotPresent
 initContainerImage: busybox:1.28

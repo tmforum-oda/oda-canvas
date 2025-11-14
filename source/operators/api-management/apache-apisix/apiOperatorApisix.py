@@ -42,14 +42,14 @@ plural = (
     "apisixroutes"  # The plural name of the Apisix route CRD - ApisixRoute resource
 )
 
-#long-lived API realted timeouts mcp/a2a/sse for APISIX
-DEFAULT_CONNECT_TIMEOUT = "60"   #in seconds
-DEFAULT_READ_TIMEOUT    = "900"  #in seconds
-DEFAULT_SEND_TIMEOUT    = "900"  #in seconds
+# long-lived API realted timeouts mcp/a2a/sse for APISIX
+DEFAULT_CONNECT_TIMEOUT = "60"  # in seconds
+DEFAULT_READ_TIMEOUT = "900"  # in seconds
+DEFAULT_SEND_TIMEOUT = "900"  # in seconds
 
 API_CONNECT_TIMEOUT = os.getenv("API_CONNECT_TIMEOUT", DEFAULT_CONNECT_TIMEOUT)
-API_READ_TIMEOUT    = os.getenv("API_READ_TIMEOUT",    DEFAULT_READ_TIMEOUT)
-API_SEND_TIMEOUT    = os.getenv("API_WRITE_TIMEOUT",   DEFAULT_SEND_TIMEOUT)
+API_READ_TIMEOUT = os.getenv("API_READ_TIMEOUT", DEFAULT_READ_TIMEOUT)
+API_SEND_TIMEOUT = os.getenv("API_WRITE_TIMEOUT", DEFAULT_SEND_TIMEOUT)
 
 
 def seconds_to_s(value_in_seconds: str, name: str) -> str | None:
@@ -60,7 +60,7 @@ def seconds_to_s(value_in_seconds: str, name: str) -> str | None:
         logger.warning(f"{name} not set; APISIX timeout will be skipped.")
         return None
     try:
-        seconds = float(value_in_seconds)  
+        seconds = float(value_in_seconds)
         return f"{int(seconds)}s"
     except ValueError:
         logger.warning(
@@ -71,8 +71,9 @@ def seconds_to_s(value_in_seconds: str, name: str) -> str | None:
 
 
 APISIX_CONNECT_TIMEOUT = seconds_to_s(API_CONNECT_TIMEOUT, "API_CONNECT_TIMEOUT")
-APISIX_READ_TIMEOUT    = seconds_to_s(API_READ_TIMEOUT,    "API_READ_TIMEOUT")
-APISIX_SEND_TIMEOUT    = seconds_to_s(API_SEND_TIMEOUT,    "API_WRITE_TIMEOUT")
+APISIX_READ_TIMEOUT = seconds_to_s(API_READ_TIMEOUT, "API_READ_TIMEOUT")
+APISIX_SEND_TIMEOUT = seconds_to_s(API_SEND_TIMEOUT, "API_WRITE_TIMEOUT")
+
 
 # try to recover from broken watchers https://github.com/nolar/kopf/issues/1036
 @kopf.on.startup()
