@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.4
+version: 1.2.5-RJ1
+# version: 1.2.5-RJ1 - added mcp,a2a,sse timeout related parameter support for kong httproute and apisix apisixroute. added bitnami repo for apisix etcd. 
 # version: 1.2.4     - New release ahead of Innovate Asia
 # version: 1.2.4-RJ1 - added image override for bitnamilegacy charts related to kong gateway
 # version: 1.2.4-AK1 - added image override for bitnamilegacy Keycloak-config-cli image
