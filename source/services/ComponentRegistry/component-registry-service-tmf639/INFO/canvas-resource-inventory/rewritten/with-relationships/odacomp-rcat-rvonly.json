@@ -1,7 +1,0 @@
-{
-	"id": "self:r-cat-productcatalogmanagement",
-	"resourceVersion": "1761230462292351006",
-	"href": "/resource/self:r-cat-productcatalogmanagement",
-	"@type": "LogicalResource",
-	"@baseType": "Resource"
-}

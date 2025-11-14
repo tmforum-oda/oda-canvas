@@ -1,5 +1,0 @@
-{
-	"eventType": "ResourceDeleted",
-	"eventTime": "2025-10-20T07:41:20.052060Z",
-	"resource": "{\"id\":\"self:r-cat-productcatalogmanagement:prodcatmgmtb\",\"data\":{},\"created_at\":null,\"updated_at\":null}"
-}

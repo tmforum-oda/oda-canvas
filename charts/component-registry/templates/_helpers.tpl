@@ -1,4 +1,35 @@
 {{/*
+Custom/private docker image registry
+*/}}
+{{- define "docker.registry" -}}
+{{- if .Values.global }}
+{{- if .Values.global.image }}
+{{- if .Values.global.image.registry }}
+{{- $registry := (trimSuffix "/" .Values.global.image.registry) }}
+{{- printf "%s/" $registry }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create image pull secrets
+*/}}
+{{- define "image-pull-secrets" -}}
+{{- if .Values.global }}
+{{- if .Values.global.imagePullSecrets }}
+{{- range .Values.global.imagePullSecrets }}
+  {{- if eq (typeOf .) "map[string]interface {}" }}
+- {{ toYaml . | nindent 0 | trim }}
+  {{- else }}
+- name: {{ . }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "component-registry.name" -}}
