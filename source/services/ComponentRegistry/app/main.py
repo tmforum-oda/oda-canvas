@@ -7,7 +7,7 @@ load_dotenv()  # take environment variables
 import os
 import httpx
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, List
 from contextlib import asynccontextmanager
 from multiprocessing import Process
@@ -16,6 +16,9 @@ import asyncio
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.security import OAuth2PasswordRequestForm
+
+from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user, Token, User, authenticate_user)
 from sqlalchemy.orm import Session
 from jsonpath import findall
 
@@ -271,6 +274,32 @@ async def notify_hubs(event_type: str, event_id: str, resource_data: dict, db: S
                 print(f"Failed to notify hub {hub.callback}: {e}")
 
 
+@app.post("/token", response_model=Token, tags=["authentication"])
+async def login(form_data: OAuth2PasswordRequestForm = Depends(),
+    # current_user: User = Depends(get_current_active_user)):
+    ):
+    """
+    OAuth2 compatible token login, get an access token for future requests.
+    
+    Use this endpoint to authenticate and receive a JWT token.
+    Default credentials: username=admin, password=secret
+    
+    Set OAUTH2_ENABLED=true in environment to enable authentication.
+    """
+    user = authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
 @app.get(
     "/resource",
     tags=["resource"],
@@ -284,7 +313,8 @@ async def list_resources(
     filter: Optional[str] = None,
     request: Request = None,
     response: Response = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)  # OAUTH2 protection
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
@@ -348,7 +378,8 @@ async def list_resources(
 async def create_resource(
     resource: dict,  # Accept arbitrary JSON directly
     request: Request = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
 
@@ -383,7 +414,8 @@ async def retrieve_resource(
     id: str,
     fields: Optional[str] = None,
     request: Request = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     
@@ -424,7 +456,8 @@ async def patch_resource(
     id: str,
     resource: dict,  # Accept arbitrary JSON directly
     request: Request = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.update_resource(db, id, resource)
@@ -449,7 +482,8 @@ async def patch_resource(
 )
 async def delete_resource(
     id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
 ):
     success = crud.delete_resource(db, id)
     if not success:
@@ -487,7 +521,8 @@ def guess_id(url: str) -> Optional[str]:
 )
 async def create_hub(
     data: schemas.HubInput,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
 ):
     if data.id is None:
         data.id = guess_id(data.callback)
@@ -504,7 +539,8 @@ async def create_hub(
     description="This operation retrieves all subscriptions to receive Events."
 )
 async def list_hubs(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
 ):
     """Retrieve all event listeners."""
     hubs = crud.get_all_hubs(db)
@@ -520,7 +556,8 @@ async def list_hubs(
 )
 async def get_hub(
     id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
 ):
     """Retrieve an event listener by ID."""
     db_hub = crud.get_hub(db, id)
@@ -569,7 +606,8 @@ async def health_check():
 async def sync_callback(
     event: dict,
     request: Request = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)  # OAUTH2 protection
 ):
     """
     Callback endpoint for synchronization via hub subscriptions.
@@ -699,7 +737,10 @@ async def sync_callback(
 
 
 @app.get("/", response_class=HTMLResponse, tags=["dashboard"])
-async def dashboard(request: Request, db: Session = Depends(get_db)):
+async def dashboard(
+    request: Request, 
+    db: Session = Depends(get_db)
+):
     """Display dashboard with resources, hubs, and relationships."""
     base_url = f"{request.url.scheme}://{request.url.netloc}"
     # Get all resources

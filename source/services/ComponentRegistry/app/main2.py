@@ -8,7 +8,7 @@ import os
 import httpx
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from contextlib import asynccontextmanager
 from multiprocessing import Process
 import asyncio
@@ -462,6 +462,21 @@ async def delete_resource(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+def guess_id(url: str) -> Optional[str]:
+    if url.endswith("/sync"):
+        health_url = url[:-5] + "/health"
+        try:
+            print(f"calling health url: {health_url}")
+            response = httpx.get(health_url, timeout=5)
+            response.raise_for_status()
+            health_data = response.json()
+            print(f"got response: {health_data}")
+            return health_data.get("Name", None)
+        except Exception as e:
+            print(f"exception: {str(e)}")
+            return None
+
+
 @app.post(
     "/hub",
     response_model=schemas.Hub,
@@ -474,9 +489,26 @@ async def create_hub(
     data: schemas.HubInput,
     db: Session = Depends(get_db)
 ):
+    if data.id is None:
+        data.id = guess_id(data.callback)
     """Register an event listener."""
     db_hub = crud.create_hub(db, data)
     return db_hub
+
+
+@app.get(
+    "/hub",
+    response_model=List[schemas.Hub],
+    tags=["events subscription"],
+    summary="List all subscriptions (hubs)",
+    description="This operation retrieves all subscriptions to receive Events."
+)
+async def list_hubs(
+    db: Session = Depends(get_db)
+):
+    """Retrieve all event listeners."""
+    hubs = crud.get_all_hubs(db)
+    return hubs
 
 
 @app.get(
