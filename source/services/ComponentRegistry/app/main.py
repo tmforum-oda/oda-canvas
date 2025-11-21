@@ -13,12 +13,12 @@ from contextlib import asynccontextmanager
 from multiprocessing import Process
 import asyncio
 
-from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Form, Cookie
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user, Token, User, authenticate_user)
+from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user, Token, User, authenticate_user, OAUTH2_ENABLED, get_current_user)
 from sqlalchemy.orm import Session
 from jsonpath import findall
 
@@ -253,6 +253,27 @@ app = FastAPI(
 
 # Setup templates
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
+
+
+# Helper function for cookie-based authentication
+async def get_current_user_from_cookie(
+    request: Request,
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    """Get current user from cookie token."""
+    if not OAUTH2_ENABLED:
+        # If OAuth2 is disabled, return a default user
+        return User(username="anonymous", full_name="Anonymous User")
+    
+    # Try to get token from cookie
+    token = request.cookies.get("access_token")
+    if not token:
+        return None
+    
+    try:
+        return await get_current_user(token)
+    except HTTPException:
+        return None
 
 
 async def notify_hubs(event_type: str, event_id: str, resource_data: dict, db: Session):
@@ -596,6 +617,62 @@ async def health_check():
     return {"status": "healthy", "version": "5.0.0", "Name": OWN_REGISTRY_NAME, "worker_pid": os.getpid()}
 
 
+@app.get("/login", response_class=HTMLResponse, tags=["authentication"])
+async def login_page(request: Request, error: Optional[str] = None):
+    """Display login page."""
+    return templates.TemplateResponse(
+        "login.html",
+        {
+            "request": request,
+            "error": error
+        }
+    )
+
+
+@app.post("/login", response_class=HTMLResponse, tags=["authentication"])
+async def login_form(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...)
+):
+    """Process login form and set authentication cookie."""
+    user = authenticate_user(username, password)
+    if not user:
+        return templates.TemplateResponse(
+            "login.html",
+            {
+                "request": request,
+                "error": "Incorrect username or password"
+            },
+            status_code=400
+        )
+    
+    # Create access token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    
+    # Redirect to dashboard with cookie
+    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        samesite="lax"
+    )
+    return response
+
+
+@app.get("/logout", tags=["authentication"])
+async def logout():
+    """Logout and clear authentication cookie."""
+    response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    response.delete_cookie(key="access_token")
+    return response
+
+
 @app.post(
     "/sync",
     status_code=status.HTTP_200_OK,
@@ -742,6 +819,13 @@ async def dashboard(
     db: Session = Depends(get_db)
 ):
     """Display dashboard with resources, hubs, and relationships."""
+    # Check if user is authenticated (only if OAuth2 is enabled)
+    if OAUTH2_ENABLED:
+        current_user = await get_current_user_from_cookie(request, db)
+        if not current_user:
+            # Redirect to login page if not authenticated
+            return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    
     base_url = f"{request.url.scheme}://{request.url.netloc}"
     # Get all resources
     resources, _ = crud.get_resources(db)
@@ -791,7 +875,7 @@ async def dashboard(
                                         if spec_url:
                                             specifications.append(spec_url)
                             
-                            status = potential_api.data.get('resourceStatus', "?")
+                            resource_status = potential_api.data.get('resourceStatus', "?")
                             
                             # This API is exposed by this component
                             oda_component_apis[component_id].append({
@@ -803,7 +887,7 @@ async def dashboard(
                                 'url': url,
                                 'apiDocs': api_docs,
                                 'specifications': specifications,
-                                'status': status
+                                'status': resource_status
                             })
     namespaces = WATCHED_NAMESPACES_STR if CANVAS_RESOURCE_INVENTORY else "N/A"
     if not namespaces:

@@ -15,4 +15,3 @@ kubernetes  # ==33.1.0
 python-jsonpath  # ==2.0.1
 python-jose[cryptography]  # ==3.3.0
 bcrypt  # >=4.0.0
-
