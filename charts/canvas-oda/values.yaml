@@ -129,6 +129,13 @@ keycloak:
               "enabled": true,
               "standardFlowEnabled": false,
               "serviceAccountsEnabled": true
+            },
+            {
+              "clientId": "compreg-manager",
+              "name": "Component Registry Manager",
+              "enabled": true,
+              "standardFlowEnabled": false,
+              "serviceAccountsEnabled": true
             }
           ],
           "users": [
