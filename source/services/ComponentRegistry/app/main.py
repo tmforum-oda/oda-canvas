@@ -18,7 +18,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user, Token, User, authenticate_user, OAUTH2_ENABLED, get_current_user)
+from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user, Token, User, authenticate_user, OAUTH2_ENABLED, get_current_user, oauth2_scheme)
 from sqlalchemy.orm import Session
 from jsonpath import findall
 
@@ -276,6 +276,40 @@ async def get_current_user_from_cookie(
         return None
 
 
+# Combined authentication that supports both Bearer token and Cookie
+async def get_current_user_optional(
+    request: Request,
+    token: Optional[str] = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> User:
+    """Get current user from either Bearer token or cookie."""
+    if not OAUTH2_ENABLED:
+        # If OAuth2 is disabled, return a default user
+        return User(username="anonymous", full_name="Anonymous User")
+    
+    # Try Bearer token first
+    if token:
+        try:
+            return await get_current_user(token)
+        except HTTPException:
+            pass
+    
+    # Try cookie as fallback
+    cookie_token = request.cookies.get("access_token")
+    if cookie_token:
+        try:
+            return await get_current_user(cookie_token)
+        except HTTPException:
+            pass
+    
+    # If neither worked, raise 401
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
 async def notify_hubs(event_type: str, event_id: str, resource_data: dict, db: Session):
     """Send event notification to all registered hubs."""
     hubs = crud.get_all_hubs(db)
@@ -335,7 +369,7 @@ async def list_resources(
     request: Request = None,
     response: Response = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)  # OAUTH2 protection
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
@@ -400,7 +434,7 @@ async def create_resource(
     resource: dict,  # Accept arbitrary JSON directly
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
 
@@ -436,7 +470,7 @@ async def retrieve_resource(
     fields: Optional[str] = None,
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     
@@ -478,7 +512,7 @@ async def patch_resource(
     resource: dict,  # Accept arbitrary JSON directly
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.update_resource(db, id, resource)
@@ -504,7 +538,7 @@ async def patch_resource(
 async def delete_resource(
     id: str,
     db: Session = Depends(get_db),
-    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     success = crud.delete_resource(db, id)
     if not success:
@@ -543,7 +577,7 @@ def guess_id(url: str) -> Optional[str]:
 async def create_hub(
     data: schemas.HubInput,
     db: Session = Depends(get_db),
-    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     if data.id is None:
         data.id = guess_id(data.callback)
@@ -561,7 +595,7 @@ async def create_hub(
 )
 async def list_hubs(
     db: Session = Depends(get_db),
-    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     """Retrieve all event listeners."""
     hubs = crud.get_all_hubs(db)
@@ -578,7 +612,7 @@ async def list_hubs(
 async def get_hub(
     id: str,
     db: Session = Depends(get_db),
-    current_user:User=Depends(get_current_active_user)  # OAUTH2 protection
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     """Retrieve an event listener by ID."""
     db_hub = crud.get_hub(db, id)
@@ -599,7 +633,8 @@ async def get_hub(
 )
 async def delete_hub(
     id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     """Unregister an event listener."""
     success = crud.delete_hub(db, id)
@@ -684,7 +719,7 @@ async def sync_callback(
     event: dict,
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)  # OAUTH2 protection
+    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
 ):
     """
     Callback endpoint for synchronization via hub subscriptions.
