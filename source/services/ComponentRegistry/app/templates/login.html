@@ -69,12 +69,36 @@
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s;
+            margin-bottom: 10px;
         }
         .btn-login:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         .btn-login:active {
+            transform: translateY(0);
+        }
+        .btn-keycloak {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-top: 0;
+        }
+        .btn-keycloak:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        .btn-keycloak:active {
             transform: translateY(0);
         }
         .error-message {
@@ -98,6 +122,27 @@
             display: block;
             margin-bottom: 5px;
         }
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ddd;
+        }
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            color: #999;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -111,6 +156,21 @@
         </div>
         {% endif %}
         
+        {% if keycloak_enabled %}
+        <!-- Keycloak Login Button -->
+        <a href="/auth/keycloak" class="btn-keycloak">
+            🔑 Sign in with Keycloak
+        </a>
+        
+        {% if oauth2_enabled %}
+        <div class="divider">
+            <span>OR</span>
+        </div>
+        {% endif %}
+        {% endif %}
+        
+        <!-- Local Login Form -->
+        {% if oauth2_enabled %}
         <form method="post" action="/login">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -122,14 +182,22 @@
                 <input type="password" id="password" name="password" required>
             </div>
             
-            <button type="submit" class="btn-login">Sign In</button>
+            <button type="submit" class="btn-login">Sign In (Local)</button>
         </form>
         
         <div class="info-box">
-            <strong>Default credentials:</strong>
+            <strong>Default local credentials:</strong>
             Username: <code>admin</code><br>
             Password: <code>secret</code>
         </div>
+        {% endif %}
+        
+        {% if not oauth2_enabled and not keycloak_enabled %}
+        <div class="info-box">
+            <strong>Authentication is disabled</strong><br>
+            Access is unrestricted.
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>

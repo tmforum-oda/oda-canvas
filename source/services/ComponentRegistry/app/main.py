@@ -19,6 +19,14 @@ from fastapi.templating import Jinja2Templates
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user, Token, User, authenticate_user, OAUTH2_ENABLED, get_current_user, oauth2_scheme)
+from app.keycloak_auth import (
+    get_current_keycloak_user,
+    get_current_keycloak_user_optional,
+    verify_keycloak_token,
+    KEYCLOAK_ENABLED,
+    KeycloakUser
+)
+
 from sqlalchemy.orm import Session
 from jsonpath import findall
 
@@ -310,6 +318,73 @@ async def get_current_user_optional(
     )
 
 
+# Combined authentication supporting both local OAuth2 and Keycloak
+async def get_authenticated_user(
+    request: Request,
+    token: Optional[str] = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> User:
+    """Get authenticated user from either local OAuth2, Keycloak, or cookie."""
+    
+    # If both auth systems are disabled, return anonymous user
+    if not OAUTH2_ENABLED and not KEYCLOAK_ENABLED:
+        return User(username="anonymous", full_name="Anonymous User")
+    
+    # Try Keycloak first if enabled
+    if KEYCLOAK_ENABLED:
+        # Try Bearer token
+        if token:
+            try:
+                keycloak_user = await verify_keycloak_token(token)
+                # Convert Keycloak user to local User model
+                return User(
+                    username=keycloak_user.preferred_username or keycloak_user.sub,
+                    email=keycloak_user.email,
+                    full_name=keycloak_user.name,
+                    disabled=False
+                )
+            except HTTPException:
+                pass
+        
+        # Try cookie token for Keycloak
+        cookie_token = request.cookies.get("access_token")
+        if cookie_token:
+            try:
+                keycloak_user = await verify_keycloak_token(cookie_token)
+                return User(
+                    username=keycloak_user.preferred_username or keycloak_user.sub,
+                    email=keycloak_user.email,
+                    full_name=keycloak_user.name,
+                    disabled=False
+                )
+            except HTTPException:
+                pass
+    
+    # Try local OAuth2 if enabled
+    if OAUTH2_ENABLED:
+        # Try Bearer token for local auth
+        if token:
+            try:
+                return await get_current_user(token)
+            except HTTPException:
+                pass
+        
+        # Try cookie for local auth
+        cookie_token = request.cookies.get("access_token")
+        if cookie_token:
+            try:
+                return await get_current_user(cookie_token)
+            except HTTPException:
+                pass
+    
+    # If nothing worked, raise 401
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
 async def notify_hubs(event_type: str, event_id: str, resource_data: dict, db: Session):
     """Send event notification to all registered hubs."""
     hubs = crud.get_all_hubs(db)
@@ -369,7 +444,7 @@ async def list_resources(
     request: Request = None,
     response: Response = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
@@ -434,7 +509,7 @@ async def create_resource(
     resource: dict,  # Accept arbitrary JSON directly
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
 
@@ -470,7 +545,7 @@ async def retrieve_resource(
     fields: Optional[str] = None,
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     
@@ -512,7 +587,7 @@ async def patch_resource(
     resource: dict,  # Accept arbitrary JSON directly
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.update_resource(db, id, resource)
@@ -538,7 +613,7 @@ async def patch_resource(
 async def delete_resource(
     id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     success = crud.delete_resource(db, id)
     if not success:
@@ -577,7 +652,7 @@ def guess_id(url: str) -> Optional[str]:
 async def create_hub(
     data: schemas.HubInput,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     if data.id is None:
         data.id = guess_id(data.callback)
@@ -595,7 +670,7 @@ async def create_hub(
 )
 async def list_hubs(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     """Retrieve all event listeners."""
     hubs = crud.get_all_hubs(db)
@@ -612,7 +687,7 @@ async def list_hubs(
 async def get_hub(
     id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     """Retrieve an event listener by ID."""
     db_hub = crud.get_hub(db, id)
@@ -634,7 +709,7 @@ async def get_hub(
 async def delete_hub(
     id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     """Unregister an event listener."""
     success = crud.delete_hub(db, id)
@@ -659,9 +734,141 @@ async def login_page(request: Request, error: Optional[str] = None):
         "login.html",
         {
             "request": request,
-            "error": error
+            "error": error,
+            "keycloak_enabled": KEYCLOAK_ENABLED,
+            "oauth2_enabled": OAUTH2_ENABLED
         }
     )
+
+
+@app.get("/auth/keycloak", tags=["authentication"])
+async def keycloak_login(request: Request):
+    """Initiate Keycloak OAuth2 login flow."""
+    if not KEYCLOAK_ENABLED:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Keycloak authentication is not enabled"
+        )
+    
+    from app.keycloak_auth import get_oidc_config, KEYCLOAK_CLIENT_ID
+    
+    # Get OIDC configuration
+    oidc_config = await get_oidc_config()
+    auth_endpoint = oidc_config.get("authorization_endpoint")
+    
+    if not auth_endpoint:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Keycloak authorization endpoint not found"
+        )
+    
+    # Build redirect URI
+    redirect_uri = str(request.url_for("keycloak_callback"))
+    
+    # Build authorization URL
+    import urllib.parse
+    params = {
+        "client_id": KEYCLOAK_CLIENT_ID,
+        "response_type": "code",
+        "redirect_uri": redirect_uri,
+        "scope": "openid profile email"
+    }
+    
+    auth_url = f"{auth_endpoint}?{urllib.parse.urlencode(params)}"
+    
+    return RedirectResponse(url=auth_url, status_code=status.HTTP_303_SEE_OTHER)
+
+
+@app.get("/auth/keycloak/callback", tags=["authentication"])
+async def keycloak_callback(
+    request: Request,
+    code: Optional[str] = None,
+    error: Optional[str] = None
+):
+    """Handle Keycloak OAuth2 callback."""
+    if not KEYCLOAK_ENABLED:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Keycloak authentication is not enabled"
+        )
+    
+    # Check for errors
+    if error:
+        import urllib.parse
+        return RedirectResponse(
+            url=f"/login?error={urllib.parse.quote(error)}",
+            status_code=status.HTTP_303_SEE_OTHER
+        )
+    
+    if not code:
+        return RedirectResponse(
+            url="/login?error=No authorization code received",
+            status_code=status.HTTP_303_SEE_OTHER
+        )
+    
+    # Exchange code for token
+    from app.keycloak_auth import get_oidc_config, KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET
+    
+    try:
+        oidc_config = await get_oidc_config()
+        token_endpoint = oidc_config.get("token_endpoint")
+        
+        if not token_endpoint:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Keycloak token endpoint not found"
+            )
+        
+        # Build redirect URI (must match the one used in authorization)
+        redirect_uri = str(request.url_for("keycloak_callback"))
+        
+        # Exchange authorization code for access token
+        async with httpx.AsyncClient(verify=False) as client:
+            token_response = await client.post(
+                token_endpoint,
+                data={
+                    "grant_type": "authorization_code",
+                    "code": code,
+                    "redirect_uri": redirect_uri,
+                    "client_id": KEYCLOAK_CLIENT_ID,
+                    "client_secret": KEYCLOAK_CLIENT_SECRET
+                },
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                timeout=10
+            )
+            token_response.raise_for_status()
+            token_data = token_response.json()
+        
+        access_token = token_data.get("access_token")
+        
+        if not access_token:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="No access token received from Keycloak"
+            )
+        
+        # Redirect to dashboard with cookie
+        response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            max_age=token_data.get("expires_in", 1800),
+            samesite="lax"
+        )
+        return response
+        
+    except httpx.HTTPError as e:
+        return RedirectResponse(
+            url=f"/login?error=Failed to authenticate with Keycloak: {str(e)}",
+            status_code=status.HTTP_303_SEE_OTHER
+        )
+    except Exception as e:
+        return RedirectResponse(
+            url=f"/login?error=Authentication error: {str(e)}",
+            status_code=status.HTTP_303_SEE_OTHER
+        )
+
 
 
 @app.post("/login", response_class=HTMLResponse, tags=["authentication"])
@@ -719,7 +926,7 @@ async def sync_callback(
     event: dict,
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
 ):
     """
     Callback endpoint for synchronization via hub subscriptions.
@@ -854,10 +1061,11 @@ async def dashboard(
     db: Session = Depends(get_db)
 ):
     """Display dashboard with resources, hubs, and relationships."""
-    # Check if user is authenticated (only if OAuth2 is enabled)
-    if OAUTH2_ENABLED:
-        current_user = await get_current_user_from_cookie(request, db)
-        if not current_user:
+    # Check if user is authenticated (only if OAuth2 or Keycloak is enabled)
+    if OAUTH2_ENABLED or KEYCLOAK_ENABLED:
+        try:
+            current_user = await get_authenticated_user(request, None, db)
+        except HTTPException:
             # Redirect to login page if not authenticated
             return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     
