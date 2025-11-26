@@ -315,12 +315,12 @@ Full presentation: [AI Native ODA Canvas](https://www.youtube.com/watch?v=MICzwN
 
 ### Video Chapters
 
-* 0:00 - Introduction
-* 1:58 - Lessons learned
-* 5:30 - MCP support
-* 9:17 - Agents packaged as composable ODA Components
-* 15:53 - Canvas services to support AI Agents at scale
-* 17:21 - End-to-end Data and AI Architecture
-* 22:10 - Canvas Resource Inventory
-* 24:54 - Classical ML Models
-* 25:56 - Evaluation and testing
+* [0:00 - Introduction](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=0)
+* [1:58 - Lessons learned](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=118)
+* [5:30 - MCP support](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=330)
+* [9:17 - Agents packaged as composable ODA Components](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=557)
+* [15:53 - Canvas services to support AI Agents at scale](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=953)
+* [17:21 - End-to-end Data and AI Architecture](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=1041)
+* [22:10 - Canvas Resource Inventory](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=1330)
+* [24:54 - Classical ML Models](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=1494)
+* [25:56 - Evaluation and testing](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=1556)
