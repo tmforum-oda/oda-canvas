@@ -12,7 +12,7 @@ This is a list of the Canvas operators (including status of whether this has bee
 
 | Operator             | Description                     |
 | -------------------- | ------------------------------- |
-| Component Lifecycle Management | The Component Lifecycle Management operator manages the de-composition of an ODA component into APIs, Events and other resources (that are processed by their corresponding operators). |
+| Component Lifecycle Management | The Component Lifecycle Management operator manages the decomposition of an ODA component into APIs, Events and other resources (that are processed by their corresponding operators). |
 | API Management       | Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed |
 | Event Management     | Configures event based integration to allow components to use asynchronous events (in addition to Rest based API integration). |
 | Identity Config  | Configures an Identity Management Service based on requirements defined in ODA Components. |

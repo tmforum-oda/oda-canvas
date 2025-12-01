@@ -166,7 +166,6 @@ Use backticks for:
 Always hyphenate these compound terms:
 - cloud-native
 - machine-readable
-- de-composition
 - sub-resources
 - use-case (when used as compound adjective: "use-case naming conventions")
 
