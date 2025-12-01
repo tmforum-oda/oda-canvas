@@ -7,7 +7,7 @@ This directory contains documentation resources, templates, and guides for contr
 ### Documentation Guides
 
 - **[Writing Style Guide](writing-style.md)** - Comprehensive guide to writing style conventions for all markdown documentation
-- **[Custom Copilot Agent](custom-copilot-agent.md)** - Guide to using the `@docs` AI agent for documentation creation and enhancement
+- **[Custom Copilot Agent](custom-copilot-documentation-agent.md)** - Guide to using the `@docs` AI agent for documentation creation and enhancement
 
 ### Templates
 
@@ -117,23 +117,6 @@ Documentation should maintain bidirectional links:
 - **Design Docs → Use Cases** - Design epics reference implementing use cases
 
 ## Writing Style
-
-### Key Conventions
-
-**Voice and Tone**:
-- Active voice for technical descriptions
-- Imperative mood for instructions ("Run the command..." not "You should run...")
-- "We" for organizational voice, "you" for reader instructions
-
-**Technical Terminology**:
-- Always capitalize: "ODA Canvas", "ODA Component", "Software Operators"
-- Always hyphenate: "cloud-native", "machine-readable", "sub-resources"
-- Use backticks for: Kubernetes resources (`Component`, `ExposedAPI`), commands (`kubectl`), file paths (`README.md`)
-
-**Headings**:
-- Title case for H1 document titles
-- Sentence case for H2/H3 subsections
-- Question format for design documents
 
 See the complete [Writing Style Guide](writing-style.md) for detailed conventions.
 
