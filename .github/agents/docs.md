@@ -58,7 +58,7 @@ Exemplar documentation to follow:
 - "Behaviour-Driven Development" (British spelling per project standard)
 
 **Always hyphenate:**
-- decomposition, sub-resources, cloud-native, machine-readable, use-case (in titles)
+- sub-resources, cloud-native, machine-readable, use-case (in titles)
 
 **Use backticks for:**
 - Custom Resource Definitions: `Component`, `ExposedAPI`, `DependentAPI`

@@ -17,7 +17,7 @@ This repository contains the Reference Implementation, open-source code, use cas
 
 The ODA Canvas implements a modular architecture with independent operators:
 
-- **Component Management**: Manages the lifecycle of each component and handles de-composition into ExposedAPIs, IdentityConfigs, and other sub-resources.
+- **Component Management**: Manages the lifecycle of each component and handles decomposition into ExposedAPIs, IdentityConfigs, and other sub-resources.
 - **API Management**: Manages API Gateway and/or Service Mesh to provide security, throttling, and other non-functional services.
 - **Identity Config**: Configures Identity Management Services.
 - **Secrets Management**: Optional operator for configuring secrets.

@@ -151,7 +151,7 @@ Windsurf leverages Canvas project structure automatically:
 
 - Reads `.windsurf/rules/oda-canvas.md` for Canvas development commands and architectural patterns
 - Understands multi-technology relationships between KOPF operators, Spring Boot services, and Vue.js components
-- Recognizes Canvas-specific patterns like component de-composition and API exposure
+- Recognizes Canvas-specific patterns like component decomposition and API exposure
 
 ### Windsurf Modes
 

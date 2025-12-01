@@ -18,7 +18,7 @@ The TM Forum Open Digital Architecture (ODA) Canvas is an execution environment 
 
 The ODA Canvas implements a modular architecture with independent operators:
 
-- **Component Management**: Manages component lifecycle and de-composition into ExposedAPIs, IdentityConfigs, etc.
+- **Component Management**: Manages component lifecycle and decomposition into ExposedAPIs, IdentityConfigs, etc.
 - **API Management**: Manages API Gateway/Service Mesh for security, throttling, and non-functional services
 - **Identity Config**: Configures Identity Management Services
 - **Secrets Management**: Optional operator for configuring secrets
