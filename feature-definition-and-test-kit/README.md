@@ -1,6 +1,6 @@
 # ODA Canvas Features and Test Kit
 
-The ODA Canvas takes a Behaviour Driven Design (BDD) approch to define the features of the canvas. BDD allows you to specify the desired behavior of software through examples in plain language that both business stakeholders and technical teams can understand. These examples are written in a format known as Gherkin, which uses Given-When-Then syntax to describe test scenarios.
+The ODA Canvas takes a Behaviour-Driven Development (BDD) approach to define the features of the canvas. BDD allows you to specify the desired behavior of software through examples in plain language that both business stakeholders and technical teams can understand. These examples are written in a format known as Gherkin, which uses Given-When-Then syntax to describe test scenarios.
 
 * **Given:** This part of the syntax sets the scene for the scenario. It describes the initial context or the pre-conditions of the system before the key action is performed. 
 Example: "Given the user is logged into their account"
@@ -19,7 +19,7 @@ Each BDD feature is linked to the respective use-case in the [use-case library](
 
 ## Work breakdown
 
-For contributors contributing new features to the ODA Canvas, the expectation is that the contibuitor will define the features alongside implementing the software. Instead of having separate design, development and test teams, the approach is to separate work into different features and have the same contributor (or small team) work on the feature from design to implementation to testing. This approach is known as feature-driven development and is a key part of the agile methodology.
+For contributors contributing new features to the ODA Canvas, the expectation is that the contributor will define the features alongside implementing the software. Instead of having separate design, development and test teams, the approach is to separate work into different features and have the same contributor (or small team) work on the feature from design to implementation to testing. This approach is known as feature-driven development and is a key part of the agile methodology.
 
 
 

@@ -46,4 +46,4 @@ The use-cases are named based on the [use case naming conventions](use-case-nami
 
 
 
-The corresponding Behavour Driven Design (BDD) features and scenarious can be found here: [BDD Features and Scenarios](../feature-definition-and-test-kit/README.md)
+The corresponding Behaviour-Driven Development (BDD) features and scenarios can be found here: [BDD Features and Scenarios](../feature-definition-and-test-kit/README.md)
