@@ -1,0 +1,120 @@
+{
+	"apiVersion": "oda.tmforum.org/v1",
+	"kind": "DependentAPI",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"apiType\":\"openapi\",\"name\":\"downstreamproductcatalog\",\"specification\":[{\"url\":\"https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json\"}]},\"metadata\":{\"labels\":{\"app.kubernetes.io/managed-by\":\"Helm\",\"oda.tmforum.org/componentName\":\"demo-b-productcatalogmanagement\"}},\"status\":{\"implementation\":{\"ready\":true}}}\n"
+		},
+		"creationTimestamp": "2025-03-04T15:17:23Z",
+		"finalizers": [
+			"kopf.zalando.org/KopfFinalizerMarker"
+		],
+		"generateName": "demo-b-productcatalogmanagement-",
+		"generation": 1056,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "demo-b-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {},
+						"f:labels": {
+							".": {},
+							"f:app.kubernetes.io/managed-by": {},
+							"f:oda.tmforum.org/componentName": {}
+						},
+						"f:ownerReferences": {
+							".": {},
+							"k:{\"uid\":\"f540b47c-51e7-427a-a308-d68c2616320f\"}": {}
+						}
+					},
+					"f:spec": {
+						".": {},
+						"f:apiType": {},
+						"f:name": {},
+						"f:specification": {}
+					},
+					"f:status": {
+						".": {},
+						"f:depapiStatus": {
+							".": {},
+							"f:svcInvID": {},
+							"f:url": {}
+						},
+						"f:implementation": {
+							".": {},
+							"f:ready": {}
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2025-03-04T15:17:24Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {},
+							"f:kopf.zalando.org/last-handled-configuration": {}
+						},
+						"f:finalizers": {
+							".": {},
+							"v:\"kopf.zalando.org/KopfFinalizerMarker\"": {}
+						}
+					},
+					"f:status": {
+						"f:kopf": {
+							".": {},
+							"f:progress": {}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2025-03-06T08:49:56Z"
+			}
+		],
+		"name": "demo-b-productcatalogmanagement-downstreamproductcatalog",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "demo-b-productcatalogmanagement",
+				"uid": "f540b47c-51e7-427a-a308-d68c2616320f"
+			}
+		],
+		"resourceVersion": "45797214",
+		"uid": "0801adda-c87c-416d-aac9-6220866a6268"
+	},
+	"spec": {
+		"apiType": "openapi",
+		"name": "downstreamproductcatalog",
+		"specification": [
+			{
+				"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+			}
+		]
+	},
+	"status": {
+		"depapiStatus": {
+			"svcInvID": "75ab8994-aab4-44a8-ae17-6d86570f77d4",
+			"url": "https://components.ihc-dt.cluster-1.de/demo-a-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+		},
+		"implementation": {
+			"ready": true
+		},
+		"kopf": {
+			"progress": {}
+		}
+	}
+}

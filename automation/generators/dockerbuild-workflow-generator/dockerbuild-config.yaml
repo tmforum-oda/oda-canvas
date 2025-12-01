@@ -9,7 +9,7 @@ compcrdwebhook :
   
   paths:
     - source/webhooks/webhook-dockerfile
-    - source/webhooks/implementation/**/*
+    - source/webhooks/implementation/*
   buildContext: source/webhooks
   # default is "Dockerfile" in buildContext
   buildDockerfile: source/webhooks/webhook-dockerfile  
@@ -106,9 +106,9 @@ tmf638-service-inventory-api:
   fileName: tmf638-service-inventory-api
   
   valuesYamlFile: charts/canvas-oda/values.yaml
-  valuesPathImage: .dependentapi-simple-operator.serviceInventoryAPI.image
-  valuesPathVersion: .dependentapi-simple-operator.serviceInventoryAPI.version
-  valuesPathPrereleaseSuffix: .dependentapi-simple-operator.serviceInventoryAPI.prereleaseSuffix
+  valuesPathImage: .canvas-info-service.image
+  valuesPathVersion: .canvas-info-service.version
+  valuesPathPrereleaseSuffix: .canvas-info-service.prereleaseSuffix
   
   paths:
     - source/tmf-services/TMF638_Service_Inventory/**/*
@@ -203,5 +203,73 @@ api-operator-kong:
   buildContext: source/operators/api-management/kong
   # default is "Dockerfile" in buildContext
   buildDockerfile: source/operators/api-management/kong/kong-dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+
+credentialsmanagement-operator:
+  displayName: Credentialsmanagement-operator
+  fileName: credentialsmanagement-operator
+  valuesYamlFile: charts/credentialsmanagement-operator/values.yaml
+  valuesPathImage: .deployment.credopImage
+  valuesPathVersion: .deployment.credopVersion
+  valuesPathPrereleaseSuffix: .deployment.credopPrereleaseSuffix
+  paths:
+    - source/operators/credentials-management/*
+  buildContext: source/operators/credentials-management
+  # default is "Dockerfile" in buildContext
+  buildDockerfile: source/operators/credentials-management/credentialsmanagement-operator-dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+oauth2envoyfilter-operator:
+  displayName: OAuth2-EnvoyFilter-Operator
+  fileName: oauth2envoyfilter-operator
+  
+  valuesYamlFile: charts/experimental/oauth2-envoyfilter-operator/values.yaml
+  valuesPathImage: .image
+  valuesPathVersion: .version
+  valuesPathPrereleaseSuffix: .prereleaseSuffix
+  
+  paths:
+    - source/operators/oauth2EnvoyfilterOperator/docker/**/*
+  buildContext: source/operators/oauth2EnvoyfilterOperator/docker
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile: Dockerfile
+  #testDockerfile: source/operators/oauth2EnvoyfilterOperator/docker/DockerfileTest
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+pdb-management-operator:
+  displayName: PDB-Management-Operator
+  fileName: pdb-management-operator
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .pdb-management-operator.deployment.image
+  valuesPathVersion: .pdb-management-operator.deployment.version
+  valuesPathPrereleaseSuffix: .pdb-management-operator.deployment.prereleaseSuffix
+  
+  paths:
+    - source/operators/pdb-management/*
+  buildContext: source/operators/pdb-management
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile: Dockerfile
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+tmf639-resource-inventory-api:
+  displayName: TMF-639 Resource Inventory API
+  fileName: tmf639-resource-inventory-api
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .resource-inventory.image
+  valuesPathVersion: .resource-inventory.version
+  valuesPathPrereleaseSuffix: .resource-inventory.prereleaseSuffix
+  
+  paths:
+    - source/tmf-services/TMF639_Resource_Inventory/**/*
+  buildContext: source/tmf-services/TMF639_Resource_Inventory
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile: 
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64

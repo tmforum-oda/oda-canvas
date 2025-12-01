@@ -57,6 +57,7 @@ jobs:
           charts_dir: ./charts
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_SKIP_EXISTING: true
 
       - name: Sleep for 60 seconds
         run: sleep 60
@@ -126,7 +127,7 @@ jobs:
         run: |
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
           chmod 700 get_helm.sh
-          ./get_helm.sh
+          ./get_helm.sh --version v3.18.4
           kubectl get ns
   
       - name: Install helm-git
@@ -247,9 +248,12 @@ jobs:
           images=$(kubectl get deployments -n canvas -o=jsonpath='{range .items[*]}{range .spec.template.spec.containers[*]}{.image}{"\n"}{end}')
           
           for image in $images; do
-            echo "Scanning image:$image" | tee -a $log_file
-            trivy image --quiet $image >> $log_file 2>&1
-            trivy image --quiet $image | grep -m 1 'Total:'
+            echo "Scanning image:$image" | tee -a "$log_file"
+            if ! trivy image --quiet "$image" >> "$log_file" 2>&1; then
+              echo "Trivy error for $image (see log)" | tee -a "$log_file"
+              continue
+            fi
+            trivy image --quiet "$image" | grep -m 1 'Total:' || echo "No 'Total:' summary for $image (see log)"
           done
           
       - name: Upload Helm Installation Reports

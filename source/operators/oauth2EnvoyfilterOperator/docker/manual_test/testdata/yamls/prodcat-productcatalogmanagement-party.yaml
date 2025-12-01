@@ -1,0 +1,20 @@
+apiVersion: oda.tmforum.org/v1beta3
+kind: DependentAPI
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    oda.tmforum.org/componentName: prodcat-productcatalogmanagement
+  name: prodcat-productcatalogmanagement-party
+  namespace: components
+  ownerReferences:
+  - apiVersion: oda.tmforum.org/v1beta3
+    blockOwnerDeletion: true
+    controller: true
+    kind: Component
+    #name: prodcat-productcatalogmanagement
+    name: depapitest-productcatalogmanagement
+    uid: 21495847-cf68-492d-bd57-c1f2c78612ad
+spec:
+  apiType: openapi
+  name: downstreamproductcatalog
+  specification: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json

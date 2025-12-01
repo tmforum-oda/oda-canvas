@@ -43,7 +43,7 @@ sudo ln -s ~/canvaslogs/kubectl-canvaslogs /usr/local/bin/kubectl-canvaslogs
 $ kubectl canvaslogs
 
 
-usage: kubectl canvaslogs [-f] (comp|sman|depapi|apiistio) [<componentfilter>] [-l <last-hours>]
+usage: kubectl canvaslogs [-f] (comp|sman|depapi|apiistio|idconf|credman) [<componentfilter>] [-l <last-hours>]
        needs python with 'pip install rich timedinput'
 
 options:

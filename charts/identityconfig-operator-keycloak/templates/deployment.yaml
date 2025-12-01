@@ -18,6 +18,10 @@ spec:
         {{- include "identityconfig-operator-keycloak.labels" . | nindent 8 }}
     spec:
       serviceAccountName: identityconfig-account
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- include "image-pull-secrets" . |nindent 6 }}
+      {{- end }}
       containers:
       - name: {{.Values.deployment.operatorName}}
         image: {{ include "identityconfig-operator-keycloak.idkopImage" . }}
@@ -27,6 +31,11 @@ spec:
               name: identityconfig-operator-keycloak-configmap
           - secretRef:
               name: identityconfig-operator-keycloak-secret
+        command:
+          - "/bin/sh"
+        args: 
+          - "-c"
+          - "kopf run $COMPONENT_NAMESPACES_CLI --verbose /identityOperator/identityConfigOperatorKeycloak.py"
       - name: idlistkey
         image: {{ include "identityconfig-operator-keycloak.idlistkeyImage" . }}
         imagePullPolicy: {{ include "identityconfig-operator-keycloak.imagePullPolicy" . }}

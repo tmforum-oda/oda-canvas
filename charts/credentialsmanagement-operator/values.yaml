@@ -1,0 +1,29 @@
+deployment:
+  operatorName: credentialsmanagement-operator
+  credopImage: tmforumodacanvas/credentialsmanagement-operator
+  credopVersion: 1.0.0
+  credopPrereleaseSuffix: 
+  imagePullPolicy: IfNotPresent
+  istioGateway: true
+  monitoredNamespaces: 'components'           # comma separated list of namespaces
+  ingressClass:
+    enabled: false
+    name: nginx
+  dataDog:
+    enabled: false
+  keycloak:
+    port: 8080
+  hostName: "*"
+  httpsRedirect: true
+  credentialName: istio-ingress-cert   
+credentials:
+  # clientId of Credentials-Management-Operator client in Keycloak, created during Keycloak installation
+  client_id: credentialsmanagement-operator
+  # secret of Credentials-Management-Operator client in Keycloak, needs to be manually retrieved from Keycloak and add it before installing the operator
+  client_secret: 
+configmap:
+  # Keycloak's base url, configured according to : "http://<oda-canvas release name>-keycloak-headless.<oda-canvas release namespace>:<keycloak http port>/auth"
+  kcbase: http://canvas-keycloak-headless.canvas:8083/auth
+  # Keycloak's realm, configured during Keycloak installation
+  kcrealm: odari
+  loglevel: '20'

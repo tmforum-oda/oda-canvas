@@ -52,3 +52,8 @@ The Canvas design is split into the following epics:
 * [Epic 1: Authentication](Authentication-design.md)
 * [Epic 2: Event based integration](Event-based-integration-design.md)
 * [Epic 3: Observability](Observability-design.md)
+* [Epic 4: AI-Native Canvas](AI-Native-Canvas-design.md)
+
+## Security Principles
+
+The Security Principles underpinning the ODA Canvas Reference Implementation are documented in [Security Principles](./SecurityPrinciples.md)

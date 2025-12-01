@@ -4,8 +4,7 @@
 [![Canvas-version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftmforum-oda%2Foda-canvas%2Fmain%2Fcharts%2Fcanvas-oda%2FChart.yaml&query=%24.version&label=Canvas-version)](https://github.com/tmforum-oda/oda-canvas)
 [![License](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftmforum-oda%2Foda-canvas-ctk%2Fmain%2Fpackage.json&query=%24.license&label=License&color=%09%23a3ff00)](https://github.com/tmforum-oda/oda-canvas/blob/main/LICENSE)
 
-[![bdd](https://img.shields.io/badge/BDD_tests-8A2BE2?style=flat-square&color=grey)](https://reports.cucumber.io/report-collections/f62e87a7-f6bf-4aaf-b603-d4fa2b05b630)[![passed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmessages.cucumber.io%2Fapi%2Freport-collections%2Ff62e87a7-f6bf-4aaf-b603-d4fa2b05b630%2Freports&query=%24.reports%5B-1%3A%5D.statusCounts.PASSED&style=flat-square&label=Passed%3A%20&labelColor=%230BDA51&color=%230BDA51)](https://reports.cucumber.io/report-collections/f62e87a7-f6bf-4aaf-b603-d4fa2b05b630)[![undef](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmessages.cucumber.io%2Fapi%2Freport-collections%2Ff62e87a7-f6bf-4aaf-b603-d4fa2b05b630%2Freports&query=%24.reports%5B-1%3A%5D.statusCounts.UNDEFINED&style=flat-square&label=Undefined%3A%20&labelColor=%23FFC000&color=%23FFC000)](https://reports.cucumber.io/report-collections/f62e87a7-f6bf-4aaf-b603-d4fa2b05b630)[![failed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmessages.cucumber.io%2Fapi%2Freport-collections%2Ff62e87a7-f6bf-4aaf-b603-d4fa2b05b630%2Freports&query=%24.reports%5B-1%3A%5D.statusCounts.FAILED&style=flat-square&label=Failed%3A%20&labelColor=%23D22B2B&color=%23D22B2B)
-](https://reports.cucumber.io/report-collections/f62e87a7-f6bf-4aaf-b603-d4fa2b05b630)
+![BDD](https://img.shields.io/badge/BDD_tests-8A2BE2?style=flat-square&color=grey&logo=cucumber)[![Passed](https://byob.yarr.is/tmforum-oda/oda-canvas/bdd-passed/byob-badges/bdd-passed.json)](https://github.com/tmforum-oda/oda-canvas/tree/byob-badges)[![Undefined](https://byob.yarr.is/tmforum-oda/oda-canvas/bdd-undefined/byob-badges/bdd-undefined.json)](https://github.com/tmforum-oda/oda-canvas/tree/byob-badges)[![Failed](https://byob.yarr.is/tmforum-oda/oda-canvas/bdd-failed/byob-badges/bdd-failed.json)](https://github.com/tmforum-oda/oda-canvas/tree/byob-badges)[![Skipped](https://byob.yarr.is/tmforum-oda/oda-canvas/bdd-skipped/byob-badges/bdd-skipped.json)](https://github.com/tmforum-oda/oda-canvas/tree/byob-badges)
 
 
 
@@ -29,9 +28,11 @@ There is an introductory video on the ODA Canvas at:
 
 [![How do I buy or build an ODA Canvas?](https://img.youtube.com/vi/dYyyCDPlVHY/0.jpg)](https://youtu.be/B5lF94l-Dek?si=gKQAW57j8GEDx6Yv&t=1)
 
-The ODA Canvas is itself a modular architecture, with independent **operators** that embed the management and operations activities in software. The **Component Management** operator manages the lifecycle of each component, and the de-composition into ExposedAPIs, IdentityConfigs and other sub-resources (that are processed by their corresponding operators). The **API Management** operators manage the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers. You deploy the matching API Management operator for whatever API Gateway or Service Mesh you are using. The **Identitiy Config** operator configures the Identity Management Services. The **Secrets Management** operator is an optional operator to configure secrets. The **Dependency Management** operator provides services to allow a Component to discover API dependencies. We foresee new operator types becoming available as the ODA Canvas matures.
+The ODA Canvas is itself a modular architecture, with independent **operators** that embed the management and operations activities in software. The **Component Management** operator manages the lifecycle of each component, and the de-composition into ExposedAPIs, IdentityConfigs and other sub-resources (that are processed by their corresponding operators). The **API Management** operators manage the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers. You deploy the matching API Management operator for whatever API Gateway or Service Mesh you are using. The **Identitiy Config** operator configures the Identity Management Services. The **Secrets Management** operator is an optional operator to configure secrets. The **Dependency Management** operator provides services to allow a Component to discover API dependencies.
 
-The ODA Canvas reference implementation includes example operators to that are freely available for organizations to re-use, extend or replace with their own implementations. We expect a typical production implementation will use a combination of standard operators and custom operators that can implement that organizations specific operational policies.
+The Canvas now includes support for **AI-Native** capabilities, enabling ODA Components to expose MCP (Model Context Protocol) interfaces as tools for AI agents, and allowing AI agents themselves to be deployed as composable ODA Components. This includes AI-specific services such as AI Gateways for responsible AI practices, observability for language model interactions, and continuous evaluation frameworks for non-deterministic AI systems. For more information, see [AI-Native Canvas Design](AI-Native-Canvas-design.md).
+
+We foresee new operator types becoming available as the ODA Canvas matures. The ODA Canvas reference implementation includes example operators to that are freely available for organizations to re-use, extend or replace with their own implementations. We expect a typical production implementation will use a combination of standard operators and custom operators that can implement that organizations specific operational policies.
 
 For more information see [Software Operators](source/operators/README.md)
 
@@ -40,7 +41,7 @@ For more information see [Software Operators](source/operators/README.md)
 
 The design (including ongoing work) of the ODA Canvas is documented in [ODA Canvas Design](Canvas-design.md).
 
-Security principles for the ODA Canvas design aredocumented in [ODA Securty Principles](SecurityPrinciples.md).
+Security principles for the ODA Canvas design are documented in [ODA Security Principles](SecurityPrinciples.md).
 
 
 ## Release notes
@@ -48,6 +49,9 @@ Security principles for the ODA Canvas design aredocumented in [ODA Securty Prin
 
 | Version    | Release notes                         |
 |:----------:|---------------------------------------|
+| 1.2.4      | October 2025 release ahead of Innovate Asia                                      |
+| 1.2.3      | June 2025 release ahead of DTW                                                   |
+| 1.2.2      | First update incorporating fixes since general availability launch               |
 | 1.2.0      | Release of `v1` component specification and general availability of ODA Canvas   |
 | 1.1.8      | Final changes to `v1beta4` component specification                               |
 | 1.1.7      | Updated to `v1beta4` component specification                                     |
@@ -64,4 +68,4 @@ Security principles for the ODA Canvas design aredocumented in [ODA Securty Prin
 
 How to work with this repository:
 
-* [How-To work with Dockerimages](/docs/developer/work-with-dockerimages.md)
+* [How-To work with Dockerimages](./docs/developer/work-with-dockerimages.md)

@@ -1,0 +1,101 @@
+# Policy Conflict Resolution Rules Documentation
+# This file demonstrates how the PDB operator resolves conflicts
+
+# Example 1: Multiple policies with different priorities
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: low-priority-policy
+  namespace: canvas
+spec:
+  availabilityClass: standard
+  enforcement: advisory
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      app-type: web
+  priority: 100  # Low priority
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: medium-priority-policy
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible
+  minimumClass: standard
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      app-type: web
+  priority: 500  # Medium priority
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: high-priority-policy
+  namespace: canvas
+spec:
+  availabilityClass: mission-critical
+  enforcement: strict
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      app-type: web
+      tier: critical  # More specific selector
+  priority: 900  # High priority - THIS WINS when all match
+
+# Resolution Logic:
+# 1. All three policies match deployments with label "app-type: web"
+# 2. If deployment also has "tier: critical", high-priority-policy wins (priority 900)
+# 3. Otherwise, medium-priority-policy wins (priority 500)
+# 4. low-priority-policy never wins unless it's the only match
+
+# Example 2: Enforcement Mode Demonstrations
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: strict-enforcement-demo
+  namespace: canvas
+spec:
+  availabilityClass: mission-critical
+  enforcement: strict  # Policy ALWAYS wins, annotations ignored
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      enforcement-demo: strict
+  priority: 100
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: flexible-enforcement-demo
+  namespace: canvas
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible  # Annotations allowed if >= minimumClass
+  minimumClass: standard  # Minimum acceptable class
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      enforcement-demo: flexible
+  priority: 100
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: advisory-enforcement-demo
+  namespace: canvas
+spec:
+  availabilityClass: standard
+  enforcement: advisory  # Annotations allowed with reason
+  overrideRequiresReason: true
+  overrideRequiresAnnotation: "oda.tmforum.org/override-reason"
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      enforcement-demo: advisory
+  priority: 100

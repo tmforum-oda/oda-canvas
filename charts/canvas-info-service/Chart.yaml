@@ -1,0 +1,11 @@
+apiVersion: v2
+name: canvas-info-service
+description: The Canvas Info Service
+
+type: application
+
+version: 1.0.1
+# version: 1.0.1 - Added support for custom/private docker registry and image pull secrets
+# version: 1.0.0 - initial version
+
+appVersion: "1.0.0"

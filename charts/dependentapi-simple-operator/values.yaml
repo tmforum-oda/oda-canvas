@@ -3,14 +3,3 @@ version: 1.0.0
 prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 loglevel: '20'
-
-serviceInventoryAPI:
-  enabled: true
-  image: tmforumodacanvas/tmf638-service-inventory-api
-  version: 0.1.2
-  prereleaseSuffix:
-  imagePullPolicy: IfNotPresent
-  serverUrl: http://info.canvas.svc.cluster.local
-  mongodb:
-    port: 27017
-    database: svcinv 

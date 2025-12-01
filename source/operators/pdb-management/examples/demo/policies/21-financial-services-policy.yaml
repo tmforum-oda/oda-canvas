@@ -1,0 +1,39 @@
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: financial-services-policy
+  namespace: canvas
+  labels:
+    policy-domain: financial-services
+    compliance: PCI-DSS
+spec:
+  availabilityClass: custom
+  enforcement: strict  # Financial compliance requires strict enforcement
+  customPDBConfig:
+    minAvailable: 3  # Absolute quorum for financial services
+    unhealthyPodEvictionPolicy: "IfHealthyBudget"
+  componentSelector:
+    namespaces: ["pdb-demo"]
+    matchLabels:
+      financial-service: "true"
+      compliance-tier: "pci-dss"
+    matchExpressions:
+      - key: "service-type"
+        operator: In
+        values: ["payment", "settlement", "risk-engine"]
+      - key: "region"
+        operator: NotIn
+        values: ["dev", "test"]
+  maintenanceWindows:
+    # Financial markets closed
+    - start: "22:00"
+      end: "06:00" 
+      timezone: "America/New_York"
+      daysOfWeek: [5, 6]  # Friday night to Saturday
+    - start: "18:00"
+      end: "06:00"
+      timezone: "America/New_York" 
+      daysOfWeek: [0]     # Sunday evening to Monday
+  priority: 1000
+  enforceMinReplicas: true
+  allowOverride: false  # No overrides for financial services

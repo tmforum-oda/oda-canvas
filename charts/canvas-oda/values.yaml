@@ -5,9 +5,23 @@
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
 global:
+  image:
+    # docker registry to pull images from, e.g. "myreg.io/" (include the trailing slash)
+    registry: ""
+  
+  # image pull secret to pull images from private registry
+  imagePullSecrets: []
+  # imagePullSecrts:
+  # - imagepullsecret1
+  # - imagepullsecret2
+
   certificate:
     # -- Name of the certificate and webhook |
     appName: "compcrdwebhook"
+  hookImages:
+    kubectl: bitnamilegacy/kubectl:latest
+    kubectlCurl: tmforumodacanvas/baseimage-kubectl-curl:1.30.5
+    busybox: busybox:1.35
 
 preqrequisitechecks:
   istio:  true 
@@ -56,6 +70,7 @@ cert-manager-init:
 keycloak:
   enabled: true
   image:
+    repository: bitnamilegacy/keycloak
     tag: 20.0.5-debian-11-r2
   auth:
     adminUser: "admin"
@@ -63,6 +78,7 @@ keycloak:
   postgresql:
     enabled: true
     image:
+      repository: bitnamilegacy/postgresql
       tag: 15.2.0-debian-11-r31
     auth:
       username: "keycloak"
@@ -86,10 +102,11 @@ keycloak:
   # -- Keycloak HTTP container port
   containerPorts: *portKeycloak
 
-  # -- Create a odari realm with an canvassystem user
+  # -- Create a odari realm with canvassystem and credentialsmanagement-operator clients
   keycloakConfigCli:
     enabled: true
     image:
+      repository: bitnamilegacy/keycloak-config-cli
       tag: 5.5.0-debian-11-r35
     backoffLimit: 1
     command: [ "java", "-jar", "/opt/keycloak-config-cli.jar" ]
@@ -98,16 +115,38 @@ keycloak:
         {
           "enabled": true,
           "realm": "odari",
+          "clients": [
+            {
+              "clientId": "canvassystem",
+              "name": "Canvas System",
+              "enabled": true,
+              "standardFlowEnabled": false,
+              "serviceAccountsEnabled": true
+            },
+            {
+              "clientId": "credentialsmanagement-operator",
+              "name": "Credentials Management Operator",
+              "enabled": true,
+              "standardFlowEnabled": false,
+              "serviceAccountsEnabled": true
+            }
+          ],
           "users": [
             {
-            "username": "canvassystem",
-            "email": "canvassystem@oda.tmforum.org",
+            "username": "service-account-canvassystem",
             "enabled": true,
-            "firstName": "Canvas",
-            "lastName": "User",
             "clientRoles": {
               "realm-management": [
                 "manage-clients"
+              ]
+             }
+            },
+            {
+            "username": "service-account-credentialsmanagement-operator",
+            "enabled": true,
+            "clientRoles": {
+              "realm-management": [
+                "view-clients"
               ]
              }
             }
@@ -126,11 +165,11 @@ component-operator:
   deployment:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
-    compopVersion: 1.0.0
+    compopVersion: 1.1.0
     compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     httpsRedirect: true
     credentialName: istio-ingress-cert    
 
@@ -139,14 +178,14 @@ identityconfig-operator-keycloak:
   deployment:
     operatrorName: identityconfig-operator-keycloak
     idkopImage: tmforumodacanvas/identityconfig-operator-keycloak
-    idkopVersion: 1.0.0
+    idkopVersion: 1.1.0
     idkopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     idlistkeyImage: tmforumodacanvas/identity-listener-keycloak
-    idlistkeyVersion: 0.7.2
-    idlistkeyPrereleaseSuffix: 
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    idlistkeyVersion: 1.1.0
+    idlistkeyPrereleaseSuffix:  
+    monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     keycloak: *portKeycloak
     hostName: "*"
     httpsRedirect: true
@@ -159,7 +198,7 @@ identityconfig-operator-keycloak:
     kcrealm: odari
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
-   
+      
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
@@ -167,16 +206,6 @@ dependentapi-simple-operator:
   prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
-  serviceInventoryAPI:
-    enabled: true
-    image: tmforumodacanvas/tmf638-service-inventory-api
-    version: 1.0.0
-    prereleaseSuffix:  
-    imagePullPolicy: IfNotPresent
-    serverUrl: http://info.canvas.svc.cluster.local
-    mongodb:
-      port: 27017
-      database: svcinv
 
 canvas-vault:
   enabled: true
@@ -330,11 +359,46 @@ secretsmanagement-operator:
   #  name: enc-secrets
   #  key: hvacTokenEnc
 
+# -----------------------------------------------------------------------------
+# PDB Management Operator and sub-chart parameters
+# -----------------------------------------------------------------------------
+
+pdb-management-operator:
+  enabled: true
+  
+  # Deployment configuration
+  deployment:
+    operatorName: pdb-management-operator
+    image: tmforumodacanvas/pdb-management-operator
+    version: 1.0.0
+    prereleaseSuffix:
+    imagePullPolicy: IfNotPresent
+    watchNamespace: ''
+    enableWebhook: true
+    enableMetrics: true
+    metricsAddr: "0.0.0.0:8080"
+    probeAddr: "0.0.0.0:8081"
+  
+  # Observability configuration
+  observability:
+    logLevel: "info"
+    tracing:
+      enabled: false
+      jaegerEndpoint: ""
+      otlpEndpoint: ""
+      sampleRate: "1.0"
+    
+  # Operator configuration
+  configuration:
+    enablePDB: true
+    defaultNamespace: "default"
+    metricsNamespace: "canvas"
+    leaderElectionNamespace: "canvas"
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
-  version: 1.0.0
-  prereleaseSuffix:  
+  version: 1.0.1
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
  
 # -----------------------------------------------------------------------------
@@ -346,11 +410,11 @@ api-operator-istio:
   deployment:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
-    apiopVersion: 1.0.0
-    apiopPrereleaseSuffix:  
+    apiopVersion: 1.0.1
+    apiopPrereleaseSuffix:
     imagePullPolicy: IfNotPresent
     istioGateway: true
-    monitoredNamespaces: 'components'           # comma separated list of namespaces
+    monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     ingressClass:
       enabled: false
       name: nginx
@@ -362,6 +426,8 @@ api-operator-istio:
   configmap:
     loglevel: '20'
     # publicHostname: 'components.example.com'
+    componentGateway: 'canvas/component-gateway'
+
 
 # -----------------------------------------------------------------------------
 # Kong operator and sub-chart parameters
@@ -371,9 +437,31 @@ kong-gateway-install:
   enabled: false  # Enable kong-gateway if needed
 kongnamespace: kong
 api-operator-kong:
+    deployment:
+      monitoredNamespaces: 'components,odacompns-*'     
+      ingressClass:
+        enabled: false
+        name: nginx
+      dataDog:
+        enabled: true
+    configmap:
+      loglevel: '20'
+      # publicHostname: 'components.example.com'
+      componentGateway: 'canvas/component-gateway'
+      API_CONNECT_TIMEOUT: 60   #value in seconds supported
+      API_READ_TIMEOUT: 900     #value in seconds supported
+      API_WRITE_TIMEOUT: 900    #value in seconds supported
     kong:
       postgresql:
         nameOverride: "postgresql-kong"
+        enabled: true
+        auth:
+          username: "kong"
+          password: "kong"
+          database: "kong"
+        image:
+          repository: bitnamilegacy/postgresql
+          tag: "13.11.0-debian-11-r20"
         #enabled: true
         #namespace: "kong"
       # Direct configurations to the kong sub-chart if needed
@@ -413,11 +501,11 @@ api-operator-kong:
     IstioGatewayServerhostName: "*"
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
-      repository: tmforumodacanvas/api-operator-kong:1.0.0
-      pullPolicy: IfNotPresent
       kongopImage: tmforumodacanvas/api-operator-kong
-      kongopVersion: 1.0.0
-      kongopPrereleaseSuffix:  
+      kongopVersion: 1.0.2
+      kongopPrereleaseSuffix:
+      pullPolicy: IfNotPresent
+    initContainerImage: busybox:1.28
 
 
 # -----------------------------------------------------------------------------
@@ -436,6 +524,11 @@ api-operator-apisix:
       serviceNamespace: canvas
     gateway:
       type: LoadBalancer  # Override the service type
+    etcd:
+      enabled: true
+      #block for etcd to correct repo to be used to overwrite bitnami old repo.
+      image:
+        repository: bitnamilegacy/etcd
     ingress-controller:
       enabled: true   # Enable the ingress controller
       config:
@@ -449,11 +542,62 @@ api-operator-apisix:
     apisixoperatorreplicaCount: 1
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
-    repository: tmforumodacanvas/api-operator-apisix:1.0.0
-    pullPolicy: IfNotPresent
     apisixopImage: tmforumodacanvas/api-operator-apisix
-    apisixopVersion: 1.0.0
-    apisixopPrereleaseSuffix:  
+    apisixopVersion: 1.0.2
+    apisixopPrereleaseSuffix:
+    pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
   apisixistiooperatordeploymentnamespace: canvas
+  initContainerImage: busybox:1.28
+  #Adding Istio Configmap values.
+  deployment:
+    monitoredNamespaces: 'components,odacompns-*'     
+    ingressClass:
+      enabled: false
+      name: nginx
+    dataDog:
+      enabled: true
+  configmap:
+    loglevel: '20'
+    # publicHostname: 'components.example.com'
+    componentGateway: 'canvas/component-gateway'
+    API_CONNECT_TIMEOUT: 60   #value in seconds supported
+    API_READ_TIMEOUT: 900     #value in seconds supported
+    API_WRITE_TIMEOUT: 900    #value in seconds supported
+
+
+# -----------------------------------------------------------------------------
+# Canvas Info service parameters
+# -----------------------------------------------------------------------------
+
+
+canvas-info-service:
+  enabled: true
+  image: tmforumodacanvas/tmf638-service-inventory-api
+  version: 1.0.0
+  prereleaseSuffix:
+  imagePullPolicy: IfNotPresent
+  serverUrl: http://info.canvas.svc.cluster.local
+  mongodb:
+    port: 27017
+    database: svcinv
+    image: mongo:6.0
+  persistence:
+    size: 1Gi
+    accessModes: ReadWriteOnce
+    storageClassName:
+
+
+# -----------------------------------------------------------------------------
+# Canvas Resource service parameters
+# -----------------------------------------------------------------------------
+
+
+resource-inventory:
+  enabled: true
+  image: tmforumodacanvas/tmf639-resource-inventory-api
+  version: 1.0.0
+  prereleaseSuffix: 
+  imagePullPolicy: IfNotPresent
+  serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5

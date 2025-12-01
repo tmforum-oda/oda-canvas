@@ -18,6 +18,10 @@ spec:
         {{- include "api-operator-istio.labels" . | nindent 8 }}
     spec:
       serviceAccountName: apioperator-account
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- include "image-pull-secrets" . |nindent 6 }}
+      {{- end }}
       containers:
       - name: {{.Values.deployment.operatorName}}
         image: {{ include "api-operator-istio.apiopDockerimage" . }}
@@ -25,3 +29,8 @@ spec:
         envFrom:
           - configMapRef:
               name: api-operator-istio-configmap
+        command:
+          - "/bin/sh"
+        args: 
+          - "-c"
+          - "kopf run $COMPONENT_NAMESPACES_CLI --verbose /apiOperatorIstio.py"

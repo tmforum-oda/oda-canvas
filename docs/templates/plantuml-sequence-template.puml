@@ -1,0 +1,131 @@
+@startuml {diagram-name}
+/'
+PlantUML Sequence Diagram Template for ODA Canvas
+Use this template for creating sequence diagrams showing Canvas interactions
+
+Guidelines:
+- Use clear, descriptive names for actors and components
+- Include notes for complex interactions
+- Group related operations with alt/opt/loop blocks
+- Use consistent naming with kebab-case for file names
+- Standard actors: Canvas, Component, Operator, Kubernetes API, Developer
+'/
+
+!define DARKBLUE #1E3A5F
+!define LIGHTBLUE #4A90E2
+!define GREEN #52C41A
+!define ORANGE #FA8C16
+!define RED #F5222D
+
+' Actors - Customize based on your use case
+actor "{Actor Name}" as actor DARKBLUE
+participant "ODA Canvas" as canvas LIGHTBLUE
+participant "{Operator Name}" as operator GREEN
+participant "Kubernetes API" as k8s ORANGE
+participant "{Component Name}" as component LIGHTBLUE
+
+' Title and description
+title {Diagram Title}
+note over actor, component
+  {Brief description of what this diagram illustrates}
+end note
+
+' === Main Sequence ===
+
+' Example: Actor initiates action
+actor -> canvas : {Action description}
+activate canvas
+
+' Canvas processes request
+canvas -> k8s : Create {Resource Type}
+activate k8s
+
+note right
+  {Explanation of what happens here}
+end note
+
+k8s --> canvas : {Resource} created
+deactivate k8s
+
+' Operator detects and processes
+k8s -> operator : Watch event: {Resource} created
+activate operator
+
+operator -> operator : Reconcile {Resource}
+
+' Optional: Complex logic block
+alt {Condition 1}
+    operator -> k8s : Create {SubResource 1}
+    k8s --> operator : {SubResource 1} created
+else {Condition 2}
+    operator -> k8s : Create {SubResource 2}
+    k8s --> operator : {SubResource 2} created
+end
+
+' Optional: Loop for multiple items
+loop for each {item}
+    operator -> k8s : Create/Update {Item}
+    k8s --> operator : {Item} processed
+end
+
+' Status update
+operator -> k8s : Update {Resource} status
+activate k8s
+k8s --> operator : Status updated
+deactivate k8s
+
+deactivate operator
+
+' Component interaction (if applicable)
+k8s -> component : Deploy {Component}
+activate component
+component --> k8s : Ready
+deactivate component
+
+' Final response to actor
+canvas --> actor : {Success message}
+deactivate canvas
+
+' === Error Scenario (Optional) ===
+
+note over actor, component
+  **Error Scenario**: {Description of error condition}
+end note
+
+actor -> canvas : {Action that fails}
+activate canvas
+
+canvas -> operator : Process {Resource}
+activate operator
+
+operator -> operator : Validation fails
+
+operator -> k8s : Update status: Error
+activate k8s
+k8s --> operator : Status updated
+deactivate k8s
+
+operator --> canvas : Error: {Error message}
+deactivate operator
+
+canvas --> actor : Error: {User-facing error}
+deactivate canvas
+
+' === Notes and Legend ===
+
+note over actor, component
+  **Key Points**:
+  - {Important point 1}
+  - {Important point 2}
+  - {Important point 3}
+end note
+
+legend right
+  **Status States**:
+  | State | Description |
+  | {State1} | {Description} |
+  | {State2} | {Description} |
+  | {State3} | {Description} |
+endlegend
+
+@enduml

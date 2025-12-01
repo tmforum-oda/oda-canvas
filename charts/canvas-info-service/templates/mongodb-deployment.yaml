@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-svcinv-mongodb
+  labels:
+    app: {{.Release.Name}}-svcinv-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Release.Name}}-svcinv-mongodb
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-svcinv-mongodb
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- include "image-pull-secrets" . |nindent 6 }}
+      {{- end }}
+      containers:
+      - name: {{.Release.Name}}-svcinv-mongodb
+        image: {{ include "docker.registry" .}}{{ .Values.mongodb.image }}
+        ports:
+        - name: svcinv-mongodb
+          containerPort: {{.Values.mongodb.port}}
+        volumeMounts:
+        - name: {{.Release.Name}}-svcinv-mongodb-pv-storage
+          mountPath: "/data/db"
+      volumes:
+      - name: {{.Release.Name}}-svcinv-mongodb-pv-storage
+        persistentVolumeClaim:
+          claimName: {{.Release.Name}}-svcinv-mongodb-pv-claim

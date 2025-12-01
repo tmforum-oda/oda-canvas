@@ -1,0 +1,72 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/*
+Dockerfile.cross
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Go workspace file
+go.work
+
+# Kubernetes Generated files - skip generated files, except for vendored files
+!vendor/**/zz_generated.*
+
+# editor and IDE paraphernalia
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# PlantUML diagram files
+*.puml
+
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Local development and testing tools
+toolsforlocal/
+!toolsforlocal/README.md
+
+# Development documentation (keeping main docs)
+docs/diagrams/*.puml
+docs/PERFORMANCE_AND_CACHING.md
+docs/VERIFICATION.md
+docs/WEBHOOK_DEPLOYMENT.md
+
+# ToolforLocal
+toolsforlocal/observability/*
+toolsforlocal/debug-pdb-events.sh
+toolsforlocal/test-pdb-recreation.sh
+toolsforlocal/test-suite.sh
+
+
+# Temporary and cache files
+*.tmp
+*.temp
+*.log
+*.cache
+
+# Development environment files
+.env
+.env.local
+venv/
+.venv/
+
+# Generated files
+coverage.out
+coverage.html

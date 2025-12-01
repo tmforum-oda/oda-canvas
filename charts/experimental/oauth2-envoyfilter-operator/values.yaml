@@ -1,0 +1,9 @@
+image: tmforumodacanvas/oauth2-envoy-op
+version: 0.1.0
+prereleaseSuffix:
+
+imagePullPolicy: Always
+
+canvasInfoServiceURL: http://info.canvas.svc.cluster.local
+
+loglevel: '20'

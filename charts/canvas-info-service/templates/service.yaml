@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: info  # do not use {{ .Release.Name }}-info-service, 
+              # because the service has to be accessible under the 
+              # fixed endpoint info.canvas.svc.cluster.local
+  labels:
+    app: {{ .Release.Name }}-info-service
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8638
+  selector:
+    app: {{ .Release.Name }}-info-service

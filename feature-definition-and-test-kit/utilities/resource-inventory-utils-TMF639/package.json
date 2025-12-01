@@ -1,0 +1,15 @@
+{
+  "name": "resource-inventory-utils-TMF639",
+  "version": "1.0.0",
+  "description": "Utilities for interacting with ODA Components to support BDD tests in a Kubernetes implementation",
+  "main": "resource-inventory-utils-TMF639.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lester Thomas",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.12.3",
+    "axios": "^0.26.0"
+  }
+}

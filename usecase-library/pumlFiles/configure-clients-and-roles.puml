@@ -1,0 +1,68 @@
+@startuml
+
+actor BusinessAdmin
+participant "Component\nManagement\nOperator" as ComponentOperator
+entity "Identity\nResource" as IdentityResource
+participant "Component Implementation" as ComponentImplementation
+participant "Identity Operator" as identityOperator
+participant "Secret store" as SecretStore
+participant "Identity Management System" as IDM
+
+group Bootstrap
+IdentityResource <- ComponentOperator : create
+
+IdentityResource -> identityOperator: on.create 
+identityOperator -> IDM: Create client for component
+note right
+    Clients are entities that can request authentication of a user.
+    All the roles and permissions are associated with a client.
+end note
+
+ComponentImplementation -> SecretStore: Read ClientID and secret
+note right
+    Populating the ClientID and secret from the identity platform is
+    out of scope for the Canvas, but the Reference Implementation uses
+    a credentials operator to simulate this.
+end note
+
+identityOperator -> IdentityResource : Query bootstrap Admin role defined\nin component SecurityFunction segment
+identityOperator -> IDM: Assign Canvas **canvassystem** client to Admin role
+note right
+    The Admin role is used by the Canvas to call APIs on the ODA Component.
+end note
+
+group Dynamic role management - optional
+    identityOperator -> ComponentImplementation: Register identityOperator to listen to the\nAPI provided by the component
+    note right
+        The component implementation provides an API that the identityOperator can call to manage roles.
+        The identityOperator listens to the API and manages roles based on the events. The component needs
+        to implement the **TMF672 User Roles and Permissions API** and the operator listens for **permissionSpecificationSet** events.
+    end note
+    identityOperator -> ComponentImplementation: Query dynamically defined roles in\nAPI provided by the component
+    identityOperator -> IDM: create role(s)
+end 
+group Static role management - optional
+    identityOperator -> IdentityResource: Query statically defined roles in\ncomponent SecurityFunction segment
+    identityOperator -> IDM: create role(s)
+end 
+
+end 
+group Normal business operations - for dynamic role management
+    BusinessAdmin -> ComponentImplementation: Create Role
+    ComponentImplementation-> identityOperator: create notification event
+    identityOperator -> IDM: create role
+    BusinessAdmin -> ComponentImplementation: Update Role
+    ComponentImplementation-> identityOperator: update notification event
+    identityOperator -> IDM: Update role
+    BusinessAdmin -> ComponentImplementation: Delete Role
+    ComponentImplementation-> identityOperator: delete notification event
+    identityOperator -> IDM: Delete role
+end
+
+group Uninstall
+    ComponentOperator -> IdentityResource  : delete
+    IdentityResource -> identityOperator: on.delete 
+    identityOperator -> IDM: Delete client and all associated roles  
+end
+
+@enduml

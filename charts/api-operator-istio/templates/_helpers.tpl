@@ -65,7 +65,7 @@ Create the name of the service account to use
 build the full apiop docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "api-operator-istio.apiopDockerimage" -}}
-  {{- .Values.deployment.apiopImage -}}:{{- .Values.deployment.apiopVersion -}}
+  {{ include "docker.registry" .}}{{- .Values.deployment.apiopImage -}}:{{- .Values.deployment.apiopVersion -}}
   {{- if .Values.deployment.apiopPrereleaseSuffix -}}
     -{{- .Values.deployment.apiopPrereleaseSuffix -}}
   {{- end -}}
@@ -81,5 +81,13 @@ overwrite apiop imagePullSecret with "Always" if prereleaseSuffix is set
   {{- else -}}
     {{- .Values.deployment.apiopImagePullPolicy -}}
   {{- end -}}
+{{- end -}}
+
+{{/*
+Create KOPF cli option for the comma seperated list of namespaces in monitoredNamespaces:
+"<ns1>,<ns1>,...<nsN>"-> "-n <ns1> -n <ns2> ... -n <nsN>" 
+*/}}
+{{- define "api-operator-istio.monitoredNamespacesCLIOpts" -}}
+{{- printf "-n %s" .Values.deployment.monitoredNamespaces | replace "," " -n " }}
 {{- end -}}
 

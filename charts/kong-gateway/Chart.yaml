@@ -1,5 +1,5 @@
 apiVersion: v2
-name: kong-gateway
+name: api-operator-kong
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
@@ -15,7 +15,13 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.0
+
+version: 1.0.5
+# version: 1.0.5 - updated kong operator to support timeout parameter for long-lived sessions. this gives support for mcp,a2a,sse apitypes.
+# version: 1.0.4 - updated bitnami images related changes for kong chart
+# version: 1.0.3 - Added support for custom/private docker registry and image pull secrets
+# version: 1.0.2 - updated chart name
+# version: 1.0.1 - Templatized hardcoded images
 # version: 1.0.0 - updated to use v1 of CRD spec
 # version: 0.1.4 - added with latest updates to v1beta4 crds
 # version: 0.1.3 - chart bundled with canvas-oda chart and job added to handle required istio-ingress type

@@ -15,7 +15,7 @@ Plugin Management: Manages ApisixPluginConfig resources to enforce various polic
 This operator should be deployed within Kubernetes clusters that use the Apisix API Gateway for API exposure. It simplifies API management tasks, focusing on security and efficiency, and is an integral part of the ODA Canvas.
 
 
-![Apisix API Operator](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/RJ-acc/oda-canvas-api-gateway/master/source/operators/apiOperatorApisix/sequenceDiagrams/ApisixAPIOperator.puml)
+![Apisix API Operator](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/refs/heads/main/source/operators/api-management/apache-apisix/sequenceDiagrams/ApisixAPIOperator.puml)
 [plantUML code](sequenceDiagrams/ApisixAPIOperator.puml)
 
 
@@ -23,6 +23,5 @@ This operator should be deployed within Kubernetes clusters that use the Apisix 
 
 It uses kube config file present in $HOME/.kube/config to run from local workstation
 Run: `kopf run apiOperatorKong.py`
-
 
 

@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-apigeeistio-operator
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.apigeeoperatorreplicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-apigeeistio-operator
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-apigeeistio-operator
+    spec:
+      serviceAccountName: apigeeapioperator-account
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- include "image-pull-secrets" . |nindent 6 }}
+      {{- end }}
+      containers:
+      - name: {{ .Release.Name }}-apigeeistio-operator
+        image: {{ include "docker.registry" .}}{{ .Values.apigeeoperatorimage.repository }}
+        imagePullPolicy: {{ .Values.apigeeoperatorimage.pullPolicy }}
+        env:
+          - name: APIGEE_ORG
+            value: "{{ .Values.apigeeoperator.org }}"
+          - name: APIGEE_ENV
+            value: "{{ .Values.apigeeoperator.env }}"
+          - name: APIGEE_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: apigee-api-token
+                key: APIGEE_TOKEN

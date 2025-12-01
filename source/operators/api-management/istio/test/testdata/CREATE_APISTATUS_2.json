@@ -1,0 +1,77 @@
+{
+	"apiVersion": "oda.tmforum.org/v1",
+	"kind": "ExposedAPI",
+	"metadata": {
+		"creationTimestamp": "2025-05-01T16:05:30Z",
+		"generateName": "prdcat3-productcatalogmanagement-",
+		"generation": 1,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "prdcat3-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"314b4074-480a-4f54-8495-1c2513d38e48\"}": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:apiType": {
+						},
+						"f:implementation": {
+						},
+						"f:name": {
+						},
+						"f:path": {
+						},
+						"f:port": {
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2025-05-01T16:05:30Z"
+			}
+		],
+		"name": "prdcat3-productcatalogmanagement-metrics",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "prdcat3-productcatalogmanagement",
+				"uid": "314b4074-480a-4f54-8495-1c2513d38e48"
+			}
+		],
+		"resourceVersion": "112433765",
+		"uid": "103a544e-07c5-48a8-89f9-b1ae2618b141"
+	},
+	"spec": {
+		"apiType": "prometheus",
+		"implementation": "prdcat3-productcatalogmanagement-sm",
+		"name": "metrics",
+		"path": "/prdcat3-productcatalogmanagement/metrics",
+		"port": 4000
+	}
+}

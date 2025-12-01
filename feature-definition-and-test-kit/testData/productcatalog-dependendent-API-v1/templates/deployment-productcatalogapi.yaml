@@ -44,6 +44,15 @@ spec:
           value: "{{.Values.canvasinfo.host}}" 
         - name: CANVAS_INFO_BASEPATH
           value: "{{.Values.canvasinfo.basepath}}" 
+        {{ if .Values.add_dependency_envvars -}}
+        envFrom:
+        - configMapRef:
+            name: deps-{{.Release.Name}}-{{.Values.component.name}}
+            optional: true
+        volumeMounts:
+        - name: dependencies-volume
+          mountPath: /src/dependencies
+        {{- end }}
         imagePullPolicy: Always
         ports:
         - name: {{.Release.Name}}-pcapi
@@ -55,3 +64,10 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
           failureThreshold: 30
+      {{ if .Values.add_dependency_envvars -}}
+      volumes:
+      - name: dependencies-volume
+        configMap:
+          name: deps-{{.Release.Name}}-{{.Values.component.name}}
+          optional: true             
+      {{- end }}

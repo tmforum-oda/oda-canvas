@@ -65,7 +65,7 @@ Create the name of the service account to use
 build the full compop docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "component-operator.compopDockerimage" -}}
-  {{- .Values.deployment.compopImage -}}:{{- .Values.deployment.compopVersion -}}
+  {{ include "docker.registry" .}}{{- .Values.deployment.compopImage -}}:{{- .Values.deployment.compopVersion -}}
   {{- if .Values.deployment.compopPrereleaseSuffix -}}
     -{{- .Values.deployment.compopPrereleaseSuffix -}}
   {{- end -}}
@@ -81,4 +81,13 @@ overwrite compop imagePullSecret with "Always" if prereleaseSuffix is set
   {{- else -}}
     {{- .Values.deployment.compopImagePullPolicy -}}
   {{- end -}}
+{{- end -}}
+
+
+{{/*
+Create KOPF cli option for the comma seperated list of namespaces in monitoredNamespaces:
+"<ns1>,<ns1>,...<nsN>"-> "-n <ns1> -n <ns2> ... -n <nsN>" 
+*/}}
+{{- define "component-operator.monitoredNamespacesCLIOpts" -}}
+{{- printf "-n %s" .Values.deployment.monitoredNamespaces | replace "," " -n " }}
 {{- end -}}

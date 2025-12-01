@@ -15,7 +15,7 @@ Plugin Management: Manages KongPlugin resources to enforce various policies and 
 This operator should be deployed within Kubernetes clusters that use the Kong API Gateway for API exposure. It simplifies API management tasks, focusing on security and efficiency, and is an integral part of the ODA Canvas.
 
 
-![Kong API Operator](https://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/source/operators/apiOperatorKong/sequenceDiagrams/KongAPIOperator.puml)
+![Kong API Operator](https://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/refs/heads/main/source/operators/api-management/kong/sequenceDiagrams/KongAPIOperator.puml)
 [plantUML code](sequenceDiagrams/KongAPIOperator.puml)
 
 
@@ -32,4 +32,5 @@ Steps to Install Konga: Use konga-install.yaml to deploy konga for testing purpo
     ```
     kubectl apply -f konga-install.yaml
     ```
+
 

@@ -127,7 +127,7 @@ jobs:
       run: |
         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
         chmod 700 get_helm.sh
-        ./get_helm.sh
+        ./get_helm.sh --version v3.18.4
         kubectl get ns
 
     - name: Install helm-git
@@ -151,6 +151,7 @@ jobs:
         helm dependency update ./charts/apisix-gateway
         helm dependency update ./charts/kong-gateway
         helm dependency update ./charts/canvas-vault
+        helm dependency update ./charts/pdb-management-operator
         echo DEBUG: update ./charts/canvas-oda
         helm dependency update ./charts/canvas-oda
         echo DEBUG: helm install canvas -n canvas
@@ -162,9 +163,17 @@ jobs:
         sleep 30
         kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083 &
 
-    - name: Installing example component PC 
+    - name: Port Forwarding Resource Inventory Service
+      run: |
+        kubectl -n canvas port-forward svc/resource-inventory 8639:80 &
+        sleep 1
+        echo "Test Resource Inventory API"
+        curl http://localhost:8639/tmf-api/resourceInventoryManagement/v5/
+
+    - name: Installing example component PC into default and other namespace
       run: |
         helm install ctk feature-definition-and-test-kit/testData/productcatalog-static-roles-v1/ -n components     
+        helm install pcother feature-definition-and-test-kit/testData/productcatalog-v1/ -n odacompns-1 --create-namespace     
         sleep 30
         kubectl get all -n components
         kubectl logs -l app=component-operator -n canvas
@@ -186,19 +195,20 @@ jobs:
     - name: Install test Kit
       continue-on-error: true
       run: |
-        cd feature-definition-and-test-kit/identity-manager-utils-keycloak
+        cd feature-definition-and-test-kit/utilities/identity-manager-utils-keycloak
         npm install
         cd ../package-manager-utils-helm
         npm install
         cd ../resource-inventory-utils-kubernetes
         npm install
         cd ..
+        cd ..
         npm install
         export KEYCLOAK_USER=admin 
         export KEYCLOAK_PASSWORD=adpass 
         export KEYCLOAK_BASE_URL="http://localhost:8083/auth/"
         export KEYCLOAK_REALM=odari
-        export CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
+        #export CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
         npm start 2>&1 | tee /tmp/test_results.log
         kubectl get exposedapis -n components
         kubectl -n canvas logs deployment/component-operator | tee /tmp/component-operator.log
@@ -212,6 +222,7 @@ jobs:
          /tmp/component-operator.log
          /tmp/api-operator-istio.log
          /tmp/test_results.log
+         /tmp/cucumber.json
   
     - name: Delete kind cluster
       if: always()
@@ -231,3 +242,86 @@ jobs:
         else
           echo OK, no test failures.
         fi
+
+
+# ---------------------
+# Build and push badges
+# ---------------------
+  build_badges_job:
+    if: always()
+    runs-on: ubuntu-latest
+    needs: run_tests_job
+    permissions:
+      contents: write
+    steps:
+      - name: Download test-report actions/upload-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: test-report
+          path: /tmp
+
+      - name: Parse cucumber results 
+        id: parse_results
+        run: |
+          failed=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( any($s[]; .=="failed") ) ] | length' /tmp/cucumber.json)
+          undefined=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( (any($s[]; .=="failed")|not) and any($s[]; .=="undefined" or .=="pending" or .=="ambiguous") ) ] | length' /tmp/cucumber.json)
+          skipped=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( (any($s[]; .=="failed" or .=="undefined" or .=="pending" or .=="ambiguous")|not) and ($s|length>0) and all($s[]; .=="skipped") ) ] | length' /tmp/cucumber.json)
+          passed=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( (any($s[]; .=="failed" or .=="undefined" or .=="pending" or .=="ambiguous")|not) and any($s[]; .=="passed") ) ] | length' /tmp/cucumber.json)
+          {
+            echo "passed=$passed"
+            echo "failed=$failed"
+            echo "undefined=$undefined"
+            echo "skipped=$skipped"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Badge - Passed
+        if: always()
+        uses: RubbaBoy/BYOB@v1.3.0
+        with: 
+          name: bdd-passed
+          label: Passed
+          status: ${{ steps.parse_results.outputs.passed }}
+          color: brightgreen
+          icon: cucumber
+          github_token: ${{ secrets.GITHUB_TOKEN  }}
+          branch: byob-badges
+          path: bdd-passed.json
+
+      - name: Badge - Failed 
+        if: always()
+        uses: RubbaBoy/BYOB@v1.3.0
+        with: 
+          name: bdd-failed
+          label: Failed
+          status: ${{ steps.parse_results.outputs.failed }}
+          color: ${{ steps.parse_results.outputs.failed == '0' && 'brightgreen' || 'red' }}
+          icon: cucumber
+          github_token: ${{ secrets.GITHUB_TOKEN  }}
+          branch: byob-badges
+          path: bdd-failed.json
+
+      - name: Badge - Undefined
+        if: always()
+        uses: RubbaBoy/BYOB@v1.3.0
+        with:
+          name: bdd-undefined
+          label: Undefined
+          status: ${{ steps.parse_results.outputs.undefined }}
+          color: ${{ steps.parse_results.outputs.undefined == '0' && 'brightgreen' || 'orange' }}
+          icon: cucumber
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: byob-badges
+          path: bdd-undefined.json
+
+      - name: Badge - Skipped
+        if: always()
+        uses: RubbaBoy/BYOB@v1.3.0
+        with:
+          name: bdd-skipped
+          label: Skipped
+          status: ${{ steps.parse_results.outputs.skipped }}
+          color: ${{ steps.parse_results.outputs.skipped == '0' && 'brightgreen' || 'lightblue' }}
+          icon: cucumber
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: byob-badges
+          path: bdd-skipped.json

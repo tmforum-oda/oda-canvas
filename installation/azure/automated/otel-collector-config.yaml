@@ -1,0 +1,33 @@
+# otel-collector-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-conf
+  labels:
+    app: opentelemetry
+    component: otel-collector-conf
+data:
+  otel-collector-config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+
+    processors:
+      batch:
+
+    exporters:
+      azuremonitor:
+        instrumentation_key: ${APP_INSIGHTS_INSTRUMENTATION_KEY}
+      logging:
+        loglevel: debug
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [azuremonitor, logging]
