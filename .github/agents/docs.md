@@ -159,38 +159,14 @@ Links to:
 
 ### Writing Style
 
-**Voice:**
-- Use active voice
-- Formal but accessible technical style
-- Use "we" for organizational voice, "you" for reader instructions
-- Imperative mood for commands
+Follow the comprehensive writing style guide in `docs/writing-style.md` which covers:
+- Voice and tone (active voice, imperative mood, perspective)
+- Sentence structure and length variation
+- Heading hierarchy and capitalization
+- Code blocks, links, and list formatting
+- Markdown formatting conventions
 
-**Sentence structure:**
-- Vary length for readability
-- Short declarative sentences for key points
-- Use semicolons to connect related ideas
-- Prefer lists for multiple items
-
-**Headings:**
-- Title case for H1 document titles
-- Sentence case for H2/H3 subsections
-- Question format for design documents
-
-**Code blocks:**
-- Always use language tags: bash, yaml, json, python
-- Include comments for clarity
-
-**Links:**
-- Inline links preferred
-- Relative paths for internal links
-- Full URLs for external resources
-- Use introductory phrases: "see [link]", "For more information see [link]"
-
-**Lists:**
-- Use dash (-) for bullets
-- Numbered lists for sequential steps
-- 2-space indent for nested items
-- Bold term followed by description: "- **Term**: Description"
+The writing style guide is the single source of truth for all documentation formatting and style decisions.
 
 ### Cross-Reference Validation
 
