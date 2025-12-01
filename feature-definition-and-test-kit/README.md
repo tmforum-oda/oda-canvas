@@ -13,9 +13,9 @@ Example: "Then the user's account is deactivated and the user is redirected to t
 
 By defining the desired behavior of the software through examples, you can then implement automated tests to verify that the software behaves as expected. This approach helps to ensure that the software meets the requirements of the business and that it continues to do so as it evolves over time. The automated tests are written in step definitions that map the plain language examples to code that interacts with the software under test.
 
-## Linkage to use-cases
+## Linkage to use cases
 
-Each BDD feature is linked to the respective use-case in the [use-case library](../usecase-library/README.md). The use-case provides the context and details for the feature. This linkage ensures that the features and are aligned with the overall design of the ODA Canvas and that the tests are verifying the correct behavior.
+Each BDD feature is linked to the respective use case in the [use case library](../usecase-library/README.md). The use case provides the context and details for the feature. This linkage ensures that the features and are aligned with the overall design of the ODA Canvas and that the tests are verifying the correct behavior.
 
 ## Work breakdown
 
