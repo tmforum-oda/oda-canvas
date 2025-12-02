@@ -17,6 +17,7 @@ from kubernetes.client.rest import ApiException
 import os
 import asyncio
 from log_wrapper import LogWrapper, logwrapper
+import re
 
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.INFO)
@@ -235,6 +236,139 @@ def safe_get(default_value, dictionary, *paths):
 def quick_get_comp_name(body):
     return safe_get(None, body, "metadata", "labels", componentname_label)
 
+def infer_major_version_from_url(url: str, fallback: str = "v4") -> str:
+    """
+    Given an OAS URL, extract the major TMF API version.
+    Examples:
+       *_v4.0.0_*.json  -> v4
+       *_v5.2.1_*.yaml  -> v5
+       /v4/swagger.json -> v4
+    """
+    if not isinstance(url, str):
+        return fallback
+
+    # Pattern 1: *_v4.0.0_*  or *_v5.1.2_*
+    match = re.search(r"_v(\d+)\.", url)
+    if match:
+        return f"v{match.group(1)}"
+
+    # Pattern 2: /v4/ or /v5/
+    match = re.search(r"/v(\d+)/", url)
+    if match:
+        return f"v{match.group(1)}"
+
+    # Pattern 3: TMFxxxx-v4.0.* naming
+    match = re.search(r"-v(\d+)\.", url)
+    if match:
+        return f"v{match.group(1)}"
+
+    return fallback
+
+def normalize_apis(api_list: list, api_type: str = "exposed") -> list:
+    """
+    Normalize exposedAPI or dependentAPI definitions into fully flattened,
+    per-version API entries.
+
+    This function implements the v1 Component schema behaviour, which allows
+    multiple API versions to be declared inside the `specification[]` array
+    (e.g., v4 and v5 of the same API).
+
+    Behaviour:
+    - If specification[] is missing, a default empty spec entry is assumed.
+    - For each specification entry (v4, v5, etc.), a separate flattened API object
+      is generated. This enables multi-version API support.
+    - Fields defined at the root of the API object are used as defaults and are
+      overridden by fields defined inside specification[].
+    - The output does NOT preserve the specification[] array; instead, each
+      versioned entry becomes its own fully flattened record.
+    - A missing "version" is inferred from URL if possible, otherwise defaults to "v4".
+    - The returned structure is always a list of fully resolved per-version API
+      items, ready to be used for generating version-specific Custom Resources.
+
+    Returns:
+        list[dict]: A list of per-version, fully merged API definitions.
+
+    Example Output:
+        [
+            { "name": "...", "id": "...", {"specification": {"url": "...","version": "v4"}}, "path": "...", ... },
+            { "name": "...", "id": "...", {"specification": {"url": "...","version": "v5"}}, "path": "...", ... }
+        ]
+    """
+
+    if not isinstance(api_list, list):
+        return []
+
+    normalized_apis = []
+
+    common_keys = [
+        "apiType",
+        "resources",
+        "apiSDO",
+    ]
+
+    exposed_api_keys = common_keys + [
+        "implementation",
+        "gatewayConfiguration",
+        "path",
+        "developerUI",
+        "port",
+    ]
+
+    keys_to_flatten = exposed_api_keys if api_type == "exposed" else common_keys
+
+    for api_obj in api_list:
+        if not isinstance(api_obj, dict):
+            continue
+
+        name = api_obj.get("name")
+        api_id = api_obj.get("id")
+        
+        root_fields = {k: api_obj.get(k) for k in keys_to_flatten if k in api_obj}
+        # Also allow root-level url/version/specification as defaults
+        root_url = api_obj.get("url")
+        root_version = infer_major_version_from_url(root_url) if root_url else None
+
+        specs = api_obj.get("specification", [])
+
+        if not specs:
+            specs = [{}]
+        
+        for spec in specs:
+            if not isinstance(spec, dict):
+                continue
+
+            entry = {"name": name, "id": api_id, "_apiGroup": "core-function-api"}
+
+            spec_url = spec.get("url") or root_url
+            spec_version = spec.get("version")
+
+            if not spec_version and spec_url:
+                try:
+                    spec_version = infer_major_version_from_url(spec_url)
+                except Exception:
+                    spec_version = None
+            
+            if not spec_version:
+                spec_version = root_version
+
+            if not spec_version:
+                spec_version = "v4"
+
+            entry["version"] = spec_version
+            if spec_url:
+                entry["url"] = spec_url
+
+            for key in keys_to_flatten:
+                if key in spec:
+                    entry[key] = spec[key]
+                elif key in root_fields:
+                    entry[key] = root_fields[key]
+
+            entry["specification"] = [{"url": spec_url, "version": spec_version}]
+
+            normalized_apis.append(entry)
+    
+    return normalized_apis
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -276,22 +410,25 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     )  # existing API children of this component (according to previous status)
     try:
 
+        raw_apis = safe_get([], spec, "coreFunction", "exposedAPIs")
+        normalized_apis = normalize_apis(raw_apis, "exposed")
+        logw.info(f"Normalized exposed APIs: {normalized_apis}")
         # compare desired state (spec) with actual state (status) and initiate changes
         if status:  # if status exists (i.e. this is not a new component)
             # update a component - look in old and new to see if we need to delete any API resources
             if "coreAPIs" in status.keys():
                 oldCoreAPIs = status["coreAPIs"]
 
-            newCoreAPIs = spec["coreFunction"]["exposedAPIs"]
             # find apis in old that are missing in new
             deletedAPIs = []
             for oldAPI in oldCoreAPIs:
                 found = False
-                for newAPI in newCoreAPIs:
+                for newAPI in normalized_apis:
+                    expected_name = build_exposedapi_name(name, newAPI)
                     logw.debug(
-                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
+                        f"Comparing {oldAPI['name']} to {newAPI['name']} with expected name {expected_name}"
                     )
-                    if oldAPI["name"] == name + "-" + newAPI["name"].lower():
+                    if oldAPI["name"] == expected_name:
                         found = True
                         logw.info(f"Patching ExposedAPI {oldAPI['name']}")
 
@@ -306,18 +443,19 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
                     )
 
         # get core APIS
-        coreAPIs = spec["coreFunction"]["exposedAPIs"]
+        coreAPIs = normalized_apis
         logw.debug(f"Exposed API list {coreAPIs}")
 
         for coreAPI in coreAPIs:
             # check if we have already patched this API
+            expected_name = build_exposedapi_name(name, coreAPI)
             alreadyProcessed = False
             for processedAPI in apiChildren:
                 logw.debug(
-                    f"Comparing {processedAPI['name']} to {name + '-' + coreAPI['name'].lower()}"
+                    f"Comparing {processedAPI['name']} to {expected_name}"
                 )
 
-                if processedAPI["name"] == name + "-" + coreAPI["name"].lower():
+                if processedAPI["name"] == expected_name:
                     alreadyProcessed = True
             if alreadyProcessed == False:
                 logw.info(f"Calling createAPIResource {coreAPI['name']}")
@@ -613,17 +751,25 @@ async def coreDependentAPIs(
         if status:  # if status exists (i.e. this is not a new component)
             oldCoreDependentAPIs = safe_get([], status, "coreDependentAPIs")
 
-        newCoreDependentAPIs = safe_get([], spec, "coreFunction", "dependentAPIs")
+        new_raw_apis = safe_get([], spec, "coreFunction", "dependentAPIs")
+        new_normalized_apis = normalize_apis(new_raw_apis, "dependent")
+        logw.info(f"Normalized dependent APIs: {new_normalized_apis}")
+
+        newCoreDependentAPIs = new_normalized_apis
+
+        desired_by_cr_name = {}
+        for api in newCoreDependentAPIs:
+            cr_name = build_dependentapi_name(dapi_base_name, api)
+            desired_by_cr_name[cr_name] = api
 
         # compare entries by name
         for oldCoreDependentAPI in oldCoreDependentAPIs:
             cr_name = oldCoreDependentAPI["name"]
-            dapi_name = cr_name[len(dapi_base_name) + 1 :]
-            print(dapi_name)
-            newCoreDependentAPI = find_entry_by_name(newCoreDependentAPIs, dapi_name)
-            if not newCoreDependentAPI:
-                logw.info(f"Deleting DependentAPI {cr_name}")
+            if not cr_name:
+                continue
 
+            if cr_name not in desired_by_cr_name:
+                logw.info(f"Deleting DependentAPI {cr_name}")
                 await deleteDependentAPI(
                     logw, cr_name, name, status, namespace, "coreDependentAPIs"
                 )
@@ -632,16 +778,14 @@ async def coreDependentAPIs(
                 logw.info(f"TODO: Update DependentAPI {cr_name}")
                 dependentAPIChildren.append(oldCoreDependentAPI)
 
-        for newCoreDependentAPI in newCoreDependentAPIs:
-            dapi_name = newCoreDependentAPI["name"]
-            cr_name = f"{dapi_base_name}-{dapi_name}"
-            print(dapi_name)
-            oldCoreDependentAPI = find_entry_by_name(oldCoreDependentAPIs, cr_name)
-            if not oldCoreDependentAPI:
+        for cr_name, api in desired_by_cr_name.items():
+            # Check if this CR already existed (by CR name)
+            existing = find_entry_by_name(oldCoreDependentAPIs, cr_name)
+            if not existing:
                 logw.info(f"Calling createDependentAPI {cr_name}")
                 resultStatus = await createDependentAPIResource(
                     logw,
-                    newCoreDependentAPI,
+                    api,
                     namespace,
                     name,
                     cr_name,
@@ -1040,6 +1184,107 @@ async def subscribedEvents(meta, spec, status, body, namespace, labels, name, **
 
     return subChildren
 
+def build_exposedapi_name(component_name: str, api_entry: dict) -> str:
+    """
+    Build the expected Kubernetes resource name for an ExposedAPI CR.
+
+    Naming convention (version-aware):
+        <componentReleaseName>-<apiName>-<version>
+
+    Examples:
+        rc-1-resourcecatalog + resourcecatalogmanagement + v4  -> 
+            rc-1-resourcecatalog-resourcecatalogmanagement-v4
+
+        rc-1-resourcecatalog + productcatalog + v5  ->
+            rc-1-resourcecatalog-productcatalog-v5
+
+    Args:
+        component_release_name (str): The Helm release name of the component.
+        api_entry (dict): A normalized API entry containing:
+            - name (str): The API name
+            - version (str): Version like "v4" or "v5"
+
+    Returns:
+        str: Fully versioned CR name (lowercase).
+    """
+    api_name = api_entry.get("name", "").lower()
+    version = (api_entry.get("version") or "v4").lower().replace(".", "-")  # default to v4
+
+    # Construct name
+    cr_name = f"{component_name}-{api_name}-{version}"
+
+    return cr_name.lower()
+
+def build_dependentapi_name(component_name: str, api: dict) -> str:
+    """
+    Build a deterministic DependentAPI CR name based on component, API name and version.
+
+    Examples:
+      component_name = "rc-1-resourcecatalog"
+      api["name"]     = "serviceinventory"
+      api["version"]  = "v4"
+
+      -> "rc-1-resourcecatalog-serviceinventory-v4"
+    """
+    api_name = (api.get("name") or "").lower()
+    # Default to v4 if version is missing (backward-compatible)
+    version = (api.get("version") or "v4").lower()
+
+    return f"{component_name}-{api_name}-{version}"
+
+def is_core_function_api(api: dict) -> bool:
+    return api.get("_apiGroup") == "core-function-api"
+
+def constructAPIResourcePayload_core_exposed(inExposedAPI: dict, component_name: str):
+    """
+    Construct payload for version-aware ExposedAPI CR.
+    ONLY used for coreFunction.exposedAPIs.
+    """
+    APIResource = {
+        "apiVersion": GROUP + "/" + VERSION,
+        "kind": EXPOSEDAPI_KIND,
+        "metadata": {},
+        "spec": {},
+    }
+
+    # Make it our child
+    kopf.adopt(APIResource)
+
+    # Versioned CR name
+    APIResource["metadata"]["name"] = build_exposedapi_name(component_name, inExposedAPI)
+
+    spec = {}
+
+    # ----- REQUIRED FIELDS (per ExposedAPI v1 schema) -----
+    spec["name"] = inExposedAPI.get("name")
+    spec["apiType"] = inExposedAPI.get("apiType", "openapi")
+    spec["implementation"] = inExposedAPI.get("implementation")
+    spec["path"] = inExposedAPI.get("path")
+    spec["port"] = inExposedAPI.get("port")
+
+    # ----- OPTIONAL TOP-LEVEL FIELDS -----
+    if "developerUI" in inExposedAPI:
+        spec["developerUI"] = inExposedAPI["developerUI"]
+
+    if "resources" in inExposedAPI:
+        spec["resources"] = inExposedAPI["resources"]
+
+    if "required" in inExposedAPI:
+        spec["required"] = inExposedAPI["required"]
+
+    # ----- FLATTEN gatewayConfiguration → CRD fields -----
+    # gatewayConfiguration in Component CR maps to:
+    #   apiKeyVerification, rateLimit, quota, OASValidation, CORS, template
+    gw_cfg = inExposedAPI.get("gatewayConfiguration") or {}
+    if isinstance(gw_cfg, dict):
+        for key in ("apiKeyVerification", "rateLimit", "quota", "OASValidation", "CORS", "template"):
+            if key in gw_cfg and gw_cfg[key] is not None:
+                spec[key] = gw_cfg[key]
+
+    spec["specification"] = inExposedAPI.get("specification")
+
+    APIResource["spec"] = spec
+    return APIResource
 
 def constructAPIResourcePayload(inExposedAPI):
     """Helper function to create payloads for API Custom objects.
@@ -1101,7 +1346,27 @@ def constructDependentAPIResourcePayload(inDependentAPI, cr_name):
     newName = DependentAPIResource["metadata"]["ownerReferences"][0]["name"]
     # DependentAPIResource['metadata']['name'] = f"{newName}-{dapi_name}"
     DependentAPIResource["metadata"]["name"] = cr_name
-    DependentAPIResource["spec"] = inDependentAPI
+
+    spec = {}
+    # ----- REQUIRED FIELDS -----
+    spec["name"] = inDependentAPI.get("name")
+    spec["apiType"] = inDependentAPI.get("apiType", "openapi")
+
+    # ----- OPTIONAL FIELDS -----
+    if "id" in inDependentAPI:
+        spec["id"] = inDependentAPI["id"]
+
+    if "apiSDO" in inDependentAPI:
+        spec["apiSDO"] = inDependentAPI["apiSDO"]
+
+    if "resources" in inDependentAPI:
+        spec["resources"] = inDependentAPI["resources"]
+
+    if "required" in inDependentAPI:
+        spec["required"] = inDependentAPI["required"]
+
+    spec["specification"] = inDependentAPI.get("specification")
+    DependentAPIResource["spec"] = spec
     return DependentAPIResource
 
 
@@ -1156,7 +1421,7 @@ def constructIdentityConfigResourcePayload(inIdentityConfig):
 
 
 @logwrapper
-async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHandler):
+async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, component_name, inHandler):
     """Helper function to patch API Custom objects.
 
     Args:
@@ -1172,7 +1437,10 @@ async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHa
     """
     logw.debug(f"patchAPIResource {inExposedAPI} ")
 
-    APIResource = constructAPIResourcePayload(inExposedAPI)
+    if is_core_function_api(inExposedAPI):
+        APIResource = constructAPIResourcePayload_core_exposed(inExposedAPI, component_name)
+    else:
+        APIResource = constructAPIResourcePayload(inExposedAPI)
 
     apiReadyStatus = False
     returnAPIObject = {}
@@ -1228,7 +1496,7 @@ async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHa
 
 
 @logwrapper
-async def createAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHandler):
+async def createAPIResource(logw: LogWrapper, inExposedAPI, namespace, component_name, inHandler):
     """Helper function to create or update API Custom objects.
 
     Args:
@@ -1244,7 +1512,10 @@ async def createAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inH
     """
     logw.debug(f"createAPIResource {inExposedAPI} ")
 
-    APIResource = constructAPIResourcePayload(inExposedAPI)
+    if is_core_function_api(inExposedAPI):
+        APIResource = constructAPIResourcePayload_core_exposed(inExposedAPI, component_name)
+    else:
+        APIResource = constructAPIResourcePayload(inExposedAPI)
 
     apiReadyStatus = False
     returnAPIObject = {}

@@ -165,8 +165,8 @@ component-operator:
   deployment:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
-    compopVersion: 1.1.0
-    compopPrereleaseSuffix: 
+    compopVersion: 1.1.1
+    compopPrereleaseSuffix: issue443
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
@@ -397,8 +397,8 @@ pdb-management-operator:
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
-  version: 1.0.1
-  prereleaseSuffix:
+  version: 1.0.2
+  prereleaseSuffix: issue443
   imagePullPolicy: IfNotPresent
  
 # -----------------------------------------------------------------------------

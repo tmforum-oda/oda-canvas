@@ -287,7 +287,70 @@ Example response:
               }
             }        
             
-       
+            if (apiVersion.mapOldToNew(["v1beta2", "v1beta3", "v1beta4"], ["v1"])) {
+              //
+              // --- v1 CORE FUNCTION NORMALIZATION ---
+              // Move per-API fields into specification[0] ONLY for coreFunction.*
+              //
+              console.log("Applying v1 per-version normalization for coreFunction APIs");
+
+              const core = objectsArray[key].spec.coreFunction;
+              if (core) {
+
+                //
+                // ----- EXPOSED APIs -----
+                //
+                if (core.exposedAPIs) {
+                  Object.keys(core.exposedAPIs).forEach(apiKey => {
+                    const api = core.exposedAPIs[apiKey];
+                    if (!Array.isArray(api.specification) || api.specification.length === 0) return;
+
+                    const specObj = api.specification[0];
+                    const moveProps = [
+                      "path",
+                      "port",
+                      "implementation",
+                      "developerUI",
+                      "resources",
+                      "apiType",
+                      "apiSDO",
+                      "gatewayConfiguration"
+                    ];
+
+                    moveProps.forEach(p => {
+                      if (api[p] !== undefined) {
+                        specObj[p] = api[p];
+                        delete api[p];
+                      }
+                    });
+                  });
+                }
+
+                //
+                // ----- DEPENDENT APIs -----
+                //
+                if (core.dependentAPIs) {
+                  Object.keys(core.dependentAPIs).forEach(apiKey => {
+                    const dep = core.dependentAPIs[apiKey];
+                    if (!Array.isArray(dep.specification) || dep.specification.length === 0) return;
+
+                    const specObj = dep.specification[0];
+                    const moveProps = [
+                      "apiType",
+                      "resources",
+                      "apiSDO"
+                    ];
+
+                    moveProps.forEach(p => {
+                      if (dep[p] !== undefined) {
+                        specObj[p] = dep[p];
+                        delete dep[p];
+                      }
+                    });
+                  });
+                }
+              }
+            }
             
             // ****************************************************
             // downgrade newer versions to the older versions
@@ -445,6 +508,71 @@ Example response:
                 }
               }    
             }   
+
+            if (apiVersion.mapOldToNew(["v1"], ["v1beta4", "v1beta3", "v1beta2"])) {
+              //
+              // --- DOWNGRADE v1 → v1beta4/3/2 FOR coreFunction ONLY ---
+              // Pull per-version fields out of specification[0] back into API root.
+              //
+              console.log("Reverting v1 specification[] structure for coreFunction APIs");
+
+              const core = objectsArray[key].spec.coreFunction;
+              if (core) {
+
+                //
+                // ----- EXPOSED APIs -----
+                //
+                if (core.exposedAPIs) {
+                  Object.keys(core.exposedAPIs).forEach(apiKey => {
+                    const api = core.exposedAPIs[apiKey];
+                    if (!Array.isArray(api.specification) || api.specification.length === 0) return;
+
+                    const specObj = api.specification[0];
+                    const propsToRestore = [
+                      "path",
+                      "port",
+                      "implementation",
+                      "developerUI",
+                      "resources",
+                      "apiType",
+                      "apiSDO",
+                      "gatewayConfiguration"
+                    ];
+
+                    propsToRestore.forEach(p => {
+                      if (specObj[p] !== undefined) {
+                        api[p] = specObj[p];
+                        delete specObj[p];
+                      }
+                    });
+                  });
+                }
+
+                //
+                // ----- DEPENDENT APIs -----
+                //
+                if (core.dependentAPIs) {
+                  Object.keys(core.dependentAPIs).forEach(apiKey => {
+                    const dep = core.dependentAPIs[apiKey];
+                    if (!Array.isArray(dep.specification) || dep.specification.length === 0) return;
+
+                    const specObj = dep.specification[0];
+                    const propsToRestore = [
+                      "apiType",
+                      "resources",
+                      "apiSDO"
+                    ];
+
+                    propsToRestore.forEach(p => {
+                      if (specObj[p] !== undefined) {
+                        dep[p] = specObj[p];
+                        delete specObj[p];
+                      }
+                    });
+                  });
+                }
+              }
+            }
             
             objectsArray[key].apiVersion = desiredAPIVersion;
           }
