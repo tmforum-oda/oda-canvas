@@ -13,11 +13,11 @@ This use-case describes how each Exposed APIs is configured in the API Gateway a
 
 ## Update Exposed API
 
-![exposed-API-update](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/exposed-API-update.puml)
+![exposed-API-update](./pumlFiles/exposed-API-update.svg)
 [plantUML code](pumlFiles/exposed-API-update.puml)
 
 ## Delete Exposed API 
 
-![exposed-API-delete](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/exposed-API-delete.puml)
+![exposed-API-delete](./pumlFiles/exposed-API-delete.svg)
 [plantUML code](pumlFiles/exposed-API-delete.puml)
 

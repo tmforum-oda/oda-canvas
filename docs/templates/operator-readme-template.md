@@ -21,7 +21,7 @@ This operator follows the [Kubernetes Operator Pattern](https://kubernetes.io/do
 
 The following diagram shows how the {Operator Name} interacts with the Kubernetes API and other Canvas components:
 
-![{operator-name}-sequence](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/source/operators/{operator-directory}/pumlFiles/{diagram-name}.puml)
+![{operator-name}-sequence](./pumlFiles/{diagram-name}.svg)
 
 [plantUML code](pumlFiles/{diagram-name}.puml)
 

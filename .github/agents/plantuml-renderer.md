@@ -91,8 +91,12 @@ Before:
 [plantUML code](pumlFiles/exposed-API-create.puml)
 ```
 
-After:
+After (migrated to local SVG):
 ```markdown
+![exposed-API-create](./pumlFiles/exposed-API-create.svg)
+
+[plantUML code](pumlFiles/exposed-API-create.puml)
+```
 ![exposed-API-create](./pumlFiles/exposed-API-create.svg)
 
 [plantUML code](pumlFiles/exposed-API-create.puml)

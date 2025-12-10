@@ -141,13 +141,20 @@ Or manually:
 
 ### Embedding Diagrams
 
-Use the PlantUML proxy URL pattern:
+Use local SVG files for better performance:
 
 ```markdown
-![diagram-name](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/path/to/diagram.puml)
+![diagram-name](./pumlFiles/diagram-name.svg)
 
 [plantUML code](pumlFiles/diagram-name.puml)
 ```
+
+To convert PlantUML files to SVG:
+```bash
+node scripts/plantuml-to-svg.js path/to/diagram.puml
+```
+
+See [plantuml-to-svg-guide.md](plantuml-to-svg-guide.md) for details.
 
 ### Standard Actors
 

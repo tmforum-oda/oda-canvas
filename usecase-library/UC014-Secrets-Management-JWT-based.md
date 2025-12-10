@@ -59,7 +59,7 @@ the identity of ServiceAccounts and PODs running in the cluster.
 
 ### Secrets Management Initialization and Usage
 
-![secretsManagementBootstrapAndUsage](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/refs/heads/main/usecase-library/pumlFiles/secretsManagement-bootstrap-and-usage.puml)
+![secretsManagementBootstrapAndUsage](./pumlFiles/secretsManagement-bootstrap-and-usage.svg)
 [plantUML code](pumlFiles/secretsManagement-bootstrap-and-usage.puml)
 
 

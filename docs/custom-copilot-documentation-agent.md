@@ -245,9 +245,9 @@ When creating a PlantUML diagram, the agent:
 
 2. **Uses kebab-case naming**: `uc002-install-component.puml`
 
-3. **Generates proxy URL**:
+3. **Generates local SVG reference**:
    ```markdown
-   ![diagram-name](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/path/to/diagram.puml)
+   ![diagram-name](./pumlFiles/diagram-name.svg)
    ```
 
 4. **Adds source link**:

@@ -9,7 +9,7 @@ Separate operators then process the sub-resources and manage the relavant servic
 
 The sequence diagram shows the overall lifecycle of deploying an ODA Component, with the component operator creating multiple sub-resources.
 
-![manage-components-install](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/manage-components-install.puml)
+![manage-components-install](../../../usecase-library/pumlFiles/manage-components-install.svg)
 [plantUML code](../../../usecase-library/pumlFiles/manage-components-install.puml)
 
 There is more detail, including sequence diagrams for upgrade and deletion in use case [UC002-Manage-Components](../../../usecase-library/UC002-Manage-Components.md).

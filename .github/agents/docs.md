@@ -90,7 +90,7 @@ Overview paragraph explaining the use case.
 ## {Scenario name}
 Description with PlantUML diagram.
 
-![{diagram-name}](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/{path-to-puml})
+![{diagram-name}](./pumlFiles/{diagram-filename}.svg)
 
 [plantUML code]({relative-path-to-puml})
 
@@ -153,9 +153,9 @@ Links to:
 - Use kebab-case: `uc002-install-component.puml`
 - Pattern: `{use-case-id}-{scenario-name}.puml`
 
-**Proxy URL template:**
+**Standard pattern (using local SVG):**
 ```markdown
-![{diagram-name}](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/{path-to-puml})
+![{diagram-name}](./pumlFiles/{diagram-filename}.svg)
 
 [plantUML code]({relative-path-to-puml})
 ```

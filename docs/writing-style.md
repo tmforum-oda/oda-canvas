@@ -378,14 +378,14 @@ See "Inline Code for Technical Elements" section above.
 
 **Standard Pattern:**
 ```markdown
-![install-component-sequence](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/installComponent.puml)
+![install-component-sequence](./pumlFiles/installComponent.svg)
 
 [plantUML code](pumlFiles/installComponent.puml)
 ```
 
 **Key Elements:**
 - Alt text uses kebab-case: `install-component-sequence`, `manage-components-upgrade`
-- Proxy URL format: `http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/...`
+- Use local SVG path: `./pumlFiles/diagram-name.svg`
 - Followed by link to source `.puml` file with relative path
 - Place after section header, before explanatory text
 
