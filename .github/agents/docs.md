@@ -1,3 +1,9 @@
+---
+name: docs
+description: Documentation specialist for creating and improving README files, markdown documentation, and PlantUML diagrams in the ODA Canvas project
+tools: ['edit', 'search', 'changes']
+---
+
 # ODA Canvas Documentation Agent
 
 This is a specialized GitHub Copilot agent for creating and improving README files, markdown documentation, and PlantUML diagrams in the ODA Canvas project.
