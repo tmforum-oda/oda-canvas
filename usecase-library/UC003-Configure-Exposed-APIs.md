@@ -8,7 +8,7 @@ This use-case describes how each Exposed APIs is configured in the API Gateway a
 
 ## Create Exposed API
 
-![exposed-API-create](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/exposed-API-create.puml)
+![exposed-API-create](./pumlFiles/exposed-API-create.svg)
 [plantUML code](pumlFiles/exposed-API-create.puml)
 
 ## Update Exposed API
