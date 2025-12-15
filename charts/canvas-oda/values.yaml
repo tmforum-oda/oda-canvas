@@ -446,9 +446,20 @@ api-operator-kong:
       loglevel: '20'
       # publicHostname: 'components.example.com'
       componentGateway: 'canvas/component-gateway'
+      API_CONNECT_TIMEOUT: 60   #value in seconds supported
+      API_READ_TIMEOUT: 900     #value in seconds supported
+      API_WRITE_TIMEOUT: 900    #value in seconds supported
     kong:
       postgresql:
         nameOverride: "postgresql-kong"
+        enabled: true
+        auth:
+          username: "kong"
+          password: "kong"
+          database: "kong"
+        image:
+          repository: bitnamilegacy/postgresql
+          tag: "13.11.0-debian-11-r20"
         #enabled: true
         #namespace: "kong"
       # Direct configurations to the kong sub-chart if needed
@@ -511,6 +522,11 @@ api-operator-apisix:
       serviceNamespace: canvas
     gateway:
       type: LoadBalancer  # Override the service type
+    etcd:
+      enabled: true
+      #block for etcd to correct repo to be used to overwrite bitnami old repo.
+      image:
+        repository: bitnamilegacy/etcd
     ingress-controller:
       enabled: true   # Enable the ingress controller
       config:
@@ -543,6 +559,14 @@ api-operator-apisix:
     loglevel: '20'
     # publicHostname: 'components.example.com'
     componentGateway: 'canvas/component-gateway'
+    API_CONNECT_TIMEOUT: 60   #value in seconds supported
+    API_READ_TIMEOUT: 900     #value in seconds supported
+    API_WRITE_TIMEOUT: 900    #value in seconds supported
+
+
+# -----------------------------------------------------------------------------
+# Canvas Info service parameters
+# -----------------------------------------------------------------------------
 
 
 canvas-info-service:
@@ -560,6 +584,11 @@ canvas-info-service:
     size: 1Gi
     accessModes: ReadWriteOnce
     storageClassName:
+
+
+# -----------------------------------------------------------------------------
+# Canvas Resource service parameters
+# -----------------------------------------------------------------------------
 
 
 resource-inventory:
