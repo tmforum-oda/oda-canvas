@@ -3,17 +3,8 @@
   "version": "0.0.1",
   "scripts": {
     "start": "cucumber-js  --publish --format json:/tmp/cucumber.json",
-    "start:tags": "cucumber-js --publish --tags --format json:/tmp/cucumber.json",
-    "use-case-2": "cucumber-js --publish --tags @UC002 --format json:/tmp/cucumber.json",
-    "use-case-2-feature-1": "cucumber-js --publish --tags @UC002-F001 --format json:/tmp/cucumber.json",
-    "get-tags": "node getTags.js",
-    "test:pdb": "cucumber-js --publish --tags @UC017 --format json:/tmp/cucumber.json",
-    "test:pdb:annotation": "cucumber-js --publish --tags @UC017-F001 --format json:/tmp/cucumber.json",
-    "test:pdb:policy": "cucumber-js --publish --tags @UC017-F002 --format json:/tmp/cucumber.json",
-    "test:pdb:webhook": "cucumber-js --publish --tags @UC017-F003 --format json:/tmp/cucumber.json",
-    "test:pdb:edge": "cucumber-js --publish --tags @UC017-F004 --format json:/tmp/cucumber.json",
-    "test:pdb:dry-run": "cucumber-js --dry-run --tags @UC017 --format json:/tmp/cucumber.json",
-    "test:pdb:local": "cucumber-js --tags @UC017 --format progress --format json:test-results/pdb-results.json"
+    "start:tags": "cucumber-js --publish --format json:/tmp/cucumber.json --tags",
+    "get-tags": "node getTags.js"
   },
   "license": "Apache-2.0",
   "author": "Lester Thomas",

@@ -2,7 +2,7 @@
 
 This Helm chart deploys a complete open-source observability stack for the TM Forum ODA Canvas, providing monitoring, alerting, and distributed tracing capabilities for ODA Components.
 
-Theis observability stack installs ServiceMonitor resources for the OpenMetrics configuration. To configure the Canvas to use ServiceMonitor, set the `openMetricsImplementation` to `ServiceMonitor`. e.g. for the Istio API Operator option, use:
+The observability stack installs ServiceMonitor resources for the OpenMetrics configuration. To configure the Canvas to use ServiceMonitor, set the `openMetricsImplementation` to `ServiceMonitor`. e.g. for the Istio API Operator option, use:
 
 ```
 helm upgrade --install canvas charts/canvas-oda -n canvas --set api-operator-istio.deployment.openMetricsImplementation=ServiceMonitor --create-namespace
@@ -36,6 +36,7 @@ helm repo update
 
 # Install the observability stack
 cd /charts
+helm dependency build observability-stack
 helm install observability ./observability-stack --create-namespace --namespace monitoring
 ```
 
@@ -92,7 +93,7 @@ Visit: http://localhost:16686
 
 ### BDD Testing
 
-The Usecase UC012 contains feature tests for the observabiloity. For the tests to work, you need to port-forward the observability-opentelemetry-collector deployment.
+The Usecase UC012 contains feature tests for the observability. For the tests to work, you need to port-forward the observability-opentelemetry-collector deployment.
 
 ```bash
 kubectl port-forward -n monitoring deployment/observability-opentelemetry-collector 8888:8888
