@@ -17,3 +17,6 @@ data:
   {{- if .Values.configmap.componentGateway }}
   APIOPERATORISTIO_COMPONENTGATEWAY: {{ .Values.configmap.componentGateway }}
   {{ end }}
+  API_CONNECT_TIMEOUT: {{ .Values.configmap.API_CONNECT_TIMEOUT | quote }}
+  API_READ_TIMEOUT: {{ .Values.configmap.API_READ_TIMEOUT | quote }}
+  API_WRITE_TIMEOUT: {{ .Values.configmap.API_WRITE_TIMEOUT | quote }}
