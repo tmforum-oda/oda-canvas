@@ -130,7 +130,7 @@ Configure your ODA Component with these environment variables:
 ```yaml
 env:
 - name: OTEL_EXPORTER_OTLP_ENDPOINT
-  value: "http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318"
+  value: "http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces"
 - name: OTEL_RESOURCE_ATTRIBUTES
   value: "service.name=my-component"
 ```
@@ -206,7 +206,7 @@ The component also generates Open-Telemetry events that can either be logged to 
       enabled: false
     protobuffCollector:
       enabled: true
-      url: http://otel-collector.monitoring.svc.cluster.local:4318/v1/traces
+      url: http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces
 ```
 
 With telemetry enabled, you can view traces of executions in Jaeger:
