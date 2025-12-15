@@ -40,13 +40,24 @@ rbac:
 # ==================== Jaeger settings ========================
 jaeger:
   enabled: true
+  
+  # Explicitly disable the provisionDataStore which creates Cassandra
+  provisionDataStore:
+    cassandra: false
+    elasticsearch: false
+  
   # Use all-in-one deployment for simplicity
   allInOne:
     enabled: true
     image: jaegertracing/all-in-one
+    tag: latest
     pullPolicy: IfNotPresent
     
     # Configure storage to use memory (for testing/development)
+    extraEnv:
+      - name: SPAN_STORAGE_TYPE
+        value: memory
+    
     args:
       - --memory.max-traces=50000
       - --query.base-path=/
@@ -61,10 +72,10 @@ jaeger:
     enabled: false
   query:
     enabled: false
-
-  # Disable storage backends we don't need
+  
+  # Explicitly set storage type to none (since we're using memory in all-in-one)
   storage:
-    type: memory
+    type: none
     
   # Disable Cassandra and Elasticsearch
   cassandra:

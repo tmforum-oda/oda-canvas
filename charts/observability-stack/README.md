@@ -64,6 +64,8 @@ The following table lists the configurable parameters and their default values:
 | `kube-prometheus-stack.grafana.adminPassword` | Grafana admin password | `admin` |
 | `jaeger.allInOne.args` | Jaeger configuration arguments | Memory storage with 50000 traces |
 
+For Grafana, if no password is set, it will default to `prom-operator`.
+
 ## Accessing the Services
 
 ### Prometheus
