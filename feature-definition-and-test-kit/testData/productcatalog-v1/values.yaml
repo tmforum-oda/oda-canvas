@@ -27,7 +27,7 @@ api:
       enabled: false
     protobuffCollector:
       enabled: true
-      url: http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318
+      url: http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces
       # Datadog telemetry collector is       http://datadog-agent.default.svc.cluster.local:4318/v1/traces
 partyrole:
   image: lesterthomas/partyroleapi:1.0
