@@ -18,11 +18,12 @@ def check_kc(
         user_init_password: str = COMPREG_ADMIN_INIT_PASSWORD, 
         ui_role: str = "compreg_ui",
         sync_role: str = "compreg_sync",
-        query_role: str = "compreg_query",
+        query_role: str = "compreg_query2",
         depapi_client_id: str = "dependentapi-operator"
     ):
     kc = Keycloak(KC_BASE_URL, KC_REALM, KC_USERNAME, KC_PASSWORD)
-    
+
+
     clients = kc.get_client_list()
     if not crmgr_client_id in clients:
         print(f"Creating {crmgr_client_id} client...")
@@ -36,6 +37,12 @@ def check_kc(
         
     client = clients[crmgr_client_id]
     print(json.dumps(client, indent=2))
+
+    print(json.dumps(clients[depapi_client_id], indent=2))
+    
+    sa_crmgr = kc.get_service_account_user(client['id'])
+    print("--- SERVICE ACCOUNT USER ----")
+    print(json.dumps(sa_crmgr, indent=2))
     
     roles = kc.get_roles(client['id'])
     if not ui_role in roles:
@@ -70,8 +77,19 @@ def check_kc(
     print("--- MAPPED ROLES ----")
     print(json.dumps(mapped_roles, indent=2))
 
+    sa_crmgr = kc.get_service_account_user(clients[depapi_client_id]['id'])
+    print("--- SERVICE ACCOUNT USER ----")
+    print(json.dumps(sa_crmgr, indent=2))
+    
+    mapped_depapi_roles = kc.get_mapped_roles(sa_crmgr['id'], client['id'])
 
-    mapped_depapi_roles = kc.get_mapped_client_roles(clients[depapi_client_id]['id'], client['id'])
+    if not query_role in mapped_depapi_roles:
+        print(f"Mapping {query_role} role to {depapi_client_id} service account user...")
+        kc.map_role_to_user(sa_crmgr['id'], client['id'], query_role)
+        mapped_depapi_roles = kc.get_mapped_roles(sa_crmgr['id'], client['id'])
+
+    print("--- MAPPPED ROLES ----")
+    print(json.dumps(mapped_depapi_roles, indent=2))
 
 
 

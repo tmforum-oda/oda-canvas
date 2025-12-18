@@ -273,6 +273,31 @@ class Keycloak:
                 "get_user_by_username failed with HTTP status " f"{r.status_code}: {e}"
             ) from None
             
+    def get_users(self) -> dict:
+        """
+        GET all users in the given realm in Keycloak
+
+        Returns a dictonary of the user definition or
+        raises an exception for the caller to catch
+
+        """
+
+        try:
+            r = requests.get(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/users",
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            users = r.json()
+            return users
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "get_user_by_username failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None
+            
     def get_mapped_roles(self, user_id: str, client_id: str) -> dict:
         """
         GETs mapped roles for a user in the given realm in Keycloak
@@ -329,7 +354,7 @@ class Keycloak:
             ) from None        
 
 
-    def map_role_to_user(self, user_id: str, client_id: str, role_name: str) -> None:
+    def map_role_to_user(self, user_id: str, client_uuid: str, role_name: str) -> None:
         """
         POSTs a role mapping to a user in the given realm in Keycloak
 
@@ -342,7 +367,7 @@ class Keycloak:
                 + "/admin/realms/"
                 + self._realm
                 + "/clients/"
-                + client_id
+                + client_uuid
                 + "/roles/"
                 + role_name,
                 headers={"Authorization": "Bearer " + self._token()},
@@ -364,7 +389,7 @@ class Keycloak:
                 + "/users/"
                 + user_id
                 + "/role-mappings/clients/"
-                + client_id,
+                + client_uuid,
                 json=[role_data],
                 headers={"Authorization": "Bearer " + self._token()},
             )
@@ -401,3 +426,52 @@ class Keycloak:
             raise RuntimeError(
                 "get_mapped_client_roles failed with HTTP status " f"{r.status_code}: {e}"
             ) from None
+
+    def get_service_account_user(self, client_uuid: str) -> dict:
+        """
+        Retrieves the service account user for the given client (by client UUID) in the realm.
+
+        Keycloak exposes the service account as a special user attached to the client. This
+        endpoint returns the user representation (or raises an exception).
+
+        Usage: first find the client's UUID (e.g. via `get_client_list()`), then call this
+        method with that UUID.
+        """
+        try:
+            r = requests.get(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/clients/"
+                + client_uuid
+                + "/service-account-user",
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            return r.json()
+        except requests.HTTPError as e:
+            # If the client exists but no service account is enabled, Keycloak may return 404
+            if r.status_code == 404:
+                raise RuntimeError(
+                    f"Service account for client {client_uuid} not found (404). Is 'serviceAccountsEnabled' set?"
+                ) from None
+            raise RuntimeError(
+                "get_service_account_user failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None
+
+    def get_service_account_mapped_roles(self, source_client_id: str, target_client_id: str) -> dict:
+        """
+        Retrieves roles that the service-account user of `source_client_id` has mapped for
+        the `target_client_id`.
+
+        This is useful when a client (via its service account) has client-level role mappings
+        for another client.
+        """
+        # get the service account user for the source client
+        sa_user = self.get_service_account_user(source_client_id)
+        user_id = sa_user.get("id")
+        if not user_id:
+            raise RuntimeError(f"Service account user for client {source_client_id} has no id")
+
+        # reuse existing method to get mapped roles for that user against the target client
+        return self.get_mapped_roles(user_id, target_client_id)
