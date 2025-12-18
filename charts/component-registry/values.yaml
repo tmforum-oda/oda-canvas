@@ -100,4 +100,22 @@ odaCanvas:
     "oda.tmforum.org/componentName": "component-registry"
     "oda.tmforum.org/componentType": "microservice"
     "oda.tmforum.org/version": "1.0.0"
-    
+
+
+
+oauth2:
+  enabled: true
+  #secretKey: invalidsecretkey0123456789abc
+  secretKey: 7nE4h3BOnGLhCrGezKK3AEG3Coe4OOJM
+  algorithm: HS256
+  tokenExpireMinutes: 30
+
+keycloak:
+  enabled: true
+  url: https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari
+  audience: account
+  clientId: compreg-manager
+  #clientSecret: invalidclientsecret0123456789abc
+  clientSecret: qyWusM6U2enXUyeujbFxs55NCLaorZp8
+
+

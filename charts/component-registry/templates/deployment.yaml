@@ -75,6 +75,27 @@ spec:
               value: "{{ include "component-registry.own-registry-name" . }}"
             - name: LOGGING
               value: "{{ .Values.loglevel }}"
+
+            - name: OAUTH2_ENABLED 
+              value: "{{ .Values.oauth2.enabled }}"
+            - name: OAUTH2_SECRET_KEY 
+              value: "{{ .Values.oauth2.secretKey }}"
+            - name: OAUTH2_ALGORITHM 
+              value: "{{ .Values.oauth2.algorithm }}"
+            - name: OAUTH2_ACCESS_TOKEN_EXPIRE_MINUTES 
+              value: "{{ .Values.oauth2.tokenExpireMinutes }}"
+
+            - name: KEYCLOAK_ENABLED
+              value: "{{ .Values.keycloak.enabled }}"
+            - name: KEYCLOAK_URL
+              value: "{{ .Values.keycloak.url }}"
+            - name: KEYCLOAK_AUDIENCE
+              value: "{{ .Values.keycloak.audience }}"
+            - name: KEYCLOAK_CLIENT_ID
+              value: "{{ .Values.keycloak.clientId }}"
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: "{{ .Values.keycloak.clientSecret }}"
+              
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.persistence.enabled }}
