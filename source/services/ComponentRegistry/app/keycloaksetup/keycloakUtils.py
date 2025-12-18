@@ -267,7 +267,7 @@ class Keycloak:
             if users:
                 return users[0]  # Return the first matching user
             else:
-                raise RuntimeError(f"User '{username}' not found in realm '{self._realm}'")
+                return None
         except requests.HTTPError as e:
             raise RuntimeError(
                 "get_user_by_username failed with HTTP status " f"{r.status_code}: {e}"
