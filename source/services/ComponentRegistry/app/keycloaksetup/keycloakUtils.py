@@ -4,11 +4,13 @@ from datetime import datetime, timedelta
 
 class Keycloak:
 
-    def __init__(self, url, realm: str, user: str, pwd: str, refresh_buffer = 30) -> None:
+    def __init__(self, url, realm: str, user: str = None, pwd: str = None, admin_client_id = None, admin_client_secret = None, refresh_buffer = 30) -> None:
         self._url = url
         self._realm = realm
         self._user = user
         self._pwd = pwd
+        self._admin_client_id = admin_client_id
+        self._admin_client_secret = admin_client_secret
         self._access_token = None
         self._token_expiry = None
         self._refresh_buffer = 30  # seconds
@@ -215,15 +217,27 @@ class Keycloak:
         if self._is_token_valid():
             return self._access_token        
         try:
-            r = requests.post(
-                self._url + "/realms/master/protocol/openid-connect/token",
-                data={
-                    "username": self._user,
-                    "password": self._pwd,
-                    "grant_type": "password",
-                    "client_id": "admin-cli",
-                },
-            )
+            if self._admin_client_id and self._admin_client_secret:
+                r = requests.post(
+                    self._url + "/realms/"+self._realm+"/protocol/openid-connect/token",
+                    data={
+                        "grant_type": "client_credentials",
+                        "client_id": self._admin_client_id,
+                        "client_secret": self._admin_client_secret,
+                    },
+                )
+            elif self._user and self._pwd:
+                r = requests.post(
+                    self._url + "/realms/master/protocol/openid-connect/token",
+                    data={
+                        "username": self._user,
+                        "password": self._pwd,
+                        "grant_type": "password",
+                        "client_id": "admin-cli",
+                    },
+                )
+            else:
+                raise RuntimeError("No admin credentials provided for token retrieval")
             r.raise_for_status()
             
             
