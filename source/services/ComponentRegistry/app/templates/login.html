@@ -101,6 +101,29 @@
         .btn-keycloak:active {
             transform: translateY(0);
         }
+        .btn-keycloak-logout {
+            width: 50%;
+            padding: 6px;
+            background: linear-gradient(135deg, #3c4ce7 0%, #2b39c0 100%);
+            color: white;
+            border: none;
+            border-radius: 2px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-top: 0;
+        }
+        .btn-keycloak-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        .btn-keycloak-logout:active {
+            transform: translateY(0);
+        }
         .error-message {
             background-color: #f8d7da;
             color: #721c24;
@@ -160,6 +183,11 @@
         <!-- Keycloak Login Button -->
         <a href="/auth/keycloak" class="btn-keycloak">
             🔑 Sign in with Keycloak
+        </a>
+        
+        <!-- Keycloak Logout Button -->
+        <a href="{{ keycloak_url }}/protocol/openid-connect/logout" class="btn-keycloak-logout" target="_blank">
+            🗙 Sign out from Keycloak
         </a>
         
         {% if oauth2_enabled %}

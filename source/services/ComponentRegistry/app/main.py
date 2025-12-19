@@ -18,7 +18,8 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user, Token, User, authenticate_user, OAUTH2_ENABLED, get_current_user, oauth2_scheme)
+from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user, Token, User, UserWithPermissions, authenticate_user, OAUTH2_ENABLED, get_current_user, oauth2_scheme)
+from app.keycloak_auth import KEYCLOAK_URL
 from app.keycloak_auth import (
     get_current_keycloak_user,
     get_current_keycloak_user_optional,
@@ -263,6 +264,24 @@ app = FastAPI(
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
 
+class PermissionChecker:
+    def __init__(self, required_permissions: List[str]):
+        self.required_permissions = required_permissions
+
+    async def __call__(self,     
+        request: Request,
+        token: Optional[str] = Depends(oauth2_scheme),
+        db: Session = Depends(get_db)
+    ) -> User:
+        if not OAUTH2_ENABLED and not KEYCLOAK_ENABLED:
+            current_user = UserWithPermissions(username="anonymous", full_name="Anonymous User", user_roles=["admin"])
+        else:
+            current_user = await get_authenticated_user(request, token, db)
+            for perm in self.required_permissions:
+                current_user.requires_permission(perm);
+        return current_user
+
+
 # Helper function for cookie-based authentication
 async def get_current_user_from_cookie(
     request: Request,
@@ -323,7 +342,7 @@ async def get_authenticated_user(
     request: Request,
     token: Optional[str] = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
-) -> User:
+) -> UserWithPermissions:
     """Get authenticated user from either local OAuth2, Keycloak, or cookie."""
     
     # If both auth systems are disabled, return anonymous user
@@ -336,12 +355,14 @@ async def get_authenticated_user(
         if token:
             try:
                 keycloak_user = await verify_keycloak_token(token)
+                user_roles=keycloak_user.resource_access.get("componentregistry3", {}).get("roles", [])
                 # Convert Keycloak user to local User model
-                return User(
+                return UserWithPermissions(
                     username=keycloak_user.preferred_username or keycloak_user.sub,
                     email=keycloak_user.email,
                     full_name=keycloak_user.name,
-                    disabled=False
+                    disabled=False,
+                    user_roles=user_roles,
                 )
             except HTTPException:
                 pass
@@ -351,11 +372,13 @@ async def get_authenticated_user(
         if cookie_token:
             try:
                 keycloak_user = await verify_keycloak_token(cookie_token)
-                return User(
+                user_roles=keycloak_user.resource_access.get("componentregistry3", {}).get("roles", [])
+                return UserWithPermissions(
                     username=keycloak_user.preferred_username or keycloak_user.sub,
                     email=keycloak_user.email,
                     full_name=keycloak_user.name,
-                    disabled=False
+                    disabled=False,
+                    user_roles=user_roles,
                 )
             except HTTPException:
                 pass
@@ -444,7 +467,7 @@ async def list_resources(
     request: Request = None,
     response: Response = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["resource.list"])),
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     resources, total_count = crud.get_resources(db, offset=offset, limit=limit)
@@ -509,7 +532,7 @@ async def create_resource(
     resource: dict,  # Accept arbitrary JSON directly
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["resource.post"])),
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
 
@@ -545,7 +568,7 @@ async def retrieve_resource(
     fields: Optional[str] = None,
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["resource.get"])),
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     
@@ -587,7 +610,7 @@ async def patch_resource(
     resource: dict,  # Accept arbitrary JSON directly
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["resource.patch"])),
 ):
     base_url = f"{request.url.scheme}://{request.url.netloc}" if request else ""
     db_resource = crud.update_resource(db, id, resource)
@@ -613,7 +636,7 @@ async def patch_resource(
 async def delete_resource(
     id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["resource.delete"])),
 ):
     success = crud.delete_resource(db, id)
     if not success:
@@ -652,13 +675,14 @@ def guess_id(url: str) -> Optional[str]:
 async def create_hub(
     data: schemas.HubInput,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["hub.post"])),
 ):
     if data.id is None:
         data.id = guess_id(data.callback)
     """Register an event listener."""
     db_hub = crud.create_hub(db, data)
     return db_hub
+
 
 
 @app.get(
@@ -670,7 +694,7 @@ async def create_hub(
 )
 async def list_hubs(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["hub.list"])),
 ):
     """Retrieve all event listeners."""
     hubs = crud.get_all_hubs(db)
@@ -687,7 +711,7 @@ async def list_hubs(
 async def get_hub(
     id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["hub.get"])),
 ):
     """Retrieve an event listener by ID."""
     db_hub = crud.get_hub(db, id)
@@ -709,7 +733,7 @@ async def get_hub(
 async def delete_hub(
     id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["hub.delete"])),
 ):
     """Unregister an event listener."""
     success = crud.delete_hub(db, id)
@@ -736,7 +760,8 @@ async def login_page(request: Request, error: Optional[str] = None):
             "request": request,
             "error": error,
             "keycloak_enabled": KEYCLOAK_ENABLED,
-            "oauth2_enabled": OAUTH2_ENABLED
+            "oauth2_enabled": OAUTH2_ENABLED,
+            "keycloak_url": KEYCLOAK_URL
         }
     )
 
@@ -926,7 +951,7 @@ async def sync_callback(
     event: dict,
     request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_authenticated_user),  # OAUTH2 protection (Bearer + Cookie)
+    current_user: UserWithPermissions = Depends(PermissionChecker(["sync.post"])),
 ):
     """
     Callback endpoint for synchronization via hub subscriptions.
@@ -1058,13 +1083,14 @@ async def sync_callback(
 @app.get("/", response_class=HTMLResponse, tags=["dashboard"])
 async def dashboard(
     request: Request, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Display dashboard with resources, hubs, and relationships."""
     # Check if user is authenticated (only if OAuth2 or Keycloak is enabled)
     if OAUTH2_ENABLED or KEYCLOAK_ENABLED:
         try:
             current_user = await get_authenticated_user(request, None, db)
+            current_user.requires_permission("dashboard.view")
         except HTTPException:
             # Redirect to login page if not authenticated
             return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)

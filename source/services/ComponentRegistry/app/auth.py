@@ -37,9 +37,37 @@ class User(BaseModel):
     email: Optional[str] = None
     full_name: Optional[str] = None
     disabled: Optional[bool] = None
+    user_roles: Optional[list[str]] = []
 
 
-class UserInDB(User):
+ROLE_TO_PERMISSIONS = {
+    "admin": ["dashboard.view", 
+              "resource.list", "resource.get", "resource.post", "resource.delete", "resource.patch",
+              "hub.list",      "hub.get",      "hub.post",      "hub.delete",
+              "sync.post"],
+    "compreg_viewer3": ["dashboard.view", "resource.get"],
+    "compreg_admin3": ["dashboard.view", "resource.get", "resource.delete", "hub.post", "hub.delete", "hub.post"],
+    "compreg_query3": ["resource.list"],
+    "compreg_sync3": ["sync"],
+}
+
+class UserWithPermissions(User):
+    """User model with permissions."""
+    def has_permission(self, permission: str) -> bool:
+        for role in self.user_roles:
+            if permission in ROLE_TO_PERMISSIONS.get(role, []):
+                return True
+        return False
+
+    def requires_permission(self, permission: str):
+        if not self.has_permission(permission):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"User does not have permission: {permission}"
+            )
+    
+
+class UserInDB(UserWithPermissions):
     """User in database model."""
     hashed_password: str
 
@@ -52,6 +80,7 @@ fake_users_db = {
         "email": "admin@example.com",
         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # "secret"
         "disabled": False,
+        "user_roles": ["admin"],
     }
 }
 
@@ -101,11 +130,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> Optional[User]:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> Optional[UserWithPermissions]:
     """Get current user from token."""
     if not OAUTH2_ENABLED:
         # If OAuth2 is disabled, return a default user
-        return User(username="anonymous", full_name="Anonymous User")
+        return UserWithPermissions(username="anonymous", full_name="Anonymous User", user_roles=["admin"])
     
     if token is None:
         raise HTTPException(

@@ -520,3 +520,99 @@ print(response.json())
 ```
 curl -sX GET -H "accept: application/json" -H "Authorization: Bearer %TOKEN%" https://global-compreg.ihc-dt.cluster-2.de/resource
 ```
+
+## JWT 
+
+Access-Token:
+
+```
+{
+    "exp": 1766148958,
+    "iat": 1766148658,
+    "jti": "6050a0cd-11bc-44c5-9f28-a6bae088c0fe",
+    "iss": "https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari",
+    "aud": [
+        "account",
+        "compreg-manager3"
+    ],
+    "sub": "bf3a2dc2-599c-467a-97c6-b359c23edbc4",
+    "typ": "Bearer",
+    "azp": "dependentapi-operator3",
+    "acr": "1",
+    "realm_access": {
+        "roles": [
+            "offline_access",
+            "uma_authorization",
+            "default-roles-odari"
+        ]
+    },
+    "resource_access": {
+        "account": {
+            "roles": [
+                "manage-account",
+                "manage-account-links",
+                "view-profile"
+            ]
+        },
+        "compreg-manager3": {
+            "roles": [
+                "compreg_query3"
+            ]
+        }
+    },
+    "scope": "profile email",
+    "clientId": "dependentapi-operator3",
+    "email_verified": false,
+    "clientHost": "10.92.0.1",
+    "preferred_username": "service-account-dependentapi-operator3",
+    "clientAddress": "10.92.0.1"
+}
+```
+
+
+Cookie JWT payload:
+
+```
+{
+    "exp": 1766149508,
+    "iat": 1766149208,
+    "auth_time": 1766149208,
+    "jti": "b8a37df8-8eca-4b2c-afff-8d3eff2b1abf",
+    "iss": "https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari",
+    "aud": [
+        "account",
+        "compreg-manager3"
+    ],
+    "sub": "4c0cb740-8c28-410e-a988-a0e92e9df718",
+    "typ": "Bearer",
+    "azp": "compreg-manager",
+    "session_state": "57eca008-0127-413f-909a-7a85184d14b3",
+    "acr": "1",
+    "realm_access": {
+        "roles": [
+            "offline_access",
+            "uma_authorization",
+            "default-roles-odari"
+        ]
+    },
+    "resource_access": {
+        "account": {
+            "roles": [
+                "manage-account",
+                "manage-account-links",
+                "view-profile"
+            ]
+        },
+        "compreg-manager3": {
+            "roles": [
+                "compreg_ui3"
+            ]
+        }
+    },
+    "scope": "openid profile email",
+    "sid": "57eca008-0127-413f-909a-7a85184d14b3",
+    "email_verified": false,
+    "preferred_username": "compreg-admin3"
+}
+```
+
