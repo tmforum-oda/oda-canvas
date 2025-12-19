@@ -1087,6 +1087,7 @@ async def dashboard(
 ):
     """Display dashboard with resources, hubs, and relationships."""
     # Check if user is authenticated (only if OAuth2 or Keycloak is enabled)
+    current_user = None
     if OAUTH2_ENABLED or KEYCLOAK_ENABLED:
         try:
             current_user = await get_authenticated_user(request, None, db)
@@ -1094,6 +1095,10 @@ async def dashboard(
         except HTTPException:
             # Redirect to login page if not authenticated
             return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    else:
+        # Default anonymous user when auth is disabled
+        from app.auth import UserWithPermissions
+        current_user = UserWithPermissions(username="anonymous", full_name="Anonymous User", user_roles=["admin"])
     
     base_url = f"{request.url.scheme}://{request.url.netloc}"
     # Get all resources
@@ -1170,7 +1175,8 @@ async def dashboard(
             "resources": resources_with_data,
             "hubs": hubs,
             "relationships": relationships,
-            "oda_component_apis": oda_component_apis
+            "oda_component_apis": oda_component_apis,
+            "current_user": current_user
         }
     )
 

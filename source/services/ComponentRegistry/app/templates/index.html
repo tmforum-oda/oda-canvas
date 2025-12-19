@@ -390,11 +390,81 @@
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .user-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+        .user-display {
+            cursor: pointer;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-display:hover {
+            background-color: #0056b3;
+        }
+        .user-icon {
+            font-size: 1.2em;
+        }
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 5px;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border-radius: 4px;
+            z-index: 1000;
+        }
+        .user-dropdown.show {
+            display: block;
+        }
+        .user-dropdown a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .user-dropdown a:last-child {
+            border-bottom: none;
+        }
+        .user-dropdown a:hover {
+            background-color: #f8f9fa;
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🗂️ TMF639 Resource Inventory Management - {{ own_registry_name }}</h1>
+        <div class="header-container">
+            <h1 style="margin: 0; border-bottom: none;">🗂️ TMF639 Resource Inventory Management - {{ own_registry_name }}</h1>
+            {% if current_user %}
+            <div class="user-menu-container">
+                <div class="user-display" onclick="toggleUserMenu()">
+                    <span class="user-icon">👤</span>
+                    <span>{{ current_user.full_name or current_user.username }}</span>
+                    <span>▼</span>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="/logout">🚪 Logout</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
         
         <div class="section-info">
             <strong>Service:</strong> {{ own_registry_name }}<br>
@@ -818,6 +888,22 @@
                 autoRefreshInterval = null;
             }
         }
+
+        // User menu toggle
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.user-menu-container')) {
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
     </script>
 </body>
 </html>
