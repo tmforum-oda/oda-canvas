@@ -4,7 +4,7 @@ load_dotenv()  # take environment variables
 import os
 import json
 
-from app.keycloaksetup.keycloakUtils import Keycloak
+from keycloaksetup.keycloakUtils import Keycloak
 
 KC_USERNAME = os.getenv("KC_USERNAME")
 KC_PASSWORD = os.getenv("KC_PASSWORD")
@@ -13,18 +13,23 @@ KC_ADMIN_CLIENT_SECRET = os.getenv("KC_ADMIN_CLIENT_SECRET")
 KC_BASE_URL = os.getenv("KC_BASE_URL")
 KC_REALM = os.getenv("KC_REALM")
 COMPREG_ADMIN_INIT_PASSWORD = os.getenv("COMPREG_ADMIN_INIT_PASSWORD", "CompregAdmin123!")
+COMPREG_VIEWER_INIT_PASSWORD = os.getenv("COMPREG_VIEWER_INIT_PASSWORD", "CompregViewer123!")
 
 
 
+SUFFIX="3"
 
-def check_kc(
-        crmgr_client_id: str = "compreg-manager2", 
-        ui_user_name: str = "compreg-admin2", 
-        ui_user_init_password: str = COMPREG_ADMIN_INIT_PASSWORD, 
-        ui_role: str = "compreg_ui",
-        sync_role: str = "compreg_sync",
-        query_role: str = "compreg_query2",
-        depapi_client_id: str = "dependentapi-operator"
+def create_clients_users_and_roles(
+        crmgr_client_id: str = f"componentregistry{SUFFIX}", 
+        ui_viewer_user_name: str = f"compreg-viewer{SUFFIX}", 
+        ui_admin_user_name: str = f"compreg-admin{SUFFIX}", 
+        ui_viewer_user_init_password: str = COMPREG_VIEWER_INIT_PASSWORD,
+        ui_admin_user_init_password: str = COMPREG_ADMIN_INIT_PASSWORD, 
+        ui_viewer_role: str = f"compreg_viewer{SUFFIX}",
+        ui_admin_role: str = f"compreg_admin{SUFFIX}",
+        sync_role: str = f"compreg_sync{SUFFIX}",
+        query_role: str = f"compreg_query{SUFFIX}",
+        depapi_client_id: str = f"dependentapi-operator{SUFFIX}"
     ):
     kc = Keycloak(KC_BASE_URL, KC_REALM, user=KC_USERNAME, pwd=KC_PASSWORD, admin_client_id=KC_ADMIN_CLIENT_ID, admin_client_secret=KC_ADMIN_CLIENT_SECRET)
 
@@ -47,9 +52,13 @@ def check_kc(
     print(json.dumps(depapi_client, indent=2))
 
     roles = kc.get_roles(crmgr_client['id'])
-    if not ui_role in roles:
-        print(f"Creating {ui_role} role...")
-        kc.add_role(ui_role, crmgr_client['id'], description="Role for Compreg UI access")
+    if not ui_viewer_role in roles:
+        print(f"Creating {ui_viewer_role} role...")
+        kc.add_role(ui_viewer_role, crmgr_client['id'], description="Role for Compreg UI access")
+        roles = kc.get_roles(crmgr_client['id'])
+    if not ui_admin_role in roles:
+        print(f"Creating {ui_admin_role} role...")
+        kc.add_role(ui_admin_role, crmgr_client['id'], description="Role for Compreg UI access")
         roles = kc.get_roles(crmgr_client['id'])
     if not sync_role in roles:
         print(f"Creating {sync_role} role...")
@@ -63,21 +72,35 @@ def check_kc(
     print("--- ROLES ----")
     print(json.dumps(roles, indent=2))
 
-    ui_user = kc.get_user_by_username(ui_user_name)
-    if ui_user is None:
-        print(f"Creating {ui_user_name} user...")
-        ui_user = kc.create_user(ui_user_name, ui_user_init_password)
+    ui_viewer_user = kc.get_user_by_username(ui_viewer_user_name)
+    if ui_viewer_user is None:
+        print(f"Creating {ui_viewer_user_name} user...")
+        ui_viewer_user = kc.create_user(ui_viewer_user_name, ui_viewer_user_init_password)
     print("--- USER ----")
-    print(json.dumps(ui_user, indent=2))
-    
-    mapped_roles = kc.get_mapped_roles(ui_user['id'], crmgr_client['id'])
-    if not ui_role in mapped_roles:
-        print(f"Mapping {ui_role} role to {ui_user_name} user...")
-        kc.map_role_to_user(ui_user['id'], crmgr_client['id'], ui_role)
-        mapped_roles = kc.get_mapped_roles(ui_user['id'], crmgr_client['id'])
+    print(json.dumps(ui_viewer_user, indent=2))
+     
+    mapped_roles = kc.get_mapped_roles(ui_viewer_user['id'], crmgr_client['id'])
+    if not ui_viewer_role in mapped_roles:
+        print(f"Mapping {ui_viewer_role} role to {ui_viewer_user_name} user...")
+        kc.map_role_to_user(ui_viewer_user['id'], crmgr_client['id'], ui_viewer_role)
+        mapped_roles = kc.get_mapped_roles(ui_viewer_user['id'], crmgr_client['id'])
     print("--- MAPPED ROLES ----")
     print(json.dumps(mapped_roles, indent=2))
 
+    ui_admin_user = kc.get_user_by_username(ui_admin_user_name)
+    if ui_admin_user is None:
+        print(f"Creating {ui_admin_user_name} user...")
+        ui_admin_user = kc.create_user(ui_admin_user_name, ui_admin_user_init_password)
+    print("--- USER ----")
+    print(json.dumps(ui_admin_user, indent=2))
+     
+    mapped_roles = kc.get_mapped_roles(ui_admin_user['id'], crmgr_client['id'])
+    if not ui_admin_role in mapped_roles:
+        print(f"Mapping {ui_admin_role} role to {ui_admin_user_name} user...")
+        kc.map_role_to_user(ui_admin_user['id'], crmgr_client['id'], ui_admin_role)
+        mapped_roles = kc.get_mapped_roles(ui_admin_user['id'], crmgr_client['id'])
+    print("--- MAPPED ROLES ----")
+    print(json.dumps(mapped_roles, indent=2))
 
     sa_depapi = kc.get_service_account_user(depapi_client['id'])
     print("--- SERVICE ACCOUNT USER ----")
@@ -109,4 +132,4 @@ def check_kc(
 
 
 if __name__ == "__main__":
-    check_kc()
+    create_clients_users_and_roles()
