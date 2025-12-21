@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: kc-init-compreg
-      image: ocfork/kc-init:1.0.1
+      image: ocfork/kc-init:1.0.2
       env:
       - name: KC_USERNAME
         value: {{ .Values.kcUsername }}

@@ -13,4 +13,4 @@ COPY src/*.py ./
 ENV PYTHONUNBUFFERED=1
 
 # Run the application
-CMD ["python3", "-U", "kc_setup_compreg.py"]
+CMD ["python3", "-u", "kc_setup_compreg.py"]

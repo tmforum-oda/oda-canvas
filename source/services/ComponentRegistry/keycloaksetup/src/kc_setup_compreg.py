@@ -4,7 +4,8 @@ load_dotenv()  # take environment variables
 import os
 import json
 
-from keycloakUtils import Keycloak
+from keycloak_utils import Keycloak
+from k8s_utils import create_or_update_k8s_secret
 
 KC_USERNAME = os.getenv("KC_USERNAME")
 KC_PASSWORD = os.getenv("KC_PASSWORD")
@@ -40,6 +41,7 @@ def create_clients_users_and_roles(
         kc.create_client(crmgr_client_id)
         clients = kc.get_client_list()
     crmgr_client = clients[crmgr_client_id]
+    create_or_update_k8s_secret("compregmanager-secret", crmgr_client_id, crmgr_client['secret'])
     print("--- COMPREG MANAGER CLIENT ----")
     print(json.dumps(crmgr_client, indent=2))
     
@@ -48,6 +50,7 @@ def create_clients_users_and_roles(
         kc.create_client(depapi_client_id)
         clients = kc.get_client_list()
     depapi_client = clients[depapi_client_id]
+    create_or_update_k8s_secret("depapioperator-secret", depapi_client_id, depapi_client['secret'])
     print("--- DEPAPI CLIENT ----")
     print(json.dumps(depapi_client, indent=2))
 
