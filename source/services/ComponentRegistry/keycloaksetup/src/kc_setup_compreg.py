@@ -16,6 +16,9 @@ KC_REALM = os.getenv("KC_REALM")
 COMPREG_ADMIN_INIT_PASSWORD = os.getenv("COMPREG_ADMIN_INIT_PASSWORD", "CompregAdmin123!")
 COMPREG_VIEWER_INIT_PASSWORD = os.getenv("COMPREG_VIEWER_INIT_PASSWORD", "CompregViewer123!")
 
+K8S_NAMESPACE = os.getenv("K8S_NAMESPACE", "default")
+        
+
 
 SUFFIX = os.getenv("SUFFIX", "3")
 
@@ -41,7 +44,7 @@ def create_clients_users_and_roles(
         kc.create_client(crmgr_client_id)
         clients = kc.get_client_list()
     crmgr_client = clients[crmgr_client_id]
-    create_or_update_k8s_secret("compregmanager-secret", crmgr_client_id, crmgr_client['secret'])
+    create_or_update_k8s_secret(K8S_NAMESPACE, "compregmanager-secret", crmgr_client_id, crmgr_client['secret'])
     print("--- COMPREG MANAGER CLIENT ----")
     print(json.dumps(crmgr_client, indent=2))
     
@@ -50,7 +53,7 @@ def create_clients_users_and_roles(
         kc.create_client(depapi_client_id)
         clients = kc.get_client_list()
     depapi_client = clients[depapi_client_id]
-    create_or_update_k8s_secret("depapioperator-secret", depapi_client_id, depapi_client['secret'])
+    create_or_update_k8s_secret(K8S_NAMESPACE, "depapioperator-secret", depapi_client_id, depapi_client['secret'])
     print("--- DEPAPI CLIENT ----")
     print(json.dumps(depapi_client, indent=2))
 
