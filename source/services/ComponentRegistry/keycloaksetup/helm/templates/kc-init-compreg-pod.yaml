@@ -32,7 +32,7 @@ spec:
         value: "{{ .Values.compregViewerInitPassword }}"
       command: ["/bin/sh"]
       args: ["-c", "date -Iseconds;
+      python3 -u kc_setup_compreg.py;
       date -Iseconds;
-      python3 -u kc_setup_compreg.py || true;
-      sleep 3600;"]
+      sleep 3600"]
   restartPolicy: Never
