@@ -3,6 +3,7 @@ kind: Pod
 metadata:
   name: "{{ .Release.Name }}-kc-init-compreg"
 spec:
+  serviceAccountName: {{ .Release.Name }}-kc-init
   containers:
     - name: kc-init-compreg
       image: ocfork/kc-init:1.0.2
@@ -30,6 +31,10 @@ spec:
         value: "{{ .Values.compregAdminInitPassword }}"
       - name: COMPREG_VIEWER_INIT_PASSWORD
         value: "{{ .Values.compregViewerInitPassword }}"
+      - name: K8S_NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
       command: ["/bin/sh"]
       args: ["-c", "date -Iseconds;
       python3 -u kc_setup_compreg.py;
