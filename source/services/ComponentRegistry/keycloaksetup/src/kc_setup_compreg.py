@@ -4,7 +4,7 @@ load_dotenv()  # take environment variables
 import os
 import json
 
-from keycloaksetup.keycloakUtils import Keycloak
+from keycloakUtils import Keycloak
 
 KC_USERNAME = os.getenv("KC_USERNAME")
 KC_PASSWORD = os.getenv("KC_PASSWORD")
@@ -16,8 +16,8 @@ COMPREG_ADMIN_INIT_PASSWORD = os.getenv("COMPREG_ADMIN_INIT_PASSWORD", "CompregA
 COMPREG_VIEWER_INIT_PASSWORD = os.getenv("COMPREG_VIEWER_INIT_PASSWORD", "CompregViewer123!")
 
 
+SUFFIX = os.getenv("SUFFIX", "3")
 
-SUFFIX="3"
 
 def create_clients_users_and_roles(
         crmgr_client_id: str = f"componentregistry{SUFFIX}", 

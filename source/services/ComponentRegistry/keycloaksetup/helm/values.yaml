@@ -1,0 +1,15 @@
+
+kcUsername: admin
+## plain text admin password. If not set the k8s secret canvasKeycloakSecret[adminPasswordKey] will be used
+# kcPassword: "****"
+canvasKeycloakSecret: canvas-keycloak
+adminPasswordKey: admin-password
+
+kcAdminClientID: canvassystem
+kcAdminClientSecret:
+
+kcBaseUrl: https://canvas-keycloak.ihc-dt.cluster-2.de/auth
+kcRealm: odari
+compregAdminInitPassword: CompregAdminChangeme123!
+compregViewerInitPassword: CompregViewerChangeme123!
+
