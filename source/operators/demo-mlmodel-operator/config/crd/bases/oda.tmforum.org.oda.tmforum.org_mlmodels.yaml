@@ -1,0 +1,80 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: mlmodels.oda.tmforum.org.oda.tmforum.org
+spec:
+  group: oda.tmforum.org.oda.tmforum.org
+  names:
+    kind: MLModel
+    listKind: MLModelList
+    plural: mlmodels
+    singular: mlmodel
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: MLModel is the Schema for the mlmodels API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: MLModelSpec defines the desired state of MLModel
+            properties:
+              expose:
+                type: boolean
+              framework:
+                type: string
+              modelURL:
+                description: Foo is an example field of MLModel. Edit mlmodel_types.go
+                  to remove/update
+                type: string
+              replicas:
+                format: int32
+                type: integer
+              storageSize:
+                type: string
+            required:
+            - expose
+            - framework
+            - replicas
+            - storageSize
+            type: object
+          status:
+            properties:
+              message:
+                type: string
+              observedGeneration:
+                format: int64
+                type: integer
+              phase:
+                type: string
+              serviceEndpoint:
+                type: string
+            required:
+            - observedGeneration
+            - phase
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
