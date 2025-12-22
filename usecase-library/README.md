@@ -1,4 +1,4 @@
-# ODA Canvas - use-case library
+# ODA Canvas - Use-Case Library
 
 This use-case library defines the interactions between a generic **ODA Component** and the **ODA Canvas**. The ODA Canvas provides access to a range of common services (for identity management, authentication, observability etc) and has a set of **Software Operators** that automatically configure these services based on requirements defined in the ODA Component YAML specification. 
 
@@ -12,12 +12,12 @@ This is a list of the Canvas operators (including status of whether this has bee
 
 | Operator             | Description                     |
 | -------------------- | ------------------------------- |
-| Component Lifecycle Management | The Component Lifecycle Management operator manages the de-composition of an ODA component into APIs, Events and other resources (that are processed by their corresponding operators). |
+| Component Lifecycle Management | The Component Lifecycle Management operator manages the decomposition of an ODA component into APIs, Events and other resources (that are processed by their corresponding operators). |
 | API Management       | Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed |
 | Event Management     | Configures event based integration to allow components to use asynchronous events (in addition to Rest based API integration). |
 | Identity Config  | Configures an Identity Management Service based on requirements defined in ODA Components. |
 | Observability Config | Configures observabiliy services for both technical and business metrics and events. Enables alarming, tracing and root-cause analysis of issues.|
-| Secrets Management   | Configures a secrets vault to enable ODA Components to store secrets in a secure way |
+| Secrets Management   | Configures a secrets vault using JWT/OIDC provider capabilities to enable ODA Components to store and manage secrets securely without bootstrap credentials (see UC014) |
 | Carbon Control    | Configures a services to analyze carbon (and energy) usage of ODA Components and to provide API services to enable components to make intelligent decisions to minimise Carbon usage.  |
 | Cost Control      | Configures services for cost control for both cloud consumption and license costs.  |
 | Other                | Additional operators will be added over time.  |
@@ -25,9 +25,9 @@ This is a list of the Canvas operators (including status of whether this has bee
 
 
 
-## Use-case list
+## Use Case List
 
-The use-cases are named based on the [use case naming conventions](use-case-naming-conventions.md)
+The use cases are named based on the [use-case naming conventions](use-case-naming-conventions.md)
 
 
 - UC001: [Install Canvas](./UC001-Install-Canvas.md) - Install, upgrade and uninstall the ODA Canvas.
@@ -43,7 +43,9 @@ The use-cases are named based on the [use case naming conventions](use-case-nami
 - UC011: [View Technical Observability](./UC011-View-Technical-Observability.md) - Run-time view of technical observability data.
 - UC012: [View Business Observability](./UC012-View-Business-Observability.md) - Run-time view of business observability data.
 - UC013: [Upgrade Canvas](./UC013-Upgrade-Canvas.md) - Seamless in-life upgrade of the ODA Canvas.
+- UC014: [Secrets Management JWT-based](./UC014-Secrets-Management-JWT-based.md) - Manage component secrets using JWT/OIDC provider capabilities and Canvas-Vault integration without requiring bootstrap credentials.
+- UC016: [ODA Component and API Registry](./UC016-ODA-Component-and-API-Registry.md) - Centralized registry providing visibility into deployed ODA Components, their exposed APIs, and operational status.
 
 
 
-The corresponding Behavour Driven Design (BDD) features and scenarious can be found here: [BDD Features and Scenarios](../feature-definition-and-test-kit/README.md)
+The corresponding Behaviour-Driven Development (BDD) features and scenarios can be found here: [BDD Features and Scenarios](../feature-definition-and-test-kit/README.md)

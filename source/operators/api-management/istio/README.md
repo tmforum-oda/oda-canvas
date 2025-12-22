@@ -12,7 +12,7 @@ Prometheus uses `ServiceMonitor` resources (https://github.com/prometheus-operat
 
 This makes the logic required to create an API Operator relatively simple. The API Operator listens for new/updated/deleted `oda.tmforum.org/ExposedAPI` resources and then creates/updates/deletes the corresponding Virtual Service and Service Monitor resources. The API Operator also listens for status updates from Istio and Prometheus and updates the status of the `oda.tmforum.org/ExposedAPI` resource accordingly.
 
-![API Operator](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-ca/master/controllers/apiOperatorIstio/sequenceDiagrams/apiOperatorIstio.puml)
+![API Operator](./sequenceDiagrams/apiOperatorIstio.svg)
 [plantUML code](sequenceDiagrams/apiOperatorIstio.puml)
 
 

@@ -35,7 +35,7 @@ The agent can create or enhance README files for:
   - Describes component architecture and microservices
   - Provides installation and configuration details
 
-### 2. Use Case Documentation
+### 2. Use-Case Documentation
 
 Creates implementation-agnostic use case documentation following TM Forum ODA standards:
 
@@ -245,9 +245,9 @@ When creating a PlantUML diagram, the agent:
 
 2. **Uses kebab-case naming**: `uc002-install-component.puml`
 
-3. **Generates proxy URL**:
+3. **Generates local SVG reference**:
    ```markdown
-   ![diagram-name](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/path/to/diagram.puml)
+   ![diagram-name](./pumlFiles/diagram-name.svg)
    ```
 
 4. **Adds source link**:
@@ -417,7 +417,7 @@ To improve the documentation agent:
 - **Templates Directory**: [docs/templates/](templates/)
 - **GitHub Copilot Instructions**: [.github/copilot-instructions.md](../.github/copilot-instructions.md)
 - **Contributing Guide**: [CONTRIBUTING.md](../CONTRIBUTING.md)
-- **Use Case Naming Conventions**: [usecase-library/use-case-naming-conventions.md](../usecase-library/use-case-naming-conventions.md)
+- **Use-Case Naming Conventions**: [usecase-library/use-case-naming-conventions.md](../usecase-library/use-case-naming-conventions.md)
 
 ## References
 

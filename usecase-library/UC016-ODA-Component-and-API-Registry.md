@@ -20,7 +20,7 @@ The Resource Inventory serves as a read-only registry that provides visibility i
 
 ## Main Flow
 
-![resource-inventory-registry](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/resource-inventory-registry.puml)
+![resource-inventory-registry](./pumlFiles/resource-inventory-registry.svg)
 [plantUML code](pumlFiles/resource-inventory-registry.puml)
 
 

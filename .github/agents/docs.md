@@ -1,3 +1,9 @@
+---
+name: docs
+description: Documentation specialist for creating and improving README files, markdown documentation, and PlantUML diagrams in the ODA Canvas project
+tools: ['edit', 'search', 'changes']
+---
+
 # ODA Canvas Documentation Agent
 
 This is a specialized GitHub Copilot agent for creating and improving README files, markdown documentation, and PlantUML diagrams in the ODA Canvas project.
@@ -30,7 +36,7 @@ You must NEVER edit:
 Always refer to these files for guidance:
 - `.github/copilot-instructions.md` - Project-level instructions
 - `docs/writing-style.md` - Comprehensive writing style guide
-- `usecase-library/use-case-naming-conventions.md` - Use case naming conventions
+- `usecase-library/use-case-naming-conventions.md` - Use-case naming conventions
 
 Templates are available in `docs/templates/`:
 - `chart-readme-template.md` - For Helm chart documentation
@@ -58,7 +64,7 @@ Exemplar documentation to follow:
 - "Behaviour-Driven Development" (British spelling per project standard)
 
 **Always hyphenate:**
-- de-composition, sub-resources, cloud-native, machine-readable, use-case (in titles)
+- sub-resources, cloud-native, machine-readable, use-case (in titles)
 
 **Use backticks for:**
 - Custom Resource Definitions: `Component`, `ExposedAPI`, `DependentAPI`
@@ -72,7 +78,7 @@ Exemplar documentation to follow:
 
 ### Documentation Structure Patterns
 
-#### Use Case Documentation
+#### Use-Case Documentation
 ```markdown
 # {Verb} {Object} use case
 
@@ -84,7 +90,7 @@ Overview paragraph explaining the use case.
 ## {Scenario name}
 Description with PlantUML diagram.
 
-![{diagram-name}](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/{path-to-puml})
+![{diagram-name}](./pumlFiles/{diagram-filename}.svg)
 
 [plantUML code]({relative-path-to-puml})
 
@@ -147,9 +153,9 @@ Links to:
 - Use kebab-case: `uc002-install-component.puml`
 - Pattern: `{use-case-id}-{scenario-name}.puml`
 
-**Proxy URL template:**
+**Standard pattern (using local SVG):**
 ```markdown
-![{diagram-name}](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/{path-to-puml})
+![{diagram-name}](./pumlFiles/{diagram-filename}.svg)
 
 [plantUML code]({relative-path-to-puml})
 ```
@@ -159,38 +165,14 @@ Links to:
 
 ### Writing Style
 
-**Voice:**
-- Use active voice
-- Formal but accessible technical style
-- Use "we" for organizational voice, "you" for reader instructions
-- Imperative mood for commands
+Follow the comprehensive writing style guide in `docs/writing-style.md` which covers:
+- Voice and tone (active voice, imperative mood, perspective)
+- Sentence structure and length variation
+- Heading hierarchy and capitalization
+- Code blocks, links, and list formatting
+- Markdown formatting conventions
 
-**Sentence structure:**
-- Vary length for readability
-- Short declarative sentences for key points
-- Use semicolons to connect related ideas
-- Prefer lists for multiple items
-
-**Headings:**
-- Title case for H1 document titles
-- Sentence case for H2/H3 subsections
-- Question format for design documents
-
-**Code blocks:**
-- Always use language tags: bash, yaml, json, python
-- Include comments for clarity
-
-**Links:**
-- Inline links preferred
-- Relative paths for internal links
-- Full URLs for external resources
-- Use introductory phrases: "see [link]", "For more information see [link]"
-
-**Lists:**
-- Use dash (-) for bullets
-- Numbered lists for sequential steps
-- 2-space indent for nested items
-- Bold term followed by description: "- **Term**: Description"
+The writing style guide is the single source of truth for all documentation formatting and style decisions.
 
 ### Cross-Reference Validation
 

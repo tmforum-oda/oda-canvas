@@ -14,7 +14,7 @@ The ODA canvas is itself a modular and extensible platform. The list below shows
 There are several types of operator in the ODA Canvas. For each type of operator, there may be multiple technical implementations. The list below shows the types of operator available in the ODA Canvas reference implementation. This list is not exhaustive and we foresee new operator types becoming available as the ODA Canvas matures.
 
 
-* [Component Management](./component-management/README.md): Manages lifecycle of a component, and the de-composition into ExposedAPIs, PublishedEvents and other sub-resources (that are processed by their corresponding operators). 
+* [Component Management](./component-management/README.md): Manages lifecycle of a component, and the decomposition into ExposedAPIs, PublishedEvents and other sub-resources (that are processed by their corresponding operators). 
 * [API Management](./api-management/README.md): Configures the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers.
 * [Identity Config](./identity-config/README.md): Configures the Identity Management Services made available through the Canvas.
 * [Secrets Management](./secretsmanagementOperator-hc/README.md): Manages a secure secrets vault and allows components to store and retrieve passwords and other sensitive information.

@@ -8,28 +8,28 @@ This use-case describes how a component is configured for subscribing to Notific
 
 ## Install component
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription.puml)
+![enableEventSubscription](./pumlFiles/enableEventSubscription.svg)
 [plantUML code](pumlFiles/enableEventSubscription.puml)
 
 ## Upgrade component - with changed API
 
 The use-case above is for the install of a new component. If you upgrade a component and change an API, the configuration of the Service Mesh and/or API Gateway should change.
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription-with-modify.puml)
+![enableEventSubscription](./pumlFiles/enableEventSubscription-with-modify.svg)
 [plantUML code](pumlFiles/enableEventSubscription-with-modify.puml)
 
 ## Upgrade component - with additional API
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription-with-add.puml)
+![enableEventSubscription](./pumlFiles/enableEventSubscription-with-add.svg)
 [plantUML code](pumlFiles/enableEventSubscription-with-add.puml)
 
 ## Upgrade component - with deleted API
 
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription-with-delete.puml)
+![enableEventSubscription](./pumlFiles/enableEventSubscription-with-delete.svg)
 [plantUML code](pumlFiles/enableEventSubscription-with-delete.puml)
 
 ## Delete component 
 
-![enableEventSubscription](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas-ctk/main/usecase-library/pumlFiles/enableEventSubscription-delete.puml)
+![enableEventSubscription](./pumlFiles/enableEventSubscription-delete.svg)
 [plantUML code](pumlFiles/enableEventSubscription-delete.puml)
