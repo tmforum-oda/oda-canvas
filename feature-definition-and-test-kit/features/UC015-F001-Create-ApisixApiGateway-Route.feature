@@ -4,7 +4,7 @@
 Feature: UC015-F001 Expose APIs: Create and Verify ApisixRoute for ExposedAPI Resource
 
     Scenario Outline: Create API Resource and Verify ApisixRoute Creation for API
-        Given an example package '<PackageName>' with a '<ComponentName>' component with '<ApiCount>' ExposedAPI in its '<SegmentName>' segment
+        Given an example package '<PackageName>' with '<ApiCount>' ExposedAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package
         And the Apisix operator processes the deployment
         Then I should see the '<ResourceName>' ExposedAPI resource on the '<ComponentName>' component

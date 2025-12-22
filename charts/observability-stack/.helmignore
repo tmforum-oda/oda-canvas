@@ -21,3 +21,10 @@
 .idea/
 *.tmproj
 .vscode/
+# Test files
+test-install.sh
+test-install.ps1
+*.test
+# Documentation
+README.md
+values-example.yaml

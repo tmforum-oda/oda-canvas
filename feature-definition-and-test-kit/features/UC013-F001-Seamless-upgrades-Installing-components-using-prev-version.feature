@@ -7,23 +7,23 @@
 Feature: UC013-F001 Seamless upgrade: Installing component using previous version
 
     Scenario: Installing a component using a previous (N-1) version
-        Given an example package 'productcatalog-v1beta4' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
+        Given an example package 'productcatalog-v1beta4' with '1' ExposedAPI in its 'coreFunction' segment
         When I install the 'productcatalog-v1beta4' package
-        And the 'productcatalogmanagement' component has a deployment status of 'Complete'
-        Then I can query the 'v1' spec version of the 'productcatalogmanagement' component
+        And the 'ctk-productcatalogmanagement' component has a deployment status of 'Complete'
+        Then I can query the 'v1' spec version of the 'ctk-productcatalogmanagement' component
 
     Scenario: Installing a component using a previous (N-2) version
-        Given an example package 'productcatalog-v1beta3' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
+        Given an example package 'productcatalog-v1beta3' with '1' ExposedAPI in its 'coreFunction' segment
         When I install the 'productcatalog-v1beta3' package
-        And the 'productcatalogmanagement' component has a deployment status of 'Complete'
-        Then I can query the 'v1' spec version of the 'productcatalogmanagement' component
+        And the 'ctk-productcatalogmanagement' component has a deployment status of 'Complete'
+        Then I can query the 'v1' spec version of the 'ctk-productcatalogmanagement' component
 
     Scenario: Installing a component with Dependent APIs using a previous (N-1) version
         # Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
         When I install the 'productcatalog-dependendent-API-v1beta4' package as release 'f-cat'
-        Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'productcatalogmanagement' component with a ready status
+        Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'f-cat-productcatalogmanagement' component with a ready status
 
     Scenario: Installing a component with Dependent APIs using a previous (N-2) version
         # Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
         When I install the 'productcatalog-dependendent-API-v1beta3' package as release 'f-cat'
-        Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'productcatalogmanagement' component with a ready status
+        Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'f-cat-productcatalogmanagement' component with a ready status

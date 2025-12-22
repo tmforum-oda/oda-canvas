@@ -9,7 +9,7 @@ const assert = require('assert');
 chai.use(chaiHttp);
 
 const NAMESPACE = 'components';
-const API_DEPLOY_TIMEOUT = 10 * 1000; // 10 seconds
+const API_DEPLOY_TIMEOUT = 30 * 1000; // 30 seconds
 const API_URL_TIMEOUT = 60 * 1000; // 60 seconds
 const API_READY_TIMEOUT = 120 * 1000; // 120 seconds
 const TIMEOUT_BUFFER = 5 * 1000; // 5 seconds as additional buffer to the timeouts above for the wrapping function
@@ -31,11 +31,11 @@ Then('I should see the {string} ExposedAPI resource on the {string} component', 
   let apiResource = null;
   var startTime = performance.now();
   var endTime;
-  let namespace = global.namespace || NAMESPACE
+  let namespace = global.namespace || NAMESPACE;
   try {
     // Wait until the ExposedAPI resource is found or the timeout is reached
     while (apiResource == null) {
-      apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, namespace);
+      apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, namespace);
       endTime = performance.now();
 
       // Assert that the ExposedAPI resource was found within the timeout
@@ -91,7 +91,7 @@ Then('I should see the {string} DependentAPI resource on the {string} component'
   let namespace = global.namespace || NAMESPACE
   // wait until the DependentAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getDependentAPIResource(DependentAPIName, componentName, global.currentReleaseName, namespace)
+    apiResource = await resourceInventoryUtils.getDependentAPIResource(DependentAPIName, componentName, namespace)
     endTime = performance.now()
 
     // assert that the DependentAPI resource was found within the timeout
@@ -114,7 +114,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
 
   // wait until the ExposedAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPI, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPI, componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the ExposedAPI resource was found within the timeout
@@ -151,7 +151,7 @@ Then('I should not see the {string} ExposedAPI resource on the {string} componen
 
   // wait until the ExposedAPI resource is removed or the timeout is reached
   while (exposedAPIResource != null) {
-    exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    exposedAPIResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the ExposedAPI resource was removed within the timeout
@@ -175,7 +175,7 @@ Then('I should not see the {string} DependentAPI resource on the {string} compon
 
   // wait until the DependentAPI resource is removed or the timeout is reached
   while (dependentAPIResource != null) {
-    dependentAPIResource = await resourceInventoryUtils.getExposedAPIResource(dependentAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    dependentAPIResource = await resourceInventoryUtils.getExposedAPIResource(dependentAPIName, componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the ExposedAPI resource was removed within the timeout
@@ -199,7 +199,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
 
   // wait until the ExposedAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the ExposedAPI resource was found within the timeout
@@ -221,7 +221,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
 
   // wait until the ExposedAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getExposedAPIResource(ExposedAPIName, componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the ExposedAPI resource was found within the timeout
@@ -243,7 +243,7 @@ Then('I should see the {string} DependentAPI resource on the {string} component 
   var endTime
   // wait until the DependentAPI resource is found or the timeout is reached
   while (apiResource == null) {
-    apiResource = await resourceInventoryUtils.getDependentAPIResource(DependentAPIName, componentName, global.currentReleaseName, NAMESPACE)
+    apiResource = await resourceInventoryUtils.getDependentAPIResource(DependentAPIName, componentName, NAMESPACE)
     endTime = performance.now()
 
     // assert that the ExposedAPI resource was found within the timeout

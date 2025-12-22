@@ -410,19 +410,18 @@ api-operator-istio:
   deployment:
     operatrorName: api-operator-istio
     apiopImage: tmforumodacanvas/api-operator-istio
-    apiopVersion: 1.0.1
-    apiopPrereleaseSuffix:
+    apiopVersion: 1.1.0
+    apiopPrereleaseSuffix: feature-84
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
     ingressClass:
       enabled: false
       name: nginx
-    dataDog:
-      enabled: true
-    hostName: "*"
-    httpsRedirect: true
-    credentialName: istio-ingress-cert    
+    openMetricsImplementation: "PrometheusAnnotation"  # Options: ServiceMonitor, PrometheusAnnotation, DataDogAnnotation
+  hostName: "*"
+  httpsRedirect: true
+  credentialName: istio-ingress-cert
   configmap:
     loglevel: '20'
     # publicHostname: 'components.example.com'
@@ -442,8 +441,7 @@ api-operator-kong:
       ingressClass:
         enabled: false
         name: nginx
-      dataDog:
-        enabled: true
+    openMetricsImplementation: "PrometheusAnnotation"  # Options: ServiceMonitor, PrometheusAnnotation, DataDogAnnotation
     configmap:
       loglevel: '20'
       # publicHostname: 'components.example.com'
@@ -451,9 +449,20 @@ api-operator-kong:
       API_CONNECT_TIMEOUT: 60   #value in seconds supported
       API_READ_TIMEOUT: 900     #value in seconds supported
       API_WRITE_TIMEOUT: 900    #value in seconds supported
+      API_CONNECT_TIMEOUT: 60   #value in seconds supported
+      API_READ_TIMEOUT: 900     #value in seconds supported
+      API_WRITE_TIMEOUT: 900    #value in seconds supported
     kong:
       postgresql:
         nameOverride: "postgresql-kong"
+        enabled: true
+        auth:
+          username: "kong"
+          password: "kong"
+          database: "kong"
+        image:
+          repository: bitnamilegacy/postgresql
+          tag: "13.11.0-debian-11-r20"
         enabled: true
         auth:
           username: "kong"
@@ -502,8 +511,8 @@ api-operator-kong:
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
       kongopImage: tmforumodacanvas/api-operator-kong
-      kongopVersion: 1.0.2
-      kongopPrereleaseSuffix:
+      kongopVersion: 1.1.0
+      kongopPrereleaseSuffix: feature-84
       pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
 
@@ -529,6 +538,11 @@ api-operator-apisix:
       #block for etcd to correct repo to be used to overwrite bitnami old repo.
       image:
         repository: bitnamilegacy/etcd
+    etcd:
+      enabled: true
+      #block for etcd to correct repo to be used to overwrite bitnami old repo.
+      image:
+        repository: bitnamilegacy/etcd
     ingress-controller:
       enabled: true   # Enable the ingress controller
       config:
@@ -543,8 +557,8 @@ api-operator-apisix:
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
     apisixopImage: tmforumodacanvas/api-operator-apisix
-    apisixopVersion: 1.0.2
-    apisixopPrereleaseSuffix:
+    apisixopVersion: 1.1.0
+    apisixopPrereleaseSuffix: feature-84
     pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
@@ -556,12 +570,19 @@ api-operator-apisix:
     ingressClass:
       enabled: false
       name: nginx
-    dataDog:
-      enabled: true
+    openMetricsImplementation: "PrometheusAnnotation"  # Options: ServiceMonitor, PrometheusAnnotation, DataDogAnnotation
   configmap:
     loglevel: '20'
     # publicHostname: 'components.example.com'
     componentGateway: 'canvas/component-gateway'
+    API_CONNECT_TIMEOUT: 60   #value in seconds supported
+    API_READ_TIMEOUT: 900     #value in seconds supported
+    API_WRITE_TIMEOUT: 900    #value in seconds supported
+
+
+# -----------------------------------------------------------------------------
+# Canvas Info service parameters
+# -----------------------------------------------------------------------------
     API_CONNECT_TIMEOUT: 60   #value in seconds supported
     API_READ_TIMEOUT: 900     #value in seconds supported
     API_WRITE_TIMEOUT: 900    #value in seconds supported
@@ -587,6 +608,11 @@ canvas-info-service:
     size: 1Gi
     accessModes: ReadWriteOnce
     storageClassName:
+
+
+# -----------------------------------------------------------------------------
+# Canvas Resource service parameters
+# -----------------------------------------------------------------------------
 
 
 # -----------------------------------------------------------------------------

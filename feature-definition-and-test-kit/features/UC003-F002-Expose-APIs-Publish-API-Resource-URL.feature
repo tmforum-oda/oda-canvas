@@ -7,19 +7,19 @@
 Feature: UC003-F002 Expose APIs: Publish API Resource URL
 
     Scenario: Test API Resource URL for Core API
-        Given an example package 'productcatalog-v1' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
+        Given an example package 'productcatalog-v1' with '1' ExposedAPI in its 'coreFunction' segment
         When I install the 'productcatalog-v1' package
-        Then I should see the 'productcatalogmanagement' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
+        Then I should see the 'productcatalogmanagement' ExposedAPI resource on the 'ctk-productcatalogmanagement' component with a url on the Service Mesh or Gateway
 
     Scenario: Test API Resource URL for Management API
-        Given an example package 'productcatalog-v1' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'managementFunction' segment
+        Given an example package 'productcatalog-v1' with '1' ExposedAPI in its 'managementFunction' segment
         When I install the 'productcatalog-v1' package
-        Then I should see the 'metrics' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
+        Then I should see the 'metrics' ExposedAPI resource on the 'ctk-productcatalogmanagement' component with a url on the Service Mesh or Gateway
 
     Scenario: Test API Resource URL for Security API
-        Given an example package 'productcatalog-v1' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'securityFunction' segment
+        Given an example package 'productcatalog-v1' with '1' ExposedAPI in its 'securityFunction' segment
         When I install the 'productcatalog-v1' package
-        Then I should see the 'partyrole' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
+        Then I should see the 'partyrole' ExposedAPI resource on the 'ctk-productcatalogmanagement' component with a url on the Service Mesh or Gateway
 
 
 

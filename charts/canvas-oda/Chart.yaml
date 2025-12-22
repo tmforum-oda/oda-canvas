@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.5-RJ1
+version: 1.2.5-LT4
+# version: 1.2.5-LT4 - added opentelemetry sub-chart and tests
 # version: 1.2.5-RJ1 - added mcp,a2a,sse timeout related parameter support for kong httproute and apisix apisixroute. added bitnami repo for apisix etcd. 
 # version: 1.2.4     - New release ahead of Innovate Asia
 # version: 1.2.4-RJ1 - added image override for bitnamilegacy charts related to kong gateway
@@ -94,7 +95,7 @@ dependencies:
     version: "1.2.7"
     repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
-    version: "1.1.3"
+    version: "1.1.4"
     repository: 'file://../api-operator-istio'
     condition: api-operator-istio.enabled
   - name: dependentapi-simple-operator
@@ -112,11 +113,11 @@ dependencies:
     version: "1.2.2"
     repository: 'file://../oda-webhook'
   - name: api-operator-kong
-    version: "1.0.5"
+    version: "1.1.0"
     repository: 'file://../kong-gateway'
     condition: kong-gateway-install.enabled
   - name: api-operator-apisix
-    version: "1.0.4"
+    version: "1.1.0"
     repository: 'file://../apisix-gateway'
     condition: apisix-gateway-install.enabled
   - name: canvas-info-service
