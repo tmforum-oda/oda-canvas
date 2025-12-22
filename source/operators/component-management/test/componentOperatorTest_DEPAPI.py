@@ -5,7 +5,7 @@ import kopf
 import asyncio
 
 sys.path.append("..")
-from componentOperator import coreDependentAPIs, safe_get, updateDepedentAPIReady
+from componentOperator import coreDependentAPIs, managementDependentAPIs, securityDependentAPIs, safe_get, updateDepedentAPIReady
 
 
 # Setup logging

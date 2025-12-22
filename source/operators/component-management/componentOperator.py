@@ -660,6 +660,188 @@ async def coreDependentAPIs(
     return dependentAPIChildren
 
 
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+async def managementDependentAPIs(
+    meta, spec, status, body, namespace, labels, name, **kwargs
+):
+    """Handler function for **managementFunction** part new or updated components.
+
+    Processes the **managementFunction.dependentAPIs** part of the component envelope and creates the child DependentAPI resources.
+
+    Args:
+        * meta (Dict): The metadata from the yaml component envelope
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)
+        * status (Dict): The status from the yaml component envelope showing the actual state.
+        * body (Dict): The entire yaml component envelope
+        * namespace (String): The namespace for the component
+        * labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the component
+
+    Returns:
+        Dict: The managementDependentAPIs status that is put into the component envelope status field.
+
+    :meta public:
+    """
+    logw = LogWrapper(
+        handler_name="managementDependentAPIs", function_name="managementDependentAPIs"
+    )
+    logw.set(
+        component_name=quick_get_comp_name(body),
+        resource_name=quick_get_comp_name(body),
+    )
+    logw.debugInfo("managementDependentAPIs handler called", body)
+
+    # del unused-arguments for linting
+    del meta, labels, kwargs
+
+    dependentAPIChildren = []
+    dapi_base_name = name
+
+    try:
+        oldManagementDependentAPIs = []
+        if status:  # if status exists (i.e. this is not a new component)
+            oldManagementDependentAPIs = safe_get([], status, "managementDependentAPIs")
+
+        newManagementDependentAPIs = safe_get([], spec, "managementFunction", "dependentAPIs")
+
+        # compare entries by name
+        for oldManagementDependentAPI in oldManagementDependentAPIs:
+            cr_name = oldManagementDependentAPI["name"]
+            dapi_name = cr_name[len(dapi_base_name) + 1 :]
+            print(dapi_name)
+            newManagementDependentAPI = find_entry_by_name(newManagementDependentAPIs, dapi_name)
+            if not newManagementDependentAPI:
+                logw.info(f"Deleting DependentAPI {cr_name}")
+
+                await deleteDependentAPI(
+                    logw, cr_name, name, status, namespace, "managementDependentAPIs"
+                )
+            else:
+                # TODO[FH] implement check for update
+                logw.info(f"TODO: Update DependentAPI {cr_name}")
+                dependentAPIChildren.append(oldManagementDependentAPI)
+
+        for newManagementDependentAPI in newManagementDependentAPIs:
+            dapi_name = newManagementDependentAPI["name"]
+            cr_name = f"{dapi_base_name}-{dapi_name}"
+            print(dapi_name)
+            oldManagementDependentAPI = find_entry_by_name(oldManagementDependentAPIs, cr_name)
+            if not oldManagementDependentAPI:
+                logw.info(f"Calling createDependentAPI {cr_name}")
+                resultStatus = await createDependentAPIResource(
+                    logw,
+                    newManagementDependentAPI,
+                    namespace,
+                    name,
+                    cr_name,
+                    "managementDependentAPIs",
+                )
+                dependentAPIChildren.append(resultStatus)
+            # else: already handled above
+
+    except kopf.TemporaryError as e:
+        raise kopf.TemporaryError(e)  # allow the operator to retry
+    except Exception as e:
+        logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+    logw.info(f"result for status {dependentAPIChildren}")
+
+    # Update the parent's status.
+    return dependentAPIChildren
+
+
+@kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+@kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
+async def securityDependentAPIs(
+    meta, spec, status, body, namespace, labels, name, **kwargs
+):
+    """Handler function for **securityFunction** part new or updated components.
+
+    Processes the **securityFunction.dependentAPIs** part of the component envelope and creates the child DependentAPI resources.
+
+    Args:
+        * meta (Dict): The metadata from the yaml component envelope
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)
+        * status (Dict): The status from the yaml component envelope showing the actual state.
+        * body (Dict): The entire yaml component envelope
+        * namespace (String): The namespace for the component
+        * labels (Dict): The labels attached to the component. All ODA Components (and their children) should have a oda.tmforum.org/componentName label
+        * name (String): The name of the component
+
+    Returns:
+        Dict: The securityDependentAPIs status that is put into the component envelope status field.
+
+    :meta public:
+    """
+    logw = LogWrapper(
+        handler_name="securityDependentAPIs", function_name="securityDependentAPIs"
+    )
+    logw.set(
+        component_name=quick_get_comp_name(body),
+        resource_name=quick_get_comp_name(body),
+    )
+    logw.debugInfo("securityDependentAPIs handler called", body)
+
+    # del unused-arguments for linting
+    del meta, labels, kwargs
+
+    dependentAPIChildren = []
+    dapi_base_name = name
+
+    try:
+        oldSecurityDependentAPIs = []
+        if status:  # if status exists (i.e. this is not a new component)
+            oldSecurityDependentAPIs = safe_get([], status, "securityDependentAPIs")
+
+        newSecurityDependentAPIs = safe_get([], spec, "securityFunction", "dependentAPIs")
+
+        # compare entries by name
+        for oldSecurityDependentAPI in oldSecurityDependentAPIs:
+            cr_name = oldSecurityDependentAPI["name"]
+            dapi_name = cr_name[len(dapi_base_name) + 1 :]
+            print(dapi_name)
+            newSecurityDependentAPI = find_entry_by_name(newSecurityDependentAPIs, dapi_name)
+            if not newSecurityDependentAPI:
+                logw.info(f"Deleting DependentAPI {cr_name}")
+
+                await deleteDependentAPI(
+                    logw, cr_name, name, status, namespace, "securityDependentAPIs"
+                )
+            else:
+                # TODO[FH] implement check for update
+                logw.info(f"TODO: Update DependentAPI {cr_name}")
+                dependentAPIChildren.append(oldSecurityDependentAPI)
+
+        for newSecurityDependentAPI in newSecurityDependentAPIs:
+            dapi_name = newSecurityDependentAPI["name"]
+            cr_name = f"{dapi_base_name}-{dapi_name}"
+            print(dapi_name)
+            oldSecurityDependentAPI = find_entry_by_name(oldSecurityDependentAPIs, cr_name)
+            if not oldSecurityDependentAPI:
+                logw.info(f"Calling createDependentAPI {cr_name}")
+                resultStatus = await createDependentAPIResource(
+                    logw,
+                    newSecurityDependentAPI,
+                    namespace,
+                    name,
+                    cr_name,
+                    "securityDependentAPIs",
+                )
+                dependentAPIChildren.append(resultStatus)
+            # else: already handled above
+
+    except kopf.TemporaryError as e:
+        raise kopf.TemporaryError(e)  # allow the operator to retry
+    except Exception as e:
+        logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+    logw.info(f"result for status {dependentAPIChildren}")
+
+    # Update the parent's status.
+    return dependentAPIChildren
+
+
 @kopf.on.update(
     GROUP,
     VERSION,
@@ -1766,6 +1948,8 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
 
     coreAPIsummary = ""
     coreDependentAPIsummary = ""
+    managementDependentAPIsummary = ""
+    securityDependentAPIsummary = ""
     securitySecretsManagementSummary = ""
     managementAPIsummary = ""
     securityAPIsummary = ""
@@ -1793,6 +1977,26 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
         for depapi in status["coreDependentAPIs"]:
             if "url" in depapi.keys():
                 coreDependentAPIsummary = coreDependentAPIsummary + depapi["url"] + " "
+                if "ready" in depapi.keys():
+                    if depapi["ready"] == True:
+                        countOfCompleteDependentAPIs = countOfCompleteDependentAPIs + 1
+    if "managementDependentAPIs" in status.keys():
+        countOfDesiredDependentAPIs = countOfDesiredDependentAPIs + len(
+            status["managementDependentAPIs"]
+        )
+        for depapi in status["managementDependentAPIs"]:
+            if "url" in depapi.keys():
+                managementDependentAPIsummary = managementDependentAPIsummary + depapi["url"] + " "
+                if "ready" in depapi.keys():
+                    if depapi["ready"] == True:
+                        countOfCompleteDependentAPIs = countOfCompleteDependentAPIs + 1
+    if "securityDependentAPIs" in status.keys():
+        countOfDesiredDependentAPIs = countOfDesiredDependentAPIs + len(
+            status["securityDependentAPIs"]
+        )
+        for depapi in status["securityDependentAPIs"]:
+            if "url" in depapi.keys():
+                securityDependentAPIsummary = securityDependentAPIsummary + depapi["url"] + " "
                 if "ready" in depapi.keys():
                     if depapi["ready"] == True:
                         countOfCompleteDependentAPIs = countOfCompleteDependentAPIs + 1
@@ -1831,6 +2035,8 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
     status_summary = {}
     status_summary["coreAPIsummary"] = coreAPIsummary
     status_summary["coreDependentAPIsummary"] = coreDependentAPIsummary
+    status_summary["managementDependentAPIsummary"] = managementDependentAPIsummary
+    status_summary["securityDependentAPIsummary"] = securityDependentAPIsummary
     status_summary["securitySecretsManagementSummary"] = (
         securitySecretsManagementSummary
     )
