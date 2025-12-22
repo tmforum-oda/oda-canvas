@@ -69,7 +69,7 @@ def getCharacteristicValue(characteristics, name):
 def test_find_spec_success(comp_reg, rfmock):
     oas_spec = "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
     rfmock.mock_get("resource", f"find_spec_success", 401)
-    #rfmock.mock_get("resource", f"find_spec_success", 200)
+    rfmock.mock_get("resource", f"find_spec_success", 200)
     comps = comp_reg.find_exposed_apis(oas_spec)
     # print(f"\nFOUND EXPOSED APIS:\n{json.dumps(comps,indent=2)}\n")
     assert len(comps) == 1

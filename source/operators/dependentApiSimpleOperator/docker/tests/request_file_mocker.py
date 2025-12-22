@@ -115,7 +115,11 @@ class RequestFileMocker:
 
     def add_mock_info(self, method, path, name, status_code):
         if self.recording:
-            self.mock_info["*"] = (method, path, name, status_code, 1)
+            if "*" not in self.mock_info:
+                self.mock_info["*"] = (method, path, name, status_code, 1)
+            else:
+                _, _, _, _, count = self.mock_info["*"]
+                self.mock_info[f"*{count+1}"] = (method, path, name, status_code, count + 1)
         else:
             self.mock_info[f"{method}_{path}"] = (name, status_code)
 
