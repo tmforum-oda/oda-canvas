@@ -9,11 +9,7 @@
 
 
 
-The Open Digital Architecture (ODA) Canvas is an execution environment for ODA Components and the release automation part of a CI/CD pipeline. This repository contains the Reference Implementation, open-source code, use cases and test-kit for a [TM Forum ODA Canvas](https://www.tmforum.org/oda/deployment-runtime/oda-canvas/). You are free to use this as a starting point for your own ODA Canvas implementation. For a comprehensive introduction to ODA and its implementation tools, see [ODA explained: tools for implementation and deployment](https://inform.tmforum.org/features-and-opinion/oda-explained-tools-for-implementation-and-deployment). Explore available ODA Components in the [ODA Component Directory](https://www.tmforum.org/oda/directory).
-
-The [Use Case Library](usecase-library/README.md) shows how ODA Components interact with the ODA Canvas. The [Feature definition and Test Kit](feature-definition-and-test-kit/README.md) details the features required to be a fully compliant ODA Canvas and a set of tests that can be used to validate any ODA Canvas. The [source code](source/README.md) contains the source code for the operators that are part of the ODA Canvas.
-
-The Reference Implementation of the ODA Canvas will be used for ODA Component certification. 
+The Open Digital Architecture (ODA) Canvas is an execution platform for ODA Components. This repository contains the Reference Implementation, open-source code, use cases and test-kit for a [TM Forum ODA Canvas](https://www.tmforum.org/oda/deployment-runtime/oda-canvas/). You are free to use this as a starting point for your own ODA Canvas implementation. Explore available ODA Components in the [ODA Component Directory](https://www.tmforum.org/oda/directory). The Reference Implementation of the ODA Canvas will be used for ODA Component certification. 
 
 
 
@@ -39,7 +35,11 @@ For more information see [Software Operators](source/operators/README.md)
 
 ## ODA Canvas Design
 
-The design (including ongoing work) of the ODA Canvas is documented in [ODA Canvas Design](Canvas-design.md).
+The ODA Canvas design is to allow ODA Components to declare their requirements for underlying capabilities in a technology-independent way. The Canvas manages these underlying capabilities using [Software Operators](source/operators/README.md) that follow the Kubernetes Operator Pattern.
+
+<img width="978" height="733" alt="Image" src="https://github.com/user-attachments/assets/398ab2c9-ef91-445c-9dde-a970e827d4dd" />
+
+The design (including ongoing work) of the ODA Canvas is documented in [ODA Canvas Design](Canvas-design.md). The [Use Case Library](usecase-library/README.md) shows how ODA Components interact with the ODA Canvas. The [Feature definition and Test Kit](feature-definition-and-test-kit/README.md) details the features required to be a fully compliant ODA Canvas and a set of tests that can be used to validate any ODA Canvas. The [source code](source/README.md) contains the source code for the operators that are part of the ODA Canvas.
 
 Security principles for the ODA Canvas design are documented in [ODA Security Principles](SecurityPrinciples.md).
 
