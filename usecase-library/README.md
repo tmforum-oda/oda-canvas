@@ -1,4 +1,4 @@
-# ODA Canvas - use-case library
+# ODA Canvas - Use-Case Library
 
 This use-case library defines the interactions between a generic **ODA Component** and the **ODA Canvas**. The ODA Canvas provides access to a range of common services (for identity management, authentication, observability etc) and has a set of **Software Operators** that automatically configure these services based on requirements defined in the ODA Component YAML specification. 
 

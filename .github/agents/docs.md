@@ -78,7 +78,7 @@ Exemplar documentation to follow:
 
 ### Documentation Structure Patterns
 
-#### Use Case Documentation
+#### Use-Case Documentation
 ```markdown
 # {Verb} {Object} use case
 

@@ -167,7 +167,7 @@ Always hyphenate these compound terms:
 - cloud-native
 - machine-readable
 - sub-resources
-- use-case (when used as compound adjective: "use-case naming conventions")
+- use-case (when used as compound adjective: "use-case naming conventions", but not as noun: "the use case describes...")
 
 ### Acronyms
 - **BDD**: Always use acronym after first mention, not "Behavior-Driven Development"
@@ -233,7 +233,7 @@ kopf run --namespace=components --standalone ./componentOperator.py
 Use inline links with descriptive text:
 
 ```markdown
-[Canvas use case library](usecase-library/README.md)
+[Canvas use-case library](usecase-library/README.md)
 [Software Operators](source/operators/README.md)
 [Install Canvas](./UC001-Install-Canvas.md)
 ```
@@ -466,7 +466,7 @@ kopf run --namespace=components --standalone ./componentOperator.py
 
 ## Architecture
 
-[How this chart fits into the Canvas architecture, links to operators and use cases]
+[How this chart fits into the Canvas architecture, links to operators and use-case documentation]
 
 <!--- BEGIN PARAMS --->
 [helm-docs auto-generated content - DO NOT EDIT]
@@ -536,7 +536,7 @@ Canvas-design.md (Overview)
     ↓
 Design Epics (Authentication-design.md, etc.)
     ↓
-Use Case Library (UC001-UC016)
+Use-Case Library (UC001-UC016)
     ↓ (linked via @tags)
 BDD Features (UC00X-F00Y-*.feature)
     ↓ (tested against)
@@ -546,10 +546,10 @@ Installation Guide
 ```
 
 ### Bidirectional Links
-- Use cases should link to BDD features
-- BDD features should reference use cases in comments
-- Operator READMEs should reference use case sequence diagrams
-- Use case diagrams should show operators involved
+- Use-case documents should link to BDD features
+- BDD features should reference use-case documents in comments
+- Operator READMEs should reference use-case sequence diagrams
+- Use-case diagrams should show operators involved
 
 ### Explicit Cross-References
 ```markdown

@@ -31,7 +31,7 @@ This directory contains templates for creating consistent documentation across t
 - Interactive development and testing instructions
 - Build automation
 
-### 3. Use Case Template
+### 3. Use-Case Template
 **File**: [use-case-template.md](use-case-template.md)
 
 **Use for**: Use case documentation in `usecase-library/` directory

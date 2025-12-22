@@ -35,7 +35,7 @@ The agent can create or enhance README files for:
   - Describes component architecture and microservices
   - Provides installation and configuration details
 
-### 2. Use Case Documentation
+### 2. Use-Case Documentation
 
 Creates implementation-agnostic use case documentation following TM Forum ODA standards:
 
