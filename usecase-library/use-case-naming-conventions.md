@@ -1,4 +1,4 @@
-# Use Case Naming Conventions
+# Use-Case Naming Conventions
 See also the ODA Component and Canvas working page
 https://projects.tmforum.org/wiki/display/TAC/ODA+++Behaviour+Driven+Design%28BDD%29+Feature+Guidelines
 

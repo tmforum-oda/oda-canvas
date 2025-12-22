@@ -417,7 +417,7 @@ To improve the documentation agent:
 - **Templates Directory**: [docs/templates/](templates/)
 - **GitHub Copilot Instructions**: [.github/copilot-instructions.md](../.github/copilot-instructions.md)
 - **Contributing Guide**: [CONTRIBUTING.md](../CONTRIBUTING.md)
-- **Use Case Naming Conventions**: [usecase-library/use-case-naming-conventions.md](../usecase-library/use-case-naming-conventions.md)
+- **Use-Case Naming Conventions**: [usecase-library/use-case-naming-conventions.md](../usecase-library/use-case-naming-conventions.md)
 
 ## References
 

@@ -36,7 +36,7 @@ You must NEVER edit:
 Always refer to these files for guidance:
 - `.github/copilot-instructions.md` - Project-level instructions
 - `docs/writing-style.md` - Comprehensive writing style guide
-- `usecase-library/use-case-naming-conventions.md` - Use case naming conventions
+- `usecase-library/use-case-naming-conventions.md` - Use-case naming conventions
 
 Templates are available in `docs/templates/`:
 - `chart-readme-template.md` - For Helm chart documentation

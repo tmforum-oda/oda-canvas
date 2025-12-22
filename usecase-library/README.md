@@ -27,7 +27,7 @@ This is a list of the Canvas operators (including status of whether this has bee
 
 ## Use Case List
 
-The use cases are named based on the [use case naming conventions](use-case-naming-conventions.md)
+The use cases are named based on the [use-case naming conventions](use-case-naming-conventions.md)
 
 
 - UC001: [Install Canvas](./UC001-Install-Canvas.md) - Install, upgrade and uninstall the ODA Canvas.

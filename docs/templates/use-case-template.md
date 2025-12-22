@@ -184,5 +184,5 @@ Potential future enhancements to this use case include:
 
 - [Canvas Design](../Canvas-design.md)
 - [Use Case Library](README.md)
-- [Use Case Naming Conventions](use-case-naming-conventions.md)
+- [Use-Case Naming Conventions](use-case-naming-conventions.md)
 - [ODA Component Specification](https://github.com/tmforum-oda/oda-component-specification)

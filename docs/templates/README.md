@@ -139,7 +139,7 @@ Before using templates in production documentation:
 ## Related Documentation
 
 - [Writing Style Guide](../writing-style.md) - Detailed style conventions
-- [Use Case Naming Conventions](../../usecase-library/use-case-naming-conventions.md) - Use case standards
+- [Use-Case Naming Conventions](../../usecase-library/use-case-naming-conventions.md) - Use case standards
 - [Contributing Guide](../../CONTRIBUTING.md) - How to contribute
 - [GitHub Copilot Instructions](../../.github/copilot-instructions.md) - Project overview for AI assistants
 

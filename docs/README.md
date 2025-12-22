@@ -258,7 +258,7 @@ Future enhancements may include:
 - **Contributing Guide**: [CONTRIBUTING.md](../CONTRIBUTING.md)
 - **Code of Conduct**: [code-of-conduct.md](../code-of-conduct.md)
 - **GitHub Copilot Instructions**: [.github/copilot-instructions.md](../.github/copilot-instructions.md)
-- **Use Case Naming Conventions**: [usecase-library/use-case-naming-conventions.md](../usecase-library/use-case-naming-conventions.md)
+- **Use-Case Naming Conventions**: [usecase-library/use-case-naming-conventions.md](../usecase-library/use-case-naming-conventions.md)
 
 ### External Resources
 
