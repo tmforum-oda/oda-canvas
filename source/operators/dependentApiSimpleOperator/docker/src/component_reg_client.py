@@ -8,8 +8,11 @@ import sys
 import requests
 from typing import List, Dict, Any
 
+from oauth2_requests import auth_requests
+
 
 class ComponentRegistryClient:
+    
     """
     Helper class to communicate with a ComponentRegistry endpoint.
     """
@@ -24,7 +27,7 @@ class ComponentRegistryClient:
         try:
             filter_str = f"$[?(@.resourceCharacteristic[?(@.name=='specification' && @.value[?(@.url=='{oas_specification}')])])]"
             url = f"{self.base_url}/resource"
-            response = requests.get(url, params={"filter": filter_str}, timeout=10)
+            response = auth_requests.get(url, params={"filter": filter_str}, timeout=10)
             response.raise_for_status()
             return response.json()  # List of Components, each with filtered ExposedAPIs
         except Exception as e:
@@ -38,7 +41,7 @@ class ComponentRegistryClient:
         """
         try:
             url = f"{self.base_url}/hub"
-            response = requests.get(url, timeout=10)
+            response = auth_requests.get(url, timeout=10)
             response.raise_for_status()
             registries = response.json()  # List of ComponentRegistry objects
             return [reg["callback"].replace("/sync", "") for reg in registries if "callback" in reg]

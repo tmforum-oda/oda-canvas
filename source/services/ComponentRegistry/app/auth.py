@@ -47,7 +47,7 @@ ROLE_TO_PERMISSIONS = {
               "sync.post"],
     "compreg_viewer3": ["dashboard.view", "resource.get"],
     "compreg_admin3": ["dashboard.view", "resource.get", "resource.delete", "hub.post", "hub.delete", "hub.post"],
-    "compreg_query3": ["resource.list"],
+    "compreg_query3": ["resource.list", "hub.list"],
     "compreg_sync3": ["sync"],
 }
 

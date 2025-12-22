@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()  # take environment variables
+
 import pytest
 import sys
 import os
@@ -63,9 +66,9 @@ def getCharacteristicValue(characteristics, name):
     return None
 
 
-def test_find_spec_success(comp_reg, rfmock):
+def test_find_spec_success(comp_reg):  # , rfmock):
     oas_spec = "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
-    rfmock.mock_get("resource", f"find_spec_success", 200)
+    # rfmock.mock_get("resource", f"find_spec_success", 200)
     comps = comp_reg.find_exposed_apis(oas_spec)
     # print(f"\nFOUND EXPOSED APIS:\n{json.dumps(comps,indent=2)}\n")
     assert len(comps) == 1
@@ -75,16 +78,16 @@ def test_find_spec_success(comp_reg, rfmock):
     assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "url") == "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
     assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "specification")[0]["url"] == oas_spec
 
-def test_find_spec_no_result(comp_reg, rfmock):
+def test_find_spec_no_result(comp_reg):  # , rfmock):
     oas_spec = "https://invalid.oas/spec.json"
-    rfmock.mock_get("resource", f"find_spec_no_result", 200)
+    # rfmock.mock_get("resource", f"find_spec_no_result", 200)
     comps = comp_reg.find_exposed_apis(oas_spec)
     # print(f"\nFOUND EXPOSED APIS:\n{json.dumps(comps,indent=2)}\n")
     assert len(comps) == 0
 
 
-def test_get_upstream_registries(comp_reg, rfmock):
-    rfmock.mock_get("hub", f"get_upstream_registries", 200)
+def test_get_upstream_registries(comp_reg):  # , rfmock):
+    # rfmock.mock_get("hub", f"get_upstream_registries", 200)
     regs = comp_reg.get_upstream_registries()
     # print(f"\nUPSTREAM REGISTRIES:\n{json.dumps(regs,indent=2)}\n")
     assert len(regs) == 1
@@ -95,7 +98,7 @@ if __name__ == "__main__":
     # _clean_all()
     pytest.main(
         [
-            "test_component_registry_client.py",
+            "test_component_registry_client_auth.py",
             "-s",
             "-W",
             "ignore:Module already imported so cannot be rewritten:pytest.PytestAssertRewriteWarning",

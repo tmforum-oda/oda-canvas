@@ -4,7 +4,7 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 
 
-def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: str):
+def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: str, token_url: str):
     """
     Creates or updates a Kubernetes Secret with Keycloak client credentials.
     
@@ -12,8 +12,9 @@ def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: s
         secret_name: Name of the Kubernetes Secret to create/update
         client_id: Keycloak client ID to store
         client_secret: Keycloak client secret to store
+        token_url: Keycloak token URL to get new tokens
     """
-    secret_name = f"compreg-{client_id}-secret"
+    secret_name = f"{client_id}-oidc-secret"
     try:
         # Load Kubernetes configuration
         # This will use in-cluster config if running in a pod, otherwise uses kubeconfig
@@ -30,7 +31,8 @@ def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: s
         # Prepare secret data (Kubernetes secrets data must be base64 encoded)
         secret_data = {
             "client_id": base64.b64encode(client_id.encode()).decode(),
-            "client_secret": base64.b64encode(client_secret.encode()).decode()
+            "client_secret": base64.b64encode(client_secret.encode()).decode(),
+            "token_url": base64.b64encode(token_url.encode()).decode()
         }
         
         # Create secret metadata

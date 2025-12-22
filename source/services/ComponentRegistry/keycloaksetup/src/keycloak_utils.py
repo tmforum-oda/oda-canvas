@@ -206,6 +206,14 @@ class Keycloak:
                 ) from None
 
                 
+                
+    def get_token_url(self):
+        """
+        Returns the token URL for this Keycloak instance and the given realm
+        """
+        return self._url + "/realms/"+self._realm+"/protocol/openid-connect/token"
+                
+                
     def _token(self) -> str:
         """
         Takes the admin username and password and returns a session
@@ -219,7 +227,7 @@ class Keycloak:
         try:
             if self._admin_client_id and self._admin_client_secret:
                 r = requests.post(
-                    self._url + "/realms/"+self._realm+"/protocol/openid-connect/token",
+                    self.get_token_url(),
                     data={
                         "grant_type": "client_credentials",
                         "client_id": self._admin_client_id,

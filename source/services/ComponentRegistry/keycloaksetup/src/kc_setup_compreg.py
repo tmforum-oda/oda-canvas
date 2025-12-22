@@ -44,7 +44,7 @@ def create_clients_users_and_roles(
         kc.create_client(crmgr_client_id)
         clients = kc.get_client_list()
     crmgr_client = clients[crmgr_client_id]
-    create_or_update_k8s_secret(K8S_NAMESPACE, "compregmanager-secret", crmgr_client_id, crmgr_client['secret'])
+    create_or_update_k8s_secret(K8S_NAMESPACE, crmgr_client_id, crmgr_client['secret'], kc.get_token_url())
     print("--- COMPREG MANAGER CLIENT ----")
     print(json.dumps(crmgr_client, indent=2))
     
@@ -53,7 +53,7 @@ def create_clients_users_and_roles(
         kc.create_client(depapi_client_id)
         clients = kc.get_client_list()
     depapi_client = clients[depapi_client_id]
-    create_or_update_k8s_secret(K8S_NAMESPACE, "depapioperator-secret", depapi_client_id, depapi_client['secret'])
+    create_or_update_k8s_secret(K8S_NAMESPACE, depapi_client_id, depapi_client['secret'], kc.get_token_url())
     print("--- DEPAPI CLIENT ----")
     print(json.dumps(depapi_client, indent=2))
 
@@ -84,7 +84,7 @@ def create_clients_users_and_roles(
         ui_viewer_user = kc.create_user(ui_viewer_user_name, ui_viewer_user_init_password)
     print("--- USER ----")
     print(json.dumps(ui_viewer_user, indent=2))
-     
+      
     mapped_roles = kc.get_mapped_roles(ui_viewer_user['id'], crmgr_client['id'])
     if not ui_viewer_role in mapped_roles:
         print(f"Mapping {ui_viewer_role} role to {ui_viewer_user_name} user...")
@@ -92,14 +92,14 @@ def create_clients_users_and_roles(
         mapped_roles = kc.get_mapped_roles(ui_viewer_user['id'], crmgr_client['id'])
     print("--- MAPPED ROLES ----")
     print(json.dumps(mapped_roles, indent=2))
-
+ 
     ui_admin_user = kc.get_user_by_username(ui_admin_user_name)
     if ui_admin_user is None:
         print(f"Creating {ui_admin_user_name} user...")
         ui_admin_user = kc.create_user(ui_admin_user_name, ui_admin_user_init_password)
     print("--- USER ----")
     print(json.dumps(ui_admin_user, indent=2))
-     
+      
     mapped_roles = kc.get_mapped_roles(ui_admin_user['id'], crmgr_client['id'])
     if not ui_admin_role in mapped_roles:
         print(f"Mapping {ui_admin_role} role to {ui_admin_user_name} user...")
