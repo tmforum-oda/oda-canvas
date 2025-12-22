@@ -89,7 +89,7 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: component-operator
-    version: "1.4.1"
+    version: "1.4.2"
     repository: 'file://../component-operator'
   - name: identityconfig-operator-keycloak
     version: "1.2.7"
