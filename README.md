@@ -9,7 +9,7 @@
 
 
 
-The Open Digital Architecture (ODA) Canvas is an execution environment for ODA Components and the release automation part of a CI/CD pipeline. This repository contains the Reference Implementation, open-source code, use cases and test-kit for a [TM Forum ODA Canvas](https://www.tmforum.org/oda/deployment-runtime/oda-canvas/). You are free to use this as a starting point for your own ODA Canvas implementation. 
+The Open Digital Architecture (ODA) Canvas is an execution environment for ODA Components and the release automation part of a CI/CD pipeline. This repository contains the Reference Implementation, open-source code, use cases and test-kit for a [TM Forum ODA Canvas](https://www.tmforum.org/oda/deployment-runtime/oda-canvas/). You are free to use this as a starting point for your own ODA Canvas implementation. For a comprehensive introduction to ODA and its implementation tools, see [ODA explained: tools for implementation and deployment](https://inform.tmforum.org/features-and-opinion/oda-explained-tools-for-implementation-and-deployment). Explore available ODA Components in the [ODA Component Directory](https://www.tmforum.org/oda/directory).
 
 The [Use Case Library](usecase-library/README.md) shows how ODA Components interact with the ODA Canvas. The [Feature definition and Test Kit](feature-definition-and-test-kit/README.md) details the features required to be a fully compliant ODA Canvas and a set of tests that can be used to validate any ODA Canvas. The [source code](source/README.md) contains the source code for the operators that are part of the ODA Canvas.
 
