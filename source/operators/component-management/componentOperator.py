@@ -704,14 +704,18 @@ async def managementDependentAPIs(
         if status:  # if status exists (i.e. this is not a new component)
             oldManagementDependentAPIs = safe_get([], status, "managementDependentAPIs")
 
-        newManagementDependentAPIs = safe_get([], spec, "managementFunction", "dependentAPIs")
+        newManagementDependentAPIs = safe_get(
+            [], spec, "managementFunction", "dependentAPIs"
+        )
 
         # compare entries by name
         for oldManagementDependentAPI in oldManagementDependentAPIs:
             cr_name = oldManagementDependentAPI["name"]
             dapi_name = cr_name[len(dapi_base_name) + 1 :]
             print(dapi_name)
-            newManagementDependentAPI = find_entry_by_name(newManagementDependentAPIs, dapi_name)
+            newManagementDependentAPI = find_entry_by_name(
+                newManagementDependentAPIs, dapi_name
+            )
             if not newManagementDependentAPI:
                 logw.info(f"Deleting DependentAPI {cr_name}")
 
@@ -727,7 +731,9 @@ async def managementDependentAPIs(
             dapi_name = newManagementDependentAPI["name"]
             cr_name = f"{dapi_base_name}-{dapi_name}"
             print(dapi_name)
-            oldManagementDependentAPI = find_entry_by_name(oldManagementDependentAPIs, cr_name)
+            oldManagementDependentAPI = find_entry_by_name(
+                oldManagementDependentAPIs, cr_name
+            )
             if not oldManagementDependentAPI:
                 logw.info(f"Calling createDependentAPI {cr_name}")
                 resultStatus = await createDependentAPIResource(
@@ -795,14 +801,18 @@ async def securityDependentAPIs(
         if status:  # if status exists (i.e. this is not a new component)
             oldSecurityDependentAPIs = safe_get([], status, "securityDependentAPIs")
 
-        newSecurityDependentAPIs = safe_get([], spec, "securityFunction", "dependentAPIs")
+        newSecurityDependentAPIs = safe_get(
+            [], spec, "securityFunction", "dependentAPIs"
+        )
 
         # compare entries by name
         for oldSecurityDependentAPI in oldSecurityDependentAPIs:
             cr_name = oldSecurityDependentAPI["name"]
             dapi_name = cr_name[len(dapi_base_name) + 1 :]
             print(dapi_name)
-            newSecurityDependentAPI = find_entry_by_name(newSecurityDependentAPIs, dapi_name)
+            newSecurityDependentAPI = find_entry_by_name(
+                newSecurityDependentAPIs, dapi_name
+            )
             if not newSecurityDependentAPI:
                 logw.info(f"Deleting DependentAPI {cr_name}")
 
@@ -818,7 +828,9 @@ async def securityDependentAPIs(
             dapi_name = newSecurityDependentAPI["name"]
             cr_name = f"{dapi_base_name}-{dapi_name}"
             print(dapi_name)
-            oldSecurityDependentAPI = find_entry_by_name(oldSecurityDependentAPIs, cr_name)
+            oldSecurityDependentAPI = find_entry_by_name(
+                oldSecurityDependentAPIs, cr_name
+            )
             if not oldSecurityDependentAPI:
                 logw.info(f"Calling createDependentAPI {cr_name}")
                 resultStatus = await createDependentAPIResource(
@@ -1986,7 +1998,9 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
         )
         for depapi in status["managementDependentAPIs"]:
             if "url" in depapi.keys():
-                managementDependentAPIsummary = managementDependentAPIsummary + depapi["url"] + " "
+                managementDependentAPIsummary = (
+                    managementDependentAPIsummary + depapi["url"] + " "
+                )
                 if "ready" in depapi.keys():
                     if depapi["ready"] == True:
                         countOfCompleteDependentAPIs = countOfCompleteDependentAPIs + 1
@@ -1996,7 +2010,9 @@ async def summary(meta, spec, status, body, namespace, labels, name, **kwargs):
         )
         for depapi in status["securityDependentAPIs"]:
             if "url" in depapi.keys():
-                securityDependentAPIsummary = securityDependentAPIsummary + depapi["url"] + " "
+                securityDependentAPIsummary = (
+                    securityDependentAPIsummary + depapi["url"] + " "
+                )
                 if "ready" in depapi.keys():
                     if depapi["ready"] == True:
                         countOfCompleteDependentAPIs = countOfCompleteDependentAPIs + 1
