@@ -116,18 +116,21 @@ class RequestFileMocker:
     def add_mock_info(self, method, path, name, status_code):
         if self.recording:
             if "*" not in self.mock_info:
-                self.mock_info["*"] = (method, path, name, status_code, 1)
+                self.mock_info["*"] = [(method, path, name, status_code, 1)]
             else:
-                _, _, _, _, count = self.mock_info["*"]
-                self.mock_info[f"*{count+1}"] = (method, path, name, status_code, count + 1)
+                self.mock_info["*"].append((method, path, name, status_code, len(self.mock_info["*"]) + 1))
         else:
-            self.mock_info[f"{method}_{path}"] = (name, status_code)
+            if f"{method}_{path}" not in self.mock_info:
+                self.mock_info[f"{method}_{path}"] = [(name, status_code)]
+            else:
+                self.mock_info[f"{method}_{path}"].append((name, status_code))
 
     def get_mock_info(self, method, path):
         key = f"{method}_{path}"
-        if key in self.mock_info:
-            return self.mock_info[key]
-        return (None, None)
+        mock_info_list = self.mock_info.get(key, [])
+        if len(mock_info_list) == 0:
+            return (None, None)
+        return mock_info_list.pop(0)
 
     def mock_post(self, path, name, status_code):
         self.add_mock_info("POST", path, name, status_code)
@@ -193,13 +196,12 @@ class RequestFileMocker:
     def record_callback(self, request, context):
         method = request.method
         path = self.extract_path(request.url)
+        expected_requests = self.mock_info.get("*",  [])
         assert (
-            "*" in self.mock_info
+            len(expected_requests) > 0
         ), f"no request expeceted, method: '{method}', path: '{path}'"
-        expected_method, expected_path, name, expected_status_code, count = (
-            self.mock_info["*"]
-        )
-
+        expected_method, expected_path, name, expected_status_code, count = expected_requests.pop(0)
+        
         if expected_method == None:
             expected_method = method
         if expected_path == None:
@@ -237,7 +239,6 @@ class RequestFileMocker:
             print(
                 f"RECORDED: rfmock.mock_{method.lower()}('{path}', '{name}', {status_code})"
             )
-            self.mock_info.pop("*")
             context.status_code = response.status_code
             return response.text
 
@@ -265,7 +266,6 @@ class RequestFileMocker:
             print(
                 f"RECORDED: rfmock.mock_{method.lower()}('{path}', '{name}', {status_code})"
             )
-            self.mock_info.pop("*")
             context.status_code = response.status_code
             return response.text
         else:

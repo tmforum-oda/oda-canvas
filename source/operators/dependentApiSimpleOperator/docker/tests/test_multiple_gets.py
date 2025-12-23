@@ -13,7 +13,7 @@ import json
 ## for local tests to the cluster use:
 ## kubectl port-forward -n canvas svc/canvas-compreg 8080:80
 BASE_URL = "https://fake-json-api.mock.beeceptor.com"
-RM_TESTDATA_FOLDER = "testdata/requests_multiple_gets_mock2"
+RM_TESTDATA_FOLDER = "testdata/requests_multiple_gets_mock"
 
 INSTANCES = {}
 
@@ -21,8 +21,8 @@ INSTANCES = {}
 @pytest.fixture
 def rfmock() -> RequestFileMocker:
     if "rfm" not in INSTANCES:
-        INSTANCES["rfm"] = RequestFileMocker(f"{RM_TESTDATA_FOLDER}-temp", BASE_URL, recording=True, allow_overwrite=True)
-        # INSTANCES["rfm"] = RequestFileMocker(f"{RM_TESTDATA_FOLDER}-temp", BASE_URL)
+        # INSTANCES["rfm"] = RequestFileMocker(f"{RM_TESTDATA_FOLDER}-temp", BASE_URL, recording=True, allow_overwrite=True)
+        INSTANCES["rfm"] = RequestFileMocker(f"{RM_TESTDATA_FOLDER}-temp", BASE_URL)
     return INSTANCES["rfm"]
 
 
@@ -33,13 +33,17 @@ def get_time(url):
     return response.content
 
 def test_get(rfmock):
-    rfmock.mock_get("users/1", f"u1", 200)
-    rfmock.mock_get("users/1", f"u1", 200)
+
+    rfmock.mock_get("users/1", f"u1a", 200)
+    rfmock.mock_get("users/1", f"u1b", 200)
     content1 = get_time(f"{BASE_URL}/users/1")
     print(f"\nGOT CONTENT:\n{content1}\n")
+    
     time.sleep(2)
+
     content2 = get_time(f"{BASE_URL}/users/1")
     print(f"\nGOT CONTENT:\n{content2}\n")
+    
     assert content1 != content2
     
 
