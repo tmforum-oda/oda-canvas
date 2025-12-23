@@ -6,7 +6,7 @@ spec:
   serviceAccountName: {{ .Release.Name }}-kc-init
   containers:
     - name: kc-init-compreg
-      image: ocfork/kc-init:1.0.2
+      image: ocfork/kc-init:1.0.3
       env:
       - name: KC_USERNAME
         value: {{ .Values.kcUsername }}

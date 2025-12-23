@@ -355,7 +355,7 @@ async def get_authenticated_user(
         if token:
             try:
                 keycloak_user = await verify_keycloak_token(token)
-                user_roles=keycloak_user.resource_access.get("componentregistry3", {}).get("roles", [])
+                user_roles=keycloak_user.resource_access.get("componentregistry", {}).get("roles", [])
                 # Convert Keycloak user to local User model
                 return UserWithPermissions(
                     username=keycloak_user.preferred_username or keycloak_user.sub,

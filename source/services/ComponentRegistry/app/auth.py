@@ -45,10 +45,10 @@ ROLE_TO_PERMISSIONS = {
               "resource.list", "resource.get", "resource.post", "resource.delete", "resource.patch",
               "hub.list",      "hub.get",      "hub.post",      "hub.delete",
               "sync.post"],
-    "compreg_viewer3": ["dashboard.view", "resource.get"],
-    "compreg_admin3": ["dashboard.view", "resource.get", "resource.delete", "hub.post", "hub.delete", "hub.post"],
-    "compreg_query3": ["resource.list", "hub.list"],
-    "compreg_sync3": ["sync"],
+    "ui-viewer": ["dashboard.view", "resource.get"],
+    "ui-admin": ["dashboard.view", "resource.get", "resource.delete", "hub.post", "hub.delete", "hub.post"],
+    "query": ["resource.list", "hub.list"],
+    "sync": ["sync"],
 }
 
 class UserWithPermissions(User):

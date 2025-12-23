@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 # Keycloak configuration from environment variables
 KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari")
 KEYCLOAK_AUDIENCE = os.getenv("KEYCLOAK_AUDIENCE", "account")
-KEYCLOAK_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID", "compreg-client")
+KEYCLOAK_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID", "componentregistry")
 KEYCLOAK_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET", "")
 KEYCLOAK_ENABLED = os.getenv("KEYCLOAK_ENABLED", "false").lower() == "true"
 

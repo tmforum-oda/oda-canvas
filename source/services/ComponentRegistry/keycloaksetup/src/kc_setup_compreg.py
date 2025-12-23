@@ -20,7 +20,7 @@ K8S_NAMESPACE = os.getenv("K8S_NAMESPACE", "default")
         
 
 
-SUFFIX = os.getenv("SUFFIX", "3")
+SUFFIX = os.getenv("SUFFIX", "")
 
 
 def create_clients_users_and_roles(
@@ -29,10 +29,10 @@ def create_clients_users_and_roles(
         ui_admin_user_name: str = f"compreg-admin{SUFFIX}", 
         ui_viewer_user_init_password: str = COMPREG_VIEWER_INIT_PASSWORD,
         ui_admin_user_init_password: str = COMPREG_ADMIN_INIT_PASSWORD, 
-        ui_viewer_role: str = f"compreg_viewer{SUFFIX}",
-        ui_admin_role: str = f"compreg_admin{SUFFIX}",
-        sync_role: str = f"compreg_sync{SUFFIX}",
-        query_role: str = f"compreg_query{SUFFIX}",
+        ui_viewer_role: str = f"ui-viewer{SUFFIX}",
+        ui_admin_role: str = f"ui-admin{SUFFIX}",
+        sync_role: str = f"sync{SUFFIX}",
+        query_role: str = f"query{SUFFIX}",
         depapi_client_id: str = f"dependentapi-operator{SUFFIX}"
     ):
     kc = Keycloak(KC_BASE_URL, KC_REALM, user=KC_USERNAME, pwd=KC_PASSWORD, admin_client_id=KC_ADMIN_CLIENT_ID, admin_client_secret=KC_ADMIN_CLIENT_SECRET)
