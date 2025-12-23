@@ -57,6 +57,8 @@
     "administrativeState": "unlocked",
     "usageState": "active",
     "startDate": "2025-12-22T06:59:44Z",
+    "id": "self:r-cat-productcatalogmanagement-productcatalogmanagement",
+    "href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement-productcatalogmanagement",
     "resourceRelationship": [
       {
         "@type": "ResourceRelationship",
@@ -67,8 +69,6 @@
           "@type": "LogicalResource"
         }
       }
-    ],
-    "id": "self:r-cat-productcatalogmanagement-productcatalogmanagement",
-    "href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement-productcatalogmanagement"
+    ]
   }
 ]

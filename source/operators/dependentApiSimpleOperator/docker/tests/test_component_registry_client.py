@@ -46,8 +46,8 @@ INSTANCES = {}
 @pytest.fixture
 def rfmock() -> RequestFileMocker:
     if "rfm" not in INSTANCES:
-        INSTANCES["rfm"] = RequestFileMocker(f"{RM_TESTDATA_FOLDER}-temp", BASE_URL, recording=True, allow_overwrite=True)
-        # INSTANCES["rfm"] = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
+        # INSTANCES["rfm"] = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL, recording=True, allow_overwrite=True)
+        INSTANCES["rfm"] = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
     return INSTANCES["rfm"]
 
 

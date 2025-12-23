@@ -12,33 +12,7 @@ class TokenManager:
         self._refresh_buffer_seconds = refresh_buffer_seconds
         self._access_token = None
         self._token_expiry = None
-        self._auth_base_urls = set()
-
                 
-    def optional_add_auth_header(self, headers: dict, base_url: str = "*") -> dict:
-        """
-        Adds the Bearer authentication header to the provided headers
-        if base_url is set in self._auth_base_urls
-
-        Returns the updated headers dictionary.
-        """
-        if base_url in self._auth_base_urls:
-            token = self._token()
-            headers["Authorization"] = f"Bearer {token}"
-        return headers
-    
-    
-    def force_add_auth_header(self, headers: dict, base_url: str = "*") -> dict:
-        """
-        Adds the Bearer authentication header to the provided headers
-        and configure base_url as requires auth.
-
-        Returns the updated headers dictionary.
-        """
-        self.auth_base_urls.add(base_url)
-        return self.optional_add_auth_header(base_url, headers)
-        
-    
     def _token(self) -> str:
         if self._is_token_valid():
             return self._access_token        
@@ -66,10 +40,11 @@ class TokenManager:
                 f"get_token failed with HTTP status {r.status_code}: {e}"
             ) from None
 
-
     def _is_token_valid(self):
         if not self._access_token or not self._token_expiry:
             return False
         return datetime.now() < (self._token_expiry - timedelta(seconds=self._refresh_buffer_seconds))
         
-
+    def reset(self):
+        self._access_token = None
+        self._token_expiry = None

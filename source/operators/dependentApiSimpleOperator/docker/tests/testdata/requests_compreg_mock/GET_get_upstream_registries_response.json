@@ -2,6 +2,6 @@
   {
     "id": "global-compreg",
     "callback": "https://global-compreg.ihc-dt.cluster-2.de/sync",
-    "query": "source=compreg-a"
+    "query": "source=compreg-ihc-dt"
   }
 ]

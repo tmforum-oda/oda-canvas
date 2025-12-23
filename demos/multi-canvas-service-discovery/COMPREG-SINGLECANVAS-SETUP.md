@@ -130,6 +130,13 @@ helm upgrade --install -n compreg global-compreg --create-namespace charts/compo
 helm upgrade --install -n compreg global-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=domain=%DOMAIN%  --set=fullNameOverride=global-compreg
 ```
 
+```
+# [blue] - IHC-DT
+cd %USERPROFILE%/git/oda-canvas
+helm upgrade --install -n compreg upup-compreg --create-namespace charts/component-registry --set=domain=%DOMAIN% --set=canvasResourceInventory=
+helm upgrade --install -n compreg upup-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=domain=%DOMAIN%  --set=fullNameOverride=upup-compreg
+```
+
 open in browser:
 
 * http://global-compreg.ihc-dt.cluster-2.de/

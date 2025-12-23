@@ -9,7 +9,7 @@ import os
 """
 preparation for local tests:
 
-kubectl port-forward -n canvas svc/canvas-compreg 8080:80
+kubectl port-forward -n compreg svc/global-compreg 8080:80
 export BASE_URL=http://localhost:8080
 
 in RequestFileMocker initialization set recording=True to record new test data
@@ -41,7 +41,9 @@ import json
 ## for local tests to the cluster use:
 ## kubectl port-forward -n canvas svc/canvas-compreg 8080:80
 BASE_URL = "http://localhost:8080"
-RM_TESTDATA_FOLDER = "testdata/requests_compreg_mock"
+TOK_BASE_URL = "https://canvas-keycloak.ihc-dt.cluster-2.de/auth"
+RM_TESTDATA_FOLDER = "testdata/requests_compreg_auth_mock"
+
 
 INSTANCES = {}
 
@@ -49,8 +51,9 @@ INSTANCES = {}
 @pytest.fixture
 def rfmock() -> RequestFileMocker:
     if "rfm" not in INSTANCES:
-        INSTANCES["rfm"] = RequestFileMocker(f"{RM_TESTDATA_FOLDER}-temp", BASE_URL, recording=True, allow_overwrite=True)
-        # INSTANCES["rfm"] = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
+        # INSTANCES["rfm"] = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL, recording=True, allow_overwrite=True)
+        INSTANCES["rfm"] = RequestFileMocker(RM_TESTDATA_FOLDER, BASE_URL)
+        INSTANCES["rfm"].add_url_shotcut("$TOK", TOK_BASE_URL)
     return INSTANCES["rfm"]
 
 
@@ -67,9 +70,15 @@ def getCharacteristicValue(characteristics, name):
 
 
 def test_find_spec_success(comp_reg, rfmock):
+    from oauth2_requests import auth_requests
+    auth_requests.reset()
+
     oas_spec = "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
-    rfmock.mock_get("resource", f"find_spec_success", 401)
-    rfmock.mock_get("resource", f"find_spec_success", 200)
+
+    rfmock.mock_get("resource", f"find_spec_success_noauth", 401)
+    rfmock.mock_post("$TOK/realms/odari/protocol/openid-connect/token", f"get_token_success1", 200)
+    rfmock.mock_get("resource", f"find_spec_success_auth", 200)
+    
     comps = comp_reg.find_exposed_apis(oas_spec)
     # print(f"\nFOUND EXPOSED APIS:\n{json.dumps(comps,indent=2)}\n")
     assert len(comps) == 1
@@ -79,20 +88,33 @@ def test_find_spec_success(comp_reg, rfmock):
     assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "url") == "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
     assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "specification")[0]["url"] == oas_spec
 
-def xtest_find_spec_no_result(comp_reg, rfmock):
+def test_find_spec_no_result(comp_reg, rfmock):
+    from oauth2_requests import auth_requests
+    auth_requests.reset()
+
     oas_spec = "https://invalid.oas/spec.json"
-    # rfmock.mock_get("resource", f"find_spec_no_result", 200)
+
+    rfmock.mock_get("resource", f"find_spec_no_result_noauth", 401)
+    rfmock.mock_post("$TOK/realms/odari/protocol/openid-connect/token", f"get_token_success2", 200)
+    rfmock.mock_get("resource", f"find_spec_no_result_auth", 200)
+    
     comps = comp_reg.find_exposed_apis(oas_spec)
     # print(f"\nFOUND EXPOSED APIS:\n{json.dumps(comps,indent=2)}\n")
     assert len(comps) == 0
 
 
-def xtest_get_upstream_registries(comp_reg, rfmock):
-    rfmock.mock_get("hub", f"get_upstream_registries", 200)
+def test_get_upstream_registries(comp_reg, rfmock):
+    from oauth2_requests import auth_requests
+    auth_requests.reset()
+
+    rfmock.mock_get("hub", f"get_upstream_registries_noauth", 401)
+    rfmock.mock_post("$TOK/realms/odari/protocol/openid-connect/token", f"get_token_success3", 200)
+    rfmock.mock_get("hub", f"get_upstream_registries_auth", 200)
+    
     regs = comp_reg.get_upstream_registries()
     # print(f"\nUPSTREAM REGISTRIES:\n{json.dumps(regs,indent=2)}\n")
     assert len(regs) == 1
-    assert regs[0] == "https://global-compreg.ihc-dt.cluster-2.de"
+    assert regs[0] == "https://upup-compreg.ihc-dt.cluster-2.de"
 
 
 if __name__ == "__main__":

@@ -47,7 +47,6 @@ class OAuth2Requests:
         response = requests.get(url, params=params, **kwargs)
         return response
     
-
     def _add_auth_header(self, **kwargs):
         headers = kwargs.get("headers", {})
         token = self._token_manager._token()
@@ -55,6 +54,10 @@ class OAuth2Requests:
         kwargs["headers"] = headers
         return kwargs
     
+    def reset(self):
+        self._auth_base_urls.clear()
+        self._token_manager.reset()
+
 
 auth_requests = OAuth2Requests()
 
