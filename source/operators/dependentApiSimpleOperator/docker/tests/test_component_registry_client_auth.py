@@ -1,9 +1,11 @@
-from dotenv import load_dotenv
-load_dotenv()  # take environment variables
-
 import pytest
 import sys
 import os
+
+
+TEST_TOKEN_URL="https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari/protocol/openid-connect/token"
+TEST_CLIENT_ID="dependentapi-operator3"
+TEST_CLIENT_SECRET="P4BZ...Pb6p"
 
 
 """
@@ -71,7 +73,7 @@ def getCharacteristicValue(characteristics, name):
 
 def test_find_spec_success(comp_reg, rfmock):
     from oauth2_requests import auth_requests
-    auth_requests.reset()
+    auth_requests.reset(TEST_TOKEN_URL, TEST_CLIENT_ID, TEST_CLIENT_SECRET)
 
     oas_spec = "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
 
@@ -90,7 +92,7 @@ def test_find_spec_success(comp_reg, rfmock):
 
 def test_find_spec_no_result(comp_reg, rfmock):
     from oauth2_requests import auth_requests
-    auth_requests.reset()
+    auth_requests.reset(TEST_TOKEN_URL, TEST_CLIENT_ID, TEST_CLIENT_SECRET)
 
     oas_spec = "https://invalid.oas/spec.json"
 
@@ -105,7 +107,7 @@ def test_find_spec_no_result(comp_reg, rfmock):
 
 def test_get_upstream_registries(comp_reg, rfmock):
     from oauth2_requests import auth_requests
-    auth_requests.reset()
+    auth_requests.reset(TEST_TOKEN_URL, TEST_CLIENT_ID, TEST_CLIENT_SECRET)
 
     rfmock.mock_get("hub", f"get_upstream_registries_noauth", 401)
     rfmock.mock_post("$TOK/realms/odari/protocol/openid-connect/token", f"get_token_success3", 200)

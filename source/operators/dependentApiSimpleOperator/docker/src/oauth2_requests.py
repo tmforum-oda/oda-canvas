@@ -9,10 +9,11 @@ from token_manager import TokenManager
 class OAuth2Requests:
 
     def __init__(self, token_url = None, client_id = None, client_secret = None, refresh_buffer_seconds = 30) -> None:
-        token_url = token_url if token_url else os.getenv("OAUTH2_TOKEN_URL")
-        client_id = client_id if client_id else os.getenv("OAUTH2_CLIENT_ID")
-        client_secret = client_secret if client_secret else os.getenv("OAUTH2_CLIENT_SECRET")
-        self._token_manager = TokenManager(token_url, client_id, client_secret, refresh_buffer_seconds)
+        self.token_url = token_url if token_url else os.getenv("OAUTH2_TOKEN_URL")
+        self.client_id = client_id if client_id else os.getenv("OAUTH2_CLIENT_ID")
+        self.client_secret = client_secret if client_secret else os.getenv("OAUTH2_CLIENT_SECRET")
+        self.refresh_buffer_seconds = refresh_buffer_seconds
+        self._token_manager = TokenManager(self.token_url, self.client_id, self.client_secret, self.refresh_buffer_seconds)
         self._auth_base_urls = set()
 
     def _needs_auth(self, url: str) -> bool:
@@ -54,9 +55,13 @@ class OAuth2Requests:
         kwargs["headers"] = headers
         return kwargs
     
-    def reset(self):
-        self._auth_base_urls.clear()
-        self._token_manager.reset()
+    def reset(self, token_url = None, client_id = None, client_secret = None, refresh_buffer_seconds = None) -> None:
+        self.token_url = token_url if token_url else self.token_url
+        self.client_id = client_id if client_id else self.client_id
+        self.client_secret = client_secret if client_secret else self.client_secret
+        self.refresh_buffer_seconds = refresh_buffer_seconds if refresh_buffer_seconds else self.refresh_buffer_seconds
+        self._token_manager = TokenManager(self.token_url, self.client_id, self.client_secret, self.refresh_buffer_seconds)
+        self._auth_base_urls = set()
 
 
 auth_requests = OAuth2Requests()
