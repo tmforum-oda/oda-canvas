@@ -1,1 +1,1 @@
-grant_type=client_credentials&client_id=dependentapi-operator3&client_secret=P4BZNaeCnwhROG6gFtbGXoCRubcLPb6p
+grant_type=client_credentials&client_id=dependentapi-operator3&client_secret=P4BZ...Pb6p
