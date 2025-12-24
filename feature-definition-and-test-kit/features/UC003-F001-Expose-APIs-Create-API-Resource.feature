@@ -15,4 +15,4 @@ Feature: UC003-F001 Expose APIs: Create API Resource
        | Name           | PackageName       | ResourceName             | ComponentName                | SegmentName        | ApiCount |
        | Core API       | productcatalog-v1 | productcatalogmanagement | ctk-productcatalogmanagement | coreFunction       | 1        |
        | Management API | productcatalog-v1 | metrics                  | ctk-productcatalogmanagement | managementFunction | 1        |
-       | Security API   | productcatalog-v1 | partyrole                | ctk-productcatalogmanagement | securityFunction   | 1        |
+       | Security API   | productcatalog-v1 | userrolesandpermissions  | ctk-productcatalogmanagement | securityFunction   | 1        |

@@ -14,7 +14,7 @@ spec:
       labels:
         app: {{.Release.Name}}-{{.Values.component.name}}
         impl: {{.Release.Name}}-promgmtapi
-        version: {{.Values.promotionmgmt.versionlabel}}
+        version: {{.Values.promotionmgmt.versionLabel}}
     spec:
       containers:
       - name: {{.Release.Name}}-promgmtapi

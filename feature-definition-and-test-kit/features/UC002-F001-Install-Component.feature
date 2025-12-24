@@ -16,7 +16,7 @@ Feature: UC002-F001 Install Component
     | Name           | PackageName       | ReleaseName  | ExposedAPIName           | ComponentName                | SegmentName        | ExposedApiCount |
     | Core API       | productcatalog-v1 |      ctk     | productcatalogmanagement | ctk-productcatalogmanagement | coreFunction       | 1               |
     | Management API | productcatalog-v1 |      ctk     | metrics                  | ctk-productcatalogmanagement | managementFunction | 1               |
-    | Security API   | productcatalog-v1 |      ctk     | partyrole                | ctk-productcatalogmanagement | securityFunction   | 1               |
+    | Security API   | productcatalog-v1 |      ctk     | userrolesandpermissions  | ctk-productcatalogmanagement | securityFunction   | 1               |
 
     Scenario Outline: Create DependentAPI resources for each segment
         Given an example package '<PackageName>' with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment

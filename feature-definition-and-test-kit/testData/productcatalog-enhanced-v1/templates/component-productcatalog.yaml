@@ -59,11 +59,36 @@ spec:
   securityFunction:
     canvasSystemRole: {{ .Values.security.canvasSystemRole }}
     exposedAPIs: 
+    {{- if .Values.permissionspec.enabled }}
+    - name: userrolesandpermissions
+      specification:
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF672_UserRolePermissions/master/TMF672-UserRolePermissions-v5.0.0.swagger.json"
+      implementation: {{.Release.Name}}-permissionspecapi
+      apiType: openapi
+      gatewayConfiguration:
+        apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
+        rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
+        quota: {{.Values.component.apipolicy.quota | toYaml | nindent 10}}
+        OASValidation: {{.Values.component.apipolicy.OASValidation | toYaml | nindent 10}}
+        CORS: {{.Values.component.apipolicy.CORS | toYaml | nindent 10}}
+        template: "{{.Values.component.apipolicy.template}}"
+      path: /{{.Release.Name}}-{{.Values.component.name}}/rolesAndPermissionsManagement/v5
+      developerUI: /{{.Release.Name}}-{{.Values.component.name}}/rolesAndPermissionsManagement/v5/docs
+      port: 8080
+    {{- else }}
     - name: partyrole
       specification:
       - url: "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-partyroleapi
       apiType: openapi
+      gatewayConfiguration:
+        apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
+        rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
+        quota: {{.Values.component.apipolicy.quota | toYaml | nindent 10}}
+        OASValidation: {{.Values.component.apipolicy.OASValidation | toYaml | nindent 10}}
+        CORS: {{.Values.component.apipolicy.CORS | toYaml | nindent 10}}
+        template: "{{.Values.component.apipolicy.template}}"
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4/docs
       port: 8080
+    {{- end }}
