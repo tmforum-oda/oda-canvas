@@ -12,6 +12,7 @@ from typing import Optional, List
 from contextlib import asynccontextmanager
 from multiprocessing import Process
 import asyncio
+from authlib.integrations.httpx_client import AsyncOAuth2Client
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Form, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -172,18 +173,88 @@ class ResourceSyncer:
                     return await self.update_upstream(resource_id, resource_data)
                 raise e
 
+    
+
     async def create_upstream(self, resource_id: str, resource_data: dict):
+        client_id = os.getenv("OAUTH2_CLIENT_ID")
+        client_secret = os.getenv("OAUTH2_CLIENT_SECRET")
+        token_endpoint = os.getenv("OAUTH2_TOKEN_URL")
+        
+        # Prepare headers
+        headers = {"Content-Type": "application/json"}
+        
+        # Use client credentials for oauth2 authentication if configured
+        if client_id and client_secret and token_endpoint:
+            try:
+                # Use authlib OAuth2Client with client credentials
+                async with AsyncOAuth2Client(
+                    client_id=client_id,
+                    client_secret=client_secret,
+                    token_endpoint=token_endpoint
+                ) as oauth_client:
+                    # Fetch token using client credentials grant
+                    token = await oauth_client.fetch_token(
+                        token_endpoint,
+                        grant_type='client_credentials'
+                    )
+                    
+                    if token and 'access_token' in token:
+                        headers["Authorization"] = f"Bearer {token['access_token']}"
+            except Exception as e:
+                print(f"Failed to obtain OAuth2 token: {e}")
+                # Continue without authentication if token retrieval fails
+        
+        # Create resource on upstream
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(f"{self._upstream_url}/resource", json=resource_data, timeout=5)
+                response = await client.post(
+                    f"{self._upstream_url}/resource",
+                    json=resource_data,
+                    headers=headers,
+                    timeout=5
+                )
                 response.raise_for_status()
             except Exception as e:
                 raise RuntimeError(f"Failed to send resource {resource_id} to upstream: {e}")
                     
     async def update_upstream(self, resource_id: str, resource_data: dict):
+        client_id = os.getenv("OAUTH2_CLIENT_ID")
+        client_secret = os.getenv("OAUTH2_CLIENT_SECRET")
+        token_endpoint = os.getenv("OAUTH2_TOKEN_URL")
+        
+        # Prepare headers
+        headers = {"Content-Type": "application/json"}
+        
+        # Use client credentials for oauth2 authentication if configured
+        if client_id and client_secret and token_endpoint:
+            try:
+                # Use authlib OAuth2Client with client credentials
+                async with AsyncOAuth2Client(
+                    client_id=client_id,
+                    client_secret=client_secret,
+                    token_endpoint=token_endpoint
+                ) as oauth_client:
+                    # Fetch token using client credentials grant
+                    token = await oauth_client.fetch_token(
+                        token_endpoint,
+                        grant_type='client_credentials'
+                    )
+                    
+                    if token and 'access_token' in token:
+                        headers["Authorization"] = f"Bearer {token['access_token']}"
+            except Exception as e:
+                print(f"Failed to obtain OAuth2 token: {e}")
+                # Continue without authentication if token retrieval fails
+        
+        # Update resource on upstream
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.patch(f"{self._upstream_url}/resource/{resource_id}", json=resource_data, timeout=5)
+                response = await client.patch(
+                    f"{self._upstream_url}/resource/{resource_id}",
+                    json=resource_data,
+                    headers=headers,
+                    timeout=5
+                )
                 response.raise_for_status()
             except Exception as e:
                 raise RuntimeError(f"Failed to send resource {resource_id} to upstream: {e}")
@@ -372,7 +443,7 @@ async def get_authenticated_user(
         if cookie_token:
             try:
                 keycloak_user = await verify_keycloak_token(cookie_token)
-                user_roles=keycloak_user.resource_access.get("componentregistry3", {}).get("roles", [])
+                user_roles=keycloak_user.resource_access.get("componentregistry", {}).get("roles", [])
                 return UserWithPermissions(
                     username=keycloak_user.preferred_username or keycloak_user.sub,
                     email=keycloak_user.email,

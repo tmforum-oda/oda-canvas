@@ -48,7 +48,7 @@ ROLE_TO_PERMISSIONS = {
     "ui-viewer": ["dashboard.view", "resource.get"],
     "ui-admin": ["dashboard.view", "resource.get", "resource.delete", "hub.post", "hub.delete", "hub.post"],
     "query": ["resource.list", "hub.list"],
-    "sync": ["sync"],
+    "sync": ["resource.post", "resource.patch"],
 }
 
 class UserWithPermissions(User):
