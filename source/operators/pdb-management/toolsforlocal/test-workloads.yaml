@@ -1,0 +1,278 @@
+# Team-A: High Availability workloads
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-frontend
+  namespace: team-a
+  labels:
+    app: nginx-frontend
+    tier: frontend
+  annotations:
+    availability.oda.tmforum.org/class: "high-availability"
+    availability.oda.tmforum.org/min-available: "2"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-frontend
+  template:
+    metadata:
+      labels:
+        app: nginx-frontend
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-backend
+  namespace: team-a
+  labels:
+    app: nginx-backend
+    tier: backend
+  annotations:
+    availability.oda.tmforum.org/class: "standard"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-backend
+  template:
+    metadata:
+      labels:
+        app: nginx-backend
+        tier: backend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+# Team-B: Mission Critical and Non-Critical
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-api
+  namespace: team-b
+  labels:
+    app: nginx-api
+    tier: api
+  annotations:
+    availability.oda.tmforum.org/class: "mission-critical"
+    availability.oda.tmforum.org/min-available: "80%"
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: nginx-api
+  template:
+    metadata:
+      labels:
+        app: nginx-api
+        tier: api
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-worker
+  namespace: team-b
+  labels:
+    app: nginx-worker
+    tier: worker
+  annotations:
+    availability.oda.tmforum.org/class: "non-critical"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-worker
+  template:
+    metadata:
+      labels:
+        app: nginx-worker
+        tier: worker
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+# Team-C: Custom PDB settings
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-web
+  namespace: team-c
+  labels:
+    app: nginx-web
+    tier: web
+  annotations:
+    availability.oda.tmforum.org/class: "custom"
+    availability.oda.tmforum.org/min-available: "1"
+    availability.oda.tmforum.org/max-unavailable: "50%"
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx-web
+  template:
+    metadata:
+      labels:
+        app: nginx-web
+        tier: web
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-cache
+  namespace: team-c
+  labels:
+    app: nginx-cache
+    tier: cache
+  annotations:
+    availability.oda.tmforum.org/enabled: "false"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-cache
+  template:
+    metadata:
+      labels:
+        app: nginx-cache
+        tier: cache
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+# Team-D: No annotations (default policy)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-app
+  namespace: team-d
+  labels:
+    app: nginx-app
+    tier: app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+        tier: app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-service
+  namespace: team-d
+  labels:
+    app: nginx-service
+    tier: service
+    component: core
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-service
+  template:
+    metadata:
+      labels:
+        app: nginx-service
+        tier: service
+        component: core
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi

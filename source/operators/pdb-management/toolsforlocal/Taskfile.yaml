@@ -1,0 +1,96 @@
+---
+version: '3'
+
+# ========================================
+# CONFIGURATION VARIABLES
+# ========================================
+vars:
+  # Cluster Configuration
+  CLUSTER_NAME: oda-canvas
+  KIND_CONFIG: kind-oda-config.yaml
+
+  # Namespace Configuration
+  #VAULT_NS: canvas-vault
+  CANVAS_NS: canvas
+  # KONG_NS: kong
+
+# ========================================
+# TASK DEFINITIONS
+# ========================================
+tasks:
+  # ========================================
+  # CLUSTER MANAGEMENT
+  # ========================================
+  create-cluster:
+    desc: >-
+      Create a new KinD (Kubernetes in Docker) cluster using the specified configuration file
+    cmds:
+      - |
+        echo "=== Creating KinD cluster: {{.CLUSTER_NAME}} ==="
+      - >-
+        kind create cluster --config {{.KIND_CONFIG}}
+        --name {{.CLUSTER_NAME}}
+      - echo "=== Cluster created successfully ==="
+    silent: true
+
+  delete-cluster:
+    desc: >-
+      Remove the KinD cluster and clean up all associated resources
+    cmds:
+      - |
+        echo "=== Deleting KinD cluster: {{.CLUSTER_NAME}} ==="
+      - kind delete cluster --name {{.CLUSTER_NAME}}
+      - echo "=== Cluster deleted successfully ==="
+    silent: true
+
+  # ========================================
+  # BASIC KUBERNETES COMPONENTS
+  # ========================================
+  install-metrics-server:
+    desc: >-
+      Deploy the Kubernetes metrics-server to enable resource monitoring and HPA functionality
+    cmds:
+      - echo "=== Installing metrics-server... ==="
+      - >-
+        helm repo add metrics-server
+        https://kubernetes-sigs.github.io/metrics-server/ || true
+      - helm repo update metrics-server
+      - >-
+        helm upgrade --install metrics-server metrics-server/metrics-server
+        --namespace kube-system --create-namespace
+        --set 'args[0]=--kubelet-insecure-tls' --wait
+      - echo "=== Metrics-server installed successfully ==="
+    silent: true
+
+  install-cert-manager:
+    desc: Install cert-manager for automatic TLS certificate management
+    cmds:
+      - echo "=== Installing cert-manager... ==="
+      - helm repo add jetstack https://charts.jetstack.io || true
+      - helm repo update jetstack
+      - >-
+        helm upgrade --install cert-manager jetstack/cert-manager
+        --namespace cert-manager --create-namespace
+        --set crds.enabled=true --wait
+      - echo "=== Cert-manager installed successfully ==="
+    silent: true
+
+  create-namespace:
+    desc: Create the namespace
+    cmds:
+      - kubectl create namespace {{.CANVAS_NS}}
+      - echo "=== Namespace created successfully ==="
+    silent: true
+
+  # ========================================
+  # FULL SETUP
+  # ========================================
+  full-setup:
+    desc: >-
+      Full setup of the cluster
+    cmds:
+      - task: create-cluster
+      - task: install-metrics-server
+      - task: install-cert-manager
+      - task: create-namespace
+    silent: true

@@ -1,0 +1,32 @@
+@startuml
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam arrowColor #333
+skinparam rectangleFontWeight bold
+
+start
+:Deployment Created/Updated;
+
+:Find Matching Policies;
+
+if (Policies Found?) then (Yes)
+  :Select Highest\nPriority Policy;
+  :Check Enforcement;
+
+  if (Enforcement) then (STRICT)
+    :Policy Wins\nAlways;
+  elseif (FLEXIBLE)
+    :Check Against\nMinimum;
+  else (ADVISORY)
+    :Check Reason\nRequired;
+  endif
+
+else (No)
+  :Use Annotation\n(if exists);
+endif
+
+:Create/Update\nPDB;
+
+stop
+@enduml

@@ -34,6 +34,22 @@ type CacheStats struct {
 	SizeBytes int64
 }
 
+// CacheConfig holds configuration for PolicyCache
+type CacheConfig struct {
+	MaxSize              int
+	PolicyTTL            time.Duration
+	MaintenanceWindowTTL time.Duration
+}
+
+// DefaultCacheConfig returns default cache configuration
+func DefaultCacheConfig() CacheConfig {
+	return CacheConfig{
+		MaxSize:              100,
+		PolicyTTL:            5 * time.Minute,
+		MaintenanceWindowTTL: 1 * time.Minute,
+	}
+}
+
 // PolicyCache caches policy decisions to reduce API calls
 type PolicyCache struct {
 	mu               sync.RWMutex
@@ -42,6 +58,7 @@ type PolicyCache struct {
 	maintenanceCache map[string]*maintenanceCacheEntry // Cache for maintenance windows
 	maxSize          int
 	ttl              time.Duration
+	maintenanceTTL   time.Duration // Configurable maintenance window TTL
 	cleanupInterval  time.Duration
 	stopCh           chan struct{}
 
@@ -66,15 +83,16 @@ type maintenanceCacheEntry struct {
 	timestamp time.Time
 }
 
-// NewPolicyCache creates a new policy cache
-func NewPolicyCache(maxSize int, ttl time.Duration) *PolicyCache {
+// NewPolicyCacheWithConfig creates a new policy cache with configuration
+func NewPolicyCacheWithConfig(config CacheConfig) *PolicyCache {
 	pc := &PolicyCache{
 		entries:          make(map[string]*policyCacheEntry),
 		listCache:        make(map[string]*listCacheEntry),
 		maintenanceCache: make(map[string]*maintenanceCacheEntry),
-		maxSize:          maxSize,
-		ttl:              ttl,
-		cleanupInterval:  ttl / 2,
+		maxSize:          config.MaxSize,
+		ttl:              config.PolicyTTL,
+		maintenanceTTL:   config.MaintenanceWindowTTL,
+		cleanupInterval:  config.PolicyTTL / 2,
 		stopCh:           make(chan struct{}),
 	}
 
@@ -82,6 +100,15 @@ func NewPolicyCache(maxSize int, ttl time.Duration) *PolicyCache {
 	go pc.cleanup()
 
 	return pc
+}
+
+// NewPolicyCache creates a new policy cache (backward compatible)
+func NewPolicyCache(maxSize int, ttl time.Duration) *PolicyCache {
+	return NewPolicyCacheWithConfig(CacheConfig{
+		MaxSize:              maxSize,
+		PolicyTTL:            ttl,
+		MaintenanceWindowTTL: time.Minute, // Default for backward compatibility
+	})
 }
 
 // Get retrieves a single policy from cache
@@ -185,8 +212,8 @@ func (pc *PolicyCache) GetMaintenanceWindow(key string) (bool, bool) {
 		return false, false
 	}
 
-	// Check if entry is expired (maintenance window cache has shorter TTL)
-	if time.Since(entry.timestamp) > time.Minute {
+	// Check if entry is expired using configurable TTL
+	if time.Since(entry.timestamp) > pc.maintenanceTTL {
 		return false, false
 	}
 
@@ -212,6 +239,45 @@ func (pc *PolicyCache) Delete(key string) {
 	delete(pc.entries, key)
 	delete(pc.listCache, key)
 	delete(pc.maintenanceCache, key)
+}
+
+// InvalidatePolicy invalidates a specific policy and all related cache entries
+func (pc *PolicyCache) InvalidatePolicy(policyKey string) {
+	pc.mu.Lock()
+	defer pc.mu.Unlock()
+
+	// Delete the specific policy
+	delete(pc.entries, policyKey)
+
+	// Delete the all-policies list cache
+	delete(pc.listCache, "all-policies")
+
+	// Invalidate all maintenance window entries that might reference this policy
+	// (Maintenance windows are tied to policy configurations)
+	for key := range pc.maintenanceCache {
+		delete(pc.maintenanceCache, key)
+	}
+
+	atomic.AddInt64(&pc.evictions, 1)
+}
+
+// InvalidateByNamespace clears all cache entries for a specific namespace
+func (pc *PolicyCache) InvalidateByNamespace(namespace string) {
+	pc.mu.Lock()
+	defer pc.mu.Unlock()
+
+	prefix := namespace + "/"
+
+	// Clear matching individual policies
+	for key := range pc.entries {
+		if len(key) >= len(prefix) && key[:len(prefix)] == prefix {
+			delete(pc.entries, key)
+			atomic.AddInt64(&pc.evictions, 1)
+		}
+	}
+
+	// Always invalidate list cache when namespace changes
+	delete(pc.listCache, "all-policies")
 }
 
 // Clear removes all entries from cache
@@ -309,9 +375,9 @@ func (pc *PolicyCache) cleanup() {
 				}
 			}
 
-			// Clean maintenance cache (shorter TTL)
+			// Clean maintenance cache using configurable TTL
 			for k, v := range pc.maintenanceCache {
-				if now.Sub(v.timestamp) > time.Minute {
+				if now.Sub(v.timestamp) > pc.maintenanceTTL {
 					delete(pc.maintenanceCache, k)
 				}
 			}

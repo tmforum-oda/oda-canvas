@@ -48,7 +48,6 @@ func CreateFakeClient(objects ...client.Object) client.Client {
 // CreateTestReconciler creates a test reconciler with fake client and event recorder
 type TestReconcilers struct {
 	DeploymentReconciler         *DeploymentReconciler
-	PDBReconciler                *PDBReconciler
 	AvailabilityPolicyReconciler *AvailabilityPolicyReconciler
 	Client                       client.Client
 	Scheme                       *runtime.Scheme
@@ -78,12 +77,6 @@ func CreateTestReconcilers(objects ...client.Object) *TestReconcilers {
 			Recorder: fakeRecorder,
 			Events:   eventRecorder,
 		},
-		PDBReconciler: &PDBReconciler{
-			Client:   fakeClient,
-			Scheme:   scheme,
-			Recorder: fakeRecorder,
-			Events:   eventRecorder,
-		},
 		AvailabilityPolicyReconciler: &AvailabilityPolicyReconciler{
 			Client:   fakeClient,
 			Scheme:   scheme,
@@ -96,12 +89,12 @@ func CreateTestReconcilers(objects ...client.Object) *TestReconcilers {
 // SetEnvWithCleanup sets an environment variable and returns a cleanup function
 func SetEnvWithCleanup(key, value string) func() {
 	oldValue := os.Getenv(key)
-	os.Setenv(key, value)
+	_ = os.Setenv(key, value)
 	return func() {
 		if oldValue == "" {
-			os.Unsetenv(key)
+			_ = os.Unsetenv(key)
 		} else {
-			os.Setenv(key, oldValue)
+			_ = os.Setenv(key, oldValue)
 		}
 	}
 }

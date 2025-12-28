@@ -3,11 +3,14 @@ package controller
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/metrics"
 )
 
 // RetryConfig holds retry configuration
@@ -16,6 +19,26 @@ type RetryConfig struct {
 	InitialDelay  time.Duration
 	MaxDelay      time.Duration
 	BackoffFactor float64
+}
+
+// Global retry configuration
+var (
+	globalRetryConfig = DefaultRetryConfig()
+	retryConfigMu     sync.RWMutex
+)
+
+// SetGlobalRetryConfig sets the global retry configuration
+func SetGlobalRetryConfig(config RetryConfig) {
+	retryConfigMu.Lock()
+	defer retryConfigMu.Unlock()
+	globalRetryConfig = config
+}
+
+// GetGlobalRetryConfig returns the current global retry configuration
+func GetGlobalRetryConfig() RetryConfig {
+	retryConfigMu.RLock()
+	defer retryConfigMu.RUnlock()
+	return globalRetryConfig
 }
 
 // DefaultRetryConfig returns default retry configuration
@@ -54,11 +77,21 @@ func RetryableError(err error) bool {
 		return true
 	}
 
+	// Check for service unavailable errors
+	if errors.IsServiceUnavailable(err) {
+		return true
+	}
+
 	return false
 }
 
-// RetryWithBackoff executes a function with exponential backoff retry
+// RetryWithBackoff executes a function with exponential backoff retry (backward compatible, no metrics)
 func RetryWithBackoff(ctx context.Context, config RetryConfig, operation func() error) error {
+	return RetryWithBackoffWithMetrics(ctx, config, "unknown", operation)
+}
+
+// RetryWithBackoffWithMetrics executes a function with exponential backoff retry and records metrics
+func RetryWithBackoffWithMetrics(ctx context.Context, config RetryConfig, operationName string, fn func() error) error {
 	backoff := wait.Backoff{
 		Duration: config.InitialDelay,
 		Factor:   config.BackoffFactor,
@@ -67,65 +100,83 @@ func RetryWithBackoff(ctx context.Context, config RetryConfig, operation func() 
 		Cap:      config.MaxDelay,
 	}
 
-	return wait.ExponentialBackoff(backoff, func() (bool, error) {
+	attempt := 0
+	var lastErr error
+
+	err := wait.ExponentialBackoff(backoff, func() (bool, error) {
 		select {
 		case <-ctx.Done():
 			return false, ctx.Err()
 		default:
 		}
 
-		err := operation()
-		if err == nil {
+		attempt++
+		lastErr = fn()
+
+		if lastErr == nil {
+			// Success - record if we had to retry
+			metrics.RecordRetrySuccess(operationName, attempt)
 			return true, nil
 		}
 
-		if !RetryableError(err) {
-			return false, err
+		// Record retry attempt
+		errorType := GetErrorType(lastErr)
+		metrics.RecordRetryAttempt(operationName, errorType, attempt)
+
+		if !RetryableError(lastErr) {
+			return false, lastErr
 		}
 
 		return false, nil
 	})
+
+	if err != nil && lastErr != nil {
+		// Retries exhausted
+		metrics.RecordRetryExhausted(operationName, GetErrorType(lastErr))
+	}
+
+	return err
 }
 
 // RetryUpdateWithBackoff retries a client update operation with exponential backoff
 func RetryUpdateWithBackoff(ctx context.Context, c client.Client, obj client.Object, config RetryConfig) error {
-	return RetryWithBackoff(ctx, config, func() error {
+	return RetryWithBackoffWithMetrics(ctx, config, "update", func() error {
 		return c.Update(ctx, obj)
 	})
 }
 
 // RetryStatusUpdateWithBackoff retries a client status update operation with exponential backoff
 func RetryStatusUpdateWithBackoff(ctx context.Context, c client.Client, obj client.Object, config RetryConfig) error {
-	return RetryWithBackoff(ctx, config, func() error {
+	return RetryWithBackoffWithMetrics(ctx, config, "status_update", func() error {
 		return c.Status().Update(ctx, obj)
 	})
 }
 
 // RetryCreateWithBackoff retries a client create operation with exponential backoff
 func RetryCreateWithBackoff(ctx context.Context, c client.Client, obj client.Object, config RetryConfig) error {
-	return RetryWithBackoff(ctx, config, func() error {
+	return RetryWithBackoffWithMetrics(ctx, config, "create", func() error {
 		return c.Create(ctx, obj)
 	})
 }
 
 // RetryDeleteWithBackoff retries a client delete operation with exponential backoff
 func RetryDeleteWithBackoff(ctx context.Context, c client.Client, obj client.Object, config RetryConfig) error {
-	return RetryWithBackoff(ctx, config, func() error {
+	return RetryWithBackoffWithMetrics(ctx, config, "delete", func() error {
 		return c.Delete(ctx, obj)
 	})
 }
 
 // RetryGetWithBackoff retries a client get operation with exponential backoff
 func RetryGetWithBackoff(ctx context.Context, c client.Client, key client.ObjectKey, obj client.Object, config RetryConfig) error {
-	return RetryWithBackoff(ctx, config, func() error {
+	return RetryWithBackoffWithMetrics(ctx, config, "get", func() error {
 		return c.Get(ctx, key, obj)
 	})
 }
 
 // RetryListWithBackoff retries a client list operation with exponential backoff
 func RetryListWithBackoff(ctx context.Context, c client.Client, list client.ObjectList, opts ...client.ListOption) error {
-	config := DefaultRetryConfig()
-	return RetryWithBackoff(ctx, config, func() error {
+	config := GetGlobalRetryConfig()
+	return RetryWithBackoffWithMetrics(ctx, config, "list", func() error {
 		return c.List(ctx, list, opts...)
 	})
 }
@@ -164,6 +215,8 @@ func GetErrorType(err error) string {
 		return "too_many_requests"
 	case errors.IsUnexpectedServerError(err):
 		return "server_error"
+	case errors.IsServiceUnavailable(err):
+		return "service_unavailable"
 	default:
 		return "unknown"
 	}
