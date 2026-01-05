@@ -11,13 +11,17 @@ from pydantic import BaseModel
 
 
 # Configuration from environment variables
-SECRET_KEY = os.getenv("OAUTH2_SECRET_KEY", "your-secret-key-change-in-production")
+SECRET_KEY = os.getenv("OAUTH2_SECRET_KEY")
 ALGORITHM = os.getenv("OAUTH2_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("OAUTH2_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 OAUTH2_ENABLED = os.getenv("OAUTH2_ENABLED", "false").lower() == "true"
 
 # OAuth2 scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+
+
+if OAUTH2_ENABLED and not SECRET_KEY:
+    raise ValueError("OAUTH2_SECRET_KEY environment variable must be set for OAuth2 authentication.")
 
 
 class Token(BaseModel):

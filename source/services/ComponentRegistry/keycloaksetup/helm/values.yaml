@@ -11,6 +11,6 @@ kcAdminClientSecret:
 # kcBaseUrl: https://canvas-keycloak.ihc-dt.cluster-2.de/auth
 kcBaseUrl: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth
 kcRealm: odari
-compregAdminInitPassword: CompregAdminChangeme123!
-compregViewerInitPassword: CompregViewerChangeme123!
+compregAdminInitPassword: 
+compregViewerInitPassword: 
 

@@ -105,8 +105,7 @@ odaCanvas:
 
 oauth2:
   enabled: true
-  #secretKey: invalidsecretkey0123456789abc
-  secretKey: 7nE4h3BOnGLhCrGezKK3AEG3Coe4OOJM
+  #secretKey: ****
   algorithm: HS256
   tokenExpireMinutes: 30
 
@@ -115,7 +114,6 @@ keycloak:
   url: https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari
   audience: account
   clientId: compreg-manager
-  #clientSecret: invalidclientsecret0123456789abc
-  clientSecret: qyWusM6U2enXUyeujbFxs55NCLaorZp8
+  #clientSecret: ****
 
 

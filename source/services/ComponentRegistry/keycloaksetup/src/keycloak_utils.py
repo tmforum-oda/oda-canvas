@@ -348,6 +348,16 @@ class Keycloak:
                 "get_mapped_roles failed with HTTP status " f"{r.status_code}: {e}"
             ) from None
 
+    def random_password(self, length: int = 12) -> str:
+        """
+        Generates a random password of the given length
+
+        Returns the generated password string
+        """
+        characters = string.ascii_letters + string.digits + ".+-/!"
+        password = ''.join(random.choice(characters) for _ in range(length))
+        return password
+
     def create_user(self, username: str, init_password) -> dict:
         """
         POSTs a new user named according to the username for
@@ -355,6 +365,10 @@ class Keycloak:
 
         Returns the created user dictonary, or raises an exception for the caller to catch
         """
+        if not init_password:
+            init_password = self.random_password()
+            print(f'Generated random init-password for user {username}: "{init_password}"')
+            
         json_obj = {
             "username": username,
             "enabled": True,
