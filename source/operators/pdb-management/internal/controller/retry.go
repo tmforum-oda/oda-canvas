@@ -85,7 +85,12 @@ func RetryableError(err error) bool {
 	return false
 }
 
-// RetryWithBackoff executes a function with exponential backoff retry (backward compatible, no metrics)
+// RetryWithBackoff executes a function with exponential backoff retry.
+//
+// Deprecated: This wrapper is kept for backward compatibility and records retry metrics
+// using the fixed operation name "unknown", which makes metrics less useful for debugging
+// and monitoring. Callers should prefer RetryWithBackoffWithMetrics and provide a meaningful
+// operationName so that retry metrics can be attributed correctly.
 func RetryWithBackoff(ctx context.Context, config RetryConfig, operation func() error) error {
 	return RetryWithBackoffWithMetrics(ctx, config, "unknown", operation)
 }

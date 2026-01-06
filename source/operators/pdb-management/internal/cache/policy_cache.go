@@ -18,6 +18,7 @@ package cache
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -270,7 +271,7 @@ func (pc *PolicyCache) InvalidateByNamespace(namespace string) {
 
 	// Clear matching individual policies
 	for key := range pc.entries {
-		if len(key) >= len(prefix) && key[:len(prefix)] == prefix {
+		if strings.HasPrefix(key, prefix) {
 			delete(pc.entries, key)
 			atomic.AddInt64(&pc.evictions, 1)
 		}

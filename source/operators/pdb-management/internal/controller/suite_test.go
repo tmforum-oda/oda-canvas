@@ -49,6 +49,7 @@ func CreateFakeClient(objects ...client.Object) client.Client {
 type TestReconcilers struct {
 	DeploymentReconciler         *DeploymentReconciler
 	AvailabilityPolicyReconciler *AvailabilityPolicyReconciler
+	PDBReconciler                *PDBReconciler
 	Client                       client.Client
 	Scheme                       *runtime.Scheme
 	EventRecorder                *events.EventRecorder
@@ -83,18 +84,32 @@ func CreateTestReconcilers(objects ...client.Object) *TestReconcilers {
 			Recorder: fakeRecorder,
 			Events:   eventRecorder,
 		},
+		PDBReconciler: &PDBReconciler{
+			Client:   fakeClient,
+			Scheme:   scheme,
+			Recorder: fakeRecorder,
+			Events:   eventRecorder,
+		},
 	}
 }
 
-// SetEnvWithCleanup sets an environment variable and returns a cleanup function
+// SetEnvWithCleanup sets an environment variable and returns a cleanup function.
+// In test helper functions, environment variable operations should not silently fail
+// as this could lead to hard-to-debug test failures in restricted environments.
 func SetEnvWithCleanup(key, value string) func() {
 	oldValue := os.Getenv(key)
-	_ = os.Setenv(key, value)
+	if err := os.Setenv(key, value); err != nil {
+		panic(fmt.Sprintf("failed to set environment variable %s: %v", key, err))
+	}
 	return func() {
 		if oldValue == "" {
-			_ = os.Unsetenv(key)
+			if err := os.Unsetenv(key); err != nil {
+				panic(fmt.Sprintf("failed to unset environment variable %s: %v", key, err))
+			}
 		} else {
-			_ = os.Setenv(key, oldValue)
+			if err := os.Setenv(key, oldValue); err != nil {
+				panic(fmt.Sprintf("failed to restore environment variable %s: %v", key, err))
+			}
 		}
 	}
 }
