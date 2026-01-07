@@ -1,0 +1,140 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-kc-setup-hook-job"
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}-kc-setup-hook"
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- include "image-pull-secrets" . |nindent 6 }}
+      {{- end }}
+      restartPolicy: Never
+      containers:
+      - name: kc-setup
+        image: ocfork/kc-init:1.0.5
+        env:
+        - name: KC_USERNAME
+          value: {{ .Values.keycloak.setup.kcUsername | default "admin" }}
+        - name: KC_PASSWORD
+          {{ if .Values.keycloak.setup.kcPassword -}}
+          value: "{{ .Values.keycloak.setup.kcPassword }}"
+          {{- else -}}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.keycloak.setup.canvasKeycloakSecret }}
+              key: {{ .Values.keycloak.setup.adminPasswordKey }}
+          {{- end }}
+        - name: KC_ADMIN_CLIENT_ID
+          value: {{ .Values.keycloak.setup.kcAdminClientID }}
+        - name: KC_ADMIN_CLIENT_SECRET
+          value: "{{ .Values.keycloak.setup.kcAdminClientSecret }}"
+        - name: KC_BASE_URL
+          value: {{ .Values.keycloak.setup.kcBaseUrl | default "admin" }}
+        - name: KC_REALM
+          value: {{ .Values.keycloak.setup.kcRealm }}
+        - name: COMPREG_ADMIN_INIT_PASSWORD
+          value: "{{ .Values.keycloak.setup.compregAdminInitPassword }}"
+        - name: COMPREG_VIEWER_INIT_PASSWORD
+          value: "{{ .Values.keycloak.setup.compregViewerInitPassword }}"
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        #command: ["/bin/sh"]
+        #args: ["-c", "date -Iseconds;
+        #python3 -u kc_setup_compreg.py;
+        #date -Iseconds;
+        #sleep 3600"]
+        volumeMounts:
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: kube-api-access
+          readOnly: true
+      serviceAccountName: {{ .Release.Name }}-kc-setup-hook-sa
+      volumes:
+      - name: kube-api-access
+        projected:
+          defaultMode: 420
+          sources:
+          - serviceAccountToken:
+              expirationSeconds: 600
+              path: token
+          - configMap:
+              items:
+              - key: ca.crt
+                path: ca.crt
+              name: kube-root-ca.crt
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-kc-setup-hook-sa
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    app: keycloak-init
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-kc-setup-hook-role
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    app: keycloak-init
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-kc-setup-hook-rb
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    app: keycloak-init
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-kc-setup-hook-role
+subjects:
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-kc-setup-hook-sa
+  namespace: {{ .Release.Namespace }}

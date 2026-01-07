@@ -79,7 +79,7 @@ spec:
             - name: OAUTH2_ENABLED 
               value: "{{ .Values.oauth2.enabled }}"
             - name: OAUTH2_SECRET_KEY 
-              value: "{{ .Values.oauth2.secretKey }}"
+              value: {{ include "component-registry.oauth2-secret-key" . | quote }}
             - name: OAUTH2_ALGORITHM 
               value: "{{ .Values.oauth2.algorithm }}"
             - name: OAUTH2_ACCESS_TOKEN_EXPIRE_MINUTES 

@@ -35,6 +35,38 @@ def create_clients_users_and_roles(
         query_role: str = f"query{SUFFIX}",
         depapi_client_id: str = f"dependentapi-operator{SUFFIX}"
     ):
+    """
+    Creates Keycloak clients, users, and roles for Component Registry Manager.
+    
+    KeyCloak:
+      Clients:
+        - Client "componentregistry"
+          - Role "ui-viewer"
+          - Role "ui-admin"
+          - Role "sync"
+          - Role "query"
+        - Client "dependentapi-operator"
+      Users:
+        - User "compreg-viewer"
+          - mappedRole "componentregistry:ui-viewer"
+        - User "compreg-admin"
+          - mappedRoles "componentregistry:ui-admin"
+        - User "service-account-dependentapi-operator"
+          - mappedRole "componentregistry:query"
+        - User "service-account-componentregistry"
+          - mappedRole "componentregistry:sync"
+          
+    Kubernetes:
+      - Secret "componentregistry-oidc-secret"
+          - client_id
+          - client_secret
+          - token_url
+      - Secret "dependentapi-operator-oidc-secret"
+          - client_id
+          - client_secret
+          - token_url
+          
+    """
     kc = Keycloak(KC_BASE_URL, KC_REALM, user=KC_USERNAME, pwd=KC_PASSWORD, admin_client_id=KC_ADMIN_CLIENT_ID, admin_client_secret=KC_ADMIN_CLIENT_SECRET)
 
     clients = kc.get_client_list()

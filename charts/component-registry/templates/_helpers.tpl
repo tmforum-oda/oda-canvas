@@ -54,6 +54,12 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
+
+{{- define "component-registry.secretname" -}}
+  {{- printf "%s-sec" (include "component-registry.fullname" .) -}}
+{{- end }}
+
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}
@@ -150,3 +156,12 @@ Return the own component registry name, either from values or from release name
 {{- end }}
 
 
+{{- define "component-registry.oauth2-secret-key" -}}
+  {{- if not (index .Release "STORE_oauth2SecretKey") -}}
+    {{- $secretObj := (lookup "v1" "Secret" .Release.Namespace (include "component-registry.secretname" .)) | default dict }}
+    {{- $secretData := (get $secretObj "data") | default dict }}
+    {{- $oauth2SecretKey := (.Values.oauth2.secretKey | b64enc) | default (get $secretData "oauth2SecretKey") | default (randAlphaNum 32 | b64enc) }}
+    {{- $_ := set .Release "STORE_oauth2SecretKey" $oauth2SecretKey -}}
+  {{- end -}}
+  {{- print .Release.STORE_oauth2SecretKey }}
+{{- end }}

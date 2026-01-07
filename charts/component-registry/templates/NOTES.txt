@@ -16,6 +16,10 @@ Component Registry Service Information:
 - Version: {{ .Chart.AppVersion }}
 - ODA Canvas Component: {{ index .Values.odaCanvas.labels "oda.tmforum.org/componentName" }}
 
+Secrets:
+- oaut2SecretKey: {{ include "component-registry.oauth2-secret-key" . | b64dec}}
+
+
 For more information about ODA Canvas Component Registry, visit:
 https://github.com/tmforum-oda/oda-canvas
 

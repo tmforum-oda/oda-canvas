@@ -1,6 +1,8 @@
 import requests
-import json
 from datetime import datetime, timedelta
+import random
+import string
+
 
 class Keycloak:
 
@@ -226,6 +228,7 @@ class Keycloak:
             return self._access_token        
         try:
             if self._admin_client_id and self._admin_client_secret:
+                print("Getting token using client credentials")
                 r = requests.post(
                     self.get_token_url(),
                     data={
@@ -235,6 +238,7 @@ class Keycloak:
                     },
                 )
             elif self._user and self._pwd:
+                print("Getting token using username and password")
                 r = requests.post(
                     self._url + "/realms/master/protocol/openid-connect/token",
                     data={

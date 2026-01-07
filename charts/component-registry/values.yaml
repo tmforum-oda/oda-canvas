@@ -105,7 +105,8 @@ odaCanvas:
 
 oauth2:
   enabled: true
-  #secretKey: ****
+  # if secret key is empty a random key will be created 
+  secretKey: ""
   algorithm: HS256
   tokenExpireMinutes: 30
 
@@ -116,4 +117,18 @@ keycloak:
   clientId: compreg-manager
   #clientSecret: ****
 
+  setup:
+    kcUsername: admin
+    ## plain text admin password. If not set the k8s secret canvasKeycloakSecret[adminPasswordKey] will be used
+    # kcPassword: "****"
+    canvasKeycloakSecret: canvas-keycloak
+    adminPasswordKey: admin-password
 
+    kcAdminClientID: canvassystem
+    kcAdminClientSecret:
+
+    # kcBaseUrl: https://canvas-keycloak.ihc-dt.cluster-2.de/auth
+    kcBaseUrl: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth
+    kcRealm: odari
+    compregAdminInitPassword: 
+    compregViewerInitPassword: 
