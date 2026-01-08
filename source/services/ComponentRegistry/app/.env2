@@ -1,9 +1,0 @@
-PORT=8082
-
-#DATABASE_URL=sqlite:///./data/resource_inventory2.db
-DATABASE_URL=sqlite:///./resource_inventory2.db
-
-CANVAS_RESOURCE_INVENTORY=
-OWN_REGISTRY_NAME=localdev82
-
-K8S_PROXY=

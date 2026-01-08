@@ -12,22 +12,15 @@ from typing import Optional, List
 from contextlib import asynccontextmanager
 from multiprocessing import Process
 import asyncio
-from authlib.integrations.httpx_client import AsyncOAuth2Client
 
-from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Form, Cookie
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user, Token, User, UserWithPermissions, authenticate_user, OAUTH2_ENABLED, get_current_user, oauth2_scheme)
+from app.auth import (create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, Token, User, UserWithPermissions, authenticate_user, OAUTH2_ENABLED, get_current_user, oauth2_scheme)
 from app.keycloak_auth import KEYCLOAK_URL
-from app.keycloak_auth import (
-    get_current_keycloak_user,
-    get_current_keycloak_user_optional,
-    verify_keycloak_token,
-    KEYCLOAK_ENABLED,
-    KeycloakUser
-)
+from app.keycloak_auth import verify_keycloak_token, KEYCLOAK_ENABLED
 
 from sqlalchemy.orm import Session
 from jsonpath import findall
@@ -36,7 +29,7 @@ from app import models, schemas, crud
 from app.database import engine, get_db, Base
 from app.global_lock import GlobalLock
 from app.validators import TMF639ResourceValidator
-
+from app.oauth2_httpx_async import auth_client
 
 # Filter to suppress health check logging
 class HealthCheckFilter(logging.Filter):
@@ -94,18 +87,17 @@ class ResourceSyncer:
         print(f"CANVAS_RESOURCE_INVENTORY: {CANVAS_RESOURCE_INVENTORY}")
         print(f"WATCHED_NAMESPACES: {WATCHED_NAMESPACES}")
         async def fetch_versions():
-            async with httpx.AsyncClient() as client:
-                try:
-                    response = await client.get(f"{self._upstream_url}/resource", params={"fields": "resourceVersion"}, timeout=10)
-                    response.raise_for_status()
-                    resources = response.json()
-                    for res in resources:
-                        resource_id = res.get("id")
-                        resourceVersion = res.get("resourceVersion")
-                        self._resource_versions[resource_id] = resourceVersion
-                    self._initialized = True
-                except Exception as e:
-                    print(f"Failed to initialize ResourceSyncer: {e}")
+            try:
+                response = await auth_client.get(f"{self._upstream_url}/resource", params={"fields": "resourceVersion"}, timeout=10)
+                response.raise_for_status()
+                resources = response.json()
+                for res in resources:
+                    resource_id = res.get("id")
+                    resourceVersion = res.get("resourceVersion")
+                    self._resource_versions[resource_id] = resourceVersion
+                self._initialized = True
+            except Exception as e:
+                print(f"Failed to initialize ResourceSyncer: {e}")
 
         asyncio.run(fetch_versions())
 
@@ -149,24 +141,22 @@ class ResourceSyncer:
         return resource_data
     
     async def delete_upstream(self, resource_id: str):
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.delete(f"{self._upstream_url}/resource/{resource_id}", timeout=5)
-                response.raise_for_status()
-            except Exception as e:
-                raise RuntimeError(f"Failed to delete resource {resource_id} from upstream: {e}")
+        try:
+            response = await auth_client.delete(f"{self._upstream_url}/resource/{resource_id}", timeout=5)
+            response.raise_for_status()
+        except Exception as e:
+            raise RuntimeError(f"Failed to delete resource {resource_id} from upstream: {e}")
     
     async def fetch_from_downstream(self, resource_id: str, namespace: str = None) -> dict:
-        async with httpx.AsyncClient() as client:
-            try:
-                url = f"{self._downstream_url}/resource/{resource_id}"
-                if namespace:
-                    url += f"?namespace={namespace}"
-                response = await client.get(url, timeout=5)
-                response.raise_for_status()
-                return response.json()
-            except Exception as e:
-                raise RuntimeError(f"Failed to fetch resource {resource_id} from downstream: {e}")
+        try:
+            url = f"{self._downstream_url}/resource/{resource_id}"
+            if namespace:
+                url += f"?namespace={namespace}"
+            response = await auth_client.get(url, timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            raise RuntimeError(f"Failed to fetch resource {resource_id} from downstream: {e}")
 
     async def send_to_upstream(self, resource_id: str, resource_data: dict):
         if resource_id in self._resource_versions:
@@ -187,89 +177,33 @@ class ResourceSyncer:
     
 
     async def create_upstream(self, resource_id: str, resource_data: dict):
-        client_id = os.getenv("OAUTH2_CLIENT_ID")
-        client_secret = os.getenv("OAUTH2_CLIENT_SECRET")
-        token_endpoint = os.getenv("OAUTH2_TOKEN_URL")
-        
-        # Prepare headers
         headers = {"Content-Type": "application/json"}
-        
-        # Use client credentials for oauth2 authentication if configured
-        if client_id and client_secret and token_endpoint:
-            try:
-                # Use authlib OAuth2Client with client credentials
-                async with AsyncOAuth2Client(
-                    client_id=client_id,
-                    client_secret=client_secret,
-                    token_endpoint=token_endpoint
-                ) as oauth_client:
-                    # Fetch token using client credentials grant
-                    token = await oauth_client.fetch_token(
-                        token_endpoint,
-                        grant_type='client_credentials'
-                    )
-                    
-                    if token and 'access_token' in token:
-                        headers["Authorization"] = f"Bearer {token['access_token']}"
-            except Exception as e:
-                print(f"Failed to obtain OAuth2 token: {e}")
-                # Continue without authentication if token retrieval fails
-        
-        # Create resource on upstream
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(
-                    f"{self._upstream_url}/resource",
-                    json=resource_data,
-                    headers=headers,
-                    timeout=5
-                )
-                response.raise_for_status()
-            except Exception as e:
-                raise RuntimeError(f"Failed to send resource {resource_id} to upstream: {e}")
+        try:
+            response = await auth_client.post(
+                f"{self._upstream_url}/resource",
+                json=resource_data,
+                headers=headers,
+                timeout=5
+            )
+            response.raise_for_status()
+        except Exception as e:
+            raise RuntimeError(f"Failed to send resource {resource_id} to upstream: {e}")
+
                     
     async def update_upstream(self, resource_id: str, resource_data: dict):
-        client_id = os.getenv("OAUTH2_CLIENT_ID")
-        client_secret = os.getenv("OAUTH2_CLIENT_SECRET")
-        token_endpoint = os.getenv("OAUTH2_TOKEN_URL")
-        
-        # Prepare headers
         headers = {"Content-Type": "application/json"}
-        
-        # Use client credentials for oauth2 authentication if configured
-        if client_id and client_secret and token_endpoint:
-            try:
-                # Use authlib OAuth2Client with client credentials
-                async with AsyncOAuth2Client(
-                    client_id=client_id,
-                    client_secret=client_secret,
-                    token_endpoint=token_endpoint
-                ) as oauth_client:
-                    # Fetch token using client credentials grant
-                    token = await oauth_client.fetch_token(
-                        token_endpoint,
-                        grant_type='client_credentials'
-                    )
+        try:
+            response = await auth_client.patch(
+                f"{self._upstream_url}/resource/{resource_id}",
+                json=resource_data,
+                headers=headers,
+                timeout=5
+            )
+            response.raise_for_status()
+        except Exception as e:
+            raise RuntimeError(f"Failed to send resource {resource_id} to upstream: {e}")
+
                     
-                    if token and 'access_token' in token:
-                        headers["Authorization"] = f"Bearer {token['access_token']}"
-            except Exception as e:
-                print(f"Failed to obtain OAuth2 token: {e}")
-                # Continue without authentication if token retrieval fails
-        
-        # Update resource on upstream
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.patch(
-                    f"{self._upstream_url}/resource/{resource_id}",
-                    json=resource_data,
-                    headers=headers,
-                    timeout=5
-                )
-                response.raise_for_status()
-            except Exception as e:
-                raise RuntimeError(f"Failed to send resource {resource_id} to upstream: {e}")
-                        
                 
     async def send_event(self, event_type: str, event_id: str, resource_data: dict):
         event_payload = {
@@ -280,11 +214,10 @@ class ResourceSyncer:
         }
         if self.query:
             event_payload["query"] = self.query
-        async with httpx.AsyncClient() as client:
-            try:
-                await client.post(self.callback_url, json=event_payload, timeout=5)
-            except Exception as e:
-                print(f"Failed to send event to {self.callback_url}: {e}")
+        try:
+            await auth_client.post(self.callback_url, json=event_payload, timeout=5)
+        except Exception as e:
+            print(f"Failed to send event to {self.callback_url}: {e}")
 
 
 started_processes = []
@@ -499,14 +432,13 @@ async def notify_hubs(event_type: str, event_id: str, resource_data: dict, db: S
         "id": event_id,
         "resource": resource_data,  # Send only the resource data without wrapper
     }
-    async with httpx.AsyncClient() as client:
-        for hub in hubs:
-            try:
-                event_payload_q = {"query": hub.query, **event_payload} if hub.query else event_payload
-                await client.post(hub.callback, json=event_payload_q, timeout=5)
-            except Exception as e:
-                # Log error, but do not block main operation
-                print(f"Failed to notify hub {hub.callback}: {e}")
+    for hub in hubs:
+        try:
+            event_payload_q = {"query": hub.query, **event_payload} if hub.query else event_payload
+            await auth_client.post(hub.callback, json=event_payload_q, timeout=5)
+        except Exception as e:
+            # Log error, but do not block main operation
+            print(f"Failed to notify hub {hub.callback}: {e}")
 
 
 @app.post("/token", response_model=Token, tags=["authentication"])
@@ -930,21 +862,21 @@ async def keycloak_callback(
         redirect_uri = str(request.url_for("keycloak_callback"))
         
         # Exchange authorization code for access token
-        async with httpx.AsyncClient(verify=False) as client:
-            token_response = await client.post(
-                token_endpoint,
-                data={
-                    "grant_type": "authorization_code",
-                    "code": code,
-                    "redirect_uri": redirect_uri,
-                    "client_id": KEYCLOAK_CLIENT_ID,
-                    "client_secret": KEYCLOAK_CLIENT_SECRET
-                },
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
-                timeout=10
-            )
-            token_response.raise_for_status()
-            token_data = token_response.json()
+        token_response = await auth_client.post(
+            token_endpoint,
+            data={
+                "grant_type": "authorization_code",
+                "code": code,
+                "redirect_uri": redirect_uri,
+                "client_id": KEYCLOAK_CLIENT_ID,
+                "client_secret": KEYCLOAK_CLIENT_SECRET
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            timeout=10,
+            verify=False,
+        )
+        token_response.raise_for_status()
+        token_data = token_response.json()
         
         access_token = token_data.get("access_token")
         
@@ -1179,7 +1111,6 @@ async def dashboard(
             return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     else:
         # Default anonymous user when auth is disabled
-        from app.auth import UserWithPermissions
         current_user = UserWithPermissions(username="anonymous", full_name="Anonymous User", user_roles=["admin"])
     
     base_url = f"{request.url.scheme}://{request.url.netloc}"

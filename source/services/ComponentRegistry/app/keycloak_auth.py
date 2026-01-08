@@ -10,6 +10,9 @@ from fastapi.security import OAuth2AuthorizationCodeBearer
 from pydantic import BaseModel
 import logging
 
+from app.oauth2_httpx_async import auth_client
+
+
 logger = logging.getLogger(__name__)
 
 # Keycloak configuration from environment variables
@@ -56,13 +59,12 @@ async def get_oidc_config() -> Dict[str, Any]:
     well_known_url = f"{KEYCLOAK_URL}/.well-known/openid-configuration"
     
     try:
-        async with httpx.AsyncClient(verify=False) as client:  # Note: In production, use proper SSL verification
-            response = await client.get(well_known_url, timeout=10)
-            response.raise_for_status()
-            _oidc_config_cache = response.json()
-            _cache_expiry = datetime.utcnow() + timedelta(hours=1)
-            logger.info(f"Fetched OIDC configuration from {well_known_url}")
-            return _oidc_config_cache
+        response = await auth_client.get(well_known_url, timeout=10)
+        response.raise_for_status()
+        _oidc_config_cache = response.json()
+        _cache_expiry = datetime.utcnow() + timedelta(hours=1)
+        logger.info(f"Fetched OIDC configuration from {well_known_url}")
+        return _oidc_config_cache
     except Exception as e:
         logger.error(f"Failed to fetch OIDC configuration: {e}")
         raise HTTPException(
@@ -89,12 +91,11 @@ async def get_jwks() -> Dict[str, Any]:
         )
     
     try:
-        async with httpx.AsyncClient(verify=False) as client:
-            response = await client.get(jwks_uri, timeout=10)
-            response.raise_for_status()
-            _jwks_cache = response.json()
-            logger.info(f"Fetched JWKS from {jwks_uri}")
-            return _jwks_cache
+        response = await auth_client.get(jwks_uri, timeout=10)
+        response.raise_for_status()
+        _jwks_cache = response.json()
+        logger.info(f"Fetched JWKS from {jwks_uri}")
+        return _jwks_cache
     except Exception as e:
         logger.error(f"Failed to fetch JWKS: {e}")
         raise HTTPException(
