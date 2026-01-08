@@ -39,8 +39,11 @@ logger.debug("debug logging is on")
 
 LogWrapper.set_defaultLogger(logger)
 
+SOURCE_DATE_EPOCH = os.getenv("SOURCE_DATE_EPOCH")
 CICD_BUILD_TIME = os.getenv("CICD_BUILD_TIME")
 GIT_COMMIT_SHA = os.getenv("GIT_COMMIT_SHA")
+if SOURCE_DATE_EPOCH:
+    logger.info("SOURCE_DATE_EPOCH=%s", SOURCE_DATE_EPOCH)
 if CICD_BUILD_TIME:
     logger.info("CICD_BUILD_TIME=%s", CICD_BUILD_TIME)
 if GIT_COMMIT_SHA:
