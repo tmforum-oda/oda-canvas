@@ -604,6 +604,8 @@ component-registry:
    prereleaseSuffix: issue384b
    imagePullPolicy: IfNotPresent
    
+   ownRegistryName: canvas-compreg
+   
    # define log level, 10=DEBUG, 20=INFO
    loglevel: "10"
    
@@ -613,3 +615,6 @@ component-registry:
      accessMode: ReadWriteOnce
      size: 1Gi
    
+   keycloak:
+     setup:
+       enabled: true

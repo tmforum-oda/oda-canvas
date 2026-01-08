@@ -92,9 +92,44 @@ spec:
             - name: KEYCLOAK_AUDIENCE
               value: "{{ .Values.keycloak.audience }}"
             - name: KEYCLOAK_CLIENT_ID
+              {{ if .Values.keycloak.clientId -}}
               value: "{{ .Values.keycloak.clientId }}"
+              {{- else -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: client_id
+                  optional: true
+              {{- end }}
             - name: KEYCLOAK_CLIENT_SECRET
+              {{ if .Values.keycloak.clientSecret -}}
               value: "{{ .Values.keycloak.clientSecret }}"
+              {{- else -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: client_secret
+                  optional: true
+              {{- end }}
+
+            - name: OAUTH2_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: client_id
+                  optional: true
+            - name: OAUTH2_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: client_secret
+                  optional: true
+            - name: OAUTH2_TOKEN_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: token_url
+                  optional: true
               
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

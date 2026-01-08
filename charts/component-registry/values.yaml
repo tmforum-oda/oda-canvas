@@ -109,17 +109,23 @@ oauth2:
   secretKey: ""
   algorithm: HS256
   tokenExpireMinutes: 30
+  
+  tokenSecretName: componentregistry-oidc-secret
+  copyTokenSecretNamespace: canvas
 
 keycloak:
   enabled: true
   url: https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari
   audience: account
-  clientId: compreg-manager
+  ## plain text client id. If not set the k8s secret oauth2.tokenSecretName["client_id"] will be used
+  #clientId: componentregistry
+  ## plain text client secret. If not set the k8s secret oauth2.tokenSecretName["client_secret"] will be used
   #clientSecret: ****
 
   setup:
+    enabled: false
     kcUsername: admin
-    ## plain text admin password. If not set the k8s secret canvasKeycloakSecret[adminPasswordKey] will be used
+    ## plain text admin password. If not set the k8s secret canvasKeycloakSecret["adminPasswordKey"] will be used
     # kcPassword: "****"
     canvasKeycloakSecret: canvas-keycloak
     adminPasswordKey: admin-password
@@ -130,5 +136,7 @@ keycloak:
     # kcBaseUrl: https://canvas-keycloak.ihc-dt.cluster-2.de/auth
     kcBaseUrl: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth
     kcRealm: odari
+    #plain text init password which has to be changed on first login, default is "changeme"
     compregAdminInitPassword: 
+    #plain text init password which has to be changed on first login, default is "changeme"
     compregViewerInitPassword: 

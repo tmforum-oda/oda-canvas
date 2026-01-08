@@ -1,3 +1,4 @@
+{{- if .Values.keycloak.setup.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -22,9 +23,11 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name | quote }}
         helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     spec:
+      {{- if .Values.global }}
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
       {{- include "image-pull-secrets" . |nindent 6 }}
+      {{- end }}
       {{- end }}
       restartPolicy: Never
       containers:
@@ -51,9 +54,9 @@ spec:
         - name: KC_REALM
           value: {{ .Values.keycloak.setup.kcRealm }}
         - name: COMPREG_ADMIN_INIT_PASSWORD
-          value: "{{ .Values.keycloak.setup.compregAdminInitPassword }}"
+          value: "{{ .Values.keycloak.setup.compregAdminInitPassword | default "changeme" }}"
         - name: COMPREG_VIEWER_INIT_PASSWORD
-          value: "{{ .Values.keycloak.setup.compregViewerInitPassword }}"
+          value: "{{ .Values.keycloak.setup.compregViewerInitPassword | default "changeme" }}"
         - name: K8S_NAMESPACE
           valueFrom:
             fieldRef:
@@ -138,3 +141,4 @@ subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-kc-setup-hook-sa
   namespace: {{ .Release.Namespace }}
+{{- end }}

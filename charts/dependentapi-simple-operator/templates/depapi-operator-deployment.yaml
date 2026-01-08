@@ -28,5 +28,23 @@ spec:
           value: "{{ .Values.loglevel }}"
         - name: COMPONENT_REGISTRY_URL
           value: "{{ .Values.componentRegistryUrl }}"
+        - name: OAUTH2_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oauth2TokenSecret }}
+              key: client_id
+              optional: true
+        - name: OAUTH2_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oauth2TokenSecret }}
+              key: client_secret
+              optional: true
+        - name: OAUTH2_TOKEN_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oauth2TokenSecret }}
+              key: token_url
+              optional: true
         ports:
         - containerPort: 9443

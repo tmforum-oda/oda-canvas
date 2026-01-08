@@ -165,3 +165,18 @@ Return the own component registry name, either from values or from release name
   {{- end -}}
   {{- print .Release.STORE_oauth2SecretKey }}
 {{- end }}
+
+
+{{- define "component-registry.read-source-token-secret" -}}
+  {{- if ne .Values.oauth2.copyTokenSecretNamespace .Release.Namespace -}}
+	  {{- $secretObj := (lookup "v1" "Secret" .Values.oauth2.copyTokenSecretNamespace .Values.oauth2.tokenSecretName) -}}
+	  {{- if not $secretObj -}}
+	    {{- $_ := set .Release "STORE_oauth2SourceSecretData" dict -}}
+	    {{- print "true" -}}
+	  {{- else -}}
+	    {{- $secretData := (get $secretObj "data") | default dict -}}
+	    {{- $_ := set .Release "STORE_oauth2SourceSecretData" $secretData -}}
+	    {{- print "true" -}}
+	  {{- end -}}
+  {{- end -}}
+{{- end }}

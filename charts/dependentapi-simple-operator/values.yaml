@@ -4,3 +4,5 @@ prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 loglevel: '20'
 componentRegistryUrl: http://canvas-compreg.canvas.svc.cluster.local
+
+oauth2TokenSecret: dependentapi-operator-oidc-secret
