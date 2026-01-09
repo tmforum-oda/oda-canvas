@@ -789,10 +789,10 @@ async def keycloak_login(request: Request):
             detail="Keycloak authentication is not enabled"
         )
     
-    from app.keycloak_auth import get_oidc_config, KEYCLOAK_CLIENT_ID
+    from app.keycloak_auth import get_oidc_config, KEYCLOAK_CLIENT_ID, KEYCLOAK_URL
     
     # Get OIDC configuration
-    oidc_config = await get_oidc_config()
+    oidc_config = await get_oidc_config(KEYCLOAK_URL)
     auth_endpoint = oidc_config.get("authorization_endpoint")
     
     if not auth_endpoint:
@@ -846,10 +846,10 @@ async def keycloak_callback(
         )
     
     # Exchange code for token
-    from app.keycloak_auth import get_oidc_config, KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET
+    from app.keycloak_auth import get_oidc_config, KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET, KEYCLOAK_URL
     
     try:
-        oidc_config = await get_oidc_config()
+        oidc_config = await get_oidc_config(KEYCLOAK_URL)
         token_endpoint = oidc_config.get("token_endpoint")
         
         if not token_endpoint:
