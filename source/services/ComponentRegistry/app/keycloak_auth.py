@@ -1,7 +1,6 @@
 """Keycloak OpenID Connect authentication module."""
 
 import os
-import httpx
 from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
@@ -21,7 +20,7 @@ KEYCLOAK_AUDIENCE = os.getenv("KEYCLOAK_AUDIENCE", "account")
 KEYCLOAK_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID", "componentregistry")
 KEYCLOAK_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET", "")
 KEYCLOAK_ENABLED = os.getenv("KEYCLOAK_ENABLED", "false").lower() == "true"
-KEYCLOAK_VALID_ISSUERS_str = os.getenv("KEYCLOAK_VALID_ISSUERS", "http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari,https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari,https://canvas-keycloak2.ihc-dt.cluster-2.de/auth/realms/odari")
+KEYCLOAK_VALID_ISSUERS_str = os.getenv("KEYCLOAK_VALID_ISSUERS", "http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari")
 KEYCLOAK_VALID_ISSUERS_array = set([iss.strip() for iss in KEYCLOAK_VALID_ISSUERS_str.split(",")])
 KEYCLOAK_VALID_ISSUERS_array.add(KEYCLOAK_URL)
 KEYCLOAK_VALID_ISSUERS_array.discard("")
@@ -106,7 +105,6 @@ async def get_jwks(issuer: str) -> Dict[str, Any]:
 
 async def verify_keycloak_token(token: str) -> KeycloakUser:
     """Verify and decode a Keycloak JWT token."""
-    print(f"VKT Token: {token}")
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -117,7 +115,6 @@ async def verify_keycloak_token(token: str) -> KeycloakUser:
     try:
         unverified_claims = jwt.get_unverified_claims(token)
         iss = unverified_claims.get("iss")
-        print(f"VKT iss: {iss}")
         
         if iss not in KEYCLOAK_VALID_ISSUERS_array:
             raise HTTPException(
@@ -129,7 +126,6 @@ async def verify_keycloak_token(token: str) -> KeycloakUser:
         # Get OIDC configuration to get issuer
         oidc_config = await get_oidc_config(iss)
         issuer = oidc_config.get("issuer")
-        print(f"VKT issuer: {issuer}")
         
         # Get JWKS for key verification
         jwks = await get_jwks(issuer)
@@ -137,7 +133,6 @@ async def verify_keycloak_token(token: str) -> KeycloakUser:
         # Decode token header to get key ID
         unverified_header = jwt.get_unverified_header(token)
         kid = unverified_header.get("kid")
-        print(f"VKT kid: {kid}")
         
         # Find the right key
         key = None

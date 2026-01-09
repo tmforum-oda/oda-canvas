@@ -37,25 +37,17 @@ class OAuthAsyncClient:
         """
         # Create resource on upstream
         async with httpx.AsyncClient(verify=verify) as client:
-            print(f"PRINT GET1 url: {url}")
             if not self._needs_auth(url):
-                print(f"GET2")
                 response = await client.get(
                     url,
                     **kwargs,
                 )
-                print(f"GET3, status_code: {response.status_code}")
                 if response.status_code != 401:
-                    print(f"GET4")
                     return response
-                print(f"GET5")
                 self._set_auth_required(url)
 
-            print(f"GET6")
             kwargs = await self._add_auth_header(**kwargs)
-            print(f"GET7, kwargs headers: {kwargs.get('headers')}")
             response = await client.get(url, **kwargs)
-            print(f"GET8, status_code: {response.status_code}")
         return response
 
     async def delete(self, url, verify=True, **kwargs):

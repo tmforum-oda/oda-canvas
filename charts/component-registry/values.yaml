@@ -116,8 +116,10 @@ oauth2:
 keycloak:
   enabled: true
   #url: https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari
-  url: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth
+  url: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari
   audience: account
+  # comma seperated list of allowed issuers
+  validIssuers: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari
   ## plain text client id. If not set the k8s secret oauth2.tokenSecretName["client_id"] will be used
   #clientId: componentregistry
   ## plain text client secret. If not set the k8s secret oauth2.tokenSecretName["client_secret"] will be used
