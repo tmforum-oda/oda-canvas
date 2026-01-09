@@ -1,0 +1,6 @@
+apiVersion: v2
+name: lookuptest
+description: test lookup for keeping env variables
+type: application
+version: 1.0.0
+appVersion: 1.0.0

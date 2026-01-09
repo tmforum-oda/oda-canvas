@@ -4,9 +4,6 @@ from app.token_manager_async import TokenManager
 import logging
 import httpx
 
-logger = logging.getLogger("depapiop")
-
-
 class OAuthAsyncClient:
 
     def __init__(self, token_url = None, client_id = None, client_secret = None, refresh_buffer_seconds = 30) -> None:
@@ -23,7 +20,7 @@ class OAuthAsyncClient:
 
     def _set_auth_required(self, url: str):
         base_url = self._extract_base_url(url)
-        logger.info(f"Setting auth required for base URL: {base_url}")
+        print(f"Setting auth required for base URL: {base_url}")
         self._auth_base_urls.add(base_url)
 
     def _extract_base_url(self, url: str) -> str:
@@ -40,18 +37,25 @@ class OAuthAsyncClient:
         """
         # Create resource on upstream
         async with httpx.AsyncClient(verify=verify) as client:
+            print(f"PRINT GET1 url: {url}")
             if not self._needs_auth(url):
-            
+                print(f"GET2")
                 response = await client.get(
                     url,
                     **kwargs,
                 )
+                print(f"GET3, status_code: {response.status_code}")
                 if response.status_code != 401:
+                    print(f"GET4")
                     return response
+                print(f"GET5")
                 self._set_auth_required(url)
 
+            print(f"GET6")
             kwargs = await self._add_auth_header(**kwargs)
+            print(f"GET7, kwargs headers: {kwargs.get('headers')}")
             response = await client.get(url, **kwargs)
+            print(f"GET8, status_code: {response.status_code}")
         return response
 
     async def delete(self, url, verify=True, **kwargs):
