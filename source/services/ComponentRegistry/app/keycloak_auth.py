@@ -24,6 +24,7 @@ KEYCLOAK_VALID_ISSUERS_str = os.getenv("KEYCLOAK_VALID_ISSUERS", "http://canvas-
 KEYCLOAK_VALID_ISSUERS_array = set([iss.strip() for iss in KEYCLOAK_VALID_ISSUERS_str.split(",")])
 KEYCLOAK_VALID_ISSUERS_array.add(KEYCLOAK_URL)
 KEYCLOAK_VALID_ISSUERS_array.discard("")
+print(f"KEYCLOAK_VALID_ISSUERS_array: {KEYCLOAK_VALID_ISSUERS_array}")
 
 # Cache for OIDC configuration and keys
 _oidc_config_cache: Dict[str, Dict[str, Any]] = {}
