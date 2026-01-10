@@ -113,6 +113,11 @@ oauth2:
   tokenSecretName: componentregistry-oidc-secret
   copyTokenSecretNamespace: canvas
 
+  ### overwrite values from kubernetes secret <tokenSecretName> used to authenticate requests
+  # clientId: componentregistry
+  # clientSecret: VWu...n6F
+  # tokenUrl: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari/protocol/openid-connect/token
+
 keycloak:
   enabled: true
   #url: https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari

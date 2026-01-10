@@ -461,7 +461,12 @@ optional install canvas-vs
 
 ```
 helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
+```
 
+for connect to public IDP
+
+```
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=component-registry.domain=%DOMAIN% --set=resource-inventory.serviceType=ClusterIP --set=resource-inventory.serverUrl=https://canvas-resource-inventory.%DOMAIN%/tmf-api/resourceInventoryManagement/v5 --set=component-registry.keycloak.url=https://canvas-keycloak.%DOMAIN%/auth/realms/odari --set=component-registry.oauth2.tokenUrl=https://canvas-keycloak.%DOMAIN%/auth/realms/odari/protocol/openid-connect/token --set=dependentapi-simple-operator.oauth2.tokenUrl=https://canvas-keycloak.%DOMAIN%/auth/realms/odari/protocol/openid-connect/token
 ```
 
 
