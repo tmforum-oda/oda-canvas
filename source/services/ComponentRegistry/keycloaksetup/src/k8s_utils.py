@@ -1,10 +1,52 @@
 import base64
+import datetime
 
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 
 
-def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: str, token_url: str):
+def restart_deployment(namespace: str, deployment_name: str):
+    """
+    do a kubectl rollout restart deployment for the given deployment in the given namespace
+    """
+    try:
+        # Load Kubernetes configuration
+        # This will use in-cluster config if running in a pod, otherwise uses kubeconfig
+        try:
+            config.load_incluster_config()
+            print(f"Using in-cluster Kubernetes configuration")
+        except config.ConfigException:
+            config.load_kube_config()
+            print(f"Using kubeconfig file")
+
+        # Create API client
+        apps_v1 = client.AppsV1Api()
+        
+        # Patch the deployment with a new annotation to trigger a restart
+        body = {
+            "spec": {
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "kubectl.kubernetes.io/restartedAt": datetime.datetime.utcnow().isoformat()
+                        }
+                    }
+                }
+            }
+        }
+        
+        apps_v1.patch_namespaced_deployment(
+            name=deployment_name,
+            namespace=namespace,
+            body=body
+        )
+        print(f"Restarted deployment '{deployment_name}' in namespace '{namespace}'")
+        
+    except Exception as e:
+        print(f"Error restarting deployment '{deployment_name}': {str(e)}, continuing...")
+    
+
+def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: str, token_url: str) -> bool:
     """
     Creates or updates a Kubernetes Secret with Keycloak client credentials.
     
@@ -13,6 +55,8 @@ def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: s
         client_id: Keycloak client ID to store
         client_secret: Keycloak client secret to store
         token_url: Keycloak token URL to get new tokens
+    Returns:
+        bool: True if the secret was created or updated successfully, False if unchanged.
     """
     secret_name = f"{client_id}-oidc-secret"
     try:
@@ -56,8 +100,10 @@ def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: s
         
         # Try to update existing secret first
         try:
-            v1.read_namespaced_secret(name=secret_name, namespace=namespace)
+            old_secret = v1.read_namespaced_secret(name=secret_name, namespace=namespace)
             # Secret exists, update it
+            if secret.data == old_secret.data:
+                return False  # No update needed if data is the same
             v1.replace_namespaced_secret(
                 name=secret_name,
                 namespace=namespace,
@@ -78,3 +124,5 @@ def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: s
     except Exception as e:
         print(f"Error creating/updating Kubernetes Secret '{secret_name}': {str(e)}")
         raise
+    
+    return True

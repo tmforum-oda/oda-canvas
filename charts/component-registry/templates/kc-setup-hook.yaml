@@ -32,7 +32,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: kc-setup
-        image: ocfork/kc-init:1.0.6
+        image: ocfork/kc-init:1.0.8
         env:
         - name: KC_USERNAME
           value: {{ .Values.keycloak.setup.kcUsername | default "admin" }}
@@ -118,6 +118,9 @@ rules:
 - apiGroups: [""]
   resources: ["secrets"]
   verbs: ["get", "list", "create", "update", "patch"]
+- apiGroups: ["apps"]  # for restarting the deployments with changed secrets
+  resources: ["deployments"]
+  verbs: ["patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

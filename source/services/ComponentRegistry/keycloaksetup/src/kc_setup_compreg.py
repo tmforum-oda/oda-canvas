@@ -5,7 +5,7 @@ import os
 import json
 
 from keycloak_utils import Keycloak
-from k8s_utils import create_or_update_k8s_secret
+from k8s_utils import create_or_update_k8s_secret, restart_deployment
 
 KC_USERNAME = os.getenv("KC_USERNAME")
 KC_PASSWORD = os.getenv("KC_PASSWORD")
@@ -16,7 +16,8 @@ KC_REALM = os.getenv("KC_REALM")
 COMPREG_ADMIN_INIT_PASSWORD = os.getenv("COMPREG_ADMIN_INIT_PASSWORD")
 COMPREG_VIEWER_INIT_PASSWORD = os.getenv("COMPREG_VIEWER_INIT_PASSWORD")
 
-K8S_NAMESPACE = os.getenv("K8S_NAMESPACE", "default")
+# K8S_NAMESPACE = os.getenv("K8S_NAMESPACE", "default")
+K8S_NAMESPACE = os.getenv("K8S_NAMESPACE", "canvas")
 
 SOURCE_DATE_EPOCH = os.getenv("SOURCE_DATE_EPOCH")
 CICD_BUILD_TIME = os.getenv("CICD_BUILD_TIME")
@@ -31,7 +32,7 @@ if GIT_COMMIT_SHA:
     print(f"GIT_COMMIT_SHA={GIT_COMMIT_SHA}")
 
 
-SUFFIX = os.getenv("SUFFIX", "")
+SUFFIX = os.getenv("SUFFIX", "2")
 
 
 def create_clients_users_and_roles(
@@ -87,7 +88,9 @@ def create_clients_users_and_roles(
         kc.create_client(crmgr_client_id)
         clients = kc.get_client_list()
     crmgr_client = clients[crmgr_client_id]
-    create_or_update_k8s_secret(K8S_NAMESPACE, crmgr_client_id, crmgr_client['secret'], kc.get_token_url())
+    compreg_secret_changed = create_or_update_k8s_secret(K8S_NAMESPACE, crmgr_client_id, crmgr_client['secret'], kc.get_token_url())
+    if compreg_secret_changed:
+        restart_deployment(K8S_NAMESPACE, "canvas-compreg")
     print("--- COMPREG MANAGER CLIENT ----")
     print(json.dumps(crmgr_client, indent=2))
     
@@ -96,7 +99,9 @@ def create_clients_users_and_roles(
         kc.create_client(depapi_client_id)
         clients = kc.get_client_list()
     depapi_client = clients[depapi_client_id]
-    create_or_update_k8s_secret(K8S_NAMESPACE, depapi_client_id, depapi_client['secret'], kc.get_token_url())
+    depapiop_secret_changed = create_or_update_k8s_secret(K8S_NAMESPACE, depapi_client_id, depapi_client['secret'], kc.get_token_url())
+    if depapiop_secret_changed:
+        restart_deployment(K8S_NAMESPACE, "canvas-depapi-op")
     print("--- DEPAPI CLIENT ----")
     print(json.dumps(depapi_client, indent=2))
 
