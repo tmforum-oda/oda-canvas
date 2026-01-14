@@ -233,6 +233,13 @@ spec:
               required:
                 type: boolean
                 description: Required is a flag that indicates whether the API is required or not.
+              segment:
+                type: string
+                enum:
+                - core
+                - management
+                - security
+                description: (optional) The segment of the component where this API is defined (core, management, or security)
             required:
             - name
             - apiType

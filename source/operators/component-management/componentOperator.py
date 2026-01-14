@@ -289,14 +289,14 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
                 found = False
                 for newAPI in newCoreAPIs:
                     logw.debug(
-                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
+                        f"Comparing {oldAPI['name']} to {name + '-c-' + newAPI['name'].lower()}"
                     )
-                    if oldAPI["name"] == name + "-" + newAPI["name"].lower():
+                    if oldAPI["name"] == name + "-c-" + newAPI["name"].lower():
                         found = True
                         logw.info(f"Patching ExposedAPI {oldAPI['name']}")
 
                         resultStatus = await patchAPIResource(
-                            logw, newAPI, namespace, name, "coreAPIs"
+                            logw, newAPI, namespace, name, "coreAPIs", "core"
                         )
                         apiChildren.append(resultStatus)
                 if not found:
@@ -314,16 +314,16 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
             alreadyProcessed = False
             for processedAPI in apiChildren:
                 logw.debug(
-                    f"Comparing {processedAPI['name']} to {name + '-' + coreAPI['name'].lower()}"
+                    f"Comparing {processedAPI['name']} to {name + '-c-' + coreAPI['name'].lower()}"
                 )
 
-                if processedAPI["name"] == name + "-" + coreAPI["name"].lower():
+                if processedAPI["name"] == name + "-c-" + coreAPI["name"].lower():
                     alreadyProcessed = True
             if alreadyProcessed == False:
                 logw.info(f"Calling createAPIResource {coreAPI['name']}")
 
                 resultStatus = await createAPIResource(
-                    logw, coreAPI, namespace, name, "coreAPIs"
+                    logw, coreAPI, namespace, name, "coreAPIs", "core"
                 )
                 apiChildren.append(resultStatus)
 
@@ -385,13 +385,13 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
                 found = False
                 for newAPI in newManagementAPIs:
                     logw.debug(
-                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
+                        f"Comparing {oldAPI['name']} to {name + '-m-' + newAPI['name'].lower()}"
                     )
 
-                    if oldAPI["name"] == name + "-" + newAPI["name"].lower():
+                    if oldAPI["name"] == name + "-m-" + newAPI["name"].lower():
                         found = True
                         resultStatus = await patchAPIResource(
-                            logw, newAPI, namespace, name, "managementAPIs"
+                            logw, newAPI, namespace, name, "managementAPIs", "management"
                         )
                         logw.info(f"Patching API {oldAPI['name']}")
 
@@ -412,20 +412,20 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
             alreadyProcessed = False
             for processedAPI in apiChildren:
                 logger.debug(
-                    f"Comparing {processedAPI['name']} to {name + '-' + managementAPI['name'].lower()}"
+                    f"Comparing {processedAPI['name']} to {name + '-m-' + managementAPI['name'].lower()}"
                 )
                 logw.debug(
-                    f"Comparing new APIs with status {processedAPI['name']} to {name + '-' + managementAPI['name'].lower()}"
+                    f"Comparing new APIs with status {processedAPI['name']} to {name + '-m-' + managementAPI['name'].lower()}"
                 )
 
-                if processedAPI["name"] == name + "-" + managementAPI["name"].lower():
+                if processedAPI["name"] == name + "-m-" + managementAPI["name"].lower():
                     alreadyProcessed = True
 
             if alreadyProcessed == False:
                 logw.info(f"Calling createAPIResource {managementAPI['name']}")
 
                 resultStatus = await createAPIResource(
-                    logw, managementAPI, namespace, name, "managementAPIs"
+                    logw, managementAPI, namespace, name, "managementAPIs", "management"
                 )
                 apiChildren.append(resultStatus)
 
@@ -486,13 +486,13 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
                 found = False
                 for newAPI in newSecurityAPIs:
                     logw.debug(
-                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
+                        f"Comparing {oldAPI['name']} to {name + '-s-' + newAPI['name'].lower()}"
                     )
 
-                    if oldAPI["name"] == name + "-" + newAPI["name"].lower():
+                    if oldAPI["name"] == name + "-s-" + newAPI["name"].lower():
                         found = True
                         resultStatus = await patchAPIResource(
-                            logw, newAPI, namespace, name, "securityAPIs"
+                            logw, newAPI, namespace, name, "securityAPIs", "security"
                         )
                         logw.info(f"Patching API {oldAPI['name']}")
 
@@ -513,17 +513,17 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
             alreadyProcessed = False
             for processedAPI in apiChildren:
                 logw.debug(
-                    f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}"
+                    f"Comparing {processedAPI['name']} to {name + '-s-' + securityAPI['name'].lower()}"
                 )
 
-                if processedAPI["name"] == name + "-" + securityAPI["name"].lower():
+                if processedAPI["name"] == name + "-s-" + securityAPI["name"].lower():
                     alreadyProcessed = True
 
             if alreadyProcessed == False:
                 logw.debug(f"Calling createAPIResource {securityAPI['name']}")
 
                 resultStatus = await createAPIResource(
-                    logw, securityAPI, namespace, name, "securityAPIs"
+                    logw, securityAPI, namespace, name, "securityAPIs", "security"
                 )
                 apiChildren.append(resultStatus)
 
@@ -634,7 +634,7 @@ async def coreDependentAPIs(
 
         for newCoreDependentAPI in newCoreDependentAPIs:
             dapi_name = newCoreDependentAPI["name"]
-            cr_name = f"{dapi_base_name}-{dapi_name}"
+            cr_name = f"{dapi_base_name}-c-{dapi_name}"
             print(dapi_name)
             oldCoreDependentAPI = find_entry_by_name(oldCoreDependentAPIs, cr_name)
             if not oldCoreDependentAPI:
@@ -646,6 +646,7 @@ async def coreDependentAPIs(
                     name,
                     cr_name,
                     "coreDependentAPIs",
+                    "core",
                 )
                 dependentAPIChildren.append(resultStatus)
             # else: already handled above
@@ -729,7 +730,7 @@ async def managementDependentAPIs(
 
         for newManagementDependentAPI in newManagementDependentAPIs:
             dapi_name = newManagementDependentAPI["name"]
-            cr_name = f"{dapi_base_name}-{dapi_name}"
+            cr_name = f"{dapi_base_name}-m-{dapi_name}"
             print(dapi_name)
             oldManagementDependentAPI = find_entry_by_name(
                 oldManagementDependentAPIs, cr_name
@@ -743,6 +744,7 @@ async def managementDependentAPIs(
                     name,
                     cr_name,
                     "managementDependentAPIs",
+                    "management",
                 )
                 dependentAPIChildren.append(resultStatus)
             # else: already handled above
@@ -826,7 +828,7 @@ async def securityDependentAPIs(
 
         for newSecurityDependentAPI in newSecurityDependentAPIs:
             dapi_name = newSecurityDependentAPI["name"]
-            cr_name = f"{dapi_base_name}-{dapi_name}"
+            cr_name = f"{dapi_base_name}-s-{dapi_name}"
             print(dapi_name)
             oldSecurityDependentAPI = find_entry_by_name(
                 oldSecurityDependentAPIs, cr_name
@@ -840,6 +842,7 @@ async def securityDependentAPIs(
                     name,
                     cr_name,
                     "securityDependentAPIs",
+                    "security",
                 )
                 dependentAPIChildren.append(resultStatus)
             # else: already handled above
@@ -1235,11 +1238,12 @@ async def subscribedEvents(meta, spec, status, body, namespace, labels, name, **
     return subChildren
 
 
-def constructAPIResourcePayload(inExposedAPI):
+def constructAPIResourcePayload(inExposedAPI, segment=None):
     """Helper function to create payloads for API Custom objects.
 
     Args:
         * inExposedAPI (Dict): The API spec
+        * segment (str): The segment (core, management, or security)
 
     Returns:
         API Custom object (Dict)
@@ -1254,9 +1258,19 @@ def constructAPIResourcePayload(inExposedAPI):
     }
     # Make it our child: assign the namespace, name, labels, owner references, etc.
     kopf.adopt(APIResource)
+    
+    # Add segment prefix to name: -c-, -m-, or -s-
+    segment_prefix = ""
+    if segment == "core":
+        segment_prefix = "-c-"
+    elif segment == "management":
+        segment_prefix = "-m-"
+    elif segment == "security":
+        segment_prefix = "-s-"
+    
     newName = (
         APIResource["metadata"]["ownerReferences"][0]["name"]
-        + "-"
+        + segment_prefix
         + inExposedAPI["name"]
     ).lower()
     APIResource["metadata"]["name"] = newName
@@ -1269,15 +1283,19 @@ def constructAPIResourcePayload(inExposedAPI):
     APIResource["spec"] = inExposedAPI
     if "developerUI" in inExposedAPI.keys():
         APIResource["spec"]["developerUI"] = inExposedAPI["developerUI"]
+    # Add segment to spec if provided
+    if segment:
+        APIResource["spec"]["segment"] = segment
     return APIResource
 
 
-def constructDependentAPIResourcePayload(inDependentAPI, cr_name):
+def constructDependentAPIResourcePayload(inDependentAPI, cr_name, segment=None):
     """Helper function to create payloads for DependentAPI Custom objects.
 
     Args:
         * inDependentAPI (Dict): The DependentAPI spec
         * cr_name custom resource name of the dependent api
+        * segment (str): The segment (core, management, or security)
 
     Returns:
         DependentAPI Custom object (Dict)
@@ -1296,6 +1314,9 @@ def constructDependentAPIResourcePayload(inDependentAPI, cr_name):
     # DependentAPIResource['metadata']['name'] = f"{newName}-{dapi_name}"
     DependentAPIResource["metadata"]["name"] = cr_name
     DependentAPIResource["spec"] = inDependentAPI
+    # Add segment to spec if provided
+    if segment:
+        DependentAPIResource["spec"]["segment"] = segment
     return DependentAPIResource
 
 
@@ -1350,7 +1371,7 @@ def constructIdentityConfigResourcePayload(inIdentityConfig):
 
 
 @logwrapper
-async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHandler):
+async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHandler, segment=None):
     """Helper function to patch API Custom objects.
 
     Args:
@@ -1358,6 +1379,7 @@ async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHa
         * namespace (String): The namespace for the Component and API
         * name (String): The name of the API resource
         * inHandler (String): The name of the handler that called this function
+        * segment (String): The segment (core, management, or security)
 
     Returns:
         Dict with updated API definition including uuid of the API resource and ready status.
@@ -1366,7 +1388,7 @@ async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHa
     """
     logw.debug(f"patchAPIResource {inExposedAPI} ")
 
-    APIResource = constructAPIResourcePayload(inExposedAPI)
+    APIResource = constructAPIResourcePayload(inExposedAPI, segment)
 
     apiReadyStatus = False
     returnAPIObject = {}
@@ -1422,7 +1444,7 @@ async def patchAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHa
 
 
 @logwrapper
-async def createAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHandler):
+async def createAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inHandler, segment=None):
     """Helper function to create or update API Custom objects.
 
     Args:
@@ -1430,6 +1452,7 @@ async def createAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inH
         * namespace (String): The namespace for the Component and API
         * name (String): The name of the API resource
         * inHandler (String): The name of the handler calling this function
+        * segment (String): The segment (core, management, or security)
 
     Returns:
         Dict with API definition including uuid of the API resource and ready status.
@@ -1438,7 +1461,7 @@ async def createAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inH
     """
     logw.debug(f"createAPIResource {inExposedAPI} ")
 
-    APIResource = constructAPIResourcePayload(inExposedAPI)
+    APIResource = constructAPIResourcePayload(inExposedAPI, segment)
 
     apiReadyStatus = False
     returnAPIObject = {}
@@ -1473,7 +1496,7 @@ async def createAPIResource(logw: LogWrapper, inExposedAPI, namespace, name, inH
 
 @logwrapper
 async def createDependentAPIResource(
-    logw: LogWrapper, inDependentAPI, namespace, comp_name, cr_name, inHandler
+    logw: LogWrapper, inDependentAPI, namespace, comp_name, cr_name, inHandler, segment=None
 ):
     """Helper function to create or update API Custom objects.
 
@@ -1482,6 +1505,7 @@ async def createDependentAPIResource(
         * namespace (String): The namespace for the Component and API
         * cr_name (String): The name of the dependent API custom resource
         * inHandler (String): The name of the handler calling this function
+        * segment (String): The segment (core, management, or security)
 
     Returns:
         Dict with DependentAPI definition including uuid of the DependentAPI resource and ready status.
@@ -1490,7 +1514,7 @@ async def createDependentAPIResource(
     """
     logw.debug(f"createDependentAPIResource {inDependentAPI} ")
 
-    DependentAPIResource = constructDependentAPIResourcePayload(inDependentAPI, cr_name)
+    DependentAPIResource = constructDependentAPIResourcePayload(inDependentAPI, cr_name, segment)
 
     dependentAPIReadyStatus = False
     returnDependentAPIObject = {}
