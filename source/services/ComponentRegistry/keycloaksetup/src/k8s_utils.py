@@ -14,6 +14,7 @@ def create_or_update_k8s_secret(namespace: str, client_id: str, client_secret: s
         client_secret: Keycloak client secret to store
         token_url: Keycloak token URL to get new tokens
     """
+    return
     secret_name = f"{client_id}-oidc-secret"
     try:
         # Load Kubernetes configuration

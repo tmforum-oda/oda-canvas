@@ -32,6 +32,30 @@ it looks in the upstream Component-Registry for an implementation in another ODA
 ## Setup Environment
 
 
+### Cluster IHC-DT-A (green)
+
+```
+# [green] IHC-DT-A
+set PROMPT=$_[IHC-DT-A] $g$s
+set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt-a
+set DOMAIN=ihc-dt-a.cluster-2.de
+set COMPREG_EXTNAME=compreg-a
+set TLS_SECRET_NAME=domain-tls-secret
+tmfihcdta
+```
+
+### Cluster IHC-DT-B (magenta)
+
+```
+# [magenta] - IHC-DT-B
+set PROMPT=$_[IHC-DT-B] $g$s
+set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt-b
+set DOMAIN=ihc-dt-b.cluster-2.de
+set COMPREG_EXTNAME=compreg-b
+set TLS_SECRET_NAME=domain-tls-secret
+tmfihcdtb
+```
+
 ### Cluster IHC-DT (blue)
 
 ```
@@ -39,10 +63,19 @@ it looks in the upstream Component-Registry for an implementation in another ODA
 set PROMPT=$_[IHC-DT] $g$s
 set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt
 set DOMAIN=ihc-dt.cluster-2.de
+set COMPREG_EXTNAME=global-compreg
 REM set COMPREG_EXTNAME=compreg-ihc-dt
 set TLS_SECRET_NAME=domain-tls-secret
 tmfihcdt
 ```
+
+as canvas was deinstalled reinstall the canvas component-gateway standalone
+
+```
+# [blue] - IHC-DT
+helm upgrade --install component-gateway -n canvas --create-namespace %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639/helm/canvas-somponent-gateway
+```
+
 
 
 ## Cleanup
@@ -52,11 +85,22 @@ tmfihcdt
 ```
 # [blue] - IHC-DT
 helm uninstall -n compreg global-compreg
+helm uninstall -n compreg upup-compreg
 kubectl delete ns compreg
+```
 
+### [green] - IHC-DT-A
+
+```
+# [green] - IHC-DT-A
 helm uninstall -n components f-cat
 kubectl rollout restart -n canvas deployment canvas-depapi-op
+```
 
+### [magenta] - IHC-DT-B
+
+```
+# [green] - IHC-DT-B
 helm uninstall -n components r-cat
 kubectl rollout restart -n canvas deployment canvas-depapi-op
 ```
@@ -65,7 +109,9 @@ unregister Component-Registries
 
 ```
 # [blue] - IHC-DT
-curl -sX DELETE "https://canvas-compreg.ihc-dt.cluster-2.de/hub/global-compreg" -H "accept: */*" | jq
+curl -sX DELETE "https://global-compreg.ihc-dt.cluster-2.de/hub/upup-compreg" -H "accept: */*" | jq
+curl -sX DELETE "https://canvas-compreg.ihc-dt-a.cluster-2.de/hub/global-compreg" -H "accept: */*" | jq
+curl -sX DELETE "https://canvas-compreg.ihc-dt-b.cluster-2.de/hub/global-compreg" -H "accept: */*" | jq
 ```
 
 
@@ -95,17 +141,17 @@ kubectl get vs -n canvas
 
 additional public routes have been installed to expose internal services
 
-* https://canvas-compreg.ihc-dt.cluster-2.de
-* https://canvas-info.ihc-dt.cluster-2.de/api-docs/
-* canvas-resource-inventory.ihc-dt.cluster-2.de
+* https://canvas-compreg.ihc-dt-a.cluster-2.de
+* https://canvas-info.ihc-dt-a.cluster-2.de/api-docs/
+* canvas-resource-inventory.ihc-dt-a.cluster-2.de
 
-### show COMPREG
+### show COMPREG-A
 
-https://canvas-compreg.ihc-dt.cluster-2.de
+https://canvas-compreg.ihc-dt-a.cluster-2.de
 
 Show info:
 
-* NAME "canvas-compreg"
+* NAME "compreg-a"
 * watched namespaces: "components,odacompns-*"
 * ODA Components: empty
 * Event Subscriptions: empty
@@ -113,28 +159,29 @@ Show info:
 
 
 
-## static roles
+## Show state of IHC-DT-B [MAGENTA]
+
+https://canvas-compreg.ihc-dt-b.cluster-2.de
+
+same as ihc-dt-a
+
+
+
+
+## Show state of IHC-DT [BLUE]
 
 ```
-cd %USERPROFILE%\git\oda-canvas
-helm upgrade --install statr -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-static-roles-v1
+helm list -A
 ```
+
 
 
 ## Install Global Component-Registry
 
 ```
 # [blue] - IHC-DT
-cd %USERPROFILE%/git/oda-canvas
-helm upgrade --install -n compreg global-compreg --create-namespace charts/component-registry --set=domain=%DOMAIN% --set=canvasResourceInventory= --set=keycloak.url=https://canvas-keycloak.%DOMAIN%/auth/realms/odari
-helm upgrade --install -n compreg global-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=domain=%DOMAIN%  --set=fullNameOverride=global-compreg
-```
-
-```
-# [blue] - IHC-DT
-cd %USERPROFILE%/git/oda-canvas
-helm upgrade --install -n compreg upup-compreg --create-namespace charts/component-registry --set=domain=%DOMAIN% --set=canvasResourceInventory=
-helm upgrade --install -n compreg upup-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=domain=%DOMAIN%  --set=fullNameOverride=upup-compreg
+cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639
+helm upgrade --install global-compreg -n compreg --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% 
 ```
 
 open in browser:
@@ -422,7 +469,6 @@ kubectl delete ns canvas compreg
 helm uninstall -n components f-cat
 helm uninstall -n canvas canvas canvas-vs
 kubectl delete ns components canvas-vault canvas cert-manager
-# kubectl delete lease -n kube-system cert-manager-cainjector-leader-election cert-manager-controller
 ```
 
 
@@ -455,19 +501,14 @@ helm dependency update ./charts/canvas-vault
 helm dependency update ./charts/pdb-management-operator
 helm dependency update ./charts/canvas-oda
 
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=component-registry.domain=%DOMAIN% --set=resource-inventory.serviceType=ClusterIP --set=resource-inventory.serverUrl=https://canvas-resource-inventory.%DOMAIN%/tmf-api/resourceInventoryManagement/v5 --set=component-registry.keycloak.url=https://canvas-keycloak.%DOMAIN%/auth/realms/odari --set=component-registry.ownRegistryName=%COMPREG_EXTNAME%
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=component-registry.ownRegistryName=%COMPREG_EXTNAME%  --set=component-registry.domain=%DOMAIN% --set=resource-inventory.serviceType=ClusterIP --set=resource-inventory.serverUrl=https://canvas-resource-inventory.%DOMAIN%/tmf-api/resourceInventoryManagement/v5
 ```
 
 optional install canvas-vs
 
 ```
-helm upgrade --install -n vs --create-namespace canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
-```
+helm upgrade --install -n canvas canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
 
-for connect to public IDP
-
-```
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=component-registry.domain=%DOMAIN% --set=resource-inventory.serviceType=ClusterIP --set=resource-inventory.serverUrl=https://canvas-resource-inventory.%DOMAIN%/tmf-api/resourceInventoryManagement/v5 --set=component-registry.keycloak.url=https://canvas-keycloak.%DOMAIN%/auth/realms/odari --set=component-registry.oauth2.tokenUrl=https://canvas-keycloak.%DOMAIN%/auth/realms/odari/protocol/openid-connect/token --set=dependentapi-simple-operator.oauth2.tokenUrl=https://canvas-keycloak.%DOMAIN%/auth/realms/odari/protocol/openid-connect/token
 ```
 
 
@@ -495,137 +536,3 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 * service-discovery switch in Dependent-API-Operator
   https://github.com/tmforum-oda/oda-canvas/blob/feature/384_mainly_simple_dependent_operator/source/operators/dependentApiSimpleOperator/docker/src/dependentApiSimpleOperator.py#L175-L179
   
-
-  
-# AUTH
-
-commandline
-
-```
-set TOKEN_URL=https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari/protocol/openid-connect/token
-set CLIENT_ID=compreg-manager
-set CLIENT_SECRET=qyWu...rZp8
-curl -sX POST "%TOKEN_URL%" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=client_credentials" -d "client_id=%CLIENT_ID%" -d "client_secret=%CLIENT_SECRET%" | jq -r .access_token
-```
-
-Python
-
-```
-import requests
-
-KEYCLOAK_URL = "https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari/protocol/openid-connect/token"
-CLIENT_ID = "compreg-manager"
-CLIENT_SECRET = "qyWu...rZp8"
-
-data = {
-    "grant_type": "client_credentials",
-    "client_id": CLIENT_ID,
-    "client_secret": CLIENT_SECRET
-}
-
-response = requests.post(KEYCLOAK_URL, data=data)
-print(response.json())
-
-```
-
-## make request with auth
-
-```
-curl -sX GET -H "accept: application/json" -H "Authorization: Bearer %TOKEN%" https://global-compreg.ihc-dt.cluster-2.de/resource
-```
-
-## JWT 
-
-Access-Token:
-
-```
-{
-    "exp": 1766148958,
-    "iat": 1766148658,
-    "jti": "6050a0cd-11bc-44c5-9f28-a6bae088c0fe",
-    "iss": "https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari",
-    "aud": [
-        "account",
-        "compreg-manager3"
-    ],
-    "sub": "bf3a2dc2-599c-467a-97c6-b359c23edbc4",
-    "typ": "Bearer",
-    "azp": "dependentapi-operator3",
-    "acr": "1",
-    "realm_access": {
-        "roles": [
-            "offline_access",
-            "uma_authorization",
-            "default-roles-odari"
-        ]
-    },
-    "resource_access": {
-        "account": {
-            "roles": [
-                "manage-account",
-                "manage-account-links",
-                "view-profile"
-            ]
-        },
-        "compreg-manager3": {
-            "roles": [
-                "compreg_query3"
-            ]
-        }
-    },
-    "scope": "profile email",
-    "clientId": "dependentapi-operator3",
-    "email_verified": false,
-    "clientHost": "10.92.0.1",
-    "preferred_username": "service-account-dependentapi-operator3",
-    "clientAddress": "10.92.0.1"
-}
-```
-
-
-Cookie JWT payload:
-
-```
-{
-    "exp": 1766149508,
-    "iat": 1766149208,
-    "auth_time": 1766149208,
-    "jti": "b8a37df8-8eca-4b2c-afff-8d3eff2b1abf",
-    "iss": "https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari",
-    "aud": [
-        "account",
-        "compreg-manager3"
-    ],
-    "sub": "4c0cb740-8c28-410e-a988-a0e92e9df718",
-    "typ": "Bearer",
-    "azp": "compreg-manager",
-    "session_state": "57eca008-0127-413f-909a-7a85184d14b3",
-    "acr": "1",
-    "realm_access": {
-        "roles": [
-            "offline_access",
-            "uma_authorization",
-            "default-roles-odari"
-        ]
-    },
-    "resource_access": {
-        "account": {
-            "roles": [
-                "manage-account",
-                "manage-account-links",
-                "view-profile"
-            ]
-        },
-        "compreg-manager3": {
-            "roles": [
-                "compreg_ui3"
-            ]
-        }
-    },
-    "scope": "openid profile email",
-    "sid": "57eca008-0127-413f-909a-7a85184d14b3",
-    "email_verified": false,
-    "preferred_username": "compreg-admin3"
-}
-```
-

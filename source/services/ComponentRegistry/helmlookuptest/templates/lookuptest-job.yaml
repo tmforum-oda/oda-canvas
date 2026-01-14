@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: lookuptest
-        image: ocfork/kc-init:1.0.5
+        image: ocfork/kc-init:1.0.6
         env:
         {{- $existingDeployment := lookup "apps/v1" "Deployment" .Release.Namespace (printf "kf-p-%s" .Release.Name) }}
         {{- if $existingDeployment }}
