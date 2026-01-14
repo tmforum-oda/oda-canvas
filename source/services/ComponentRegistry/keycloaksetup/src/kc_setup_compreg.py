@@ -31,7 +31,7 @@ if GIT_COMMIT_SHA:
     print(f"GIT_COMMIT_SHA={GIT_COMMIT_SHA}")
 
 
-SUFFIX = os.getenv("SUFFIX", "2")
+SUFFIX = os.getenv("SUFFIX", "")
 
 
 def create_clients_users_and_roles(
