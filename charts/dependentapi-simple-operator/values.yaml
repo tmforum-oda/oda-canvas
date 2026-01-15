@@ -6,9 +6,9 @@ loglevel: '20'
 componentRegistryUrl: http://canvas-compreg.canvas.svc.cluster.local
 
 oauth2:
-  tokenSecretName: componentregistry-oidc-secret
+  tokenSecretName: dependentapi-operator-oidc-secret
   ### overwrite values from kubernetes secret <tokenSecretName> used to authenticate requests
-  # clientId: componentregistry
+  # clientId: dependentapi-operator
   # clientSecret: VWu...n6F
   # tokenUrl: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari/protocol/openid-connect/token
 
