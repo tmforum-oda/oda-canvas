@@ -115,12 +115,14 @@ async def verify_keycloak_token(token: str) -> KeycloakUser:
     
     try:
         unverified_claims = jwt.get_unverified_claims(token)
+        print(f"PRINT Unverified claims: {unverified_claims}")
+        logger.info(f"LOGGER Unverified claims: {unverified_claims}")
         iss = unverified_claims.get("iss")
         
         if iss not in KEYCLOAK_VALID_ISSUERS_array:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token issuer",
+                detail=f"Invalid token issuer {iss}",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         

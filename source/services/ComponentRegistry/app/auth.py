@@ -51,7 +51,7 @@ ROLE_TO_PERMISSIONS = {
               "sync.post"],
     "ui-viewer": ["dashboard.view", "resource.get"],
     "ui-admin": ["dashboard.view", "resource.get", "resource.delete", "hub.post", "hub.delete", "hub.post"],
-    "query": ["resource.list", "hub.list"],
+    "query": ["resource.list", "hub.list", "hub.get"],
     "sync": ["resource.list", "resource.post", "resource.patch", "resource.delete", "sync.post"],
 }
 
