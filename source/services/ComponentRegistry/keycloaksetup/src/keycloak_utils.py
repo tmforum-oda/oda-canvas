@@ -290,6 +290,7 @@ class Keycloak:
             )
             r.raise_for_status()
             users = r.json()
+            users = [user for user in users if user.get("username") == username]
             if users:
                 return users[0]  # Return the first matching user
             else:

@@ -461,7 +461,7 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 optional install canvas-vs
 
 ```
-helm upgrade --install -n vs --create-namespace canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
+helm upgrade --install -n canvas --create-namespace canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
 ```
 
 for connect to public IDP

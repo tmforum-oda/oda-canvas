@@ -56,34 +56,33 @@ set TLS_SECRET_NAME=domain-tls-secret
 tmfihcdtb
 ```
 
-### Cluster IHC-DT (blue)
+### Cluster IHC-DT-SMALL (blue)
 
 ```
-# [blue] - IHC-DT
-set PROMPT=$_[IHC-DT] $g$s
-set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt
-set DOMAIN=ihc-dt.cluster-2.de
+# [blue] - IHC-DT-SMALL
+set PROMPT=$_[IHC-DT-SMALL] $g$s
+set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt-small
+set DOMAIN=ihc-dt-small.cluster-2.de
 set COMPREG_EXTNAME=global-compreg
-REM set COMPREG_EXTNAME=compreg-ihc-dt
 set TLS_SECRET_NAME=domain-tls-secret
-tmfihcdt
+tmfihcdtsmall
 ```
 
 as canvas was deinstalled reinstall the canvas component-gateway standalone
 
 ```
 # [blue] - IHC-DT
-helm upgrade --install component-gateway -n canvas --create-namespace %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639/helm/canvas-somponent-gateway
+helm upgrade --install component-gateway -n canvas --create-namespace %USERPROFILE%/git/oda-canvas/demos/multi-canvas-service-discovery/helm/canvas-somponent-gateway --set=domain=%DOMAIN%
 ```
 
 
 
 ## Cleanup
 
-### [blue] - IHC-DT
+### [blue] - IHC-DT-SMALL
 
 ```
-# [blue] - IHC-DT
+# [blue] - IHC-DT-SMALL
 helm uninstall -n compreg global-compreg
 helm uninstall -n compreg upup-compreg
 kubectl delete ns compreg
@@ -108,7 +107,7 @@ kubectl rollout restart -n canvas deployment canvas-depapi-op
 unregister Component-Registries
 
 ```
-# [blue] - IHC-DT
+# [blue] - IHC-DT-SMALL
 curl -sX DELETE "https://global-compreg.ihc-dt.cluster-2.de/hub/upup-compreg" -H "accept: */*" | jq
 curl -sX DELETE "https://canvas-compreg.ihc-dt-a.cluster-2.de/hub/global-compreg" -H "accept: */*" | jq
 curl -sX DELETE "https://canvas-compreg.ihc-dt-b.cluster-2.de/hub/global-compreg" -H "accept: */*" | jq
@@ -168,7 +167,7 @@ same as ihc-dt-a
 
 
 
-## Show state of IHC-DT [BLUE]
+## Show state of IHC-DT-SMALL [BLUE]
 
 ```
 helm list -A
@@ -179,9 +178,11 @@ helm list -A
 ## Install Global Component-Registry
 
 ```
-# [blue] - IHC-DT
-cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-registry-service-tmf639
-helm upgrade --install global-compreg -n compreg --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% 
+# [blue] - IHC-DT-SMALL
+set KC_DOMAIN=ihc-dt-a.cluster-2.de
+cd %USERPROFILE%/git/oda-canvas
+helm upgrade --install -n compreg global-compreg --create-namespace charts/component-registry --set=domain=%DOMAIN% --set=canvasResourceInventory= --set=keycloak.url=https://canvas-keycloak.%KC_DOMAIN%/auth/realms/odari
+helm upgrade --install -n compreg global-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=domain=%DOMAIN%  --set=fullNameOverride=global-compreg
 ```
 
 open in browser:
