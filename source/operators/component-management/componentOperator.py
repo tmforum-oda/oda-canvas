@@ -36,10 +36,6 @@ if CICD_BUILD_TIME:
 if GIT_COMMIT_SHA:
     logger.info(f"GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
 
-CORE_SEGMENT = "coreFunction"
-MANAGEMENT_SEGMENT = "managementFunction"
-SECURITY_SEGMENT = "securityFunction"
-
 # get namespace to monitor
 component_namespace = os.environ.get("COMPONENT_NAMESPACE", "components")
 logger.info(f"Monitoring namespace %s", component_namespace)
@@ -81,32 +77,32 @@ SEGMENT_CONFIG = {
     "coreAPIs": {
         "spec_path": "coreFunction",
         "status_key": "coreAPIs",
-        "segment": CORE_SEGMENT,
+        "segment": "coreFunction",
     },
     "managementAPIs": {
         "spec_path": "managementFunction",
         "status_key": "managementAPIs",
-        "segment": MANAGEMENT_SEGMENT,
+        "segment": "managementFunction",
     },
     "securityAPIs": {
         "spec_path": "securityFunction",
         "status_key": "securityAPIs",
-        "segment": SECURITY_SEGMENT,
+        "segment": "securityFunction",
     },
     "coreDependentAPIs": {
         "spec_path": "coreFunction",
         "status_key": "coreDependentAPIs",
-        "segment": CORE_SEGMENT,
+        "segment": "coreFunction",
     },
     "managementDependentAPIs": {
         "spec_path": "managementFunction",
         "status_key": "managementDependentAPIs",
-        "segment": MANAGEMENT_SEGMENT,
+        "segment": "managementFunction",
     },
     "securityDependentAPIs": {
         "spec_path": "securityFunction",
         "status_key": "securityDependentAPIs",
-        "segment": SECURITY_SEGMENT,
+        "segment": "securityFunction",
     },
 }
 
@@ -115,163 +111,6 @@ SEGMENT_CONFIG = {
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
     settings.watching.server_timeout = 1 * 60
-
-
-@logwrapper
-async def deleteExposedAPI(
-    logw: LogWrapper, deleteExposedAPIName, componentName, status, namespace, inHandler
-):
-    """Helper function to delete API Custom objects.
-
-    Args:
-        * deleteExposedAPIName (String): Name of the API Custom Object to delete
-        * componentName (String): Name of the component the API is linked to
-        * status (Dict): The status from the yaml component envelope.
-        * namespace (String): The namespace for the component
-
-    Returns:
-        No return value
-
-    :meta private:
-    """
-
-    logw.info(f"Deleting API {deleteExposedAPIName}")
-    custom_objects_api = kubernetes.client.CustomObjectsApi()
-    try:
-        api_response = custom_objects_api.delete_namespaced_custom_object(
-            group=GROUP,
-            version=VERSION,
-            namespace=namespace,
-            plural=EXPOSEDAPIS_PLURAL,
-            name=deleteExposedAPIName,
-        )
-        logw.debug(f"API response {api_response}")
-    except ApiException as e:
-        logw.error(
-            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
-        )
-
-
-@logwrapper
-async def deleteDependentAPI(
-    logw: LogWrapper, dependentAPIName, componentName, status, namespace, inHandler
-):
-    """Helper function to delete DependentAPI Custom objects.
-
-    Args:
-        * dependentAPIName (String): Name of the DependentAPI Custom Resource to delete
-        * componentName (String): Name of the component the dependent API is linked to
-        * status (Dict): The status from the yaml component envelope.
-        * namespace (String): The namespace for the component
-        * inHandler (String): The name of the handler that called this function
-
-    Returns:
-        No return value
-
-    :meta private:
-    """
-
-    logw.info(f"Deleting DependentAPI {dependentAPIName}")
-
-    custom_objects_api = kubernetes.client.CustomObjectsApi()
-    try:
-        dependentapi_response = custom_objects_api.delete_namespaced_custom_object(
-            group=GROUP,
-            version=DEPENDENTAPI_VERSION,
-            namespace=namespace,
-            plural=DEPENDENTAPI_PLURAL,
-            name=dependentAPIName,
-        )
-        logw.debug(f"DependentAPI response {dependentapi_response}")
-    except ApiException as e:
-        logw.error(
-            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
-        )
-
-
-@logwrapper
-async def deleteSecretsManagement(
-    logw: LogWrapper, secretsManagementName, componentName, status, namespace, inHandler
-):
-    """Helper function to delete SecretsManagement Custom objects.
-
-    Args:
-        * secretsManagementName (String): Name of the SecretsManagement Custom Resource to delete
-        * componentName (String): Name of the component the SecretsManagement is linked to
-        * status (Dict): The status from the yaml component envelope.
-        * namespace (String): The namespace for the component
-        * inHandler (String): The name of the handler that called this function
-
-    Returns:
-        No return value
-
-    :meta private:
-    """
-
-    logw.info(f"Deleting SecretsManagement {secretsManagementName}")
-    custom_objects_api = kubernetes.client.CustomObjectsApi()
-    try:
-        secretsmanagement_response = custom_objects_api.delete_namespaced_custom_object(
-            group=GROUP,
-            version=SECRETSMANAGEMENT_VERSION,
-            namespace=namespace,
-            plural=SECRETSMANAGEMENT_PLURAL,
-            name=secretsManagementName,
-        )
-        logw.debug(f"SecretsManagement response {secretsmanagement_response}")
-    except ApiException as e:
-        logw.error(
-            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
-        )
-
-
-@logwrapper
-async def deleteIdentityConfig(
-    logw: LogWrapper, identityConfigName, componentName, status, namespace, inHandler
-):
-    """Helper function to delete IdentityConfig Custom objects.
-
-    Args:
-        * identityConfigName (String): Name of the IdentityConfig Custom Resource to delete
-        * componentName (String): Name of the component the IdentityConfig is linked to
-        * status (Dict): The status from the yaml component envelope.
-        * namespace (String): The namespace for the component
-        * inHandler (String): The name of the handler that called this function
-
-    Returns:
-        No return value
-
-    :meta private:
-    """
-
-    logw.info(f"Deleting IdentityConfig {identityConfigName}")
-    custom_objects_api = kubernetes.client.CustomObjectsApi()
-    try:
-        identityconfig_response = custom_objects_api.delete_namespaced_custom_object(
-            group=GROUP,
-            version=IDENTITYCONFIG_VERSION,
-            namespace=namespace,
-            plural=IDENTITYCONFIG_PLURAL,
-            name=identityConfigName,
-        )
-        logw.debug(f"IdentityConfig response {identityconfig_response}")
-    except ApiException as e:
-        logw.error(
-            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
-        )
-
-
-def safe_get(default_value, dictionary, *paths):
-    result = dictionary
-    for path in paths:
-        if path not in result:
-            return default_value
-        result = result[path]
-    return result
-
-
-def quick_get_comp_name(body):
-    return safe_get(None, body, "metadata", "labels", componentname_label)
 
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -434,204 +273,6 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
 
     # Update the parent's status.
     return apiChildren
-
-
-# -------------------------------------------------- HELPER FUNCTIONS -------------------------------------------------- #
-def entryExists(dictionary, key, value):
-    for entry in dictionary:
-        if key in entry:
-            if entry[key] == value:
-                return True
-    return False
-
-
-def safe_get(default_value, dictionary, *paths):
-    result = dictionary
-    for path in paths:
-        if path not in result:
-            return default_value
-        result = result[path]
-    return result
-
-
-def find_entry_by_keyvalue(entries, key, value):
-    for entry in entries:
-        if key in entry:
-            if entry[key] == value:
-                return entry
-    return None
-
-
-def find_entry_by_name(entries, name):
-    return find_entry_by_keyvalue(entries, "name", name)
-
-
-async def processExposedAPIs(
-    logw: LogWrapper,
-    spec: dict,
-    status: dict,
-    namespace: str,
-    name: str,
-    spec_path: str,
-    status_key: str,
-    segment: str,
-) -> list:
-    """Generic helper function to process ExposedAPIs for any segment (coreFunction, managementFunction, securityFunction).
-
-    This function consolidates the common logic for handling ExposedAPI resources across
-    all three component function types. It compares desired state (spec) with actual state
-    (status), patches existing APIs, deletes removed APIs, and creates new APIs.
-
-    Args:
-        * logw (LogWrapper): The log wrapper instance for consistent logging
-        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)
-        * status (Dict): The status from the yaml component envelope showing the actual state
-        * namespace (String): The namespace for the component
-        * name (String): The name of the component
-        * spec_path (String): The path in spec to find exposedAPIs (e.g., 'coreFunction', 'managementFunction')
-        * status_key (String): The key in status where API statuses are stored (e.g., 'coreAPIs', 'managementAPIs')
-        * segment (String): The segment constant (CORE_SEGMENT, MANAGEMENT_SEGMENT, or SECURITY_SEGMENT)
-
-    Returns:
-        List[Dict]: The API children status list to be put into the component envelope status field.
-
-    :meta private:
-    """
-    # any existing API children of this component that have been patched
-    apiChildren = []  # fmt: skip
-    # existing API children of this component (according to previous status)
-    oldAPIs = []  # fmt: skip
-
-    # Compare desired state (spec) with actual state (status) and initiate changes
-    if status:  # if status exists (i.e. this is not a new component)
-        # Update a component - look in old and new to see if we need to delete any API resources
-        if status_key in status.keys():
-            oldAPIs = status[status_key]
-
-        newAPIs = spec[spec_path]["exposedAPIs"]
-
-        # Find APIs in old that are missing in new, or need patching
-        for oldAPI in oldAPIs:
-            found = False
-            for newAPI in newAPIs:
-                logw.debug(
-                    f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
-                )
-                if oldAPI["name"] == name + "-" + newAPI["name"].lower():
-                    found = True
-                    logw.info(f"Patching ExposedAPI {oldAPI['name']}")
-                    resultStatus = await patchAPIResource(
-                        logw, newAPI, namespace, name, status_key, segment
-                    )
-                    apiChildren.append(resultStatus)
-            if not found:
-                logw.info(f"Deleting ExposedAPI {oldAPI['name']}")
-                await deleteExposedAPI(
-                    logw, oldAPI["name"], name, status, namespace, status_key
-                )
-
-    # Get exposed APIs from spec
-    exposedAPIs = spec[spec_path]["exposedAPIs"]
-    logw.debug(f"Exposed API list {exposedAPIs}")
-
-    # Create any APIs that weren't already patched
-    for api in exposedAPIs:
-        # Check if we have already patched this API
-        alreadyProcessed = False
-        for processedAPI in apiChildren:
-            logw.debug(
-                f"Comparing {processedAPI['name']} to {name + '-' + api['name'].lower()}"
-            )
-            if processedAPI["name"] == name + "-" + api["name"].lower():
-                alreadyProcessed = True
-        if not alreadyProcessed:
-            logw.info(f"Calling createAPIResource {api['name']}")
-            resultStatus = await createAPIResource(
-                logw, api, namespace, name, status_key, segment
-            )
-            apiChildren.append(resultStatus)
-
-    return apiChildren
-
-
-async def processDependentAPIs(
-    logw: LogWrapper,
-    spec: dict,
-    status: dict,
-    namespace: str,
-    name: str,
-    spec_path: str,
-    status_key: str,
-    segment: str,
-) -> list:
-    """Generic helper function to process DependentAPIs for any segment (coreFunction, managementFunction, securityFunction).
-
-    This function consolidates the common logic for handling DependentAPI resources across
-    all three component function types. It compares desired state (spec) with actual state
-    (status), updates existing DependentAPIs, deletes removed ones, and creates new ones.
-
-    Args:
-        * logw (LogWrapper): The log wrapper instance for consistent logging
-        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)
-        * status (Dict): The status from the yaml component envelope showing the actual state
-        * namespace (String): The namespace for the component
-        * name (String): The name of the component
-        * spec_path (String): The path in spec to find dependentAPIs (e.g., 'coreFunction', 'managementFunction')
-        * status_key (String): The key in status where DependentAPI statuses are stored
-        * segment (String): The segment constant (CORE_SEGMENT, MANAGEMENT_SEGMENT, or SECURITY_SEGMENT)
-
-    Returns:
-        List[Dict]: The DependentAPI children status list to be put into the component envelope status field.
-
-    :meta private:
-    """
-    dependentAPIChildren = []
-    dapi_base_name = name
-
-    oldDependentAPIs = []
-    if status:  # if status exists (i.e. this is not a new component)
-        oldDependentAPIs = safe_get([], status, status_key)
-
-    newDependentAPIs = safe_get([], spec, spec_path, "dependentAPIs")
-
-    # Compare entries by name - handle deletions and updates
-    for oldDependentAPI in oldDependentAPIs:
-        cr_name = oldDependentAPI["name"]
-        dapi_name = cr_name[len(dapi_base_name) + 1 :]
-        logw.debug(f"Processing old DependentAPI: {dapi_name}")
-        newDependentAPI = find_entry_by_name(newDependentAPIs, dapi_name)
-        if not newDependentAPI:
-            logw.info(f"Deleting DependentAPI {cr_name}")
-            await deleteDependentAPI(logw, cr_name, name, status, namespace, status_key)
-        else:
-            # TODO[FH] implement check for update
-            logw.info(f"TODO: Update DependentAPI {cr_name}")
-            dependentAPIChildren.append(oldDependentAPI)
-
-    # Create new DependentAPIs
-    for newDependentAPI in newDependentAPIs:
-        dapi_name = newDependentAPI["name"]
-        cr_name = f"{dapi_base_name}-{dapi_name}"
-        logw.debug(f"Processing new DependentAPI: {dapi_name}")
-        oldDependentAPI = find_entry_by_name(oldDependentAPIs, cr_name)
-        if not oldDependentAPI:
-            logw.info(f"Calling createDependentAPI {cr_name}")
-            resultStatus = await createDependentAPIResource(
-                logw,
-                newDependentAPI,
-                namespace,
-                name,
-                cr_name,
-                status_key,
-                segment,
-            )
-            dependentAPIChildren.append(resultStatus)
-        # else: already handled above
-
-    return dependentAPIChildren
-
-
-# -------------------------------------------------- ---------------- -------------------------------------------------- #
 
 
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -1196,6 +837,360 @@ async def subscribedEvents(meta, spec, status, body, namespace, labels, name, **
         logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
 
     return subChildren
+
+
+# -------------------------------------------------- HELPER FUNCTIONS -------------------------------------------------- #
+
+
+@logwrapper
+async def deleteExposedAPI(
+    logw: LogWrapper, deleteExposedAPIName, componentName, status, namespace, inHandler
+):
+    """Helper function to delete API Custom objects.
+
+    Args:
+        * deleteExposedAPIName (String): Name of the API Custom Object to delete
+        * componentName (String): Name of the component the API is linked to
+        * status (Dict): The status from the yaml component envelope.
+        * namespace (String): The namespace for the component
+
+    Returns:
+        No return value
+
+    :meta private:
+    """
+
+    logw.info(f"Deleting API {deleteExposedAPIName}")
+    custom_objects_api = kubernetes.client.CustomObjectsApi()
+    try:
+        api_response = custom_objects_api.delete_namespaced_custom_object(
+            group=GROUP,
+            version=VERSION,
+            namespace=namespace,
+            plural=EXPOSEDAPIS_PLURAL,
+            name=deleteExposedAPIName,
+        )
+        logw.debug(f"API response {api_response}")
+    except ApiException as e:
+        logw.error(
+            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
+        )
+
+
+@logwrapper
+async def deleteDependentAPI(
+    logw: LogWrapper, dependentAPIName, componentName, status, namespace, inHandler
+):
+    """Helper function to delete DependentAPI Custom objects.
+
+    Args:
+        * dependentAPIName (String): Name of the DependentAPI Custom Resource to delete
+        * componentName (String): Name of the component the dependent API is linked to
+        * status (Dict): The status from the yaml component envelope.
+        * namespace (String): The namespace for the component
+        * inHandler (String): The name of the handler that called this function
+
+    Returns:
+        No return value
+
+    :meta private:
+    """
+
+    logw.info(f"Deleting DependentAPI {dependentAPIName}")
+
+    custom_objects_api = kubernetes.client.CustomObjectsApi()
+    try:
+        dependentapi_response = custom_objects_api.delete_namespaced_custom_object(
+            group=GROUP,
+            version=DEPENDENTAPI_VERSION,
+            namespace=namespace,
+            plural=DEPENDENTAPI_PLURAL,
+            name=dependentAPIName,
+        )
+        logw.debug(f"DependentAPI response {dependentapi_response}")
+    except ApiException as e:
+        logw.error(
+            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
+        )
+
+
+@logwrapper
+async def deleteSecretsManagement(
+    logw: LogWrapper, secretsManagementName, componentName, status, namespace, inHandler
+):
+    """Helper function to delete SecretsManagement Custom objects.
+
+    Args:
+        * secretsManagementName (String): Name of the SecretsManagement Custom Resource to delete
+        * componentName (String): Name of the component the SecretsManagement is linked to
+        * status (Dict): The status from the yaml component envelope.
+        * namespace (String): The namespace for the component
+        * inHandler (String): The name of the handler that called this function
+
+    Returns:
+        No return value
+
+    :meta private:
+    """
+
+    logw.info(f"Deleting SecretsManagement {secretsManagementName}")
+    custom_objects_api = kubernetes.client.CustomObjectsApi()
+    try:
+        secretsmanagement_response = custom_objects_api.delete_namespaced_custom_object(
+            group=GROUP,
+            version=SECRETSMANAGEMENT_VERSION,
+            namespace=namespace,
+            plural=SECRETSMANAGEMENT_PLURAL,
+            name=secretsManagementName,
+        )
+        logw.debug(f"SecretsManagement response {secretsmanagement_response}")
+    except ApiException as e:
+        logw.error(
+            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
+        )
+
+
+@logwrapper
+async def deleteIdentityConfig(
+    logw: LogWrapper, identityConfigName, componentName, status, namespace, inHandler
+):
+    """Helper function to delete IdentityConfig Custom objects.
+
+    Args:
+        * identityConfigName (String): Name of the IdentityConfig Custom Resource to delete
+        * componentName (String): Name of the component the IdentityConfig is linked to
+        * status (Dict): The status from the yaml component envelope.
+        * namespace (String): The namespace for the component
+        * inHandler (String): The name of the handler that called this function
+
+    Returns:
+        No return value
+
+    :meta private:
+    """
+
+    logw.info(f"Deleting IdentityConfig {identityConfigName}")
+    custom_objects_api = kubernetes.client.CustomObjectsApi()
+    try:
+        identityconfig_response = custom_objects_api.delete_namespaced_custom_object(
+            group=GROUP,
+            version=IDENTITYCONFIG_VERSION,
+            namespace=namespace,
+            plural=IDENTITYCONFIG_PLURAL,
+            name=identityConfigName,
+        )
+        logw.debug(f"IdentityConfig response {identityconfig_response}")
+    except ApiException as e:
+        logw.error(
+            f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
+        )
+
+
+def safe_get(default_value, dictionary, *paths):
+    result = dictionary
+    for path in paths:
+        if path not in result:
+            return default_value
+        result = result[path]
+    return result
+
+
+def quick_get_comp_name(body):
+    return safe_get(None, body, "metadata", "labels", componentname_label)
+
+
+def entryExists(dictionary, key, value):
+    for entry in dictionary:
+        if key in entry:
+            if entry[key] == value:
+                return True
+    return False
+
+
+def safe_get(default_value, dictionary, *paths):
+    result = dictionary
+    for path in paths:
+        if path not in result:
+            return default_value
+        result = result[path]
+    return result
+
+
+def find_entry_by_keyvalue(entries, key, value):
+    for entry in entries:
+        if key in entry:
+            if entry[key] == value:
+                return entry
+    return None
+
+
+def find_entry_by_name(entries, name):
+    return find_entry_by_keyvalue(entries, "name", name)
+
+
+async def processExposedAPIs(
+    logw: LogWrapper,
+    spec: dict,
+    status: dict,
+    namespace: str,
+    name: str,
+    spec_path: str,
+    status_key: str,
+    segment: str,
+) -> list:
+    """Generic helper function to process ExposedAPIs for any segment (coreFunction, managementFunction, securityFunction).
+
+    This function consolidates the common logic for handling ExposedAPI resources across
+    all three component function types. It compares desired state (spec) with actual state
+    (status), patches existing APIs, deletes removed APIs, and creates new APIs.
+
+    Args:
+        * logw (LogWrapper): The log wrapper instance for consistent logging
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)
+        * status (Dict): The status from the yaml component envelope showing the actual state
+        * namespace (String): The namespace for the component
+        * name (String): The name of the component
+        * spec_path (String): The path in spec to find exposedAPIs (e.g., 'coreFunction', 'managementFunction')
+        * status_key (String): The key in status where API statuses are stored (e.g., 'coreAPIs', 'managementAPIs')
+        * segment (String): The segment constant (coreFunction, managementFunction, or securityFunction)
+
+    Returns:
+        List[Dict]: The API children status list to be put into the component envelope status field.
+
+    :meta private:
+    """
+    # any existing API children of this component that have been patched
+    apiChildren = []  # fmt: skip
+    # existing API children of this component (according to previous status)
+    oldAPIs = []  # fmt: skip
+
+    # Compare desired state (spec) with actual state (status) and initiate changes
+    if status:  # if status exists (i.e. this is not a new component)
+        # Update a component - look in old and new to see if we need to delete any API resources
+        if status_key in status.keys():
+            oldAPIs = status[status_key]
+
+        newAPIs = spec[spec_path]["exposedAPIs"]
+
+        # Find APIs in old that are missing in new, or need patching
+        for oldAPI in oldAPIs:
+            found = False
+            for newAPI in newAPIs:
+                logw.debug(
+                    f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
+                )
+                if oldAPI["name"] == name + "-" + newAPI["name"].lower():
+                    found = True
+                    logw.info(f"Patching ExposedAPI {oldAPI['name']}")
+                    resultStatus = await patchAPIResource(
+                        logw, newAPI, namespace, name, status_key, segment
+                    )
+                    apiChildren.append(resultStatus)
+            if not found:
+                logw.info(f"Deleting ExposedAPI {oldAPI['name']}")
+                await deleteExposedAPI(
+                    logw, oldAPI["name"], name, status, namespace, status_key
+                )
+
+    # Get exposed APIs from spec
+    exposedAPIs = spec[spec_path]["exposedAPIs"]
+    logw.debug(f"Exposed API list {exposedAPIs}")
+
+    # Create any APIs that weren't already patched
+    for api in exposedAPIs:
+        # Check if we have already patched this API
+        alreadyProcessed = False
+        for processedAPI in apiChildren:
+            logw.debug(
+                f"Comparing {processedAPI['name']} to {name + '-' + api['name'].lower()}"
+            )
+            if processedAPI["name"] == name + "-" + api["name"].lower():
+                alreadyProcessed = True
+        if not alreadyProcessed:
+            logw.info(f"Calling createAPIResource {api['name']}")
+            resultStatus = await createAPIResource(
+                logw, api, namespace, name, status_key, segment
+            )
+            apiChildren.append(resultStatus)
+
+    return apiChildren
+
+
+async def processDependentAPIs(
+    logw: LogWrapper,
+    spec: dict,
+    status: dict,
+    namespace: str,
+    name: str,
+    spec_path: str,
+    status_key: str,
+    segment: str,
+) -> list:
+    """Generic helper function to process DependentAPIs for any segment (coreFunction, managementFunction, securityFunction).
+
+    This function consolidates the common logic for handling DependentAPI resources across
+    all three component function types. It compares desired state (spec) with actual state
+    (status), updates existing DependentAPIs, deletes removed ones, and creates new ones.
+
+    Args:
+        * logw (LogWrapper): The log wrapper instance for consistent logging
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)
+        * status (Dict): The status from the yaml component envelope showing the actual state
+        * namespace (String): The namespace for the component
+        * name (String): The name of the component
+        * spec_path (String): The path in spec to find dependentAPIs (e.g., 'coreFunction', 'managementFunction')
+        * status_key (String): The key in status where DependentAPI statuses are stored
+        * segment (String): The segment constant (coreFunction, managementFunction, or securityFunction)
+
+    Returns:
+        List[Dict]: The DependentAPI children status list to be put into the component envelope status field.
+
+    :meta private:
+    """
+    dependentAPIChildren = []
+    dapi_base_name = name
+
+    oldDependentAPIs = []
+    if status:  # if status exists (i.e. this is not a new component)
+        oldDependentAPIs = safe_get([], status, status_key)
+
+    newDependentAPIs = safe_get([], spec, spec_path, "dependentAPIs")
+
+    # Compare entries by name - handle deletions and updates
+    for oldDependentAPI in oldDependentAPIs:
+        cr_name = oldDependentAPI["name"]
+        dapi_name = cr_name[len(dapi_base_name) + 1 :]
+        logw.debug(f"Processing old DependentAPI: {dapi_name}")
+        newDependentAPI = find_entry_by_name(newDependentAPIs, dapi_name)
+        if not newDependentAPI:
+            logw.info(f"Deleting DependentAPI {cr_name}")
+            await deleteDependentAPI(logw, cr_name, name, status, namespace, status_key)
+        else:
+            # TODO[FH] implement check for update
+            logw.info(f"TODO: Update DependentAPI {cr_name}")
+            dependentAPIChildren.append(oldDependentAPI)
+
+    # Create new DependentAPIs
+    for newDependentAPI in newDependentAPIs:
+        dapi_name = newDependentAPI["name"]
+        cr_name = f"{dapi_base_name}-{dapi_name}"
+        logw.debug(f"Processing new DependentAPI: {dapi_name}")
+        oldDependentAPI = find_entry_by_name(oldDependentAPIs, cr_name)
+        if not oldDependentAPI:
+            logw.info(f"Calling createDependentAPI {cr_name}")
+            resultStatus = await createDependentAPIResource(
+                logw,
+                newDependentAPI,
+                namespace,
+                name,
+                cr_name,
+                status_key,
+                segment,
+            )
+            dependentAPIChildren.append(resultStatus)
+        # else: already handled above
+
+    return dependentAPIChildren
 
 
 def constructAPIResourcePayload(inExposedAPI, segment=None):
