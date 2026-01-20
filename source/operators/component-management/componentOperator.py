@@ -36,6 +36,9 @@ if CICD_BUILD_TIME:
 if GIT_COMMIT_SHA:
     logger.info(f"GIT_COMMIT_SHA=%s", GIT_COMMIT_SHA)
 
+CORE_SEGMENT = "coreFunction"
+MANAGEMENT_SEGMENT = "managementFunction"
+SECURITY_SEGMENT = "securityFunction"
 
 # get namespace to monitor
 component_namespace = os.environ.get("COMPONENT_NAMESPACE", "components")
@@ -71,6 +74,41 @@ IDENTITY_PROVIDER_NOT_SET = "Not set"
 
 PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
+
+# Segment configuration registry mapping handler names to their spec paths, status keys, and segment constants.
+# This enables generic processing of ExposedAPIs and DependentAPIs across core, management, and security functions.
+SEGMENT_CONFIG = {
+    "coreAPIs": {
+        "spec_path": "coreFunction",
+        "status_key": "coreAPIs",
+        "segment": CORE_SEGMENT,
+    },
+    "managementAPIs": {
+        "spec_path": "managementFunction",
+        "status_key": "managementAPIs",
+        "segment": MANAGEMENT_SEGMENT,
+    },
+    "securityAPIs": {
+        "spec_path": "securityFunction",
+        "status_key": "securityAPIs",
+        "segment": SECURITY_SEGMENT,
+    },
+    "coreDependentAPIs": {
+        "spec_path": "coreFunction",
+        "status_key": "coreDependentAPIs",
+        "segment": CORE_SEGMENT,
+    },
+    "managementDependentAPIs": {
+        "spec_path": "managementFunction",
+        "status_key": "managementDependentAPIs",
+        "segment": MANAGEMENT_SEGMENT,
+    },
+    "securityDependentAPIs": {
+        "spec_path": "securityFunction",
+        "status_key": "securityDependentAPIs",
+        "segment": SECURITY_SEGMENT,
+    },
+}
 
 
 # try to recover from broken watchers https://github.com/nolar/kopf/issues/1036
@@ -180,7 +218,7 @@ async def deleteSecretsManagement(
             plural=SECRETSMANAGEMENT_PLURAL,
             name=secretsManagementName,
         )
-        logs.debug(f"SecretsManagement response {secretsmanagement_response}")
+        logw.debug(f"SecretsManagement response {secretsmanagement_response}")
     except ApiException as e:
         logw.error(
             f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
@@ -216,7 +254,7 @@ async def deleteIdentityConfig(
             plural=IDENTITYCONFIG_PLURAL,
             name=identityConfigName,
         )
-        logs.debug(f"IdentityConfig response {identityconfig_response}")
+        logw.debug(f"IdentityConfig response {identityconfig_response}")
     except ApiException as e:
         logw.error(
             f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
@@ -268,69 +306,23 @@ async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
     # del unused-arguments for linting
     del meta, labels, kwargs
 
-    apiChildren = (
-        []
-    )  # any existing API children of this component that have been patched
-    oldCoreAPIs = (
-        []
-    )  # existing API children of this component (according to previous status)
+    config = SEGMENT_CONFIG["coreAPIs"]
     try:
-
-        # compare desired state (spec) with actual state (status) and initiate changes
-        if status:  # if status exists (i.e. this is not a new component)
-            # update a component - look in old and new to see if we need to delete any API resources
-            if "coreAPIs" in status.keys():
-                oldCoreAPIs = status["coreAPIs"]
-
-            newCoreAPIs = spec["coreFunction"]["exposedAPIs"]
-            # find apis in old that are missing in new
-            deletedAPIs = []
-            for oldAPI in oldCoreAPIs:
-                found = False
-                for newAPI in newCoreAPIs:
-                    logw.debug(
-                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
-                    )
-                    if oldAPI["name"] == name + "-" + newAPI["name"].lower():
-                        found = True
-                        logw.info(f"Patching ExposedAPI {oldAPI['name']}")
-
-                        resultStatus = await patchAPIResource(
-                            logw, newAPI, namespace, name, "coreAPIs", "core"
-                        )
-                        apiChildren.append(resultStatus)
-                if not found:
-                    logw.info(f"Deleting ExposedAPI {oldAPI['name']}")
-                    await deleteExposedAPI(
-                        logw, oldAPI["name"], name, status, namespace, "coreAPIs"
-                    )
-
-        # get core APIS
-        coreAPIs = spec["coreFunction"]["exposedAPIs"]
-        logw.debug(f"Exposed API list {coreAPIs}")
-
-        for coreAPI in coreAPIs:
-            # check if we have already patched this API
-            alreadyProcessed = False
-            for processedAPI in apiChildren:
-                logw.debug(
-                    f"Comparing {processedAPI['name']} to {name + '-' + coreAPI['name'].lower()}"
-                )
-
-                if processedAPI["name"] == name + "-" + coreAPI["name"].lower():
-                    alreadyProcessed = True
-            if alreadyProcessed == False:
-                logw.info(f"Calling createAPIResource {coreAPI['name']}")
-
-                resultStatus = await createAPIResource(
-                    logw, coreAPI, namespace, name, "coreAPIs", "core"
-                )
-                apiChildren.append(resultStatus)
-
+        apiChildren = await processExposedAPIs(
+            logw,
+            spec,
+            status,
+            namespace,
+            name,
+            config["spec_path"],
+            config["status_key"],
+            config["segment"],
+        )
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e)  # allow the operator to retry
     except Exception as e:
         logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+        return []
 
     # Update the parent's status.
     return apiChildren
@@ -368,76 +360,23 @@ async def managementAPIs(meta, spec, status, body, namespace, labels, name, **kw
     # del unused-arguments for linting
     del meta, labels, kwargs
 
-    apiChildren = []
-    oldManagementAPIs = []
+    config = SEGMENT_CONFIG["managementAPIs"]
     try:
-
-        # compare desired state (spec) with actual state (status) and initiate changes
-        if status:  # if status exists (i.e. this is not a new component)
-            # update a component - look in old and new to see if we need to delete any API resources
-            if "managementAPIs" in status.keys():
-                oldManagementAPIs = status["managementAPIs"]
-
-            newManagementAPIs = spec["managementFunction"]["exposedAPIs"]
-            # find apis in old that are missing in new
-            deletedAPIs = []
-            for oldAPI in oldManagementAPIs:
-                found = False
-                for newAPI in newManagementAPIs:
-                    logw.debug(
-                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
-                    )
-
-                    if oldAPI["name"] == name + "-" + newAPI["name"].lower():
-                        found = True
-                        resultStatus = await patchAPIResource(
-                            logw,
-                            newAPI,
-                            namespace,
-                            name,
-                            "managementAPIs",
-                            "management",
-                        )
-                        logw.info(f"Patching API {oldAPI['name']}")
-
-                        apiChildren.append(resultStatus)
-                if not found:
-                    logw.info(f"Deleting API {oldAPI['name']}")
-
-                    await deleteExposedAPI(
-                        logw, oldAPI["name"], name, status, namespace, "managementAPIs"
-                    )
-
-        # get exposed APIS
-        managementAPIs = spec["managementFunction"]["exposedAPIs"]
-        logw.debug(f"Exposed API list {managementAPIs}")
-
-        for managementAPI in managementAPIs:
-            # check if we have already patched this API
-            alreadyProcessed = False
-            for processedAPI in apiChildren:
-                logger.debug(
-                    f"Comparing {processedAPI['name']} to {name + '-' + managementAPI['name'].lower()}"
-                )
-                logw.debug(
-                    f"Comparing new APIs with status {processedAPI['name']} to {name + '-' + managementAPI['name'].lower()}"
-                )
-
-                if processedAPI["name"] == name + "-" + managementAPI["name"].lower():
-                    alreadyProcessed = True
-
-            if alreadyProcessed == False:
-                logw.info(f"Calling createAPIResource {managementAPI['name']}")
-
-                resultStatus = await createAPIResource(
-                    logw, managementAPI, namespace, name, "managementAPIs", "management"
-                )
-                apiChildren.append(resultStatus)
-
+        apiChildren = await processExposedAPIs(
+            logw,
+            spec,
+            status,
+            namespace,
+            name,
+            config["spec_path"],
+            config["status_key"],
+            config["segment"],
+        )
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e)  # allow the operator to retry
     except Exception as e:
         logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+        return []
 
     # Update the parent's status.
     return apiChildren
@@ -475,67 +414,23 @@ async def securityAPIs(meta, spec, status, body, namespace, labels, name, **kwar
     # del unused-arguments for linting
     del meta, labels, kwargs
 
-    apiChildren = []
-    oldSecurityAPIs = []
+    config = SEGMENT_CONFIG["securityAPIs"]
     try:
-
-        # compare desired state (spec) with actual state (status) and initiate changes
-        if status:  # if status exists (i.e. this is not a new component)
-            # update a component - look in old and new to see if we need to delete any API resources
-            if "securityAPIs" in status.keys():
-                oldSecurityAPIs = status["securityAPIs"]
-            newSecurityAPIs = spec["securityFunction"]["exposedAPIs"]
-            # find apis in old that are missing in new
-            deletedAPIs = []
-            for oldAPI in oldSecurityAPIs:
-                found = False
-                for newAPI in newSecurityAPIs:
-                    logw.debug(
-                        f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
-                    )
-
-                    if oldAPI["name"] == name + "-" + newAPI["name"].lower():
-                        found = True
-                        resultStatus = await patchAPIResource(
-                            logw, newAPI, namespace, name, "securityAPIs", "security"
-                        )
-                        logw.info(f"Patching API {oldAPI['name']}")
-
-                        apiChildren.append(resultStatus)
-                if not found:
-                    logw.info(f"Deleting API {oldAPI['name']}")
-
-                    await deleteExposedAPI(
-                        logw, oldAPI["name"], name, status, namespace, "securityAPIs"
-                    )
-
-        # get exposed APIS
-        securityAPIs = spec["securityFunction"]["exposedAPIs"]
-        logw.debug(f"Exposed API list {securityAPIs}")
-
-        for securityAPI in securityAPIs:
-            # check if we have already patched this API
-            alreadyProcessed = False
-            for processedAPI in apiChildren:
-                logw.debug(
-                    f"Comparing {processedAPI['name']} to {name + '-' + securityAPI['name'].lower()}"
-                )
-
-                if processedAPI["name"] == name + "-" + securityAPI["name"].lower():
-                    alreadyProcessed = True
-
-            if alreadyProcessed == False:
-                logw.debug(f"Calling createAPIResource {securityAPI['name']}")
-
-                resultStatus = await createAPIResource(
-                    logw, securityAPI, namespace, name, "securityAPIs", "security"
-                )
-                apiChildren.append(resultStatus)
-
+        apiChildren = await processExposedAPIs(
+            logw,
+            spec,
+            status,
+            namespace,
+            name,
+            config["spec_path"],
+            config["status_key"],
+            config["segment"],
+        )
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e)  # allow the operator to retry
     except Exception as e:
         logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+        return []
 
     # Update the parent's status.
     return apiChildren
@@ -569,6 +464,171 @@ def find_entry_by_keyvalue(entries, key, value):
 
 def find_entry_by_name(entries, name):
     return find_entry_by_keyvalue(entries, "name", name)
+
+
+async def processExposedAPIs(
+    logw: LogWrapper,
+    spec: dict,
+    status: dict,
+    namespace: str,
+    name: str,
+    spec_path: str,
+    status_key: str,
+    segment: str,
+) -> list:
+    """Generic helper function to process ExposedAPIs for any segment (core, management, security).
+
+    This function consolidates the common logic for handling ExposedAPI resources across
+    all three component function types. It compares desired state (spec) with actual state
+    (status), patches existing APIs, deletes removed APIs, and creates new APIs.
+
+    Args:
+        * logw (LogWrapper): The log wrapper instance for consistent logging
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)
+        * status (Dict): The status from the yaml component envelope showing the actual state
+        * namespace (String): The namespace for the component
+        * name (String): The name of the component
+        * spec_path (String): The path in spec to find exposedAPIs (e.g., 'coreFunction', 'managementFunction')
+        * status_key (String): The key in status where API statuses are stored (e.g., 'coreAPIs', 'managementAPIs')
+        * segment (String): The segment constant (CORE_SEGMENT, MANAGEMENT_SEGMENT, or SECURITY_SEGMENT)
+
+    Returns:
+        List[Dict]: The API children status list to be put into the component envelope status field.
+
+    :meta private:
+    """
+    apiChildren = []  # any existing API children of this component that have been patched
+    oldAPIs = []  # existing API children of this component (according to previous status)
+
+    # Compare desired state (spec) with actual state (status) and initiate changes
+    if status:  # if status exists (i.e. this is not a new component)
+        # Update a component - look in old and new to see if we need to delete any API resources
+        if status_key in status.keys():
+            oldAPIs = status[status_key]
+
+        newAPIs = spec[spec_path]["exposedAPIs"]
+
+        # Find APIs in old that are missing in new, or need patching
+        for oldAPI in oldAPIs:
+            found = False
+            for newAPI in newAPIs:
+                logw.debug(
+                    f"Comparing {oldAPI['name']} to {name + '-' + newAPI['name'].lower()}"
+                )
+                if oldAPI["name"] == name + "-" + newAPI["name"].lower():
+                    found = True
+                    logw.info(f"Patching ExposedAPI {oldAPI['name']}")
+                    resultStatus = await patchAPIResource(
+                        logw, newAPI, namespace, name, status_key, segment
+                    )
+                    apiChildren.append(resultStatus)
+            if not found:
+                logw.info(f"Deleting ExposedAPI {oldAPI['name']}")
+                await deleteExposedAPI(
+                    logw, oldAPI["name"], name, status, namespace, status_key
+                )
+
+    # Get exposed APIs from spec
+    exposedAPIs = spec[spec_path]["exposedAPIs"]
+    logw.debug(f"Exposed API list {exposedAPIs}")
+
+    # Create any APIs that weren't already patched
+    for api in exposedAPIs:
+        # Check if we have already patched this API
+        alreadyProcessed = False
+        for processedAPI in apiChildren:
+            logw.debug(
+                f"Comparing {processedAPI['name']} to {name + '-' + api['name'].lower()}"
+            )
+            if processedAPI["name"] == name + "-" + api["name"].lower():
+                alreadyProcessed = True
+        if not alreadyProcessed:
+            logw.info(f"Calling createAPIResource {api['name']}")
+            resultStatus = await createAPIResource(
+                logw, api, namespace, name, status_key, segment
+            )
+            apiChildren.append(resultStatus)
+
+    return apiChildren
+
+
+async def processDependentAPIs(
+    logw: LogWrapper,
+    spec: dict,
+    status: dict,
+    namespace: str,
+    name: str,
+    spec_path: str,
+    status_key: str,
+    segment: str,
+) -> list:
+    """Generic helper function to process DependentAPIs for any segment (core, management, security).
+
+    This function consolidates the common logic for handling DependentAPI resources across
+    all three component function types. It compares desired state (spec) with actual state
+    (status), updates existing DependentAPIs, deletes removed ones, and creates new ones.
+
+    Args:
+        * logw (LogWrapper): The log wrapper instance for consistent logging
+        * spec (Dict): The spec from the yaml component envelope showing the intent (or desired state)
+        * status (Dict): The status from the yaml component envelope showing the actual state
+        * namespace (String): The namespace for the component
+        * name (String): The name of the component
+        * spec_path (String): The path in spec to find dependentAPIs (e.g., 'coreFunction', 'managementFunction')
+        * status_key (String): The key in status where DependentAPI statuses are stored
+        * segment (String): The segment constant (CORE_SEGMENT, MANAGEMENT_SEGMENT, or SECURITY_SEGMENT)
+
+    Returns:
+        List[Dict]: The DependentAPI children status list to be put into the component envelope status field.
+
+    :meta private:
+    """
+    dependentAPIChildren = []
+    dapi_base_name = name
+
+    oldDependentAPIs = []
+    if status:  # if status exists (i.e. this is not a new component)
+        oldDependentAPIs = safe_get([], status, status_key)
+
+    newDependentAPIs = safe_get([], spec, spec_path, "dependentAPIs")
+
+    # Compare entries by name - handle deletions and updates
+    for oldDependentAPI in oldDependentAPIs:
+        cr_name = oldDependentAPI["name"]
+        dapi_name = cr_name[len(dapi_base_name) + 1 :]
+        logw.debug(f"Processing old DependentAPI: {dapi_name}")
+        newDependentAPI = find_entry_by_name(newDependentAPIs, dapi_name)
+        if not newDependentAPI:
+            logw.info(f"Deleting DependentAPI {cr_name}")
+            await deleteDependentAPI(
+                logw, cr_name, name, status, namespace, status_key
+            )
+        else:
+            # TODO[FH] implement check for update
+            logw.info(f"TODO: Update DependentAPI {cr_name}")
+            dependentAPIChildren.append(oldDependentAPI)
+
+    # Create new DependentAPIs
+    for newDependentAPI in newDependentAPIs:
+        dapi_name = newDependentAPI["name"]
+        cr_name = f"{dapi_base_name}-{dapi_name}"
+        logw.debug(f"Processing new DependentAPI: {dapi_name}")
+        oldDependentAPI = find_entry_by_name(oldDependentAPIs, cr_name)
+        if not oldDependentAPI:
+            logw.info(f"Calling createDependentAPI {cr_name}")
+            resultStatus = await createDependentAPIResource(
+                logw,
+                newDependentAPI,
+                namespace,
+                name,
+                cr_name,
+                status_key,
+                segment,
+            )
+            dependentAPIChildren.append(resultStatus)
+        # else: already handled above
+
+    return dependentAPIChildren
 
 
 # -------------------------------------------------- ---------------- -------------------------------------------------- #
@@ -610,56 +670,24 @@ async def coreDependentAPIs(
     # del unused-arguments for linting
     del meta, labels, kwargs
 
-    dependentAPIChildren = []
-    dapi_base_name = name
-
+    config = SEGMENT_CONFIG["coreDependentAPIs"]
     try:
-        oldCoreDependentAPIs = []
-        if status:  # if status exists (i.e. this is not a new component)
-            oldCoreDependentAPIs = safe_get([], status, "coreDependentAPIs")
-
-        newCoreDependentAPIs = safe_get([], spec, "coreFunction", "dependentAPIs")
-
-        # compare entries by name
-        for oldCoreDependentAPI in oldCoreDependentAPIs:
-            cr_name = oldCoreDependentAPI["name"]
-            dapi_name = cr_name[len(dapi_base_name) + 1 :]
-            print(dapi_name)
-            newCoreDependentAPI = find_entry_by_name(newCoreDependentAPIs, dapi_name)
-            if not newCoreDependentAPI:
-                logw.info(f"Deleting DependentAPI {cr_name}")
-
-                await deleteDependentAPI(
-                    logw, cr_name, name, status, namespace, "coreDependentAPIs"
-                )
-            else:
-                # TODO[FH] implement check for update
-                logw.info(f"TODO: Update DependentAPI {cr_name}")
-                dependentAPIChildren.append(oldCoreDependentAPI)
-
-        for newCoreDependentAPI in newCoreDependentAPIs:
-            dapi_name = newCoreDependentAPI["name"]
-            cr_name = f"{dapi_base_name}-{dapi_name}"
-            print(dapi_name)
-            oldCoreDependentAPI = find_entry_by_name(oldCoreDependentAPIs, cr_name)
-            if not oldCoreDependentAPI:
-                logw.info(f"Calling createDependentAPI {cr_name}")
-                resultStatus = await createDependentAPIResource(
-                    logw,
-                    newCoreDependentAPI,
-                    namespace,
-                    name,
-                    cr_name,
-                    "coreDependentAPIs",
-                    "core",
-                )
-                dependentAPIChildren.append(resultStatus)
-            # else: already handled above
-
+        dependentAPIChildren = await processDependentAPIs(
+            logw,
+            spec,
+            status,
+            namespace,
+            name,
+            config["spec_path"],
+            config["status_key"],
+            config["segment"],
+        )
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e)  # allow the operator to retry
     except Exception as e:
         logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+        return []
+
     logw.info(f"result for status {dependentAPIChildren}")
 
     # Update the parent's status.
@@ -702,62 +730,24 @@ async def managementDependentAPIs(
     # del unused-arguments for linting
     del meta, labels, kwargs
 
-    dependentAPIChildren = []
-    dapi_base_name = name
-
+    config = SEGMENT_CONFIG["managementDependentAPIs"]
     try:
-        oldManagementDependentAPIs = []
-        if status:  # if status exists (i.e. this is not a new component)
-            oldManagementDependentAPIs = safe_get([], status, "managementDependentAPIs")
-
-        newManagementDependentAPIs = safe_get(
-            [], spec, "managementFunction", "dependentAPIs"
+        dependentAPIChildren = await processDependentAPIs(
+            logw,
+            spec,
+            status,
+            namespace,
+            name,
+            config["spec_path"],
+            config["status_key"],
+            config["segment"],
         )
-
-        # compare entries by name
-        for oldManagementDependentAPI in oldManagementDependentAPIs:
-            cr_name = oldManagementDependentAPI["name"]
-            dapi_name = cr_name[len(dapi_base_name) + 1 :]
-            print(dapi_name)
-            newManagementDependentAPI = find_entry_by_name(
-                newManagementDependentAPIs, dapi_name
-            )
-            if not newManagementDependentAPI:
-                logw.info(f"Deleting DependentAPI {cr_name}")
-
-                await deleteDependentAPI(
-                    logw, cr_name, name, status, namespace, "managementDependentAPIs"
-                )
-            else:
-                # TODO[FH] implement check for update
-                logw.info(f"TODO: Update DependentAPI {cr_name}")
-                dependentAPIChildren.append(oldManagementDependentAPI)
-
-        for newManagementDependentAPI in newManagementDependentAPIs:
-            dapi_name = newManagementDependentAPI["name"]
-            cr_name = f"{dapi_base_name}-{dapi_name}"
-            print(dapi_name)
-            oldManagementDependentAPI = find_entry_by_name(
-                oldManagementDependentAPIs, cr_name
-            )
-            if not oldManagementDependentAPI:
-                logw.info(f"Calling createDependentAPI {cr_name}")
-                resultStatus = await createDependentAPIResource(
-                    logw,
-                    newManagementDependentAPI,
-                    namespace,
-                    name,
-                    cr_name,
-                    "managementDependentAPIs",
-                    "management",
-                )
-                dependentAPIChildren.append(resultStatus)
-            # else: already handled above
-
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e)  # allow the operator to retry
     except Exception as e:
         logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+        return []
+
     logw.info(f"result for status {dependentAPIChildren}")
 
     # Update the parent's status.
@@ -800,63 +790,28 @@ async def securityDependentAPIs(
     # del unused-arguments for linting
     del meta, labels, kwargs
 
-    dependentAPIChildren = []
-    dapi_base_name = name
-
+    config = SEGMENT_CONFIG["securityDependentAPIs"]
     try:
-        oldSecurityDependentAPIs = []
-        if status:  # if status exists (i.e. this is not a new component)
-            oldSecurityDependentAPIs = safe_get([], status, "securityDependentAPIs")
-
-        newSecurityDependentAPIs = safe_get(
-            [], spec, "securityFunction", "dependentAPIs"
+        dependentAPIChildren = await processDependentAPIs(
+            logw,
+            spec,
+            status,
+            namespace,
+            name,
+            config["spec_path"],
+            config["status_key"],
+            config["segment"],
         )
-
-        # compare entries by name
-        for oldSecurityDependentAPI in oldSecurityDependentAPIs:
-            cr_name = oldSecurityDependentAPI["name"]
-            dapi_name = cr_name[len(dapi_base_name) + 1 :]
-            print(dapi_name)
-            newSecurityDependentAPI = find_entry_by_name(
-                newSecurityDependentAPIs, dapi_name
-            )
-            if not newSecurityDependentAPI:
-                logw.info(f"Deleting DependentAPI {cr_name}")
-
-                await deleteDependentAPI(
-                    logw, cr_name, name, status, namespace, "securityDependentAPIs"
-                )
-            else:
-                # TODO[FH] implement check for update
-                logw.info(f"TODO: Update DependentAPI {cr_name}")
-                dependentAPIChildren.append(oldSecurityDependentAPI)
-
-        for newSecurityDependentAPI in newSecurityDependentAPIs:
-            dapi_name = newSecurityDependentAPI["name"]
-            cr_name = f"{dapi_base_name}-{dapi_name}"
-            print(dapi_name)
-            oldSecurityDependentAPI = find_entry_by_name(
-                oldSecurityDependentAPIs, cr_name
-            )
-            if not oldSecurityDependentAPI:
-                logw.info(f"Calling createDependentAPI {cr_name}")
-                resultStatus = await createDependentAPIResource(
-                    logw,
-                    newSecurityDependentAPI,
-                    namespace,
-                    name,
-                    cr_name,
-                    "securityDependentAPIs",
-                    "security",
-                )
-                dependentAPIChildren.append(resultStatus)
-            # else: already handled above
-
     except kopf.TemporaryError as e:
         raise kopf.TemporaryError(e)  # allow the operator to retry
     except Exception as e:
         logw.error(f"Unhandled exception {e}: {traceback.format_exc()}")
+        return []
+
     logw.info(f"result for status {dependentAPIChildren}")
+
+    # Update the parent's status.
+    return dependentAPIChildren
 
     # Update the parent's status.
     return dependentAPIChildren
