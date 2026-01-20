@@ -76,7 +76,7 @@ PUBLISHEDNOTIFICATIONS_PLURAL = "publishednotifications"
 SUBSCRIBEDNOTIFICATIONS_PLURAL = "subscribednotifications"
 
 # Segment configuration registry mapping handler names to their spec paths, status keys, and segment constants.
-# This enables generic processing of ExposedAPIs and DependentAPIs across core, management, and security functions.
+# This enables generic processing of ExposedAPIs and DependentAPIs across coreFunction, managementFunction, and securityFunction functions.
 SEGMENT_CONFIG = {
     "coreAPIs": {
         "spec_path": "coreFunction",
@@ -278,9 +278,9 @@ def quick_get_comp_name(body):
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 async def coreAPIs(meta, spec, status, body, namespace, labels, name, **kwargs):
-    """Handler function for **core function** part new or updated components.
+    """Handler function for **coreFunction** part new or updated components.
 
-    Processes the **core function** part of the component envelope and creates the child API resources.
+    Processes the **coreFunction** part of the component envelope and creates the child API resources.
 
     Args:
         * meta (Dict): The metadata from the yaml component envelope
@@ -476,7 +476,7 @@ async def processExposedAPIs(
     status_key: str,
     segment: str,
 ) -> list:
-    """Generic helper function to process ExposedAPIs for any segment (core, management, security).
+    """Generic helper function to process ExposedAPIs for any segment (coreFunction, managementFunction, securityFunction).
 
     This function consolidates the common logic for handling ExposedAPI resources across
     all three component function types. It compares desired state (spec) with actual state
@@ -497,8 +497,10 @@ async def processExposedAPIs(
 
     :meta private:
     """
-    apiChildren = []  # any existing API children of this component that have been patched
-    oldAPIs = []  # existing API children of this component (according to previous status)
+    # any existing API children of this component that have been patched
+    apiChildren = []  # fmt: skip
+    # existing API children of this component (according to previous status)
+    oldAPIs = []  # fmt: skip
 
     # Compare desired state (spec) with actual state (status) and initiate changes
     if status:  # if status exists (i.e. this is not a new component)
@@ -562,7 +564,7 @@ async def processDependentAPIs(
     status_key: str,
     segment: str,
 ) -> list:
-    """Generic helper function to process DependentAPIs for any segment (core, management, security).
+    """Generic helper function to process DependentAPIs for any segment (coreFunction, managementFunction, securityFunction).
 
     This function consolidates the common logic for handling DependentAPI resources across
     all three component function types. It compares desired state (spec) with actual state
@@ -600,9 +602,7 @@ async def processDependentAPIs(
         newDependentAPI = find_entry_by_name(newDependentAPIs, dapi_name)
         if not newDependentAPI:
             logw.info(f"Deleting DependentAPI {cr_name}")
-            await deleteDependentAPI(
-                logw, cr_name, name, status, namespace, status_key
-            )
+            await deleteDependentAPI(logw, cr_name, name, status, namespace, status_key)
         else:
             # TODO[FH] implement check for update
             logw.info(f"TODO: Update DependentAPI {cr_name}")
@@ -1122,7 +1122,7 @@ async def publishedEvents(meta, spec, status, body, namespace, labels, name, **k
     pubChildren = []
     try:
 
-        # get security exposed APIS
+        # get securityFunction exposed APIS
         try:
             publishedEvents = spec["eventNotification"]["publishedEvents"]
             pubChildren = await asyncio.gather(
@@ -1176,7 +1176,7 @@ async def subscribedEvents(meta, spec, status, body, namespace, labels, name, **
     subChildren = []
     try:
 
-        # get security exposed APIS
+        # get securityFunction exposed APIS
         try:
             subscribedEvents = spec["eventNotification"]["subscribedEvents"]
             subChildren = await asyncio.gather(
@@ -1203,7 +1203,7 @@ def constructAPIResourcePayload(inExposedAPI, segment=None):
 
     Args:
         * inExposedAPI (Dict): The API spec
-        * segment (str): The segment (core, management, or security)
+        * segment (str): The segment (coreFunction, managementFunction, or securityFunction)
 
     Returns:
         API Custom object (Dict)
@@ -1246,7 +1246,7 @@ def constructDependentAPIResourcePayload(inDependentAPI, cr_name, segment=None):
     Args:
         * inDependentAPI (Dict): The DependentAPI spec
         * cr_name custom resource name of the dependent api
-        * segment (str): The segment (core, management, or security)
+        * segment (str): The segment (coreFunction, managementFunction, or securityFunction)
 
     Returns:
         DependentAPI Custom object (Dict)
@@ -1332,7 +1332,7 @@ async def patchAPIResource(
         * namespace (String): The namespace for the Component and API
         * name (String): The name of the API resource
         * inHandler (String): The name of the handler that called this function
-        * segment (String): The segment (core, management, or security)
+        * segment (String): The segment (coreFunction, managementFunction, or securityFunction)
 
     Returns:
         Dict with updated API definition including uuid of the API resource and ready status.
@@ -1407,7 +1407,7 @@ async def createAPIResource(
         * namespace (String): The namespace for the Component and API
         * name (String): The name of the API resource
         * inHandler (String): The name of the handler calling this function
-        * segment (String): The segment (core, management, or security)
+        * segment (String): The segment (coreFunction, managementFunction, or securityFunction)
 
     Returns:
         Dict with API definition including uuid of the API resource and ready status.
@@ -1466,7 +1466,7 @@ async def createDependentAPIResource(
         * namespace (String): The namespace for the Component and API
         * cr_name (String): The name of the dependent API custom resource
         * inHandler (String): The name of the handler calling this function
-        * segment (String): The segment (core, management, or security)
+        * segment (String): The segment (coreFunction, managementFunction, or securityFunction)
 
     Returns:
         Dict with DependentAPI definition including uuid of the DependentAPI resource and ready status.
