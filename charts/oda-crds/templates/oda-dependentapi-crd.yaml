@@ -236,10 +236,10 @@ spec:
               segment:
                 type: string
                 enum:
-                - core
-                - management
-                - security
-                description: (optional) The segment of the component where this API is defined (core, management, or security)
+                - coreFunction
+                - managementFunction
+                - securityFunction
+                description: (optional) The segment of the component where this API is defined (coreFunction, managementFunction, or securityFunction)
             required:
             - name
             - apiType
