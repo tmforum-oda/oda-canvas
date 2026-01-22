@@ -236,7 +236,7 @@ spec:
               segment:
                 type: string
                 enum:
-                - coreFunction
+                - coreFunction # operator will default to coreFunction if not specified
                 - managementFunction
                 - securityFunction
                 description: (optional) The segment of the component where this API is defined (coreFunction, managementFunction, or securityFunction)

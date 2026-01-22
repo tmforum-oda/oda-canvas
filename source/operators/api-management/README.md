@@ -56,6 +56,7 @@ spec:
   path: "/r1-productcatalogmanagement/tmf-api/productCatalogManagement/v4" # The path to the root of the API
   developerUI: "/r1-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs" # (optional) The path to the developer User Interface for the API
   port: 8080 # The port where the API is exposed
+  segment: coreFunction # what segment the API belongs to: coreFunction, managementFunction or securityFunction (operator defaults to  coreFunction)
   apiKeyVerification:
     enabled: true # (default: false) Enforce verification of API key
     location: header # (optional) Name of variable where API key value is expected
