@@ -7,6 +7,8 @@ const assert = require('assert');
 
 const API_BASE_URL = 'http://localhost:8639/tmf-api/resourceInventoryManagement/v5';
 
+console.log('Resource Inventory TMF639 with API base URL:', API_BASE_URL);
+
 const resourceInventoryUtilsTMF639 = {
   /**
    * Query the Resource Inventory API for all resources

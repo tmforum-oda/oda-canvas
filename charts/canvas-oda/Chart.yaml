@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.5-LT4
+version: 1.2.5-LT5
+# version: 1.2.5-LT5 - added segment to ExposedAPI and DependentAPI crds and enabled DependentAPIs for Management and Security
 # version: 1.2.5-LT4 - added opentelemetry sub-chart and tests
 # version: 1.2.5-RJ1 - added mcp,a2a,sse timeout related parameter support for kong httproute and apisix apisixroute. added bitnami repo for apisix etcd. 
 # version: 1.2.4     - New release ahead of Innovate Asia
@@ -89,7 +90,7 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: component-operator
-    version: "1.4.1"
+    version: "1.4.2"
     repository: 'file://../component-operator'
   - name: identityconfig-operator-keycloak
     version: "1.2.7"
