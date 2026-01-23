@@ -1,0 +1,17 @@
+config:
+  clients:
+    - url: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+  
+  # Scrape configuration for your operator logs
+  scrapeConfigs:
+    - job_name: kubernetes-pods
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        # Only scrape pods with specific annotations or in canvas namespace
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        - source_labels: [__meta_kubernetes_namespace]
+          action: keep
+          regex: (canvas|monitoring)

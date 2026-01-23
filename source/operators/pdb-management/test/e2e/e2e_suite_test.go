@@ -40,6 +40,9 @@ var (
 	// projectImage is the name of the image which will be build and loaded
 	// with the code source changes to be tested.
 	projectImage = "example.com/pdb-management:v0.0.1"
+
+	// webuiImage is the name of the web UI image
+	webuiImage = "pdb-management-webui:latest"
 )
 
 // TestE2E runs the end-to-end (e2e) test suite for the project. These tests execute in an isolated,
@@ -63,6 +66,15 @@ var _ = BeforeSuite(func() {
 	By("loading the manager(Operator) image on Kind")
 	err = utils.LoadImageToKindClusterWithName(projectImage)
 	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to load the manager(Operator) image into Kind")
+
+	By("building the webui image")
+	cmd = exec.Command("make", "webui-build", fmt.Sprintf("WEBUI_IMG=%s", webuiImage))
+	_, err = utils.Run(cmd)
+	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to build the webui image")
+
+	By("loading the webui image on Kind")
+	err = utils.LoadImageToKindClusterWithName(webuiImage)
+	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to load the webui image into Kind")
 
 	// The tests-e2e are intended to run on a temporary cluster that is created and destroyed for testing.
 	// To prevent errors when tests run in environments with CertManager already installed,

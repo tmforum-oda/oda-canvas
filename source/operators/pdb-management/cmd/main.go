@@ -35,6 +35,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -49,9 +50,12 @@ import (
 	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/controller"
 	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/events"
 	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/logging"
+	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/mcp"
 	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/metrics"
 	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/tracing"
 	appsv1 "k8s.io/api/apps/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 var (
@@ -78,6 +82,19 @@ func main() {
 		logLevel                string
 		enableTracing           bool
 		maxConcurrentReconciles int
+		enableMCP               bool
+		mcpAddr                 string
+
+		// Cache configuration
+		policyCacheTTL            time.Duration
+		policyCacheSize           int
+		maintenanceWindowCacheTTL time.Duration
+
+		// Retry configuration
+		retryMaxAttempts   int
+		retryInitialDelay  time.Duration
+		retryMaxDelay      time.Duration
+		retryBackoffFactor float64
 	)
 
 	flag.StringVar(&metricsAddr, "metrics-bind-address", "0", "The address the metric endpoint binds to.")
@@ -92,6 +109,19 @@ func main() {
 	flag.StringVar(&logLevel, "log-level", "info", "Log level (debug, info, error)")
 	flag.BoolVar(&enableTracing, "enable-tracing", true, "Enable OpenTelemetry tracing")
 	flag.IntVar(&maxConcurrentReconciles, "max-concurrent-reconciles", 5, "Maximum concurrent reconciles per controller")
+	flag.BoolVar(&enableMCP, "enable-mcp", false, "Enable MCP server for cluster analysis and recommendations")
+	flag.StringVar(&mcpAddr, "mcp-bind-address", ":8090", "The address the MCP server binds to")
+
+	// Cache configuration flags
+	flag.DurationVar(&policyCacheTTL, "policy-cache-ttl", 5*time.Minute, "TTL for cached policies")
+	flag.IntVar(&policyCacheSize, "policy-cache-size", 100, "Maximum number of policies to cache")
+	flag.DurationVar(&maintenanceWindowCacheTTL, "maintenance-window-cache-ttl", 1*time.Minute, "TTL for cached maintenance window results")
+
+	// Retry configuration flags
+	flag.IntVar(&retryMaxAttempts, "retry-max-attempts", 5, "Maximum retry attempts for transient errors")
+	flag.DurationVar(&retryInitialDelay, "retry-initial-delay", 100*time.Millisecond, "Initial delay between retries")
+	flag.DurationVar(&retryMaxDelay, "retry-max-delay", 30*time.Second, "Maximum delay between retries")
+	flag.Float64Var(&retryBackoffFactor, "retry-backoff-factor", 2.0, "Backoff multiplier for retry delays")
 
 	opts := zap.Options{Development: logLevel == "debug"}
 	opts.BindFlags(flag.CommandLine)
@@ -117,10 +147,30 @@ func main() {
 
 	config := validateConfiguration()
 
-	// Create policy cache (optimized for 200+ deployments)
-	policyCache := internalcache.NewPolicyCache(100, 5*time.Minute)
+	// Create policy cache with configurable settings
+	policyCache := internalcache.NewPolicyCacheWithConfig(internalcache.CacheConfig{
+		MaxSize:              policyCacheSize,
+		PolicyTTL:            policyCacheTTL,
+		MaintenanceWindowTTL: maintenanceWindowCacheTTL,
+	})
 	defer policyCache.Stop()
-	setupLog.Info("Policy cache initialized", "size", 100, "ttl", "5m")
+	setupLog.Info("Policy cache initialized",
+		"size", policyCacheSize,
+		"policyTTL", policyCacheTTL,
+		"maintenanceWindowTTL", maintenanceWindowCacheTTL)
+
+	// Configure global retry settings
+	controller.SetGlobalRetryConfig(controller.RetryConfig{
+		MaxRetries:    retryMaxAttempts,
+		InitialDelay:  retryInitialDelay,
+		MaxDelay:      retryMaxDelay,
+		BackoffFactor: retryBackoffFactor,
+	})
+	setupLog.Info("Retry configuration set",
+		"maxAttempts", retryMaxAttempts,
+		"initialDelay", retryInitialDelay,
+		"maxDelay", retryMaxDelay,
+		"backoffFactor", retryBackoffFactor)
 
 	// Manager configuration
 	metricsServerOptions := server.Options{
@@ -166,6 +216,21 @@ func main() {
 	circuitBreakerClient := internalclient.NewAdaptiveCircuitBreakerClient(mgr.GetClient())
 	setupLog.Info("Adaptive circuit breaker initialized - will learn cluster characteristics")
 
+	// Initialize MCP server integration
+	kubeClient, err := kubernetes.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		setupLog.Error(err, "unable to create kubernetes client for MCP")
+		os.Exit(1)
+	}
+
+	mcpIntegration := mcp.NewMCPIntegration(mcp.Config{
+		Enabled:    enableMCP,
+		Address:    mcpAddr,
+		Logger:     ctrl.Log.WithName("mcp"),
+		Client:     circuitBreakerClient,
+		KubeClient: kubeClient,
+	})
+
 	// Create event recorder
 	eventRecorder := events.NewEventRecorder(mgr.GetEventRecorderFor("pdb-management-operator"))
 
@@ -188,6 +253,7 @@ func main() {
 	}
 
 	// Register Deployment controller with enhanced client and cache
+	// This controller handles both annotation-based and policy-based PDB management
 	if err = (&controller.DeploymentReconciler{
 		Client:      circuitBreakerClient,
 		Scheme:      mgr.GetScheme(),
@@ -200,33 +266,43 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Register PDB controller if enabled
-	if config.EnablePDB {
-		setupLog.Info("PDB controller is deprecated - deployment controller now handles all PDB management")
-		setupLog.Info("Consider setting EnablePDB=false to avoid potential conflicts")
-
-		if err = (&controller.PDBReconciler{
-			Client:   circuitBreakerClient,
-			Scheme:   mgr.GetScheme(),
-			Recorder: mgr.GetEventRecorderFor("pdb-controller"),
-			Events:   eventRecorder,
-		}).SetupWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "PDB")
-			os.Exit(1)
-		}
-		setupLog.Info("PDB controller enabled (deprecated)")
-	} else {
-		setupLog.Info("PDB controller disabled - deployment controller handles all PDB management")
-	}
-
-	// Setup webhooks if enabled
+	// Setup webhooks if enabled (with graceful fallback)
+	webhookEnabled := false
 	if enableWebhook {
-		if err = (&availabilityv1alpha1.AvailabilityPolicy{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "AvailabilityPolicy")
-			os.Exit(1)
+		// Pre-flight check for cert-manager
+		// Use mgr.GetConfig() to create a direct API client (bypasses controller-runtime cache)
+		certManagerAvailable := checkCertManagerAvailable(mgr.GetConfig())
+
+		if !certManagerAvailable {
+			setupLog.Info("WARNING: cert-manager not detected - webhook validation disabled",
+				"recommendation", "Install cert-manager for webhook support: kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.3/cert-manager.yaml")
+
+			// Record metric for monitoring
+			metrics.RecordWebhookStatus("disabled", "cert_manager_not_found")
+		} else {
+			// cert-manager is available, try to setup webhook
+			if err = (&availabilityv1alpha1.AvailabilityPolicy{}).SetupWebhookWithManager(mgr); err != nil {
+				setupLog.Error(err, "WARNING: Failed to create webhook - validation disabled",
+					"webhook", "AvailabilityPolicy",
+					"recommendation", "Check webhook configuration and certificate status")
+
+				// Record metric for monitoring
+				metrics.RecordWebhookStatus("failed", "setup_error")
+
+				// Don't exit - continue without webhook
+			} else {
+				webhookEnabled = true
+				setupLog.Info("Webhook server enabled", "port", webhookPort)
+
+				// Record metric for monitoring
+				metrics.RecordWebhookStatus("enabled", "success")
+			}
 		}
-		setupLog.Info("Webhook server enabled", "port", webhookPort)
+	} else {
+		setupLog.Info("Webhook disabled by configuration")
+		metrics.RecordWebhookStatus("disabled", "by_configuration")
 	}
+	_ = webhookEnabled // Avoid unused variable warning
 
 	// Setup health checks
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
@@ -254,6 +330,11 @@ func main() {
 
 	// Add pre-shutdown hooks
 	shutdownMgr.AddPreShutdownHook(func(ctx context.Context) error {
+		setupLog.Info("Stopping MCP server")
+		return mcpIntegration.Stop(ctx)
+	})
+
+	shutdownMgr.AddPreShutdownHook(func(ctx context.Context) error {
 		setupLog.Info("Flushing metrics before shutdown")
 		// Metrics are automatically flushed by the metrics server
 		return nil
@@ -275,10 +356,11 @@ func main() {
 		"version", getBuildVersion(),
 		"watchNamespace", getWatchNamespaceDisplay(watchNamespace),
 		"leaderElection", enableLeaderElection,
-		"enablePDB", config.EnablePDB,
 		"metricsAddr", metricsAddr,
 		"webhookEnabled", enableWebhook,
 		"tracingEnabled", enableTracing,
+		"mcpEnabled", enableMCP,
+		"mcpAddr", mcpAddr,
 		"maxConcurrentReconciles", maxConcurrentReconciles)
 
 	// Create a separate context for background tasks
@@ -292,6 +374,15 @@ func main() {
 			os.Exit(1)
 		}
 	}()
+
+	// Start MCP server
+	if enableMCP {
+		go func() {
+			if err := mcpIntegration.Start(bgCtx); err != nil {
+				setupLog.Error(err, "problem starting MCP server")
+			}
+		}()
+	}
 
 	// Wait for the manager cache to sync before starting metrics
 	setupLog.Info("Waiting for manager cache to sync...")
@@ -525,7 +616,6 @@ func updateGlobalMetrics(ctx context.Context, c client.Client) {
 }
 
 type Configuration struct {
-	EnablePDB               bool
 	DefaultNamespace        string
 	MetricsNamespace        string
 	LeaderElectionNamespace string
@@ -544,14 +634,12 @@ func printStartupBanner() {
 
 func validateConfiguration() *Configuration {
 	config := &Configuration{
-		EnablePDB:               getEnvBool("ENABLE_PDB", true),
 		DefaultNamespace:        getEnvOrDefault("DEFAULT_NAMESPACE", "default"),
 		MetricsNamespace:        getEnvOrDefault("METRICS_NAMESPACE", "canvas"),
 		LeaderElectionNamespace: getEnvOrDefault("LEADER_ELECTION_NAMESPACE", "canvas"),
 	}
 
 	setupLog.Info("Operator Configuration",
-		"enablePDB", config.EnablePDB,
 		"defaultNamespace", config.DefaultNamespace,
 		"leaderElectionNamespace", config.LeaderElectionNamespace)
 
@@ -563,14 +651,6 @@ func getEnvOrDefault(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
-}
-
-func getEnvBool(key string, defaultValue bool) bool {
-	value := os.Getenv(key)
-	if value == "" {
-		return defaultValue
-	}
-	return value == "true"
 }
 
 func getBuildVersion() string {
@@ -586,4 +666,43 @@ func getWatchNamespaceDisplay(namespace string) string {
 		return "all"
 	}
 	return namespace
+}
+
+// checkCertManagerAvailable checks if cert-manager has provisioned the webhook certificate.
+// It uses a direct API client (not the controller-runtime cached client) to avoid
+// blocking on cache synchronization before the manager starts.
+func checkCertManagerAvailable(config *rest.Config) bool {
+	// Create a direct kubernetes clientset that bypasses the controller-runtime cache.
+	// This is necessary because this check runs before mgr.Start(), and the
+	// controller-runtime client would block waiting for cache sync.
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		setupLog.V(1).Info("cert-manager check: failed to create API client",
+			"error", err.Error())
+		// Assume available to try webhook setup - it will fail gracefully if not
+		return true
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Check for webhook server cert secret in the operator's namespace
+	podNamespace := os.Getenv("POD_NAMESPACE")
+	if podNamespace == "" {
+		podNamespace = "canvas" // Default namespace
+	}
+
+	// Try to get the webhook-server-cert secret that cert-manager creates
+	_, err = clientset.CoreV1().Secrets(podNamespace).Get(ctx, "webhook-server-cert", metav1.GetOptions{})
+	if err != nil {
+		setupLog.V(1).Info("cert-manager check: webhook certificate not found",
+			"namespace", podNamespace,
+			"error", err.Error())
+		// Return true anyway since we want to try setting up the webhook
+		// If cert-manager isn't working, the webhook setup itself will fail gracefully
+		return true
+	}
+
+	setupLog.V(1).Info("cert-manager appears to be available", "namespace", podNamespace)
+	return true
 }

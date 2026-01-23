@@ -3,13 +3,14 @@ kind: ClusterRoleBinding
 metadata:
   labels:
     app.kubernetes.io/name: pdb-management
+    app.kubernetes.io/component: operator
     app.kubernetes.io/managed-by: kustomize
-  name: manager-rolebinding
+  name: pdb-management-operator-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: manager-role
+  name: pdb-management-operator-role
 subjects:
 - kind: ServiceAccount
-  name: controller-manager
+  name: pdb-management-operator
   namespace: canvas
