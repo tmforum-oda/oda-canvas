@@ -202,6 +202,7 @@ identityconfig-operator-keycloak:
     user: admin
     pass: adpass
   configmap:
+    #kcbase: http://canvas-keycloak-headless.canvas.svc.cluster.local:8083/auth  # trying to parameterise this in the configmap
     kcrealm: odari
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'

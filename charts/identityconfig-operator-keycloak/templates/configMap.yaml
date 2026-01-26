@@ -7,7 +7,11 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   LOGGING: {{ .Values.configmap.loglevel | quote }}
+  {{ if .Values.configmap.kcbase -}}
+  KEYCLOAK_BASE: "{{ .Values.configmap.kcbase }}"
+  {{- else -}}
   KEYCLOAK_BASE: "http://{{ .Release.Name }}-keycloak-headless.{{ .Release.Namespace }}:{{ .Values.deployment.keycloak.http }}/auth"
+  {{- end }}
   KEYCLOAK_REALM: "{{ .Values.configmap.kcrealm }}"
   COMPONENT_NAMESPACE: "{{ .Values.deployment.monitoredNamespaces }}"
   COMPONENT_NAMESPACES_CLI: {{ include "identityconfig-operator-keycloak.monitoredNamespacesCLIOpts" . }}

@@ -493,6 +493,11 @@ cd %USERPROFILE%/git/oda-canvas
 helm repo add jetstack https://charts.jetstack.io
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add hashicorp https://helm.releases.hashicorp.com
+
+helm repo add kube-prometheus-stack https://prometheus-community.github.io/helm-charts
+helm repo add opentelemetry-collector https://open-telemetry.github.io/opentelemetry-helm-charts
+helm repo add jaeger https://jaegertracing.github.io/helm-charts
+
 helm repo update
 
 helm dependency update ./charts/cert-manager-init
@@ -500,9 +505,18 @@ helm dependency update ./charts/kong-gateway
 helm dependency update ./charts/apisix-gateway
 helm dependency update ./charts/canvas-vault
 helm dependency update ./charts/pdb-management-operator
+
+helm dependency update ./charts/observability-stack
+
 helm dependency update ./charts/canvas-oda
 
 helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN%  --set=component-registry.ownRegistryName=%COMPREG_EXTNAME%  --set=component-registry.domain=%DOMAIN% --set=resource-inventory.serviceType=ClusterIP --set=resource-inventory.serverUrl=https://canvas-resource-inventory.%DOMAIN%/tmf-api/resourceInventoryManagement/v5
+```
+
+with servicemonitor:
+
+```
+helm upgrade ... --set api-operator-istio.deployment.openMetricsImplementation=ServiceMonitor
 ```
 
 optional install canvas-vs

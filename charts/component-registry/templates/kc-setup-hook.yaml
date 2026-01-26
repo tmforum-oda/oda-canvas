@@ -50,7 +50,7 @@ spec:
         - name: KC_ADMIN_CLIENT_SECRET
           value: "{{ .Values.keycloak.setup.kcAdminClientSecret }}"
         - name: KC_BASE_URL
-          value: {{ .Values.keycloak.setup.kcBaseUrl | default "admin" }}
+          value: {{ .Values.keycloak.setup.kcBaseUrl }}
         - name: KC_REALM
           value: {{ .Values.keycloak.setup.kcRealm }}
         - name: COMPREG_ADMIN_INIT_PASSWORD
