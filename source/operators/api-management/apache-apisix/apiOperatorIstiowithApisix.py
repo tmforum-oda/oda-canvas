@@ -277,19 +277,120 @@ def createOrPatchObservability(patch, spec, namespace, name, inHandler, componen
 def createOrPatchPrometheusAnnotation(
     patch, spec, namespace, name, inHandler, componentName
 ):
+    """Helper function to get API details for a prometheus metrics API and patch the corresponding kubernetes pod with Prometheus annotations.
+
+    Args:
+        * patch (Boolean): True to patch an existing annotation; False to create a new annotation. Makes no difference for this function.
+        * spec (Dict): The spec from the API Resource showing the intent (or desired state)
+        * namespace (String): The namespace for the API Custom Resource
+        * name (String): The name of the API Custom Resource
+        * inHandler (String): The name of the handler function calling this function
+        * componentName (String): The name of the ODA Component that the API is part of
+
+    Returns:
+        nothing
+    """
     logWrapper(
-        logging.WARNING,
+        logging.INFO,
         "createOrPatchPrometheusAnnotation",
         inHandler,
         "api/" + name,
         componentName,
         "createOrPatchPrometheusAnnotation",
-        "Prometheus Annotation NOT IMPLEMENTED YET",
+        "Prometheus Pod Annotation",
     )
 
-    # This implementation not creted yet. Suggestion: copy the createOrPatchDataDogAnnotation - mopst of the logic is the same
+    client = kubernetes.client
+    try:
+        # get the service
+        core_api = client.CoreV1Api()
+        service = core_api.read_namespaced_service(spec["implementation"], namespace)
+        selector = service.spec.selector
+        serviceName = service.metadata.name
 
-    raise kopf.TemporaryError("Exception in createOrPatchPrometheusAnnotation.")
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation selector=",
+            selector,
+        )
+        # get the pod using the selector
+        key, value = next(iter(selector.items()))
+        selectorQuery = key + "=" + value
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation selectorQuery=",
+            selectorQuery,
+        )
+
+        pod_list = core_api.list_namespaced_pod(namespace, label_selector=selectorQuery)
+        pod = pod_list.items[0]
+        podName = pod.metadata.name
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation podName=",
+            podName,
+        )
+
+        # prepare the annotation
+        if not pod.metadata.annotations:
+            pod.metadata.annotations = {}
+
+        pod.metadata.annotations["prometheus.io/scrape"] = "true"
+
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation patching pod with annotations=",
+            pod.metadata.annotations,
+        )
+
+        core_api.patch_namespaced_pod(podName, namespace, pod)
+
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation pod patched with annotations=",
+            pod.metadata.annotations,
+        )
+
+    except ApiException as e:
+        logWrapper(
+            logging.DEBUG,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "Exception",
+            e,
+        )
+        logWrapper(
+            logging.WARNING,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "Exception",
+            " in createOrPatchPrometheusAnnotation - will retry",
+        )
+        raise kopf.TemporaryError("Exception in createOrPatchPrometheusAnnotation.")
 
 
 def createOrPatchDataDogAnnotation(

@@ -141,98 +141,105 @@ def apiStatus(meta, spec, status, namespace, labels, name, **kwargs):
         Dict: The apiStatus status that is put into the API Custom Resource status field.
 
     """
-    componentName = labels["oda.tmforum.org/componentName"]
 
-    logWrapper(
-        logging.DEBUG,
-        "apiStatus",
-        "apiStatus",
-        "api/" + name,
-        componentName,
-        "apiStatus handler called with ",
-        spec,
-    )
+    try:
 
-    outputStatus = {}
-    if status:  # there is a status object
-        if (
-            "apiStatus" in status.keys()
-        ):  # there is an existing apiStatus to compare against
-            # work out delta between desired and actual state
-            apiStatus = status[
-                "apiStatus"
-            ]  # starting point for return status is the previous status
-            # check if there is a difference in the api we created previously
+        componentName = labels["oda.tmforum.org/componentName"]
+
+        logWrapper(
+            logging.DEBUG,
+            "apiStatus",
+            "apiStatus",
+            "api/" + name,
+            componentName,
+            "apiStatus handler called with ",
+            spec,
+        )
+
+        outputStatus = {}
+        if status:  # there is a status object
             if (
-                name == apiStatus["name"]
-                and spec["path"] == apiStatus["path"]
-                and spec["port"] == apiStatus["port"]
-                and spec["implementation"] == apiStatus["implementation"]
-            ):
-                # no change in the api so return the existing status
-                return None
-            else:
+                "apiStatus" in status.keys()
+            ):  # there is an existing apiStatus to compare against
+                # work out delta between desired and actual state
+                apiStatus = status[
+                    "apiStatus"
+                ]  # starting point for return status is the previous status
+                # check if there is a difference in the api we created previously
+                if (
+                    name == apiStatus["name"]
+                    and spec["path"] == apiStatus["path"]
+                    and spec["port"] == apiStatus["port"]
+                    and spec["implementation"] == apiStatus["implementation"]
+                ):
+                    # no change in the api so return the existing status
+                    return None
+                else:
+                    logWrapper(
+                        logging.INFO,
+                        "apiStatus",
+                        "apiStatus",
+                        "api/" + name,
+                        componentName,
+                        "Patching",
+                        "Istio Virtual Service",
+                    )
+                    # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+                    if "apiType" in spec.keys():
+                        if (
+                            spec["apiType"] == "prometheus"
+                            or spec["apiType"] == "openmetrics"
+                        ):
+                            # create a ServiceMonitor resource
+                            logWrapper(
+                                logging.INFO,
+                                "apiStatus",
+                                "apiStatus",
+                                "api/" + name,
+                                componentName,
+                                "Patching",
+                                "Prometheus Service Monitor",
+                            )
+                            createOrPatchObservability(
+                                True, spec, namespace, name, "apiStatus", componentName
+                            )
+                    return createOrPatchVirtualService(
+                        True, spec, namespace, name, "apiStatus", componentName
+                    )
+
+        # if we get here then we are creating a new API
+        logWrapper(
+            logging.INFO,
+            "apiStatus",
+            "apiStatus",
+            "api/" + name,
+            componentName,
+            "Creating",
+            "Istio Virtual Service",
+        )
+        # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
+        if "apiType" in spec.keys():
+            if spec["apiType"] == "prometheus" or spec["apiType"] == "openmetrics":
+                # create a ServiceMonitor resource
                 logWrapper(
                     logging.INFO,
                     "apiStatus",
                     "apiStatus",
                     "api/" + name,
                     componentName,
-                    "Patching",
-                    "Istio Virtual Service",
+                    "Creating",
+                    "Prometheus Service Monitor",
                 )
-                # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
-                if "apiType" in spec.keys():
-                    if (
-                        spec["apiType"] == "prometheus"
-                        or spec["apiType"] == "openmetrics"
-                    ):
-                        # create a ServiceMonitor resource
-                        logWrapper(
-                            logging.INFO,
-                            "apiStatus",
-                            "apiStatus",
-                            "api/" + name,
-                            componentName,
-                            "Patching",
-                            "Prometheus Service Monitor",
-                        )
-                        createOrPatchObservability(
-                            True, spec, namespace, name, "apiStatus", componentName
-                        )
-                return createOrPatchVirtualService(
-                    True, spec, namespace, name, "apiStatus", componentName
+                createOrPatchObservability(
+                    False, spec, namespace, name, "apiStatus", componentName
                 )
-
-    # if we get here then we are creating a new API
-    logWrapper(
-        logging.INFO,
-        "apiStatus",
-        "apiStatus",
-        "api/" + name,
-        componentName,
-        "Creating",
-        "Istio Virtual Service",
-    )
-    # if the apiType of the api is 'prometheus' then we need to also create a ServiceMonitor resource
-    if "apiType" in spec.keys():
-        if spec["apiType"] == "prometheus" or spec["apiType"] == "openmetrics":
-            # create a ServiceMonitor resource
-            logWrapper(
-                logging.INFO,
-                "apiStatus",
-                "apiStatus",
-                "api/" + name,
-                componentName,
-                "Creating",
-                "Prometheus Service Monitor",
-            )
-            createOrPatchObservability(
-                False, spec, namespace, name, "apiStatus", componentName
-            )
-    return createOrPatchVirtualService(
-        False, spec, namespace, name, "apiStatus", componentName
-    )
+        return createOrPatchVirtualService(
+            False, spec, namespace, name, "apiStatus", componentName
+        )
+    except kopf.TemporaryError as e:
+        raise kopf.TemporaryError(e)  # allow the operator to retry
+    except Exception as e:
+        logWrapper.error(f"Unhandled exception {e}: {traceback.format_exc()}")
 
 
 def createOrPatchObservability(patch, spec, namespace, name, inHandler, componentName):
@@ -276,19 +283,120 @@ def createOrPatchObservability(patch, spec, namespace, name, inHandler, componen
 def createOrPatchPrometheusAnnotation(
     patch, spec, namespace, name, inHandler, componentName
 ):
+    """Helper function to get API details for a prometheus metrics API and patch the corresponding kubernetes pod with Prometheus annotations.
+
+    Args:
+        * patch (Boolean): True to patch an existing annotation; False to create a new annotation. Makes no difference for this function.
+        * spec (Dict): The spec from the API Resource showing the intent (or desired state)
+        * namespace (String): The namespace for the API Custom Resource
+        * name (String): The name of the API Custom Resource
+        * inHandler (String): The name of the handler function calling this function
+        * componentName (String): The name of the ODA Component that the API is part of
+
+    Returns:
+        nothing
+    """
     logWrapper(
-        logging.WARNING,
+        logging.INFO,
         "createOrPatchPrometheusAnnotation",
         inHandler,
         "api/" + name,
         componentName,
         "createOrPatchPrometheusAnnotation",
-        "Prometheus Annotation NOT IMPLEMENTED YET",
+        "Prometheus Pod Annotation",
     )
 
-    # This implementation not creted yet. Suggestion: copy the createOrPatchDataDogAnnotation - mopst of the logic is the same
+    client = kubernetes.client
+    try:
+        # get the service
+        core_api = client.CoreV1Api()
+        service = core_api.read_namespaced_service(spec["implementation"], namespace)
+        selector = service.spec.selector
+        serviceName = service.metadata.name
 
-    raise kopf.TemporaryError("Exception in createOrPatchPrometheusAnnotation.")
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation selector=",
+            selector,
+        )
+        # get the pod using the selector
+        key, value = next(iter(selector.items()))
+        selectorQuery = key + "=" + value
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation selectorQuery=",
+            selectorQuery,
+        )
+
+        pod_list = core_api.list_namespaced_pod(namespace, label_selector=selectorQuery)
+        pod = pod_list.items[0]
+        podName = pod.metadata.name
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation podName=",
+            podName,
+        )
+
+        # prepare the annotation
+        if not pod.metadata.annotations:
+            pod.metadata.annotations = {}
+
+        pod.metadata.annotations["prometheus.io/scrape"] = "true"
+
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation patching pod with annotations=",
+            pod.metadata.annotations,
+        )
+
+        core_api.patch_namespaced_pod(podName, namespace, pod)
+
+        logWrapper(
+            logging.INFO,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "createOrPatchPrometheusAnnotation pod patched with annotations=",
+            pod.metadata.annotations,
+        )
+
+    except ApiException as e:
+        logWrapper(
+            logging.DEBUG,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "Exception",
+            e,
+        )
+        logWrapper(
+            logging.WARNING,
+            "createOrPatchPrometheusAnnotation",
+            inHandler,
+            "api/" + name,
+            componentName,
+            "Exception",
+            " in createOrPatchPrometheusAnnotation - will retry",
+        )
+        raise kopf.TemporaryError("Exception in createOrPatchPrometheusAnnotation.")
 
 
 def createOrPatchDataDogAnnotation(
@@ -1255,120 +1363,132 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
     :meta public:
     """
 
-    if "apiStatus" in status.keys():
-        if "url" in status["apiStatus"].keys():
-            if "ownerReferences" in meta.keys():
-                # str | the custom object's name
-                parent_component_name = meta["ownerReferences"][0]["name"]
+    try:
 
-                try:
-                    custom_objects_api = kubernetes.client.CustomObjectsApi()
-                    parent_component = custom_objects_api.get_namespaced_custom_object(
-                        group=GROUP,
-                        version=VERSION,
-                        namespace=namespace,
-                        plural=COMPONENTS_PLURAL,
-                        name=parent_component_name,
+        if "apiStatus" in status.keys():
+            if "url" in status["apiStatus"].keys():
+                if "ownerReferences" in meta.keys():
+                    # str | the custom object's name
+                    parent_component_name = meta["ownerReferences"][0]["name"]
+
+                    try:
+                        custom_objects_api = kubernetes.client.CustomObjectsApi()
+                        parent_component = (
+                            custom_objects_api.get_namespaced_custom_object(
+                                group=GROUP,
+                                version=VERSION,
+                                namespace=namespace,
+                                plural=COMPONENTS_PLURAL,
+                                name=parent_component_name,
+                            )
+                        )
+                    except ApiException as e:
+                        # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                        if e.status == HTTP_NOT_FOUND:
+                            raise kopf.TemporaryError(
+                                "Cannot find parent component " + parent_component_name
+                            )
+                        else:
+                            logger.error(
+                                "Exception when calling custom_objects_api.get_namespaced_custom_object: %s",
+                                e,
+                            )
+
+                    logWrapper(
+                        logging.DEBUG,
+                        "updateAPIStatus",
+                        "updateAPIStatus",
+                        "api/" + name,
+                        parent_component["metadata"]["name"],
+                        "Handler called",
+                        "",
                     )
-                except ApiException as e:
-                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    if e.status == HTTP_NOT_FOUND:
-                        raise kopf.TemporaryError(
-                            "Cannot find parent component " + parent_component_name
-                        )
-                    else:
-                        logger.error(
-                            "Exception when calling custom_objects_api.get_namespaced_custom_object: %s",
-                            e,
-                        )
 
-                logWrapper(
-                    logging.DEBUG,
-                    "updateAPIStatus",
-                    "updateAPIStatus",
-                    "api/" + name,
-                    parent_component["metadata"]["name"],
-                    "Handler called",
-                    "",
-                )
+                    # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
+                    if "coreAPIs" in parent_component["status"].keys():
+                        for key in range(len(parent_component["status"]["coreAPIs"])):
+                            if (
+                                parent_component["status"]["coreAPIs"][key]["uid"]
+                                == meta["uid"]
+                            ):
+                                parent_component["status"]["coreAPIs"][key]["url"] = (
+                                    status["apiStatus"]["url"]
+                                )
+                                logWrapper(
+                                    logging.INFO,
+                                    "updateAPIStatus",
+                                    "updateAPIStatus",
+                                    "api/" + name,
+                                    parent_component["metadata"]["name"],
+                                    "Updating parent component coreAPIs APIs with url",
+                                    status["apiStatus"]["url"],
+                                )
+                                if "developerUI" in status["apiStatus"].keys():
+                                    parent_component["status"]["coreAPIs"][key][
+                                        "developerUI"
+                                    ] = status["apiStatus"]["developerUI"]
 
-                # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
-                if "coreAPIs" in parent_component["status"].keys():
-                    for key in range(len(parent_component["status"]["coreAPIs"])):
-                        if (
-                            parent_component["status"]["coreAPIs"][key]["uid"]
-                            == meta["uid"]
+                    if "managementAPIs" in parent_component["status"].keys():
+                        for key in range(
+                            len(parent_component["status"]["managementAPIs"])
                         ):
-                            parent_component["status"]["coreAPIs"][key]["url"] = status[
-                                "apiStatus"
-                            ]["url"]
-                            logWrapper(
-                                logging.INFO,
-                                "updateAPIStatus",
-                                "updateAPIStatus",
-                                "api/" + name,
-                                parent_component["metadata"]["name"],
-                                "Updating parent component coreAPIs APIs with url",
-                                status["apiStatus"]["url"],
-                            )
-                            if "developerUI" in status["apiStatus"].keys():
-                                parent_component["status"]["coreAPIs"][key][
-                                    "developerUI"
-                                ] = status["apiStatus"]["developerUI"]
-
-                if "managementAPIs" in parent_component["status"].keys():
-                    for key in range(len(parent_component["status"]["managementAPIs"])):
-                        if (
-                            parent_component["status"]["managementAPIs"][key]["uid"]
-                            == meta["uid"]
-                        ):
-                            parent_component["status"]["managementAPIs"][key]["url"] = (
-                                status["apiStatus"]["url"]
-                            )
-                            logWrapper(
-                                logging.INFO,
-                                "updateAPIStatus",
-                                "updateAPIStatus",
-                                "api/" + name,
-                                parent_component["metadata"]["name"],
-                                "Updating parent component managementAPIs APIs with url",
-                                status["apiStatus"]["url"],
-                            )
-                            if "developerUI" in status["apiStatus"].keys():
+                            if (
+                                parent_component["status"]["managementAPIs"][key]["uid"]
+                                == meta["uid"]
+                            ):
                                 parent_component["status"]["managementAPIs"][key][
-                                    "developerUI"
-                                ] = status["apiStatus"]["developerUI"]
+                                    "url"
+                                ] = status["apiStatus"]["url"]
+                                logWrapper(
+                                    logging.INFO,
+                                    "updateAPIStatus",
+                                    "updateAPIStatus",
+                                    "api/" + name,
+                                    parent_component["metadata"]["name"],
+                                    "Updating parent component managementAPIs APIs with url",
+                                    status["apiStatus"]["url"],
+                                )
+                                if "developerUI" in status["apiStatus"].keys():
+                                    parent_component["status"]["managementAPIs"][key][
+                                        "developerUI"
+                                    ] = status["apiStatus"]["developerUI"]
 
-                if "securityAPIs" in parent_component["status"].keys():
-                    for key in range(len(parent_component["status"]["securityAPIs"])):
-                        if (
-                            parent_component["status"]["securityAPIs"][key]["uid"]
-                            == meta["uid"]
+                    if "securityAPIs" in parent_component["status"].keys():
+                        for key in range(
+                            len(parent_component["status"]["securityAPIs"])
                         ):
-                            parent_component["status"]["securityAPIs"][key]["url"] = (
-                                status["apiStatus"]["url"]
-                            )
-                            logWrapper(
-                                logging.INFO,
-                                "updateAPIStatus",
-                                "updateAPIStatus",
-                                "api/" + name,
-                                parent_component["metadata"]["name"],
-                                "Updating parent component securityAPIs APIs with url",
-                                status["apiStatus"]["url"],
-                            )
-                            if "developerUI" in status["apiStatus"].keys():
+                            if (
+                                parent_component["status"]["securityAPIs"][key]["uid"]
+                                == meta["uid"]
+                            ):
                                 parent_component["status"]["securityAPIs"][key][
-                                    "developerUI"
-                                ] = status["apiStatus"]["developerUI"]
+                                    "url"
+                                ] = status["apiStatus"]["url"]
+                                logWrapper(
+                                    logging.INFO,
+                                    "updateAPIStatus",
+                                    "updateAPIStatus",
+                                    "api/" + name,
+                                    parent_component["metadata"]["name"],
+                                    "Updating parent component securityAPIs APIs with url",
+                                    status["apiStatus"]["url"],
+                                )
+                                if "developerUI" in status["apiStatus"].keys():
+                                    parent_component["status"]["securityAPIs"][key][
+                                        "developerUI"
+                                    ] = status["apiStatus"]["developerUI"]
 
-                await patchComponent(
-                    namespace,
-                    parent_component_name,
-                    parent_component,
-                    "updateAPIStatus",
-                )
-    return None
+                    await patchComponent(
+                        namespace,
+                        parent_component_name,
+                        parent_component,
+                        "updateAPIStatus",
+                    )
+        return None
+    except kopf.TemporaryError as e:
+        raise kopf.TemporaryError(e)  # allow the operator to retry
+    except Exception as e:
+        logWrapper.error(f"Unhandled exception {e}: {traceback.format_exc()}")
 
 
 @kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.implementation", retries=5)
@@ -1391,114 +1511,124 @@ async def updateAPIReady(meta, status, namespace, name, **kwargs):
 
     :meta public:
     """
+    try:
 
-    if "ready" in status["implementation"].keys():
-        if status["implementation"]["ready"] == True:
-            if "ownerReferences" in meta.keys():
-                # str | the custom object's name
-                parent_component_name = meta["ownerReferences"][0]["name"]
+        if "ready" in status["implementation"].keys():
+            if status["implementation"]["ready"] == True:
+                if "ownerReferences" in meta.keys():
+                    # str | the custom object's name
+                    parent_component_name = meta["ownerReferences"][0]["name"]
 
-                try:
-                    custom_objects_api = kubernetes.client.CustomObjectsApi()
-                    parent_component = custom_objects_api.get_namespaced_custom_object(
-                        GROUP,
-                        VERSION,
-                        namespace,
-                        COMPONENTS_PLURAL,
-                        parent_component_name,
+                    try:
+                        custom_objects_api = kubernetes.client.CustomObjectsApi()
+                        parent_component = (
+                            custom_objects_api.get_namespaced_custom_object(
+                                GROUP,
+                                VERSION,
+                                namespace,
+                                COMPONENTS_PLURAL,
+                                parent_component_name,
+                            )
+                        )
+                    except ApiException as e:
+                        # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                        if e.status == HTTP_NOT_FOUND:
+                            raise kopf.TemporaryError(
+                                "Cannot find parent component " + parent_component_name
+                            )
+                        else:
+                            logger.error(
+                                "Exception when calling custom_objects_api.get_namespaced_custom_object: %s",
+                                e,
+                            )
+
+                    logWrapper(
+                        logging.DEBUG,
+                        "updateAPIReady",
+                        "updateAPIReady",
+                        "api/" + name,
+                        parent_component["metadata"]["name"],
+                        "Handler called",
+                        "",
                     )
-                except ApiException as e:
-                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    if e.status == HTTP_NOT_FOUND:
-                        raise kopf.TemporaryError(
-                            "Cannot find parent component " + parent_component_name
-                        )
-                    else:
-                        logger.error(
-                            "Exception when calling custom_objects_api.get_namespaced_custom_object: %s",
-                            e,
-                        )
 
-                logWrapper(
-                    logging.DEBUG,
-                    "updateAPIReady",
-                    "updateAPIReady",
-                    "api/" + name,
-                    parent_component["metadata"]["name"],
-                    "Handler called",
-                    "",
-                )
+                    # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
+                    for key in range(len(parent_component["status"]["coreAPIs"])):
+                        if (
+                            parent_component["status"]["coreAPIs"][key]["uid"]
+                            == meta["uid"]
+                        ):
+                            parent_component["status"]["coreAPIs"][key]["ready"] = True
+                            logWrapper(
+                                logging.INFO,
+                                "updateAPIReady",
+                                "updateAPIReady",
+                                "api/" + name,
+                                parent_component["metadata"]["name"],
+                                "Updating component coreAPIs status",
+                                status["implementation"]["ready"],
+                            )
+                            await patchComponent(
+                                namespace,
+                                parent_component_name,
+                                parent_component,
+                                "updateAPIReady",
+                            )
+                            return None
+                    for key in range(len(parent_component["status"]["managementAPIs"])):
+                        if (
+                            parent_component["status"]["managementAPIs"][key]["uid"]
+                            == meta["uid"]
+                        ):
+                            parent_component["status"]["managementAPIs"][key][
+                                "ready"
+                            ] = True
+                            logWrapper(
+                                logging.INFO,
+                                "updateAPIReady",
+                                "updateAPIReady",
+                                "api/" + name,
+                                parent_component["metadata"]["name"],
+                                "Updating component managementAPIs status",
+                                status["implementation"]["ready"],
+                            )
+                            await patchComponent(
+                                namespace,
+                                parent_component_name,
+                                parent_component,
+                                "updateAPIReady",
+                            )
+                            return None
+                    for key in range(len(parent_component["status"]["securityAPIs"])):
+                        if (
+                            parent_component["status"]["securityAPIs"][key]["uid"]
+                            == meta["uid"]
+                        ):
+                            parent_component["status"]["securityAPIs"][key][
+                                "ready"
+                            ] = True
+                            logWrapper(
+                                logging.INFO,
+                                "updateAPIReady",
+                                "updateAPIReady",
+                                "api/" + name,
+                                parent_component["metadata"]["name"],
+                                "Updating component securityAPIs status",
+                                status["implementation"]["ready"],
+                            )
+                            await patchComponent(
+                                namespace,
+                                parent_component_name,
+                                parent_component,
+                                "updateAPIReady",
+                            )
+                            return None
+        return None
 
-                # find the correct array entry to update either in coreAPIs, managementAPIs or securityAPIs
-                for key in range(len(parent_component["status"]["coreAPIs"])):
-                    if (
-                        parent_component["status"]["coreAPIs"][key]["uid"]
-                        == meta["uid"]
-                    ):
-                        parent_component["status"]["coreAPIs"][key]["ready"] = True
-                        logWrapper(
-                            logging.INFO,
-                            "updateAPIReady",
-                            "updateAPIReady",
-                            "api/" + name,
-                            parent_component["metadata"]["name"],
-                            "Updating component coreAPIs status",
-                            status["implementation"]["ready"],
-                        )
-                        await patchComponent(
-                            namespace,
-                            parent_component_name,
-                            parent_component,
-                            "updateAPIReady",
-                        )
-                        return None
-                for key in range(len(parent_component["status"]["managementAPIs"])):
-                    if (
-                        parent_component["status"]["managementAPIs"][key]["uid"]
-                        == meta["uid"]
-                    ):
-                        parent_component["status"]["managementAPIs"][key][
-                            "ready"
-                        ] = True
-                        logWrapper(
-                            logging.INFO,
-                            "updateAPIReady",
-                            "updateAPIReady",
-                            "api/" + name,
-                            parent_component["metadata"]["name"],
-                            "Updating component managementAPIs status",
-                            status["implementation"]["ready"],
-                        )
-                        await patchComponent(
-                            namespace,
-                            parent_component_name,
-                            parent_component,
-                            "updateAPIReady",
-                        )
-                        return None
-                for key in range(len(parent_component["status"]["securityAPIs"])):
-                    if (
-                        parent_component["status"]["securityAPIs"][key]["uid"]
-                        == meta["uid"]
-                    ):
-                        parent_component["status"]["securityAPIs"][key]["ready"] = True
-                        logWrapper(
-                            logging.INFO,
-                            "updateAPIReady",
-                            "updateAPIReady",
-                            "api/" + name,
-                            parent_component["metadata"]["name"],
-                            "Updating component securityAPIs status",
-                            status["implementation"]["ready"],
-                        )
-                        await patchComponent(
-                            namespace,
-                            parent_component_name,
-                            parent_component,
-                            "updateAPIReady",
-                        )
-                        return None
-    return None
+    except kopf.TemporaryError as e:
+        raise kopf.TemporaryError(e)  # allow the operator to retry
+    except Exception as e:
+        logWrapper.error(f"Unhandled exception {e}: {traceback.format_exc()}")
 
 
 async def patchComponent(namespace, name, component, inHandler):

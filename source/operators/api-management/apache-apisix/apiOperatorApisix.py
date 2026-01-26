@@ -42,6 +42,38 @@ plural = (
     "apisixroutes"  # The plural name of the Apisix route CRD - ApisixRoute resource
 )
 
+# long-lived API realted timeouts mcp/a2a/sse for APISIX
+DEFAULT_CONNECT_TIMEOUT = "60"  # in seconds
+DEFAULT_READ_TIMEOUT = "900"  # in seconds
+DEFAULT_SEND_TIMEOUT = "900"  # in seconds
+
+API_CONNECT_TIMEOUT = os.getenv("API_CONNECT_TIMEOUT", DEFAULT_CONNECT_TIMEOUT)
+API_READ_TIMEOUT = os.getenv("API_READ_TIMEOUT", DEFAULT_READ_TIMEOUT)
+API_SEND_TIMEOUT = os.getenv("API_WRITE_TIMEOUT", DEFAULT_SEND_TIMEOUT)
+
+
+def seconds_to_s(value_in_seconds: str, name: str) -> str | None:
+    """
+    Convert timeout from seconds helm/env to APISIX requried format "<Value>s".
+    """
+    if value_in_seconds is None:
+        logger.warning(f"{name} not set; APISIX timeout will be skipped.")
+        return None
+    try:
+        seconds = float(value_in_seconds)
+        return f"{int(seconds)}s"
+    except ValueError:
+        logger.warning(
+            f"{name} has invalid value '{value_in_seconds}'; "
+            f"APISIX timeout will be skipped."
+        )
+        return None
+
+
+APISIX_CONNECT_TIMEOUT = seconds_to_s(API_CONNECT_TIMEOUT, "API_CONNECT_TIMEOUT")
+APISIX_READ_TIMEOUT = seconds_to_s(API_READ_TIMEOUT, "API_READ_TIMEOUT")
+APISIX_SEND_TIMEOUT = seconds_to_s(API_SEND_TIMEOUT, "API_WRITE_TIMEOUT")
+
 
 # try to recover from broken watchers https://github.com/nolar/kopf/issues/1036
 @kopf.on.startup()
@@ -51,6 +83,7 @@ def configure(settings: kopf.OperatorSettings, **_):
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, APIS_PLURAL, retries=5)
+@kopf.on.resume(GROUP, VERSION, APIS_PLURAL, retries=5)
 def manage_api_lifecycle(spec, name, namespace, status, meta, logger, **kwargs):
     """
     Manages the lifecycle of an API by creating or updating the ApisixRoute, managing plugins, and handling error logging.
@@ -167,6 +200,40 @@ def create_or_update_ingress(spec, name, namespace, meta, **kwargs):
                 ]
             },
         }
+
+        timeout_types = {"mcp", "a2a", "sse"}
+        api_type = str(spec.get("apiType", "")).lower()
+
+        if api_type in timeout_types:
+            if all([APISIX_CONNECT_TIMEOUT, APISIX_READ_TIMEOUT, APISIX_SEND_TIMEOUT]):
+                http_block = apisixroute_manifest["spec"]["http"][0]
+                http_block["timeout"] = {
+                    "connect": APISIX_CONNECT_TIMEOUT,
+                    "read": APISIX_READ_TIMEOUT,
+                    "send": APISIX_SEND_TIMEOUT,
+                }
+                logger.info(
+                    "Applied APISIX timeouts for long-lived apiType '%s' on ApisixRoute '%s'.",
+                    api_type,
+                    ingress_name,
+                )
+            else:
+                logger.warning(
+                    "apiType '%s' requires long-lived timeouts but one or more of "
+                    "API_CONNECT_TIMEOUT / API_READ_TIMEOUT / API_WRITE_TIMEOUT "
+                    "are missing or invalid; skipping APISIX timeout block on "
+                    "ApisixRoute '%s'.",
+                    api_type,
+                    ingress_name,
+                )
+        else:
+            logger.debug(
+                "apiType '%s' does not require special APISIX timeouts; "
+                "default timeouts to be used for ApisixRoute '%s'.",
+                api_type,
+                ingress_name,
+            )
+
         # Kopf adoption is disabled as referencegrant is still pending for apisix api gateway. will enable adoption once this api gaetway feature enabled for apisix.
         # kopf.adopt(apisixroute_manifest)
 

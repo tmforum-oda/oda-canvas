@@ -56,6 +56,7 @@ spec:
   path: "/r1-productcatalogmanagement/tmf-api/productCatalogManagement/v4" # The path to the root of the API
   developerUI: "/r1-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs" # (optional) The path to the developer User Interface for the API
   port: 8080 # The port where the API is exposed
+  segment: coreFunction # what segment the API belongs to: coreFunction, managementFunction or securityFunction (operator defaults to  coreFunction)
   apiKeyVerification:
     enabled: true # (default: false) Enforce verification of API key
     location: header # (optional) Name of variable where API key value is expected
@@ -89,5 +90,5 @@ spec:
 
 The diagram below describes how each Exposed APIs is configured in the API Gateway and/or Service Mesh. The `ExposedAPI` resources are created by the Component Operator When a component is deployed, updated or deleted. The sequence diagram shows how the API Operator manages the Service Mesh and/or API Gateway to configure and expose the API Endpoints. There are more details and diagrams for update and delete operations in [Use case UC003 - Configure Exposed APIs](../../../usecase-library/UC003-Configure-Exposed-APIs.md).
 
-![exposed-API-create](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/master/usecase-library/pumlFiles/exposed-API-create.puml)
+![exposed-API-create](../../../usecase-library/pumlFiles/exposed-API-create.svg)
 

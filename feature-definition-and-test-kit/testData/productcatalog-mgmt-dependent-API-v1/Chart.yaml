@@ -1,0 +1,6 @@
+apiVersion: v2
+name: productcatalog-mgmt-dependent-API-v1
+description: A sample implementation of TMF620 Product Catalog API with DependentAPI in managementFunction
+type: application
+version: 0.0.1
+appVersion: "1.0"

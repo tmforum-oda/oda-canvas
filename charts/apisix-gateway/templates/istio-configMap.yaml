@@ -10,12 +10,13 @@ data:
   {{- if .Values.deployment.ingressClass.enabled }}
   INGRESS_CLASS: {{ .Values.deployment.ingressClass.name }}
   {{ end }}
-  {{- if .Values.deployment.dataDog.enabled }}
-  OPENMETRICS_IMPLEMENTATION: "DataDogAnnotation"
-  {{ end }}
+  OPENMETRICS_IMPLEMENTATION: {{ .Values.deployment.openMetricsImplementation }}
   {{- if .Values.configmap.publicHostname }}
   APIOPERATORISTIO_PUBLICHOSTNAME: {{ .Values.configmap.publicHostname }}
   {{ end }}
   {{- if .Values.configmap.componentGateway }}
   APIOPERATORISTIO_COMPONENTGATEWAY: {{ .Values.configmap.componentGateway }}
   {{ end }}
+  API_CONNECT_TIMEOUT: {{ .Values.configmap.API_CONNECT_TIMEOUT | quote }}
+  API_READ_TIMEOUT: {{ .Values.configmap.API_READ_TIMEOUT | quote }}
+  API_WRITE_TIMEOUT: {{ .Values.configmap.API_WRITE_TIMEOUT | quote }}

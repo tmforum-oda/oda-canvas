@@ -55,17 +55,11 @@ function getAPIsFromPackage(exposedOrDependent, componentPackage, releaseName, c
 
     let APIs = []
 
-    if (componentSegmentName == 'coreFunction') {
-      APIs = componentSegment.items.filter(item => item.key == exposedOrDependent)[0].value.items
-    } else if (componentSegmentName == 'managementFunction') {
-      APIs = componentSegment.items
-    } else if (componentSegmentName == 'securityFunction') {
-      APIs = [componentSegment.items]
-    } else {
-      assert.ok(false, "componentSegmentName should be one of 'coreFunction', 'managementFunction' or 'securityFunction'")
-    }
+    APIs = componentSegment.items.filter(item => item.key == exposedOrDependent)[0].value.items
+    
+    // return the APIs as a JSON object
+    return APIs.map(api => api.toJSON())
 
-    return APIs
   } catch (error) {
     // Handle the error here
     assert.ok(false, "Exception thrown when trying to get " + exposedOrDependent + " from package: " + error.message)
@@ -172,6 +166,7 @@ const packageManagerUtils = {
       if (found) {
         await executeHelmCommand('helm uninstall ' + releaseName + ' -n ' + namespace);
       }
+
     },
 
   /**

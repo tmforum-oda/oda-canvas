@@ -9,10 +9,10 @@ Feature: UC002-F004 Uninstall a component and verify resources removal
     Scenario Outline: Uninstall a component and verify resources removal
         Given I install the '<PackageName>' package as release '<ReleaseName>' from the '<RepoName>' repository
         And the '<ComponentName>' component has a deployment status of 'Complete' for the '<ReleaseName>' release
-        When I uninstall the '<PackageName>' package as release '<ReleaseName>'
+        When I uninstall the release '<ReleaseName>'
         And the canvas operator process the uninstallation of components and exposedapis
         Then I should not see the '<ComponentName>' component after '<ReleaseName>' release uninstall
 
     Examples:
-    | RepoName       | ReferenceExampleRepoURL                                         | PackageName       | ReleaseName  |  ComponentName            |
-    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  productcatalogmanagement |
+    | RepoName       | ReferenceExampleRepoURL                                         | PackageName       | ReleaseName  |  ComponentName                    |
+    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |

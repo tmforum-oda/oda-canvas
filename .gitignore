@@ -16,6 +16,8 @@ canvas-portal/portal-web/package-lock.json
 canvas-portal/portal-service/src/main/resources/static/
 /ignore/
 .claude/settings.local.json
+source/tmf-services/TMF639_Resource_Inventory/combined.log
+source/tmf-services/TMF639_Resource_Inventory/error.log
 source/tmf-services/TMF639_Resource_Inventory/nul
 source/tmf-services/TMF639_Resource_Inventory/.claude/settings.local.json
 /helmoutput.yaml

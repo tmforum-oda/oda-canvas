@@ -15,7 +15,10 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.3
+
+version: 1.1.0
+# version: 1.1.0 - Added PrometheusAnnotation option for openmetrics scraping
+# version: 1.0.4 - Updated bitnami repo for etcd of apisix to use bitnamilegacy repo , updated apisix operator to support timeout parameter for long-lived sessions. this gives support for mcp,a2a,sse apitypes.
 # version: 1.0.3 - Added support for custom/private docker registry and image pull secrets
 # version: 1.0.2 - updated chart name
 # version: 1.0.1 - Templatized hardcoded images

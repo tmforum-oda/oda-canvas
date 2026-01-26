@@ -9,10 +9,10 @@ Feature: UC002-F006 Uninstall a component from non default namespace and verify 
     Scenario Outline: Uninstall a component from non default namespace and verify resources removal
         Given I install the '<PackageName>' package as release '<ReleaseName>' into namespace '<Namespace>'
         And the '<ComponentName>' component has a deployment status of 'Complete'
-        When I uninstall the '<PackageName>' package as release '<ReleaseName>' from namespace '<Namespace>'
+        When I uninstall the release '<ReleaseName>' from namespace '<Namespace>'
         And the canvas operator process the uninstallation of components and exposedapis
         Then I should not see the '<ComponentName>' component after '<ReleaseName>' release uninstall from namespace '<Namespace>'
 
     Examples:
-    | PackageName       | ReleaseName | Namespace   | ExposedAPIName           | ComponentName            |
-    | productcatalog-v1 |  pcother    | odacompns-1 | productcatalogmanagement | productcatalogmanagement |
+    | PackageName       | ReleaseName | Namespace   | ExposedAPIName           | ComponentName                    |
+    | productcatalog-v1 |  pcother    | odacompns-1 | productcatalogmanagement | pcother-productcatalogmanagement |
