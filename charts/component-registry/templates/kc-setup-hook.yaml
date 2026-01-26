@@ -63,7 +63,7 @@ spec:
               fieldPath: metadata.namespace
         #command: ["/bin/sh"]
         #args: ["-c", "date -Iseconds;
-        #python3 -u kc_setup_compreg.py;
+        #python3 -u kc_setup_compreg.py||true;
         #date -Iseconds;
         #sleep 3600"]
         volumeMounts:
