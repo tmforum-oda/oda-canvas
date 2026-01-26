@@ -59,3 +59,4 @@ You need to ensure you turn-off the operator execusing in Kubernetes (for exampl
 
 The command above will execute just the ExposedAPI operator. You will also need to execute the other operators relevant for your Canvas implementation - these can be executed in separate terminal command-lines.
 
+
