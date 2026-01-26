@@ -68,7 +68,7 @@ helm template canvas charts/canvas-oda -n canvas --create-namespace ^
 # Source: canvas-oda/charts/identityconfig-operator-keycloak/templates/secret.yaml
 data:
   KEYCLOAK_USER: "YWRtaW4="
-  KEYCLOAK_PASSWORD: "YWRwYXNz"
+  KEYCLOAK_PASSWORD: "..."
   --> replace with secretRef
 
 # Source: canvas-oda/charts/identityconfig-operator-keycloak/templates/configMap.yaml
