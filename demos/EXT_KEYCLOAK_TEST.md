@@ -24,6 +24,8 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace ^
   --set component-registry.keycloak.setup.kcBaseUrl=http://canvas-keycloak-keycloak.canvas.svc.cluster.local:8080 ^
   --set component-registry.keycloak.url=https://canvas-keycloak.%DOMAIN%/realms/odari ^
   --set component-registry.keycloak.validIssuers=http://canvas-keycloak-keycloak.canvas.svc.cluster.local:8080/realms/odari ^
+  --set component-registry.oauth2.tokenUrl=https://canvas-keycloak.%DOMAIN%/realms/odari/protocol/openid-connect/token ^
+  --set dependentapi-simple-operator.oauth2.tokenUrl=https://canvas-keycloak.%DOMAIN%/realms/odari/protocol/openid-connect/token ^
   --set resource-inventory.serviceType=ClusterIP ^
   --set resource-inventory.serverUrl=https://canvas-resource-inventory.%DOMAIN%/tmf-api/resourceInventoryManagement/v5 ^
   --set identityconfig-operator-keycloak.credentials.pass=%KC_ADMIN_PASSWORD% ^
@@ -38,21 +40,23 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace \
   --set api-operator-istio.deployment.hostName=*.$DOMAIN \
   --set api-operator-istio.deployment.credentialName=$TLS_SECRET_NAME \
   --set api-operator-istio.configmap.publicHostname=components.$DOMAIN \
-  --set=api-operator-istio.deployment.httpsRedirect=false \
-  --set=canvas-info-service.serverUrl=https://canvas-info.$DOMAIN \
-  --set=component-registry.ownRegistryName=$COMPREG_EXTNAME \
-  --set=component-registry.domain=$DOMAIN \
-  --set=component-registry.keycloak.setup.canvasKeycloakSecret=canvas-keycloak-credentials \
-  --set=component-registry.keycloak.setup.adminPasswordKey=keycloak-admin-password \
-  --set=component-registry.keycloak.setup.kcBaseUrl=http://canvas-keycloak-keycloak.canvas.svc.cluster.local:8080 \
-  --set=component-registry.keycloak.url=https://canvas-keycloak.$DOMAIN/realms/odari \
+  --set api-operator-istio.deployment.httpsRedirect=false \
+  --set canvas-info-service.serverUrl=https://canvas-info.$DOMAIN \
+  --set component-registry.ownRegistryName=$COMPREG_EXTNAME \
+  --set component-registry.domain=$DOMAIN \
+  --set component-registry.keycloak.setup.canvasKeycloakSecret=canvas-keycloak-credentials \
+  --set component-registry.keycloak.setup.adminPasswordKey=keycloak-admin-password \
+  --set component-registry.keycloak.setup.kcBaseUrl=http://canvas-keycloak-keycloak.canvas.svc.cluster.local:8080 \
+  --set component-registry.keycloak.url=https://canvas-keycloak.$DOMAIN/realms/odari \
   --set component-registry.keycloak.validIssuers=http://canvas-keycloak-keycloak.canvas.svc.cluster.local:8080/realms/odari \
-  --set=resource-inventory.serviceType=ClusterIP \
-  --set=resource-inventory.serverUrl=https://canvas-resource-inventory.$DOMAIN/tmf-api/resourceInventoryManagement/v5 \
-  --set=identityconfig-operator-keycloak.credentials.pass=$KC_ADMIN_PASSWORD \
-  --set=identityconfig-operator-keycloak.configmap.kcbase=http://canvas-keycloak-keycloak.canvas.svc.cluster.local:8080 \
-  --set=api-operator-istio.deployment.apiopPrereleaseSuffix=feature-84 \
-  --set=canvas-vault.enabled=false
+  --set component-registry.oauth2.tokenUrl=https://canvas-keycloak.%DOMAIN%/realms/odari/protocol/openid-connect/token \
+  --set dependentapi-simple-operator.oauth2.tokenUrl=https://canvas-keycloak.%DOMAIN%/realms/odari/protocol/openid-connect/token \
+  --set resource-inventory.serviceType=ClusterIP \
+  --set resource-inventory.serverUrl=https://canvas-resource-inventory.$DOMAIN/tmf-api/resourceInventoryManagement/v5 \
+  --set identityconfig-operator-keycloak.credentials.pass=$KC_ADMIN_PASSWORD \
+  --set identityconfig-operator-keycloak.configmap.kcbase=http://canvas-keycloak-keycloak.canvas.svc.cluster.local:8080 \
+  --set api-operator-istio.deployment.apiopPrereleaseSuffix=feature-84 \
+  --set canvas-vault.enabled=false
 
 
 helm upgrade --install -n canvas canvas-vs ^
@@ -66,25 +70,11 @@ helm upgrade --install -n canvas canvas-vs ^
   --set=domain=%DOMAIN%
  
 
-helm template canvas charts/canvas-oda -n canvas --create-namespace ^
-  --set keycloak.enabled=false ^
-  --set api-operator-istio.deployment.hostName=*.%DOMAIN% ^
-  --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% ^
-  --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% ^
-  --set=api-operator-istio.deployment.httpsRedirect=false ^
-  --set=canvas-info-service.serverUrl=https://canvas-info.%DOMAIN% ^
-  --set=component-registry.ownRegistryName=%COMPREG_EXTNAME% ^
-  --set=component-registry.domain=%DOMAIN% ^
-  --set=component-registry.keycloak.setup.canvasKeycloakSecret=canvas-keycloak-credentials ^
-  --set=component-registry.keycloak.setup.adminPasswordKey=keycloak-admin-password ^
-  --set=component-registry.keycloak.setup.kcBaseUrl=http://canvas-keycloak-keycloak.canvas.svc.cluster.local:8080 ^
-  --set=resource-inventory.serviceType=ClusterIP ^
-  --set=resource-inventory.serverUrl=https://canvas-resource-inventory.%DOMAIN%/tmf-api/resourceInventoryManagement/v5 ^
-  --set=identityconfig-operator-keycloak.credentials.pass=%KC_ADMIN_PASSWORD% ^
-  --set=identityconfig-operator-keycloak.configmap.kcbase=http://canvas-keycloak-keycloak.canvas.svc.cluster.local:8080 ^
-  --set=api-operator-istio.deployment.apiopPrereleaseSuffix=feature-84 ^
-  --set=canvas-vault.enabled=false ^
-  > helmoutput.yaml
+
+set KC_DOMAIN=ihc-dt-a.cluster-2.de
+cd %USERPROFILE%/git/oda-canvas
+helm upgrade --install -n compreg global-compreg --create-namespace charts/component-registry --set=domain=%DOMAIN% --set=canvasResourceInventory= --set=keycloak.url=https://canvas-keycloak.%KC_DOMAIN%/realms/odari 
+helm upgrade --install -n compreg global-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=domain=%DOMAIN%  --set=fullNameOverride=global-compreg
 
 
 

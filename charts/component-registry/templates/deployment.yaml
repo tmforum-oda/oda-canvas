@@ -125,7 +125,7 @@ spec:
                   optional: true
               {{- end }}
             - name: OAUTH2_CLIENT_SECRET
-              {{ if .Values.oauth2.clientId -}}
+              {{ if .Values.oauth2.clientSecret -}}
               value: "{{ .Values.oauth2.clientSecret }}"
               {{- else -}}
               valueFrom:
