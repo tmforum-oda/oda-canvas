@@ -91,6 +91,8 @@ spec:
               value: "{{ .Values.keycloak.url }}"
             - name: KEYCLOAK_AUDIENCE
               value: "{{ .Values.keycloak.audience }}"
+            - name: KEYCLOAK_VALID_ISSUERS
+              value: "{{ .Values.keycloak.validIssuers }}"
             - name: KEYCLOAK_CLIENT_ID
               {{ if .Values.keycloak.clientId -}}
               value: "{{ .Values.keycloak.clientId }}"

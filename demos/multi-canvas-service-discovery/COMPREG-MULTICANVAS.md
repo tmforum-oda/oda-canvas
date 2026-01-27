@@ -181,7 +181,7 @@ helm list -A
 # [blue] - IHC-DT-SMALL
 set KC_DOMAIN=ihc-dt-a.cluster-2.de
 cd %USERPROFILE%/git/oda-canvas
-helm upgrade --install -n compreg global-compreg --create-namespace charts/component-registry --set=domain=%DOMAIN% --set=canvasResourceInventory= --set=keycloak.url=https://canvas-keycloak.%KC_DOMAIN%/auth/realms/odari
+helm upgrade --install -n compreg global-compreg --create-namespace charts/component-registry --set=domain=%DOMAIN% --set=canvasResourceInventory= --set=keycloak.url=https://canvas-keycloak.%KC_DOMAIN%/realms/odari
 helm upgrade --install -n compreg global-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=domain=%DOMAIN%  --set=fullNameOverride=global-compreg
 ```
 
@@ -446,7 +446,7 @@ cd %USERPROFILE%/git/oda-canvas/source/services/ComponentRegistry/component-regi
 helm upgrade --install upup-compreg -n compreg --create-namespace helm/component-registry-standalone --set=domain=%DOMAIN% 
 ```
 
-manually register in gloabl-compreg and sync
+manually register in global-compreg and sync
 
 
 # cleanup all 
