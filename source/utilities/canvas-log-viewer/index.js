@@ -18,7 +18,7 @@ async function listPods(kc) {
     try {
 
         // only list the pods tht match the selector 'app=oda-controller'
-        const res = await k8sApi.listNamespacedPod('canvas', undefined, undefined, undefined, undefined, 'app=oda-controller');
+        const res = await k8sApi.listNamespacedPod('canvas', undefined, undefined, undefined, undefined, 'app=component-operator');
         const pods = res.body.items;
         return pods[0].metadata.name
     } catch (err) {
@@ -129,7 +129,7 @@ async function mainFunction() {
     // add listener to "data" event
     logStream.on('data', myListener);
 
-    log.log('canvas', canvasOperator, 'oda-controller', logStream, {follow: true, tailLines: 500, pretty: false, timestamps: false})
+    log.log('canvas', canvasOperator, 'component-operator', logStream, {follow: true, tailLines: 500, pretty: false, timestamps: false})
     .catch(err => {
             console.log(err);
             process.exit(1);
