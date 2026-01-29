@@ -1,0 +1,9 @@
+{{/*
+NOTES.txt - Instructions displayed after Helm installation
+*/}}
+Virtual Service for Component Registry:
+- Service Name: {{ include "component-registry.fullname" . }}
+- Namespace: {{ .Release.Namespace }}
+- Version: {{ .Chart.AppVersion }}
+- Web UI: https://{{ .Release.Name }}.{{ .Values.domain }}
+

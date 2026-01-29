@@ -3,3 +3,4 @@ version: 1.0.0
 prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
+serviceType: LoadBalancer

@@ -1,0 +1,518 @@
+import requests
+from datetime import datetime, timedelta
+import random
+import string
+
+
+class Keycloak:
+
+    def __init__(self, url, realm: str, user: str = None, pwd: str = None, admin_client_id = None, admin_client_secret = None, refresh_buffer = 30) -> None:
+        self._url = url
+        self._realm = realm
+        self._user = user
+        self._pwd = pwd
+        self._admin_client_id = admin_client_id
+        self._admin_client_secret = admin_client_secret
+        self._access_token = None
+        self._token_expiry = None
+        self._refresh_buffer = 30  # seconds
+
+        
+    def create_client(self, client: str, root_url: str="") -> None:
+        """
+        POSTs a new client named according to the componentName for
+        a new component
+
+        Returns nothing, or raises an exception for the caller to catch
+        """
+        if root_url == "":
+            json_obj = {"clientId": client, "serviceAccountsEnabled": True, "redirectUris": ["*"]}
+        else:
+            json_obj = {"clientId": client, "rootUrl": root_url, "serviceAccountsEnabled": True, "redirectUris": ["*"]}
+
+        try:  # to create the client in Keycloak
+            r = requests.post(
+                self._url + "/admin/realms/" + self._realm + "/clients",
+                json=json_obj,
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+        except requests.HTTPError as e:
+            # ! This might hide actual errors
+            # ! The keycloak API isn't idempotent.
+            # ! If a client exists it returns 409 instead of 201
+            # ! But why did we call create_client for a client that
+            # ! exists?
+            if r.status_code == 409:
+                pass  # because the client exists, which is what we want
+            else:
+                raise RuntimeError(
+                    "create_client failed with HTTP status " f"{r.status_code}: {e}"
+                ) from None
+
+
+    def del_client(self, client: str) -> None:
+        """
+        DELETEs a client
+
+        Returns nothing, or raises an exception for the caller to catch
+        """
+
+        try:  # to GET the id of the existing client that we need to DELETE it
+            r_a = requests.get(
+                self._url + "/admin/realms/" + self._realm + "/clients",
+                params={"clientId": client},
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r_a.raise_for_status()
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "del_client failed to get client ID with HTTP status "
+                f"{r_a.status_code}: {e}"
+            ) from None
+
+        if len(r_a.json()) > 0:  # we found a client with a matching name
+            target_client_id = r_a.json()[0]["id"]
+
+            try:  # to delete the client matching the id we found
+                r_b = requests.delete(
+                    self._url
+                    + "/admin/realms/"
+                    + self._realm
+                    + "/clients/"
+                    + target_client_id,
+                    headers={"Authorization": "Bearer " + self._token()},
+                )
+                r_b.raise_for_status()
+            except requests.HTTPError as e:
+                raise RuntimeError(
+                    "del_client failed to delete client with HTTP status "
+                    f"{r_b.status_code}: {e}"
+                ) from None
+
+        else:  # we didn't find a client with a matching name
+            # ! This might hide actual errors
+            # ! If the client doesn't exist the API call returns an
+            # ! empty JSON array, but why did we call del_client for a
+            # ! client that didn't exist?
+            pass  # because the client doesn't exist, which is OK
+
+    def get_client_list(self) -> dict:
+        """
+        GETs a list of clients in the realm to ensure there is a
+        client to match the componentName
+
+        Returns a dictonary of clients and ids or raises
+        an exception for the caller to catch
+        """
+        try:
+            r = requests.get(
+                self._url + "/admin/realms/" + self._realm + "/clients",
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            client_list = dict((d["clientId"], d) for d in r.json())
+            return client_list
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "get_client_list failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None
+
+    def get_roles(self, client_id: str) -> dict:
+        """
+        GETs a list of roles for the given client in the given
+        realm in Keycloak
+
+        Returns a dictonary of roles and their definitions or
+        raises an exception for the caller to catch
+
+        """
+
+        try:
+            r = requests.get(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/clients/"
+                + client_id
+                + "/roles",
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            role_list = dict((d["name"], d) for d in r.json())
+            return role_list
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "get_roles failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None
+
+    def add_role(self, role: str, client_id: str, description: str = None) -> None:
+        """
+        POST new roles to the right client in the right realm in
+        Keycloak
+
+        Returns nothing or raises an exception for the caller to catch
+        """
+
+        # Build the JSON payload with role name and optional description
+        role_data = {"name": role}
+        if description is not None:
+            role_data["description"] = description
+
+        try:  # to add new role to Keycloak
+            r = requests.post(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/clients/"
+                + client_id
+                + "/roles",
+                json=role_data,
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+        except requests.HTTPError as e:
+            if r.status_code == 409:
+                pass  # because the role already exists, which is acceptable but suspicious
+            else:
+                raise RuntimeError(
+                    "add_role failed with HTTP status " f"{r.status_code}: {e}"
+                ) from None
+
+    def del_role(self, role: str, client: str) -> None:
+        """
+        DELETE removed roles from the right client in the right realm
+        in Keycloak
+
+        Returns nothing or raises an exception for the caller to catch
+        """
+
+        try:  # to remove role from Keycloak
+            r = requests.delete(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/clients/"
+                + client
+                + "/roles/"
+                + role,
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+        except requests.HTTPError as e:
+            if r.status_code == 404:
+                pass  # because the role does not exist which is acceptable but suspicious
+            else:
+                raise RuntimeError(
+                    "del_role failed with HTTP status " f"{r.status_code}: {e}"
+                ) from None
+
+                
+                
+    def get_token_url(self):
+        """
+        Returns the token URL for this Keycloak instance and the given realm
+        """
+        return self._url + "/realms/"+self._realm+"/protocol/openid-connect/token"
+                
+                
+    def _token(self) -> str:
+        """
+        Takes the admin username and password and returns a session
+        token for future Bearer authentication
+
+        Returns the token, or raises an exception for the caller to
+        catch
+        """
+        if self._is_token_valid():
+            return self._access_token        
+        try:
+            if self._admin_client_id and self._admin_client_secret:
+                print("Getting token using client credentials")
+                r = requests.post(
+                    self.get_token_url(),
+                    data={
+                        "grant_type": "client_credentials",
+                        "client_id": self._admin_client_id,
+                        "client_secret": self._admin_client_secret,
+                    },
+                )
+            elif self._user and self._pwd:
+                print("Getting token using username and password")
+                r = requests.post(
+                    self._url + "/realms/master/protocol/openid-connect/token",
+                    data={
+                        "username": self._user,
+                        "password": self._pwd,
+                        "grant_type": "password",
+                        "client_id": "admin-cli",
+                    },
+                )
+            else:
+                raise RuntimeError("No admin credentials provided for token retrieval")
+            r.raise_for_status()
+            
+            
+            token_data = r.json()
+            self._access_token = token_data.get("access_token")
+            expires_in = token_data.get("expires_in", 300)
+            self._token_expiry = datetime.now() + timedelta(seconds=expires_in)
+            return self._access_token
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                f"get_token failed with HTTP status {r.status_code}: {e}"
+            ) from None
+
+
+    def _is_token_valid(self):
+        if not self._access_token or not self._token_expiry:
+            return False
+        return datetime.now() < (self._token_expiry - timedelta(seconds=self._refresh_buffer))
+        
+
+    def get_user_by_username(self, username: str) -> dict:
+        """
+        GETs a user by username in the given realm in Keycloak
+
+        Returns a dictonary of the user definition or
+        raises an exception for the caller to catch
+
+        """
+
+        try:
+            r = requests.get(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/users",
+                params={"username": username},
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            users = r.json()
+            users = [user for user in users if user.get("username") == username]
+            if users:
+                return users[0]  # Return the first matching user
+            else:
+                return None
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "get_user_by_username failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None
+            
+    def get_users(self) -> dict:
+        """
+        GET all users in the given realm in Keycloak
+
+        Returns a dictonary of the user definition or
+        raises an exception for the caller to catch
+
+        """
+
+        try:
+            r = requests.get(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/users",
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            users = r.json()
+            return users
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "get_user_by_username failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None
+            
+    def get_mapped_roles(self, user_id: str, client_id: str) -> dict:
+        """
+        GETs mapped roles for a user in the given realm in Keycloak
+
+        Returns a dictonary of the mapped roles or
+        raises an exception for the caller to catch
+
+        """
+
+        try:
+            r = requests.get(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/users/"
+                + user_id
+                + "/role-mappings/clients/"
+                + client_id,
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            result = dict((d["name"], d) for d in r.json())
+            return result
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "get_mapped_roles failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None
+
+    def random_password(self, length: int = 12) -> str:
+        """
+        Generates a random password of the given length
+
+        Returns the generated password string
+        """
+        characters = string.ascii_letters + string.digits + ".+-/!"
+        password = ''.join(random.choice(characters) for _ in range(length))
+        return password
+
+    def create_user(self, username: str, init_password) -> dict:
+        """
+        POSTs a new user named according to the username for
+        a new user
+
+        Returns the created user dictonary, or raises an exception for the caller to catch
+        """
+        if not init_password:
+            init_password = self.random_password()
+            print(f'Generated random init-password for user {username}: "{init_password}"')
+            
+        json_obj = {
+            "username": username,
+            "enabled": True,
+            "credentials": [{"type": "password", "value": init_password, "temporary": True}],
+        }
+
+        try:  # to create the user in Keycloak
+            r = requests.post(
+                self._url + "/admin/realms/" + self._realm + "/users",
+                json=json_obj,
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            # After creating the user, retrieve the user details to return
+            return self.get_user_by_username(username)
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "create_user failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None        
+
+
+    def map_role_to_user(self, user_id: str, client_uuid: str, role_name: str) -> None:
+        """
+        POSTs a role mapping to a user in the given realm in Keycloak
+
+        Returns nothing or raises an exception for the caller to catch
+        """
+        # First, get the role details to map
+        try:
+            r_role = requests.get(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/clients/"
+                + client_uuid
+                + "/roles/"
+                + role_name,
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r_role.raise_for_status()
+            role_data = r_role.json()
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "map_role_to_user failed to get role details with HTTP status "
+                f"{r_role.status_code}: {e}"
+            ) from None
+
+        # Now, map the role to the user
+        try:
+            r_map = requests.post(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/users/"
+                + user_id
+                + "/role-mappings/clients/"
+                + client_uuid,
+                json=[role_data],
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r_map.raise_for_status()
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "map_role_to_user failed to map role with HTTP status "
+                f"{r_map.status_code}: {e}"
+            ) from None
+
+
+    def get_mapped_client_roles(self, source_client_id: str, target_client_id: str) -> dict:
+        """
+        GETs mapped roles for a client in the given realm in Keycloak
+
+        Returns a dictonary of the mapped roles or
+        raises an exception for the caller to catch
+        """
+        try:
+            r = requests.get(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/clients/"
+                + source_client_id
+                + "/role-mappings/clients/"
+                + target_client_id,
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            result = dict((d["name"], d) for d in r.json())
+            return result
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "get_mapped_client_roles failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None
+
+    def get_service_account_user(self, client_uuid: str) -> dict:
+        """
+        Retrieves the service account user for the given client (by client UUID) in the realm.
+
+        Keycloak exposes the service account as a special user attached to the client. This
+        endpoint returns the user representation (or raises an exception).
+
+        Usage: first find the client's UUID (e.g. via `get_client_list()`), then call this
+        method with that UUID.
+        """
+        try:
+            r = requests.get(
+                self._url
+                + "/admin/realms/"
+                + self._realm
+                + "/clients/"
+                + client_uuid
+                + "/service-account-user",
+                headers={"Authorization": "Bearer " + self._token()},
+            )
+            r.raise_for_status()
+            return r.json()
+        except requests.HTTPError as e:
+            # If the client exists but no service account is enabled, Keycloak may return 404
+            if r.status_code == 404:
+                raise RuntimeError(
+                    f"Service account for client {client_uuid} not found (404). Is 'serviceAccountsEnabled' set?"
+                ) from None
+            raise RuntimeError(
+                "get_service_account_user failed with HTTP status " f"{r.status_code}: {e}"
+            ) from None
+
+    def get_service_account_mapped_roles(self, source_client_id: str, target_client_id: str) -> dict:
+        """
+        Retrieves roles that the service-account user of `source_client_id` has mapped for
+        the `target_client_id`.
+
+        This is useful when a client (via its service account) has client-level role mappings
+        for another client.
+        """
+        # get the service account user for the source client
+        sa_user = self.get_service_account_user(source_client_id)
+        user_id = sa_user.get("id")
+        if not user_id:
+            raise RuntimeError(f"Service account user for client {source_client_id} has no id")
+
+        # reuse existing method to get mapped roles for that user against the target client
+        return self.get_mapped_roles(user_id, target_client_id)

@@ -31,8 +31,10 @@ class KubernetesResourceService {
     /**
      * Get ODA Components from Kubernetes
      */
-    async getComponents(namespace = config.KUBERNETES_NAMESPACE) {
+    async getComponents(namespace = null) {
         try {
+			namespace = namespace || config.KUBERNETES_NAMESPACE;
+			logger.info(`Fetching Components from namespace: ${namespace}`);
             const response = await this.customObjectsApi.listNamespacedCustomObject(
                 'oda.tmforum.org',     // group
                 'v1',             // version  
@@ -50,8 +52,10 @@ class KubernetesResourceService {
     /**
      * Get specific ODA Component by name
      */
-    async getComponent(name, namespace = config.KUBERNETES_NAMESPACE) {
+    async getComponent(name, namespace = null) {
         try {
+			namespace = namespace || config.KUBERNETES_NAMESPACE;
+			logger.info(`Fetching Components from namespace: ${namespace}`);
             const response = await this.customObjectsApi.getNamespacedCustomObject(
                 'oda.tmforum.org',     // group
                 'v1',             // version
@@ -73,8 +77,10 @@ class KubernetesResourceService {
     /**
      * Get ExposedAPIs from Kubernetes
      */
-    async getExposedAPIs(namespace = config.KUBERNETES_NAMESPACE) {
+    async getExposedAPIs(namespace = null) {
         try {
+			namespace = namespace || config.KUBERNETES_NAMESPACE;
+			logger.info(`Fetching ExposedAPIs from namespace: ${namespace}`);
             const response = await this.customObjectsApi.listNamespacedCustomObject(
                 'oda.tmforum.org',     // group
                 'v1',             // version
@@ -154,7 +160,7 @@ class KubernetesResourceService {
             {
                 '@type': 'Characteristic',
                 name: 'deploymentStatus',
-                value: status.deployment_status || status.summary?.status || 'Unknown'
+                value: status["summary/status"]?.deployment_status || 'Unknown'
             }
         ];
 
@@ -181,18 +187,20 @@ class KubernetesResourceService {
                 });
             });
         }        // Build related resources - ExposedAPIs that belong to this Component
-        const relatedResource = relatedExposedAPIs.map(api => ({
-            '@type': 'ResourceRef',
-            id: api.metadata.name,
-            href: `/tmf-api/resourceInventoryManagement/v5/resource/${api.metadata.name}`,
-            name: api.metadata.name,
-            '@referredType': 'LogicalResource',
-            category: 'API',
-            relationshipType: 'exposes'
+        const resourceRelationship = relatedExposedAPIs.map(api => ({
+			'@type': 'ResourceRelationship',
+			relationshipType: 'exposes',
+			id: `expby_${api.metadata.name}`,
+			resource: {
+				'@type': 'ResourceRef',
+			    id: api.metadata.name,
+			    href: `/tmf-api/resourceInventoryManagement/v5/resource/${api.metadata.name}`,
+			}
         }));
 
         return {
             id: metadata.name,
+			resourceVersion: metadata.resourceVersion,			
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${metadata.name}`,
             '@type': 'LogicalResource',
             '@baseType': 'Resource',
@@ -211,12 +219,15 @@ class KubernetesResourceService {
             administrativeState: 'unlocked',
             usageState: 'active',
             startDate: metadata.creationTimestamp,
-            place: [{
-                id: metadata.namespace,
-                name: metadata.namespace,
-                '@type': 'Namespace'
-            }],
-            relatedResource: relatedResource
+            // TODO[FH]: cauesed problems with schema validation
+			//           OAS expects PlaceRef here and Namespace is not defined.
+			//           As namespace info is already in characteristics, omitting for now.
+			// place: [{
+            //     id: metadata.namespace,
+            //     name: metadata.namespace,
+            //     '@type': 'Namespace'
+            // }],
+            resourceRelationship: resourceRelationship
         };
     }    /**
      * Convert Kubernetes ExposedAPI to TMF639 Resource format
@@ -270,21 +281,23 @@ class KubernetesResourceService {
             name: 'apiDocs',
             value: status.apiStatus?.developerUI
         });        // Build related resources - Component that owns this ExposedAPI
-        const relatedResource = [];
+        const resourceRelationship = [];
         if (relatedComponent) {
-            relatedResource.push({
-                '@type': 'ResourceRef',
-                id: relatedComponent.metadata.name,
-                href: `/tmf-api/resourceInventoryManagement/v5/resource/${relatedComponent.metadata.name}`,
-                name: relatedComponent.metadata.name,
-                '@referredType': 'LogicalResource',
-                category: 'ODAComponent',
-                relationshipType: 'exposedBy'
+            resourceRelationship.push({
+				'@type': 'ResourceRelationship',
+				relationshipType: 'exposedBy',
+				id: `expby_${relatedComponent.metadata.name}`,
+				resource: {
+					'@type': 'ResourceRef',
+    	            id: relatedComponent.metadata.name,
+        	        href: `/tmf-api/resourceInventoryManagement/v5/resource/${relatedComponent.metadata.name}`,
+				}
             });
         }
 
         return {
             id: metadata.name,
+			resourceVersion: metadata.resourceVersion,			
             href: `/tmf-api/resourceInventoryManagement/v5/resource/${metadata.name}`,
             '@type': 'LogicalResource',
             '@baseType': 'Resource',
@@ -303,18 +316,21 @@ class KubernetesResourceService {
             administrativeState: 'unlocked',
             usageState: 'active',
             startDate: metadata.creationTimestamp,
-            place: [{
-                id: metadata.namespace,
-                name: metadata.namespace,
-                '@type': 'Namespace'
-            }],
-            relatedResource: relatedResource
+			// TODO[FH]: cauesed problems with schema validation
+			//           OAS expects PlaceRef here and Namespace is not defined.
+			//           As namespace info is already in characteristics, omitting for now.
+            // place: [{
+            //     id: metadata.namespace,
+            //     name: metadata.namespace,
+            //     '@type': 'Namespace'
+            // }],
+            resourceRelationship: resourceRelationship
         };
     }
 
     mapComponentStatusToResourceStatus(status) {
-        const summary = status.summary || {};
-        switch (summary.status) {
+        const summary = status["summary/status"] || {};
+        switch (summary.deployment_status) {
             case 'Complete':
                 return 'available';
             case 'InProgress':
@@ -327,8 +343,8 @@ class KubernetesResourceService {
     }
 
     mapComponentStatusToOperationalState(status) {
-        const summary = status.summary || {};
-        switch (summary.status) {
+		const summary = status["summary/status"] || {};
+        switch (summary.deployment_status) {
             case 'Complete':
                 return 'enable';
             case 'InProgress':
@@ -353,8 +369,11 @@ class KubernetesResourceService {
     }    /**
      * List all resources (Components and ExposedAPIs) as TMF639 Resources
      */
-    async listResources(namespace = config.KUBERNETES_NAMESPACE) {
+    async listResources(namespace = null) {
         try {
+			namespace = namespace || config.KUBERNETES_NAMESPACE;
+			logger.info(`Fetching Resources from namespace: ${namespace}`);
+			
             logger.info('KubernetesResourceService: Starting listResources...');
             
             // Get Components from ODA Canvas

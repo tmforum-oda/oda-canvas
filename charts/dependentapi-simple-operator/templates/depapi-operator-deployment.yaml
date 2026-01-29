@@ -26,5 +26,39 @@ spec:
         env:
         - name: LOGGING
           value: "{{ .Values.loglevel }}"
+        - name: COMPONENT_REGISTRY_URL
+          value: "{{ .Values.componentRegistryUrl }}"
+
+        - name: OAUTH2_CLIENT_ID
+          {{ if .Values.oauth2.clientId -}}
+          value: "{{ .Values.oauth2.clientId }}"
+          {{- else -}}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oauth2.tokenSecretName }}
+              key: client_id
+              optional: true
+          {{- end }}
+        - name: OAUTH2_CLIENT_SECRET
+          {{ if .Values.oauth2.clientId -}}
+          value: "{{ .Values.oauth2.clientSecret }}"
+          {{- else -}}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oauth2.tokenSecretName }}
+              key: client_secret
+              optional: true
+          {{- end }}
+        - name: OAUTH2_TOKEN_URL
+          {{ if .Values.oauth2.tokenUrl -}}
+          value: "{{ .Values.oauth2.tokenUrl }}"
+          {{- else -}}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oauth2.tokenSecretName }}
+              key: token_url
+              optional: true
+          {{- end }}
+
         ports:
         - containerPort: 9443

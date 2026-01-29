@@ -15,7 +15,8 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.3
+version: 1.0.4
+# version: 1.0.4 - support for ComponentRegistry for resolving dependent APIs
 # version: 1.0.3 - Added support for custom/private docker registry and image pull secrets
 # version: 1.0.2 - remove canvas info service
 # version: 1.0.1 - Templatized hardcoded images

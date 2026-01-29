@@ -1,0 +1,150 @@
+# Default values for component-registry.
+# This is a YAML-formatted file.
+# Declare variables to be substituted into your templates.
+
+image: tmforumodacanvas/component-registry
+version: 0.1.0
+prereleaseSuffix: issue384b
+imagePullPolicy: IfNotPresent
+
+# define log level, 10=DEBUG, 20=INFO
+loglevel: "10"
+port: 8080
+databaseUrl: sqlite:///./data/resource_inventory.db
+canvasResourceInventory: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
+watchedNamespaces: components,odacompns-*
+#ownRegistryName: own-compreg-name
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+
+resources: 
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Database configuration
+database:
+  # For production, use external database
+  # For development, SQLite file is used
+  type: sqlite
+  # External database configuration (if type != sqlite)
+  external:
+    host: ""
+    port: 5432
+    name: component_registry
+    username: ""
+    password: ""
+    sslMode: require
+
+# Persistence for SQLite database file
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+# Probes configuration
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readiness:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+    successThreshold: 1
+
+# ODA Canvas specific labels
+odaCanvas:
+  labels:
+    "oda.tmforum.org/componentName": "component-registry"
+    "oda.tmforum.org/componentType": "microservice"
+    "oda.tmforum.org/version": "1.0.0"
+
+
+
+oauth2:
+  enabled: true
+  # if secret key is empty a random key will be created 
+  secretKey: ""
+  algorithm: HS256
+  tokenExpireMinutes: 30
+  
+  tokenSecretName: componentregistry-oidc-secret
+  copyTokenSecretNamespace: canvas
+
+  ### overwrite values from kubernetes secret <tokenSecretName> used to authenticate requests
+  # clientId: componentregistry
+  # clientSecret: VWu...n6F
+  # tokenUrl: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari/protocol/openid-connect/token
+
+keycloak:
+  enabled: true
+  #url: https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari
+  url: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari
+  audience: account
+  # comma seperated list of allowed issuers
+  validIssuers: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari
+  ## plain text client id. If not set the k8s secret oauth2.tokenSecretName["client_id"] will be used
+  #clientId: componentregistry
+  ## plain text client secret. If not set the k8s secret oauth2.tokenSecretName["client_secret"] will be used
+  #clientSecret: ****
+
+  setup:
+    enabled: false
+    kcUsername: admin
+    ## plain text admin password. If not set the k8s secret canvasKeycloakSecret["adminPasswordKey"] will be used
+    # kcPassword: "****"
+    canvasKeycloakSecret: canvas-keycloak
+    adminPasswordKey: admin-password
+
+    kcAdminClientID: canvassystem
+    kcAdminClientSecret:
+
+    # kcBaseUrl: https://canvas-keycloak.ihc-dt.cluster-2.de/auth
+    kcBaseUrl: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth
+    kcRealm: odari
+    #plain text init password which has to be changed on first login, default is "changeme"
+    compregAdminInitPassword: 
+    #plain text init password which has to be changed on first login, default is "changeme"
+    compregViewerInitPassword: 

@@ -1,0 +1,82 @@
+ferenc_hechler_telekom_de@ode-sov-jumphost:~$ kubectl get rnaitenant -n iam-operator-system  kf-p-fut -oyaml
+apiVersion: rnai.telekom.de/v1
+kind: Rnaitenant
+metadata:
+  annotations:
+    meta.helm.sh/release-name: fut
+    meta.helm.sh/release-namespace: iam-operator-system
+  creationTimestamp: "2025-08-07T12:31:47Z"
+  finalizers:
+  - rnai.telekom.de/finalizer
+  generation: 30
+  labels:
+    app.kubernetes.io/instance: fut
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: rnai-kf-iam
+    app.kubernetes.io/version: 1.19.1
+    helm.sh/chart: rnai-kf-iam-0.1.0
+  name: kf-p-fut
+  namespace: iam-operator-system
+  resourceVersion: "1767960991665263013"
+  uid: bc95a95c-23b7-408b-8c8c-a3c42fd1309f
+spec:
+  collaborators:
+  - email: deepali-popat.pawade@telekom.de
+  - email: hosam.nima@telekom.de
+  - email: jyoti.pujari@t-systems.com
+  - email: m.lukan@telekom.com
+  - email: roshan.sawant@t-systems.com
+  - email: emilio-kenji.hernandez-kuramata@t-systems.com
+  email: admin-fut@telekom.com
+  gcp_wif_service_account: svc-mnp-rnt@de0360-ode-sov-al-dev0.iam.gserviceaccount.com
+  gcs_pipeline_artifact_root_bucket: ode-sov-mlops-dev-0
+  resource_limit_override:
+    limits:
+      cpu: "60"
+      memory: 100Gi
+    persistentvolumeclaims: "15"
+    requests:
+      cpu: "28"
+      gpu: "0"
+      memory: 40Gi
+      storage: 50Gi
+  tenant_type: project
+status:
+  conditions:
+  - ansibleResult:
+      changed: 0
+      completion: "2026-01-09T12:16:31.414097+00:00"
+      failures: 0
+      ok: 17
+      skipped: 6
+    lastTransitionTime: "2025-08-25T08:21:08Z"
+    message: Awaiting next reconciliation
+    reason: Successful
+    status: "True"
+    type: Running
+  - lastTransitionTime: "2026-01-09T12:16:31Z"
+    message: Last reconciliation succeeded
+    reason: Successful
+    status: "True"
+    type: Successful
+  - lastTransitionTime: "2025-08-25T08:21:24Z"
+    message: ""
+    reason: ""
+    status: "False"
+    type: Failure
+
+
+apiVersion: rnai.telekom.de/v1
+kind: Rnaitenant
+metadata:
+  name: kf-p-{{ .name }}
+  namespace: iam-operator-system
+  ...    
+spec:
+  collaborators:
+  {{- $existingRnaitenant := lookup "rnai.telekom.de/v1" "Deployment" .Release.Namespace (printf "%s-lookuptest" .name) }}
+  {{- if $existingRnaitenant }}
+  {{- range $existingRnaitenant.spec.collaborators }}
+  - email: {{ .email }}
+  {{- end }}
+  {{- end }}

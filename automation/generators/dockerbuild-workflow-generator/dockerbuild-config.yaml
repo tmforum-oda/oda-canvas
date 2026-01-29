@@ -273,3 +273,21 @@ tmf639-resource-inventory-api:
   #buildDockerfile: 
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
+
+component-registry:
+  displayName: Component-Registry
+  fileName: component-registry
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .component-registry.image
+  valuesPathVersion: .component-registry.version
+  valuesPathPrereleaseSuffix: .component-registry.prereleaseSuffix
+  
+  paths:
+    - source/services/ComponentRegistry/**/*
+  buildContext: source/services/ComponentRegistry
+  # default is "Dockerfile" in buildContext
+  ## buildDockerfile: 
+  #testDockerfile: source/services/ComponentRegistry/DockerfileTest
+  ## default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
