@@ -7,12 +7,12 @@
 Feature: UC003-F001 Expose APIs: Create API Resource
 
     Scenario Outline: Create API Resource for API
-        Given an example package '<PackageName>' with a '<ComponentName>' component with '<ApiCount>' ExposedAPI in its '<SegmentName>' segment
+        Given an example package '<PackageName>' with '<ApiCount>' ExposedAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package
         Then I should see the '<ResourceName>' ExposedAPI resource on the '<ComponentName>' component
 
     Examples:
-       | Name           | PackageName       | ResourceName             | ComponentName            | SegmentName        | ApiCount |
-       | Core API       | productcatalog-v1 | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1        |
-       | Management API | productcatalog-v1 | metrics                  | productcatalogmanagement | managementFunction | 1        |
-       | Security API   | productcatalog-v1 | partyrole                | productcatalogmanagement | securityFunction   | 1        |
+       | Name           | PackageName       | ResourceName             | ComponentName                | SegmentName        | ApiCount |
+       | Core API       | productcatalog-v1 | productcatalogmanagement | ctk-productcatalogmanagement | coreFunction       | 1        |
+       | Management API | productcatalog-v1 | metrics                  | ctk-productcatalogmanagement | managementFunction | 1        |
+       | Security API   | productcatalog-v1 | userrolesandpermissions  | ctk-productcatalogmanagement | securityFunction   | 1        |

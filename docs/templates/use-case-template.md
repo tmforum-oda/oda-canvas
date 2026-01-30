@@ -39,7 +39,7 @@ Uses assumptions:
 
 {Brief description of this scenario and what it accomplishes}
 
-![{scenario-name}-sequence](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/{diagram-filename}.puml)
+![{scenario-name}-sequence](./pumlFiles/{diagram-filename}.svg)
 
 [plantUML code](pumlFiles/{diagram-filename}.puml)
 
@@ -69,7 +69,7 @@ Upon successful completion:
 
 {Brief description of this scenario}
 
-![{scenario-2-name}-sequence](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/{diagram-2-filename}.puml)
+![{scenario-2-name}-sequence](./pumlFiles/{diagram-2-filename}.svg)
 
 [plantUML code](pumlFiles/{diagram-2-filename}.puml)
 
@@ -184,5 +184,5 @@ Potential future enhancements to this use case include:
 
 - [Canvas Design](../Canvas-design.md)
 - [Use Case Library](README.md)
-- [Use Case Naming Conventions](use-case-naming-conventions.md)
+- [Use-Case Naming Conventions](use-case-naming-conventions.md)
 - [ODA Component Specification](https://github.com/tmforum-oda/oda-component-specification)

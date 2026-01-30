@@ -7,7 +7,7 @@ This directory contains documentation resources, templates, and guides for contr
 ### Documentation Guides
 
 - **[Writing Style Guide](writing-style.md)** - Comprehensive guide to writing style conventions for all markdown documentation
-- **[Custom Copilot Agent](custom-copilot-agent.md)** - Guide to using the `@docs` AI agent for documentation creation and enhancement
+- **[Custom Copilot Agent](custom-copilot-documentation-agent.md)** - Guide to using the `@docs` AI agent for documentation creation and enhancement
 
 ### Templates
 
@@ -118,23 +118,6 @@ Documentation should maintain bidirectional links:
 
 ## Writing Style
 
-### Key Conventions
-
-**Voice and Tone**:
-- Active voice for technical descriptions
-- Imperative mood for instructions ("Run the command..." not "You should run...")
-- "We" for organizational voice, "you" for reader instructions
-
-**Technical Terminology**:
-- Always capitalize: "ODA Canvas", "ODA Component", "Software Operators"
-- Always hyphenate: "cloud-native", "machine-readable", "sub-resources"
-- Use backticks for: Kubernetes resources (`Component`, `ExposedAPI`), commands (`kubectl`), file paths (`README.md`)
-
-**Headings**:
-- Title case for H1 document titles
-- Sentence case for H2/H3 subsections
-- Question format for design documents
-
 See the complete [Writing Style Guide](writing-style.md) for detailed conventions.
 
 ## PlantUML Diagrams
@@ -158,13 +141,20 @@ Or manually:
 
 ### Embedding Diagrams
 
-Use the PlantUML proxy URL pattern:
+Use local SVG files for better performance:
 
 ```markdown
-![diagram-name](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/path/to/diagram.puml)
+![diagram-name](./pumlFiles/diagram-name.svg)
 
 [plantUML code](pumlFiles/diagram-name.puml)
 ```
+
+To convert PlantUML files to SVG:
+```bash
+node scripts/plantuml-to-svg.js path/to/diagram.puml
+```
+
+See [plantuml-to-svg-guide.md](plantuml-to-svg-guide.md) for details.
 
 ### Standard Actors
 
@@ -268,7 +258,7 @@ Future enhancements may include:
 - **Contributing Guide**: [CONTRIBUTING.md](../CONTRIBUTING.md)
 - **Code of Conduct**: [code-of-conduct.md](../code-of-conduct.md)
 - **GitHub Copilot Instructions**: [.github/copilot-instructions.md](../.github/copilot-instructions.md)
-- **Use Case Naming Conventions**: [usecase-library/use-case-naming-conventions.md](../usecase-library/use-case-naming-conventions.md)
+- **Use-Case Naming Conventions**: [usecase-library/use-case-naming-conventions.md](../usecase-library/use-case-naming-conventions.md)
 
 ### External Resources
 

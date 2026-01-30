@@ -7,18 +7,18 @@
 Feature: UC003-F003 Expose APIs: Verify API implementation is ready
 
     Scenario: Verify ExposedAPI Resource is ready for Core ExposedAPI
-        Given an example package 'productcatalog-v1' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'coreFunction' segment
+        Given an example package 'productcatalog-v1' with '1' ExposedAPI in its 'coreFunction' segment
         When I install the 'productcatalog-v1' package
-        Then I should see the 'productcatalogmanagement' ExposedAPI resource on the 'productcatalogmanagement' component with an implementation ready status on the Service Mesh or Gateway
+        Then I should see the 'productcatalogmanagement' ExposedAPI resource on the 'ctk-productcatalogmanagement' component with an implementation ready status on the Service Mesh or Gateway
 
     Scenario: Verify ExposedAPI Resource is ready for Management ExposedAPI
-        Given an example package 'productcatalog-v1' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'managementFunction' segment
+        Given an example package 'productcatalog-v1' with '1' ExposedAPI in its 'managementFunction' segment
         When I install the 'productcatalog-v1' package
-        Then I should see the 'metrics' ExposedAPI resource on the 'productcatalogmanagement' component with an implementation ready status on the Service Mesh or Gateway
+        Then I should see the 'metrics' ExposedAPI resource on the 'ctk-productcatalogmanagement' component with an implementation ready status on the Service Mesh or Gateway
 
     Scenario: Verify ExposedAPI Resource is ready for Security ExposedAPI
-        Given an example package 'productcatalog-v1' with a 'productcatalogmanagement' component with '1' ExposedAPI in its 'securityFunction' segment
+        Given an example package 'productcatalog-v1' with '1' ExposedAPI in its 'securityFunction' segment
         When I install the 'productcatalog-v1' package
-        Then I should see the 'partyrole' ExposedAPI resource on the 'productcatalogmanagement' component with an implementation ready status on the Service Mesh or Gateway
+        Then I should see the 'userrolesandpermissions' ExposedAPI resource on the 'ctk-productcatalogmanagement' component with an implementation ready status on the Service Mesh or Gateway
 
 

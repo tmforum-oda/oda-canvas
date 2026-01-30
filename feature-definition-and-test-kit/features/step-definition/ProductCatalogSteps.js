@@ -32,17 +32,14 @@ setDefaultTimeout(20 * 1000);
  * @param {object} dataTable - Data table containing expected resource data.
  * @returns {Promise<void>} - A Promise that resolves when the resource data is validated and synchronized.
  */
-Given('the {string} component in the {string} release has the following {string} data:', async function (componentName, releaseName, resourceType, dataTable) {
+Given('the {string} component has the following {string} data:', async function (componentName, resourceType, dataTable) {
   console.log('\n=== Starting Product Catalog Data Synchronization ===');
-  console.log(`Synchronizing '${resourceType}' data for component '${componentName}' in release '${releaseName}'`);
-  
+  console.log(`Synchronizing '${resourceType}' data for component '${componentName}'`);
+
   try {
-    // Get access to the Product Catalog API
-    const componentInstanceName = releaseName + '-' + componentName;
-    console.log(`Component Instance Name: ${componentInstanceName}`);
     
-    const productCatalogAPIURL = await componentUtils.getAPIURL(componentInstanceName, 'productcatalogmanagement', NAMESPACE);
-    assert.notEqual(productCatalogAPIURL, null, `Can't find Product Catalog API for component '${componentInstanceName}'`);
+    const productCatalogAPIURL = await componentUtils.getAPIURL(componentName, 'productcatalogmanagement', NAMESPACE);
+    assert.notEqual(productCatalogAPIURL, null, `Can't find Product Catalog API for component '${componentName}'`);
     
     console.log(`✅ Successfully located Product Catalog API: ${productCatalogAPIURL}`);
 
@@ -141,20 +138,17 @@ Given('the {string} component in the {string} release has the following {string}
  * Query the product catalog component for specific resource data.
  *
  * @param {string} componentName - The name of the component.
- * @param {string} releaseName - The name of the release.
  * @param {string} resourceType - The type of resource to query.
  * @returns {Promise<void>} - A Promise that resolves when the query is complete.
  */
-When('I query the {string} component in the {string} release for {string} data:', async function (componentName, releaseName, resourceType) {
+When('I query the {string} component for {string} data:', async function (componentName, resourceType) {
   console.log('\n=== Starting Product Catalog Data Query ===');
-  console.log(`Querying '${resourceType}' data from component '${componentName}' in release '${releaseName}'`);
-  
+  console.log(`Querying '${resourceType}' data from component '${componentName}'`);
+
   try {
-    const componentInstanceName = releaseName + '-' + componentName;
-    console.log(`Component Instance Name: ${componentInstanceName}`);
-    
-    const productCatalogAPIURL = await componentUtils.getAPIURL(componentInstanceName, 'productcatalogmanagement', NAMESPACE);
-    assert.notEqual(productCatalogAPIURL, null, `Can't find Product Catalog API for component '${componentInstanceName}'`);
+  
+    const productCatalogAPIURL = await componentUtils.getAPIURL(componentName, 'productcatalogmanagement', NAMESPACE);
+    assert.notEqual(productCatalogAPIURL, null, `Can't find Product Catalog API for component '${componentName}'`);
     
     console.log(`✅ Successfully located Product Catalog API: ${productCatalogAPIURL}`);
 
@@ -170,10 +164,10 @@ When('I query the {string} component in the {string} release for {string} data:'
     assert.equal(response.status, 200, `Failed to get '${resourceType}' data from Product Catalog API. Status: ${response.status}`);
     this.existingData = response.body;
     
-    console.log(`✅ Successfully retrieved ${this.existingData.length} '${resourceType}' items from component '${componentInstanceName}'`);
+    console.log(`✅ Successfully retrieved ${this.existingData.length} '${resourceType}' items from component '${componentName}'`);
     
     if (DEBUG_LOGS) {
-      console.log(`Component '${componentInstanceName}' has the following '${resourceType}' data:`);
+      console.log(`Component '${componentName}' has the following '${resourceType}' data:`);
       console.log(JSON.stringify(this.existingData, null, 2));
     }
     

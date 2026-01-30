@@ -11,7 +11,7 @@ It uses the following assumptions:
 
 ## Install component
 
-![manage-components-install](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/manage-components-install.puml)
+![manage-components-install](./pumlFiles/manage-components-install.svg)
 [plantUML code](pumlFiles/manage-components-install.puml)
 
 ## Upgrade component
@@ -19,14 +19,14 @@ It uses the following assumptions:
 The upgrade could include new, updated or deleted Exposed APIs, Dependent APIs, Published Events or Subscribed Events.
 It can also include updates to the Observability, Identity or Secrets metadata etc.
 
-![manage-components-update](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/manage-components-update.puml)
+![manage-components-update](./pumlFiles/manage-components-update.svg)
 [plantUML code](pumlFiles/manage-components-update.puml)
 
 ## Delete component
 
 The component deletion should clean-up all the resources created during the installation of the component. If any of the clean-up processes fail, the component deletion should be cancelled.
 
-![manage-components-uninstall](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tmforum-oda/oda-canvas/main/usecase-library/pumlFiles/manage-components-uninstall.puml)
+![manage-components-uninstall](./pumlFiles/manage-components-uninstall.svg)
 [plantUML code](pumlFiles/manage-components-uninstall.puml)
 
 ## Error scenarios

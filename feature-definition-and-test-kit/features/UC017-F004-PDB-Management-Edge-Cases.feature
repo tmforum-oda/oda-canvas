@@ -10,6 +10,7 @@ Feature: UC017-F004 PDB Management - Edge Cases and Error Handling
         Given the PDB Management Operator is deployed in the 'canvas' namespace
         And the operator is running and ready
 
+    @UC017-F004-TS001
     Scenario: Verify PDB remains for multi-replica deployment after scaling
         Given a deployment 'scale-test' with '3' replicas in namespace 'components'
         And the deployment has annotation 'oda.tmforum.org/availability-class' set to 'standard'
@@ -18,7 +19,9 @@ Feature: UC017-F004 PDB Management - Edge Cases and Error Handling
         And the PDB operator processes the scaling event
         Then the PDB 'scale-test-pdb' should still exist
         And the PDB should have '50%' as minAvailable
-
+        And I delete the deployment 'scale-test'
+    
+    @UC017-F004-TS002
     Scenario: Handle deployment scaling from single to multiple replicas
         Given a deployment 'scale-up-test' with '1' replica in namespace 'components'
         And the deployment has annotation 'oda.tmforum.org/availability-class' set to 'high-availability'
@@ -26,14 +29,18 @@ Feature: UC017-F004 PDB Management - Edge Cases and Error Handling
         And the PDB operator processes the scaling event
         Then a PDB named 'scale-up-test-pdb' should be created
         And the PDB should have '75%' as minAvailable
+        And I delete the deployment 'scale-up-test'
 
+    @UC017-F004-TS003
     Scenario: Verify PDB creation with different replica counts
         Given a deployment 'replica-test' with '5' replicas in namespace 'components'
         And the deployment has annotation 'oda.tmforum.org/availability-class' set to 'high-availability'
         When the PDB operator processes the deployment
         Then a PDB named 'replica-test-pdb' should be created
         And the PDB should have '75%' as minAvailable
+        And I delete the deployment 'replica-test'
 
+    @UC017-F004-TS004
     Scenario: Handle rapid annotation changes
         Given a deployment 'rapid-change' with '3' replicas in namespace 'components'
         And the deployment has annotation 'oda.tmforum.org/availability-class' set to 'standard'
@@ -41,7 +48,9 @@ Feature: UC017-F004 PDB Management - Edge Cases and Error Handling
         And the PDB operator processes all changes
         Then exactly one PDB named 'rapid-change-pdb' should exist
         And the PDB should reflect the final annotation value
+        And I delete the deployment 'rapid-change'
 
+    @UC017-F004-TS005
     Scenario: Recovery from operator restart
         Given a deployment 'restart-test' with '4' replicas in namespace 'components'
         And the deployment has annotation 'oda.tmforum.org/availability-class' set to 'high-availability'
@@ -50,7 +59,9 @@ Feature: UC017-F004 PDB Management - Edge Cases and Error Handling
         And the operator completes initialization
         Then the PDB 'restart-test-pdb' should remain unchanged
         And the operator should reconcile existing PDBs on startup
+        And I delete the deployment 'restart-test'
 
+    @UC017-F004-TS006
     Scenario: Handle namespace deletion
         Given a namespace 'temp-namespace' exists
         And a deployment 'ns-test' exists in namespace 'temp-namespace'
@@ -60,13 +71,16 @@ Feature: UC017-F004 PDB Management - Edge Cases and Error Handling
         Then the operator should handle namespace deletion gracefully
         And no orphaned resources should remain
 
+    @UC017-F004-TS007
     Scenario: Handle malformed annotations
         Given a deployment 'malformed-test' with '3' replicas in namespace 'components'
         When I set annotation 'oda.tmforum.org/availability-class' to '{{invalid-json}}'
         And the PDB operator processes the deployment
         Then a PDB should not be created for 'malformed-test'
         And the operator should log annotation parsing error
+        And I delete the deployment 'malformed-test'
 
+    @UC017-F004-TS008
     Scenario: Maximum replicas boundary test
         Given a deployment 'max-replicas' with '20' replicas in namespace 'components'
         And the deployment has annotation 'oda.tmforum.org/availability-class' set to 'mission-critical'
@@ -74,11 +88,14 @@ Feature: UC017-F004 PDB Management - Edge Cases and Error Handling
         Then a PDB named 'max-replicas-pdb' should be created
         And the PDB should have '90%' as minAvailable
         And the operator should handle large replica count correctly
+        And I delete the deployment 'max-replicas'
 
+    @UC017-F004-TS009
     Scenario: Zero replicas handling
         Given a deployment 'zero-replicas' with '0' replicas in namespace 'components'
         And the deployment has annotation 'oda.tmforum.org/availability-class' set to 'standard'
         When the PDB operator processes the deployment
         Then a PDB should not be created for 'zero-replicas'
         And the operator should skip PDB creation for zero replicas
+        And I delete the deployment 'zero-replicas'
 
