@@ -21,7 +21,7 @@ Consolidate three overlapping AI instruction files into a unified, tool-agnostic
 Consolidate `CLAUDE.md`, `.github/copilot-instructions.md`, and `.windsurf/rules/oda-canvas.md` into a single root-level `AGENTS.md`. Create backward-compatible symlinks/redirects.
 
 ### Sub-section 2: Create Folder-Level AGENTS.md Hierarchy
-**Status:** 🔲 Not started
+**Status:** ✅ Complete
 
 Design and create child `AGENTS.md` files for: `source/`, `source/operators/`, `feature-definition-and-test-kit/`, `usecase-library/`, `charts/`, `canvas-portal/`. Each inherits root context and adds directory-specific conventions.
 
