@@ -17,9 +17,9 @@ A documentation specialist for creating and improving README files, markdown doc
 - Cross-reference validation between documentation layers
 - Terminology consistency enforcement
 
-**Scope:**
-- Only works with `.md` and `.puml` files
-- Never edits source code or helm-docs generated content
+**Skill:** Uses the `canvas-usecase-documentation` skill (`.github/skills/canvas-usecase-documentation/SKILL.md`) for detailed templates, terminology standards, and writing conventions.
+
+**Scope:** Only works with `.md` and `.puml` files. Never edits source code or helm-docs generated content.
 
 **Usage:**
 ```
@@ -30,6 +30,30 @@ A documentation specialist for creating and improving README files, markdown doc
 ```
 
 **Documentation:** See `docs/custom-copilot-documentation-agent.md`
+
+---
+
+### @bdd-feature-generator - BDD Feature Generator
+
+**File:** `bdd-feature-generator.agent.md`
+
+A specialized agent for creating BDD feature files and step definitions following TM Forum ODA Canvas conventions.
+
+**Capabilities:**
+- Gherkin feature file generation with correct tagging and structure
+- JavaScript step definition stubs that reuse existing utilities
+- README.md feature catalog updates
+- Consistent naming conventions and patterns
+
+**Skill:** Uses the `write-bdd-feature` skill (`.github/skills/write-bdd-feature/SKILL.md`) for Gherkin conventions, step definition templates, utility library usage, and the complete creation workflow.
+
+**Usage:**
+```
+@bdd-feature-generator Create a BDD feature for UC008-F001 subscribed events
+@bdd-feature-generator Add a scenario for component upgrade with new APIs
+```
+
+**Documentation:** See `docs/bdd-feature-generator-agent-guide.md`
 
 ---
 
@@ -44,12 +68,8 @@ A specialized agent for converting PlantUML diagram files to SVG format using th
 - Batch directory conversion: Process all `.puml` files in a directory
 - Markdown reference migration: Update proxy URLs to local SVG paths
 - SVG validation: Verify generated SVGs are valid and complete
-- Progress reporting: Clear feedback on conversion status
 
-**Scope:**
-- Only works with `.puml` files in `pumlFiles/` directories
-- Updates `.md` files that reference PlantUML diagrams
-- Never modifies `.puml` source files
+**Scope:** Only works with `.puml` files in `pumlFiles/` directories. Updates `.md` files that reference PlantUML diagrams. Never modifies `.puml` source files.
 
 **Usage:**
 ```
@@ -58,17 +78,20 @@ A specialized agent for converting PlantUML diagram files to SVG format using th
 @plantuml-renderer migrate all diagrams
 ```
 
-**Technical Details:**
-- Uses `scripts/plantuml-to-svg.js` Node.js utility
-- Kroki API endpoint: `https://kroki.io/plantuml/svg/{encoded}`
-- Encoding: PlantUML source → deflate compression → base64url
-- SVG files saved in same directory as source `.puml` files
+**Documentation:** See `docs/plantuml-to-svg-guide.md`
 
-**Benefits:**
-- Better performance (local files vs remote API calls)
-- Offline availability (diagrams work without internet)
-- Reduced external dependencies (no reliance on PlantUML.com)
-- Version control (SVG files tracked in git)
+---
+
+## Agent Skills
+
+Skills are on-demand knowledge bundles that agents (and any AI coding assistant) can load when needed. They live in `.github/skills/<skill-name>/SKILL.md`.
+
+| Skill | Description | Used By |
+|-------|-------------|---------|
+| `write-bdd-feature` | Gherkin conventions, step definition templates, utility library usage, creation workflow | @bdd-feature-generator |
+| `canvas-usecase-documentation` | Documentation templates, terminology, PlantUML guidelines, writing style | @docs |
+
+Skills are activated automatically when an AI assistant's prompt matches the skill description. They can also be loaded explicitly by referencing the SKILL.md path.
 
 ---
 
@@ -90,104 +113,48 @@ tools: ['edit', 'search', 'changes']
 Detailed instructions and guidelines for the agent...
 ```
 
-### Required Fields
+### Skill Format
 
-- `name`: Agent identifier used for invocation (e.g., `@docs`, `@plantuml-renderer`)
-- `description`: One-line summary of agent capabilities
-- `tools`: Array of tools the agent can use
+Skills use a similar format with YAML frontmatter:
 
-### Available Tools
+```markdown
+---
+name: skill-name
+description: When to activate this skill (used for matching)
+---
 
-- `'edit'`: Edit files in the workspace
-- `'search'`: Search for files and content
-- `'changes'`: View and track file changes
+# Skill Title
 
-### File Naming Convention
+Detailed conventions, templates, and workflow instructions...
+```
 
-- Agent definition files use the agent name with `.md` extension
-- Example: `docs.md` defines the `@docs` agent
-- Example: `plantuml-renderer.md` defines the `@plantuml-renderer` agent
+### Design Principle
+
+Agents are **thin personas** — they define scope, behavior rules, and tool access. The detailed domain knowledge lives in **skills** that can be shared across agents and AI tools.
 
 ---
 
-## Usage Guidelines
+## Adding New Agents or Skills
 
-### When to Use @docs
-
-- Creating or improving README files
-- Documenting use cases with PlantUML diagrams
-- Validating cross-references and terminology
-- Ensuring documentation follows project standards
-
-### When to Use @plantuml-renderer
-
-- Converting PlantUML files to SVG format
-- Migrating from remote proxy URLs to local SVG files
-- Batch processing diagram conversions
-- Updating markdown references after diagram changes
-
-### Agent Collaboration
-
-The two agents work together:
-
-1. **@docs** creates PlantUML source files (`.puml`) with proper naming and structure
-2. **@plantuml-renderer** converts them to SVG and updates markdown references
-3. Both maintain consistent file naming (kebab-case) and directory structure
-4. Both work only with documentation files (never source code)
-
----
-
-## Adding New Agents
-
-To create a new custom agent:
-
+### New Agent
 1. Create a new `.md` file in `.github/agents/`
 2. Add YAML frontmatter with `name`, `description`, and `tools`
-3. Write detailed instructions in the markdown body
-4. Document the agent's scope, capabilities, and constraints
-5. Provide usage examples and invocation patterns
-6. Update this README with the new agent information
+3. Write scope, behavior rules, and reference any relevant skills
+4. Update this README
+
+### New Skill
+1. Create `.github/skills/<skill-name>/SKILL.md`
+2. Add YAML frontmatter with `name` and `description`
+3. Write detailed conventions, templates, and workflow instructions
+4. Reference the skill from any agents that use it
+5. Update this README's Agent Skills table
 
 ---
 
 ## References
 
-- **Project Instructions:** `.github/copilot-instructions.md`
+- **Project Instructions:** `AGENTS.md`
 - **Writing Style Guide:** `docs/writing-style.md`
 - **Documentation Agent Guide:** `docs/custom-copilot-documentation-agent.md`
-- **GitHub Copilot Documentation:** [docs.github.com/copilot](https://docs.github.com/en/copilot)
-
----
-
-## Troubleshooting
-
-### Agent Not Responding
-
-- Ensure you're using the correct `@agent-name` syntax
-- Check that the agent file exists in `.github/agents/`
-- Verify the YAML frontmatter is valid
-
-### Agent Behavior Issues
-
-- Review the agent's instruction file for scope and constraints
-- Check if the operation is within the agent's capabilities
-- Verify file types and locations match agent's scope
-
-### Tool Limitations
-
-- Agents can only use tools specified in their `tools` array
-- Some operations may require manual intervention
-- Complex tasks may need multiple agent invocations
-
----
-
-## Contributing
-
-When modifying or creating agents:
-
-1. Follow the established file format and structure
-2. Document all capabilities and constraints clearly
-3. Provide comprehensive usage examples
-4. Test the agent thoroughly before committing
-5. Update this README with any changes
-6. Follow the project's code-of-conduct and contribution guidelines
+- **BDD Feature Generator Guide:** `docs/bdd-feature-generator-agent-guide.md`
+- **PlantUML Conversion Guide:** `docs/plantuml-to-svg-guide.md`

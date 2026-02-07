@@ -26,17 +26,25 @@ Consolidate `CLAUDE.md`, `.github/copilot-instructions.md`, and `.windsurf/rules
 Design and create child `AGENTS.md` files for: `source/`, `source/operators/`, `feature-definition-and-test-kit/`, `usecase-library/`, `charts/`, `canvas-portal/`. Each inherits root context and adds directory-specific conventions.
 
 ### Sub-section 3: Audit Custom Agents & Refactor to Skills
-**Status:** 🔲 Not started
+**Status:** ✅ Complete
 
-Evaluate the 3 custom agents against keep/refactor/split criteria:
-- `bdd-feature-generator` → likely **Split** (keep thin agent, extract workflow to skill)
-- `docs` → likely **Split** (keep thin agent, extract templates to skill)
-- `plantuml-renderer` → likely **Keep** as agent (requires specific tooling)
+Evaluated 3 custom agents and refactored:
+- `bdd-feature-generator` → **Split**: thin agent (40 lines) + `write-bdd-feature` skill
+- `docs` → **Split**: thin agent (55 lines) + `canvas-usecase-documentation` skill
+- `plantuml-renderer` → **Kept** as agent (tooling-dependent, persona-driven)
+- Updated `.github/agents/README.md` with skills table and thin-agent architecture docs
 
 ### Sub-section 4: Create New Agent Skills
-**Status:** 🔲 Not started
+**Status:** � In progress
 
-Implement proposed skills: `create-oda-operator`, `write-bdd-feature`, `oda-component-yaml`, `helm-chart-development`, `canvas-usecase-documentation`, `ai-native-component`, `github-actions-debugging`.
+Implement proposed skills:
+- ✅ `write-bdd-feature` — created in Sub-section 3
+- ✅ `canvas-usecase-documentation` — created in Sub-section 3
+- 🔲 `create-oda-operator`
+- 🔲 `oda-component-yaml`
+- 🔲 `helm-chart-development`
+- 🔲 `ai-native-component`
+- 🔲 `github-actions-debugging`
 
 ### Sub-section 5: Update Documentation & Cleanup
 **Status:** 🔲 Not started
