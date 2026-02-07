@@ -6,6 +6,22 @@
 This document provides guidance on using assistants effectively within the ODA Canvas project, with a focus on enhancing developer productivity, encouraging consistent practices, and improving quality. 
 There are sections for different popular coding assistants (many initially populated with TBD - feel free to add to these sections if you are using that particular AI Coding Assistant).
 
+### Shared Configuration
+
+All AI coding assistants share a common set of project instructions via **[AGENTS.md](AGENTS.md)** at the repository root. This file follows the cross-tool AGENTS.md standard and is read natively by Copilot, Claude Code, Cursor, Windsurf, Codex, and others. Directory-level `AGENTS.md` files in `source/`, `charts/`, `feature-definition-and-test-kit/`, etc. add folder-specific conventions.
+
+**Agent Skills** (`.github/skills/`) provide on-demand domain knowledge that any AI assistant can load:
+
+| Skill | Purpose |
+|-------|--------|
+| `write-bdd-feature` | BDD/Gherkin conventions, step definitions, creation workflow |
+| `canvas-usecase-documentation` | Documentation templates, terminology, PlantUML |
+| `create-oda-operator` | KOPF handler patterns, Dockerfile, Helm chart, RBAC |
+| `oda-component-yaml` | v1 CRD schema, segments, ExposedAPIs, events |
+| `helm-chart-development` | Umbrella chart, sub-charts, versioning |
+| `ai-native-component` | MCP, dependent models, A2A, AI Gateway |
+| `github-actions-debugging` | CI/CD workflows, Docker builds, debugging |
+
 
 ---
 
@@ -36,7 +52,7 @@ GitHub Copilot is a context-aware AI assistant for code completion and suggestio
 
 ### Copilot instructions
 
-Copilot will read repo-specific instructions from a `.github/copilot-instructions.md` file. This allows you to define frameworks, sdks, coding style guides and other references to help with the consistency and quality of the copilot assistance.
+Copilot reads repo-specific instructions from [AGENTS.md](AGENTS.md) (cross-tool standard) and `.github/copilot-instructions.md` (which redirects to `AGENTS.md`). Custom agents are defined in `.github/agents/` and on-demand skills in `.github/skills/`. See the [agents README](.github/agents/README.md) for the full catalog.
 
 ### Modes in Copilot 
 
@@ -103,7 +119,7 @@ Claude Code automatically reads repo-specific context from the `CLAUDE.md` file.
 - Testing approaches and BDD scenarios
 - Canvas-specific concepts and terminology
 
-See [CLAUDE.md](CLAUDE.md) for the complete configuration and development guidance.
+See [AGENTS.md](AGENTS.md) for the complete configuration and development guidance. (`CLAUDE.md` redirects to `AGENTS.md` for backward compatibility.)
 
 ### Advanced Features
 
@@ -149,7 +165,7 @@ Windsurf distinguishes itself through **Cascade** - deep codebase understanding 
 
 Windsurf leverages Canvas project structure automatically:
 
-- Reads `.windsurf/rules/oda-canvas.md` for Canvas development commands and architectural patterns
+- Reads `AGENTS.md` for Canvas development commands and architectural patterns (`.windsurf/rules/oda-canvas.md` redirects to `AGENTS.md`)
 - Understands multi-technology relationships between KOPF operators, Spring Boot services, and Vue.js components
 - Recognizes Canvas-specific patterns like component decomposition and API exposure
 

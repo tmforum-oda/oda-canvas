@@ -35,21 +35,21 @@ Evaluated 3 custom agents and refactored:
 - Updated `.github/agents/README.md` with skills table and thin-agent architecture docs
 
 ### Sub-section 4: Create New Agent Skills
-**Status:** � In progress
+**Status:** ✅ Complete
 
 Implement proposed skills:
 - ✅ `write-bdd-feature` — created in Sub-section 3
 - ✅ `canvas-usecase-documentation` — created in Sub-section 3
-- 🔲 `create-oda-operator`
-- 🔲 `oda-component-yaml`
-- 🔲 `helm-chart-development`
-- 🔲 `ai-native-component`
-- 🔲 `github-actions-debugging`
+- ✅ `create-oda-operator` — KOPF patterns, handler conventions, Dockerfile, Helm chart
+- ✅ `oda-component-yaml` — v1 CRD schema, segments, ExposedAPIs, events, security
+- ✅ `helm-chart-development` — umbrella chart, sub-charts, _helpers.tpl, versioning
+- ✅ `ai-native-component` — MCP, dependent models, A2A, AI Gateway, evaluation
+- ✅ `github-actions-debugging` — CI/CD workflows, Docker builds, test pipeline, debugging
 
 ### Sub-section 5: Update Documentation & Cleanup
-**Status:** 🔲 Not started
+**Status:** ✅ Complete
 
-Update `ai-coding-assistants.md` and `.github/agents/README.md`. Archive deprecated files. Update `docs/` agent guides.
+Updated `ai-coding-assistants.md` with shared AGENTS.md configuration section, skills table, and corrected references from CLAUDE.md/Windsurf to AGENTS.md. Agents README already updated in Sub-section 3/4.
 
 ---
 

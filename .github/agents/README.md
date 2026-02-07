@@ -90,6 +90,11 @@ Skills are on-demand knowledge bundles that agents (and any AI coding assistant)
 |-------|-------------|---------|
 | `write-bdd-feature` | Gherkin conventions, step definition templates, utility library usage, creation workflow | @bdd-feature-generator |
 | `canvas-usecase-documentation` | Documentation templates, terminology, PlantUML guidelines, writing style | @docs |
+| `create-oda-operator` | KOPF handler patterns, CRD watching, logging, Dockerfile, Helm chart, RBAC | Any agent |
+| `oda-component-yaml` | v1 CRD schema, segments, ExposedAPIs, DependentAPIs, events, security roles | Any agent |
+| `helm-chart-development` | Umbrella chart, sub-chart conventions, _helpers.tpl, versioning, dependencies | Any agent |
+| `ai-native-component` | MCP server integration, dependent models, A2A protocol, AI Gateway, evaluation | Any agent |
+| `github-actions-debugging` | CI/CD workflows, Docker builds, PR test pipeline, debugging commands | Any agent |
 
 Skills are activated automatically when an AI assistant's prompt matches the skill description. They can also be loaded explicitly by referencing the SKILL.md path.
 
