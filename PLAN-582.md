@@ -176,3 +176,176 @@ Sub-section 5 (Docs & cleanup) — depends on 1, 2, 3, 4 being done first (or ne
 
 **Recommended execution order:** 1 → 2 → 3 → 4 → 5
 (But 3 and 4 can be parallelised with 2 since they're independent of the AGENTS.md hierarchy.)
+
+---
+
+## Human Validation Activities
+
+Manual testing activities to verify the new AGENTS.md hierarchy and skills work correctly across tools. Each activity includes the tool, what to do, and what to look for.
+
+### V1. AGENTS.md Context — GitHub Copilot
+
+**Tool:** VS Code with GitHub Copilot  
+**Steps:**
+1. Open the repository in VS Code
+2. Open Copilot Chat (Agent mode)
+3. Ask: *"What is the ODA Canvas and what operators does it include?"*
+4. Ask: *"What namespace should I deploy components to?"*
+5. Ask: *"What BDD framework does this project use?"*
+
+**Expected:** Answers should reference KOPF operators, `components` namespace, and Cucumber.js — all from `AGENTS.md`. No references to stale content from the old `CLAUDE.md` body.
+
+### V2. AGENTS.md Context — Claude Code
+
+**Tool:** Claude Code CLI  
+**Steps:**
+1. Open terminal in the repo root
+2. Run `claude` to start a session
+3. Ask: *"Summarise the project structure and technology stack"*
+4. Ask: *"What are the rules I should follow when contributing?"*
+
+**Expected:** Answers should draw from `AGENTS.md` Do/Don't rules, project structure section, and technology stack. Verify `CLAUDE.md` redirect doesn't cause errors — Claude should transparently read `AGENTS.md`.
+
+### V3. AGENTS.md Context — Windsurf
+
+**Tool:** Windsurf IDE  
+**Steps:**
+1. Open the repository in Windsurf
+2. Start a Cascade session
+3. Ask: *"What Helm chart conventions does this project follow?"*
+
+**Expected:** Answer should reference umbrella chart architecture, prerelease suffixes, `_helpers.tpl` patterns — content from `AGENTS.md` and/or the `charts/AGENTS.md` child file. Verify `.windsurf/rules/oda-canvas.md` redirect works without error.
+
+### V4. Directory-Level AGENTS.md Inheritance
+
+**Tool:** Any AI assistant (Copilot recommended)  
+**Steps:**
+1. Open a file in `source/operators/component-management/`
+2. Ask: *"What handler pattern should I use for a new KOPF operator?"*
+3. Open a file in `feature-definition-and-test-kit/features/`
+4. Ask: *"What tagging convention should I use for a new BDD feature?"*
+5. Open a file in `charts/component-operator/`
+6. Ask: *"How should I version this Helm chart?"*
+
+**Expected:** Each answer should incorporate both root `AGENTS.md` conventions AND the directory-specific `AGENTS.md` guidance. The operator question should mention triple-stacked handlers; the BDD question should mention `@UC{number} @UC{number}-F{number}` tags; the Helm question should mention prerelease suffixes.
+
+### V5. Skill Activation — write-bdd-feature
+
+**Tool:** GitHub Copilot (Agent mode)  
+**Steps:**
+1. Ask: *"Create a BDD feature file for UC009 testing internal authentication with Keycloak"*
+2. Review the generated feature file
+
+**Expected:** The skill should activate automatically. Output should include the standard header comment, two-level tagging (`@UC009 @UC009-F001`), `Scenario Outline` with `Examples` table, and steps following patterns from the skill (e.g., `Given a running helm release`). Check that it references existing step definition files rather than inventing new ones.
+
+### V6. Skill Activation — canvas-usecase-documentation
+
+**Tool:** GitHub Copilot (Agent mode)  
+**Steps:**
+1. Ask: *"Create a use case document for UC013 describing how the Canvas manages PodDisruptionBudgets"*
+2. Review the generated markdown
+
+**Expected:** Output should follow the use case template (heading pattern `# {Verb} {Object} use case`, Assumptions section, scenario sections with PlantUML placeholders). Terminology should use "ODA Canvas" (never standalone "Canvas"), "Behaviour-Driven Development" (British spelling), and backtick-wrapped CRD names.
+
+### V7. Skill Activation — create-oda-operator
+
+**Tool:** GitHub Copilot (Agent mode)  
+**Steps:**
+1. Ask: *"Scaffold a new KOPF operator that watches SecretManagement CRDs and creates Kubernetes Secrets"*
+2. Review the generated Python file
+
+**Expected:** Should include `GROUP = "oda.tmforum.org"`, triple-stacked handlers with `retries=5`, `kopf.TemporaryError` for retryable failures, structured logging, and `kubernetes.client.CustomObjectsApi()` calls. Should NOT produce a Go/kubebuilder operator.
+
+### V8. Skill Activation — oda-component-yaml
+
+**Tool:** GitHub Copilot (Agent mode)  
+**Steps:**
+1. Ask: *"Create an ODA Component YAML for a Product Inventory component with one coreFunction API and a Prometheus metrics endpoint"*
+2. Validate the output
+
+**Expected:** `apiVersion: oda.tmforum.org/v1`, `kind: Component`, all three segments present (coreFunction, managementFunction, securityFunction), `apiType: openapi` for core, `apiType: prometheus` for metrics, `canvasSystemRole` in securityFunction.
+
+### V9. Skill Activation — helm-chart-development
+
+**Tool:** GitHub Copilot (Agent mode)  
+**Steps:**
+1. Ask: *"Create a new Helm sub-chart for a secrets-operator including deployment, RBAC, and configmap templates"*
+2. Review the generated chart structure
+
+**Expected:** Should produce `Chart.yaml` (apiVersion v2, type application), `values.yaml` with image/version/prereleaseSuffix, `_helpers.tpl` with Docker image construction helper, `deployment.yaml` using `{{ .Release.Namespace }}` (never hardcoded), and `rbac.yaml` with `zalando.org` peering permissions.
+
+### V10. Skill Activation — github-actions-debugging
+
+**Tool:** GitHub Copilot (Agent mode)  
+**Steps:**
+1. Ask: *"A BDD test is failing in CI — what debugging steps should I follow?"*
+2. Ask: *"How do I modify the Docker build workflow for the component operator?"*
+
+**Expected:** First answer should reference checking operator logs (`kubectl -n canvas logs deployment/component-operator`), uploaded CI artifacts, and common failure table. Second answer should warn that Docker workflows are auto-generated and direct you to `automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml` — not to edit the workflow YAML directly.
+
+### V11. Skill Activation — ai-native-component
+
+**Tool:** GitHub Copilot (Agent mode)  
+**Steps:**
+1. Ask: *"How do I add an MCP server endpoint to an ODA Component?"*
+2. Ask: *"Can I declare AI model dependencies in a component YAML?"*
+
+**Expected:** First answer should reference `apiType: mcp` in exposedAPIs, long-running connection considerations, and the test data example in `productcatalog-dynamic-roles-v1`. Second answer should note that `dependentModels` is in the design document but NOT yet in the CRD schema.
+
+### V12. Custom Agent — @bdd-feature-generator (thin agent + skill)
+
+**Tool:** GitHub Copilot Chat  
+**Steps:**
+1. Invoke: `@bdd-feature-generator Create a feature for UC007-F003 testing dependent API resolution with multiple downstream components`
+2. Review generated artifacts
+
+**Expected:** Agent should produce a feature file, check for existing step definitions, suggest new stubs only where needed, and update `feature-definition-and-test-kit/README.md`. Behaviour should be identical to before the refactor — the thin agent loads the `write-bdd-feature` skill transparently.
+
+### V13. Custom Agent — @docs (thin agent + skill)
+
+**Tool:** GitHub Copilot Chat  
+**Steps:**
+1. Invoke: `@docs Create a README for the secretsmanagement-operator chart`
+2. Review generated README
+
+**Expected:** Should follow the Helm Chart README template from the skill, include an Overview, Architecture, Usage Examples, and Troubleshooting section. Should never touch helm-docs markers. Terminology should be consistent ("ODA Canvas", British spelling).
+
+### V14. Redirect File Integrity
+
+**Tool:** Manual inspection  
+**Steps:**
+1. Open `CLAUDE.md` — verify it contains only a short redirect to `AGENTS.md`
+2. Open `.github/copilot-instructions.md` — verify redirect to `AGENTS.md`
+3. Open `.windsurf/rules/oda-canvas.md` — verify redirect with `trigger: always_on` frontmatter
+4. Verify no residual content (old commands, tech stack, etc.) in any redirect file
+
+**Expected:** Each file should be ≤10 lines. No operational content should remain.
+
+### V15. Cross-Tool Consistency Check
+
+**Tool:** Compare outputs across Copilot, Claude Code, and Windsurf  
+**Steps:**
+1. Ask all three tools the same question: *"What are the Do and Don't rules for contributing to this project?"*
+2. Compare responses
+
+**Expected:** All three should produce substantially similar answers drawn from the same `AGENTS.md` Do/Don't section. Minor phrasing differences are fine, but the factual content should be consistent.
+
+### Validation Summary Checklist
+
+| # | Activity | Tool | Status |
+|---|----------|------|--------|
+| V1 | AGENTS.md context | Copilot | ⬜ |
+| V2 | AGENTS.md context | Claude Code | ⬜ |
+| V3 | AGENTS.md context | Windsurf | ⬜ |
+| V4 | Directory inheritance | Any | ⬜ |
+| V5 | write-bdd-feature skill | Copilot | ⬜ |
+| V6 | canvas-usecase-documentation skill | Copilot | ⬜ |
+| V7 | create-oda-operator skill | Copilot | ⬜ |
+| V8 | oda-component-yaml skill | Copilot | ⬜ |
+| V9 | helm-chart-development skill | Copilot | ⬜ |
+| V10 | github-actions-debugging skill | Copilot | ⬜ |
+| V11 | ai-native-component skill | Copilot | ⬜ |
+| V12 | @bdd-feature-generator agent | Copilot | ⬜ |
+| V13 | @docs agent | Copilot | ⬜ |
+| V14 | Redirect file integrity | Manual | ⬜ |
+| V15 | Cross-tool consistency | All | ⬜ |
