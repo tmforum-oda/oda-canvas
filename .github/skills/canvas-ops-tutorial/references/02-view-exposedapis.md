@@ -7,6 +7,7 @@
 - [Key Fields](#key-fields)
 - [Understanding the CRD Schema](#understanding-the-crd-schema)
 - [Drill-Down](#drill-down)
+- [MCP Server Inspection](#mcp-server-inspection)
 - [Contextual Next Steps](#contextual-next-steps)
 
 ## What is an ExposedAPI?
@@ -135,12 +136,103 @@ kubectl explain exposedapi.spec.OASValidation
 - **Management function**: `metrics` (prometheus, port 4000) — Prometheus metrics endpoint
 - **Security function**: `partyrole` (openapi, port 8080) — TMF669 Party Role Management API
 
+## MCP Server Inspection
+
+After displaying the ExposedAPI list, check if any ExposedAPIs have `apiType: mcp`. If MCP-type APIs are present, **proactively offer to inspect the MCP server** to discover its tools, resources, and prompts.
+
+### Detecting MCP APIs
+
+When parsing the ExposedAPI list output (either raw or from `parse_exposedapis.py`), look for entries where `API Type` is `mcp`. For each MCP API found, note the **URL** from `.status.apiStatus.url` — this is the MCP server endpoint.
+
+### Inspecting an MCP Server
+
+Use the helper script to inspect the MCP server:
+
+```bash
+python <scripts>/inspect_mcp_server.py <mcp-endpoint-url>
+```
+
+For example:
+```bash
+python <scripts>/inspect_mcp_server.py https://localhost/pc1-productcatalogmanagement/mcp
+```
+
+The script uses the **MCP Streamable HTTP transport** (the current MCP standard) and performs:
+
+1. **Initialize** — establishes a session, reports server name/version and capabilities
+2. **tools/list** — discovers all tools with their names, descriptions, and input schemas
+3. **resources/list** — discovers any exposed resources (data the server makes available)
+4. **prompts/list** — discovers any prompt templates the server offers
+
+The `requests` Python package is required. If not installed, run `pip install requests` first.
+
+### Explaining MCP Server Results
+
+After showing the inspection output, explain:
+
+- **Server info** — The MCP server name and version correspond to the ODA Component that hosts it. The protocol version (e.g., `2025-03-26`) indicates which MCP specification it implements.
+- **Tools** — These are operations an AI agent can invoke on the component. For a Product Catalog component, tools typically map to TMF620 CRUD operations (catalog, category, product specification, product offering, product offering price). Each tool has a JSON Schema `inputSchema` defining its parameters.
+- **Resources** — Static or dynamic data the server exposes for reading (e.g., catalog data snapshots, schemas). May be empty if the server only exposes tools.
+- **Prompts** — Reusable prompt templates the server offers for common interactions. May be empty if no prompts are defined.
+- **Capabilities** — The `capabilities` field returned during initialization declares which MCP features (tools, resources, prompts, subscriptions) the server supports.
+
+### Manual MCP Inspection (curl)
+
+If the helper script is not available, the same inspection can be done with `curl`:
+
+```bash
+# Step 1: Initialize session
+curl -sk -X POST \
+  -H "Accept: text/event-stream, application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"0.1"}}}' \
+  <mcp-endpoint-url>
+# Note the Mcp-Session-Id from the response header
+
+# Step 2: List tools
+curl -sk -X POST \
+  -H "Accept: text/event-stream, application/json" \
+  -H "Content-Type: application/json" \
+  -H "Mcp-Session-Id: <session-id>" \
+  -d '{"jsonrpc":"2.0","id":"2","method":"tools/list","params":{}}' \
+  <mcp-endpoint-url>
+
+# Step 3: List resources
+curl -sk -X POST \
+  -H "Accept: text/event-stream, application/json" \
+  -H "Content-Type: application/json" \
+  -H "Mcp-Session-Id: <session-id>" \
+  -d '{"jsonrpc":"2.0","id":"3","method":"resources/list","params":{}}' \
+  <mcp-endpoint-url>
+
+# Step 4: List prompts
+curl -sk -X POST \
+  -H "Accept: text/event-stream, application/json" \
+  -H "Content-Type: application/json" \
+  -H "Mcp-Session-Id: <session-id>" \
+  -d '{"jsonrpc":"2.0","id":"4","method":"prompts/list","params":{}}' \
+  <mcp-endpoint-url>
+```
+
 ## Contextual Next Steps
 
-Present these options using `ask_questions`:
+Present these options using `ask_questions`.
+
+**If MCP-type ExposedAPIs are present**, include the MCP inspection option:
 
 | # | Next Step |
-|---|-----------|
+|---|-------------------------------------------|
+| 1 | **Inspect MCP Server** — Discover tools, resources, and prompts exposed by the MCP server |
+| 2 | **Drill into a specific ExposedAPI** — See CORS, rate limits, specification URLs, and full status |
+| 3 | **View the parent component** — See the Component that owns these ExposedAPIs |
+| 4 | **View observability data** — Explore Prometheus metrics (especially for prometheus/openmetrics ExposedAPIs) |
+| 5 | **View DependentAPIs** — See which APIs other components depend on |
+| 6 | **Return to main menu** |
+
+**If no MCP-type ExposedAPIs are present**, omit option 1 and renumber:
+
+| # | Next Step |
+|---|-------------------------------------------|
 | 1 | **Drill into a specific ExposedAPI** — See CORS, rate limits, specification URLs, and full status |
 | 2 | **View the parent component** — See the Component that owns these ExposedAPIs |
 | 3 | **View observability data** — Explore Prometheus metrics (especially for prometheus/openmetrics ExposedAPIs) |

@@ -97,6 +97,7 @@ PowerShell mangles escaped quotes in inline Python. Use the **pre-built helper s
 | `poll_component_status.py` | Deployment status check | `kubectl get components -n components -o json \| python <scripts>/poll_component_status.py [name]` |
 | `check_bdd_deps.py` | Check BDD test dependencies | `python <scripts>/check_bdd_deps.py <path-to-feature-definition-and-test-kit>` |
 | `exercise_catalog_api.py` | Generate TMF620 API metrics | `python <scripts>/exercise_catalog_api.py <api-base-url> [--rounds N] [--cleanup]` |
+| `inspect_mcp_server.py` | Inspect MCP server capabilities | `python <scripts>/inspect_mcp_server.py <mcp-endpoint-url>` |
 
 These scripts work on both bash and PowerShell. For custom parsing beyond what these provide, create a temporary `.py` file, pipe to it, and delete it when done.
 
