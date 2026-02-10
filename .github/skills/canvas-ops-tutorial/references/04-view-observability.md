@@ -1,6 +1,7 @@
 # View Observability Data
 
 ## Table of Contents
+- [Observability in ODA Canvas](#observability-in-oda-canvas)
 - [Auto-Discover Services](#auto-discover-services)
 - [Handling Missing Observability Stack](#handling-missing-observability-stack)
 - [ServiceMonitor Configuration](#servicemonitor-configuration)
@@ -10,6 +11,32 @@
 - [Proactive Jaeger Troubleshooting](#proactive-jaeger-troubleshooting)
 - [Kubernetes Observability Resources](#kubernetes-observability-resources)
 - [Architecture Reference](#architecture-reference)
+- [Contextual Next Steps](#contextual-next-steps)
+
+## Observability in ODA Canvas
+
+The ODA Canvas supports three pillars of observability, each tied to the component specification:
+
+**Metrics (Prometheus):** Each component declares a **management function ExposedAPI** with `apiType: prometheus` or `apiType: openmetrics`. This management API exposes a `/metrics` endpoint. The API Operator creates a `ServiceMonitor` resource that tells Prometheus where to scrape. Example from the test data (`feature-definition-and-test-kit/testData/productcatalog-v1/templates/component-productcatalog.yaml`):
+
+```yaml
+managementFunction:
+  exposedAPIs:
+  - name: metrics
+    apiType: prometheus
+    implementation: <release>-productcatalogmanagement-sm
+    path: /<release>-productcatalogmanagement/metrics
+    port: 4000
+```
+
+**Traces (Jaeger via OpenTelemetry):** Components send OTLP traces to an OpenTelemetry Collector, which forwards them to Jaeger. The collector URL is configured via the `OTL_EXPORTER_TRACE_PROTO_COLLECTOR_URL` environment variable in the component's deployment.
+
+**Dashboards (Grafana):** Grafana connects to Prometheus as a data source, enabling dashboard creation for component metrics.
+
+```
+ODA Components → OTLP HTTP (:4318) → OpenTelemetry Collector → Jaeger
+ODA Components → /metrics endpoint → Prometheus (via ServiceMonitor) → Grafana
+```
 
 ## Auto-Discover Services
 
@@ -87,6 +114,31 @@ helm upgrade canvas charts/canvas-oda -n canvas \
 ## Port-Forward and Open UIs
 
 Default namespace for observability is `monitoring`. Use the discovered namespace from auto-discovery.
+
+**Before starting port-forward, check if ports are already in use** from a prior session. On **PowerShell**:
+
+```powershell
+# Check all three ports at once
+@(9090, 3000, 16686) | ForEach-Object {
+    $conn = Get-NetTCPConnection -LocalPort $_ -ErrorAction SilentlyContinue
+    if ($conn) { "Port $_ is ALREADY IN USE (PID $($conn[0].OwningProcess))" }
+    else { "Port $_ is available" }
+}
+```
+
+On **bash**:
+
+```bash
+for port in 9090 3000 16686; do
+  if ss -tlnp 2>/dev/null | grep -q ":$port " || lsof -i :"$port" >/dev/null 2>&1; then
+    echo "Port $port is ALREADY IN USE"
+  else
+    echo "Port $port is available"
+  fi
+done
+```
+
+**Only start port-forward for ports that are not already in use.** If a port is already forwarded, skip it and proceed to open the UI.
 
 ```bash
 # Prometheus (default port 9090)
@@ -243,3 +295,25 @@ kubectl port-forward -n monitoring deployment/observability-opentelemetry-collec
 ODA Components → OTLP HTTP (:4318) → OpenTelemetry Collector → Jaeger Collector (:4317) → Jaeger UI
 ODA Components → /metrics endpoint → Prometheus (ServiceMonitor discovery) → Grafana dashboards
 ```
+
+After explaining the architecture, note how this connects to the component specification:
+- The **metrics endpoint** is defined in `spec.managementFunction.exposedAPIs[]` with `apiType: prometheus` — this is how the component tells the Canvas where to scrape metrics
+- The **trace collector URL** is an infrastructure configuration, not part of the Component CRD — it's injected via Helm values or environment variables
+- **ServiceMonitors** are Kubernetes resources created by the API Operator when it processes an ExposedAPI with `apiType: prometheus` or `apiType: openmetrics`
+
+To see ServiceMonitors created for components:
+```bash
+kubectl get servicemonitors -n components
+```
+
+## Contextual Next Steps
+
+Present these options using `ask_questions`:
+
+| # | Next Step |
+|---|-----------|
+| 1 | **Exercise the API for metrics** — Generate traffic to populate Prometheus counters |
+| 2 | **View ExposedAPIs** — Check which components expose prometheus/openmetrics management APIs |
+| 3 | **Run BDD tests (UC012)** — Validate the Canvas observability configuration |
+| 4 | **View deployed components** — Check component status and API readiness |
+| 5 | **Return to main menu** |

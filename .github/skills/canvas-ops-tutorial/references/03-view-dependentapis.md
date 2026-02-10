@@ -1,11 +1,39 @@
 # View DependentAPIs
 
 ## Table of Contents
+- [What is a DependentAPI?](#what-is-a-dependentapi)
 - [Focus](#focus)
 - [Handling Empty Results](#handling-empty-results)
 - [Commands](#commands)
 - [Key Fields](#key-fields)
+- [Understanding the CRD Schema](#understanding-the-crd-schema)
 - [Presentation](#presentation)
+- [Federated Catalog Example](#federated-catalog-example)
+- [Contextual Next Steps](#contextual-next-steps)
+
+## What is a DependentAPI?
+
+A `DependentAPI` is a **child Custom Resource** created by the Component Operator when it decomposes a Component. For every entry in `spec.coreFunction.dependentAPIs[]`, `spec.managementFunction.dependentAPIs[]`, or `spec.securityFunction.dependentAPIs[]`, the Component Operator creates a DependentAPI resource.
+
+The **Dependency Operator** watches these DependentAPI resources and:
+1. Searches the cluster for ExposedAPIs that match the dependency (by API name, type, and optional selector filters)
+2. When a match is found, writes the resolved URL into `.status.depapiStatus.url`
+3. Sets `.status.implementation.ready` to `true`
+
+This is how the ODA Canvas enables **automatic cross-component API wiring** — a component declares what APIs it needs, and the Dependency Operator discovers them at runtime.
+
+To explore the DependentAPI CRD schema:
+```bash
+kubectl explain dependentapi.spec
+kubectl explain dependentapi.spec.selector
+```
+
+The CRD definition is in `charts/oda-crds/templates/oda-dependentapi-crd.yaml` (v1 schema starts around line 176).
+
+An example of a component declaring dependent APIs is in:
+```
+feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1/templates/component-productcatalog.yaml
+```
 
 ## Focus
 
@@ -80,6 +108,40 @@ Present DependentAPIs grouped by resolution status:
 
 Offer to show full spec and status for any specific DependentAPI.
 
+After showing results, explain the resolution:
+- A **resolved** DependentAPI means the Dependency Operator found an ExposedAPI in the cluster whose name and type match the dependency. The resolved URL is the gateway endpoint of that upstream API.
+- An **unresolved** DependentAPI means no matching ExposedAPI was found. This happens when the upstream component hasn't been deployed, hasn't reached `Complete` status yet, or the `selector` constraints (zone, releaseName, namespace) filter out all matches.
+
+## Understanding the CRD Schema
+
+Offer to explore the DependentAPI schema:
+
+**Live cluster exploration:**
+```bash
+kubectl explain dependentapi.spec
+kubectl explain dependentapi.spec.selector
+```
+
+**Key v1 schema properties** (from `charts/oda-crds/templates/oda-dependentapi-crd.yaml`):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Name of the API dependency (required) |
+| `apiType` | enum: openapi | Type of API expected (required) |
+| `specification[]` | array of {url, version} | Links to the expected API specification |
+| `selector` | object | Filters which ExposedAPIs can satisfy this dependency |
+| `selector.zone` | string | Cluster/canvas/gateway-id or `SAME` |
+| `selector.releaseName` | string | Restrict to a specific Helm release |
+| `selector.namespace` | string | Restrict to a specific namespace |
+| `resources[]` | array | Optional resource descriptors |
+| `required` | boolean | Whether this dependency is mandatory |
+| `segment` | enum: coreFunction, managementFunction, securityFunction | Which component section it came from |
+
+**Status fields** (populated by the Dependency Operator):
+- `.status.implementation.ready` — boolean, whether a match was found
+- `.status.depapiStatus.url` — the resolved API URL
+- `.status.depapiStatus.svcInvID` — service inventory ID (if registered)
+
 ## Federated Catalog Example
 
 When two `productcatalog` instances are deployed (e.g., `prodcat` and `pc2`) and the second has `component.dependentAPIs.enabled=true`, the DependentAPI output will show:
@@ -92,3 +154,14 @@ If the dependency shows as **unresolved**, suggest:
 1. Check that the first component is fully deployed (`Complete` status)
 2. Verify the ExposedAPI exists: `kubectl get exposedapis -n components`
 3. Check dependency operator logs: `kubectl logs -l app=oda-controller-dependentapi -n canvas --tail=50`
+
+## Contextual Next Steps
+
+Present these options using `ask_questions`:
+
+| # | Next Step |
+|---|-----------|
+| 1 | **Deploy a component with dependencies** — Install a second instance with `dependentAPIs.enabled=true` to see cross-component wiring |
+| 2 | **View ExposedAPIs** — See what APIs are available for dependencies to resolve against |
+| 3 | **View deployed components** — Check overall component status and readiness |
+| 4 | **Return to main menu** |

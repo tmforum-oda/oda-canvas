@@ -1,13 +1,32 @@
 # Deploy an ODA Component
 
 ## Table of Contents
+- [What Happens When You Deploy?](#what-happens-when-you-deploy)
 - [Step 1: Ensure Helm Repo](#step-1-ensure-helm-repo)
 - [Step 1b: Check Existing Releases](#step-1b-check-existing-releases)
 - [Step 2: List Available Charts](#step-2-list-available-charts)
 - [Step 3: Optional Overrides](#step-3-optional-overrides)
 - [Step 4: Install](#step-4-install)
 - [Step 5: Monitor Deployment](#step-5-monitor-deployment)
+- [Step 6: Explore the Decomposed Resources](#step-6-explore-the-decomposed-resources)
 - [Uninstall](#uninstall)
+- [Contextual Next Steps](#contextual-next-steps)
+
+## What Happens When You Deploy?
+
+Deploying an ODA Component triggers a multi-stage lifecycle managed by the Canvas operators:
+
+1. **Helm installs the chart** — this creates Kubernetes Deployments, Services, and a `Component` Custom Resource
+2. **Component Operator reads the Component CR** — it decomposes `spec.coreFunction`, `spec.managementFunction`, `spec.securityFunction`, and `spec.eventNotification` into child resources: ExposedAPIs, DependentAPIs, IdentityConfig, SecretsManagement, PublishedNotifications, SubscribedNotifications
+3. **API Operator processes each ExposedAPI** — creates API Gateway routes, applies CORS/rate-limit/quota policies, reports readiness
+4. **Identity Operator processes the IdentityConfig** — configures Keycloak realm, creates roles, registers webhook listener
+5. **Secrets Operator processes SecretsManagement** — configures vault sidecar injection (if declared)
+6. **Dependency Operator processes each DependentAPI** — searches for matching ExposedAPIs, writes resolved URLs
+7. **Component Operator updates overall status** — progresses through `In-Progress-CompCon` → `In-Progress-IDConfOp` → `In-Progress-SecretMan` → `In-Progress-DepApi` → `Complete`
+
+To see the authoritative Component CRD schema: `charts/oda-crds/templates/oda-component-crd.yaml` (v1 schema starts ~line 1858).
+
+An example component YAML used in testing: `feature-definition-and-test-kit/testData/productcatalog-v1/templates/component-productcatalog.yaml`.
 
 ## Step 1: Ensure Helm Repo
 
@@ -114,8 +133,48 @@ kubectl describe component <name> -n components
 kubectl get events -n components --sort-by='.lastTimestamp'
 ```
 
+## Step 6: Explore the Decomposed Resources
+
+Once the component reaches `Complete` (or even while it's progressing), show the user the child resources that the Component Operator created. This helps them understand the decomposition:
+
+```bash
+# See all resources created from this component
+kubectl get exposedapis -n components -l oda.tmforum.org/componentName=<component-name>
+kubectl get dependentapis -n components -l oda.tmforum.org/componentName=<component-name>
+kubectl get identityconfigs -n components
+kubectl get secretsmanagements -n components
+kubectl get publishednotifications -n components
+kubectl get subscribednotifications -n components
+```
+
+Or see everything at once:
+
+```bash
+kubectl get exposedapis,dependentapis,identityconfigs,secretsmanagements -n components
+```
+
+Explain each resource type:
+- **ExposedAPIs** — one per API in the component's core/management/security functions. The API Operator configured gateway routes for each.
+- **DependentAPIs** — only present if `component.dependentAPIs.enabled=true` was set. The Dependency Operator resolves these against other components' ExposedAPIs.
+- **IdentityConfig** — created from `securityFunction.canvasSystemRole` and `componentRole[]`. The Identity Operator configured Keycloak with these roles.
+- **SecretsManagement** — only present if `securityFunction.secretsManagement` was declared. Configures vault sidecar injection for component pods.
+
 ## Uninstall
 
 ```bash
 helm delete <release-name> -n components
 ```
+
+After uninstalling, explain that the Component Operator cleans up all child resources (ExposedAPIs, DependentAPIs, IdentityConfig, etc.) through Kubernetes owner references. The API Gateway routes and Identity Management configurations are also removed.
+
+## Contextual Next Steps
+
+Present these options using `ask_questions`:
+
+| # | Next Step |
+|---|-----------|
+| 1 | **View the deployed component** — Inspect status, APIs, and decomposed resources |
+| 2 | **View ExposedAPIs** — See the API Gateway routes created for this component |
+| 3 | **View DependentAPIs** — Check if cross-component dependencies are declared and resolved |
+| 4 | **View observability data** — Explore Prometheus metrics and Jaeger traces |
+| 5 | **Return to main menu** |
