@@ -95,8 +95,10 @@ Helm 3.0+ is required. If not found, guide the user to install it — see [Step 
 
 ```bash
 helm list -n canvas
-kubectl get crd components.oda.tmforum.org 2>$null
+kubectl get crd components.oda.tmforum.org 
 ```
+
+If this returns an error `"components.oda.tmforum.org" not found` then the canvas is not installed.
 
 If a Canvas is already installed, report the version and ask if the user wants to upgrade or reinstall.
 

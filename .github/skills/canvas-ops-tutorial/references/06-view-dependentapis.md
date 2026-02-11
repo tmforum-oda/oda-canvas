@@ -80,8 +80,8 @@ If the deployed component is not a productcatalog, suggest the general approach:
 # Summary table
 kubectl get dependentapis -n components
 
-# Structured summary with resolution status using helper script
-kubectl get dependentapis -n components -o json | python <scripts>/parse_dependentapis.py
+# Full YAML for detailed inspection
+kubectl get dependentapis -n components -o yaml
 
 # Detail for a specific DependentAPI
 kubectl describe dependentapi <name> -n components
@@ -89,7 +89,7 @@ kubectl describe dependentapi <name> -n components
 
 ## Key Fields
 
-| Field | JSON Path | Description |
+| Field | YAML Path | Description |
 |-------|-----------|-------------|
 | Name | `.metadata.name` | DependentAPI resource name |
 | Namespace | `.metadata.namespace` | Namespace |

@@ -54,21 +54,21 @@ kubectl get components -n components
 kubectl describe component <name> -n components
 ```
 
-Note: `-o wide` does not show additional columns for Components — use `-o json` for full details instead.
+Note: `-o wide` does not show additional columns for Components — use `-o yaml` for full details instead.
 
-**Structured summary (parse and present):**
+**Full YAML output (for drill-down):**
 
 ```bash
-kubectl get components -n components -o json | python <scripts>/parse_components.py
+kubectl get components -n components -o yaml
 ```
 
-Replace `<scripts>` with the absolute path to `.github/skills/canvas-k8s-ops/scripts/`.
+The agent interprets the YAML output directly using the Key Fields table below.
 
 ## Key Fields
 
 Parse the JSON output and present a table with these fields per component:
 
-| Field | JSON Path | Description |
+| Field | YAML Path | Description |
 |-------|-----------|-------------|
 | Name | `.metadata.name` | Component name |
 | Namespace | `.metadata.namespace` | Deployment namespace |
@@ -131,10 +131,10 @@ kubectl explain component.spec.securityFunction
 After showing the summary, offer to drill into a specific component:
 
 ```bash
-kubectl get component <name> -n components -o json | python <scripts>/parse_component_drilldown.py
+kubectl get component <name> -n components -o yaml
 ```
 
-This shows:
+Interpret the YAML output to show:
 
 - `.status['summary/status']` — full summary including API URL summaries and developer UI URLs
 - `.status.coreAPIs[]` — each API's name, url, developerUI, ready status

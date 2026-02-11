@@ -51,8 +51,8 @@ Present the sub-menu when the user selects "Manage identities":
 # Raw output
 kubectl get identityconfigs -n components
 
-# Structured summary using helper script
-kubectl get identityconfigs -n components -o json | python <scripts>/parse_identityconfigs.py
+# Full YAML for detailed inspection
+kubectl get identityconfigs -n components -o yaml
 ```
 
 The summary shows:
@@ -68,10 +68,10 @@ After listing, offer to drill into a specific IdentityConfig.
 ## IdentityConfig Drill-Down
 
 ```bash
-kubectl get identityconfig <name> -n components -o json | python <scripts>/parse_identityconfig_drilldown.py
+kubectl get identityconfig <name> -n components -o yaml
 ```
 
-This shows:
+Interpret the YAML output to show:
 - **Parent Component** -- the Component that owns this IdentityConfig
 - **Canvas System Role** -- the reserved role for Canvas operators (typically `canvasRole`)
 - **Identity Provider** -- the configured identity provider (Keycloak)
@@ -183,7 +183,7 @@ To add a role dynamically, **POST** a new `PermissionSpecificationSet` to the co
 **Step 1: Find the TMF672 API URL**
 
 ```bash
-kubectl get exposedapis -n components -o json | python <scripts>/parse_exposedapis.py
+kubectl get exposedapis -n components -o yaml
 ```
 
 Look for the ExposedAPI with TMF ID `TMF672`. The URL will be in the format:
@@ -348,7 +348,7 @@ When the user selects "Create a Keycloak client", follow this workflow:
 List the deployed components to determine which APIs the client needs to access:
 
 ```bash
-kubectl get identityconfigs -n components -o json | python <scripts>/parse_identityconfigs.py
+kubectl get identityconfigs -n components -o yaml
 ```
 
 **Step 2: Ask for client details**
@@ -558,7 +558,7 @@ When the user selects this option, generate a Postman collection file that inclu
 Ask which Keycloak client and ExposedAPI to use:
 
 ```bash
-kubectl get exposedapis -n components -o json | python <scripts>/parse_exposedapis.py
+kubectl get exposedapis -n components -o yaml
 ```
 
 **Step 2: Gather parameters**

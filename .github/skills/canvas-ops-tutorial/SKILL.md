@@ -5,7 +5,7 @@ description: Interactive tutorial for learning and exploring the ODA Canvas on K
 
 # ODA Canvas Kubernetes Tutorial
 
-An interactive, guided tutorial for learning and operating the ODA Canvas on Kubernetes. Present the **main menu** below when activated using `ask_questions` and let the user choose an action.
+An interactive, guided tutorial for learning and operating the ODA Canvas on Kubernetes. Present the **main menu** below as a numbered list and let the user choose an action by number.
 
 | # | Action | Reference |
 |---|--------|-----------|
@@ -17,15 +17,18 @@ An interactive, guided tutorial for learning and operating the ODA Canvas on Kub
 | 6 | **Manage Identities** — View IdentityConfig resources, access Keycloak UI, and create external clients for API access | [references/08-manage-identities.md](references/08-manage-identities.md) |
 | 7 | **Run BDD Feature Tests** — Execute Behaviour-Driven Design test scenarios | [references/09-run-bdd-tests.md](references/09-run-bdd-tests.md) |
 
-Read the corresponding reference file(s) before executing the user's chosen action. For consolidated items (3 and 4), present a sub-menu using `ask_questions` so the user can pick the specific action (e.g., deploy vs. view components, or ExposedAPIs vs. DependentAPIs), then read the relevant reference file.
+Read the corresponding reference file(s) before executing the user's chosen action. For consolidated items (3 and 4), present a numbered sub-menu so the user can pick the specific action by number (e.g., deploy vs. view components, or ExposedAPIs vs. DependentAPIs), then read the relevant reference file.
 
 ## Tutorial Interaction Rules
 
 Follow these rules throughout every interaction:
 
 ### Menu Presentation
-- **On activation**: Always present the 7-item main menu above using `ask_questions` so the user can pick interactively.
-- **After every action**: Present a **contextual sub-menu** of 2–4 suggested next steps relevant to what was just done, with **"Return to main menu"** always as the last option. Use `ask_questions` for these sub-menus too.
+- **On activation**: 
+Check that kubernetes is installed and configured correctly by running `kubectl cluster-info`. If this fails, inform the user that a valid kubeconfig and cluster connection are required to proceed with the tutorial.
+Check if the ODA Canvas is installed by running `kubectl get ns components` and `kubectl get crds | grep oda`. If not installed, inform the user and direct them to option 2 to install the Canvas before proceeding with other actions.
+Present the 7-item main menu above as a numbered list so the user can pick by number.
+- **After every action**: Present a **contextual sub-menu** of 4–6 suggested next steps relevant to what was just done, as a numbered list with **"Return to main menu"** always as the last option.
 - **On "Return to main menu"**: Re-present the full 7-item main menu.
 
 ### Educational Explanations
@@ -82,39 +85,37 @@ If this fails, inform the user that a valid kubeconfig and cluster connection ar
 
 Commands use bash syntax. On **Windows PowerShell**: replace `grep` with `Select-String`, `2>/dev/null` with `2>$null`, and use `&&` carefully.
 
+### YAML Output Interpretation
+
+Use `kubectl get <resource> -o yaml` to retrieve full resource details in human-readable format. The agent interprets the YAML output directly — no external parsing scripts are needed. Use the **Key Fields** tables in each reference file to identify the important fields.
+
+For drill-downs, use `kubectl get <resource> <name> -n components -o yaml` and interpret the `spec` and `status` sections.
+
 ### Helper Scripts
 
-PowerShell mangles escaped quotes in inline Python. Use the **pre-built helper scripts** in `scripts/` instead. Replace `<scripts>` with the absolute path to `.github/skills/canvas-k8s-ops/scripts/`.
+Replace `<scripts>` with the absolute path to `.github/skills/canvas-ops-tutorial/scripts/`.
 
 | Script | Purpose | Usage |
 |--------|---------|-------|
-| `parse_components.py` | Component list summary | `kubectl get components -n components -o json \| python <scripts>/parse_components.py` |
-| `parse_component_drilldown.py` | Component drill-down | `kubectl get component <name> -n components -o json \| python <scripts>/parse_component_drilldown.py` |
-| `parse_exposedapis.py` | ExposedAPI list summary | `kubectl get exposedapis -n components -o json \| python <scripts>/parse_exposedapis.py` |
-| `parse_exposedapi_drilldown.py` | ExposedAPI drill-down | `kubectl get exposedapi <name> -n components -o json \| python <scripts>/parse_exposedapi_drilldown.py` |
-| `parse_dependentapis.py` | DependentAPI resolution status | `kubectl get dependentapis -n components -o json \| python <scripts>/parse_dependentapis.py` |
 | `discover_observability.py` | Find observability services | `kubectl get svc -A -o json \| python <scripts>/discover_observability.py` |
-| `parse_identityconfigs.py` | IdentityConfig list summary | `kubectl get identityconfigs -n components -o json \| python <scripts>/parse_identityconfigs.py` |
-| `parse_identityconfig_drilldown.py` | IdentityConfig drill-down | `kubectl get identityconfig <name> -n components -o json \| python <scripts>/parse_identityconfig_drilldown.py` |
 | `manage_keycloak_users.py` | Keycloak user and client management | `python <scripts>/manage_keycloak_users.py --keycloak-url <URL> --admin-password <PASS> --realm odari --action <ACTION>` |
-| `poll_component_status.py` | Deployment status check | `kubectl get components -n components -o json \| python <scripts>/poll_component_status.py [name]` |
 | `check_bdd_deps.py` | Check BDD test dependencies | `python <scripts>/check_bdd_deps.py <path-to-feature-definition-and-test-kit>` |
 | `exercise_catalog_api.py` | Generate TMF620 API metrics | `python <scripts>/exercise_catalog_api.py <api-base-url> [--rounds N] [--cleanup]` |
 | `inspect_mcp_server.py` | Inspect MCP server capabilities | `python <scripts>/inspect_mcp_server.py <mcp-endpoint-url>` |
 | `generate_postman_collection.py` | Generate Postman collection for authenticated API testing | `python <scripts>/generate_postman_collection.py --keycloak-url <URL> --client-id <ID> --client-secret <SECRET> --api-base-url <URL> --output <FILE>` |
 
-These scripts work on both bash and PowerShell. For custom parsing beyond what these provide, create a temporary `.py` file, pipe to it, and delete it when done.
+These scripts work on both bash and PowerShell.
 
 ## Do
 
 - Verify cluster access with `kubectl cluster-info` before running commands
 - Default to the `components` namespace for ODA resources
-- Present both raw kubectl output and structured summaries; offer drill-down after summaries
+- Present kubectl output and interpret YAML results directly; offer drill-down after summaries
 - After every action, explain what the output means: what the resources are, which operator manages them, and how they fit into the ODA component lifecycle
 - Show relevant CRD schema snippets when explaining resources — use `kubectl explain`, CRD template files, or testData examples as appropriate
 - Reference example component YAMLs from `feature-definition-and-test-kit/testData/` when explaining resource structure
 - Always show the kubectl/helm commands used so the user can repeat them independently
-- Present contextual sub-menus after each action using `ask_questions` with 2–4 relevant next steps plus "Return to main menu"
+- Present contextual sub-menus after each action as a numbered list with 4–6 relevant next steps plus "Return to main menu"
 - Auto-discover observability service locations — do not assume a namespace
 - Handle missing observability stack or DependentAPIs gracefully with guidance
 - Run port-forward as a background process so UIs remain accessible
@@ -139,7 +140,7 @@ These scripts work on both bash and PowerShell. For custom parsing beyond what t
 - Do not skip `helm repo update` — stale indexes return no results
 - Do not print Kubernetes secrets or credentials in plain text unless required
 - Do not use bash-only syntax without PowerShell alternatives
-- Do not present menu options as plain text — always use `ask_questions` for interactive selection
+- Do not use `ask_questions` for menus — always present options as a simple numbered list and let the user reply with a number
 - Do not offer to remove or uninstall Istio — all gateway options (Istio, Kong, APISIX) require Istio for internal traffic management inside the cluster; the gateway choice only affects which component handles external API exposure
 - Do not create, delete, or modify gateway resources (KongPlugins, HTTPRoutes, KongConsumers, Istio VirtualServices, etc.) directly — all gateway configuration must be done by editing the **Component** or **ExposedAPI** CRDs, and the API Operator translates those to gateway-specific resources automatically
 ````

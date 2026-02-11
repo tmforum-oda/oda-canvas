@@ -116,15 +116,17 @@ Allow user override but **reject names longer than 5 characters** with a warning
 Poll the component status until `Complete` or timeout (10 minutes):
 
 ```bash
-kubectl get components -n components -o json | python <scripts>/poll_component_status.py [component-name]
+kubectl get component <component-name> -n components -o yaml
 ```
 
-The script reports progress:
-- `In-Progress-CompCon` → "Configuring APIs..."
-- `In-Progress-IDConfOp` → "Configuring identity..."
-- `In-Progress-SecretMan` → "Configuring secrets..."
-- `In-Progress-DepApi` → "Resolving dependent APIs..."
-- `Complete` → "Component deployed successfully!"
+Check the `status.summary/status.deployment_status` field in the YAML output. The status progresses through:
+- `In-Progress-CompCon` — Configuring APIs...
+- `In-Progress-IDConfOp` — Configuring identity...
+- `In-Progress-SecretMan` — Configuring secrets...
+- `In-Progress-DepApi` — Resolving dependent APIs...
+- `Complete` — Component deployed successfully!
+
+Repeat the `kubectl get` command periodically until the status reaches `Complete`.
 
 If status does not reach `Complete` within 10 minutes, suggest:
 

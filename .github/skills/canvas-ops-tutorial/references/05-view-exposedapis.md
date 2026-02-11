@@ -43,8 +43,8 @@ Follow the same dual-output pattern (raw + structured):
 # Summary table
 kubectl get exposedapis -n components
 
-# Structured summary using helper script
-kubectl get exposedapis -n components -o json | python <scripts>/parse_exposedapis.py
+# Full YAML for detailed inspection
+kubectl get exposedapis -n components -o yaml
 
 # Detail for a specific ExposedAPI
 kubectl describe exposedapi <name> -n components
@@ -54,7 +54,7 @@ kubectl describe exposedapi <name> -n components
 
 The raw `kubectl get` output already shows useful columns: `API_ENDPOINT` and `IMPLEMENTATION_READY`.
 
-| Field | JSON Path | Description |
+| Field | YAML Path | Description |
 |-------|-----------|-------------|
 | Name | `.metadata.name` | ExposedAPI resource name |
 | Namespace | `.metadata.namespace` | Namespace |
@@ -74,10 +74,10 @@ The raw `kubectl get` output already shows useful columns: `API_ENDPOINT` and `I
 After the concise list, offer to drill into a specific ExposedAPI:
 
 ```bash
-kubectl get exposedapi <name> -n components -o json | python <scripts>/parse_exposedapi_drilldown.py
+kubectl get exposedapi <name> -n components -o yaml
 ```
 
-This shows:
+Interpret the YAML output to show:
 
 - Full `.spec` including: implementation service, path, port, API specification URL
 - `.spec.CORS` — CORS configuration (enabled, allowOrigins, handlePreflightRequests)
@@ -142,7 +142,7 @@ After displaying the ExposedAPI list, check if any ExposedAPIs have `apiType: mc
 
 ### Detecting MCP APIs
 
-When parsing the ExposedAPI list output (either raw or from `parse_exposedapis.py`), look for entries where `API Type` is `mcp`. For each MCP API found, note the **URL** from `.status.apiStatus.url` — this is the MCP server endpoint.
+When parsing the ExposedAPI list JSON output, look for entries where `API Type` is `mcp`. For each MCP API found, note the **URL** from `.status.apiStatus.url` — this is the MCP server endpoint.
 
 ### Inspecting an MCP Server
 
