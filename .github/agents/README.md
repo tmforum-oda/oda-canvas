@@ -82,6 +82,34 @@ A specialized agent for converting PlantUML diagram files to SVG format using th
 
 ---
 
+### @tutorial - ODA Canvas Tutorial
+
+**File:** `tutorial.md`
+
+An interactive tutorial agent for learning and exploring the ODA Canvas on Kubernetes. Guides users through architecture concepts, component deployment, API inspection, and more via context-aware menus.
+
+**Capabilities:**
+- Menu-driven interactive tutorial with 7 learning topics
+- Live cluster exploration via kubectl and helm commands
+- CRD schema education from live cluster, Helm templates, and example components
+- Observability stack discovery and access
+- Identity management exploration
+- BDD test execution guidance
+
+**Skill:** Uses the `canvas-ops-tutorial` skill (`.github/skills/canvas-ops-tutorial/SKILL.md`) for tutorial content, menu structure, interaction rules, and helper scripts.
+
+**Scope:** Command line only — interacts with the cluster exclusively through terminal commands. Does not edit files.
+
+**Usage:**
+```
+@tutorial
+@tutorial Show me the deployed components
+@tutorial How do ExposedAPIs work?
+@tutorial Help me run BDD tests
+```
+
+---
+
 ## Agent Skills
 
 Skills are on-demand knowledge bundles that agents (and any AI coding assistant) can load when needed. They live in `.github/skills/<skill-name>/SKILL.md`.
@@ -89,6 +117,7 @@ Skills are on-demand knowledge bundles that agents (and any AI coding assistant)
 | Skill | Description | Used By |
 |-------|-------------|---------|
 | `write-bdd-feature` | Gherkin conventions, step definition templates, utility library usage, creation workflow | @bdd-feature-generator |
+| `canvas-ops-tutorial` | Interactive Kubernetes tutorial: menus, CRD education, helper scripts, cluster exploration | @tutorial |
 | `canvas-usecase-documentation` | Documentation templates, terminology, PlantUML guidelines, writing style | @docs |
 | `create-oda-operator` | KOPF handler patterns, CRD watching, logging, Dockerfile, Helm chart, RBAC | Any agent |
 | `oda-component-yaml` | v1 CRD schema, segments, ExposedAPIs, DependentAPIs, events, security roles | Any agent |

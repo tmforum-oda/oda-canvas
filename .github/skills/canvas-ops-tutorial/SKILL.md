@@ -9,15 +9,15 @@ An interactive, guided tutorial for learning and operating the ODA Canvas on Kub
 
 | # | Action | Reference |
 |---|--------|-----------|
-| 1 | **About ODA Canvas** — Learn the architecture, CRDs, operators, and how components are decomposed | [references/00-about-oda-canvas.md](references/00-about-oda-canvas.md) |
-| 2 | **View deployed ODA Components** — List and inspect Component custom resources | [references/01-view-components.md](references/01-view-components.md) |
-| 3 | **View ExposedAPIs** — List and inspect ExposedAPI custom resources | [references/02-view-exposedapis.md](references/02-view-exposedapis.md) |
-| 4 | **View DependentAPIs** — Inspect dependency resolution status | [references/03-view-dependentapis.md](references/03-view-dependentapis.md) |
-| 5 | **View Observability Data** — Access Prometheus, Grafana, and Jaeger UIs | [references/04-view-observability.md](references/04-view-observability.md) |
-| 6 | **Deploy an ODA Component** — Install a reference example component from Helm | [references/05-deploy-component.md](references/05-deploy-component.md) |
-| 7 | **Run BDD Feature Tests** — Execute Behaviour-Driven Design test scenarios | [references/06-run-bdd-tests.md](references/06-run-bdd-tests.md) |
+| 1 | **About ODA Canvas** — Learn the architecture, CRDs, operators, and how components are decomposed | [references/01-about-oda-canvas.md](references/01-about-oda-canvas.md) |
+| 2 | **Install ODA Canvas** — Check prerequisites, choose a gateway (Istio/Kong/APISIX), and install or troubleshoot a Canvas | [references/02-install-oda-canvas.md](references/02-install-oda-canvas.md) |
+| 3 | **Manage ODA Components** — Deploy, view, and inspect Component custom resources | [references/03-deploy-component.md](references/03-deploy-component.md), [references/04-view-components.md](references/04-view-components.md) |
+| 4 | **View APIs** — Inspect ExposedAPI and DependentAPI custom resources and their status | [references/05-view-exposedapis.md](references/05-view-exposedapis.md), [references/06-view-dependentapis.md](references/06-view-dependentapis.md) |
+| 5 | **View Observability Data** — Access Prometheus, Grafana, and Jaeger UIs | [references/07-view-observability.md](references/07-view-observability.md) |
+| 6 | **Manage Identities** — View IdentityConfig resources, access Keycloak UI, and create external clients for API access | [references/08-manage-identities.md](references/08-manage-identities.md) |
+| 7 | **Run BDD Feature Tests** — Execute Behaviour-Driven Design test scenarios | [references/09-run-bdd-tests.md](references/09-run-bdd-tests.md) |
 
-Read the corresponding reference file before executing the user's chosen action.
+Read the corresponding reference file(s) before executing the user's chosen action. For consolidated items (3 and 4), present a sub-menu using `ask_questions` so the user can pick the specific action (e.g., deploy vs. view components, or ExposedAPIs vs. DependentAPIs), then read the relevant reference file.
 
 ## Tutorial Interaction Rules
 
@@ -94,10 +94,14 @@ PowerShell mangles escaped quotes in inline Python. Use the **pre-built helper s
 | `parse_exposedapi_drilldown.py` | ExposedAPI drill-down | `kubectl get exposedapi <name> -n components -o json \| python <scripts>/parse_exposedapi_drilldown.py` |
 | `parse_dependentapis.py` | DependentAPI resolution status | `kubectl get dependentapis -n components -o json \| python <scripts>/parse_dependentapis.py` |
 | `discover_observability.py` | Find observability services | `kubectl get svc -A -o json \| python <scripts>/discover_observability.py` |
+| `parse_identityconfigs.py` | IdentityConfig list summary | `kubectl get identityconfigs -n components -o json \| python <scripts>/parse_identityconfigs.py` |
+| `parse_identityconfig_drilldown.py` | IdentityConfig drill-down | `kubectl get identityconfig <name> -n components -o json \| python <scripts>/parse_identityconfig_drilldown.py` |
+| `manage_keycloak_users.py` | Keycloak user and client management | `python <scripts>/manage_keycloak_users.py --keycloak-url <URL> --admin-password <PASS> --realm odari --action <ACTION>` |
 | `poll_component_status.py` | Deployment status check | `kubectl get components -n components -o json \| python <scripts>/poll_component_status.py [name]` |
 | `check_bdd_deps.py` | Check BDD test dependencies | `python <scripts>/check_bdd_deps.py <path-to-feature-definition-and-test-kit>` |
 | `exercise_catalog_api.py` | Generate TMF620 API metrics | `python <scripts>/exercise_catalog_api.py <api-base-url> [--rounds N] [--cleanup]` |
 | `inspect_mcp_server.py` | Inspect MCP server capabilities | `python <scripts>/inspect_mcp_server.py <mcp-endpoint-url>` |
+| `generate_postman_collection.py` | Generate Postman collection for authenticated API testing | `python <scripts>/generate_postman_collection.py --keycloak-url <URL> --client-id <ID> --client-secret <SECRET> --api-base-url <URL> --output <FILE>` |
 
 These scripts work on both bash and PowerShell. For custom parsing beyond what these provide, create a temporary `.py` file, pipe to it, and delete it when done.
 
@@ -136,4 +140,5 @@ These scripts work on both bash and PowerShell. For custom parsing beyond what t
 - Do not print Kubernetes secrets or credentials in plain text unless required
 - Do not use bash-only syntax without PowerShell alternatives
 - Do not present menu options as plain text — always use `ask_questions` for interactive selection
+- Do not offer to remove or uninstall Istio — all gateway options (Istio, Kong, APISIX) require Istio for internal traffic management inside the cluster; the gateway choice only affects which component handles external API exposure
 ````

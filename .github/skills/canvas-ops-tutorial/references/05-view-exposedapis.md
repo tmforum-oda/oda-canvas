@@ -214,6 +214,106 @@ curl -sk -X POST \
   <mcp-endpoint-url>
 ```
 
+## Setting a Rate Limit
+
+When the user selects this option, present the list of `openapi`-type ExposedAPIs (rate limiting is not applicable to `prometheus` or `mcp` types) using `ask_questions` and let them pick one.
+
+Then ask for the desired rate limit using `ask_questions` with a default of **60 requests per minute**:
+
+| Option | Description |
+|--------|-------------|
+| 60 per minute (recommended) | Standard rate limit suitable for most APIs |
+| 10 per minute | Restrictive — good for expensive or sensitive operations |
+| 120 per minute | Permissive — for high-throughput APIs |
+| Custom | Let the user specify a custom limit and interval |
+
+Apply the rate limit by patching the ExposedAPI resource. On PowerShell, write the JSON to a temp file to avoid escaping issues:
+
+```powershell
+'{"spec":{"rateLimit":{"enabled":true,"limit":"<LIMIT>","interval":"pm"}}}' | Out-File -Encoding utf8NoBOM -FilePath patch.json
+kubectl patch exposedapi <name> -n components --type=merge --patch-file patch.json
+Remove-Item patch.json
+```
+
+On bash:
+
+```bash
+kubectl patch exposedapi <name> -n components --type=merge \
+  -p '{"spec":{"rateLimit":{"enabled":true,"limit":"<LIMIT>","interval":"pm"}}}'
+```
+
+After patching, verify the change by running the drill-down script on the patched ExposedAPI and showing the updated rate limit fields. Explain that the API Operator detects the change and configures the corresponding rate-limiting plugin on the API Gateway (Kong plugin, Istio EnvoyFilter, or APISIX plugin depending on the gateway in use).
+
+To **remove** a rate limit, patch with `enabled: false`:
+
+```powershell
+'{"spec":{"rateLimit":{"enabled":false}}}' | Out-File -Encoding utf8NoBOM -FilePath patch.json
+kubectl patch exposedapi <name> -n components --type=merge --patch-file patch.json
+Remove-Item patch.json
+```
+
+## Enable Authentication
+
+When the user selects this option, enable JWT authentication on one or more ExposedAPIs by setting `apiKeyVerification.enabled: true`.
+
+### Which APIs to protect
+
+Present the list of ExposedAPIs and let the user choose. Recommend enabling authentication only on **user-facing APIs** (typically `coreFunction` with `apiType: openapi` or `mcp`). Leave these open:
+- **`managementFunction` APIs** (e.g., prometheus metrics) — needed by Prometheus for scraping
+- **`securityFunction` APIs** (e.g., TMF672 Party Role) — needed by the Identity Config Operator
+
+### Apply the change
+
+Patch each selected ExposedAPI:
+
+```powershell
+# PowerShell
+'{"spec":{"apiKeyVerification":{"enabled":true}}}' | Out-File -Encoding utf8NoBOM -FilePath patch.json
+kubectl patch exposedapi <name> -n components --type=merge --patch-file patch.json
+Remove-Item patch.json
+```
+
+```bash
+# bash
+kubectl patch exposedapi <name> -n components --type=merge \
+  -p '{"spec":{"apiKeyVerification":{"enabled":true}}}'
+```
+
+### Verify
+
+After patching, verify:
+
+1. **KongPlugins created**: The API Operator should create a JWT KongPlugin for each patched API:
+   ```bash
+   kubectl get kongplugins -n components -l oda.tmforum.org/type=apiauthentication
+   ```
+
+2. **HTTPRoute annotated**: The KongPlugin should be referenced in the HTTPRoute:
+   ```bash
+   kubectl get httproutes -n components -o jsonpath='{range .items[*]}{.metadata.name}: {.metadata.annotations.konghq\.com/plugins}{"\n"}{end}'
+   ```
+
+3. **API returns 401 without token**: Test that unauthenticated requests are rejected:
+   ```powershell
+   try {
+       Invoke-RestMethod -Uri "https://localhost/<API_PATH>" -SkipCertificateCheck
+   } catch {
+       Write-Host "Status: $($_.Exception.Response.StatusCode) (expected: 401)"
+   }
+   ```
+
+After enabling authentication, remind the user that they also need to **set up the Keycloak-Kong JWT bridge** (see Manage Identities → Check Keycloak-Kong JWT integration) for token validation to work. Without it, Kong will reject all requests including those with valid tokens.
+
+### Disable authentication
+
+To disable authentication on an API:
+
+```powershell
+'{"spec":{"apiKeyVerification":{"enabled":false}}}' | Out-File -Encoding utf8NoBOM -FilePath patch.json
+kubectl patch exposedapi <name> -n components --type=merge --patch-file patch.json
+Remove-Item patch.json
+```
+
 ## Contextual Next Steps
 
 Present these options using `ask_questions`.
@@ -224,17 +324,21 @@ Present these options using `ask_questions`.
 |---|-------------------------------------------|
 | 1 | **Inspect MCP Server** — Discover tools, resources, and prompts exposed by the MCP server |
 | 2 | **Drill into a specific ExposedAPI** — See CORS, rate limits, specification URLs, and full status |
-| 3 | **View the parent component** — See the Component that owns these ExposedAPIs |
-| 4 | **View observability data** — Explore Prometheus metrics (especially for prometheus/openmetrics ExposedAPIs) |
-| 5 | **View DependentAPIs** — See which APIs other components depend on |
-| 6 | **Return to main menu** |
+| 3 | **Set a rate limit on an ExposedAPI** — Configure rate limiting on a selected API (default: 60 requests per minute) |
+| 4 | **Enable authentication on ExposedAPIs** — Enable JWT authentication via apiKeyVerification |
+| 5 | **View the parent component** — See the Component that owns these ExposedAPIs |
+| 6 | **View observability data** — Explore Prometheus metrics (especially for prometheus/openmetrics ExposedAPIs) |
+| 7 | **View DependentAPIs** — See which APIs other components depend on |
+| 8 | **Return to main menu** |
 
 **If no MCP-type ExposedAPIs are present**, omit option 1 and renumber:
 
 | # | Next Step |
 |---|-------------------------------------------|
 | 1 | **Drill into a specific ExposedAPI** — See CORS, rate limits, specification URLs, and full status |
-| 2 | **View the parent component** — See the Component that owns these ExposedAPIs |
-| 3 | **View observability data** — Explore Prometheus metrics (especially for prometheus/openmetrics ExposedAPIs) |
-| 4 | **View DependentAPIs** — See which APIs other components depend on |
-| 5 | **Return to main menu** |
+| 2 | **Set a rate limit on an ExposedAPI** — Configure rate limiting on a selected API (default: 60 requests per minute) |
+| 3 | **Enable authentication on ExposedAPIs** — Enable JWT authentication via apiKeyVerification |
+| 4 | **View the parent component** — See the Component that owns these ExposedAPIs |
+| 5 | **View observability data** — Explore Prometheus metrics (especially for prometheus/openmetrics ExposedAPIs) |
+| 6 | **View DependentAPIs** — See which APIs other components depend on |
+| 7 | **Return to main menu** |
