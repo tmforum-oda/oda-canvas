@@ -141,4 +141,5 @@ These scripts work on both bash and PowerShell. For custom parsing beyond what t
 - Do not use bash-only syntax without PowerShell alternatives
 - Do not present menu options as plain text — always use `ask_questions` for interactive selection
 - Do not offer to remove or uninstall Istio — all gateway options (Istio, Kong, APISIX) require Istio for internal traffic management inside the cluster; the gateway choice only affects which component handles external API exposure
+- Do not create, delete, or modify gateway resources (KongPlugins, HTTPRoutes, KongConsumers, Istio VirtualServices, etc.) directly — all gateway configuration must be done by editing the **Component** or **ExposedAPI** CRDs, and the API Operator translates those to gateway-specific resources automatically
 ````

@@ -442,7 +442,9 @@ When explaining the created client, mention:
 - The default token expiry is **300 seconds** (5 minutes). This can be changed in the client's **Advanced Settings** tab under **Access Token Lifespan**.
 ## Verify Keycloak-Kong JWT Integration
 
-When `apiKeyVerification` is enabled on ExposedAPIs, the Kong API Operator creates JWT **KongPlugins** for those APIs. However, Kong needs to know Keycloak's **RSA public key** to verify tokens. This section checks and configures the bridge between Keycloak and Kong.
+When `apiKeyVerification` is enabled on ExposedAPIs, the Kong API Operator creates JWT **KongPlugins** for those APIs automatically. However, Kong needs to know Keycloak's **RSA public key** to verify tokens. This section checks the bridge between Keycloak and Kong.
+
+> **Important:** The KongPlugins, KongConsumers, and JWT credential secrets described in this section are created and managed by the **API Operator**. Do not create, delete, or modify these resources directly. The commands below are for **verification and debugging** only. To enable or disable JWT authentication, patch the `apiKeyVerification.enabled` field on the relevant **ExposedAPI** resource (see View ExposedAPIs > Enable/Disable Authentication).
 
 ### How Kong JWT Validation Works
 
@@ -480,94 +482,34 @@ kubectl get secret <SECRET_NAME> -n components -o jsonpath='{.data.key}' | pytho
 
 The key should be: `http://localhost:8083/auth/realms/odari`
 
-### Step 3: If no integration exists, set it up
+### Step 3: If no integration exists — troubleshooting
 
-**3a. Get Keycloak's RSA public key from the JWKS endpoint:**
+The KongConsumer and JWT credential resources are created **automatically** by the API Operator when `apiKeyVerification.enabled` is set to `true` on any ExposedAPI. You should **not** create these resources manually.
 
-```powershell
-# PowerShell
-$jwks = Invoke-RestMethod -Uri "http://localhost:8083/auth/realms/odari/protocol/openid-connect/certs"
-$rsaKey = ($jwks.keys | Where-Object { $_.kty -eq 'RSA' -and $_.use -eq 'sig' })[0]
-Write-Host "Key ID: $($rsaKey.kid)"
-```
+If `apiKeyVerification` is enabled on an ExposedAPI but the KongConsumer or JWT credential does not exist:
 
-Convert the JWK to PEM format using Python (pipe the modulus and exponent):
+1. **Check the API Operator logs** for errors:
+   ```bash
+   kubectl logs -n canvas -l app=api-operator-kong --tail=30
+   ```
 
-```powershell
-$pem = python -c @"
-import base64
-def b64url_decode(s):
-    s += '=' * (4 - len(s) % 4)
-    return base64.urlsafe_b64decode(s)
-n_bytes = b64url_decode('$($rsaKey.n)')
-e_bytes = b64url_decode('$($rsaKey.e)')
-n_int = int.from_bytes(n_bytes, 'big')
-e_int = int.from_bytes(e_bytes, 'big')
-def encode_length(l):
-    if l < 128: return bytes([l])
-    b = l.to_bytes((l.bit_length()+7)//8, 'big')
-    return bytes([0x80|len(b)]) + b
-def encode_integer(v):
-    b = v.to_bytes((v.bit_length()+7)//8, 'big')
-    if b[0] & 0x80: b = b' ' + b
-    return b'' + encode_length(len(b)) + b
-seq = encode_integer(n_int) + encode_integer(e_int)
-seq = b'0' + encode_length(len(seq)) + seq
-oid = bytes([0x30,0x0d,0x06,0x09,0x2a,0x86,0x48,0x86,0xf7,0x0d,0x01,0x01,0x01,0x05,0x00])
-bs = b' ' + seq
-bs = b'' + encode_length(len(bs)) + bs
-outer = oid + bs
-outer = b'0' + encode_length(len(outer)) + outer
-b64 = base64.b64encode(outer).decode()
-lines = [b64[i:i+64] for i in range(0, len(b64), 64)]
-print('-----BEGIN PUBLIC KEY-----')
-print('\n'.join(lines))
-print('-----END PUBLIC KEY-----')
-"@
-```
+2. **Check that the ExposedAPI has `apiKeyVerification.enabled: true`**:
+   ```bash
+   kubectl get exposedapi <name> -n components -o jsonpath='{.spec.apiKeyVerification}'
+   ```
 
-**3b. Create a KongConsumer and JWT credential:**
+3. **Trigger a reconciliation** by annotating the ExposedAPI:
+   ```bash
+   kubectl annotate exposedapi <name> -n components reconcile=$(date +%s) --overwrite
+   ```
 
-Write YAML to temp files and apply:
+4. **Verify** the resources were created:
+   ```bash
+   kubectl get kongconsumers -n components
+   kubectl get secrets -n components -l konghq.com/credential=jwt
+   ```
 
-```powershell
-# Create KongConsumer
-@"
-apiVersion: configuration.konghq.com/v1
-kind: KongConsumer
-metadata:
-  name: keycloak-consumer
-  namespace: components
-  annotations:
-    kubernetes.io/ingress.class: kong
-username: keycloak-consumer
-credentials:
-  - keycloak-jwt-credential
-"@ | Out-File -Encoding utf8NoBOM -FilePath kongconsumer.yaml
-kubectl apply -f kongconsumer.yaml
-Remove-Item kongconsumer.yaml
-
-# Create JWT credential secret (insert the PEM key)
-@"
-apiVersion: v1
-kind: Secret
-metadata:
-  name: keycloak-jwt-credential
-  namespace: components
-  labels:
-    konghq.com/credential: jwt
-stringData:
-  kongCredType: jwt
-  key: "http://localhost:8083/auth/realms/odari"
-  algorithm: RS256
-  rsa_public_key: |
-    <INSERT PEM KEY HERE>
-"@ | Out-File -Encoding utf8NoBOM -FilePath jwt-credential.yaml
-kubectl apply -f jwt-credential.yaml
-Remove-Item jwt-credential.yaml
-```
-
-**Important:** Each `key` value must be unique across all KongConsumers. If another consumer already has a JWT credential with the same key, you'll get a UNIQUE violation error.
+If the API Operator is not running or has persistent errors, investigate the operator deployment in the `canvas` namespace.
 
 ### Step 4: Test the integration
 

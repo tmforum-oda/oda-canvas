@@ -214,6 +214,20 @@ curl -sk -X POST \
   <mcp-endpoint-url>
 ```
 
+## Important: Never Modify Gateway Resources Directly
+
+All API Gateway configuration (routes, authentication plugins, rate limiting) is managed by the **API Operator** based on the **ExposedAPI** CRD spec. Never create, delete, or modify gateway resources directly — this includes:
+
+- **KongPlugins** (JWT, rate-limiting, CORS, etc.)
+- **HTTPRoutes**
+- **KongConsumers / JWT credentials**
+- **Istio VirtualServices / EnvoyFilters**
+- **APISIX routes / plugins**
+
+Always make changes by **patching the ExposedAPI** resource. The API Operator watches for changes and reconciles the gateway configuration automatically. Direct modifications may be overwritten by the operator or cause inconsistent state.
+
+To **view** gateway resources for debugging purposes (e.g., confirming a KongPlugin was created), use `kubectl get` — but never `kubectl delete`, `kubectl edit`, or `kubectl patch` on these resources.
+
 ## Setting a Rate Limit
 
 When the user selects this option, present the list of `openapi`-type ExposedAPIs (rate limiting is not applicable to `prometheus` or `mcp` types) using `ask_questions` and let them pick one.
@@ -306,13 +320,15 @@ After enabling authentication, remind the user that they also need to **set up t
 
 ### Disable authentication
 
-To disable authentication on an API:
+To disable authentication on an API, patch the ExposedAPI to set `apiKeyVerification.enabled` to `false`. The API Operator will detect the change and remove the corresponding JWT plugin from the gateway automatically.
 
 ```powershell
 '{"spec":{"apiKeyVerification":{"enabled":false}}}' | Out-File -Encoding utf8NoBOM -FilePath patch.json
 kubectl patch exposedapi <name> -n components --type=merge --patch-file patch.json
 Remove-Item patch.json
 ```
+
+> **Never** delete KongPlugin or other gateway resources directly. Always disable features by patching the ExposedAPI CRD — the API Operator handles cleanup.
 
 ## Contextual Next Steps
 
