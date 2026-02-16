@@ -23,3 +23,5 @@ source/tmf-services/TMF639_Resource_Inventory/error.log
 source/tmf-services/TMF639_Resource_Inventory/nul
 source/tmf-services/TMF639_Resource_Inventory/.claude/settings.local.json
 nul
+
+.claude/worktrees
