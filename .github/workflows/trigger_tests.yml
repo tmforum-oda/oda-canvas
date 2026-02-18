@@ -123,7 +123,7 @@ jobs:
       run: |
        git clone https://github.com/kubernetes-sigs/cloud-provider-kind.git
        cd cloud-provider-kind && make
-       bin/cloud-provider-kind &
+       bin/cloud-provider-kind --gateway-channel disabled &
 
     - name: Install Helm
       run: |
