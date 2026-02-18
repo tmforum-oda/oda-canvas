@@ -37,6 +37,166 @@ const resourceInventoryUtils = {
     return namespacedCustomObject.body.items[0]
   },  
 
+  // Helper functions for normalizing comparisions for API resources
+  _eqCI: function (a, b) {
+    if (a === undefined || a === null) return false;
+    if (b === undefined || b === null) return false;
+    return String(a).toLowerCase() === String(b).toLowerCase();
+  },
+
+  _hasComponentOwnerRef: function (obj, componentName) {
+    const refs = obj?.metadata?.ownerReferences || [];
+    return refs.some(r => r?.kind === 'Component' && r?.name === componentName);
+  },
+
+  _isReady: function (obj, kind) {
+    if (kind === 'ExposedAPI') {
+      return obj?.status?.implementation?.ready === true
+    }
+    // DependentAPI: status.implementation.ready (seen in your sample)
+    if (kind === 'DependentAPI') {
+      return obj?.status?.implementation?.ready === true;
+    }
+    return false;
+  },
+
+  _normalizeVersion: function (v) {
+    if (v === undefined || v === null) return null;
+    const s = String(v).trim().toLowerCase();
+    if (/^\d+$/.test(s)) return `v${s}`;     // "4" -> "v4"
+    if (/^v\d+$/.test(s)) return s;          // "v4" -> "v4"
+    return s;                                // leave as-is (e.g., "v5.0" if that ever appears)
+  },
+  
+  _inferVersionFromUrl: function (url) {
+    if (!url) return null;
+    const s = String(url).toLowerCase();
+  
+    // common patterns: "/v4", "v4.0.0", "-v4.", "_v4", etc.
+    const m =
+      s.match(/\/v(\d+)(\/|$)/) ||
+      s.match(/(?:^|[^a-z0-9])v(\d+)(?:\D|$)/);
+  
+    return m ? `v${m[1]}` : null;
+  },
+
+  _getSpecVersions: function (obj) {
+    // spec.specification is an array with { version: v4 } etc
+    const specs = obj?.spec?.specification || [];
+    // 1) explicit versions
+    const explicit = specs
+      .map(s => this._normalizeVersion(s?.version))
+      .filter(Boolean);
+
+    if (explicit.length > 0) return explicit;
+
+    // 2) infer from urls
+    const inferred = specs
+      .map(s => this._inferVersionFromUrl(s?.url))
+      .filter(Boolean);
+
+    if (inferred.length > 0) return inferred;
+
+    // 3) final default
+    return ['v4'];
+  },
+
+  /**
+   * Generic finder for ExposedAPI/DependentAPI CRs.
+   * Matching order:
+   * 1) legacy direct name match (component-api)
+   * 2) list + filter by component (label selector preferred, then ownerRef fallback)
+   * 3) filter by spec.name
+   * 4) if options.version -> filter by spec.specification[].version
+   * 5) if still >1 and options.segmentName and CR has spec.segment -> filter by spec.segment
+   * 6) deterministic pick: prefer ready, else newest
+   */
+  _findApiResource: async function (plural, apiName, componentName, namespace, options = {}, kindHint = 'ExposedAPI') {
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
+
+    const versionOpt = options?.version;           // e.g. "v4"
+    const segmentOpt = options?.segmentName;       // e.g. "coreFunction"
+
+    // ---- 1) legacy fast path: metadata.name == "<componentName>-<apiName>"
+    try {
+      const legacyName = `${componentName}-${apiName}`;
+      const legacyResp = await k8sCustomApi.listNamespacedCustomObject(
+        GROUP, VERSION, namespace, plural,
+        undefined, undefined,
+        `metadata.name=${legacyName}`
+      );
+      const legacyItems = legacyResp?.body?.items || [];
+      if (legacyItems.length > 0) return legacyItems[0];
+    } catch (_) {
+      // ignore and continue
+    }
+
+    // ---- 2) list candidates (prefer label selector)
+    let candidates = [];
+    try {
+      const labelSelector = `oda.tmforum.org/componentName=${componentName}`;
+      const resp = await k8sCustomApi.listNamespacedCustomObject(
+        GROUP, VERSION, namespace, plural,
+        undefined, undefined,
+        undefined,            // fieldSelector
+        labelSelector         // labelSelector
+      );
+      candidates = resp?.body?.items || [];
+    } catch (_) {
+      candidates = [];
+    }
+
+    // ownerRef fallback if label selector yielded nothing
+    if (!candidates || candidates.length === 0) {
+      const resp = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, namespace, plural);
+      const all = resp?.body?.items || [];
+      candidates = all.filter(o => this._hasComponentOwnerRef(o, componentName));
+    }
+
+    if (!candidates || candidates.length === 0) return null;
+
+    // ---- 3) filter by spec.name
+    let matches = candidates.filter(o => this._eqCI(o?.spec?.name, apiName));
+    if (matches.length === 0) return null;
+
+    // ---- 4) if version provided, filter by spec.specification[].version
+    if (versionOpt) {
+      const vMatches = matches.filter(o => {
+        const versions = this._getSpecVersions(o);
+        return versions.some(v => this._eqCI(v, versionOpt));
+      });
+      if (vMatches.length > 0) matches = vMatches;
+    }
+
+    // ---- 5) if still >1 and segment provided, use it only if CR actually has spec.segment
+    if (matches.length > 1 && segmentOpt) {
+      const hasAnySegment = matches.some(o => o?.spec?.segment !== undefined && o?.spec?.segment !== null);
+      if (hasAnySegment) {
+        const sMatches = matches.filter(o => this._eqCI(o?.spec?.segment, segmentOpt));
+        if (sMatches.length > 0) matches = sMatches;
+      }
+    }
+
+    // ---- 6) deterministic pick: prefer ready, else newest
+    const checkReady = options?.checkReady === true;
+    let pool = matches;
+
+    if (checkReady) {
+      const ready = matches.filter(o => this._isReady(o, kindHint));
+      if (ready.length > 0) {
+        pool = ready;
+      }
+    }
+
+    pool.sort((a, b) => {
+      const ta = new Date(a?.metadata?.creationTimestamp || 0).getTime();
+      const tb = new Date(b?.metadata?.creationTimestamp || 0).getTime();
+      return tb - ta; // newest first
+    });
+
+    return pool[0] || null;
+  },
+
   /**
   * Function that returns the custom ExposedAPI resource given ExposedAPI name
   * @param    {String} inComponentInstance    Name of the component instance
@@ -44,15 +204,15 @@ const resourceInventoryUtils = {
   * @param    {String} inNamespace            Namespace where the component instance is running
   * @return   {Object}        The ExposedAPI resource object, or null if the ExposedAPI is not found
   */
-  getExposedAPIResource: async function (inExposedAPIName, inComponentName, inNamespace) {
-    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
-    const ExposedAPIResourceName = inComponentName + '-' + inExposedAPIName
-    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, EXPOSED_APIS_PLURAL, undefined, undefined, 'metadata.name=' + ExposedAPIResourceName)
-    if (namespacedCustomObject.body.items.length === 0) {
-      return null // API not found
-    } 
-      
-    return namespacedCustomObject.body.items[0]
+  getExposedAPIResource: async function (inExposedAPIName, inComponentName, inNamespace, options = {}) {
+    return await this._findApiResource(
+      EXPOSED_APIS_PLURAL,
+      inExposedAPIName,
+      inComponentName,
+      inNamespace,
+      options,
+      'ExposedAPI'
+    )
   },
 
   /**
@@ -62,15 +222,15 @@ const resourceInventoryUtils = {
   * @param    {String} inNamespace            Namespace where the component instance is running
   * @return   {Object}          The DependentAPI resource object, or null if the DependentAPI is not found
   */
-  getDependentAPIResource: async function (inDependentAPIName, inComponentName, inNamespace) {
-    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
-    const DependentAPIResourceName = inComponentName + '-' + inDependentAPIName
-    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, DEPENDENT_APIS_PLURAL, undefined, undefined, 'metadata.name=' + DependentAPIResourceName)
-    if (namespacedCustomObject.body.items.length === 0) {
-      return null // API not found
-    } 
-      
-    return namespacedCustomObject.body.items[0]
+  getDependentAPIResource: async function (inDependentAPIName, inComponentName, inNamespace, options = {}) {
+    return await this._findApiResource(
+      DEPENDENT_APIS_PLURAL,
+      inDependentAPIName,
+      inComponentName,
+      inNamespace,
+      options,
+      'DependentAPI'
+    )
   },
 
   /**
