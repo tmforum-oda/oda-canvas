@@ -171,10 +171,9 @@ func (r *AvailabilityPolicyReconciler) Reconcile(ctx context.Context, req ctrl.R
 	policy := &availabilityv1alpha1.AvailabilityPolicy{}
 	if err := r.Get(ctx, req.NamespacedName, policy); err != nil {
 		if errors.IsNotFound(err) {
-			// Policy was deleted - invalidate cache
+			// Policy was deleted - invalidate cache with improved invalidation
 			if r.PolicyCache != nil {
-				r.PolicyCache.Delete(req.NamespacedName.String())
-				r.PolicyCache.Delete("all-policies") // Invalidate list cache
+				r.PolicyCache.InvalidatePolicy(req.String())
 			}
 			logger.Info("AvailabilityPolicy not found, invalidating cache", map[string]any{})
 
@@ -190,16 +189,16 @@ func (r *AvailabilityPolicyReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, err
 	}
 
-	// Add to cache if we have one
+	// Add to cache if we have one, and invalidate list caches
 	if r.PolicyCache != nil {
-		r.PolicyCache.Set(req.NamespacedName.String(), policy)
-		// Invalidate the all-policies cache since a policy changed
+		r.PolicyCache.Set(req.String(), policy)
+		// Invalidate list caches since a policy changed (but keep the policy we just set)
 		r.PolicyCache.Delete("all-policies")
 
 		// Add cache update event
 		tracing.AddEvent(ctx, "CacheUpdated",
 			attribute.String("cache.operation", "set"),
-			attribute.String("cache.key", req.NamespacedName.String()),
+			attribute.String("cache.key", req.String()),
 		)
 	}
 
@@ -297,9 +296,7 @@ func (r *AvailabilityPolicyReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	// Update policy status
 	componentNames := make([]string, 0, len(deployments))
-	for _, componentName := range deployments {
-		componentNames = append(componentNames, componentName)
-	}
+	componentNames = append(componentNames, deployments...)
 
 	policy.Status.AppliedToComponents = componentNames
 	// Note: AvailabilityPolicyStatus doesn't have Phase/Message/LastUpdated fields

@@ -10,6 +10,7 @@ A sophisticated Kubernetes operator that automatically creates and manages Pod D
 - **Intelligent Policy Enforcement**: Three enforcement modes (Strict, Flexible, Advisory)
 - **Component Intelligence**: Automatic availability classification based on component function
 - **Maintenance Windows**: Time-based PDB suspension for scheduled maintenance
+- **AI-Powered Analysis**: MCP server for cluster analysis and intelligent recommendations
 - **Enterprise Ready**: Comprehensive metrics, tracing, audit logging, and admission webhooks
 - **ODA Canvas Native**: Built-in support for TM Forum ODA component architecture
 - **High Performance**: Optimized for 200+ deployments with intelligent caching
@@ -20,7 +21,7 @@ A sophisticated Kubernetes operator that automatically creates and manages Pod D
 ### Prerequisites
 
 - Kubernetes 1.21+
-- Go 1.23+ (for development)
+- Go 1.25+ (for development)
 - cert-manager (for webhook TLS certificates)
 
 ### Installation
@@ -49,7 +50,7 @@ kubectl apply -k config/webhook/
 kubectl apply -k config/default/
 
 # Enable webhooks
-kubectl patch deployment canvas-pdb-management-operator -n canvas \
+kubectl patch deployment pdb-management-controller-manager -n canvas \
   --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": ["--leader-elect", "--enable-webhook=true"]}]'
 ```
 
@@ -148,7 +149,7 @@ spec:
 
 **Note**: Security components are automatically upgraded to higher availability levels.
 
-## ⚖️ Enforcement Modes
+## Enforcement Modes
 
 ### Strict Enforcement
 
@@ -385,12 +386,12 @@ Full OpenTelemetry integration:
 
 ```bash
 # Enable tracing
-kubectl set env deployment/canvas-pdb-management-operator -n canvas \
+kubectl set env deployment/pdb-management-controller-manager -n canvas \
   ENABLE_TRACING=true \
   OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
 ```
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -398,7 +399,7 @@ kubectl set env deployment/canvas-pdb-management-operator -n canvas \
 
 ```bash
 # Check operator logs
-kubectl logs -n canvas deployment/canvas-pdb-management-operator
+kubectl logs -n canvas deployment/pdb-management-controller-manager
 
 # Common causes:
 # - Single replica deployment (replicas < 2)
@@ -413,7 +414,7 @@ kubectl logs -n canvas deployment/canvas-pdb-management-operator
 kubectl get availabilitypolicy -A -o wide
 
 # Debug policy resolution
-kubectl logs -n canvas deployment/canvas-pdb-management-operator | grep "resolveConfiguration"
+kubectl logs -n canvas deployment/pdb-management-controller-manager | grep "resolveConfiguration"
 ```
 
 #### Webhook Validation Errors
@@ -426,14 +427,14 @@ kubectl get validatingwebhookconfiguration
 kubectl get certificate serving-cert -n canvas
 
 # Debug webhook logs
-kubectl logs -n canvas deployment/canvas-pdb-management-operator | grep webhook
+kubectl logs -n canvas deployment/pdb-management-controller-manager | grep webhook
 ```
 
 ### Debug Mode
 
 ```bash
 # Enable debug logging
-kubectl patch deployment canvas-pdb-management-operator -n canvas \
+kubectl patch deployment pdb-management-controller-manager -n canvas \
   --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": ["--leader-elect", "--log-level=debug"]}]'
 ```
 
@@ -450,7 +451,7 @@ curl http://operator-pod:8081/readyz
 curl http://operator-pod:8080/metrics
 ```
 
-## 📖 Examples
+## Examples
 
 ### Example 1: Basic Web Service
 
@@ -547,6 +548,120 @@ spec:
 # Result: PDB with 75% minAvailable, suspended during maintenance window
 ```
 
+## AI-Powered Cluster Analysis (MCP)
+
+The operator includes an integrated **Model Context Protocol (MCP)** server that provides intelligent cluster analysis and policy recommendations. This enables AI assistants like Claude to analyze your Kubernetes cluster and provide intelligent recommendations for availability management.
+
+```mermaid
+flowchart LR
+    subgraph Clients["AI Clients"]
+        Claude["Claude"]
+        GPT["GPT"]
+        Custom["Custom Client"]
+    end
+
+    subgraph MCP["MCP Server :8090"]
+        Transport["HTTP Transport"]
+        Tools["Tools & Prompts"]
+    end
+
+    subgraph K8s["Kubernetes"]
+        Deploy["Deployments"]
+        PDB["PDBs"]
+        Policy["AvailabilityPolicies"]
+    end
+
+    Clients <-->|"JSON-RPC"| Transport
+    Transport <--> Tools
+    Tools <-->|"K8s API"| K8s
+```
+
+### Features
+
+- **Cluster Analysis**: Comprehensive analysis of PDB coverage and availability gaps
+- **Workload Pattern Detection**: Automatic identification of deployment patterns and characteristics
+- **Intelligent Recommendations**: AI-powered suggestions for optimal availability classes and policies
+- **Policy Management**: Create and simulate availability policies with impact analysis
+- **Interactive Assistance**: Natural language interface for cluster management
+
+### Quick Setup with Claude Desktop
+
+1. **Enable MCP server** (enabled by default):
+
+   ```bash
+   kubectl apply -k config/mcp/
+   ```
+
+2. **Port forward to access the MCP server**:
+
+   ```bash
+   kubectl port-forward -n canvas service/pdb-management-mcp-service 8090:8090
+   ```
+
+3. **Configure Claude Desktop** (`claude_desktop_config.json`):
+   ```json
+   {
+     "mcpServers": {
+       "pdb-management": {
+         "command": "curl",
+         "args": [
+           "-X",
+           "POST",
+           "-H",
+           "Content-Type: application/json",
+           "--data-binary",
+           "@-",
+           "http://localhost:8090/mcp"
+         ]
+       }
+     }
+   }
+   ```
+
+### Example Interactions
+
+Ask Claude to help with your cluster:
+
+- _"Analyze my cluster's availability status"_
+- _"What workload patterns do you see in my deployments?"_
+- _"Recommend availability classes for my production services"_
+- _"Create a security policy for mission-critical workloads"_
+- _"Simulate the impact of applying high-availability to all production deployments"_
+
+### Available MCP Tools
+
+#### Analysis Tools
+
+- `analyze_cluster_availability`: Get comprehensive PDB coverage analysis
+- `analyze_workload_patterns`: Understand deployment patterns and characteristics
+
+#### Recommendation Tools
+
+- `recommend_availability_classes`: Get optimal availability class suggestions
+- `recommend_policies`: Receive policy recommendations based on cluster analysis
+
+#### Management Tools
+
+- `create_availability_policy`: Create new AvailabilityPolicy resources
+- `update_deployment_annotations`: Modify deployment availability settings
+- `simulate_policy_impact`: Preview policy changes before applying
+
+### Configuration
+
+The MCP server can be configured via command line flags:
+
+```bash
+# Enable/disable MCP server (default: enabled)
+--enable-mcp=true
+--mcp-bind-address=:8090
+
+# Or via environment variables
+export ENABLE_MCP=true
+export MCP_BIND_ADDRESS=:8090
+```
+
+For detailed MCP configuration, API reference, and advanced usage, see the [MCP Integration Guide](docs/MCP_INTEGRATION.md).
+
 ## Security & RBAC
 
 The operator requires the following permissions:
@@ -578,56 +693,3 @@ The operator requires the following permissions:
 - **Namespace Scope**: Policies in the `canvas` namespace apply cluster-wide
 - **Cache TTL**: Policy cache has a 5-minute TTL - changes may take up to 5 minutes to propagate
 - **Webhook Dependencies**: Webhook functionality requires cert-manager for TLS certificates
-
-## References and External Links
-
-### TM Forum ODA (Open Digital Architecture)
-
-- **[TM Forum ODA Official Documentation](https://www.tmforum.org/oda/)** - Complete ODA architecture documentation
-- **[ODA Component Design Guidelines](https://github.com/tmforum-oda/oda-ca-docs/blob/master/ODAComponentDesignGuidelines.md)** - Essential guidelines for ODA component development
-- **[ODA Canvas Repository](https://github.com/tmforum-oda/oda-canvas)** - Main ODA Canvas implementation repository
-
-### ODA Canvas Integration
-
-- **[Use Case Library](../../../usecase-library/README.md)** - Real-world ODA Canvas use cases and examples
-- **[Feature Definition and Test Kit](../../../feature-definition-and-test-kit/README.md)** - Testing framework and feature definitions
-- **[Canvas Installation Guide](../../../installation/README.md)** - Complete ODA Canvas installation instructions
-- **[Canvas Portal](../../../canvas-portal/README.md)** - Web-based Canvas management interface
-
-### Technical Documentation
-
-- **[Canvas Design Document](../../../Canvas-design.md)** - Overall Canvas architecture and design principles
-- **[Component Management](../operators/component-management/README.md)** - Core component lifecycle management
-- **[API Management](../operators/api-management/README.md)** - API gateway and management operators
-- **[Identity Configuration](../operators/identity-config/README.md)** - Identity and authentication management
-- **[Secrets Management](../operators/secretsmanagementOperator-hc/README.md)** - Secrets and credentials management
-
-### Observability and Operations
-
-- **[Observability Design](../../../Observability-design.md)** - Monitoring, logging, and tracing architecture
-- **[Authentication Design](../../../Authentication-design.md)** - Security and authentication patterns
-- **[Security Principles](../../../SecurityPrinciples.md)** - Security best practices and principles
-
-### Standards and Specifications
-
-- **[TMF APIs](https://www.tmforum.org/open-apis/)** - TM Forum Open API specifications
-- **[ODA Component Specification](https://github.com/tmforum-oda/oda-ca-docs)** - Technical specification for ODA components
-- **[Cloud Native Computing Foundation](https://cncf.io/)** - Cloud-native technology standards
-
-### Kubernetes and Cloud Native
-
-- **[Pod Disruption Budgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/)** - Official Kubernetes PDB documentation
-- **[Kubernetes Operators](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)** - Operator pattern documentation
-- **[OpenTelemetry](https://opentelemetry.io/)** - Observability framework used for tracing
-- **[Prometheus](https://prometheus.io/)** - Metrics collection and monitoring
-
-### Development and Contributing
-
-- **[Contributing Guidelines](../../../CONTRIBUTING.md)** - How to contribute to ODA Canvas
-- **[Docker Image Guidelines](../../../docs/developer/work-with-dockerimages.md)** - Docker image building and management
-- **[Development Environment](../../../devcontainer.md)** - Development container setup
-- **[Code of Conduct](../../../code-of-conduct.md)** - Community standards and behavior
-
----
-
-**Part of the [TM Forum Open Digital Architecture (ODA)](https://www.tmforum.org/oda/) ecosystem - Building the future of digital service operations.**

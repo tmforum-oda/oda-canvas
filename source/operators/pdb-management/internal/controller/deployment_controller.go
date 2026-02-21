@@ -63,9 +63,6 @@ const (
 	AnnotationComponentName     = "oda.tmforum.org/componentName"
 	AnnotationOverrideReason    = "oda.tmforum.org/override-reason"
 
-	// Legacy annotation for backward compatibility
-	LegacyAnnotationPDB = "cell.runtime.pdb"
-
 	// Labels and annotations for PDBs
 	LabelManagedBy         = "oda.tmforum.org/managed-by"
 	LabelComponent         = "oda.tmforum.org/component"
@@ -454,14 +451,8 @@ func (r *DeploymentReconciler) detectInvalidConfiguration(deployment *appsv1.Dep
 		return ""
 	}
 
-	// Check for ODA Canvas annotation first
+	// Check for ODA Canvas annotation
 	if class, exists := annotations[AnnotationAvailabilityClass]; exists {
-		odaClass := availabilityv1alpha1.AvailabilityClass(class)
-		if !r.isValidAvailabilityClass(odaClass) {
-			return class
-		}
-	} else if class, exists := annotations[LegacyAnnotationPDB]; exists {
-		// Check legacy annotation
 		odaClass := availabilityv1alpha1.AvailabilityClass(class)
 		if !r.isValidAvailabilityClass(odaClass) {
 			return class
@@ -478,21 +469,9 @@ func (r *DeploymentReconciler) getConfigFromAnnotations(deployment *appsv1.Deplo
 		return nil
 	}
 
-	var availabilityClass string
-	var source string
-
-	// Check for ODA Canvas annotation first
-	if class, exists := annotations[AnnotationAvailabilityClass]; exists {
-		availabilityClass = class
-		source = "oda-annotation"
-	} else if class, exists := annotations[LegacyAnnotationPDB]; exists {
-		// Fall back to legacy annotation
-		availabilityClass = class
-		source = "legacy-annotation"
-		logger.Info("Using legacy annotation, consider migrating to ODA Canvas annotations",
-			"legacy", LegacyAnnotationPDB,
-			"recommended", AnnotationAvailabilityClass)
-	} else {
+	// Check for ODA Canvas annotation
+	availabilityClass, exists := annotations[AnnotationAvailabilityClass]
+	if !exists {
 		return nil
 	}
 
@@ -519,7 +498,7 @@ func (r *DeploymentReconciler) getConfigFromAnnotations(deployment *appsv1.Deplo
 		MinAvailable:      minAvailable,
 		Description:       r.getDescriptionForClass(odaClass),
 		MaintenanceWindow: annotations[AnnotationMaintenanceWindow],
-		Source:            source,
+		Source:            "oda-annotation",
 	}
 }
 
@@ -558,16 +537,25 @@ func (r *DeploymentReconciler) getConfigFromPolicyWithCacheAndPolicy(ctx context
 		policies = policyList.Items
 	}
 
-	// Find best matching policy
+	// Find best matching policy with deterministic tie-breaking
 	var bestMatch *availabilityv1alpha1.AvailabilityPolicy
 	var highestPriority int32 = -1
+	var matchingPolicies []*availabilityv1alpha1.AvailabilityPolicy
 
 	for i := range policies {
 		policy := &policies[i]
 		if r.policyMatchesDeployment(policy, deployment) {
+			matchingPolicies = append(matchingPolicies, policy)
 			if policy.Spec.Priority > highestPriority {
 				bestMatch = policy
 				highestPriority = policy.Spec.Priority
+			} else if policy.Spec.Priority == highestPriority && bestMatch != nil {
+				// Deterministic tie-breaking: alphabetically by namespace/name
+				currentKey := fmt.Sprintf("%s/%s", bestMatch.Namespace, bestMatch.Name)
+				candidateKey := fmt.Sprintf("%s/%s", policy.Namespace, policy.Name)
+				if candidateKey < currentKey {
+					bestMatch = policy
+				}
 			}
 		}
 	}
@@ -576,11 +564,17 @@ func (r *DeploymentReconciler) getConfigFromPolicyWithCacheAndPolicy(ctx context
 		return nil, nil, nil
 	}
 
+	// Log conflict detection if multiple policies match
+	if len(matchingPolicies) > 1 {
+		r.logPolicyConflicts(ctx, deployment, matchingPolicies, bestMatch, logger)
+	}
+
 	logger.Info("Found matching AvailabilityPolicy",
 		"policy", bestMatch.Name,
 		"priority", bestMatch.Spec.Priority,
 		"enforcement", bestMatch.Spec.GetEnforcement(),
-		"fromCache", r.PolicyCache != nil)
+		"fromCache", r.PolicyCache != nil,
+		"totalMatchingPolicies", len(matchingPolicies))
 
 	// Convert policy to config
 	componentFunction := r.inferComponentFunction(deployment)
@@ -948,6 +942,56 @@ func (r *DeploymentReconciler) evaluateMatchExpression(expr metav1.LabelSelector
 
 	default:
 		return false
+	}
+}
+
+// logPolicyConflicts logs when multiple policies match a deployment
+func (r *DeploymentReconciler) logPolicyConflicts(
+	ctx context.Context,
+	deployment *appsv1.Deployment,
+	matchingPolicies []*availabilityv1alpha1.AvailabilityPolicy,
+	selected *availabilityv1alpha1.AvailabilityPolicy,
+	logger logr.Logger,
+) {
+	// Count policies at the same priority as selected
+	samePriorityCount := 0
+	policyNames := make([]string, 0, len(matchingPolicies))
+	for _, p := range matchingPolicies {
+		policyNames = append(policyNames, fmt.Sprintf("%s/%s", p.Namespace, p.Name))
+		if p.Spec.Priority == selected.Spec.Priority {
+			samePriorityCount++
+		}
+	}
+
+	// Record metrics for multi-policy match
+	metrics.RecordMultiPolicyMatch(deployment.Namespace, len(matchingPolicies))
+
+	if samePriorityCount > 1 {
+		// Multiple policies at same priority - potential conflict requiring tie-break
+		metrics.RecordPolicyTieBreak(deployment.Namespace, "alphabetical")
+
+		logger.Info("Multiple policies match deployment at same priority, using tie-break",
+			"deployment", deployment.Name,
+			"matchingPolicies", policyNames,
+			"selectedPolicy", fmt.Sprintf("%s/%s", selected.Namespace, selected.Name),
+			"priority", selected.Spec.Priority,
+			"tieBreakReason", "alphabetical",
+		)
+
+		// Record event on deployment
+		if r.Events != nil {
+			r.Events.Warnf(deployment, "PolicyConflict",
+				"Multiple policies (%d) match at priority %d, selected %s via alphabetical tie-break",
+				samePriorityCount, selected.Spec.Priority, selected.Name)
+		}
+	} else {
+		// Multiple policies but clear priority winner
+		logger.V(1).Info("Multiple policies match deployment, selected by priority",
+			"deployment", deployment.Name,
+			"matchingPolicies", policyNames,
+			"selectedPolicy", fmt.Sprintf("%s/%s", selected.Namespace, selected.Name),
+			"selectedPriority", selected.Spec.Priority,
+		)
 	}
 }
 
@@ -1475,6 +1519,7 @@ func (r *DeploymentReconciler) isInMaintenanceWindow(config *AvailabilityConfig,
 }
 
 // removePDBTemporarily disables PDB during maintenance window
+// nolint:unused // Kept for future maintenance window feature implementation
 func (r *DeploymentReconciler) removePDBTemporarily(ctx context.Context, deployment *appsv1.Deployment, logger logr.Logger) error {
 	pdbName := types.NamespacedName{
 		Name:      deployment.Name + DefaultPDBSuffix,
@@ -1645,14 +1690,14 @@ func (r *DeploymentReconciler) calculateDeploymentFingerprint(
 	h := sha256.New()
 
 	// Include deployment generation (changes on spec updates)
-	h.Write([]byte(fmt.Sprintf("generation:%d", deployment.Generation)))
+	_, _ = fmt.Fprintf(h, "generation:%d", deployment.Generation)
 
 	// Include replica count
 	replicas := int32(1)
 	if deployment.Spec.Replicas != nil {
 		replicas = *deployment.Spec.Replicas
 	}
-	h.Write([]byte(fmt.Sprintf("replicas:%d", replicas)))
+	_, _ = fmt.Fprintf(h, "replicas:%d", replicas)
 
 	// Include relevant annotations
 	if deployment.Annotations != nil {
@@ -1661,10 +1706,9 @@ func (r *DeploymentReconciler) calculateDeploymentFingerprint(
 			AnnotationMaintenanceWindow,
 			AnnotationComponentFunction,
 			AnnotationOverrideReason,
-			LegacyAnnotationPDB,
 		} {
 			if value, exists := deployment.Annotations[key]; exists {
-				h.Write([]byte(fmt.Sprintf("%s:%s", key, value)))
+				_, _ = fmt.Fprintf(h, "%s:%s", key, value)
 			}
 		}
 	}
@@ -1672,7 +1716,7 @@ func (r *DeploymentReconciler) calculateDeploymentFingerprint(
 	// Include relevant labels that affect policy matching
 	if deployment.Labels != nil {
 		for key, value := range deployment.Labels {
-			h.Write([]byte(fmt.Sprintf("label:%s=%s", key, value)))
+			_, _ = fmt.Fprintf(h, "label:%s=%s", key, value)
 		}
 	}
 
@@ -1680,18 +1724,18 @@ func (r *DeploymentReconciler) calculateDeploymentFingerprint(
 	if deployment.Spec.Selector != nil {
 		if deployment.Spec.Selector.MatchLabels != nil {
 			for key, value := range deployment.Spec.Selector.MatchLabels {
-				h.Write([]byte(fmt.Sprintf("selector:%s=%s", key, value)))
+				_, _ = fmt.Fprintf(h, "selector:%s=%s", key, value)
 			}
 		}
 	}
 
 	// Include availability configuration if found
 	if config != nil {
-		h.Write([]byte(fmt.Sprintf("config:class=%s", config.AvailabilityClass)))
-		h.Write([]byte(fmt.Sprintf("config:source=%s", config.Source)))
-		h.Write([]byte(fmt.Sprintf("config:policy=%s", config.PolicyName)))
-		h.Write([]byte(fmt.Sprintf("config:enforcement=%s", config.Enforcement)))
-		h.Write([]byte(fmt.Sprintf("config:minAvailable=%s", config.MinAvailable.String())))
+		_, _ = fmt.Fprintf(h, "config:class=%s", config.AvailabilityClass)
+		_, _ = fmt.Fprintf(h, "config:source=%s", config.Source)
+		_, _ = fmt.Fprintf(h, "config:policy=%s", config.PolicyName)
+		_, _ = fmt.Fprintf(h, "config:enforcement=%s", config.Enforcement)
+		_, _ = fmt.Fprintf(h, "config:minAvailable=%s", config.MinAvailable.String())
 	}
 
 	// Include current PDB state - this is CRITICAL for detecting PDB deletion
@@ -1703,25 +1747,25 @@ func (r *DeploymentReconciler) calculateDeploymentFingerprint(
 	currentPDB := &policyv1.PodDisruptionBudget{}
 	if err := r.Get(ctx, pdbName, currentPDB); err == nil {
 		// PDB exists - include its current spec
-		h.Write([]byte(fmt.Sprintf("pdb:exists=true")))
-		h.Write([]byte(fmt.Sprintf("pdb:minAvailable=%s", currentPDB.Spec.MinAvailable.String())))
+		_, _ = h.Write([]byte("pdb:exists=true"))
+		_, _ = fmt.Fprintf(h, "pdb:minAvailable=%s", currentPDB.Spec.MinAvailable.String())
 		if currentPDB.Spec.Selector != nil && currentPDB.Spec.Selector.MatchLabels != nil {
 			for key, value := range currentPDB.Spec.Selector.MatchLabels {
-				h.Write([]byte(fmt.Sprintf("pdb:selector:%s=%s", key, value)))
+				_, _ = fmt.Fprintf(h, "pdb:selector:%s=%s", key, value)
 			}
 		}
 	} else {
 		// PDB doesn't exist - include marker so fingerprint changes when PDB is deleted
-		h.Write([]byte("pdb:exists=false"))
+		_, _ = h.Write([]byte("pdb:exists=false"))
 	}
 
 	// Also include expected PDB state based on configuration
 	if config != nil {
-		h.Write([]byte(fmt.Sprintf("expected:pdb:minAvailable=%s", config.MinAvailable.String())))
+		_, _ = fmt.Fprintf(h, "expected:pdb:minAvailable=%s", config.MinAvailable.String())
 		// Include expected selector based on deployment selector
 		if deployment.Spec.Selector != nil && deployment.Spec.Selector.MatchLabels != nil {
 			for key, value := range deployment.Spec.Selector.MatchLabels {
-				h.Write([]byte(fmt.Sprintf("expected:pdb:selector:%s=%s", key, value)))
+				_, _ = fmt.Fprintf(h, "expected:pdb:selector:%s=%s", key, value)
 			}
 		}
 	}

@@ -1,0 +1,153 @@
+# Example MCP client configuration for connecting to the PDB Management Operator MCP server
+# This file shows how to configure Claude Desktop or other MCP clients to connect to the operator
+
+# For Claude Desktop (claude_desktop_config.json):
+# {
+#   "mcpServers": {
+#     "pdb-management": {
+#       "command": "curl",
+#       "args": [
+#         "-X", "POST",
+#         "-H", "Content-Type: application/json",
+#         "--data-binary", "@-",
+#         "http://pdb-management-mcp-service.canvas.svc.cluster.local:8090/mcp"
+#       ],
+#       "env": {}
+#     }
+#   }
+# }
+
+# For kubectl port-forward access:
+# kubectl port-forward -n canvas service/pdb-management-mcp-service 8090:8090
+# Then connect to: http://localhost:8090/mcp
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-client-example
+  namespace: canvas
+  labels:
+    app.kubernetes.io/name: mcp-client-example
+    app.kubernetes.io/part-of: pdb-management
+data:
+  client-config.json: |
+    {
+      "mcpServers": {
+        "pdb-management": {
+          "command": "kubectl",
+          "args": [
+            "port-forward",
+            "-n", "canvas",
+            "service/pdb-management-mcp-service",
+            "8090:8090"
+          ]
+        }
+      }
+    }
+  
+  # Example MCP requests that can be sent to the server
+  example-requests.json: |
+    {
+      "analyze_cluster": {
+        "method": "tools/call",
+        "params": {
+          "name": "analyze_cluster_availability",
+          "input": {
+            "detailed": true
+          }
+        }
+      },
+      "recommend_classes": {
+        "method": "tools/call", 
+        "params": {
+          "name": "recommend_availability_classes",
+          "input": {
+            "namespace": "production"
+          }
+        }
+      },
+      "create_policy": {
+        "method": "tools/call",
+        "params": {
+          "name": "create_availability_policy",
+          "input": {
+            "name": "security-policy",
+            "availabilityClass": "mission-critical",
+            "enforcement": "strict",
+            "componentSelector": {
+              "componentFunctions": ["security"]
+            }
+          }
+        }
+      },
+      "simulate_impact": {
+        "method": "tools/call",
+        "params": {
+          "name": "simulate_policy_impact", 
+          "input": {
+            "policySpec": {
+              "name": "test-policy",
+              "availabilityClass": "high-availability",
+              "componentSelector": {
+                "namespaces": ["production"]
+              }
+            }
+          }
+        }
+      }
+    }
+
+  # Claude Desktop instructions
+  claude-setup.md: |
+    # Setting up Claude Desktop with PDB Management MCP Server
+    
+    ## Prerequisites
+    - kubectl access to the cluster where the PDB Management Operator is deployed
+    - Claude Desktop installed
+    
+    ## Setup Steps
+    
+    1. **Port Forward to the MCP Server**
+       ```bash
+       kubectl port-forward -n canvas service/pdb-management-mcp-service 8090:8090
+       ```
+    
+    2. **Configure Claude Desktop**
+       Add this to your `claude_desktop_config.json`:
+       ```json
+       {
+         "mcpServers": {
+           "pdb-management": {
+             "command": "curl",
+             "args": [
+               "-X", "POST", 
+               "-H", "Content-Type: application/json",
+               "--data-binary", "@-",
+               "http://localhost:8090/mcp"
+             ]
+           }
+         }
+       }
+       ```
+    
+    3. **Test Connection**
+       In Claude Desktop, you can now ask:
+       - "Analyze the cluster availability status"
+       - "Recommend availability classes for my deployments"
+       - "Create a security policy for mission-critical workloads"
+       - "What workload patterns do you see in the cluster?"
+    
+    ## Available Tools
+    
+    ### Analysis Tools
+    - `analyze_cluster_availability`: Get PDB coverage analysis
+    - `analyze_workload_patterns`: Understand deployment patterns
+    
+    ### Recommendation Tools  
+    - `recommend_availability_classes`: Get class recommendations
+    - `recommend_policies`: Get policy recommendations
+    
+    ### Management Tools
+    - `create_availability_policy`: Create new policies
+    - `update_deployment_annotations`: Update deployment annotations
+    - `simulate_policy_impact`: Preview policy changes

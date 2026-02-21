@@ -1,0 +1,68 @@
+# Prometheus configuration
+prometheus:
+  prometheusSpec:
+    # Enable service discovery for your PDB operator
+    additionalScrapeConfigs:
+      - job_name: 'pdb-management-operator'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - canvas
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: pdb-management-controller-manager-metrics-service
+          - source_labels: [__meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: https
+    # Retain data for 30 days
+    retention: 30d
+    # Storage for prometheus
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard  # Adjust based on your cluster
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+# Grafana configuration
+grafana:
+  # Enable persistence
+  persistence:
+    enabled: true
+    storageClassName: standard  # Adjust based on your cluster
+    size: 1Gi
+  
+  # Admin credentials
+  adminPassword: admin123  # Change this!
+  
+  # Configure data sources
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki-gateway.monitoring.svc.cluster.local
+      access: proxy
+    - name: Tempo
+      type: tempo
+      url: http://tempo.monitoring.svc.cluster.local:3100
+      access: proxy
+  
+  # Enable service for external access
+  service:
+    type: NodePort  # or LoadBalancer if you have one
+    nodePort: 30080
+
+# AlertManager configuration  
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi

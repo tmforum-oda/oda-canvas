@@ -222,6 +222,59 @@ groups:
           summary: "Many deployments without PDBs"
           description: "{{ $value }} deployments are managed but don't have PDBs. This may indicate policy issues or processing delays."
 
+  - name: pdb-operator.retry
+    interval: 30s
+    rules:
+      # Retry exhaustion
+      - alert: PDBOperatorRetryExhausted
+        expr: rate(pdb_management_retry_exhausted_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: pdb-operator
+        annotations:
+          summary: "High retry exhaustion rate"
+          description: "Operations are exhausting retries at {{ $value }}/sec. Operation: {{ $labels.operation }}, Error type: {{ $labels.error_type }}"
+
+      # High retry rate
+      - alert: PDBOperatorHighRetryRate
+        expr: rate(pdb_management_retry_attempts_total{attempt!="1"}[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: pdb-operator
+        annotations:
+          summary: "High retry attempt rate"
+          description: "Operations requiring multiple retries at {{ $value }}/sec. This may indicate transient API server issues."
+
+  - name: pdb-operator.webhook
+    interval: 60s
+    rules:
+      # Webhook not enabled
+      - alert: PDBOperatorWebhookDisabled
+        expr: pdb_management_webhook_status{status!="enabled"} == 1
+        for: 5m
+        labels:
+          severity: info
+          component: pdb-operator
+        annotations:
+          summary: "Webhook validation is not enabled"
+          description: "Webhook status: {{ $labels.status }}, Reason: {{ $labels.reason }}. AvailabilityPolicy resources are not being validated."
+
+  - name: pdb-operator.policy-conflicts
+    interval: 60s
+    rules:
+      # Frequent multi-policy matches
+      - alert: PDBOperatorFrequentPolicyConflicts
+        expr: rate(pdb_management_multi_policy_matches_total[10m]) > 0.1
+        for: 10m
+        labels:
+          severity: info
+          component: pdb-operator
+        annotations:
+          summary: "Frequent multi-policy matches detected"
+          description: "Multiple policies matching deployments at {{ $value }}/sec in namespace {{ $labels.namespace }}. Consider reviewing policy selectors."
+
   - name: pdb-operator.maintenance
     interval: 300s  # Check every 5 minutes
     rules:

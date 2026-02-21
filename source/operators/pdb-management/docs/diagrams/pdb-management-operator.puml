@@ -1,0 +1,91 @@
+@startuml
+title PDB Management Operator - Full Sequence (All Cases)
+
+actor KubernetesAPI
+participant Operator
+participant DeploymentController
+participant PDBController
+participant AdmissionWebhook as Webhook
+database Kubernetes as K8s
+
+== Deployment Created or Updated ==
+
+KubernetesAPI -> Operator: Deployment Created/Updated
+Operator -> DeploymentController: Reconcile()
+
+DeploymentController -> DeploymentController: Check for Maintenance Window
+alt Maintenance Window Active
+    DeploymentController -> Operator: Emit Event (MaintenanceActive)
+    DeploymentController -> Operator: Skip PDB Enforcement
+else No maintenance
+    DeploymentController -> DeploymentController: Lookup Matching Policies
+
+    alt No Policy Found
+        DeploymentController -> DeploymentController: Use Annotations
+        DeploymentController -> DeploymentController: Resolve Availability Class
+    else Policy Found
+        DeploymentController -> DeploymentController: Evaluate Enforcement Mode
+
+        alt Strict Enforcement
+            DeploymentController -> DeploymentController: Ignore Annotations
+            DeploymentController -> DeploymentController: Apply Policy Class
+            DeploymentController -> Operator: Emit Event (PolicyEnforced)
+
+        else Flexible Enforcement
+            DeploymentController -> DeploymentController: Check Annotations
+
+            alt Annotation >= minimumClass
+                DeploymentController -> DeploymentController: Accept Annotation
+                DeploymentController -> Operator: Emit Event (AnnotationAccepted)
+            else Annotation < minimumClass
+                DeploymentController -> DeploymentController: Enforce Minimum
+                DeploymentController -> Operator: Emit Warning Event (BelowMinimum)
+            end
+
+        else Advisory Enforcement
+            DeploymentController -> DeploymentController: Check Annotations
+
+            alt allowOverride == true and override reason present
+                DeploymentController -> DeploymentController: Accept Override
+                DeploymentController -> Operator: Emit Event (AnnotationAccepted)
+            else allowOverride == true but no reason
+                DeploymentController -> DeploymentController: Fallback to Policy Class
+                DeploymentController -> Operator: Emit Warning Event (OverrideRejected)
+            else allowOverride == false
+                DeploymentController -> DeploymentController: Fallback to Policy Class
+                DeploymentController -> Operator: Emit Event (PolicyFallback)
+            end
+        end
+    end
+
+    DeploymentController -> PDBController: Create/Update PDB
+    PDBController -> K8s: Apply PodDisruptionBudget
+    PDBController -> DeploymentController: Return Success/Failure
+end
+
+DeploymentController -> Operator: Record Metrics
+DeploymentController -> Operator: Emit Events
+
+== Deployment Deleted ==
+
+KubernetesAPI -> Operator: Deployment Deleted
+Operator -> DeploymentController: Reconcile()
+
+DeploymentController -> PDBController: Delete PDB
+PDBController -> K8s: Delete PodDisruptionBudget
+
+DeploymentController -> Operator: Record Metrics
+DeploymentController -> Operator: Emit Events
+
+== Admission Webhook ==
+
+KubernetesAPI -> Webhook: Create AvailabilityPolicy
+Webhook -> Webhook: Validate CRD fields
+
+alt Valid Policy
+    Webhook --> KubernetesAPI: Admission Allowed
+else Validation Error
+    Webhook --> KubernetesAPI: Admission Denied
+end
+
+@enduml

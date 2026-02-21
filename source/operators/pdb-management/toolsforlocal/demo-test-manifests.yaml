@@ -1,0 +1,549 @@
+# PDB Management Operator - Demo Test Manifests
+# This file contains all test cases for comprehensive demo
+
+---
+# Test Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pdb-demo-test
+
+---
+#############################################
+# SECTION 1: Basic Annotation Tests
+#############################################
+
+# Test 1.1: Basic Standard Availability
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: basic-standard
+  namespace: pdb-demo-test
+  annotations:
+    oda.tmforum.org/availability-class: "standard"
+    oda.tmforum.org/componentName: "basic-component"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: basic
+  template:
+    metadata:
+      labels:
+        app: basic
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+# Test 1.2: High Availability
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: high-availability
+  namespace: pdb-demo-test
+  annotations:
+    oda.tmforum.org/availability-class: "high-availability"
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: ha
+  template:
+    metadata:
+      labels:
+        app: ha
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+# Test 1.3: Mission Critical
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mission-critical
+  namespace: pdb-demo-test
+  annotations:
+    oda.tmforum.org/availability-class: "mission-critical"
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: critical
+  template:
+    metadata:
+      labels:
+        app: critical
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+# Test 1.4: Non-Critical
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: non-critical
+  namespace: pdb-demo-test
+  annotations:
+    oda.tmforum.org/availability-class: "non-critical"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nc
+  template:
+    metadata:
+      labels:
+        app: nc
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+#############################################
+# SECTION 2: Component Function Tests
+#############################################
+
+# Test 2.1: Security Component (Auto-Upgrade)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: security-component
+  namespace: pdb-demo-test
+  annotations:
+    oda.tmforum.org/availability-class: "standard"
+    oda.tmforum.org/component-function: "security"
+    oda.tmforum.org/componentName: "auth-service"
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: nginx:alpine
+
+---
+# Test 2.2: Core Component
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-component
+  namespace: pdb-demo-test
+  annotations:
+    oda.tmforum.org/availability-class: "standard"
+    oda.tmforum.org/component-function: "core"
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: core
+  template:
+    metadata:
+      labels:
+        app: core
+    spec:
+      containers:
+        - name: core
+          image: nginx:alpine
+
+---
+# Test 2.3: Management Component
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-component
+  namespace: pdb-demo-test
+  annotations:
+    oda.tmforum.org/availability-class: "standard"
+    oda.tmforum.org/component-function: "management"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mgmt
+  template:
+    metadata:
+      labels:
+        app: mgmt
+    spec:
+      containers:
+        - name: mgmt
+          image: nginx:alpine
+
+---
+#############################################
+# SECTION 3: Edge Cases
+#############################################
+
+# Test 3.1: Single Replica (No PDB)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: single-replica
+  namespace: pdb-demo-test
+  annotations:
+    oda.tmforum.org/availability-class: "standard"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: single
+  template:
+    metadata:
+      labels:
+        app: single
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+# Test 3.2: Maintenance Window
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-window
+  namespace: pdb-demo-test
+  annotations:
+    oda.tmforum.org/availability-class: "high-availability"
+    oda.tmforum.org/maintenance-window: "02:00-04:00 UTC"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: maintenance
+  template:
+    metadata:
+      labels:
+        app: maintenance
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+#############################################
+# SECTION 4: Policy-Based Tests
+#############################################
+
+# Test 4.1: Strict Enforcement Policy
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: strict-policy
+  namespace: pdb-demo-test
+spec:
+  availabilityClass: mission-critical
+  enforcement: strict
+  componentSelector:
+    matchLabels:
+      app: strict-demo
+    namespaces:
+    - pdb-demo-test
+  priority: 1000
+
+---
+# Test 4.2: Flexible Enforcement Policy
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: flexible-policy
+  namespace: pdb-demo-test
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible
+  minimumClass: standard
+  componentSelector:
+    matchLabels:
+      app: flexible-demo
+    namespaces:
+    - pdb-demo-test
+  priority: 500
+
+---
+# Test 4.3: Advisory Enforcement Policy
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: advisory-policy
+  namespace: pdb-demo-test
+spec:
+  availabilityClass: standard
+  enforcement: advisory
+  allowOverride: true
+  overrideRequiresReason: true
+  componentSelector:
+    matchLabels:
+      app: advisory-demo
+    namespaces:
+    - pdb-demo-test
+  priority: 100
+
+---
+# Test 4.4: Custom PDB Policy
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: custom-policy
+  namespace: pdb-demo-test
+spec:
+  availabilityClass: custom
+  customPDBConfig:
+    minAvailable: 2
+    unhealthyPodEvictionPolicy: "IfHealthyBudget"
+  componentSelector:
+    matchLabels:
+      app: custom-demo
+    namespaces:
+    - pdb-demo-test
+  priority: 200
+
+---
+#############################################
+# SECTION 5: Policy-Based Deployments
+#############################################
+
+# Test 5.1: Strict Policy Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strict-demo
+  namespace: pdb-demo-test
+  labels:
+    app: strict-demo
+  annotations:
+    oda.tmforum.org/availability-class: "standard"  # Will be ignored
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: strict-demo
+  template:
+    metadata:
+      labels:
+        app: strict-demo
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+# Test 5.2: Flexible Policy Deployment (Higher)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flexible-higher
+  namespace: pdb-demo-test
+  labels:
+    app: flexible-demo
+  annotations:
+    oda.tmforum.org/availability-class: "mission-critical"  # Should be accepted
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: flexible-higher
+  template:
+    metadata:
+      labels:
+        app: flexible-higher
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+# Test 5.3: Flexible Policy Deployment (Lower)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flexible-lower
+  namespace: pdb-demo-test
+  labels:
+    app: flexible-demo
+  annotations:
+    oda.tmforum.org/availability-class: "non-critical"  # Should be rejected
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: flexible-lower
+  template:
+    metadata:
+      labels:
+        app: flexible-lower
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+# Test 5.4: Advisory Policy Deployment (With Override)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: advisory-override
+  namespace: pdb-demo-test
+  labels:
+    app: advisory-demo
+  annotations:
+    oda.tmforum.org/availability-class: "non-critical"
+    oda.tmforum.org/override-reason: "Development testing only"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: advisory-override
+  template:
+    metadata:
+      labels:
+        app: advisory-override
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+# Test 5.5: Custom PDB Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-demo
+  namespace: pdb-demo-test
+  labels:
+    app: custom-demo
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: custom-demo
+  template:
+    metadata:
+      labels:
+        app: custom-demo
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+#############################################
+# SECTION 6: Complex Policy Tests
+#############################################
+
+# Test 6.1: Multi-Criteria Policy
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: multi-criteria-policy
+  namespace: pdb-demo-test
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible
+  minimumClass: standard
+  componentSelector:
+    namespaces:
+    - pdb-demo-test
+    componentNames:
+    - multi-component
+    componentFunctions:
+    - core
+    - security
+    matchLabels:
+      tier: important
+    matchExpressions:
+    - key: environment
+      operator: In
+      values: [demo, test]
+  priority: 300
+
+---
+# Test 6.2: Multi-Criteria Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multi-component
+  namespace: pdb-demo-test
+  labels:
+    tier: important
+    environment: demo
+  annotations:
+    oda.tmforum.org/component-function: "core"
+    oda.tmforum.org/componentName: "multi-component"
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: multi
+  template:
+    metadata:
+      labels:
+        app: multi
+        tier: important
+        environment: demo
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+
+---
+#############################################
+# SECTION 7: Maintenance Window Tests
+#############################################
+
+# Test 7.1: Policy with Maintenance Window
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: maintenance-policy
+  namespace: pdb-demo-test
+spec:
+  availabilityClass: high-availability
+  enforcement: flexible
+  minimumClass: standard
+  componentSelector:
+    matchLabels:
+      app: maintenance-policy-demo
+    namespaces:
+    - pdb-demo-test
+  maintenanceWindows:
+  - start: "02:00"
+    end: "04:00"
+    timezone: "UTC"
+    daysOfWeek: [0, 6]  # weekends
+  priority: 400
+
+---
+# Test 7.2: Maintenance Policy Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-policy-demo
+  namespace: pdb-demo-test
+  labels:
+    app: maintenance-policy-demo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: maintenance-policy-demo
+  template:
+    metadata:
+      labels:
+        app: maintenance-policy-demo
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine 

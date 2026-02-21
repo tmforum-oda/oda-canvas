@@ -1,0 +1,18 @@
+@startuml
+actor KubernetesAPI
+participant Operator
+participant DeploymentController
+participant PDBController
+database Kubernetes as K8s
+
+== Deployment Deleted ==
+
+KubernetesAPI -> Operator: Deployment Deleted
+Operator -> DeploymentController: Reconcile()
+
+DeploymentController -> PDBController: Delete PDB
+PDBController -> K8s: Delete PodDisruptionBudget
+
+DeploymentController -> Operator: Record Metrics
+DeploymentController -> Operator: Emit Events
+@enduml

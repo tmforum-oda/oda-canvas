@@ -4,8 +4,9 @@ kind: Role
 metadata:
   labels:
     app.kubernetes.io/name: pdb-management
+    app.kubernetes.io/component: operator
     app.kubernetes.io/managed-by: kustomize
-  name: leader-election-role
+  name: pdb-management-leader-election-role
   namespace: canvas
 rules:
 - apiGroups:
