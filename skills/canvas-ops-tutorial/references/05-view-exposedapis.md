@@ -166,6 +166,57 @@ The script uses the **MCP Streamable HTTP transport** (the current MCP standard)
 
 The `requests` Python package is required. If not installed, run `pip install requests` first.
 
+### Connecting an MCP Client
+
+> **⚠️ Use a separate agent or chat thread to interact with a component's MCP server.** This tutorial agent is scoped to Canvas operations (Kubernetes, Helm, kubectl). Mixing Canvas management commands with MCP tool calls in the same session causes confusion. Open a new chat thread (or a different AI agent configured with the MCP server) to actually invoke the component's tools.
+
+To connect an MCP client (Claude Desktop, VS Code GitHub Copilot, etc.) to a component's MCP server, use the public URL from `.status.apiStatus.url`.
+
+#### SSL Certificates on localhost
+
+If the Canvas is running on **localhost** (e.g., Docker Desktop Kubernetes), the gateway will typically present a **self-signed certificate**. MCP clients reject self-signed certificates by default. The recommended approach is to use [`mcp-proxy`](https://github.com/sparfenyuk/mcp-proxy) — a lightweight stdio-to-HTTP bridge that can be configured to skip SSL verification.
+
+**Claude Desktop** (`claude_desktop_config.json`):
+
+```json
+"mcpServers": {
+  "product-catalog": {
+    "command": "uvx",
+    "args": [
+      "mcp-proxy",
+      "--transport",
+      "streamablehttp",
+      "--no-verify-ssl",
+      "https://localhost/<component-path>/mcp"
+    ]
+  }
+}
+```
+
+**VS Code / GitHub Copilot** (`.vscode/mcp.json`) — VS Code's `http` type does not support `--no-verify-ssl`, so use `mcp-proxy` via `stdio`:
+
+```json
+{
+  "servers": {
+    "product-catalog": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-proxy",
+        "--transport",
+        "streamablehttp",
+        "--no-verify-ssl",
+        "https://localhost/<component-path>/mcp"
+      ]
+    }
+  }
+}
+```
+
+Replace `<component-path>` with the path prefix from the ExposedAPI status (e.g., `pc1-productcatalogmanagement`). `uvx` installs and runs `mcp-proxy` on first use — no separate install step needed if `uv` is available.
+
+> If the Canvas uses HTTP on port 80 (valid and safe on the local loopback interface), `--no-verify-ssl` is not needed and you can use `"type": "http"` directly in VS Code.
+
 ### Explaining MCP Server Results
 
 After showing the inspection output, explain:

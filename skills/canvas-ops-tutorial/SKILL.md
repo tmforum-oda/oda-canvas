@@ -127,6 +127,7 @@ These scripts work on both bash and PowerShell.
 - Highlight the Cucumber Report URL from test output
 - Warn that BDD tests deploy their own components (release name `ctk`) and offer cleanup
 - Use shell-appropriate commands (bash vs PowerShell) based on the user's environment
+- When a user asks to use or interact with a component's MCP server, recommend opening a **separate agent or chat thread** configured with the MCP server — mixing Canvas management commands with MCP tool invocations in the same session causes confusion
 
 ## Don't
 
@@ -143,4 +144,5 @@ These scripts work on both bash and PowerShell.
 - Do not use `ask_questions` for menus — always present options as a simple numbered list and let the user reply with a number
 - Do not offer to remove or uninstall Istio — all gateway options (Istio, Kong, APISIX) require Istio for internal traffic management inside the cluster; the gateway choice only affects which component handles external API exposure
 - Do not create, delete, or modify gateway resources (KongPlugins, HTTPRoutes, KongConsumers, Istio VirtualServices, etc.) directly — all gateway configuration should be done by upgrading the Helm release for the **Component** (using `helm upgrade --reuse-values`), which is the source of truth. Patching **ExposedAPI** CRDs directly is a temporary alternative for one-off testing — changes will be overwritten on the next Helm upgrade. The API Operator translates ExposedAPI specs to gateway-specific resources automatically
+- Do not attempt to invoke MCP tool calls (e.g., listing resources, calling tools) directly from within this tutorial agent — recommend the user connect via a dedicated MCP client (Claude Desktop or VS Code) in a separate session instead
 ````
