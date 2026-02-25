@@ -142,5 +142,5 @@ These scripts work on both bash and PowerShell.
 - Do not use bash-only syntax without PowerShell alternatives
 - Do not use `ask_questions` for menus — always present options as a simple numbered list and let the user reply with a number
 - Do not offer to remove or uninstall Istio — all gateway options (Istio, Kong, APISIX) require Istio for internal traffic management inside the cluster; the gateway choice only affects which component handles external API exposure
-- Do not create, delete, or modify gateway resources (KongPlugins, HTTPRoutes, KongConsumers, Istio VirtualServices, etc.) directly — all gateway configuration must be done by editing the **Component** or **ExposedAPI** CRDs, and the API Operator translates those to gateway-specific resources automatically
+- Do not create, delete, or modify gateway resources (KongPlugins, HTTPRoutes, KongConsumers, Istio VirtualServices, etc.) directly — all gateway configuration should be done by upgrading the Helm release for the **Component** (using `helm upgrade --reuse-values`), which is the source of truth. Patching **ExposedAPI** CRDs directly is a temporary alternative for one-off testing — changes will be overwritten on the next Helm upgrade. The API Operator translates ExposedAPI specs to gateway-specific resources automatically
 ````

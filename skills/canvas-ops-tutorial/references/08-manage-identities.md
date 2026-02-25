@@ -444,7 +444,7 @@ When explaining the created client, mention:
 
 When `apiKeyVerification` is enabled on ExposedAPIs, the Kong API Operator creates JWT **KongPlugins** for those APIs automatically. However, Kong needs to know Keycloak's **RSA public key** to verify tokens. This section checks the bridge between Keycloak and Kong.
 
-> **Important:** The KongPlugins, KongConsumers, and JWT credential secrets described in this section are created and managed by the **API Operator**. Do not create, delete, or modify these resources directly. The commands below are for **verification and debugging** only. To enable or disable JWT authentication, patch the `apiKeyVerification.enabled` field on the relevant **ExposedAPI** resource (see View ExposedAPIs > Enable/Disable Authentication).
+> **Important:** The KongPlugins, KongConsumers, and JWT credential secrets described in this section are created and managed by the **API Operator**. Do not create, delete, or modify these resources directly. The commands below are for **verification and debugging** only. To enable or disable JWT authentication, use `helm upgrade --reuse-values` with `--set component.apipolicy.apiKeyVerification.enabled=true` on the parent Component's Helm release (see View ExposedAPIs > Enable/Disable Authentication).
 
 ### How Kong JWT Validation Works
 

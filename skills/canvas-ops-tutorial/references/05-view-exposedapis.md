@@ -224,7 +224,9 @@ All API Gateway configuration (routes, authentication plugins, rate limiting) is
 - **Istio VirtualServices / EnvoyFilters**
 - **APISIX routes / plugins**
 
-Always make changes by **patching the ExposedAPI** resource. The API Operator watches for changes and reconciles the gateway configuration automatically. Direct modifications may be overwritten by the operator or cause inconsistent state.
+Always make changes by **upgrading the Helm release** for the parent Component using `helm upgrade --reuse-values`. This updates the Component CR (the source of truth), which the Component Operator decomposes into updated ExposedAPI child resources, and the API Operator then reconciles into the correct gateway configuration.
+
+> **Quick/temporary alternative:** You can also `kubectl patch` an ExposedAPI resource directly for one-off testing, but these changes **will be overwritten** on the next `helm upgrade` since the Component CR managed by Helm is the source of truth.
 
 To **view** gateway resources for debugging purposes (e.g., confirming a KongPlugin was created), use `kubectl get` — but never `kubectl delete`, `kubectl edit`, or `kubectl patch` on these resources.
 
@@ -241,29 +243,43 @@ Then ask for the desired rate limit using `ask_questions` with a default of **60
 | 120 per minute | Permissive — for high-throughput APIs |
 | Custom | Let the user specify a custom limit and interval |
 
-Apply the rate limit by patching the ExposedAPI resource. On PowerShell, write the JSON to a temp file to avoid escaping issues:
+Apply the rate limit by upgrading the Helm release for the parent Component. Use `--set-string` for the `limit` field because the CRD schema expects a string — using `--set` coerces bare numbers to integers and fails validation:
+
+```bash
+helm upgrade <release> oda-components/<chart> -n components \
+  --set component.apipolicy.rateLimit.enabled=true \
+  --set-string component.apipolicy.rateLimit.limit=<LIMIT> \
+  --set component.apipolicy.rateLimit.interval=pm \
+  --reuse-values
+```
+
+> **`--reuse-values`** preserves all other settings from the current release. Without it, non-overridden values revert to chart defaults.
+
+After upgrading, verify the change by querying the ExposedAPI and showing the updated rate limit fields. The Component Operator propagates the change from the Component CR to the ExposedAPI child resource, and the API Operator then configures the corresponding rate-limiting plugin on the API Gateway (Kong plugin, Istio EnvoyFilter, or APISIX plugin depending on the gateway in use).
+
+To **remove** a rate limit:
+
+```bash
+helm upgrade <release> oda-components/<chart> -n components \
+  --set component.apipolicy.rateLimit.enabled=false \
+  --reuse-values
+```
+
+### Quick/temporary alternative (kubectl patch)
+
+> **Warning:** Direct patches on ExposedAPI resources will be **overwritten** on the next `helm upgrade`, since the Component CR managed by Helm is the source of truth. Use this only for one-off testing.
 
 ```powershell
+# PowerShell
 '{"spec":{"rateLimit":{"enabled":true,"limit":"<LIMIT>","interval":"pm"}}}' | Out-File -Encoding utf8NoBOM -FilePath patch.json
 kubectl patch exposedapi <name> -n components --type=merge --patch-file patch.json
 Remove-Item patch.json
 ```
 
-On bash:
-
 ```bash
+# bash
 kubectl patch exposedapi <name> -n components --type=merge \
   -p '{"spec":{"rateLimit":{"enabled":true,"limit":"<LIMIT>","interval":"pm"}}}'
-```
-
-After patching, verify the change by running the drill-down script on the patched ExposedAPI and showing the updated rate limit fields. Explain that the API Operator detects the change and configures the corresponding rate-limiting plugin on the API Gateway (Kong plugin, Istio EnvoyFilter, or APISIX plugin depending on the gateway in use).
-
-To **remove** a rate limit, patch with `enabled: false`:
-
-```powershell
-'{"spec":{"rateLimit":{"enabled":false}}}' | Out-File -Encoding utf8NoBOM -FilePath patch.json
-kubectl patch exposedapi <name> -n components --type=merge --patch-file patch.json
-Remove-Item patch.json
 ```
 
 ## Enable Authentication
@@ -278,7 +294,19 @@ Present the list of ExposedAPIs and let the user choose. Recommend enabling auth
 
 ### Apply the change
 
-Patch each selected ExposedAPI:
+Upgrade the Helm release for the parent Component:
+
+```bash
+helm upgrade <release> oda-components/<chart> -n components \
+  --set component.apipolicy.apiKeyVerification.enabled=true \
+  --reuse-values
+```
+
+> **`--reuse-values`** preserves all other settings (e.g., rate limits, dependent APIs) from the current release.
+
+#### Quick/temporary alternative (kubectl patch)
+
+> **Warning:** Direct patches on ExposedAPI resources will be **overwritten** on the next `helm upgrade`. Use this only for one-off testing.
 
 ```powershell
 # PowerShell
@@ -320,15 +348,17 @@ After enabling authentication, remind the user that they also need to **set up t
 
 ### Disable authentication
 
-To disable authentication on an API, patch the ExposedAPI to set `apiKeyVerification.enabled` to `false`. The API Operator will detect the change and remove the corresponding JWT plugin from the gateway automatically.
+To disable authentication on an API, upgrade the Helm release:
 
-```powershell
-'{"spec":{"apiKeyVerification":{"enabled":false}}}' | Out-File -Encoding utf8NoBOM -FilePath patch.json
-kubectl patch exposedapi <name> -n components --type=merge --patch-file patch.json
-Remove-Item patch.json
+```bash
+helm upgrade <release> oda-components/<chart> -n components \
+  --set component.apipolicy.apiKeyVerification.enabled=false \
+  --reuse-values
 ```
 
-> **Never** delete KongPlugin or other gateway resources directly. Always disable features by patching the ExposedAPI CRD — the API Operator handles cleanup.
+The Component Operator propagates the change to the ExposedAPI child resource, and the API Operator removes the corresponding JWT plugin from the gateway automatically.
+
+> **Never** delete KongPlugin or other gateway resources directly. Always disable features by upgrading the Helm release or patching the ExposedAPI CRD — the API Operator handles cleanup.
 
 ## Contextual Next Steps
 
