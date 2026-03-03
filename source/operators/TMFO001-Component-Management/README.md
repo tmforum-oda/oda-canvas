@@ -1,4 +1,10 @@
-# Component Management Operator
+# TMFO001 Component Management Operators
+
+Manages the overall lifecycle of an ODA Component. It ensures all ODA Components are deployed, configured, secured, monitored, and continuously governed in a consistent way across the enterprise. Rather than delivering business functionality itself, it acts as the behind-the-scenes operator that keeps those capabilities running reliably, scaling when demand increases, enforcing policy and compliance standards, and managing upgrades or changes without disrupting customer-facing services. Technically it breaks the main ODA Component resource into sub-resources for the other operators to process.
+
+At present, there is one implementation:
+
+## Component Management Operator
 
 This is the reference implementiton of a component operator that manages the overall lifecycle of an ODA Component. The component operator takes the `Component` custom resource and creates multiple sub-reaources for each part of the component specification. At present it creates sub-resources for `ExposedAPI`, `DependentAPI`, `PublishedNotification`, `SubscribedNotification` and `SecretsManagement`. In the near future it will also create custom resources for `IdentityConfig` and `ObservabilityConfig`.
 
