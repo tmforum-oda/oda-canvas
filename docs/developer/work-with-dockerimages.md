@@ -104,8 +104,8 @@ secretsmanagement-operator:
   valuesPathPrereleaseSuffix: .secretsmanagement-operator.prereleaseSuffix
 
   paths:
-  - source/operators/secretsmanagementOperator-hc/docker/**/*
-  buildContext: source/operators/secretsmanagementOperator-hc/docker
+  - source/operators/TMFO007-Secrets-Management/vault/docker/**/*
+  buildContext: source/operators/TMFO007-Secrets-Management/vault/docker
   platforms: linux/amd64 
 ```
 
@@ -145,12 +145,12 @@ This would result in a docker image named: `tmforumodacanvas/secretsmanagement-o
 
 ### Step 3: Change the code in the feature branch
 
-From the docker build configuration above, we can see, that the sources are in the folder `source/operators/secretsmanagementOperator-hc/docker`.
+From the docker build configuration above, we can see, that the sources are in the folder `source/operators/TMFO007-Secrets-Management/vault/docker`.
 Any change in this folder will trigger a new build of the dockerimage with tag `0.1.1-issue3456`.
 
 For now just let´s add one print line on startup of the SecretsManagement-Operator:
 
-https://github.com/tmforum-oda/oda-canvas/blob/32e89708912b2fb170f268efccdccb4325fb25ab/source/operators/secretsmanagementOperator-hc/docker/secretsmanagementOperatorHC.py#L38
+https://github.com/tmforum-oda/oda-canvas/blob/32e89708912b2fb170f268efccdccb4325fb25ab/source/operators/TMFO007-Secrets-Management/vault/docker/secretsmanagementOperatorHC.py#L38
 
 ```
     # Setup logging
@@ -268,7 +268,7 @@ So an iterative process of code changes is neccessary.
 
 ### Step 6a..6n: Modify code multiple times
 
-In our example we will modify the same file again source/operators/secretsmanagementOperator-hc/docker/secretsmanagementOperatorHC.py:
+In our example we will modify the same file again source/operators/TMFO007-Secrets-Management/vault/docker/secretsmanagementOperatorHC.py:
 
 ```
     # Setup logging
@@ -529,7 +529,7 @@ https://github.com/tmforum-oda/oda-canvas/blob/2d6268346c215c6dedb7afb2862765679
 
 And the DockerfileTest looks like this:
 
-https://github.com/tmforum-oda/oda-canvas/blob/2d6268346c215c6dedb7afb2862765679da5c23c/source/operators/dependentApiSimpleOperator/docker/DockerfileTest#L1-L17
+https://github.com/tmforum-oda/oda-canvas/blob/2d6268346c215c6dedb7afb2862765679da5c23c/source/operators/TMFO005-Dependency-Management/simple-dependency-management/docker/DockerfileTest#L1-L17
 
 There will be a warning, that it is bad practice to define a FROM solely from an argument, but I don´t know how to do it in another way.
 

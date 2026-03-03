@@ -17,7 +17,7 @@ import (
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/api/v1alpha1"
+	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/api/v1alpha1"
 )
 
 func TestDeploymentReconciler_AnnotationBasedPDB(t *testing.T) {

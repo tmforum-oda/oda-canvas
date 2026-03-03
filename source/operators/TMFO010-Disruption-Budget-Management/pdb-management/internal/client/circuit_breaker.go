@@ -30,7 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/api/v1alpha1"
+	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/api/v1alpha1"
 )
 
 // AdaptiveCircuitBreakerClient wraps the Kubernetes client with an adaptive circuit breaker

@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/tracing"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/tracing"
 	"go.opentelemetry.io/otel/attribute"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -43,9 +43,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/events"
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/logging"
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/metrics"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/events"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/logging"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/metrics"
 )
 
 type PDBReconciler struct {

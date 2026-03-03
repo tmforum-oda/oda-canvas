@@ -1,4 +1,4 @@
-module github.com/tmforum-oda/oda-canvas/source/operators/pdb-management
+module github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management
 
 go 1.23.8
 

@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/cache"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/cache"
 	"sigs.k8s.io/controller-runtime/pkg/metrics"
 )
 

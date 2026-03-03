@@ -65,20 +65,20 @@ kubectl get secrets
 ## deploy targets
 
 ```
-helm upgrade --install targetcomp source/operators/oauth2EnvoyfilterOperator/helm/echotarget
+helm upgrade --install targetcomp source/operators/TMFO008-OAuth2-Config/envoy-filter/helm/echotarget
 ```
 
 ```
-helm upgrade --install jedionlytarget source/operators/oauth2EnvoyfilterOperator/helm/jedionlytarget
+helm upgrade --install jedionlytarget source/operators/TMFO008-OAuth2-Config/envoy-filter/helm/jedionlytarget
 ```
 
 ```
-helm upgrade --install proxy-extecho source/operators/oauth2EnvoyfilterOperator/helm/proxy-extecho
+helm upgrade --install proxy-extecho source/operators/TMFO008-OAuth2-Config/envoy-filter/helm/proxy-extecho
 ```
 
 ### take a short look at the sources
 
-https://github.com/tmforum-oda/oda-canvas/tree/feature/362-authentication-adding-authentication-to-outbound-api-calls-from-component/source/operators/oauth2EnvoyfilterOperator/helm
+https://github.com/tmforum-oda/oda-canvas/tree/feature/362-authentication-adding-authentication-to-outbound-api-calls-from-component/source/operators/TMFO008-OAuth2-Config/envoy-filter/helm
 
 
 (optional) https://github.com/ODA-CANVAS-FORK/oda-canvas-notes/blob/main/apps/echoservice/app/app.py#L83-L110
@@ -115,7 +115,7 @@ kubectl get components
 ## deploy client with dependent apis
 
 ```
-helm upgrade --install clientcomp source/operators/oauth2EnvoyfilterOperator/helm/echoclient
+helm upgrade --install clientcomp source/operators/TMFO008-OAuth2-Config/envoy-filter/helm/echoclient
 ```
 
 show exposedapi

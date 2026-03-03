@@ -1,4 +1,8 @@
-# Carbon Management Operator
+# TMFO011 Carbon Management Operators
+
+Measures energy and carbon use by components and offers services for components to optimise their use.
+
+---
 
 ## Overview
 The Carbon Management Operator is designed to optimize energy consumption and reduce carbon emissions by leveraging carbon intensity data. This document outlines the key concepts, strategies, and use cases for implementing carbon-aware software solutions.
@@ -55,3 +59,7 @@ Leveraging data to run hypothetical models can help organizations:
 - Identify opportunities to reduce emissions.
 - Build business cases for change.
 - Contribute to a more sustainable future.
+
+
+
+** *Implementation Planned* **

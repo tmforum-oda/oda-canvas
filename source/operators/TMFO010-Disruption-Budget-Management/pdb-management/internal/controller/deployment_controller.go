@@ -47,12 +47,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	"github.com/go-logr/logr"
-	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/api/v1alpha1"
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/cache"
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/events"
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/logging"
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/metrics"
-	"github.com/tmforum-oda/oda-canvas/source/operators/pdb-management/internal/tracing"
+	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/api/v1alpha1"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/cache"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/events"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/logging"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/metrics"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/tracing"
 )
 
 const (
