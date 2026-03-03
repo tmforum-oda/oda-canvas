@@ -90,7 +90,7 @@ spec:
 ```
 
 
-## Sequence diagram
+## Sequence Diagrams
 
 The diagram below describes how each Exposed APIs is configured in the API Gateway and/or Service Mesh. The `ExposedAPI` resources are created by the Component Operator When a component is deployed, updated or deleted. The sequence diagram shows how the API Operator manages the Service Mesh and/or API Gateway to configure and expose the API Endpoints. There are more details and diagrams for update and delete operations in [Use case UC003 - Configure Exposed APIs](../../../usecase-library/UC003-Configure-Exposed-APIs.md).
 

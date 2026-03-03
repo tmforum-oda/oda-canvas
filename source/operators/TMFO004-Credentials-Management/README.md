@@ -6,3 +6,7 @@ At present, there is one implementation:
 
 * [credentials-management](./credentials-management/): Implementation of a Credentials Management Operator for Kubernetes.
 
+## Sequence Diagrams
+
+See [UC005-Configure-Clients-and-Roles](../../../usecase-library/UC005-Configure-Clients-and-Roles.md) for details of the Credentials Management use case.
+

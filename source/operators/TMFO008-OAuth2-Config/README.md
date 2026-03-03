@@ -6,3 +6,7 @@ At present, there is one implementation:
 
 * [Envoy Filter](./envoy-filter/): OAuth2 EnvoyFilter Operator for Istio service mesh.
 
+## Sequence Diagrams
+
+See [UC009-Internal-Authentication](../../../usecase-library/UC009-Internal-Authentication.md) for details of the OAuth2 authentication use case.
+
