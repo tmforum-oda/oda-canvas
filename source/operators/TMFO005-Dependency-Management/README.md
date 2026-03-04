@@ -1,4 +1,4 @@
-# TMFO005 Dependency Management Operators
+# TMFOP005 Dependency Management Operators
 
 Ensures ODA Components can reliably discover and connect to the APIs they depend on. Rather than requiring manual wiring between components, it continuously resolves service dependencies at runtime — enabling components to interoperate seamlessly as the Canvas evolves, new components are deployed, or existing ones are upgraded.
 

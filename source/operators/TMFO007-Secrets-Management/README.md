@@ -1,4 +1,4 @@
-# TMFO007 Secrets Management Operators
+# TMFOP007 Secrets Management Operators
 
 Provides enterprise-grade secrets management for ODA Components by integrating with an external secrets vault. It ensures that sensitive configuration — such as passwords, API keys, and certificates — is stored, accessed, and rotated securely, without embedding secrets in component configuration or container images.
 

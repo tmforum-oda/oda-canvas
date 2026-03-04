@@ -1,4 +1,4 @@
-# TMFO001 Component Management Operators
+# TMFOP001 Component Management Operators
 
 Manages the overall lifecycle of an ODA Component. It ensures all ODA Components are deployed, configured, secured, monitored, and continuously governed in a consistent way across the enterprise. Rather than delivering business functionality itself, it acts as the behind-the-scenes operator that keeps those capabilities running reliably, scaling when demand increases, enforcing policy and compliance standards, and managing upgrades or changes without disrupting customer-facing services. Technically it breaks the main ODA Component resource into sub-resources for the other operators to process.
 

@@ -1,4 +1,4 @@
-# TMFO003 Identity Config Operators
+# TMFOP003 Identity Config Operators
 
 Ensures every ODA Component's roles and permissions are correctly registered in the enterprise Identity Management system. It eliminates manual access control provisioning by automatically translating each component's declared security requirements into the appropriate roles, so that the right people and systems have the right access — consistently and at scale. Multiple identity provider implementations are supported.
 

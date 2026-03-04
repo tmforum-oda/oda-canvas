@@ -22,7 +22,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/api/v1alpha1"
+	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/api/v1alpha1"
 )
 
 // CacheStats holds cache statistics

@@ -17,8 +17,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/api/v1alpha1"
-	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/controller"
+	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/api/v1alpha1"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/internal/controller"
 )
 
 const (

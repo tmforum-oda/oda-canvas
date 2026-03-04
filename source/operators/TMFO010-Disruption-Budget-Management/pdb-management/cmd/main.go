@@ -43,14 +43,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/api/v1alpha1"
-	internalcache "github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/cache"
-	internalclient "github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/client"
-	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/controller"
-	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/events"
-	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/logging"
-	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/metrics"
-	"github.com/tmforum-oda/oda-canvas/source/operators/TMFO010-Disruption-Budget-Management/pdb-management/internal/tracing"
+	availabilityv1alpha1 "github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/api/v1alpha1"
+	internalcache "github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/internal/cache"
+	internalclient "github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/internal/client"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/internal/controller"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/internal/events"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/internal/logging"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/internal/metrics"
+	"github.com/tmforum-oda/oda-canvas/source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/internal/tracing"
 	appsv1 "k8s.io/api/apps/v1"
 )
 

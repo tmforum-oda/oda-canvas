@@ -1,4 +1,4 @@
-# TMFO002 API Management Operators
+# TMFOP002 API Management Operators
 
 Governs how ODA Component APIs are exposed and protected across the enterprise. It automatically enforces non-functional policies — such as rate limiting, authentication, cross-origin access, and specification validation — so that every API is consistently secured and governed without manual configuration. Multiple API gateway and service mesh implementations are supported, allowing the Canvas to align with the organisation's existing infrastructure choices.
 

@@ -597,10 +597,10 @@ The operator requires the following permissions:
 ### Technical Documentation
 
 - **[Canvas Design Document](../../../Canvas-design.md)** - Overall Canvas architecture and design principles
-- **[Component Management](../TMFO001-Component-Management/README.md)** - Core component lifecycle management
-- **[API Management](../TMFO002-API-Management/README.md)** - API gateway and management operators
-- **[Identity Configuration](../TMFO003-Identity-Config/README.md)** - Identity and authentication management
-- **[Secrets Management](../TMFO007-Secrets-Management/README.md)** - Secrets and credentials management
+- **[Component Management](../TMFOP001-Component-Management/README.md)** - Core component lifecycle management
+- **[API Management](../TMFOP002-API-Management/README.md)** - API gateway and management operators
+- **[Identity Configuration](../TMFOP003-Identity-Config/README.md)** - Identity and authentication management
+- **[Secrets Management](../TMFOP007-Secrets-Management/README.md)** - Secrets and credentials management
 
 ### Observability and Operations
 

@@ -70,11 +70,11 @@ helm upgrade --install demo-a -n components feature-definition-and-test-kit/test
 Alternative: external Wrapper
 
 ```
-kubectl apply -f source/operators/TMFO008-OAuth2-Config/envoy-filter/docker/manual_test/testdata/yamls/externalapi-productcatalogmanagement-echoservice.yaml
+kubectl apply -f source/operators/TMFOP008-OAuth2-Config/envoy-filter/docker/manual_test/testdata/yamls/externalapi-productcatalogmanagement-echoservice.yaml
 ```
 
 ```
-kubectl apply -f source/operators/TMFO008-OAuth2-Config/envoy-filter/docker/manual_test/testdata/yamls/externalapi-productcatalogmanagement-echo-beepceptor.yaml
+kubectl apply -f source/operators/TMFOP008-OAuth2-Config/envoy-filter/docker/manual_test/testdata/yamls/externalapi-productcatalogmanagement-echo-beepceptor.yaml
 ```
 
 

@@ -1,4 +1,4 @@
-# TMFO008 OAuth2 Config Operators
+# TMFOP008 OAuth2 Config Operators
 
 Enforces token-based authentication at the service mesh level, ensuring that only properly authorised callers can communicate between ODA Components. It provides a consistent, policy-driven security boundary across all inter-component traffic without requiring individual components to implement their own authentication logic.
 
