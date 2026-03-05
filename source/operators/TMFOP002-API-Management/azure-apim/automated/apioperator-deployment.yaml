@@ -1,0 +1,29 @@
+# apioperator-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apioperatorazureapim
+  namespace: operators
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apioperatorazureapim
+  template:
+    metadata:
+      labels:
+        app: apioperatorazureapim
+    spec:
+      serviceAccountName: apioperatorazureapim-sa
+      containers:
+        - name: apioperatorazureapim
+          # IMPORTANT: Replace this with your actual container registry and image tag
+          image: <YourContainerRegistry>/apioperatorazureapim:latest
+          imagePullPolicy: Always
+          env:
+            - name: KEY_VAULT_NAME
+              # This value will be set during the deployment script
+              value: "<YourKeyVaultName>"
+            - name: LOGGING
+              value: "INFO" # Can be set to DEBUG for more verbose logs
