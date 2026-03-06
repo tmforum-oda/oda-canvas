@@ -127,17 +127,11 @@ Then('I should see the {string} ExposedAPI resource on the {string} component wi
     assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The ExposedAPI resource should be found within " + API_DEPLOY_TIMEOUT + " milliseconds")
   }
 
-  // The apiResource has a spec with a specification that is an array of strings
-  // assert that the array contains the specVersion
-  var found = false
-  for (var i = 0; i < apiResource.spec.specification.length; i++) {
-    if (apiResource.spec.specification[i].url == specVersion) {
-      found = true
-      break
-    }
-  }
+  // The apiResource has a spec with a specification that is now an object (previously array) of strings
+  // assert that the object contains the specVersion
+  const specification = apiResource?.spec?.specification
 
-  assert.ok(found, "The ExposedAPI resource should have the specification " + specVersion)
+  assert.ok(specification && specification.url === specVersion, "The ExposedAPI resource should have the specification " + specVersion)
 
 });
 
