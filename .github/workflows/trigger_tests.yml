@@ -123,7 +123,7 @@ jobs:
       run: |
        git clone https://github.com/kubernetes-sigs/cloud-provider-kind.git
        cd cloud-provider-kind && make
-       bin/cloud-provider-kind --gateway-channel disabled &
+       bin/cloud-provider-kind &
 
     - name: Install Helm
       run: |
@@ -255,20 +255,27 @@ jobs:
 # Build and push badges
 # ---------------------
   build_badges_job:
-    if: always() && (needs.run_tests_job.result == 'success' || needs.run_tests_job.result == 'failure')
+    if: needs.run_tests_job.result == 'success' || needs.run_tests_job.result == 'failure'
     runs-on: ubuntu-latest
     needs: run_tests_job
     permissions:
       contents: write
     steps:
       - name: Download test-report actions/upload-artifact
+        id: download_report
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: test-report
           path: /tmp
 
+      - name: Skip badge generation
+        if: steps.download_report.outcome != 'success'
+        run: echo "test-report artifact not found; skipping badge generation."
+
       - name: Parse cucumber results 
         id: parse_results
+        if: steps.download_report.outcome == 'success'
         run: |
           failed=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( any($s[]; .=="failed") ) ] | length' /tmp/cucumber.json)
           undefined=$(jq '[ .[] | .elements[] | ([ .steps[]? | select((.hidden // false)|not) | .result.status ]) as $s | select( (any($s[]; .=="failed")|not) and any($s[]; .=="undefined" or .=="pending" or .=="ambiguous") ) ] | length' /tmp/cucumber.json)
@@ -282,7 +289,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Badge - Passed
-        if: always()
+        if: steps.download_report.outcome == 'success'
         uses: RubbaBoy/BYOB@v1.3.0
         with: 
           name: bdd-passed
@@ -295,7 +302,7 @@ jobs:
           path: bdd-passed.json
 
       - name: Badge - Failed 
-        if: always()
+        if: steps.download_report.outcome == 'success'
         uses: RubbaBoy/BYOB@v1.3.0
         with: 
           name: bdd-failed
@@ -308,7 +315,7 @@ jobs:
           path: bdd-failed.json
 
       - name: Badge - Undefined
-        if: always()
+        if: steps.download_report.outcome == 'success'
         uses: RubbaBoy/BYOB@v1.3.0
         with:
           name: bdd-undefined
@@ -321,7 +328,7 @@ jobs:
           path: bdd-undefined.json
 
       - name: Badge - Skipped
-        if: always()
+        if: steps.download_report.outcome == 'success'
         uses: RubbaBoy/BYOB@v1.3.0
         with:
           name: bdd-skipped
