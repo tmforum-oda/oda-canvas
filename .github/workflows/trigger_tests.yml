@@ -119,9 +119,9 @@ jobs:
         kind create cluster --image kindest/node:v1.30.0
         kubectl get nodes --show-labels
         
-    - name: Download Kind LB Cloud Provider
+    - name: Download Kind LB Cloud Provider # Pinned to v0.10.0 because newer versions broke Kind LB behaviour in CI
       run: |
-       git clone https://github.com/kubernetes-sigs/cloud-provider-kind.git
+       git clone --branch v0.10.0 --depth 1 https://github.com/kubernetes-sigs/cloud-provider-kind.git
        cd cloud-provider-kind && make
        bin/cloud-provider-kind &
 

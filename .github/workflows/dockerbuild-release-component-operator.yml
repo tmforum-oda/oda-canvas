@@ -13,7 +13,7 @@ on:
     branches:
     - main
     paths: 
-      - source/operators/component-management/*
+      - source/operators/TMFOP001-Component-Management/component-management/*
 
 jobs:
   build-component-operator-release-dockerfile-job:
@@ -74,8 +74,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/component-management
-          file: source/operators/component-management/component-operator-dockerfile
+          context: source/operators/TMFOP001-Component-Management/component-management
+          file: source/operators/TMFOP001-Component-Management/component-management/component-operator-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
