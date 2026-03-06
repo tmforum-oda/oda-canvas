@@ -116,14 +116,13 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
         else:
             if (
                 exp_api["spec"]["apiType"] == "openapi"
-                and exp_api["spec"]["specification"][0]["url"]
-                == depapi_specification[0]["url"]
+                and exp_api["spec"]["specification"]["url"]
+                == depapi_specification["url"]
                 and safe_get(False, exp_api, "status", "implementation", "ready")
                 == True
             ):
                 return exp_api["status"]["apiStatus"]["url"]
     return None
-
 
 def quick_get_comp_name(body):
     return safe_get(None, body, "metadata", "labels", componentname_label)

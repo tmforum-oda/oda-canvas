@@ -5,7 +5,8 @@ metadata:
 spec:
   name: productcatalogmanagement # Name of the API as defined by the Component
   specification:
-    - "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json" # URL to the specification of the API, if required. e.g. URL to the swagger file for Open API.
+    url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json" # URL to the specification of the API, if required. e.g. URL to the swagger file for Open API.
+    version: "v4.0.0"
   apiType: openapi # The type of API specification. Currently only OpenAPI (swagger) and OpenMetrics APIs are supported.
   apiSDO: TMForum # (optional) The Standards Development Organization that defines the API
   implementation: r1-prodcatapi # The name of the Kubernetes service where the implementation of the API is found

@@ -13,7 +13,7 @@ on:
     branches:
     - main
     paths: 
-      - source/operators/oauth2EnvoyfilterOperator/docker/**/*
+      - source/operators/TMFOP008-OAuth2-Config/envoy-filter/docker/**/*
 
 jobs:
   build-oauth2envoyfilter-operator-release-dockerfile-job:
@@ -74,7 +74,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/oauth2EnvoyfilterOperator/docker
+          context: source/operators/TMFOP008-OAuth2-Config/envoy-filter/docker
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
