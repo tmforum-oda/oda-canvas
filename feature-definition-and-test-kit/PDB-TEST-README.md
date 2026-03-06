@@ -302,7 +302,7 @@ rm -rf test-results/
 
 - [Cucumber.js Documentation](https://cucumber.io/docs/cucumber/)
 - [ODA Canvas Documentation](https://github.com/tmforum-oda/oda-canvas)
-- [PDB Management Operator README](../source/operators/pdb-management/README.md)
+- [PDB Management Operator README](../source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/README.md)
 - [Kubernetes PDB Documentation](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/)
 
 ## Support
