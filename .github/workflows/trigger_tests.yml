@@ -255,7 +255,7 @@ jobs:
 # Build and push badges
 # ---------------------
   build_badges_job:
-    if: needs.run_tests_job.result == 'success' || needs.run_tests_job.result == 'failure'
+    if: ${{ always() && (needs.run_tests_job.result == 'success' || needs.run_tests_job.result == 'failure') }}
     runs-on: ubuntu-latest
     needs: run_tests_job
     permissions:
