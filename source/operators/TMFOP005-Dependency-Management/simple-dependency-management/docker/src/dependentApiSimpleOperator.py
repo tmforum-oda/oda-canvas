@@ -124,7 +124,6 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
                 return exp_api["status"]["apiStatus"]["url"]
     return None
 
-
 def quick_get_comp_name(body):
     return safe_get(None, body, "metadata", "labels", componentname_label)
 

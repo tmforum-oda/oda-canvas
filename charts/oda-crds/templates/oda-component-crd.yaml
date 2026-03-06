@@ -2671,7 +2671,6 @@ spec:
                           description: Required is a flag that indicates whether the API is required or not.
                       required:
                       - name
-                      - specification
                       x-kubernetes-validations:
                         - rule: |
                             (
@@ -2750,7 +2749,6 @@ spec:
                           description: Required is a flag that indicates whether the API is required or not.
                       required:
                       - name
-                      - specification
                       x-kubernetes-validations:
                         - rule: |
                             (

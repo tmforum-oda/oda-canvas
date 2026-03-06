@@ -1029,7 +1029,7 @@ def normalize_apis(api_list: list, api_type: str = "exposed") -> list:
       overridden by fields defined inside specification[].
     - The output does NOT preserve the specification[] array; instead, each
       versioned entry becomes its own fully flattened record.
-    - A missing "version" is inferred from URL if possible
+    - A missing "version" is inferred from URL if possible.
     - Version is only set when explicitly declared or inferable from URL.
       No synthetic default version is added for naming purposes.
     - The returned structure is always a list of fully resolved per-version API
