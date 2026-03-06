@@ -16,7 +16,7 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 version: 1.4.3
-# version: 1.4.3 - updated component crd schema to allow multiple versions of an api under coreFunction
+# version: 1.4.3 - updated component crd schema to allow multiple versions of an api under coreFunction and supporting functions
 # version: 1.4.2 - Added support for managementFunction and securityFunction dependent APIs
 # version: 1.4.1 - Added support for custom/private docker registry and image pull secrets
 # version: 1.4.0 - Added support for User Roles and Permissions API

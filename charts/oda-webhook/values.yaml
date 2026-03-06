@@ -3,6 +3,6 @@
 
 image: tmforumodacanvas/compcrdwebhook
 version: 1.0.1
-prereleaseSuffix: issue443
+prereleaseSuffix: 
 imagePullPolicy: IfNotPresent
 

@@ -2,7 +2,7 @@ deployment:
   operatorName: component-operator
   compopImage: tmforumodacanvas/component-operator
   compopVersion: 1.1.2
-  compopPrereleaseSuffix: issue443
+  compopPrereleaseSuffix: 
   compopImagePullPolicy: IfNotPresent
   istioGateway: true
   monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces

@@ -166,7 +166,7 @@ component-operator:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
     compopVersion: 1.1.2
-    compopPrereleaseSuffix: issue443
+    compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
@@ -203,7 +203,7 @@ dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 1.0.1
-  prereleaseSuffix: issue443
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
 
@@ -398,7 +398,7 @@ pdb-management-operator:
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
   version: 1.0.2
-  prereleaseSuffix: issue443
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
  
 # -----------------------------------------------------------------------------

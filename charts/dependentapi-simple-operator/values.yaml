@@ -1,5 +1,5 @@
 image: tmforumodacanvas/dependentapi-simple-operator
 version: 1.0.1
-prereleaseSuffix: issue443
+prereleaseSuffix: 
 imagePullPolicy: IfNotPresent
 loglevel: '20'
