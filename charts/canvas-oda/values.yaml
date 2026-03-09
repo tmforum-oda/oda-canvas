@@ -165,7 +165,7 @@ component-operator:
   deployment:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
-    compopVersion: 1.1.1
+    compopVersion: 1.1.2
     compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
@@ -202,7 +202,7 @@ identityconfig-operator-keycloak:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 1.0.0
+  version: 1.0.1
   prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
@@ -397,8 +397,8 @@ pdb-management-operator:
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
-  version: 1.0.1
-  prereleaseSuffix:
+  version: 1.0.2
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
  
 # -----------------------------------------------------------------------------

@@ -13,7 +13,7 @@ on:
     branches:
     - main
     paths: 
-      - source/operators/dependentApiSimpleOperator/docker/**/*
+      - source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker/**/*
 
 jobs:
   build-dependentapi-simple-operator-release-dockerfile-job:
@@ -73,7 +73,7 @@ jobs:
       - name: Build and export to Docker
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/dependentApiSimpleOperator/docker
+          context: source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
@@ -90,8 +90,8 @@ jobs:
       - name: Run Unit Tests
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/dependentApiSimpleOperator/docker
-          file: source/operators/dependentApiSimpleOperator/docker/DockerfileTest
+          context: source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker
+          file: source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker/DockerfileTest
           build-args: |
             FROM_IMAGE=${{ steps.get_values_image.outputs.result }}:latest
           load: true
@@ -115,7 +115,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/dependentApiSimpleOperator/docker
+          context: source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
