@@ -207,6 +207,7 @@ spec:
                 type: string
                 enum:
                 - openapi
+                - mcp
                 description: The type of API specification. Currently only OpenAPI (swagger) is supported.
               selector:
                 type: object

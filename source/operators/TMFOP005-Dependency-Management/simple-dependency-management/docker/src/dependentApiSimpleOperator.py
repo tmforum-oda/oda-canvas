@@ -108,20 +108,43 @@ def get_expapi(logw: LogWrapper):
 @logwrapper
 def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
     dep_api = get_depapi_spec(logw, depapi_name, depapi_namespace)
-    depapi_specification = dep_api["specification"]
+    depapi_specification = safe_get({}, dep_api, "specification")
+    depapi_apitype = safe_get(None, dep_api, "apiType")
+    depapi_api_name = safe_get(None, dep_api, "name")
+
     exp_apis = get_expapi()
+
+    exp_url = safe_get(None, exp_api, "spec", "specification", "url")
+    dep_url = safe_get(None, depapi_specification, "url")
+
+    # Existing OpenAPI lookup by specification URL
     for exp_api in exp_apis["items"]:
         if not ("specification" in exp_api["spec"].keys()):
             continue
         else:
             if (
-                exp_api["spec"]["apiType"] == "openapi"
-                and exp_api["spec"]["specification"]["url"]
-                == depapi_specification["url"]
+                safe_get(None, exp_api, "spec", "apiType") == "openapi"
+                and exp_url is not None
+                and dep_url is not None
+                and exp_url == dep_url
                 and safe_get(False, exp_api, "status", "implementation", "ready")
-                == True
             ):
                 return exp_api["status"]["apiStatus"]["url"]
+            
+    if exp_url is None or dep_url is None:
+        logw.debug(f"Skipping OpenAPI match due to missing URL: exp={exp_url}, dep={dep_url}")
+    
+    logw.info(f"Trying MCP fallback lookup for dependent API {depapi_api_name}")
+    # MCP fallback lookup by apiType + API name
+    if depapi_apitype == "mcp":
+        for exp_api in exp_apis["items"]:
+            if (
+                safe_get(None, exp_api, "spec", "apiType") == "mcp"
+                and safe_get(None, exp_api, "spec", "name") == depapi_api_name
+                and safe_get(False, exp_api, "status", "implementation", "ready") is True
+            ):
+                return exp_api["status"]["apiStatus"]["url"]
+
     return None
 
 def quick_get_comp_name(body):
