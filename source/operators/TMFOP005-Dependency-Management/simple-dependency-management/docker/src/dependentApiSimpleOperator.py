@@ -135,6 +135,7 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
         logw.debug(f"Skipping OpenAPI match due to missing URL: exp={exp_url}, dep={dep_url}")
     
     logw.info(f"Trying MCP fallback lookup for dependent API {depapi_api_name}")
+    
     # MCP fallback lookup by apiType + API name
     if depapi_apitype == "mcp":
         for exp_api in exp_apis["items"]:
