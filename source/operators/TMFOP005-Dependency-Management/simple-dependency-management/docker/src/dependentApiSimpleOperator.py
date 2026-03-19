@@ -114,11 +114,11 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
 
     exp_apis = get_expapi()
 
-    exp_url = safe_get(None, exp_api, "spec", "specification", "url")
     dep_url = safe_get(None, depapi_specification, "url")
 
     # Existing OpenAPI lookup by specification URL
     for exp_api in exp_apis["items"]:
+        exp_url = safe_get(None, exp_api, "spec", "specification", "url")
         if not ("specification" in exp_api["spec"].keys()):
             continue
         else:
