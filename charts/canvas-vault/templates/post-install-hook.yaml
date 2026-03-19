@@ -43,7 +43,7 @@ spec:
            AUTH_PATH={{ .Values.auth_path }};
            JWT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);
            JWT_PL=$(echo $JWT | cut -d '.' -f2);
-           ISSUER=$(echo $JWT_PL==== | base64 -d 2>/dev/null | jq -r '.aud[0]');
+           ISSUER=$(echo $JWT_PL==== | base64 -d 2>/dev/null | jq -r '.iss');
            VAULT_ADDR=https://{{ .Release.Name }}-vault-hc.$NAMESPACE.svc.cluster.local:8200;
            echo requesting certificate;
            kubectl apply -f /cert-configmap/canvas-vault-certificate.yaml;
