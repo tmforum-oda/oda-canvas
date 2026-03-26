@@ -69,8 +69,7 @@ ln -s ./skills .github/skills
 Windows (PowerShell):
 
 ```powershell
-New-Item -ItemType Directory -Path .github -ErrorAction SilentlyContinue
-New-Item -ItemType SymbolicLink -Path .github\skills -Target .\skills
+New-Item -ItemType SymbolicLink -Path .github\skills -Target <FULL PATH TO SKILLS FOLDER>
 ```
 
 Windows (CMD):
