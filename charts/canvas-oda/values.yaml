@@ -115,6 +115,8 @@ keycloak:
         {
           "enabled": true,
           "realm": "odari",
+          "adminEventsEnabled": true,
+          "adminEventsDetailsEnabled": true,
           "clients": [
             {
               "clientId": "canvassystem",
@@ -199,13 +201,36 @@ identityconfig-operator-keycloak:
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
       
+# -----------------------------------------------------------------------------
+# TMFOP005 Dependency Management operator — choose one implementation.
+# Set enabled: true on exactly one of the two operators below.
+# dependentapi-simple-operator is the default.
+# -----------------------------------------------------------------------------
 dependentapi-simple-operator:
-  enabled: true
+  enabled: false
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 1.0.1
   prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
+
+dependency-management-keycloak-authz:
+  enabled: true
+  deployment:
+    operatorName: dependency-management-keycloak-authz
+    image: tmforumodacanvas/dependency-management-keycloak-authz
+    version: 0.1.0
+    prereleaseSuffix: ""
+    imagePullPolicy: IfNotPresent
+    keycloak:
+      port: 8083
+  credentials:
+    user: admin
+    pass: adpass
+  configmap:
+    kcrealm: odari
+    loglevel: "20"
+    pollIntervalSeconds: "5"
 
 canvas-vault:
   enabled: true

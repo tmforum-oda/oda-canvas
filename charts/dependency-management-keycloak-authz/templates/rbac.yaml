@@ -39,9 +39,10 @@ rules:
   # Application: watch the operator's own ConfigMap to anchor the daemon.
   # The daemon starts when the ConfigMap named
   # dependency-management-keycloak-authz-configmap is detected.
+  # patch is required by kopf to store finalizers and handler progress state.
   - apiGroups: [""]
     resources: [configmaps]
-    verbs: [list, watch, get]
+    verbs: [list, watch, get, patch]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
