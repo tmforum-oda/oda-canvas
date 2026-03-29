@@ -1,0 +1,20 @@
+deployment:
+  operatorName: dependency-management-keycloak-authz
+  image: tmforumodacanvas/dependency-management-keycloak-authz
+  version: 0.1.0
+  prereleaseSuffix: ""
+  imagePullPolicy: IfNotPresent
+  keycloak:
+    port: 8083
+
+credentials:
+  user: admin
+  pass: adpass
+
+configmap:
+  kcrealm: odari
+  loglevel: "20"
+  pollIntervalSeconds: "5"
+
+global:
+  imagePullSecrets: []
