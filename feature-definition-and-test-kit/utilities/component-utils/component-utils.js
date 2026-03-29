@@ -2,6 +2,8 @@ const k8s = require('@kubernetes/client-node')
 const fs = require('fs')
 const axios = require('axios')
 
+const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
+
 const kc = new k8s.KubeConfig()
 kc.loadFromDefault()
 
@@ -57,14 +59,16 @@ const componentUtils = {
   * @return   {String}         String containing the base URL for the API, or null if the API is not found
   */
   getAPIURL: async function (inComponentInstance, inAPIName, inNamespace) {
-    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
-    const APIResourceName = inComponentInstance + '-' + inAPIName
-    const namespacedCustomObject = await k8sCustomApi.listNamespacedCustomObject('oda.tmforum.org', 'v1', inNamespace, 'exposedapis', undefined, undefined, 'metadata.name=' + APIResourceName)
-    if (namespacedCustomObject.body.items.length === 0) {
-      return null // API not found
+    const exposedAPI = await resourceInventoryUtils.getExposedAPIResource(
+      inAPIName,
+      inComponentInstance,
+      inNamespace
+    )
+    if (!exposedAPI) {
+      return null;
     }
-    var APIURL = namespacedCustomObject.body.items[0].status.apiStatus.url
-    return APIURL
+  
+    return exposedAPI?.status?.apiStatus?.url || null;
   },
 
   /**

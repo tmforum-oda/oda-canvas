@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: operators
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: apioperatorazureapim-sa
+  namespace: operators
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: apioperatorazureapim-clusterrole
+rules:
+  # Allow managing its own custom resource across all namespaces
+  - apiGroups: ["oda.tmforum.org"]
+    resources: ["exposedapis", "exposedapis/status"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+
+  # Allow managing networking resources for API exposure
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+  # Allow patching Deployments and Services for observability in any component namespace
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch", "patch"]
+  
+  # Required by Kopf framework for its own operations
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: apioperatorazureapim-clusterrolebinding
+subjects:
+  - kind: ServiceAccount
+    name: apioperatorazureapim-sa
+    namespace: operators
+roleRef:
+  kind: ClusterRole
+  name: apioperatorazureapim-clusterrole
+  apiGroup: rbac.authorization.k8s.io
