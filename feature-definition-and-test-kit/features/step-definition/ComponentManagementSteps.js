@@ -44,6 +44,7 @@ Given('an example package {string} with {string} ExposedAPI in its {string} segm
   console.log(`Verifying package '${componentPackage}' has ${numberOfAPIs} ExposedAPI(s) in '${componentSegmentName}' segment`);
 
   try {
+    this.componentSegmentName = componentSegmentName;
     const exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName);
 
     // Assert that there are the correct number of ExposedAPIs in the componentSegment
@@ -89,6 +90,7 @@ Given('an example package {string} with {string} DependentAPI in its {string} se
   console.log(`Verifying package '${componentPackage}' has ${numberOfAPIs} DependentAPI(s) in '${componentSegmentName}' segment`);
 
   try {
+    this.componentSegmentName = componentSegmentName;
     const dependentAPIs = packageManagerUtils.getDependentAPIsFromPackage(componentPackage, 'ctk', componentSegmentName);
     
     // Assert that there are the correct number of DependentAPI in the componentSegment
@@ -246,7 +248,7 @@ Given('an example package {string} has been installed', async function (componen
  *
  * @param {string} componentPackage - The name of the package that should be the only one installed.
  */
-Given('only the {string} package is installed', async function (componentPackage) {
+Given('only the {string} package is installed', {timeout : COMPONENT_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (componentPackage) {
   console.log('\n=== Starting Clean Installation Setup ===');
   console.log(`Ensuring only '${componentPackage}' package is installed as release 'ctk'`);
   
@@ -574,7 +576,7 @@ Given('An example package {string} with a {string} ExposedAPI in its {string} se
   console.log(`Verifying package '${componentPackage}' has ExposedAPI '${apiName}' in '${componentSegmentName}' segment`);
   
   try {
-
+    this.componentSegmentName = componentSegmentName;
     const exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName);
     console.log(`Found ExposedAPIs in '${componentSegmentName}':`, JSON.stringify(exposedAPIs, null, 2));
 

@@ -12,7 +12,7 @@ jobs:
         with: 
           src: |
             ./automation/generators/dockerbuild-workflow-generator
-            ./source/operators/component-management
-            ./source/operators/api-management/istio
-            ./source/operators/dependentApiSimpleOperator
-            ./source/operators/secretsmanagementOperator-hc
+            ./source/operators/TMFOP001-Component-Management/component-management
+            ./source/operators/TMFOP002-API-Management/istio
+            ./source/operators/TMFOP005-Dependency-Management/simple-dependency-management
+            ./source/operators/TMFOP007-Secrets-Management/vault

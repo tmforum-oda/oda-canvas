@@ -1,6 +1,6 @@
 {
   "name": "@lesterthomas/kubectl-canvas_logs",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "ODA Canvas log viewer.",
   "main": "index.js",
   "scripts": {

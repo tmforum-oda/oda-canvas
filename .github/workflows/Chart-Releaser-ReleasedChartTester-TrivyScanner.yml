@@ -31,6 +31,9 @@ jobs:
           helm repo add hashicorp https://helm.releases.hashicorp.com
           helm repo add apisix https://charts.apiseven.com
           helm repo add kong https://charts.konghq.com
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+          helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
           helm repo update
           
           # Update dependencies for cert-manager-init chart
@@ -45,6 +48,9 @@ jobs:
           # Update dependencies for Apisix Chart
           cd ../apisix-gateway
           helm dependency update
+          # Update dependencies for observability-stack chart
+          cd ../observability-stack
+          helm dependency update          
           # Update dependencies for canvas-oda chart
           cd ../canvas-oda
           helm dependency update
@@ -119,7 +125,7 @@ jobs:
           
       - name: Download Kind LB Cloud Provider
         run: |
-         git clone https://github.com/kubernetes-sigs/cloud-provider-kind.git
+         git clone --branch v0.10.0 --depth 1 https://github.com/kubernetes-sigs/cloud-provider-kind.git
          cd cloud-provider-kind && make
          bin/cloud-provider-kind &
   

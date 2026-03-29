@@ -287,7 +287,68 @@ Example response:
               }
             }        
             
-       
+            if (apiVersion.mapOldToNew(["v1beta2", "v1beta3", "v1beta4"], ["v1"])) {
+              //
+              // --- v1 NORMALIZATION ---
+              // Move per-API fields into specification[0] for core Function, management Function, security Function.*
+              //
+              console.log("Applying v1 per-version normalization for coreFunction and supporting function APIs");
+              
+              const functionSegments = ["coreFunction", "managementFunction", "securityFunction"];
+              functionSegments.forEach(segment => {
+                const func = objectsArray[key].spec[segment];
+                if (!func) return;
+
+                // ----- EXPOSED APIs -----
+                if (func.exposedAPIs) {
+                  Object.keys(func.exposedAPIs).forEach(apiKey => {
+                    const api = func.exposedAPIs[apiKey];
+                    if (!Array.isArray(api.specification) || api.specification.length === 0) return;
+
+                    const specObj = api.specification[0];
+                    const moveProps = [
+                      "path",
+                      "port",
+                      "implementation",
+                      "developerUI",
+                      "resources",
+                      "apiType",
+                      "apiSDO",
+                      "gatewayConfiguration"
+                    ];
+
+                    moveProps.forEach(p => {
+                      if (api[p] !== undefined) {
+                        specObj[p] = api[p];
+                        delete api[p];
+                      }
+                    });
+                  });
+                }
+
+                // ---- DEPENDENT APIs -----
+                if (func.dependentAPIs) {
+                  Object.keys(func.dependentAPIs).forEach(apiKey => {
+                    const dep = func.dependentAPIs[apiKey];
+                    if (!Array.isArray(dep.specification) || dep.specification.length === 0) return;
+
+                    const specObj = dep.specification[0];
+                    const moveProps = [
+                      "apiType",
+                      "resources",
+                      "apiSDO"
+                    ];
+
+                    moveProps.forEach(p => {
+                      if (dep[p] !== undefined) {
+                        specObj[p] = dep[p];
+                        delete dep[p];
+                      }
+                    });
+                  });
+                }
+              })
+            }
             
             // ****************************************************
             // downgrade newer versions to the older versions
@@ -337,8 +398,8 @@ Example response:
       
               // move gatewayConfiguration to the exposedAPI root level for each exposedAPI and change specification object array to an array of strings with just the url
               console.log("move gatewayConfiguration to the exposedAPI root level for each exposedAPI");  
-              const segments = ["coreFunction", "managementFunction", "securityFunction"];
-              segments.forEach(segment => {
+              const functionSegments = ["coreFunction", "managementFunction", "securityFunction"];
+              functionSegments.forEach(segment => {
                 for (api in objectsArray[key].spec[segment].exposedAPIs) {
                   if (objectsArray[key].spec[segment].exposedAPIs[api].gatewayConfiguration) {
                     // move the gatewayConfiguration properties to the root level
@@ -445,6 +506,70 @@ Example response:
                 }
               }    
             }   
+
+            if (apiVersion.mapOldToNew(["v1"], ["v1beta4", "v1beta3", "v1beta2"])) {
+              //
+              // --- DOWNGRADE v1 → v1beta4/3/2 FOR coreFunction and supporting functions ---
+              // Pull per-version fields out of specification[0] back into API root.
+              //
+              console.log("Reverting v1 specification[] structure for coreFunction and supporting function APIs");
+
+              const segments = ["coreFunction", "managementFunction", "securityFunction"];
+
+              segments.forEach(segment => {
+                const func = objectsArray[key].spec[segment];
+                if (!func) return;
+
+                // ----- EXPOSED APIs -----
+                if (func.exposedAPIs) {
+                  Object.keys(func.exposedAPIs).forEach(apiKey => {
+                    const api = func.exposedAPIs[apiKey];
+                    if (!Array.isArray(api.specification) || api.specification.length === 0) return;
+
+                    const specObj = api.specification[0];
+                    const propsToRestore = [
+                      "path",
+                      "port",
+                      "implementation",
+                      "developerUI",
+                      "resources",
+                      "apiType",
+                      "apiSDO",
+                      "gatewayConfiguration"
+                    ];
+
+                    propsToRestore.forEach(p => {
+                      if (specObj[p] !== undefined) {
+                        api[p] = specObj[p];
+                        delete specObj[p];
+                      }
+                    });
+                  });
+                }
+
+                // ----- DEPENDENT APIs -----
+                if (func.dependentAPIs) {
+                  Object.keys(func.dependentAPIs).forEach(apiKey => {
+                    const dep = func.dependentAPIs[apiKey];
+                    if (!Array.isArray(dep.specification) || dep.specification.length === 0) return;
+
+                    const specObj = dep.specification[0];
+                    const propsToRestore = [
+                      "apiType",
+                      "resources",
+                      "apiSDO"
+                    ];
+
+                    propsToRestore.forEach(p => {
+                      if (specObj[p] !== undefined) {
+                        dep[p] = specObj[p];
+                        delete specObj[p];
+                      }
+                    })
+                  });
+                }
+              })
+            }
             
             objectsArray[key].apiVersion = desiredAPIVersion;
           }

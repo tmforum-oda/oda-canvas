@@ -25,10 +25,10 @@ component-operator:
   valuesPathVersion: .component-operator.deployment.compopVersion
   valuesPathPrereleaseSuffix: .component-operator.deployment.compopPrereleaseSuffix
   paths:
-    - source/operators/component-management/*
-  buildContext: source/operators/component-management
+    - source/operators/TMFOP001-Component-Management/component-management/*
+  buildContext: source/operators/TMFOP001-Component-Management/component-management
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/component-management/component-operator-dockerfile
+  buildDockerfile: source/operators/TMFOP001-Component-Management/component-management/component-operator-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -40,10 +40,10 @@ identityconfig-operator-keycloak:
   valuesPathVersion: .identityconfig-operator-keycloak.deployment.idkopVersion
   valuesPathPrereleaseSuffix: .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix
   paths:
-    - source/operators/identity-config/keycloak/*
-  buildContext: source/operators/identity-config/keycloak
+    - source/operators/TMFOP003-Identity-Config/keycloak/*
+  buildContext: source/operators/TMFOP003-Identity-Config/keycloak
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/identity-config/keycloak/identityconfig-operator-keycloak-dockerfile
+  buildDockerfile: source/operators/TMFOP003-Identity-Config/keycloak/identityconfig-operator-keycloak-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -57,11 +57,11 @@ identity-listener-keycloak:
   valuesPathPrereleaseSuffix: .identityconfig-operator-keycloak.deployment.idlistkeyPrereleaseSuffix
 
   paths:
-    - source/operators/identity-config/keycloak/identity-listener-keycloak/*
-    - source/operators/identity-config/keycloak/keycloakUtils.py
-  buildContext: source/operators/identity-config/keycloak
+    - source/operators/TMFOP003-Identity-Config/keycloak/identity-listener-keycloak/*
+    - source/operators/TMFOP003-Identity-Config/keycloak/keycloakUtils.py
+  buildContext: source/operators/TMFOP003-Identity-Config/keycloak
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/identity-config/keycloak/identity-listener-keycloak-dockerfile
+  buildDockerfile: source/operators/TMFOP003-Identity-Config/keycloak/identity-listener-keycloak-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -75,10 +75,10 @@ api-operator-istio:
   valuesPathPrereleaseSuffix: .api-operator-istio.deployment.apiopPrereleaseSuffix
   
   paths:
-    - source/operators/api-management/istio/*
-  buildContext: source/operators/api-management/istio
+    - source/operators/TMFOP002-API-Management/istio/*
+  buildContext: source/operators/TMFOP002-API-Management/istio
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/api-management/istio/api-operator-istio-dockerfile
+  buildDockerfile: source/operators/TMFOP002-API-Management/istio/api-operator-istio-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -93,11 +93,11 @@ dependentapi-simple-operator:
   valuesPathPrereleaseSuffix: .dependentapi-simple-operator.prereleaseSuffix
   
   paths:
-    - source/operators/dependentApiSimpleOperator/docker/**/*
-  buildContext: source/operators/dependentApiSimpleOperator/docker
+    - source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker/**/*
+  buildContext: source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker
   # default is "Dockerfile" in buildContext
   #buildDockerfile: 
-  testDockerfile: source/operators/dependentApiSimpleOperator/docker/DockerfileTest
+  testDockerfile: source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker/DockerfileTest
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -129,8 +129,8 @@ secretsmanagement-operator-vault :
   valuesPathPrereleaseSuffix: .secretsmanagement-operator.prereleaseSuffix
 
   paths:
-  - source/operators/secretsmanagementOperator-hc/docker/**/*
-  buildContext: source/operators/secretsmanagementOperator-hc/docker
+  - source/operators/TMFOP007-Secrets-Management/vault/docker/**/*
+  buildContext: source/operators/TMFOP007-Secrets-Management/vault/docker
   # default is "Dockerfile" in buildContext
   #buildDockerfile:
   # default is "linux/amd64,linux/arm64"
@@ -147,8 +147,8 @@ secretsmanagement-sidecar:
   valuesPathPrereleaseSuffix: .secretsmanagement-operator.sidecarPrereleaseSuffix
 
   paths:
-  - source/operators/secretsmanagementOperator-hc/sidecar/docker/**/*
-  buildContext: source/operators/secretsmanagementOperator-hc/sidecar/docker
+  - source/operators/TMFOP007-Secrets-Management/vault/sidecar/docker/**/*
+  buildContext: source/operators/TMFOP007-Secrets-Management/vault/sidecar/docker
   # default is "Dockerfile" in buildContext
   #buildDockerfile:
   # default is "linux/amd64,linux/arm64"
@@ -182,10 +182,10 @@ api-operator-apisix:
   valuesPathPrereleaseSuffix: .api-operator-apisix.apisixoperatorimage.apisixopPrereleaseSuffix
   
   paths:
-    - source/operators/api-management/apache-apisix/*
-  buildContext: source/operators/api-management/apache-apisix
+    - source/operators/TMFOP002-API-Management/apache-apisix/*
+  buildContext: source/operators/TMFOP002-API-Management/apache-apisix
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/api-management/apache-apisix/apache-apisix-dockerfile
+  buildDockerfile: source/operators/TMFOP002-API-Management/apache-apisix/apache-apisix-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -199,10 +199,10 @@ api-operator-kong:
   valuesPathPrereleaseSuffix: .api-operator-kong.kongoperatorimage.kongopPrereleaseSuffix
   
   paths:
-    - source/operators/api-management/kong/*
-  buildContext: source/operators/api-management/kong
+    - source/operators/TMFOP002-API-Management/kong/*
+  buildContext: source/operators/TMFOP002-API-Management/kong
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/api-management/kong/kong-dockerfile
+  buildDockerfile: source/operators/TMFOP002-API-Management/kong/kong-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -215,10 +215,10 @@ credentialsmanagement-operator:
   valuesPathVersion: .deployment.credopVersion
   valuesPathPrereleaseSuffix: .deployment.credopPrereleaseSuffix
   paths:
-    - source/operators/credentials-management/*
-  buildContext: source/operators/credentials-management
+    - source/operators/TMFOP004-Credentials-Management/credentials-management/*
+  buildContext: source/operators/TMFOP004-Credentials-Management/credentials-management
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/credentials-management/credentialsmanagement-operator-dockerfile
+  buildDockerfile: source/operators/TMFOP004-Credentials-Management/credentials-management/credentialsmanagement-operator-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -232,11 +232,11 @@ oauth2envoyfilter-operator:
   valuesPathPrereleaseSuffix: .prereleaseSuffix
   
   paths:
-    - source/operators/oauth2EnvoyfilterOperator/docker/**/*
-  buildContext: source/operators/oauth2EnvoyfilterOperator/docker
+    - source/operators/TMFOP008-OAuth2-Config/envoy-filter/docker/**/*
+  buildContext: source/operators/TMFOP008-OAuth2-Config/envoy-filter/docker
   # default is "Dockerfile" in buildContext
   #buildDockerfile: Dockerfile
-  #testDockerfile: source/operators/oauth2EnvoyfilterOperator/docker/DockerfileTest
+  #testDockerfile: source/operators/TMFOP008-OAuth2-Config/envoy-filter/docker/DockerfileTest
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -250,8 +250,8 @@ pdb-management-operator:
   valuesPathPrereleaseSuffix: .pdb-management-operator.deployment.prereleaseSuffix
   
   paths:
-    - source/operators/pdb-management/*
-  buildContext: source/operators/pdb-management
+    - source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/*
+  buildContext: source/operators/TMFOP010-Disruption-Budget-Management/pdb-management
   # default is "Dockerfile" in buildContext
   #buildDockerfile: Dockerfile
   # default is "linux/amd64,linux/arm64"
