@@ -1,6 +1,6 @@
 image: tmforumodacanvas/secretsmanagement-operator-vault
 version: 1.0.0
-prereleaseSuffix:
+prereleaseSuffix: 
 imagePullPolicy: IfNotPresent
 
 sidecarImage: tmforumodacanvas/secretsmanagement-sidecar

@@ -168,7 +168,7 @@ component-operator:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
     compopVersion: 1.1.2
-    compopPrereleaseSuffix: lt1
+    compopPrereleaseSuffix: 
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
@@ -207,20 +207,20 @@ identityconfig-operator-keycloak:
 # dependentapi-simple-operator is the default.
 # -----------------------------------------------------------------------------
 dependentapi-simple-operator:
-  enabled: false
+  enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 1.0.1
-  prereleaseSuffix: lt1
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
 
 dependency-management-keycloak-authz:
-  enabled: true
+  enabled: false
   deployment:
     operatorName: dependency-management-keycloak-authz
     image: tmforumodacanvas/dependency-management-keycloak-authz
     version: 0.2.0
-    prereleaseSuffix: ""
+    prereleaseSuffix: lt1
     imagePullPolicy: IfNotPresent
     keycloak:
       port: 8083
@@ -336,7 +336,7 @@ canvas-vault:
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator-vault
   version: 1.0.0
-  prereleaseSuffix: lt1
+  prereleaseSuffix: 
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
@@ -476,20 +476,9 @@ api-operator-kong:
       API_CONNECT_TIMEOUT: 60   #value in seconds supported
       API_READ_TIMEOUT: 900     #value in seconds supported
       API_WRITE_TIMEOUT: 900    #value in seconds supported
-      API_CONNECT_TIMEOUT: 60   #value in seconds supported
-      API_READ_TIMEOUT: 900     #value in seconds supported
-      API_WRITE_TIMEOUT: 900    #value in seconds supported
     kong:
       postgresql:
         nameOverride: "postgresql-kong"
-        enabled: true
-        auth:
-          username: "kong"
-          password: "kong"
-          database: "kong"
-        image:
-          repository: bitnamilegacy/postgresql
-          tag: "13.11.0-debian-11-r20"
         enabled: true
         auth:
           username: "kong"
@@ -539,7 +528,7 @@ api-operator-kong:
     kongoperatorimage:
       kongopImage: tmforumodacanvas/api-operator-kong
       kongopVersion: 1.1.0
-      kongopPrereleaseSuffix: lt1
+      kongopPrereleaseSuffix: 
       pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
 
@@ -565,11 +554,6 @@ api-operator-apisix:
       #block for etcd to correct repo to be used to overwrite bitnami old repo.
       image:
         repository: bitnamilegacy/etcd
-    etcd:
-      enabled: true
-      #block for etcd to correct repo to be used to overwrite bitnami old repo.
-      image:
-        repository: bitnamilegacy/etcd
     ingress-controller:
       enabled: true   # Enable the ingress controller
       config:
@@ -585,7 +569,7 @@ api-operator-apisix:
   apisixoperatorimage:
     apisixopImage: tmforumodacanvas/api-operator-apisix
     apisixopVersion: 1.1.0
-    apisixopPrereleaseSuffix: lt1
+    apisixopPrereleaseSuffix: 
     pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
@@ -602,14 +586,6 @@ api-operator-apisix:
     loglevel: '20'
     # publicHostname: 'components.example.com'
     componentGateway: 'canvas/component-gateway'
-    API_CONNECT_TIMEOUT: 60   #value in seconds supported
-    API_READ_TIMEOUT: 900     #value in seconds supported
-    API_WRITE_TIMEOUT: 900    #value in seconds supported
-
-
-# -----------------------------------------------------------------------------
-# Canvas Info service parameters
-# -----------------------------------------------------------------------------
     API_CONNECT_TIMEOUT: 60   #value in seconds supported
     API_READ_TIMEOUT: 900     #value in seconds supported
     API_WRITE_TIMEOUT: 900    #value in seconds supported

@@ -92,7 +92,7 @@ kongistiooperatordeploymentnamespace: canvas
 kongoperatorimage:
   kongopImage: tmforumodacanvas/api-operator-kong
   kongopVersion: 1.0.2
-  kongopPrereleaseSuffix:
+  kongopPrereleaseSuffix: 
   pullPolicy: IfNotPresent
   
 initContainerImage: busybox:1.28
