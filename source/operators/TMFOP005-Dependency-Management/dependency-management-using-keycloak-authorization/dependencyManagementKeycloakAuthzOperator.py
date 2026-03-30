@@ -371,6 +371,36 @@ def _update_service_inventory(
         return None
 
 
+def _delete_service_inventory(
+    logw: LogWrapper,
+    component_name: str,
+    dependency_name: str,
+    svc_inv_id: str,
+) -> None:
+    """Delete the Service Inventory entry for a dependency by its ID.
+
+    Silently ignores the case where the entry no longer exists (404).
+    """
+    try:
+        svc_info = _canvas_info_instance()
+        deleted = svc_info.delete_service(svc_inv_id, ignore_not_found=True)
+        if deleted:
+            logw.info(
+                "Service Inventory entry deleted",
+                f"component={component_name} dependency={dependency_name} id={svc_inv_id}",
+            )
+        else:
+            logw.info(
+                "Service Inventory entry not found — skipping delete",
+                f"component={component_name} dependency={dependency_name} id={svc_inv_id}",
+            )
+    except Exception as e:
+        logw.warning(
+            "Could not delete Service Inventory entry",
+            f"component={component_name} dependency={dependency_name} id={svc_inv_id} error={e}",
+        )
+
+
 # ---------------------------------------------------------------------------
 # DependentAPI status management
 # ---------------------------------------------------------------------------
@@ -415,6 +445,51 @@ def _set_dependent_api_ready(
     patch_body["status"]["implementation"] = {"ready": True}
     if svc_id:
         patch_body["status"]["depapiStatus"]["svcInvID"] = svc_id
+
+    _patch_dependent_api(k8s_custom, namespace, name, patch_body, logw)
+
+
+def _set_dependent_api_not_ready(
+    logw: LogWrapper,
+    depapi: dict,
+    k8s_custom: kubernetes.client.CustomObjectsApi,
+) -> None:
+    """Patch the DependentAPI status to mark it not ready and clear the resolved URL
+    and service inventory ID.
+
+    Called when a CLIENT_ROLE_MAPPING DELETE event is received, indicating the
+    user-component's service account has lost access to the target-component's API.
+    Skips the patch if the DependentAPI is already not ready, to avoid redundant writes.
+    """
+    meta = depapi.get("metadata", {})
+    spec = depapi.get("spec", {})
+    namespace = meta.get("namespace", "components")
+    name = meta.get("name", "")
+
+    if safe_get(None, depapi, "status", "implementation", "ready") is not True:
+        logw.info(
+            "DependentAPI already not ready — skipping patch",
+            f"depapi={name} namespace={namespace}",
+        )
+        return
+    component_name = safe_get(None, depapi, "metadata", "labels", COMPONENT_NAME_LABEL)
+    dependency_name = spec.get("name", name)
+    svc_inv_id = safe_get(None, depapi, "status", "depapiStatus", "svcInvID")
+
+    logw.info(
+        "Clearing DependentAPI implementation ready",
+        f"depapi={name} namespace={namespace}",
+    )
+
+    if svc_inv_id:
+        _delete_service_inventory(logw, component_name, dependency_name, svc_inv_id)
+
+    patch_body = depapi.copy()
+    patch_body.setdefault("status", {})
+    patch_body["status"].setdefault("depapiStatus", {})
+    patch_body["status"]["depapiStatus"]["url"] = None
+    patch_body["status"]["depapiStatus"]["svcInvID"] = None
+    patch_body["status"]["implementation"] = {"ready": False}
 
     _patch_dependent_api(k8s_custom, namespace, name, patch_body, logw)
 
@@ -481,6 +556,7 @@ def _process_depapi_matches(
 ) -> None:
     """For each DependentAPI of user_component, find a matching ExposedAPI on
     target_component, log the outcome, and patch the DependentAPI on CREATE/UPDATE.
+    On DELETE, clears the url, svcInvID, and ready status from any matched DependentAPI.
     """
     for depapi in dependent_apis:
         meta = depapi.get("metadata", {})
@@ -506,6 +582,8 @@ def _process_depapi_matches(
 
         if matched_url and op_type in ("CREATE", "UPDATE"):
             _set_dependent_api_ready(logw, depapi, matched_url, k8s_custom)
+        elif matched_url and op_type == "DELETE":
+            _set_dependent_api_not_ready(logw, depapi, k8s_custom)
 
 
 def _process_event(
