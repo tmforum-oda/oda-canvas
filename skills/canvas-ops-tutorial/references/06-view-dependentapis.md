@@ -95,7 +95,7 @@ kubectl describe dependentapi <name> -n components
 | Namespace | `.metadata.namespace` | Namespace |
 | Parent Component | `.metadata.ownerReferences[0].name` | Owning Component |
 | API Name | `.spec.name` | Name of the API dependency |
-| API Type | `.spec.apitype` | e.g., `openapi` |
+| API Type | `.spec.apiType` | e.g., `openapi` |
 | Version | `.spec.version` | Required API version |
 | Ready | `.status.ready` | Boolean, is the dependency resolved |
 | Resolved URL | `.status.url` | URL of the resolved upstream API |

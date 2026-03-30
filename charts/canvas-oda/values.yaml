@@ -168,7 +168,7 @@ component-operator:
     operatrorName: component-operator
     compopImage: tmforumodacanvas/component-operator
     compopVersion: 1.1.2
-    compopPrereleaseSuffix: 
+    compopPrereleaseSuffix: lt1
     imagePullPolicy: IfNotPresent
     istioGateway: true
     monitoredNamespaces: 'components,odacompns-*'           # comma separated list of namespaces
@@ -210,7 +210,7 @@ dependentapi-simple-operator:
   enabled: false
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 1.0.1
-  prereleaseSuffix: 
+  prereleaseSuffix: lt1
   imagePullPolicy: IfNotPresent
   loglevel: '20'
 
@@ -336,7 +336,7 @@ canvas-vault:
 secretsmanagement-operator:
   image: tmforumodacanvas/secretsmanagement-operator-vault
   version: 1.0.0
-  prereleaseSuffix: 
+  prereleaseSuffix: lt1
   imagePullPolicy: IfNotPresent
   
   sidecarImage: tmforumodacanvas/secretsmanagement-sidecar
@@ -539,7 +539,7 @@ api-operator-kong:
     kongoperatorimage:
       kongopImage: tmforumodacanvas/api-operator-kong
       kongopVersion: 1.1.0
-      kongopPrereleaseSuffix:
+      kongopPrereleaseSuffix: lt1
       pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
 
@@ -585,7 +585,7 @@ api-operator-apisix:
   apisixoperatorimage:
     apisixopImage: tmforumodacanvas/api-operator-apisix
     apisixopVersion: 1.1.0
-    apisixopPrereleaseSuffix:
+    apisixopPrereleaseSuffix: lt1
     pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
