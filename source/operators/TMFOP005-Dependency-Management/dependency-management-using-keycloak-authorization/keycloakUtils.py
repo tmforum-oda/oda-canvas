@@ -192,6 +192,61 @@ class Keycloak:
                     "del_role failed with HTTP status " f"{r.status_code}: {e}"
                 ) from None
 
+    def get_client_by_uuid(self, token: str, realm: str, client_uuid: str) -> dict:
+        """
+        GETs a single Keycloak client by its internal UUID.
+
+        Returns a ClientRepresentation dict whose 'clientId' field is the
+        human-readable client name (which equals the ODA component name for
+        component clients), or raises an exception for the caller to catch.
+
+        Args:
+            token: Bearer token from get_token()
+            realm: Keycloak realm name
+            client_uuid: The internal Keycloak client UUID (not the clientId
+                string), as found in admin-event resourcePaths of the form
+                users/{user-uuid}/role-mappings/clients/{client-uuid}
+        """
+        try:
+            r = requests.get(
+                self._url + "/admin/realms/" + realm + "/clients/" + client_uuid,
+                headers={"Authorization": "Bearer " + token},
+            )
+            r.raise_for_status()
+            return r.json()
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "get_client_by_uuid failed with HTTP status "
+                f"{r.status_code}: {e}"
+            ) from None
+
+    def get_user_by_uuid(self, token: str, realm: str, user_uuid: str) -> dict:
+        """
+        GETs a single Keycloak user by their internal UUID.
+
+        Returns a UserRepresentation dict whose 'username' field for a service
+        account is 'service-account-{clientId}', allowing the owning component
+        to be identified. Raises an exception for the caller to catch.
+
+        Args:
+            token: Bearer token from get_token()
+            realm: Keycloak realm name
+            user_uuid: The internal Keycloak user UUID, as found in admin-event
+                resourcePaths of the form users/{user-uuid}/role-mappings/...
+        """
+        try:
+            r = requests.get(
+                self._url + "/admin/realms/" + realm + "/users/" + user_uuid,
+                headers={"Authorization": "Bearer " + token},
+            )
+            r.raise_for_status()
+            return r.json()
+        except requests.HTTPError as e:
+            raise RuntimeError(
+                "get_user_by_uuid failed with HTTP status "
+                f"{r.status_code}: {e}"
+            ) from None
+
     def get_realm_events_config(self, token: str, realm: str) -> dict:
         """
         GETs the event configuration for a realm, including whether

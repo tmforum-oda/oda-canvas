@@ -1,7 +1,7 @@
 deployment:
   operatorName: dependency-management-keycloak-authz
   image: tmforumodacanvas/dependency-management-keycloak-authz
-  version: 0.1.0
+  version: 0.2.0
   prereleaseSuffix: ""
   imagePullPolicy: IfNotPresent
   keycloak:
@@ -12,9 +12,12 @@ credentials:
   pass: adpass
 
 configmap:
+  # Keycloak's base url, configured according to: "http://<oda-canvas release name>-keycloak-headless.<oda-canvas release namespace>:<keycloak http port>/auth"
+  kcbase: http://canvas-keycloak-headless.canvas:8083/auth
   kcrealm: odari
   loglevel: "20"
   pollIntervalSeconds: "5"
+  canvasInfoEndpoint: "http://info.canvas.svc.cluster.local"
 
 global:
   imagePullSecrets: []

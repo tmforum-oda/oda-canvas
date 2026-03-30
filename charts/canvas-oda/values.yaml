@@ -219,7 +219,7 @@ dependency-management-keycloak-authz:
   deployment:
     operatorName: dependency-management-keycloak-authz
     image: tmforumodacanvas/dependency-management-keycloak-authz
-    version: 0.1.0
+    version: 0.2.0
     prereleaseSuffix: ""
     imagePullPolicy: IfNotPresent
     keycloak:
@@ -228,9 +228,11 @@ dependency-management-keycloak-authz:
     user: admin
     pass: adpass
   configmap:
+    kcbase: http://canvas-keycloak-headless.canvas:8083/auth
     kcrealm: odari
     loglevel: "20"
     pollIntervalSeconds: "5"
+    canvasInfoEndpoint: "http://info.canvas.svc.cluster.local"
 
 canvas-vault:
   enabled: true

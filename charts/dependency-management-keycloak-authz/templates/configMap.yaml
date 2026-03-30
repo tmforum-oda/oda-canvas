@@ -7,7 +7,8 @@ metadata:
     {{- include "dependency-management-keycloak-authz.labels" . | nindent 4 }}
 data:
   LOGGING: {{ .Values.configmap.loglevel | quote }}
-  KEYCLOAK_BASE: "http://{{ .Release.Name }}-keycloak-headless.{{ .Release.Namespace }}:{{ .Values.deployment.keycloak.port }}/auth"
+  KEYCLOAK_BASE: {{ .Values.configmap.kcbase | quote }}
   KEYCLOAK_REALM: {{ .Values.configmap.kcrealm | quote }}
   POD_NAMESPACE: {{ .Release.Namespace | quote }}
   POLL_INTERVAL_SECONDS: {{ .Values.configmap.pollIntervalSeconds | quote }}
+  CANVAS_INFO_ENDPOINT: {{ .Values.configmap.canvasInfoEndpoint | quote }}
