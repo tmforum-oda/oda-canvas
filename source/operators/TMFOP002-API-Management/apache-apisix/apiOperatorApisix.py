@@ -1,7 +1,7 @@
 """
 Kubernetes Apisix API Lifecycle Management Operator for ODA API Custom Resources.
 
-This module is part of the ODA Canvas, specifically tailored for environments adopting the Apisix API Gateway. It utilizes the Kopf Kubernetes operator framework (https://kopf.readthedocs.io/) to manage API custom resources. 
+This module is part of the ODA Canvas, specifically tailored for environments adopting the Apisix API Gateway. It utilizes the Kopf Kubernetes operator framework (https://kopf.readthedocs.io/) to manage API custom resources.
 The operator is designed to seamlessly integrate with the Apisix API Gateway, facilitating the creation and management of ApisixRoute configurations to expose APIs.
 
 Key Features:
@@ -10,7 +10,7 @@ Key Features:
 - Configures an API gateway to act as a front aligning with recommended production architectures.
 
 Usage:
-This operator can be deployed as part of the ODA Canvas in Kubernetes clusters where the Apisix API Gateway is used to expose APIs. It simplifies the management of API exposure and security by interfacing directly with Apisix, 
+This operator can be deployed as part of the ODA Canvas in Kubernetes clusters where the Apisix API Gateway is used to expose APIs. It simplifies the management of API exposure and security by interfacing directly with Apisix,
 providing a robust and scalable API management solution.
 """
 

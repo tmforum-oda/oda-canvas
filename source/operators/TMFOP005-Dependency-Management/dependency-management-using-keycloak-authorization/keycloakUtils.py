@@ -42,7 +42,11 @@ class Keycloak:
         if url == "":
             json_obj = {"clientId": client, "serviceAccountsEnabled": True}
         else:
-            json_obj = {"clientId": client, "rootUrl": url, "serviceAccountsEnabled": True}
+            json_obj = {
+                "clientId": client,
+                "rootUrl": url,
+                "serviceAccountsEnabled": True,
+            }
 
         try:  # to create the client in Keycloak
             r = requests.post(
@@ -131,7 +135,9 @@ class Keycloak:
                 "get_client_list failed with HTTP status " f"{r.status_code}: {e}"
             ) from None
 
-    def add_role(self, role: str, client_id: str, token: str, realm: str, description: str = None) -> None:
+    def add_role(
+        self, role: str, client_id: str, token: str, realm: str, description: str = None
+    ) -> None:
         """
         POST new roles to the right client in the right realm in
         Keycloak
@@ -216,8 +222,7 @@ class Keycloak:
             return r.json()
         except requests.HTTPError as e:
             raise RuntimeError(
-                "get_client_by_uuid failed with HTTP status "
-                f"{r.status_code}: {e}"
+                "get_client_by_uuid failed with HTTP status " f"{r.status_code}: {e}"
             ) from None
 
     def get_user_by_uuid(self, token: str, realm: str, user_uuid: str) -> dict:
@@ -243,8 +248,7 @@ class Keycloak:
             return r.json()
         except requests.HTTPError as e:
             raise RuntimeError(
-                "get_user_by_uuid failed with HTTP status "
-                f"{r.status_code}: {e}"
+                "get_user_by_uuid failed with HTTP status " f"{r.status_code}: {e}"
             ) from None
 
     def get_realm_events_config(self, token: str, realm: str) -> dict:
@@ -336,6 +340,5 @@ class Keycloak:
             return r.json()
         except requests.HTTPError as e:
             raise RuntimeError(
-                "get_admin_events failed with HTTP status "
-                f"{r.status_code}: {e}"
+                "get_admin_events failed with HTTP status " f"{r.status_code}: {e}"
             ) from None

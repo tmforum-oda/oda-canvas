@@ -10,6 +10,7 @@ import urllib3
 import concurrent.futures
 from base_logger import logger
 
+
 def parse_config(config_file):
     config = configparser.ConfigParser()
     config.read(config_file)
@@ -33,6 +34,7 @@ def create_proxy_bundle(proxy_bundle_directory, api_name, target_dir):  # noqa
         f"{proxy_bundle_directory}/{api_name}.zip", "w", zipfile.ZIP_DEFLATED
     ) as zipf:  # noqa
         zipdir(target_dir, zipf)
+
 
 def delete_file(file_name):
     try:
@@ -129,9 +131,11 @@ def parse_http_target_connection(http_placement, http_placement_data):
         )  # noqa
         hosts = {
             "host": url_data.hostname,
-            "port": str(url_data.port)
-            if url_data.port is not None
-            else ("443" if url_data.scheme == "https" else "80"),  # noqa
+            "port": (
+                str(url_data.port)
+                if url_data.port is not None
+                else ("443" if url_data.scheme == "https" else "80")
+            ),  # noqa
             "source": f"{http_placement} : {http_placement_data[http_placement]['@name']}",  # noqa
             "target_server": False,
         }
@@ -207,7 +211,9 @@ def get_row_host_port(row, default_port=443):
 
 
 def run_parallel(func, args, workers=10):
-    with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:  # noqa
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=workers
+    ) as executor:  # noqa
         future_list = {executor.submit(func, arg) for arg in args}
 
     data = []

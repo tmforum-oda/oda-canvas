@@ -8,7 +8,6 @@ sys.path.append("..")
 
 from apiOperatorIstio import apiStatus, implementation_status
 
-
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.DEBUG)
 root_logger = logging.getLogger()

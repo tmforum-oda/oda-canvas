@@ -1,7 +1,7 @@
 """
 Kubernetes Kong API Lifecycle Management Operator for ODA API Custom Resources.
 
-This module is part of the ODA Canvas, specifically tailored for environments adopting the Kong API Gateway. It utilizes the Kopf Kubernetes operator framework (https://kopf.readthedocs.io/) to manage API custom resources. 
+This module is part of the ODA Canvas, specifically tailored for environments adopting the Kong API Gateway. It utilizes the Kopf Kubernetes operator framework (https://kopf.readthedocs.io/) to manage API custom resources.
 The operator is designed to seamlessly integrate with the Kong API Gateway, facilitating the creation and management of HTTPRoute configurations to expose APIs.
 
 Key Features:
@@ -11,7 +11,7 @@ Key Features:
 * Configures an API gateway to act as a front aligning with recommended production architectures.
 
 Usage:
-This operator can be deployed as part of the ODA Canvas in Kubernetes clusters where the Kong API Gateway is used to expose APIs. It simplifies the management of API exposure and security by interfacing directly with Kong, 
+This operator can be deployed as part of the ODA Canvas in Kubernetes clusters where the Kong API Gateway is used to expose APIs. It simplifies the management of API exposure and security by interfacing directly with Kong,
 providing a robust and scalable API management solution.
 """
 

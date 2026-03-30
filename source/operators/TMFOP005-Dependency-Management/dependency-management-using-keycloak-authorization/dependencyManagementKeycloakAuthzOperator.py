@@ -104,6 +104,7 @@ _SERVICE_ACCOUNT_PREFIX = "service-account-"
 # Kubernetes helpers
 # ---------------------------------------------------------------------------
 
+
 def _load_k8s_client() -> kubernetes.client.CustomObjectsApi:
     """Load in-cluster or local kubeconfig and return a CustomObjectsApi client."""
     try:
@@ -151,7 +152,11 @@ def _is_matching_exposed_api(exp_api: dict, depapi_spec_url: str) -> bool:
     spec = exp_api.get("spec", {})
     if "specification" not in spec or spec.get("apiType") != "openapi":
         return False
-    exp_url = spec["specification"].get("url") if isinstance(spec["specification"], dict) else None
+    exp_url = (
+        spec["specification"].get("url")
+        if isinstance(spec["specification"], dict)
+        else None
+    )
     if exp_url != depapi_spec_url:
         return False
     return exp_api.get("status", {}).get("implementation", {}).get("ready") is True
@@ -188,7 +193,11 @@ def _find_matching_exposed_api(
         return None
 
     return next(
-        (api for api in result.get("items", []) if _is_matching_exposed_api(api, depapi_spec_url)),
+        (
+            api
+            for api in result.get("items", [])
+            if _is_matching_exposed_api(api, depapi_spec_url)
+        ),
         None,
     )
 
@@ -222,6 +231,7 @@ def _patch_dependent_api(
 # Keycloak resolution helpers
 # ---------------------------------------------------------------------------
 
+
 def _resolve_user_component(
     user_uuid: str,
     token: str,
@@ -241,12 +251,14 @@ def _resolve_user_component(
         user_rep = kc.get_user_by_uuid(token, realm, user_uuid)
         username: str = user_rep.get("username", "")
         cache[user_uuid] = (
-            username[len(_SERVICE_ACCOUNT_PREFIX):]
+            username[len(_SERVICE_ACCOUNT_PREFIX) :]
             if username.startswith(_SERVICE_ACCOUNT_PREFIX)
             else None
         )
     except Exception as e:
-        logw.warning("Could not resolve Keycloak user UUID", f"uuid={user_uuid} error={e}")
+        logw.warning(
+            "Could not resolve Keycloak user UUID", f"uuid={user_uuid} error={e}"
+        )
         cache[user_uuid] = None
     return cache[user_uuid]
 
@@ -269,7 +281,9 @@ def _resolve_target_component(
         client_rep = kc.get_client_by_uuid(token, realm, client_uuid)
         cache[client_uuid] = client_rep.get("clientId")
     except Exception as e:
-        logw.warning("Could not resolve Keycloak client UUID", f"uuid={client_uuid} error={e}")
+        logw.warning(
+            "Could not resolve Keycloak client UUID", f"uuid={client_uuid} error={e}"
+        )
         cache[client_uuid] = None
     return cache[client_uuid]
 
@@ -300,8 +314,12 @@ def _resolve_event_components(
 
     user_uuid, client_uuid = match.group(1), match.group(2)
     user_component = _resolve_user_component(user_uuid, token, kc, realm, cache, logw)
-    target_component = _resolve_target_component(client_uuid, token, kc, realm, cache, logw)
-    dependent_apis = _list_dependent_apis(user_component, k8s_custom, logw) if user_component else []
+    target_component = _resolve_target_component(
+        client_uuid, token, kc, realm, cache, logw
+    )
+    dependent_apis = (
+        _list_dependent_apis(user_component, k8s_custom, logw) if user_component else []
+    )
     return user_component, target_component, dependent_apis
 
 
@@ -405,6 +423,7 @@ def _delete_service_inventory(
 # DependentAPI status management
 # ---------------------------------------------------------------------------
 
+
 def _set_dependent_api_ready(
     logw: LogWrapper,
     depapi: dict,
@@ -436,7 +455,9 @@ def _set_dependent_api_ready(
         f"depapi={name} namespace={namespace} url={url}",
     )
 
-    svc_id = _update_service_inventory(logw, component_name, dependency_name, specification, url)
+    svc_id = _update_service_inventory(
+        logw, component_name, dependency_name, specification, url
+    )
 
     patch_body = depapi.copy()
     patch_body.setdefault("status", {})
@@ -497,6 +518,7 @@ def _set_dependent_api_not_ready(
 # ---------------------------------------------------------------------------
 # Event processing
 # ---------------------------------------------------------------------------
+
 
 def _reduce_to_latest_per_path(events: list) -> list:
     """Keep only the most recent event for each resourcePath in a batch.
@@ -568,7 +590,9 @@ def _process_depapi_matches(
 
         matched_url = None
         if target_component:
-            matched = _find_matching_exposed_api(spec, target_component, k8s_custom, logw)
+            matched = _find_matching_exposed_api(
+                spec, target_component, k8s_custom, logw
+            )
             if matched:
                 matched_url = matched.get("status", {}).get("apiStatus", {}).get("url")
 
@@ -605,12 +629,15 @@ def _process_event(
     )
     op_type: str = event.get("operationType", "UNKNOWN")
     _log_role_mapping_event(logw, event, realm, user_component, target_component)
-    _process_depapi_matches(logw, op_type, user_component, target_component, dependent_apis, k8s_custom)
+    _process_depapi_matches(
+        logw, op_type, user_component, target_component, dependent_apis, k8s_custom
+    )
 
 
 # ---------------------------------------------------------------------------
 # Kopf handlers — startup, probe, and daemon
 # ---------------------------------------------------------------------------
+
 
 @kopf.on.startup()
 async def configure(settings: kopf.OperatorSettings, logger, **kwargs):
@@ -663,7 +690,9 @@ async def configure(settings: kopf.OperatorSettings, logger, **kwargs):
 async def check_keycloak_connection(**kwargs):
     """Probe that verifies a Keycloak admin token can be acquired."""
     kc = Keycloak(os.environ.get("KEYCLOAK_BASE", ""))
-    kc.get_token(os.environ.get("KEYCLOAK_USER", ""), os.environ.get("KEYCLOAK_PASSWORD", ""))
+    kc.get_token(
+        os.environ.get("KEYCLOAK_USER", ""), os.environ.get("KEYCLOAK_PASSWORD", "")
+    )
     return "ok"
 
 
@@ -731,11 +760,15 @@ async def keycloak_admin_event_poller(stopped, logger, **kwargs):
                 if event_key in seen_events:
                     continue
                 seen_events.add(event_key)
-                _process_event(logw, event, token, kc, keycloak_realm, k8s_custom, cache)
+                _process_event(
+                    logw, event, token, kc, keycloak_realm, k8s_custom, cache
+                )
                 new_count += 1
 
             if new_count:
-                logw.debug("Poll complete", f"realm={keycloak_realm} new_events={new_count}")
+                logw.debug(
+                    "Poll complete", f"realm={keycloak_realm} new_events={new_count}"
+                )
 
             last_poll_time = poll_started_at
 
