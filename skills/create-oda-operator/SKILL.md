@@ -2,16 +2,8 @@
 name: create-oda-operator
 description: >
   Guide for creating Kubernetes operators for the ODA Canvas using the Python KOPF framework.
-  Covers all handler types (create/update/resume/delete/timer/field/mutate/validate/event),
-  CRD watching, logging, error handling, Kubernetes API patterns, resource hierarchies, child
-  adoption, peering configuration, admission webhooks, Dockerfile, Helm chart deployment, and
-  RBAC. Use this skill whenever you are building or modifying any Canvas operator, adding a kopf
-  handler to existing code, creating a CRD watcher, implementing component lifecycle management,
-  writing any Python Kubernetes controller, working with files in source/operators/, or answering
-  questions like "how do I watch a CRD", "how do I update status", "how do I inject a sidecar",
-  "how should I structure my operator chart", or "how do I add a health check to my operator".
-  Also use for questions about operator peering, admission webhooks, timer/periodic handlers, or
-  any kopf framework question.
+  Use this skill whenever you are building or modifying any Canvas operator, adding a kopf handler to existing code, creating a CRD watcher, implementing component lifecycle management, writing any Python Kubernetes controller, working with files in source/operators/, or answering questions like "how do I watch a CRD", "how do I update status", "how should I structure my operator chart", or "how do I add a health check to my operator".
+  Also use for questions about operator peering, admission webhooks, timer/periodic handlers, or any kopf framework question.
 ---
 
 # Create ODA Operator
@@ -42,24 +34,28 @@ Before writing new code, check if an existing operator matches your use case:
 
 | Use case | Reference operator |
 |---|---|
-| Component/CRD lifecycle, sub-resource management | `source/operators/component-management/` |
-| API gateway integration (HTTPRoute, Kong plugins) | `source/operators/api-management/kong/` |
-| Service mesh integration (VirtualService, EndpointSlice) | `source/operators/api-management/istio/` |
-| External identity service integration + health timers | `source/operators/identity-config/keycloak/` |
-| Pod sidecar injection, admission webhooks | `source/operators/secretsmanagementOperator-hc/` |
-| Cross-resource URL discovery, dependency resolution | `source/operators/dependentApiSimpleOperator/` |
-| Field-triggered handler, Kubernetes Secret creation | `source/operators/credentials-management/` |
+| Component/CRD lifecycle, sub-resource management | `source/operators/TMFOP001-Component-Management/component-management/` |
+| API gateway integration (HTTPRoute, Kong plugins) | `source/operators/TMFOP002-API-Management/kong/` |
+| Service mesh integration (VirtualService, EndpointSlice) | `source/operators/TMFOP002-API-Management/istio/` |
+| External identity service integration + health timers | `source/operators/TMFOP003-Identity-Config/keycloak/` |
+| Pod sidecar injection, admission webhooks | `source/operators/TMFOP007-Secrets-Management/vault/` |
+| Cross-resource URL discovery, dependency resolution | `source/operators/TMFOP005-Dependency-Management/simple-dependency-management/` |
+| Field-triggered handler, Kubernetes Secret creation | `source/operators/TMFOP004-Credentials-Management/credentials-management/` |
 
 See `references/operator-catalog.md` for kopf decorators used and detailed patterns in each.
 
 ## Directory Structure
 
+Operators are organised under `source/operators/` in two-level directories:
+
 ```
-source/operators/<domain>/
-  <operatorName>.py           # Main operator file
-  log_wrapper.py              # Structured logging shared helper (copy from component-management/)
-  <operatorName>-dockerfile   # Dockerfile (no extension)
-  requirements.txt            # Optional per-operator deps
+source/operators/TMFOP###-<Domain>/
+  <implementation>/
+    <operatorName>.py           # Main operator file
+    log_wrapper.py              # Structured logging shared helper
+                                #  (copy from TMFOP001-Component-Management/component-management/)
+    <operatorName>-dockerfile   # Dockerfile (no extension)
+    requirements.txt            # Optional per-operator deps
 ```
 
 The matching Helm chart lives at `charts/<operator-chart-name>/`.
@@ -199,7 +195,7 @@ async def configure(settings: kopf.OperatorSettings, **_):
     settings.peering.priority = 200  # ensure admission operator has highest priority
 ```
 
-See `source/operators/secretsmanagementOperator-hc/` for the full `ServiceTunnel` implementation.
+See `source/operators/TMFOP007-Secrets-Management/vault/docker/` for the full `ServiceTunnel` implementation.
 Docs: https://docs.kopf.dev/en/stable/admission/
 
 ### Sub-Handlers
@@ -512,7 +508,7 @@ API-management operators follow a distinct sub-pattern:
 - Create gateway-specific routing resources (HTTPRoute, VirtualService, ApisixRoute)
 - Watch `EndpointSlice` or `Service` resources to discover service implementation details
 - Some use synchronous handlers (single Kubernetes API call per handler is fine without async)
-- Each gateway lives in its own directory under `source/operators/api-management/`
+- Each gateway lives in its own directory under `source/operators/TMFOP002-API-Management/`
 
 See `references/operator-catalog.md` for details on each gateway implementation.
 

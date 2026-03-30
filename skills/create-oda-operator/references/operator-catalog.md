@@ -7,7 +7,7 @@ All Python/KOPF operators live under `source/operators/`. The Go-based operators
 
 ## Component Management Operator
 
-**Location:** `source/operators/component-management/componentOperator.py`  
+**Location:** `source/operators/TMFOP001-Component-Management/component-management/componentOperator.py`  
 **Helm chart:** `charts/component-operator/`  
 **CRDs watched:** `components.oda.tmforum.org`  
 **Docker image:** `tmforumodacanvas/component-operator`
@@ -36,7 +36,7 @@ All Python/KOPF operators live under `source/operators/`. The Go-based operators
 
 ## API Management — Kong
 
-**Location:** `source/operators/api-management/kong/apiOperatorKong.py`  
+**Location:** `source/operators/TMFOP002-API-Management/kong/apiOperatorKong.py`  
 **Helm chart:** `charts/kong-gateway/`  
 **CRDs watched:** `exposedapis.oda.tmforum.org`  
 **Docker image:** `tmforumodacanvas/api-operator-kong`
@@ -61,7 +61,7 @@ All Python/KOPF operators live under `source/operators/`. The Go-based operators
 
 ## API Management — Apache APISIX
 
-**Location:** `source/operators/api-management/apache-apisix/apiOperatorApisix.py`  
+**Location:** `source/operators/TMFOP002-API-Management/apache-apisix/apiOperatorApisix.py`  
 **Helm chart:** `charts/apisix-gateway/`  
 **CRDs watched:** `exposedapis.oda.tmforum.org`  
 **Docker image:** `tmforumodacanvas/api-operator-apisix`
@@ -85,7 +85,7 @@ All Python/KOPF operators live under `source/operators/`. The Go-based operators
 
 ## API Management — Istio
 
-**Location:** `source/operators/api-management/istio/apiOperatorIstio.py`  
+**Location:** `source/operators/TMFOP002-API-Management/istio/apiOperatorIstio.py`  
 **Helm chart:** `charts/api-operator-istio/`  
 **CRDs watched:** `exposedapis.oda.tmforum.org`, `endpointslices.discovery.k8s.io`  
 **Docker image:** `tmforumodacanvas/api-operator-istio`
@@ -110,7 +110,7 @@ All Python/KOPF operators live under `source/operators/`. The Go-based operators
 
 ## API Management — Apigee
 
-**Location:** `source/operators/api-management/apigee/apiOperatorApigee.py`  
+**Location:** `source/operators/TMFOP002-API-Management/apigee/apiOperatorApigee.py`  
 **Helm chart:** `charts/apigee-gateway/`  
 **CRDs watched:** `exposedapis.oda.tmforum.org`
 
@@ -130,7 +130,7 @@ All Python/KOPF operators live under `source/operators/`. The Go-based operators
 
 ## Identity Config Operator (Keycloak)
 
-**Location:** `source/operators/identity-config/keycloak/identityConfigOperatorKeycloak.py`  
+**Location:** `source/operators/TMFOP003-Identity-Config/keycloak/identityConfigOperatorKeycloak.py`  
 **Helm chart:** `charts/identityconfig-operator-keycloak/`  
 **CRDs watched:** `identityconfigs.oda.tmforum.org`  
 **Docker image:** `tmforumodacanvas/identityconfig-operator-keycloak`  
@@ -160,7 +160,7 @@ All Python/KOPF operators live under `source/operators/`. The Go-based operators
 
 ## Secrets Management Operator (HashiCorp Vault)
 
-**Location:** `source/operators/secretsmanagementOperator-hc/docker/secretsmanagementOperatorHC.py`  
+**Location:** `source/operators/TMFOP007-Secrets-Management/vault/docker/secretsmanagementOperatorHC.py`  
 **Helm chart:** `charts/secretsmanagement-operator/`  
 **CRDs watched:** `secretsmanagements.oda.tmforum.org`, `pods` (via admission webhook)  
 **Docker image:** `tmforumodacanvas/secretsmanagement-operator-hc`  
@@ -191,7 +191,7 @@ All Python/KOPF operators live under `source/operators/`. The Go-based operators
 
 ## Dependent API Simple Operator
 
-**Location:** `source/operators/dependentApiSimpleOperator/docker/src/dependentApiSimpleOperator.py`  
+**Location:** `source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker/src/dependentApiSimpleOperator.py`  
 **Helm chart:** `charts/dependentapi-simple-operator/`  
 **CRDs watched:** `dependentapis.oda.tmforum.org`  
 **Docker image:** `tmforumodacanvas/dependentapi-simple-operator`
@@ -217,7 +217,7 @@ All Python/KOPF operators live under `source/operators/`. The Go-based operators
 
 ## Credentials Management Operator
 
-**Location:** `source/operators/credentials-management/credentialsManagementOperator.py`  
+**Location:** `source/operators/TMFOP004-Credentials-Management/credentials-management/credentialsManagementOperator.py`  
 **Helm chart:** `charts/credentialsmanagement-operator/`  
 **CRDs watched:** `identityconfigs.oda.tmforum.org`  
 **Docker image:** `tmforumodacanvas/credentials-management-operator`
