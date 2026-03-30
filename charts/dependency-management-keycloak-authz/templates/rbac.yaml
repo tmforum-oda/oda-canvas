@@ -46,6 +46,9 @@ rules:
   - apiGroups: [oda.tmforum.org]
     resources: [dependentapis, exposedapis]
     verbs: [list, get, patch]
+  - apiGroups: [oda.tmforum.org]
+    resources: [dependentapis/status]
+    verbs: [get, patch, update]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
