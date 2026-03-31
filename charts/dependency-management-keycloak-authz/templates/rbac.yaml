@@ -42,13 +42,19 @@ rules:
     resources: [configmaps]
     verbs: [list, watch, get, patch]
 
-  # Application: read DependentAPI and ExposedAPI resources to resolve dependencies.
+  # Application: list and patch DependentAPI and ExposedAPI resources to resolve dependencies
+  # and to propagate DependentAPI ready/url status back to the parent Component.
   - apiGroups: [oda.tmforum.org]
     resources: [dependentapis, exposedapis]
     verbs: [list, get, patch]
   - apiGroups: [oda.tmforum.org]
     resources: [dependentapis/status]
     verbs: [get, patch, update]
+
+  # Application: patch parent Component status when a DependentAPI becomes ready.
+  - apiGroups: [oda.tmforum.org]
+    resources: [components]
+    verbs: [list, watch, get, patch]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1

@@ -32,6 +32,7 @@ Code structure:
   Keycloak helpers       — UUID → component name resolution with caching
   Service Inventory      — create/update canvas-info-service entries
   DependentAPI status    — patch DependentAPI ready status
+  Component status       — propagate DependentAPI ready/url back to parent Component
   Event processing       — reduce, deduplicate, log, and act on events
   Kopf handlers          — startup, liveness probe, and polling daemon
 
@@ -59,6 +60,7 @@ import kopf
 import kubernetes
 import kubernetes.client
 import kubernetes.config
+from kubernetes.client.rest import ApiException
 
 from keycloakUtils import Keycloak
 from log_wrapper import LogWrapper
@@ -90,6 +92,8 @@ DEPAPI_GROUP = "oda.tmforum.org"
 DEPAPI_VERSION = "v1"
 DEPAPI_PLURAL = "dependentapis"
 EXPAPI_PLURAL = "exposedapis"
+COMPONENTS_PLURAL = "components"
+HTTP_NOT_FOUND = 404
 COMPONENT_NAME_LABEL = "oda.tmforum.org/componentName"
 """Label used on DependentAPI and ExposedAPI resources to identify their parent component."""
 
@@ -224,6 +228,35 @@ def _patch_dependent_api(
         logw.warning(
             "Could not patch DependentAPI status",
             f"depapi={name} namespace={namespace} error={e}",
+        )
+
+
+def _patch_component(
+    namespace: str,
+    name: str,
+    component: dict,
+    handler_name: str,
+    logw: LogWrapper,
+) -> None:
+    """Apply a patch to the parent Component resource."""
+    try:
+        k8s_custom = kubernetes.client.CustomObjectsApi()
+        k8s_custom.patch_namespaced_custom_object(
+            group=DEPAPI_GROUP,
+            version=DEPAPI_VERSION,
+            namespace=namespace,
+            plural=COMPONENTS_PLURAL,
+            name=name,
+            body=component,
+        )
+        logw.info(
+            "Component status patched",
+            f"component={name} namespace={namespace} handler={handler_name}",
+        )
+    except ApiException as e:
+        logw.warning(
+            "Could not patch Component status",
+            f"component={name} namespace={namespace} error={e}",
         )
 
 
@@ -468,6 +501,9 @@ def _set_dependent_api_ready(
         patch_body["status"]["depapiStatus"]["svcInvID"] = svc_id
 
     _patch_dependent_api(k8s_custom, namespace, name, patch_body, logw)
+    _propagate_depapi_to_component(
+        logw, depapi, {"url": url, "ready": True}, "_set_dependent_api_ready"
+    )
 
 
 def _set_dependent_api_not_ready(
@@ -513,6 +549,88 @@ def _set_dependent_api_not_ready(
     patch_body["status"]["implementation"] = {"ready": False}
 
     _patch_dependent_api(k8s_custom, namespace, name, patch_body, logw)
+    _propagate_depapi_to_component(
+        logw, depapi, {"url": None, "ready": False}, "_set_dependent_api_not_ready"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Component status
+# ---------------------------------------------------------------------------
+
+
+def _propagate_depapi_to_component(
+    logw: LogWrapper,
+    depapi: dict,
+    updates: dict,
+    handler_name: str,
+) -> None:
+    """Propagate DependentAPI status changes to the parent Component resource.
+
+    Finds the entry in coreDependentAPIs / managementDependentAPIs /
+    securityDependentAPIs matching the DependentAPI uid and applies the
+    given updates dict (e.g. ``{'url': url, 'ready': True}``).
+
+    Silently returns if the DependentAPI has no owner reference, or if the
+    parent Component cannot be found.
+
+    Args:
+        logw:         Shared LogWrapper instance.
+        depapi:       Full DependentAPI resource dict (as returned by the K8s API).
+        updates:      Key/value pairs to merge into the matching status array entry.
+        handler_name: Name of the calling function, used for log messages.
+    """
+    meta = depapi.get("metadata", {})
+    owner_refs = meta.get("ownerReferences", [])
+    if not owner_refs:
+        return
+
+    parent_component_name = owner_refs[0]["name"]
+    dep_api_uid = meta.get("uid")
+    namespace = meta.get("namespace", "components")
+
+    try:
+        k8s_custom = kubernetes.client.CustomObjectsApi()
+        parent_component = k8s_custom.get_namespaced_custom_object(
+            group=DEPAPI_GROUP,
+            version=DEPAPI_VERSION,
+            namespace=namespace,
+            plural=COMPONENTS_PLURAL,
+            name=parent_component_name,
+        )
+    except ApiException as e:
+        if e.status == HTTP_NOT_FOUND:
+            logw.warning(
+                "Parent component not found — skipping status propagation",
+                f"component={parent_component_name} namespace={namespace}",
+            )
+            return
+        logw.warning("Error fetching parent component", str(e))
+        return
+
+    component_status = parent_component.get("status", {})
+    for segment_key in (
+        "coreDependentAPIs",
+        "managementDependentAPIs",
+        "securityDependentAPIs",
+    ):
+        entries = component_status.get(segment_key, [])
+        for entry in entries:
+            if entry.get("uid") == dep_api_uid:
+                entry.update(updates)
+                logw.info(
+                    "Propagating DependentAPI status to parent component",
+                    f"component={parent_component_name} segment={segment_key} "
+                    f"updates={updates} handler={handler_name}",
+                )
+                _patch_component(
+                    namespace,
+                    parent_component_name,
+                    parent_component,
+                    handler_name,
+                    logw,
+                )
+                return
 
 
 # ---------------------------------------------------------------------------
@@ -635,7 +753,7 @@ def _process_event(
 
 
 # ---------------------------------------------------------------------------
-# Kopf handlers — startup, probe, and daemon
+# Kopf handlers — startup, probe, and polling daemon
 # ---------------------------------------------------------------------------
 
 
