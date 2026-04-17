@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TMF639 Resource Inventory Management - {{ own_registry_name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #495057;
+            margin-top: 30px;
+            border-bottom: 2px solid #6c757d;
+            padding-bottom: 5px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #e8f4fd;
+        }
+        .api-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .api-link:hover {
+            text-decoration: underline;
+        }
+        .no-data {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .section-info {
+            background-color: #e7f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .refresh-button {
+            background-color: #17a2b8;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .refresh-button:hover {
+            background-color: #138496;
+        }
+        .auto-refresh-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .auto-refresh-status {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: 10px;
+        }
+        .resource-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .oda-component-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .hub-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .label-item {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 1px;
+            display: inline-block;
+            font-size: 0.85em;
+        }
+        .api-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .api-list-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            padding: 6px 8px;
+            margin: 3px 0;
+            font-size: 0.85em;
+        }
+        .api-name {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .api-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .api-badge {
+            background-color: #007bff;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .api-badge:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        .api-badge.url-badge {
+            background-color: #804040;
+        }
+        .api-badge.url-badge:hover {
+            background-color: #A06060;
+        }
+        .api-badge.devui-badge {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .api-badge.devui-badge:hover {
+            background-color: #e0a800;
+        }
+        .api-badge.oas-badge {
+            background-color: #17a2b8;
+        }
+        .api-badge.oas-badge:hover {
+            background-color: #138496;
+        }
+        .api-badge.oas-badge-nolink {
+            background-color: #b0b0b0;
+        }
+        .api-badge.status-available-badge {
+            background-color: #28a745;
+        }
+        .api-badge.status-unavailable-badge {
+            background-color: #FF0000;
+        }
+        .delete-btn {
+            color: white;
+            background-color: #dc3545;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-left: 8px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .delete-btn-container {
+            text-align: right;
+        }
+        .add-subscription-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 15px 0;
+        }
+        .add-subscription-btn:hover {
+            background-color: #218838;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .user-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+        .user-display {
+            cursor: pointer;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-display:hover {
+            background-color: #0056b3;
+        }
+        .user-icon {
+            font-size: 1.2em;
+        }
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 5px;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border-radius: 4px;
+            z-index: 1000;
+        }
+        .user-dropdown.show {
+            display: block;
+        }
+        .user-dropdown a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .user-dropdown a:last-child {
+            border-bottom: none;
+        }
+        .user-dropdown a:hover {
+            background-color: #f8f9fa;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-container">
+            <h1 style="margin: 0; border-bottom: none;">🗂️ TMF639 Resource Inventory Management - {{ own_registry_name }}</h1>
+            {% if current_user %}
+            <div class="user-menu-container">
+                <div class="user-display" onclick="toggleUserMenu()">
+                    <span class="user-icon">👤</span>
+                    <span>{{ current_user.full_name or current_user.username }}</span>
+                    <span>▼</span>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="/logout">🚪 Logout</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="section-info">
+            <strong>Service:</strong> {{ own_registry_name }}<br>
+            <strong>API Version:</strong> TMF639 v5.0.0<br>
+            <strong>Description:</strong> Resource Inventory Management API for ODA Canvas Components<br>
+            <strong>Watched Namespaces:</strong> {{ namespaces }}
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">
+                    {% set oda_count = 0 %}
+                    {% for resource in resources %}
+                        {% if resource.data.get('category') == 'ODAComponent' %}
+                            {% set oda_count = oda_count + 1 %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ oda_count }}
+                </div>
+                <div class="stat-label">ODA Components</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ resources|length }}</div>
+                <div class="stat-label">Total Resources</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ hubs|length }}</div>
+                <div class="stat-label">Event Subscriptions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ relationships|length }}</div>
+                <div class="stat-label">Resource Relationships</div>
+            </div>
+        </div>
+
+        <!-- Refresh Controls -->
+        <div class="refresh-controls">
+            <button class="refresh-button" onclick="manualRefresh()">↻ Refresh Page</button>
+            <div class="auto-refresh-toggle">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoRefreshCheckbox" checked>
+                    <span class="slider"></span>
+                </label>
+                <span class="auto-refresh-status" id="autoRefreshStatus">Auto-refresh: On (15s)</span>
+            </div>
+        </div>
+
+        <!-- ODA Components Section -->
+        <h2>🔷 ODA Components</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Version</th>
+                    <th>Exposed APIs</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% set oda_components = [] %}
+            {% for resource in resources %}
+                {% if resource.data.get('category') == 'ODAComponent' %}
+                    {% set _ = oda_components.append(resource) %}
+                {% endif %}
+            {% endfor %}
+            {% if oda_components %}
+                {% for component in oda_components %}
+                    <tr>
+                        <td><code>{{ component.id }}</code></td>
+                        <td><strong>{{ component.data.get('name', '-') }}</strong></td>
+                        <td>{{ component.data.get('resourceStatus', '-') }}</td>
+                        <td>
+                            {% set version_char = namespace(found=false) %}
+                            {% for char in component.data.get('resourceCharacteristic', []) %}
+                                {% if char.get('name') == 'version' %}
+                                    {{ char.get('value', '-') }}
+                                    {% set version_char.found = true %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if not version_char.found %}-{% endif %}
+                        </td>
+                        <td>
+                            {% set exposed_apis = oda_component_apis.get(component.id, []) %}
+                            {% if exposed_apis %}
+                                <ul class="api-list">
+                                {% for api in exposed_apis %}
+                                    <li class="api-list-item">
+                                        <span class="api-name">
+                                            <a href="/resource/{{ api.id }}" class="api-link" target="_blank">{{ api.name }}</a>
+                                        </span>
+                                        <div class="api-badges">
+                                            {% if api.specifications %}
+                                              {% for spec_url in api.specifications %}
+                                                <a href="{{ spec_url }}" class="api-badge oas-badge" target="_blank">{{ api.apiType }}</a>
+                                              {% endfor %}
+                                            {% else %}
+												<span class="api-badge oas-badge-nolink">{{ api.apiType }}</span>
+                                            {% endif %}
+                                            {% if api.url %}
+                                                <a href="{{ api.url }}" class="api-badge url-badge" target="_blank">URL</a>
+                                            {% endif %}
+                                            {% if api.apiDocs %}
+                                                <a href="{{ api.apiDocs }}" class="api-badge devui-badge" target="_blank">DEV UI</a>
+                                            {% endif %}
+                                            {% if api.status == 'available' %}
+												<span class="api-badge status-available-badge">{{ api.status }}</span>
+                                            {% else %}
+												<span class="api-badge status-unavailable-badge">{{ api.status }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="no-data">No APIs</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/resource/{{ component.id }}" class="api-link" target="_blank">View Details</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="no-data" style="text-align: center;">No ODA Components found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Resources Section -->
+        <h2>📦 Resources</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if resources %}
+                {% for resource in resources %}
+                    <tr>
+                        <td><code>{{ resource.id }}</code></td>
+                        <td><strong>{{ resource.data.get('name', '-') }}</strong></td>
+                        <td>{{ resource.data.get('category', '-') }}</td>
+                        <td>{{ resource.data.get('resourceStatus', '-') }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="/resource/{{ resource.id }}" class="api-link" target="_blank">View Details</a>
+                                <div class="delete-btn-container">
+                                    <button class="delete-btn" onclick="deleteResource('{{ resource.id }}')" title="Delete Resource">🗑️</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" class="no-data" style="text-align: center;">No resources found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Event Subscriptions (Hubs) Section -->
+        <h2>🔔 Event Subscriptions (Hubs)</h2>
+        
+        <!-- Add Subscription Button -->
+        <button class="add-subscription-btn" onclick="openAddSubscriptionModal()">➕ Add New Upstream Subscription</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Callback URL</th>
+                    <th>Query</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if hubs %}
+                {% for hub in hubs %}
+                    <tr>
+                        <td><code>{{ hub.id }}</code></td>
+                        <td><a href="{{ hub.callback }}" class="api-link" target="_blank">{{ hub.callback }}</a></td>
+                        <td>{{ hub.query or '-' }}</td>
+                        <td><span class="hub-status">Active</span></td>
+                        <td style="text-align: right;">
+                            <button class="delete-btn" onclick="deleteHub('{{ hub.id }}')" title="Delete Hub">🗑️</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" class="no-data" style="text-align: center;">No event subscriptions found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Resource Relationships Section -->
+        <h2>🔗 Resource Relationships</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>From Resource</th>
+                    <th>Relationship Type</th>
+                    <th>To Resource</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if relationships %}
+                {% for rel in relationships %}
+                    <tr>
+                        <td><code>{{ rel.resource_id }}</code></td>
+                        <td><strong>{{ rel.relation_type }}</strong></td>
+                        <td><code>{{ rel.related_resource_id }}</code></td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="3" class="no-data" style="text-align: center;">No resource relationships found</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Footer Navigation -->
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <p><strong>Navigation:</strong></p>
+            <ul>
+                <li><a href="/docs" class="api-link" target="_blank">Swagger UI - Interactive API Documentation</a></li>
+                <li><a href="/redoc" class="api-link" target="_blank">ReDoc - API Documentation</a></li>
+                <li><a href="/resource" class="api-link">Resources API Endpoint</a></li>
+                <li><a href="/hub" class="api-link">Hub API Endpoint (Event Subscriptions)</a></li>
+                <li><a href="/sync" class="api-link">Sync Endpoint (Callback for Synchronization)</a></li>
+                <li><a href="/health" class="api-link">Health Check</a></li>
+            </ul>
+            
+            <p><strong>Synchronization:</strong></p>
+            <p style="color: #6c757d; font-size: 0.9em;">
+                This service supports bidirectional synchronization with other TMF639 Resource Inventory instances. 
+                Use the <code>/hub</code> endpoint to register event subscriptions and the <code>/sync</code> endpoint 
+                as a callback URL to keep multiple instances synchronized.
+            </p>
+        </div>
+    </div>
+
+    <!-- Add Subscription Modal -->
+    <div id="addSubscriptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>➕ Add New Upstream Subscription</h3>
+                <span class="close" onclick="closeAddSubscriptionModal()">&times;</span>
+            </div>
+            <form id="addSubscriptionForm">
+                <div class="form-group">
+                    <label for="callbackUrl">Callback URL *</label>
+                    <input type="url" id="callbackUrl" name="callbackUrl" required 
+                           placeholder="https://upstream-registry/sync">
+                    <small style="color: #6c757d;">The endpoint where events will be sent (typically /sync endpoint of upstream registry)</small>
+                </div>
+                <div class="form-group">
+                    <label>Query Parameter</label>
+                    <input type="text" value="source={{ own_registry_name }}" disabled
+                           style="background-color: #e9ecef; cursor: not-allowed;">
+                    <small style="color: #6c757d;">Automatically set to identify the source registry</small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAddSubscriptionModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Subscription</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        async function deleteResource(resourceId) {
+            if (!confirm(`Are you sure you want to delete resource: ${resourceId}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/resource/${resourceId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert(`Resource ${resourceId} deleted successfully`);
+                    window.location.reload();
+                } else {
+                    alert(`Failed to delete resource: ${response.statusText}`);
+                }
+            } catch (error) {
+                alert(`Error deleting resource: ${error.message}`);
+            }
+        }
+
+        async function deleteHub(hubId) {
+            if (!confirm(`Are you sure you want to delete hub: ${hubId}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/hub/${hubId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert(`Hub ${hubId} deleted successfully`);
+                    window.location.reload();
+                } else {
+                    alert(`Failed to delete hub: ${response.statusText}`);
+                }
+            } catch (error) {
+                alert(`Error deleting hub: ${error.message}`);
+            }
+        }
+
+        function manualRefresh() {
+            window.location.reload();
+        }
+
+        // Modal functions
+        function openAddSubscriptionModal() {
+            document.getElementById('addSubscriptionModal').style.display = 'block';
+        }
+
+        function closeAddSubscriptionModal() {
+            document.getElementById('addSubscriptionModal').style.display = 'none';
+            document.getElementById('addSubscriptionForm').reset();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addSubscriptionModal');
+            if (event.target == modal) {
+                closeAddSubscriptionModal();
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('addSubscriptionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const callbackUrl = document.getElementById('callbackUrl').value;
+            // Always use the registry name as the source parameter
+            const queryParam = 'source={{ own_registry_name }}';
+            
+            const hubData = {
+                callback: callbackUrl,
+                query: queryParam
+            };
+            
+            try {
+                const response = await fetch('/hub', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(hubData)
+                });
+                
+                if (response.ok) {
+                    alert('Subscription created successfully!');
+                    closeAddSubscriptionModal();
+                    window.location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(`Failed to create subscription: ${error.detail || response.statusText}`);
+                }
+            } catch (error) {
+                alert(`Error creating subscription: ${error.message}`);
+            }
+        });
+
+        // Auto-refresh functionality
+        let autoRefreshInterval = null;
+
+        // Initialize auto-refresh on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('autoRefreshCheckbox');
+            if (checkbox.checked) {
+                startAutoRefresh();
+            }
+        });
+
+        document.getElementById('autoRefreshCheckbox').addEventListener('change', function() {
+            const isChecked = this.checked;
+            const statusText = document.getElementById('autoRefreshStatus');
+
+            if (isChecked) {
+                statusText.textContent = 'Auto-refresh: On (15s)';
+                startAutoRefresh();
+            } else {
+                statusText.textContent = 'Auto-refresh: Off';
+                stopAutoRefresh();
+            }
+        });
+
+        function startAutoRefresh() {
+            // Clear any existing interval first
+            stopAutoRefresh();
+            // Set up interval to refresh page every 15 seconds
+            autoRefreshInterval = setInterval(() => {
+                window.location.reload();
+            }, 15000); // 15 seconds interval
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        // User menu toggle
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.user-menu-container')) {
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

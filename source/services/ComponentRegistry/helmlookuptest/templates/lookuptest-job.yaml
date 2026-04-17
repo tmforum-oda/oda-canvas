@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Release.Name }}-lookuptest"
+spec:
+  selector:
+    matchLabels:
+      app: "{{ .Release.Name }}-lookuptest"
+  template:
+    metadata:
+      name: "{{ .Release.Name }}-lookuptest"
+      labels:
+        app: "{{ .Release.Name }}-lookuptest"
+    spec:
+      containers:
+      - name: lookuptest
+        image: ocfork/kc-init:1.0.9
+        env:
+        {{- $existingDeployment := lookup "apps/v1" "Deployment" .Release.Namespace (printf "kf-p-%s" .Release.Name) }}
+        {{- if $existingDeployment }}
+        {{- range $existingDeployment.spec.template.spec.containers }}
+        {{- if eq .name "lookuptest" }}
+        {{- range .env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- else }}
+        - name: VAR
+          value: "predefined variable"
+        {{- end }}
+        command: ["/bin/sh"]
+        args: ["-c", "date -Iseconds;
+        echo \"{{ .Values.message }}\";
+        sleep 3600"]
+      imagePullSecrets:
+      {{- if $existingDeployment }}
+      {{- range $existingDeployment.spec.template.spec.imagePullSecrets }}
+      - name: {{ .name }}
+      {{- end }}
+      {{- else }}
+      - name: ips1
+      {{- end }}
