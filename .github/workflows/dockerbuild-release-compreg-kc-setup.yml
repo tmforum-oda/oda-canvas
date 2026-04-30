@@ -5,18 +5,18 @@
 # automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml #
 ################################################################################
 
-name: Build ComponentRegistry Release Dockerimage
-run-name: Build ComponentRegistry Release Dockerimage
+name: Build ComponentRegistry-KeyCloak-Setup Release Dockerimage
+run-name: Build ComponentRegistry-KeyCloak-Setup Release Dockerimage
 on:
   workflow_dispatch:
   push:
     branches:
     - main
     paths: 
-      - source/services/ComponentRegistry/**/*
+      - source/services/ComponentRegistry/keycloaksetup/**/*
 
 jobs:
-  build-component-registry-release-dockerfile-job:
+  build-compreg-kc-setup-release-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -26,17 +26,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of component-registry from values.yaml
+      - name: read image of compreg-kc-setup from values.yaml
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.component-registry.image' charts/canvas-oda/values.yaml
+          cmd: yq '.image' source/services/ComponentRegistry/keycloaksetup/version.yaml
           
-      - name: read versionnumber of component-registry from values.yaml
+      - name: read versionnumber of compreg-kc-setup from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.component-registry.version, .component-registry.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/canvas-oda/values.yaml
+          cmd: yq '[.version, .prereleaseSuffix] | filter(.!=null and .!="") | join("-")' source/services/ComponentRegistry/keycloaksetup/version.yaml
           
       - name: Check Version
         id: check-tag
@@ -74,7 +74,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/services/ComponentRegistry
+          context: source/services/ComponentRegistry/keycloaksetup
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

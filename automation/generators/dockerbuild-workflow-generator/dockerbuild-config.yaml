@@ -275,7 +275,7 @@ tmf639-resource-inventory-api:
   #platforms: linux/amd64,linux/arm64
 
 component-registry:
-  displayName: Component-Registry
+  displayName: ComponentRegistry
   fileName: component-registry
   
   valuesYamlFile: charts/canvas-oda/values.yaml
@@ -286,8 +286,16 @@ component-registry:
   paths:
     - source/services/ComponentRegistry/**/*
   buildContext: source/services/ComponentRegistry
-  # default is "Dockerfile" in buildContext
-  ## buildDockerfile: 
-  #testDockerfile: source/services/ComponentRegistry/DockerfileTest
-  ## default is "linux/amd64,linux/arm64"
-  #platforms: linux/amd64,linux/arm64
+
+compreg-kc-setup:
+  displayName: ComponentRegistry-KeyCloak-Setup
+  fileName: compreg-kc-setup
+  
+  valuesYamlFile: source/services/ComponentRegistry/keycloaksetup/version.yaml
+  valuesPathImage: .image
+  valuesPathVersion: .version
+  valuesPathPrereleaseSuffix: .prereleaseSuffix
+  
+  paths:
+    - source/services/ComponentRegistry/keycloaksetup/**/*
+  buildContext: source/services/ComponentRegistry/keycloaksetup
