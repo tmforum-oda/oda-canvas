@@ -57,7 +57,11 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 ```
 
 
+## manual install compreg
 
+```
+helm upgrade --install -n canvas canvas-compreg charts/component-registry 
+```
 
 
 
