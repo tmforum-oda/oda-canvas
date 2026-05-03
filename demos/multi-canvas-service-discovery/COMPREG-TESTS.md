@@ -39,8 +39,6 @@ helm dependency update ./charts/canvas-vault
 helm dependency update ./charts/pdb-management-operator
 helm dependency update ./charts/canvas-oda
 
-
-
 cd ~/git/oda-canvas
 helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.$DOMAIN --set api-operator-istio.deployment.credentialName=$TLS_SECRET_NAME --set api-operator-istio.configmap.publicHostname=components.$DOMAIN --set=api-operator-istio.deployment.httpsRedirect=false
 ```
@@ -57,6 +55,9 @@ windows without domain
 ```
 helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP
 ```
+
+
+
 
 
 

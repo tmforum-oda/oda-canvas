@@ -210,12 +210,16 @@ identityconfig-operator-keycloak:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 1.0.2
-  prereleaseSuffix: issue384c
+  version: 1.0.1
+  prereleaseSuffix: 
+  # TODO[FH]:
+  # version: 1.0.2
+  # prereleaseSuffix: issue384c
+
   imagePullPolicy: IfNotPresent
   loglevel: '20'
-  # comment out 'componentRegistryUrl' if ComponentRegistry is not used
-  componentRegistryUrl: http://canvas-compreg.canvas.svc.cluster.local
+  # # comment out 'componentRegistryUrl' if ComponentRegistry is not used
+  # componentRegistryUrl: http://canvas-compreg.canvas.svc.cluster.local
   
 
 canvas-vault:
@@ -629,8 +633,11 @@ canvas-info-service:
 resource-inventory:
   enabled: true
   image: tmforumodacanvas/tmf639-resource-inventory-api
-  version: 1.0.1
-  prereleaseSuffix: issue384c
+  version: 1.0.0
+  prereleaseSuffix: 
+  # TODO[FH]:
+  # version: 1.0.1
+  # prereleaseSuffix: issue384c
   imagePullPolicy: IfNotPresent
   serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
   serviceType: LoadBalancer
