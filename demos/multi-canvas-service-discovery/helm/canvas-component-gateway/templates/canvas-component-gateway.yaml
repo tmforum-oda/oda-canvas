@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1
 kind: Gateway
 metadata:
-  name: component-gateway
+  name: {{ .Release.Name }}
 spec:
   selector:
     istio: ingressgateway
