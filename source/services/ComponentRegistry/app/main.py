@@ -769,9 +769,9 @@ async def health_check():
 async def login_page(request: Request, error: Optional[str] = None):
     """Display login page."""
     return templates.TemplateResponse(
+        request,
         "login.html",
         {
-            "request": request,
             "error": error,
             "keycloak_enabled": KEYCLOAK_ENABLED,
             "oauth2_enabled": OAUTH2_ENABLED,
@@ -920,11 +920,9 @@ async def login_form(
     user = authenticate_user(username, password)
     if not user:
         return templates.TemplateResponse(
+            request,
             "login.html",
-            {
-                "request": request,
-                "error": "Incorrect username or password"
-            },
+            {"error": "Incorrect username or password"},
             status_code=400
         )
     
@@ -1180,9 +1178,9 @@ async def dashboard(
     if not namespaces:
         namespaces = "ALL"
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
-            "request": request,
             "own_registry_name": OWN_REGISTRY_NAME,
             "namespaces": namespaces,
             "resources": resources_with_data,

@@ -67,6 +67,25 @@ helm upgrade --install -n canvas canvas-compreg charts/component-registry
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## deploy canvas from filesystem
 
 ```
