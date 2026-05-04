@@ -649,23 +649,28 @@ resource-inventory:
 
 
 component-registry:
-   enabled: true
-   image: tmforumodacanvas/component-registry
-   version: 0.1.0
-   prereleaseSuffix: issue384c
-   imagePullPolicy: IfNotPresent
+  enabled: true
+  image: tmforumodacanvas/component-registry
+  version: 0.1.0
+  prereleaseSuffix: issue384c
+  imagePullPolicy: IfNotPresent
    
-   ownRegistryName: canvas-compreg
+  ownRegistryName: canvas-compreg
    
-   # define log level, 10=DEBUG, 20=INFO
-   loglevel: "10"
+  # define log level, 10=DEBUG, 20=INFO
+  loglevel: "10"
    
-   # Persistence for SQLite database file
-   persistence:
-     enabled: true
-     accessMode: ReadWriteOnce
-     size: 1Gi
+  # Persistence for SQLite database file
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 1Gi
    
-   keycloak:
-     setup:
-       enabled: true
+  keycloak:
+    enabled: false
+    setup:
+      enabled: false
+
+  oauth2:
+    enabled: false
+    

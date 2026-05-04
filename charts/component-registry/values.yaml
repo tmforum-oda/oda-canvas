@@ -4,7 +4,7 @@
 
 image: tmforumodacanvas/component-registry
 version: 0.1.0
-prereleaseSuffix: issue384b
+prereleaseSuffix: issue384c
 imagePullPolicy: IfNotPresent
 
 # define log level, 10=DEBUG, 20=INFO
@@ -104,7 +104,7 @@ odaCanvas:
 
 
 oauth2:
-  enabled: true
+  enabled: false
   # if secret key is empty a random key will be created 
   secretKey: ""
   algorithm: HS256
@@ -119,7 +119,7 @@ oauth2:
   # tokenUrl: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari/protocol/openid-connect/token
 
 keycloak:
-  enabled: true
+  enabled: false
   #url: https://canvas-keycloak.ihc-dt.cluster-2.de/auth/realms/odari
   url: http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari
   audience: account

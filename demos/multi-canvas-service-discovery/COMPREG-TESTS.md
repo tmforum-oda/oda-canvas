@@ -63,7 +63,13 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 helm upgrade --install -n canvas canvas-compreg charts/component-registry 
 ```
 
+### port forwarding
 
+```
+kubectl port-forward -n canvas svc/canvas-compreg 8090:80
+```
+
+* http://localhost:8080
 
 
 
