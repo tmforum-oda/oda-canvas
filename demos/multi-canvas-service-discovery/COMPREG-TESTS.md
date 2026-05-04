@@ -23,6 +23,13 @@ helm uninstall -n components r-cat
 kubectl rollout restart -n canvas deployment canvas-depapi-op
 ```
 
+## cleanup canvas completely
+
+```
+helm uninstall -n canvas canvas-compreg
+kubectl delete ns components canvas-vault cert-manager canvas
+```
+
 
 ## Install default canvas
 
@@ -72,6 +79,13 @@ kubectl port-forward -n canvas svc/canvas-compreg 8090:80
 * http://localhost:8080
 
 
+# Test
+
+## deploy r-cat
+
+```
+helm upgrade --install r-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
+```
 
 
 
@@ -582,6 +596,28 @@ optional install canvas-vs
 ```
 helm upgrade --install -n canvas --create-namespace canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
 ```
+
+## for  standalone gateway
+
+### install standalone istio gateway
+
+```
+helm upgrade --install ihcdta-gateway -n istio-gateway --create-namespace demos/multi-canvas-service-discovery/helm/canvas-component-gateway --set=domain=%DOMAIN%
+```
+
+### install virtual services
+
+```
+helm upgrade --install -n istio-gateway canvas-vs demos/multi-canvas-service-discovery/helm/canvas-vs --set=domain=%DOMAIN% --set=componentGateway=istio-gateway/ihcdta-gateway
+```
+
+* https://canvas-resource-inventory.ihc-dt-a.cluster-2.de/tmf-api/resourceInventoryManagement/v5/api-docs/
+* https://canvas-compreg.ihc-dt-a.cluster-2.de
+* https://canvas-info.ihc-dt-a.cluster-2.de
+* https://canvas-keycloak.ihc-dt-a.cluster-2.de/auth
+* https://canvas-vault-hc.ihc-dt-a.cluster-2.de
+
+
 
 for connect to public IDP
 

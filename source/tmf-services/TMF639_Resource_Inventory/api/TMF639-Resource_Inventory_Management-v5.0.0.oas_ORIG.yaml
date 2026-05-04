@@ -1958,8 +1958,7 @@ components:
         The polymorphic attributes @type, @schemaLocation & @referredType are
         related to the Resource entity and not the ResourceRefOrValue class
         itself
-      # HOFIX use anyOf instead of oneOf to avoid validation errors
-      anyOf:
+      oneOf:
         - $ref: '#/components/schemas/Resource'
         - $ref: '#/components/schemas/ResourceRef'
       discriminator:
@@ -1976,8 +1975,7 @@ components:
         The polymorphic attributes @type, @schemaLocation & @referredType are
         related to the Resource entity and not the ResourceRefOrValue class
         itself
-      # HOFIX use anyOf instead of oneOf to avoid validation errors
-      anyOf:
+      oneOf:
         - $ref: '#/components/schemas/Resource_FVO'
         - $ref: '#/components/schemas/ResourceRef_FVO'
       discriminator:
@@ -1994,8 +1992,7 @@ components:
         The polymorphic attributes @type, @schemaLocation & @referredType are
         related to the Resource entity and not the ResourceRefOrValue class
         itself
-      # HOFIX use anyOf instead of oneOf to avoid validation errors
-      anyOf:
+      oneOf:
         - $ref: '#/components/schemas/Resource_MVO'
         - $ref: '#/components/schemas/ResourceRef_MVO'
       discriminator:

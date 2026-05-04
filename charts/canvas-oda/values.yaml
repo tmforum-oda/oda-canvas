@@ -622,11 +622,8 @@ canvas-info-service:
 resource-inventory:
   enabled: true
   image: tmforumodacanvas/tmf639-resource-inventory-api
-  version: 1.0.0
-  prereleaseSuffix: 
-  # TODO[FH]:
-  # version: 1.0.1
-  # prereleaseSuffix: issue384c
+  version: 1.1.0
+  prereleaseSuffix: issue384c
   imagePullPolicy: IfNotPresent
   serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
   serviceType: LoadBalancer

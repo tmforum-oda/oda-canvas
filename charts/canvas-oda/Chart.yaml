@@ -17,7 +17,7 @@ type: application
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
 version: 1.2.6-rc1
-# version: 1.2.6-rc1  - issue 384 - added Component-Registry and update Simple-Dependent-API Operator
+# version: 1.2.6-rc1  - issue 384 - added Component-Registry, update Simple-Dependent-API Operator and Resource-Inventory
 # version: 1.2.5     - New release ahead of Elevate Asia
 # version: 1.2.5-AK1 - updated component crd schema to allow multiple versions of an api under coreFunction and supporting functions
 # version: 1.2.5-LT5 - added segment to ExposedAPI and DependentAPI crds and enabled DependentAPIs for Management and Security
@@ -129,7 +129,7 @@ dependencies:
     repository: 'file://../canvas-info-service'
     condition: canvas-info-service.enabled
   - name: resource-inventory
-    version: "1.0.0"
+    version: "1.1.0"
     repository: 'file://../resource-inventory'
     condition: resource-inventory.enabled
   - name: pdb-management-operator
