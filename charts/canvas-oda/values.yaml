@@ -210,11 +210,8 @@ identityconfig-operator-keycloak:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 1.0.1
-  prereleaseSuffix: 
-  # TODO[FH]:
-  # version: 1.0.2
-  # prereleaseSuffix: issue384c
+  version: 1.0.2
+  prereleaseSuffix: issue384c
 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
@@ -590,14 +587,6 @@ api-operator-apisix:
     loglevel: '20'
     # publicHostname: 'components.example.com'
     componentGateway: 'canvas/component-gateway'
-    API_CONNECT_TIMEOUT: 60   #value in seconds supported
-    API_READ_TIMEOUT: 900     #value in seconds supported
-    API_WRITE_TIMEOUT: 900    #value in seconds supported
-
-
-# -----------------------------------------------------------------------------
-# Canvas Info service parameters
-# -----------------------------------------------------------------------------
     API_CONNECT_TIMEOUT: 60   #value in seconds supported
     API_READ_TIMEOUT: 900     #value in seconds supported
     API_WRITE_TIMEOUT: 900    #value in seconds supported
