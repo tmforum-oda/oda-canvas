@@ -1,15 +1,16 @@
 [
   {
-    "resourceVersion": "1766386805066383018",
+    "resourceVersion": "1777968036742127008",
     "@type": "LogicalResource",
     "@baseType": "Resource",
-    "name": "r-cat-productcatalogmanagement-productcatalogmanagement",
+    "name": "r-cat-productcatalogmanagement-productcatalogmanagement-v4",
     "description": "Exposed API: productcatalogmanagement",
     "category": "API",
     "resourceSpecification": {
       "@type": "ResourceSpecificationRef",
       "id": "API",
-      "name": "API"
+      "name": "API",
+      "version": "v4"
     },
     "resourceCharacteristic": [
       {
@@ -30,7 +31,7 @@
       {
         "@type": "Characteristic",
         "name": "url",
-        "value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+        "value": "https://34.51.232.176/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
       },
       {
         "@type": "Characteristic",
@@ -40,23 +41,22 @@
       {
         "@type": "Characteristic",
         "name": "specification",
-        "value": [
-          {
-            "url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
-          }
-        ]
+        "value": {
+          "url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
+          "version": "v4"
+        }
       },
       {
         "@type": "Characteristic",
         "name": "apiDocs",
-        "value": "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs"
+        "value": "https://34.51.232.176/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs"
       }
     ],
     "resourceStatus": "available",
     "operationalState": "enable",
     "administrativeState": "unlocked",
     "usageState": "active",
-    "startDate": "2025-12-22T06:59:44Z",
+    "startDate": "2026-05-05T07:59:35Z",
     "resourceRelationship": [
       {
         "@type": "ResourceRelationship",
@@ -68,7 +68,79 @@
         }
       }
     ],
-    "id": "self:r-cat-productcatalogmanagement-productcatalogmanagement",
-    "href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement-productcatalogmanagement"
+    "id": "self:r-cat-productcatalogmanagement-productcatalogmanagement-v4",
+    "href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement-productcatalogmanagement-v4"
+  },
+  {
+    "resourceVersion": "1777968098680015010",
+    "@type": "LogicalResource",
+    "@baseType": "Resource",
+    "name": "f-cat-productcatalogmanagement-productcatalogmanagement-v4",
+    "description": "Exposed API: productcatalogmanagement",
+    "category": "API",
+    "resourceSpecification": {
+      "@type": "ResourceSpecificationRef",
+      "id": "API",
+      "name": "API",
+      "version": "v4"
+    },
+    "resourceCharacteristic": [
+      {
+        "@type": "Characteristic",
+        "name": "namespace",
+        "value": "components"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "apiName",
+        "value": "productcatalogmanagement"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "apiType",
+        "value": "openapi"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "url",
+        "value": "https://34.51.232.176/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "implementation",
+        "value": "f-cat-prodcatapi"
+      },
+      {
+        "@type": "Characteristic",
+        "name": "specification",
+        "value": {
+          "url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
+          "version": "v4"
+        }
+      },
+      {
+        "@type": "Characteristic",
+        "name": "apiDocs",
+        "value": "https://34.51.232.176/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs"
+      }
+    ],
+    "resourceStatus": "available",
+    "operationalState": "enable",
+    "administrativeState": "unlocked",
+    "usageState": "active",
+    "startDate": "2026-05-05T08:00:18Z",
+    "resourceRelationship": [
+      {
+        "@type": "ResourceRelationship",
+        "relationshipType": "exposedBy",
+        "resource": {
+          "id": "self:f-cat-productcatalogmanagement",
+          "href": "http://localhost:8080/resource/self:f-cat-productcatalogmanagement",
+          "@type": "LogicalResource"
+        }
+      }
+    ],
+    "id": "self:f-cat-productcatalogmanagement-productcatalogmanagement-v4",
+    "href": "http://localhost:8080/resource/self:f-cat-productcatalogmanagement-productcatalogmanagement-v4"
   }
 ]

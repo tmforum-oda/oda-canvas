@@ -1,20 +1,34 @@
 import pytest
 import sys
 import os
+import re
 
 
 """
-preparation for local tests:
+# preparation for local tests:
+
+# make canvas services accessible locally:
 
 kubectl port-forward -n canvas svc/canvas-compreg 8080:80
 export BASE_URL=http://localhost:8080
 
-in RequestFileMocker initialization set recording=True to record new test data
 
-deploy r-cat and f-cat from BDD tests:
+# in RequestFileMocker initialization set recording=True to record new test data
+
+
+# deploy r-cat and f-cat from BDD tests:
 
 helm upgrade --install r-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
 helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+
+
+# deploy and register upstream global-compreg
+
+helm upgrade --install -n compreg global-compreg --create-namespace charts/component-registry --set=domain=%DOMAIN% --set=canvasResourceInventory=
+
+curl -sX POST -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.%DOMAIN%/sync\",\"query\":\"source=canvas-compreg\"}" http://localhost:8080/hub | jq
+
+
 """
 
 
@@ -68,12 +82,22 @@ def test_find_spec_success(comp_reg, rfmock):
     rfmock.mock_get("resource", f"find_spec_success", 200)
     comps = comp_reg.find_exposed_apis(oas_spec)
     # print(f"\nFOUND EXPOSED APIS:\n{json.dumps(comps,indent=2)}\n")
-    assert len(comps) == 1
-    assert comps[0]["name"] == "r-cat-productcatalogmanagement-productcatalogmanagement"
+    assert len(comps) == 2
+    comps = sorted(comps, key=lambda c: c["name"])
+
+    assert comps[0]["name"] == "f-cat-productcatalogmanagement-productcatalogmanagement-v4"
     assert comps[0]["category"] == "API"
-    assert comps[0]["resourceRelationship"][0]["resource"]["id"] == "self:r-cat-productcatalogmanagement"
-    assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "url") == "https://components.ihc-dt.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
-    assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "specification")[0]["url"] == oas_spec
+    assert comps[0]["resourceRelationship"][0]["resource"]["id"] == "self:f-cat-productcatalogmanagement"
+    actual_url = getCharacteristicValue(comps[0]["resourceCharacteristic"], "url")
+    assert re.match(r"https?://[^/]+/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4$", actual_url), f"Unexpected URL: {actual_url}"
+    assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "specification")["url"] == oas_spec
+
+    assert comps[1]["name"] == "r-cat-productcatalogmanagement-productcatalogmanagement-v4"
+    assert comps[1]["category"] == "API"
+    assert comps[1]["resourceRelationship"][0]["resource"]["id"] == "self:r-cat-productcatalogmanagement"
+    actual_url = getCharacteristicValue(comps[1]["resourceCharacteristic"], "url")
+    assert re.match(r"https?://[^/]+/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4$", actual_url), f"Unexpected URL: {actual_url}"
+    assert getCharacteristicValue(comps[1]["resourceCharacteristic"], "specification")["url"] == oas_spec
 
 def test_find_spec_no_result(comp_reg, rfmock):
     oas_spec = "https://invalid.oas/spec.json"
@@ -88,7 +112,7 @@ def test_get_upstream_registries(comp_reg, rfmock):
     regs = comp_reg.get_upstream_registries()
     # print(f"\nUPSTREAM REGISTRIES:\n{json.dumps(regs,indent=2)}\n")
     assert len(regs) == 1
-    assert regs[0] == "https://global-compreg.ihc-dt.cluster-2.de"
+    assert re.match(r"https?://global-compreg\.", regs[0]), f"Unexpected registry URL: {regs[0]}"
 
 
 if __name__ == "__main__":
