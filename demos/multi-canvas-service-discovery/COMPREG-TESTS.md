@@ -57,7 +57,7 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 ```
 
 
-windows without domain
+windows without domain (debug logging for depapiop)
 
 ```
 helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=dependentapi-simple-operator.loglevel=10

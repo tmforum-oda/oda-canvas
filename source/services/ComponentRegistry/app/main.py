@@ -1154,11 +1154,10 @@ async def dashboard(
                                 elif char.get('name') == 'apiDocs':
                                     api_docs = char.get('value')
                                 elif char.get('name') == 'specification':
-                                    specs = char.get('value', [])
-                                    for spec in specs:
-                                        spec_url = spec.get('url')
-                                        if spec_url:
-                                            specifications.append(spec_url)
+                                    spec = char.get('value', {})
+                                    spec_url = spec.get('url')
+                                    if spec_url:
+                                        specifications.append(spec_url)
                             
                             resource_status = potential_api.data.get('resourceStatus', "?")
                             
