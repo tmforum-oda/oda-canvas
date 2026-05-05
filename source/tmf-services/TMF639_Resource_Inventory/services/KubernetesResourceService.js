@@ -266,12 +266,20 @@ class KubernetesResourceService {
             }
         ];
 
-        // Add specification characteristic if spec.specification exists and is an array
-        if (spec.specification && Array.isArray(spec.specification)) {
-            characteristics.push({
+		// Format was changed from array to flattened key-value pairs
+        // // Add specification characteristic if spec.specification exists and is an array
+        // if (spec.specification) && Array.isArray(spec.specification)) {
+        //     characteristics.push({
+        //         '@type': 'Characteristic',
+        //         name: 'specification',
+        //         value: [...spec.specification]
+        //     });
+		// } 
+		if (spec.specification) {
+	        characteristics.push({
                 '@type': 'Characteristic',
                 name: 'specification',
-                value: [...spec.specification]
+                value: spec.specification
             });
         }
 

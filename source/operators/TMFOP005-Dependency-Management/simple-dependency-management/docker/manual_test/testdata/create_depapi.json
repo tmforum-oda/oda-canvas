@@ -1,0 +1,169 @@
+{
+	"apiVersion": "oda.tmforum.org/v1",
+	"kind": "DependentAPI",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/dependentApiCreate": "{\"started\":\"2026-05-04T15:47:24.863711+00:00\",\"delayed\":\"2026-05-04T15:50:25.191976+00:00\",\"purpose\":\"resume\",\"retries\":3,\"success\":false,\"failure\":false,\"message\":\"\"str\" object has no attribute \"keys\"\"}",
+			"kopf.zalando.org/last-handled-configuration": "{\"spec\":{\"apiType\":\"openapi\",\"id\":null,\"name\":\"downstreamproductcatalog\",\"segment\":\"coreFunction\",\"specification\":{\"url\":\"https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json\",\"version\":\"v4\"}},\"metadata\":{\"labels\":{\"app.kubernetes.io/managed-by\":\"Helm\",\"oda.tmforum.org/componentName\":\"f-cat-productcatalogmanagement\"}}}\n",
+			"kopf.zalando.org/touch-dummy": "2026-05-04T15:50:25.193166+00:00"
+		},
+		"creationTimestamp": "2026-05-04T15:14:42Z",
+		"finalizers": [
+			"kopf.zalando.org/KopfFinalizerMarker"
+		],
+		"generateName": "f-cat-productcatalogmanagement-",
+		"generation": 18,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "f-cat-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"9c47e445-1685-4182-abb0-ed279c2c46ce\"}": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:apiType": {
+						},
+						"f:id": {
+						},
+						"f:name": {
+						},
+						"f:segment": {
+						},
+						"f:specification": {
+							".": {
+							},
+							"f:url": {
+							},
+							"f:version": {
+							}
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2026-05-04T15:14:42Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {
+							},
+							"f:kopf.zalando.org/dependentApiCreate": {
+							},
+							"f:kopf.zalando.org/last-handled-configuration": {
+							},
+							"f:kopf.zalando.org/touch-dummy": {
+							}
+						},
+						"f:finalizers": {
+							".": {
+							},
+							"v:\"kopf.zalando.org/KopfFinalizerMarker\"": {
+							}
+						}
+					},
+					"f:status": {
+						".": {
+						},
+						"f:kopf": {
+							".": {
+							},
+							"f:dummy": {
+							},
+							"f:progress": {
+								".": {
+								},
+								"f:dependentApiCreate": {
+									".": {
+									},
+									"f:delayed": {
+									},
+									"f:failure": {
+									},
+									"f:message": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:success": {
+									}
+								}
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2026-05-04T15:50:25Z"
+			}
+		],
+		"name": "f-cat-productcatalogmanagement-downstreamproductcatalog-v4",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "f-cat-productcatalogmanagement",
+				"uid": "9c47e445-1685-4182-abb0-ed279c2c46ce"
+			}
+		],
+		"resourceVersion": "1777909825221375003",
+		"uid": "df597861-901a-42c8-9a58-7b8d5b3cc2ed"
+	},
+	"spec": {
+		"apiType": "openapi",
+		"id": {},
+		"name": "downstreamproductcatalog",
+		"segment": "coreFunction",
+		"specification": {
+			"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
+			"version": "v4"
+		}
+	},
+	"status": {
+		"kopf": {
+			"dummy": "2026-05-04T15:50:25.193166+00:00",
+			"progress": {
+				"dependentApiCreate": {
+					"delayed": "2026-05-04T15:50:25.191976+00:00",
+					"failure": false,
+					"message": "xxx",
+					"purpose": "resume",
+					"retries": 3,
+					"started": "2026-05-04T15: 47: 24.863711+00: 00",
+					"success": false
+				}
+			}
+		}
+	}
+}

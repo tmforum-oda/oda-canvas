@@ -60,7 +60,7 @@ helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --s
 windows without domain
 
 ```
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=dependentapi-simple-operator.loglevel=10
 ```
 
 
@@ -88,7 +88,81 @@ helm upgrade --install r-cat -n components --create-namespace feature-definition
 ```
 
 
+## Populate r-cat with dummy categories
 
+get URL from exposedAPI CR:
+
+```
+export RCAT_API=$(kubectl get exposedapis -n components r-cat-productcatalogmanagement-productcatalogmanagement-v4 -ojsonpath="{.status.apiStatus.url}")
+echo $RCAT_API
+
+export FCAT_API=$(kubectl get exposedapis -n components f-cat-productcatalogmanagement-productcatalogmanagement-v4 -ojsonpath="{.status.apiStatus.url}")
+echo $FCAT_API
+```
+
+```
+for /f %i in ('kubectl get exposedapis -n components r-cat-productcatalogmanagement-productcatalogmanagement-v4 -o "jsonpath={.status.apiStatus.url}"') do set RCAT_API=%i
+echo %RCAT_API%
+
+for /f %i in ('kubectl get exposedapis -n components f-cat-productcatalogmanagement-productcatalogmanagement-v4 -o "jsonpath={.status.apiStatus.url}"') do set FCAT_API=%i
+echo %FCAT_API%
+```
+
+
+```
+curl -skX POST "%RCAT_API%/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"RC1-Internet line of product\",  \"description\": \"RC1-Fiber and ADSL broadband products\"  }" | jq
+
+curl -skX POST "%RCAT_API%/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"RC1-Mobile line of product\",  \"description\": \"RC1-Mobile phones and packages\"  }" | jq
+
+curl -skX POST "%RCAT_API%/category" -H  "accept: application/json;charset=utf-8" -H  "Content-Type: application/json;charset=utf-8" -d "{  \"name\": \"RC1-IoT line of product\",  \"description\": \"RC1-IoT devices and solutions\"  }" | jq
+```
+
+
+## deploy f-cat
+
+```
+helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+```
+
+
+## list dependencies in canvas info service
+
+* https://canvas-info.ihc-dt-a.cluster-2.de/api-docs/#/service/listService
+
+```
+curl -X GET https://canvas-info.ihc-dt-a.cluster-2.de/service -H "accept: application/json"
+```
+
+
+## query r-cat
+
+* https://components.ihc-dt-a.cluster-2.de/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs/
+
+```
+curl -skX GET "%RCAT_API%/category" -H  "accept: application/json;charset=utf-8" | jq
+```
+
+## query f-cat
+
+* https://components.ihc-dt-a.cluster-2.de/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs/
+
+```
+curl -skX GET "%FCAT_API%/category" -H  "accept: application/json;charset=utf-8" | jq
+```
+
+
+## show access of r-cat in f-cat logs:
+
+```
+kubectl logs deployment/f-cat-prodcatapi -n components
+```
+
+
+## restart f-cat deployment (after dependency changes)
+
+```
+kubectl rollout restart deployment -n components f-cat-prodcatapi
+```
 
 
 
@@ -584,7 +658,7 @@ kubectl logs deployment/f-cat-prodcatapi -n components
 
 ```
 kubectl rollout restart deployment -n components f-cat-prodcatapi
- ```
+```
  
 
 

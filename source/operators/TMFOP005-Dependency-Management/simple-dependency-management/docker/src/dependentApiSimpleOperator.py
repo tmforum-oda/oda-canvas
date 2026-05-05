@@ -192,12 +192,11 @@ def service_discovery(logw: LogWrapper, spec_url:str) -> str:
 @logwrapper
 def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
     dep_api = get_depapi_spec(logw, depapi_name, depapi_namespace)
-    depapi_specifications = dep_api.get("specification", [])
-    for depapi_specification in depapi_specifications:
-        if "url" in depapi_specification.keys():
-            service_url = service_discovery(logw, depapi_specification["url"])
-            if service_url:
-                return service_url
+    depapi_specification = dep_api.get("specification", [])
+    if "url" in depapi_specification.keys():
+        service_url = service_discovery(logw, depapi_specification["url"])
+        if service_url:
+            return service_url
     return None
 
 
