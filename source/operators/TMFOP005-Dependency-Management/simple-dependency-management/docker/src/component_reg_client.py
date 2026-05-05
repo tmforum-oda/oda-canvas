@@ -25,7 +25,7 @@ class ComponentRegistryClient:
         Returns a list of matching ExposedAPIs (with their parent Component info).
         """
         try:
-            filter_str = f"$[?(@.resourceCharacteristic[?(@.name=='specification' && @.value[?(@.url=='{oas_specification}')])])]"
+            filter_str = f"$[?(@.resourceCharacteristic[?(@.name=='specification' && @.value.url=='{oas_specification}')])]"
             url = f"{self.base_url}/resource"
             response = auth_requests.get(url, params={"filter": filter_str}, timeout=10)
             response.raise_for_status()

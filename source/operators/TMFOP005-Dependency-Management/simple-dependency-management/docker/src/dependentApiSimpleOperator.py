@@ -173,7 +173,7 @@ def customresource_service_discovery(logw: LogWrapper, spec_url:str) -> str:
         else:
             if (
                 exp_api["spec"]["apiType"] == "openapi"
-                and exp_api["spec"]["specification"][0]["url"]
+                and exp_api.get("spec",{}).get("specification",{}).get("url")
                 == spec_url
                 and safe_get(False, exp_api, "status", "implementation", "ready")
                 == True
