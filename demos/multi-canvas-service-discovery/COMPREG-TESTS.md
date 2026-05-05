@@ -73,10 +73,23 @@ helm upgrade --install -n canvas canvas-compreg charts/component-registry
 ### port forwarding
 
 ```
-kubectl port-forward -n canvas svc/canvas-compreg 8090:80
+kubectl port-forward -n canvas svc/canvas-compreg 8080:80
 ```
 
 * http://localhost:8080
+
+
+# deploy and register upstream global-compreg
+
+```
+helm upgrade --install -n compreg global-compreg --create-namespace charts/component-registry --set=domain=%DOMAIN% --set=canvasResourceInventory=
+```
+
+register in canvas-compreg: 
+
+```
+curl -sX POST -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\":\"global-compreg\",\"callback\":\"https://global-compreg.%DOMAIN%/sync\",\"query\":\"source=canvas-compreg\"}" http://localhost:8080/hub | jq
+```
 
 
 # Test
@@ -130,7 +143,7 @@ helm upgrade --install f-cat -n components --create-namespace feature-definition
 * https://canvas-info.ihc-dt-a.cluster-2.de/api-docs/#/service/listService
 
 ```
-curl -X GET https://canvas-info.ihc-dt-a.cluster-2.de/service -H "accept: application/json"
+curl -sX GET https://canvas-info.ihc-dt-a.cluster-2.de/service -H "accept: application/json" | jq
 ```
 
 

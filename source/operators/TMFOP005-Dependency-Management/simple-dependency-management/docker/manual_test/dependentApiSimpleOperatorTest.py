@@ -10,7 +10,7 @@ import asyncio
 #   $ kubectl port-forward -n canvas svc/info 8638:80
 # 
 os.environ["CANVAS_INFO_ENDPOINT"] = "http://localhost:8638"
-os.environ["COMPONENT_REGISTRY_URL"] = "http://localhost:8080"
+#os.environ["COMPONENT_REGISTRY_URL"] = "http://localhost:8080"
 
 # public endpoints for testing (virtual services):
 #

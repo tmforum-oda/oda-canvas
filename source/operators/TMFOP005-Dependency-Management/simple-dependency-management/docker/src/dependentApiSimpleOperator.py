@@ -124,7 +124,7 @@ def get_characteristic(characteristics: List[Dict[str, Any]], name: str) -> Any:
 
 
 @logwrapper
-def compreg_service_discovery(logw: LogWrapper, oas_specification: str) -> List[Dict[str, Any]]:
+def compreg_service_discovery(logw: LogWrapper, oas_specification: str, own_comp_name: str) -> List[Dict[str, Any]]:
     """
     Recursively search for ExposedAPIs implementing the oas_specification, starting from the given registry.
     Returns a list of matching ExposedAPIs (with their parent Component info).
@@ -143,6 +143,8 @@ def compreg_service_discovery(logw: LogWrapper, oas_specification: str) -> List[
         matches = client.find_exposed_apis(oas_specification)
         logw.debugInfo(f"found {len(matches)} in {current_url}", matches)
         if matches:
+            # sort matches from same component to end of list
+            sorted(matches, key=lambda api:1 if api.get("name","").startswith(own_comp_name) else 0)
             for api in matches:
                 component_id = api["resourceRelationship"][0]["resource"]["id"]
                 comp_reg = component_id.split(":")[0]
@@ -165,9 +167,11 @@ def compreg_service_discovery(logw: LogWrapper, oas_specification: str) -> List[
 
 
 @logwrapper
-def customresource_service_discovery(logw: LogWrapper, spec_url:str) -> str:
+def customresource_service_discovery(logw: LogWrapper, spec_url:str, own_comp_name:str) -> str:
     exp_apis = get_expapi()
-    for exp_api in exp_apis["items"]:
+    # sort own component's APIs to end of list, to prioritize other components implementing the same API spec
+    apis = sorted(exp_apis["items"], key=lambda api:1 if api.get("metadata",{}).get("name","").startswith(own_comp_name) else 0)
+    for exp_api in apis:
         if not ("specification" in exp_api["spec"].keys()):
             continue
         else:
@@ -183,18 +187,20 @@ def customresource_service_discovery(logw: LogWrapper, spec_url:str) -> str:
 
 
 @logwrapper
-def service_discovery(logw: LogWrapper, spec_url:str) -> str:
+def service_discovery(logw: LogWrapper, spec_url:str, own_comp_name:str) -> str:
     if COMPONENT_REGISTRY_URL:
-        return compreg_service_discovery(logw, spec_url)
-    return customresource_service_discovery(logw, spec_url)
+        return compreg_service_discovery(logw, spec_url,own_comp_name)
+    return customresource_service_discovery(logw, spec_url,own_comp_name)
 
 
 @logwrapper
 def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
     dep_api = get_depapi_spec(logw, depapi_name, depapi_namespace)
-    depapi_specification = dep_api.get("specification", [])
+    dep_name = dep_api.get("name")
+    comp_name = depapi_name[:depapi_name.rfind(dep_name)-1]
+    depapi_specification = dep_api.get("specification", {})
     if "url" in depapi_specification.keys():
-        service_url = service_discovery(logw, depapi_specification["url"])
+        service_url = service_discovery(logw, depapi_specification["url"], comp_name)
         if service_url:
             return service_url
     return None
