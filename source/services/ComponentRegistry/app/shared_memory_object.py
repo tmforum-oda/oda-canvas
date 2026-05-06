@@ -14,26 +14,30 @@ MAX_DATA_SIZE = 1000
 PROCESS_ALIVE_TIMEOUT = 60  # seconds
 
 
-
-
 class SharedMemoryObject:
-    
+
     _thread_lock = threading.RLock()
     _instances = {}
-    
-    def __init__(self, name: str, object_creator_function, size: int = DEFAULT_SHM_SIZE):
+
+    def __init__(
+        self, name: str, object_creator_function, size: int = DEFAULT_SHM_SIZE
+    ):
         with SharedMemoryObject._thread_lock:
             self.name = name
             if name in SharedMemoryObject._instances:
                 raise Exception(f"Instance with name {name} already exists")
             try:
-                self.shm = shared_memory.SharedMemory(name=name, create=True, size=size+1)
+                self.shm = shared_memory.SharedMemory(
+                    name=name, create=True, size=size + 1
+                )
                 self.shm.buf[0] = 1  # set pending state
                 shared_object = object_creator_function()
                 pickled = pickle.dumps(shared_object)
                 if len(pickled) > size:
-                    raise Exception(f"Data too large ({len(pickled)}/{size}) to serialize {name}")
-                self.shm.buf[1:len(pickled)+1] = pickled
+                    raise Exception(
+                        f"Data too large ({len(pickled)}/{size}) to serialize {name}"
+                    )
+                self.shm.buf[1 : len(pickled) + 1] = pickled
                 self.shm.buf[0] = 2  # set ready state
             except FileExistsError:
                 self.shm = shared_memory.SharedMemory(name=name)
@@ -42,15 +46,19 @@ class SharedMemoryObject:
                         break
                     time.sleep(0.1)
                 if self.shm.buf[0] != 2:
-                    raise Exception(f"Timeout waiting for shared object {name} to be ready")
+                    raise Exception(
+                        f"Timeout waiting for shared object {name} to be ready"
+                    )
             SharedMemoryObject._instances[name] = self
-                
+
     def get(self):
         result = pickle.loads(self.shm.buf[1:])
         return result
 
     @classmethod
-    def get_or_create_object(self, name: str, object_creator_function, size: int = DEFAULT_SHM_SIZE):
+    def get_or_create_object(
+        self, name: str, object_creator_function, size: int = DEFAULT_SHM_SIZE
+    ):
         with SharedMemoryObject._thread_lock:
             if name in SharedMemoryObject._instances:
                 inst = SharedMemoryObject._instances[name]
@@ -74,7 +82,9 @@ if __name__ == "__main__":
         print(f"Creating data: {data}")
         return data
 
-    mp_lock = SharedMemoryObject.get_or_create_object("shared_memory_object.mp.rlock", create_data)
+    mp_lock = SharedMemoryObject.get_or_create_object(
+        "shared_memory_object.mp.rlock", create_data
+    )
     print(f"received data {mp_lock}")
     for i in range(10):
         print(f"waiting for lock {i}")

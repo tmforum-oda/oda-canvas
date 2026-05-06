@@ -6,7 +6,16 @@ import string
 
 class Keycloak:
 
-    def __init__(self, url, realm: str, user: str = None, pwd: str = None, admin_client_id = None, admin_client_secret = None, refresh_buffer = 30) -> None:
+    def __init__(
+        self,
+        url,
+        realm: str,
+        user: str = None,
+        pwd: str = None,
+        admin_client_id=None,
+        admin_client_secret=None,
+        refresh_buffer=30,
+    ) -> None:
         self._url = url
         self._realm = realm
         self._user = user
@@ -17,8 +26,7 @@ class Keycloak:
         self._token_expiry = None
         self._refresh_buffer = 30  # seconds
 
-        
-    def create_client(self, client: str, root_url: str="") -> None:
+    def create_client(self, client: str, root_url: str = "") -> None:
         """
         POSTs a new client named according to the componentName for
         a new component
@@ -26,9 +34,18 @@ class Keycloak:
         Returns nothing, or raises an exception for the caller to catch
         """
         if root_url == "":
-            json_obj = {"clientId": client, "serviceAccountsEnabled": True, "redirectUris": ["*"]}
+            json_obj = {
+                "clientId": client,
+                "serviceAccountsEnabled": True,
+                "redirectUris": ["*"],
+            }
         else:
-            json_obj = {"clientId": client, "rootUrl": root_url, "serviceAccountsEnabled": True, "redirectUris": ["*"]}
+            json_obj = {
+                "clientId": client,
+                "rootUrl": root_url,
+                "serviceAccountsEnabled": True,
+                "redirectUris": ["*"],
+            }
 
         try:  # to create the client in Keycloak
             r = requests.post(
@@ -49,7 +66,6 @@ class Keycloak:
                 raise RuntimeError(
                     "create_client failed with HTTP status " f"{r.status_code}: {e}"
                 ) from None
-
 
     def del_client(self, client: str) -> None:
         """
@@ -207,15 +223,12 @@ class Keycloak:
                     "del_role failed with HTTP status " f"{r.status_code}: {e}"
                 ) from None
 
-                
-                
     def get_token_url(self):
         """
         Returns the token URL for this Keycloak instance and the given realm
         """
-        return self._url + "/realms/"+self._realm+"/protocol/openid-connect/token"
-                
-                
+        return self._url + "/realms/" + self._realm + "/protocol/openid-connect/token"
+
     def _token(self) -> str:
         """
         Takes the admin username and password and returns a session
@@ -225,7 +238,7 @@ class Keycloak:
         catch
         """
         if self._is_token_valid():
-            return self._access_token        
+            return self._access_token
         try:
             if self._admin_client_id and self._admin_client_secret:
                 print("Getting token using client credentials")
@@ -251,8 +264,7 @@ class Keycloak:
             else:
                 raise RuntimeError("No admin credentials provided for token retrieval")
             r.raise_for_status()
-            
-            
+
             token_data = r.json()
             self._access_token = token_data.get("access_token")
             expires_in = token_data.get("expires_in", 300)
@@ -263,12 +275,12 @@ class Keycloak:
                 f"get_token failed with HTTP status {r.status_code}: {e}"
             ) from None
 
-
     def _is_token_valid(self):
         if not self._access_token or not self._token_expiry:
             return False
-        return datetime.now() < (self._token_expiry - timedelta(seconds=self._refresh_buffer))
-        
+        return datetime.now() < (
+            self._token_expiry - timedelta(seconds=self._refresh_buffer)
+        )
 
     def get_user_by_username(self, username: str) -> dict:
         """
@@ -281,10 +293,7 @@ class Keycloak:
 
         try:
             r = requests.get(
-                self._url
-                + "/admin/realms/"
-                + self._realm
-                + "/users",
+                self._url + "/admin/realms/" + self._realm + "/users",
                 params={"username": username},
                 headers={"Authorization": "Bearer " + self._token()},
             )
@@ -299,7 +308,7 @@ class Keycloak:
             raise RuntimeError(
                 "get_user_by_username failed with HTTP status " f"{r.status_code}: {e}"
             ) from None
-            
+
     def get_users(self) -> dict:
         """
         GET all users in the given realm in Keycloak
@@ -311,10 +320,7 @@ class Keycloak:
 
         try:
             r = requests.get(
-                self._url
-                + "/admin/realms/"
-                + self._realm
-                + "/users",
+                self._url + "/admin/realms/" + self._realm + "/users",
                 headers={"Authorization": "Bearer " + self._token()},
             )
             r.raise_for_status()
@@ -324,7 +330,7 @@ class Keycloak:
             raise RuntimeError(
                 "get_user_by_username failed with HTTP status " f"{r.status_code}: {e}"
             ) from None
-            
+
     def get_mapped_roles(self, user_id: str, client_id: str) -> dict:
         """
         GETs mapped roles for a user in the given realm in Keycloak
@@ -360,7 +366,7 @@ class Keycloak:
         Returns the generated password string
         """
         characters = string.ascii_letters + string.digits + ".+-/!"
-        password = ''.join(random.choice(characters) for _ in range(length))
+        password = "".join(random.choice(characters) for _ in range(length))
         return password
 
     def create_user(self, username: str, init_password) -> dict:
@@ -372,12 +378,16 @@ class Keycloak:
         """
         if not init_password:
             init_password = self.random_password()
-            print(f'Generated random init-password for user {username}: "{init_password}"')
-            
+            print(
+                f'Generated random init-password for user {username}: "{init_password}"'
+            )
+
         json_obj = {
             "username": username,
             "enabled": True,
-            "credentials": [{"type": "password", "value": init_password, "temporary": True}],
+            "credentials": [
+                {"type": "password", "value": init_password, "temporary": True}
+            ],
         }
 
         try:  # to create the user in Keycloak
@@ -392,8 +402,7 @@ class Keycloak:
         except requests.HTTPError as e:
             raise RuntimeError(
                 "create_user failed with HTTP status " f"{r.status_code}: {e}"
-            ) from None        
-
+            ) from None
 
     def map_role_to_user(self, user_id: str, client_uuid: str, role_name: str) -> None:
         """
@@ -441,8 +450,9 @@ class Keycloak:
                 f"{r_map.status_code}: {e}"
             ) from None
 
-
-    def get_mapped_client_roles(self, source_client_id: str, target_client_id: str) -> dict:
+    def get_mapped_client_roles(
+        self, source_client_id: str, target_client_id: str
+    ) -> dict:
         """
         GETs mapped roles for a client in the given realm in Keycloak
 
@@ -465,7 +475,8 @@ class Keycloak:
             return result
         except requests.HTTPError as e:
             raise RuntimeError(
-                "get_mapped_client_roles failed with HTTP status " f"{r.status_code}: {e}"
+                "get_mapped_client_roles failed with HTTP status "
+                f"{r.status_code}: {e}"
             ) from None
 
     def get_service_account_user(self, client_uuid: str) -> dict:
@@ -497,10 +508,13 @@ class Keycloak:
                     f"Service account for client {client_uuid} not found (404). Is 'serviceAccountsEnabled' set?"
                 ) from None
             raise RuntimeError(
-                "get_service_account_user failed with HTTP status " f"{r.status_code}: {e}"
+                "get_service_account_user failed with HTTP status "
+                f"{r.status_code}: {e}"
             ) from None
 
-    def get_service_account_mapped_roles(self, source_client_id: str, target_client_id: str) -> dict:
+    def get_service_account_mapped_roles(
+        self, source_client_id: str, target_client_id: str
+    ) -> dict:
         """
         Retrieves roles that the service-account user of `source_client_id` has mapped for
         the `target_client_id`.
@@ -512,7 +526,9 @@ class Keycloak:
         sa_user = self.get_service_account_user(source_client_id)
         user_id = sa_user.get("id")
         if not user_id:
-            raise RuntimeError(f"Service account user for client {source_client_id} has no id")
+            raise RuntimeError(
+                f"Service account user for client {source_client_id} has no id"
+            )
 
         # reuse existing method to get mapped roles for that user against the target client
         return self.get_mapped_roles(user_id, target_client_id)

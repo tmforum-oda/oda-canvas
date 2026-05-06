@@ -14,7 +14,9 @@ RESOURCE_HREF_PREFIX = os.getenv("RESOURCE_HREF_PREFIX", "/resource/")
 # Create SQLAlchemy engine
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+    connect_args=(
+        {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+    ),
 )
 
 # Create SessionLocal class
@@ -22,6 +24,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create Base class for models
 Base = declarative_base()
+
 
 def get_db():
     """Dependency to get database session."""

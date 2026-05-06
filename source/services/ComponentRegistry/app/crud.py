@@ -12,16 +12,16 @@ from app.database import RESOURCE_HREF_PREFIX
 def create_resource(db: Session, resource: dict, base_url: str) -> models.Resource:
     """Create a new resource as a JSON object, extract and persist relationships separately."""
     resource_id = resource.get("id") or str(uuid.uuid4())
-    
+
     # Extract resourceVersion from the JSON
     resource_version = resource.get("resourceVersion")
-    
+
     # Remove id and href from resource data - they will be generated dynamically
     resource_data = {k: v for k, v in resource.items() if k not in ["id", "href"]}
-    
+
     # Remove resourceRelationship from the resource JSON before persisting
     relationships = resource_data.pop("resourceRelationship", [])
-    
+
     db_resource = models.Resource(
         id=resource_id,
         data=resource_data,
@@ -36,9 +36,16 @@ def create_resource(db: Session, resource: dict, base_url: str) -> models.Resour
         related_resource = rel.get("resource", {})
         related_resource_id = related_resource.get("id")
         # Optionally create the related resource if it does not exist
-        if related_resource_id and not db.query(models.Resource).filter(models.Resource.id == related_resource_id).first():
+        if (
+            related_resource_id
+            and not db.query(models.Resource)
+            .filter(models.Resource.id == related_resource_id)
+            .first()
+        ):
             # Remove id and href from related resource data as well
-            related_resource_data = {k: v for k, v in related_resource.items() if k not in ["id", "href"]}
+            related_resource_data = {
+                k: v for k, v in related_resource.items() if k not in ["id", "href"]
+            }
             db_related = models.Resource(
                 id=related_resource_id,
                 data=related_resource_data,
@@ -48,7 +55,7 @@ def create_resource(db: Session, resource: dict, base_url: str) -> models.Resour
         db_rel = models.ResourceRelationship(
             resource_id=resource_id,
             related_resource_id=related_resource_id,
-            relation_type=rel_type
+            relation_type=rel_type,
         )
         db.add(db_rel)
     db.commit()
@@ -61,28 +68,38 @@ def get_resource(db: Session, id: str, base_url: str = "") -> Optional[models.Re
     if not db_resource:
         return None
     # Dynamically add resourceRelationship
-    relationships = db.query(models.ResourceRelationship).filter(models.ResourceRelationship.resource_id == id).all()
+    relationships = (
+        db.query(models.ResourceRelationship)
+        .filter(models.ResourceRelationship.resource_id == id)
+        .all()
+    )
     resource_data = dict(db_resource.data)  # Make a copy
-    
+
     # Dynamically add id and href from the database id column
     resource_data["id"] = db_resource.id
     resource_data["href"] = f"{base_url}{RESOURCE_HREF_PREFIX}{db_resource.id}"
-    
+
     resource_relationships = []
     for rel in relationships:
         # Fetch related resource for href and type if available
-        related = db.query(models.Resource).filter(models.Resource.id == rel.related_resource_id).first()
+        related = (
+            db.query(models.Resource)
+            .filter(models.Resource.id == rel.related_resource_id)
+            .first()
+        )
         related_resource = {
             "id": rel.related_resource_id,
-            "href": f"{base_url}{RESOURCE_HREF_PREFIX}{rel.related_resource_id}"
+            "href": f"{base_url}{RESOURCE_HREF_PREFIX}{rel.related_resource_id}",
         }
         if related and "@type" in related.data:
             related_resource["@type"] = related.data["@type"]
-        resource_relationships.append({
-            "@type": "ResourceRelationship",
-            "relationshipType": rel.relation_type,
-            "resource": related_resource
-        })
+        resource_relationships.append(
+            {
+                "@type": "ResourceRelationship",
+                "relationshipType": rel.relation_type,
+                "resource": related_resource,
+            }
+        )
     if resource_relationships:
         resource_data["resourceRelationship"] = resource_relationships
     # Return a Resource object with the dynamic relationships
@@ -90,16 +107,16 @@ def get_resource(db: Session, id: str, base_url: str = "") -> Optional[models.Re
         id=db_resource.id,
         data=resource_data,
         created_at=db_resource.created_at,
-        updated_at=db_resource.updated_at
+        updated_at=db_resource.updated_at,
     )
 
 
 def get_resources(
-    db: Session, 
-    offset: int = 0, 
-    limit: int = 100, 
-    filter_param: Optional[str] = None, 
-    sort: Optional[str] = None
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    filter_param: Optional[str] = None,
+    sort: Optional[str] = None,
 ):
     """List resources with pagination."""
     query = db.query(models.Resource)
@@ -108,18 +125,22 @@ def get_resources(
     return resources, total_count
 
 
-def update_resource(db: Session, id: str, resource_update: dict) -> Optional[models.Resource]:
+def update_resource(
+    db: Session, id: str, resource_update: dict
+) -> Optional[models.Resource]:
     """Update a resource (replace JSON object)."""
     db_resource = db.query(models.Resource).filter(models.Resource.id == id).first()
     if not db_resource:
         return None
-    
+
     # Extract resourceVersion from the JSON update
     resource_version = resource_update.get("resourceVersion")
-    
+
     # Remove id and href from resource_update before storing - they are generated dynamically
-    resource_data = {k: v for k, v in resource_update.items() if k not in ["id", "href"]}
-    
+    resource_data = {
+        k: v for k, v in resource_update.items() if k not in ["id", "href"]
+    }
+
     db_resource.data = resource_data
     db_resource.resource_version = resource_version
     db.commit()
@@ -132,7 +153,9 @@ def delete_resource(db: Session, id: str) -> bool:
     db_resource = db.query(models.Resource).filter(models.Resource.id == id).first()
     if not db_resource:
         return False
-    db.query(models.ResourceRelationship).filter(models.ResourceRelationship.resource_id == id).delete()
+    db.query(models.ResourceRelationship).filter(
+        models.ResourceRelationship.resource_id == id
+    ).delete()
     db.delete(db_resource)
     db.commit()
     return True
@@ -140,18 +163,33 @@ def delete_resource(db: Session, id: str) -> bool:
 
 # Relationship CRUD
 
-def create_resource_relationship(db: Session, resource_id: str, related_resource_id: str, relation_type: str) -> models.ResourceRelationship:
-    db_rel = models.ResourceRelationship(resource_id=resource_id, related_resource_id=related_resource_id, relation_type=relation_type)
+
+def create_resource_relationship(
+    db: Session, resource_id: str, related_resource_id: str, relation_type: str
+) -> models.ResourceRelationship:
+    db_rel = models.ResourceRelationship(
+        resource_id=resource_id,
+        related_resource_id=related_resource_id,
+        relation_type=relation_type,
+    )
     db.add(db_rel)
     db.commit()
     db.refresh(db_rel)
     return db_rel
 
-def get_resource_relationships(db: Session, resource_id: str) -> List[models.ResourceRelationship]:
-    return db.query(models.ResourceRelationship).filter(models.ResourceRelationship.resource_id == resource_id).all()
+
+def get_resource_relationships(
+    db: Session, resource_id: str
+) -> List[models.ResourceRelationship]:
+    return (
+        db.query(models.ResourceRelationship)
+        .filter(models.ResourceRelationship.resource_id == resource_id)
+        .all()
+    )
 
 
 # Hub CRUD
+
 
 def create_hub(db: Session, hub_data: schemas.HubInput) -> schemas.Hub:
     """Create a new event subscription hub."""
@@ -188,4 +226,6 @@ def delete_hub(db: Session, id: str) -> bool:
 def get_all_hubs(db: Session) -> List[schemas.Hub]:
     """Return all hubs."""
     hubs = db.query(models.Hub).all()
-    return [schemas.Hub(id=hub.id, callback=hub.callback, query=hub.query) for hub in hubs]
+    return [
+        schemas.Hub(id=hub.id, callback=hub.callback, query=hub.query) for hub in hubs
+    ]

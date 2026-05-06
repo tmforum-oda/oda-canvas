@@ -16,3 +16,4 @@ jobs:
             ./source/operators/TMFOP002-API-Management/istio
             ./source/operators/TMFOP005-Dependency-Management/simple-dependency-management
             ./source/operators/TMFOP007-Secrets-Management/vault
+            ./source/services/ComponentRegistry

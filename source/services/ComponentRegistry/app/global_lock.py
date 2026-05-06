@@ -22,20 +22,31 @@ class GlobalLock:
         while True:
             if self._try_lock():
                 return True
-            if not block or timeout is not None and timeout >= 0 and (time.time() - start_time) >= timeout:
-                print(f"TIMEOUT WHILE WAITING FOR LOCK {self._name} (PID {os.getpid()})")
+            if (
+                not block
+                or timeout is not None
+                and timeout >= 0
+                and (time.time() - start_time) >= timeout
+            ):
+                print(
+                    f"TIMEOUT WHILE WAITING FOR LOCK {self._name} (PID {os.getpid()})"
+                )
                 return False
             time.sleep(0.1)
-    
+
     def _try_lock(self) -> bool:
         try:
-            self._shm = shared_memory.SharedMemory(name=self._name, create=True, size=256)
+            self._shm = shared_memory.SharedMemory(
+                name=self._name, create=True, size=256
+            )
             print(f"ACQUIRED LOCK {self._name} (PID {os.getpid()})")
             return True
         except FileExistsError:
-            print(f"LOCK {self._name} IS HELD BY ANOTHER PROCESS (TRYLOCK PID {os.getpid()})")
+            print(
+                f"LOCK {self._name} IS HELD BY ANOTHER PROCESS (TRYLOCK PID {os.getpid()})"
+            )
             return False
-    
+
     def release(self):
         if self._shm is None:
             raise ValueError(f"NOT OWNING LOCK {self._name} (PID {os.getpid()})")
@@ -44,7 +55,7 @@ class GlobalLock:
             self._shm.unlink()
             self._shm = None
             print(f"RELEASED LOCK {self._name} (PID {os.getpid()})")
-            
+
     def locked(self) -> bool:
         return self._shm is not None
 
@@ -63,7 +74,7 @@ class GlobalLock:
 
 if __name__ == "__main__":
     lock = GlobalLock("global_lock_example")
-    
+
     with lock:
         print("Doing work while holding the lock...")
         input("Press Enter to release the lock and exit...")
