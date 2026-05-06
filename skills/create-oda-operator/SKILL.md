@@ -46,17 +46,51 @@ See `references/operator-catalog.md` for kopf decorators used and detailed patte
 
 ## Directory Structure
 
-Operators are organised under `source/operators/` in two-level directories:
+Operators are organised under `source/operators/` in two-level directories.
+
+### Modern Pattern (Recommended)
+
+For new operators, use a `docker/` subdirectory with standard `Dockerfile` naming:
+
+```
+source/operators/TMFOP###-<Domain>/
+  <implementation>/
+    README.md                   # Operator documentation
+    docker/                     # Docker build context
+      Dockerfile                # Standard Docker filename (capital D)
+      requirements.txt          # Python dependencies
+      src/                      # Python source files
+        <operatorName>.py       # Main operator file
+        log_wrapper.py          # Structured logging helper
+        ...                     # Other Python modules
+      templates/                # Optional Jinja2 templates
+      DockerfileTest            # Optional test Dockerfile
+```
+
+**Example**: `source/operators/TMFOP005-Dependency-Management/simple-dependency-management/`
+
+**Advantages**:
+- Follows standard Docker conventions (`Dockerfile` with capital D)
+- Clean separation of build context
+- Supports multi-stage builds and test dockerfiles
+- No need for explicit `buildDockerfile` in workflow config
+
+### Legacy Pattern (Existing Operators)
+
+Older operators use files in the operator root directory:
 
 ```
 source/operators/TMFOP###-<Domain>/
   <implementation>/
     <operatorName>.py           # Main operator file
     log_wrapper.py              # Structured logging shared helper
-                                #  (copy from TMFOP001-Component-Management/component-management/)
-    <operatorName>-dockerfile   # Dockerfile (no extension)
+    <operatorName>-dockerfile   # Dockerfile (no extension, lowercase)
     requirements.txt            # Optional per-operator deps
 ```
+
+**Examples**: `component-management/`, `kong/`, `keycloak/`
+
+**Note**: When maintaining legacy operators, keep the existing pattern for consistency. New operators should use the modern pattern.
 
 The matching Helm chart lives at `charts/<operator-chart-name>/`.
 
