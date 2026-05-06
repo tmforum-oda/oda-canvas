@@ -215,8 +215,8 @@ dependentapi-simple-operator:
 
   imagePullPolicy: IfNotPresent
   loglevel: '20'
-  # # comment out 'componentRegistryUrl' if ComponentRegistry is not used
-  # componentRegistryUrl: http://canvas-compreg.canvas.svc.cluster.local
+  # comment out 'componentRegistryUrl' if ComponentRegistry is not used
+  componentRegistryUrl: http://canvas-compreg.canvas.svc.cluster.local
   
 
 canvas-vault:

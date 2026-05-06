@@ -14,19 +14,19 @@ tmfihcdta
 ## Cleanup
 
 ```
+helm uninstall -n canvas canvas-compreg
+
 helm uninstall -n components f-cat
+kubectl rollout restart -n canvas deployment canvas-depapi-op
 
 helm uninstall -n components r-cat
 kubectl rollout restart -n canvas deployment canvas-depapi-op
-
-helm uninstall -n compreg global-compreg
-kubectl delete ns compreg
 ```
 
 ## cleanup canvas completely
 
 ```
-helm uninstall -n canvas canvas
+helm uninstall -n canvas canvas-compreg
 kubectl delete ns components canvas-vault cert-manager canvas
 ```
 
@@ -46,11 +46,29 @@ helm dependency update ./charts/canvas-vault
 helm dependency update ./charts/pdb-management-operator
 helm dependency update ./charts/canvas-oda
 
-cd %USERPROFILE%/git/oda-canvas
-helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP
-     # --set=dependentapi-simple-operator.loglevel=10
+cd ~/git/oda-canvas
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.$DOMAIN --set api-operator-istio.deployment.credentialName=$TLS_SECRET_NAME --set api-operator-istio.configmap.publicHostname=components.$DOMAIN --set=api-operator-istio.deployment.httpsRedirect=false
 ```
 
+windows
+
+```
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set api-operator-istio.deployment.hostName=*.%DOMAIN% --set api-operator-istio.deployment.credentialName=%TLS_SECRET_NAME% --set api-operator-istio.configmap.publicHostname=components.%DOMAIN% --set=api-operator-istio.deployment.httpsRedirect=false
+```
+
+
+windows without domain (debug logging for depapiop)
+
+```
+helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace --set keycloak.service.type=ClusterIP --set=dependentapi-simple-operator.loglevel=10
+```
+
+
+## manual install compreg
+
+```
+helm upgrade --install -n canvas canvas-compreg charts/component-registry 
+```
 
 ### port forwarding
 
@@ -88,8 +106,19 @@ helm upgrade --install r-cat -n components --create-namespace feature-definition
 get URL from exposedAPI CR:
 
 ```
+export RCAT_API=$(kubectl get exposedapis -n components r-cat-productcatalogmanagement-productcatalogmanagement-v4 -ojsonpath="{.status.apiStatus.url}")
+echo $RCAT_API
+
+export FCAT_API=$(kubectl get exposedapis -n components f-cat-productcatalogmanagement-productcatalogmanagement-v4 -ojsonpath="{.status.apiStatus.url}")
+echo $FCAT_API
+```
+
+```
 for /f %i in ('kubectl get exposedapis -n components r-cat-productcatalogmanagement-productcatalogmanagement-v4 -o "jsonpath={.status.apiStatus.url}"') do set RCAT_API=%i
 echo %RCAT_API%
+
+for /f %i in ('kubectl get exposedapis -n components f-cat-productcatalogmanagement-productcatalogmanagement-v4 -o "jsonpath={.status.apiStatus.url}"') do set FCAT_API=%i
+echo %FCAT_API%
 ```
 
 
@@ -107,42 +136,6 @@ curl -skX POST "%RCAT_API%/category" -H  "accept: application/json;charset=utf-8
 ```
 helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
 ```
-
-get URL
-
-```
-for /f %i in ('kubectl get exposedapis -n components f-cat-productcatalogmanagement-productcatalogmanagement-v4 -o "jsonpath={.status.apiStatus.url}"') do set FCAT_API=%i
-echo %FCAT_API%
-```
-
-
-## optional install canvas-vs (for  standalone gateway)
-
-### install standalone istio gateway
-
-```
-helm upgrade --install ihcdta-gateway -n istio-gateway --create-namespace demos/multi-canvas-service-discovery/helm/canvas-component-gateway --set=domain=%DOMAIN%
-```
-
-### install virtual services
-
-```
-helm upgrade --install -n istio-gateway canvas-vs demos/multi-canvas-service-discovery/helm/canvas-vs --set=domain=%DOMAIN% --set=componentGateway=istio-gateway/ihcdta-gateway
-```
-
-* https://canvas-resource-inventory.ihc-dt-a.cluster-2.de/tmf-api/resourceInventoryManagement/v5/api-docs/
-* https://canvas-compreg.ihc-dt-a.cluster-2.de
-* https://canvas-info.ihc-dt-a.cluster-2.de
-* https://canvas-keycloak.ihc-dt-a.cluster-2.de/auth
-* https://canvas-vault-hc.ihc-dt-a.cluster-2.de
-
-### otional create global-compreg virtual service
-
-```
-helm upgrade --install -n compreg global-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=fullNameOverride=global-compreg --set=domain=%DOMAIN%  --set=componentGateway=istio-gateway/ihcdta-gateway
-```
-
-* https://global-compreg.ihc-dt-a.cluster-2.de
 
 
 ## list dependencies in canvas info service
@@ -685,6 +678,31 @@ kubectl rollout restart deployment -n components f-cat-prodcatapi
 [-----------------]
 
 
+optional install canvas-vs
+
+```
+helm upgrade --install -n canvas --create-namespace canvas-vs %USERPROFILE%/git/oda-canvas-notes/virtualservices/canvas --set=domain=%DOMAIN%  
+```
+
+## for  standalone gateway
+
+### install standalone istio gateway
+
+```
+helm upgrade --install ihcdta-gateway -n istio-gateway --create-namespace demos/multi-canvas-service-discovery/helm/canvas-component-gateway --set=domain=%DOMAIN%
+```
+
+### install virtual services
+
+```
+helm upgrade --install -n istio-gateway canvas-vs demos/multi-canvas-service-discovery/helm/canvas-vs --set=domain=%DOMAIN% --set=componentGateway=istio-gateway/ihcdta-gateway
+```
+
+* https://canvas-resource-inventory.ihc-dt-a.cluster-2.de/tmf-api/resourceInventoryManagement/v5/api-docs/
+* https://canvas-compreg.ihc-dt-a.cluster-2.de
+* https://canvas-info.ihc-dt-a.cluster-2.de
+* https://canvas-keycloak.ihc-dt-a.cluster-2.de/auth
+* https://canvas-vault-hc.ihc-dt-a.cluster-2.de
 
 
 
