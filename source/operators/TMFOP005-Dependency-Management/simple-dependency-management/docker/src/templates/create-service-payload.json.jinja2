@@ -98,37 +98,31 @@
           "valueType": "string",
           "description": "The url to the Open API Specification for this API",
           "@type": "StringCharacteristic"
-        },
+        }
+        {% if dependencyKind %},
         {
           "name": "dependencyKind",
           "valueType": "string",
           "description": "The dependency classification, for example data-resource.",
           "@type": "StringCharacteristic"
-        },
+        }
+        {% endif %}
+        {% if accessType %},
         {
           "name": "accessType",
           "valueType": "string",
           "description": "The access mechanism exposed by the dependency, for example sql, vector-search, genie, functions, openapi, or mcp.",
           "@type": "StringCharacteristic"
-        },
-        {
-          "name": "dataProductId",
-          "valueType": "string",
-          "description": "The provider-specific identifier for the external data product.",
-          "@type": "StringCharacteristic"
-        },
-        {
-          "name": "dataProductType",
-          "valueType": "string",
-          "description": "The logical type of the external data product, for example table, vectorDb, stream, or featureStore.",
-          "@type": "StringCharacteristic"
-        },
+        }
+        {% endif %}
+        {% if provider %},
         {
           "name": "provider",
           "valueType": "string",
           "description": "The platform provider exposing the dependency, for example databricks.",
           "@type": "StringCharacteristic"
         }
+        {% endif %}
       ]
     },
     "@type": "Service",
