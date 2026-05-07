@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-agent
+  labels:
+    app.kubernetes.io/name: {{ .Values.component.name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    oda.tmforum.org/componentName: {{ .Release.Name }}-{{ .Values.component.name }}
+
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-agent
+
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP

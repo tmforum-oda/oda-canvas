@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-agent
+  labels:
+    app.kubernetes.io/name: {{ .Values.component.name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    oda.tmforum.org/componentName: {{ .Release.Name }}-{{ .Values.component.name }}
+
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-agent
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-agent
+        app.kubernetes.io/name: {{ .Values.component.name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        oda.tmforum.org/componentName: {{ .Release.Name }}-{{ .Values.component.name }}
+    spec:
+      containers:
+        - name: agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+              name: http
+
+          env:
+            # Agent metadata
+            - name: AGENT_ID
+              value: {{ .Values.app.agentId | quote }}
+            - name: AGENT_NAME
+              value: {{ .Values.app.agentName | quote }}
+            - name: AGENT_VERSION
+              value: {{ .Values.app.agentVersion | quote }}
+
+            # Server config
+            - name: HOST
+              value: {{ .Values.app.host | quote }}
+            - name: PORT
+              value: {{ .Values.app.port | quote }}
+            - name: DEBUG
+              value: {{ .Values.app.debug | quote }}
+
+            # Canvas config
+            - name: CANVAS_INFO_ENDPOINT
+              value: {{ .Values.canvas.infoEndpoint | quote }}
+            - name: COMPONENT_NAME
+              value: "{{ .Release.Name }}-{{ .Values.component.name }}"
+
+            # MCP config
+            - name: MCP_TIMEOUT_SECONDS
+              value: {{ .Values.mcp.timeoutSeconds | quote }}
+            - name: MAX_TOOL_CALLS
+              value: {{ .Values.mcp.maxToolCalls | quote }}
+
+            # LLM config
+            - name: LLM_ENABLED
+              value: {{ .Values.llm.enabled | quote }}
+            - name: LLM_MODEL
+              value: {{ .Values.llm.model | quote }}
+            - name: LLM_TIMEOUT_SECONDS
+              value: {{ .Values.llm.timeoutSeconds | quote }}
+
+            # Gateway config
+            - name: AI_GATEWAY_BASE_URL
+              value: {{ .Values.gateway.baseUrl | quote }}
+
+            # SSL config
+            - name: VERIFY_SSL
+              value: {{ .Values.security.verifySSL | quote }}
+
+            # Keycloak config
+            - name: KEYCLOAK_TOKEN_URL
+              value: {{ .Values.keycloak.tokenUrl | quote }}
+            - name: KEYCLOAK_CLIENT_ID_FILE
+              value: "/var/run/secrets/keycloak/client_id"
+            - name: KEYCLOAK_CLIENT_SECRET_FILE
+              value: "/var/run/secrets/keycloak/client_secret"
+
+            # Runtime config
+            - name: DEFAULT_RESPONSE_MODE
+              value: {{ .Values.runtime.defaultResponseMode | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.runtime.logLevel | quote }}
+            - name: ENABLE_STREAMING
+              value: {{ .Values.runtime.enableStreaming | quote }}
+
+          volumeMounts:
+            - name: keycloak-creds
+              mountPath: /var/run/secrets/keycloak
+              readOnly: true
+
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+
+      volumes:
+        - name: keycloak-creds
+          secret:
+            secretName: "{{ .Release.Name }}-{{ .Values.component.name }}-secret"
+            optional: true

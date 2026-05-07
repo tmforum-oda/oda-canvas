@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.5-AK2
+version: 1.2.5-AK3
+# version: 1.2.5-AK3 - updated dependentapi operator to support data resources as dependent apis
 # version: 1.2.5-AK2 - update dependent api operator to support mcp as dependent api type
 # version: 1.2.5-AK1 - updated component crd schema to allow multiple versions of an api under coreFunction and supporting functions
 # version: 1.2.5-LT5 - added segment to ExposedAPI and DependentAPI crds and enabled DependentAPIs for Management and Security
@@ -84,7 +85,7 @@ dependencies:
     repository: 'file://../canvas-namespaces'
     condition: canvas-namespaces.enabled
   - name: oda-crds
-    version: "1.3.2"
+    version: "1.3.3"
     repository: 'file://../oda-crds'
     condition: oda-crds.enabled
   - name: keycloak
@@ -102,7 +103,7 @@ dependencies:
     repository: 'file://../api-operator-istio'
     condition: api-operator-istio.enabled
   - name: dependentapi-simple-operator
-    version: "1.0.5"
+    version: "1.0.6"
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: secretsmanagement-operator

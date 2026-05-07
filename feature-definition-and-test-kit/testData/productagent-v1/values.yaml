@@ -1,0 +1,78 @@
+replicaCount: 1
+
+image:
+  repository: akumartmf/canvas-agent
+  tag: latest
+  pullPolicy: Always
+
+component:
+  id: productagent
+  name: productagent
+  version: "0.1.0"
+  functionalBlock: CoreCommerce
+  publicationDate: "2026-03-24T00:00:00Z"
+
+  maintainerName: Anshul Kumar
+  maintainerEmail: anshul@example.com
+  ownerName: Anshul Kumar
+  ownerEmail: anshul@example.com
+
+  api:
+    specificationUrl: "https://example.com/agent-openapi.yaml"
+    specificationVersion: "0.1.0"
+
+  apipolicy:
+    apiKeyVerification: {}
+    rateLimit: {}
+    quota: {}
+    OASValidation: {}
+    CORS: {}
+    template: ""
+
+app:
+  agentId: "product-agent-poc"
+  agentName: "Product Agent"
+  agentVersion: "v1"
+  host: "0.0.0.0"
+  port: 8000
+  debug: "false"
+
+canvas:
+  infoEndpoint: "http://info.canvas.svc.cluster.local"
+
+mcp:
+  timeoutSeconds: 30
+  maxToolCalls: 5
+
+llm:
+  enabled: "true"
+  model: "llama-3.1-8b-instant"
+  timeoutSeconds: 30
+
+gateway:
+  baseUrl: "http://ai-gateway-proxy.ai-gateway.svc.cluster.local/v1/chat/completions"
+
+keycloak:
+  tokenUrl: "http://canvas-keycloak.canvas.svc.cluster.local:8083/auth/realms/odari/protocol/openid-connect/token"
+
+runtime:
+  defaultResponseMode: "sync"
+  logLevel: "INFO"
+  enableStreaming: "false"
+
+security:
+  canvasSystemRole: Admin
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+hooks:
+  waitForCredentials:
+    enabled: true
+    timeoutSeconds: 300
+    pollIntervalSeconds: 5

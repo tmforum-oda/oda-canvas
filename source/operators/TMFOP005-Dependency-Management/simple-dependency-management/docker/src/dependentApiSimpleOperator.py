@@ -23,6 +23,12 @@ API_PLURAL = "exposedapis"
 HTTP_NOT_FOUND = 404
 HTTP_CONFLICT = 409
 
+DEPENDENCY_KIND_LABEL = "oda.tmforum.org/dependencyKind"
+DEPENDENCY_KIND_DATA_RESOURCE = "data-resource"
+DATA_PROVIDER_LABEL = "oda.tmforum.org/provider"
+ACCESS_TYPE_ANNOTATION = "oda.tmforum.org/accessType"
+
+
 
 # https://kopf.readthedocs.io/en/stable/install/
 
@@ -68,13 +74,13 @@ def implementationReady(depapiBody):
 
 
 @logwrapper
-def get_depapi_spec(logw: LogWrapper, depapi_name, depapi_namespace):
+def get_depapi(logw: LogWrapper, depapi_name, depapi_namespace):
     api_instance = kubernetes.client.CustomObjectsApi()
     try:
         depapi = api_instance.get_namespaced_custom_object(
             DEPAPI_GROUP, DEPAPI_VERSION, depapi_namespace, DEPAPI_PLURAL, depapi_name
         )
-        return depapi["spec"]
+        return depapi
     except ApiException as e:
         if e.status == HTTP_NOT_FOUND:
             logw.error("dependentapi not found", f"{depapi_namespace}:{depapi_name}")
@@ -107,13 +113,33 @@ def get_expapi(logw: LogWrapper):
 
 @logwrapper
 def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
-    dep_api = get_depapi_spec(logw, depapi_name, depapi_namespace)
+    depapi = get_depapi(logw, depapi_name, depapi_namespace)
+    if depapi is None:
+        return None
+    
+    dep_api = safe_get({}, depapi, "spec")
     depapi_specification = safe_get({}, dep_api, "specification")
     depapi_apitype = safe_get(None, dep_api, "apiType")
     depapi_api_name = safe_get(None, dep_api, "name")
 
-    exp_apis = get_expapi()
-
+    # New functionality to support direct URL for external data-resource dependencies, without needing an ExposedAPI resource
+    if is_data_resource_depapi(depapi):
+        depapi_url = safe_get(None, depapi_specification, "url")
+        if depapi_url:
+            logw.info(
+                "ResolvedDataResource",
+                f"Using direct external data-resource URL for {depapi_name}",
+            )
+            return depapi_url
+        
+        logw.error(
+            "MissingURL",
+            f"Data-resource DependentAPI {depapi_name} has no spec.specification.url",
+        )
+        return None
+    
+    exp_apis = get_expapi(logw)
+    exp_url = None
     dep_url = safe_get(None, depapi_specification, "url")
 
     # Existing OpenAPI lookup by specification URL
@@ -134,7 +160,7 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
     if exp_url is None or dep_url is None:
         logw.debug(f"Skipping OpenAPI match due to missing URL: exp={exp_url}, dep={dep_url}")
     
-    logw.info(f"Trying MCP fallback lookup for dependent API {depapi_api_name}")
+    logw.info(f"Trying MCP lookup for dependent API {depapi_api_name}")
     
     # MCP fallback lookup by apiType + API name
     if depapi_apitype == "mcp":
@@ -155,6 +181,11 @@ def quick_get_comp_name(body):
 def get_sman_name(body):
     return safe_get(None, body, "metadata", "name")
 
+def is_data_resource_depapi(body):
+    return (
+        safe_get(None, body, "metadata", "labels", DEPENDENCY_KIND_LABEL)
+        == DEPENDENCY_KIND_DATA_RESOURCE
+    )
 
 # triggered when an oda.tmforum.org dependentapi resource is created or updated
 @kopf.on.resume(DEPAPI_GROUP, DEPAPI_VERSION, DEPAPI_PLURAL, retries=5)
@@ -216,7 +247,7 @@ def cavas_info_instance() -> ServiceInventoryAPI:
 
 @logwrapper
 def updateServiceInventory(
-    logw: LogWrapper, component_name, dependency_name, specification, url
+    logw: LogWrapper, component_name, dependency_name, specification, url, dependency_kind=None, access_type=None, provider=None,
 ):
     svc_info = cavas_info_instance()
     svcs = svc_info.list_services(
@@ -230,6 +261,9 @@ def updateServiceInventory(
             url=url,
             specification=specification,
             state="active",
+            dependencyKind=dependency_kind,
+            accessType=access_type,
+            provider=provider,
         )
         logw.debugInfo(f'ServiceInventory created {svc["id"]}', svc)
     else:
@@ -240,6 +274,9 @@ def updateServiceInventory(
             url=url,
             specification=specification,
             state="active",
+            dependencyKind=dependency_kind,
+            accessType=access_type,
+            provider=provider,
         )
         logw.debugInfo(f'ServiceInventory updated {svc["id"]}', svc)
     return svc["id"]
@@ -286,9 +323,17 @@ def setDependentAPIStatus(logw: LogWrapper, namespace, name, url):
         component_name = safe_get(
             None, depapi, "metadata", "labels", "oda.tmforum.org/componentName"
         )
+        labels = safe_get({}, depapi, "metadata", "labels")
+        annotations = safe_get({}, depapi, "metadata", "annotations")
+
+        dependency_kind = labels.get(DEPENDENCY_KIND_LABEL)
+        provider = labels.get(DATA_PROVIDER_LABEL)
+
+        access_type = annotations.get(ACCESS_TYPE_ANNOTATION)
+
         specification = safe_get(None, depapi, "spec", "specification")
         svc_id = updateServiceInventory(
-            logw, component_name, da_name, specification, url
+            logw, component_name, da_name, specification, url, dependency_kind=dependency_kind, access_type=access_type, provider=provider,
         )
         depapi["status"]["depapiStatus"]["svcInvID"] = svc_id
     except Exception as e:

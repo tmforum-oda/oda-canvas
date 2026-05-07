@@ -29,7 +29,7 @@ class ServiceInventoryAPI:
         # )
         # =======================================================================
 
-    def create_service(self, componentName, dependencyName, url, specification, state):
+    def create_service(self, componentName, dependencyName, url, specification, state, dependencyKind=None, accessType=None, provider=None,):
         """
         curl -X 'POST' \
           'http://localhost:8638/service' \
@@ -47,6 +47,9 @@ class ServiceInventoryAPI:
             url=url,
             specification=specification,
             state=state,
+            dependencyKind=dependencyKind,
+            accessType=accessType,
+            provider=provider,
         )
         payload_dict = json.loads(payload)
 
@@ -116,7 +119,7 @@ class ServiceInventoryAPI:
         return result
 
     def update_service(
-        self, id, componentName, dependencyName, url, specification, state
+        self, id, componentName, dependencyName, url, specification, state, dependencyKind=None, accessType=None, provider=None,
     ):
         """
         curl -X 'PATCH' \
@@ -136,6 +139,9 @@ class ServiceInventoryAPI:
             url=url,
             specification=specification,
             state=state,
+            dependencyKind=dependencyKind,
+            accessType=accessType,
+            provider=provider,
         )
         payload_dict = json.loads(payload)
 

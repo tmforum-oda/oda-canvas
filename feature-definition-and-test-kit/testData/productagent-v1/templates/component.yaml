@@ -1,0 +1,70 @@
+apiVersion: oda.tmforum.org/v1
+kind: Component
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.component.name }}
+  labels:
+    oda.tmforum.org/componentName: {{ .Release.Name }}-{{ .Values.component.name }}
+
+spec:
+  componentMetadata:
+    id: {{ .Values.component.id }}
+    name: {{ .Values.component.name }}
+    version: {{ .Values.component.version }}
+    description: >-
+      AI-native product agent component exposing an OpenAPI interface and
+      consuming Product Catalog MCP through Canvas.
+    functionalBlock: {{ .Values.component.functionalBlock }}
+    publicationDate: {{ .Values.component.publicationDate }}
+    status: specified
+    maintainers:
+      - name: {{ .Values.component.maintainerName }}
+        email: {{ .Values.component.maintainerEmail }}
+    owners:
+      - name: {{ .Values.component.ownerName }}
+        email: {{ .Values.component.ownerEmail }}
+
+  coreFunction:
+    exposedAPIs:
+      - name: agentquery
+        apiType: openapi
+        specification:
+          - url: {{ .Values.component.api.specificationUrl | quote }}
+        implementation: {{ .Release.Name }}-agent
+        path: /{{ .Release.Name }}-{{ .Values.component.name }}/v1/agent
+        port: 8000
+        resources: []
+        gatewayConfiguration:
+          apiKeyVerification: {{ .Values.component.apipolicy.apiKeyVerification | toYaml | nindent 12 }}
+          rateLimit: {{ .Values.component.apipolicy.rateLimit | toYaml | nindent 12 }}
+          quota: {{ .Values.component.apipolicy.quota | toYaml | nindent 12 }}
+          OASValidation: {{ .Values.component.apipolicy.OASValidation | toYaml | nindent 12 }}
+          CORS: {{ .Values.component.apipolicy.CORS | toYaml | nindent 12 }}
+          template: "{{ .Values.component.apipolicy.template }}"
+
+    dependentAPIs:
+      - name: productcatalogmcp
+        specification:
+          - apiType: mcp
+
+  eventNotification:
+    publishedEvents: []
+    subscribedEvents: []
+
+  managementFunction:
+    exposedAPIs:
+      - name: metrics
+        apiType: prometheus
+        implementation: {{ .Release.Name }}-agent
+        path: /{{ .Release.Name }}-{{ .Values.component.name }}/metrics
+        port: 8000
+        gatewayConfiguration:
+          apiKeyVerification: {{ .Values.component.apipolicy.apiKeyVerification | toYaml | nindent 12 }}
+          rateLimit: {{ .Values.component.apipolicy.rateLimit | toYaml | nindent 12 }}
+          quota: {{ .Values.component.apipolicy.quota | toYaml | nindent 12 }}
+          OASValidation: {{ .Values.component.apipolicy.OASValidation | toYaml | nindent 12 }}
+          CORS: {{ .Values.component.apipolicy.CORS | toYaml | nindent 12 }}
+          template: "{{ .Values.component.apipolicy.template }}"
+
+  securityFunction:
+    canvasSystemRole: {{ .Values.security.canvasSystemRole }}
+    exposedAPIs: []

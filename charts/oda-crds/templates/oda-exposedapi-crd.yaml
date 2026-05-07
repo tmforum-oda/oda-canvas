@@ -371,7 +371,9 @@ spec:
                 - prometheus
                 - openmetrics
                 - mcp
-                description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus/OpenMetrics (metrics) and MCP APIs are supported.
+                - a2a
+                - sse
+                description: The type of API specification. Currently only OpenAPI (swagger) and Prometheus/OpenMetrics (metrics) and MCP A2A SSE APIs are supported.
               apiKeyVerification:
                 type: object
                 description: (optional) 

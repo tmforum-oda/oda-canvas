@@ -208,6 +208,8 @@ spec:
                 enum:
                 - openapi
                 - mcp
+                - a2a
+                - sse
                 description: The type of API specification. Currently only OpenAPI (swagger) is supported.
               selector:
                 type: object

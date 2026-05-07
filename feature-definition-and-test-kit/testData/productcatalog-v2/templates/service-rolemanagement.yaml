@@ -1,0 +1,40 @@
+{{/*
+Role Management API Service
+This template conditionally creates a service for either:
+- Permission Specification Set API (TMF672) when permissionspec.enabled=true (default)
+- Party Role API (TMF669) when permissionspec.enabled=false
+*/}}
+{{- if .Values.permissionspec.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name}}-permissionspecapi
+  labels:
+    app: {{.Release.Name}}-{{.Values.component.name}}
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+spec:
+  ports:
+  - port: 8080
+    targetPort: {{.Release.Name}}-psapi
+    name: http-{{.Release.Name}}-permissionspecapi
+  type: NodePort
+  selector:
+    impl: {{.Release.Name}}-permissionspecapi
+{{- else }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name}}-partyroleapi
+  labels:
+    app: {{.Release.Name}}-{{.Values.component.name}}
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+spec:
+  ports:
+  - port: 8080
+    targetPort: {{.Release.Name}}-prapi
+    name: http-{{.Release.Name}}-partyroleapi
+  type: NodePort
+  selector:
+    impl: {{.Release.Name}}-partyroleapi
+{{- end }}
+
