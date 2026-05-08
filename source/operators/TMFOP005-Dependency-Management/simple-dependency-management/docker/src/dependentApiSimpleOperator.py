@@ -27,7 +27,12 @@ DEPENDENCY_KIND_LABEL = "oda.tmforum.org/dependencyKind"
 DEPENDENCY_KIND_DATA_RESOURCE = "data-resource"
 DATA_PROVIDER_LABEL = "oda.tmforum.org/provider"
 ACCESS_TYPE_ANNOTATION = "oda.tmforum.org/accessType"
-
+DATA_PRODUCT_ID_ANNOTATION = "oda.tmforum.org/dataProductId"
+DATA_PRODUCT_TYPE_ANNOTATION = "oda.tmforum.org/dataProductType"
+CATALOG_REF_ANNOTATION = "oda.tmforum.org/catalogRef"
+INDEX_REF_ANNOTATION = "oda.tmforum.org/index"
+GENIE_SPACE_ID_ANNOTATION = "oda.tmforum.org/genieSpaceId"
+FUNCTION_REF_ANNOTATION = "oda.tmforum.org/function"
 
 
 # https://kopf.readthedocs.io/en/stable/install/
@@ -247,7 +252,20 @@ def cavas_info_instance() -> ServiceInventoryAPI:
 
 @logwrapper
 def updateServiceInventory(
-    logw: LogWrapper, component_name, dependency_name, specification, url, dependency_kind=None, access_type=None, provider=None,
+    logw: LogWrapper, 
+    component_name, 
+    dependency_name, 
+    specification, 
+    url, 
+    dependency_kind=None, 
+    access_type=None, 
+    provider=None,
+    dataProductId=None,
+    dataProductType=None,
+    catalogRef=None,
+    index=None,
+    genieSpaceId=None,
+    functionRef=None,
 ):
     svc_info = cavas_info_instance()
     svcs = svc_info.list_services(
@@ -264,6 +282,12 @@ def updateServiceInventory(
             dependencyKind=dependency_kind,
             accessType=access_type,
             provider=provider,
+            dataProductId=dataProductId,
+            dataProductType=dataProductType,
+            catalogRef=catalogRef,
+            index=index,
+            genieSpaceId=genieSpaceId,
+            functionRef=functionRef,
         )
         logw.debugInfo(f'ServiceInventory created {svc["id"]}', svc)
     else:
@@ -277,6 +301,12 @@ def updateServiceInventory(
             dependencyKind=dependency_kind,
             accessType=access_type,
             provider=provider,
+            dataProductId=dataProductId,
+            dataProductType=dataProductType,
+            catalogRef=catalogRef,
+            index=index,
+            genieSpaceId=genieSpaceId,
+            functionRef=functionRef,
         )
         logw.debugInfo(f'ServiceInventory updated {svc["id"]}', svc)
     return svc["id"]
@@ -330,10 +360,29 @@ def setDependentAPIStatus(logw: LogWrapper, namespace, name, url):
         provider = labels.get(DATA_PROVIDER_LABEL)
 
         access_type = annotations.get(ACCESS_TYPE_ANNOTATION)
+        data_product_id = annotations.get(DATA_PRODUCT_ID_ANNOTATION)
+        data_product_type = annotations.get(DATA_PRODUCT_TYPE_ANNOTATION)
+        catalog_ref = annotations.get(CATALOG_REF_ANNOTATION)
+        index = annotations.get(INDEX_REF_ANNOTATION)
+        genie_space_id = annotations.get(GENIE_SPACE_ID_ANNOTATION)
+        function_ref = annotations.get(FUNCTION_REF_ANNOTATION)
 
         specification = safe_get(None, depapi, "spec", "specification")
         svc_id = updateServiceInventory(
-            logw, component_name, da_name, specification, url, dependency_kind=dependency_kind, access_type=access_type, provider=provider,
+            logw, 
+            component_name, 
+            da_name, 
+            specification, 
+            url, 
+            dependency_kind=dependency_kind, 
+            access_type=access_type, 
+            provider=provider,
+            dataProductId=data_product_id,
+            dataProductType=data_product_type,
+            catalogRef=catalog_ref,
+            index=index,
+            genieSpaceId=genie_space_id,
+            functionRef=function_ref,
         )
         depapi["status"]["depapiStatus"]["svcInvID"] = svc_id
     except Exception as e:

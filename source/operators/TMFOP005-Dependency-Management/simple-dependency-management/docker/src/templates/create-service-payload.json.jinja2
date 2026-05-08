@@ -68,6 +68,38 @@
         "@type": "StringCharacteristic"
       }
       {% endif %}
+      {% if catalogRef %},
+      {
+        "name": "catalogRef",
+        "valueType": "string",
+        "value": {{ catalogRef | tojson }},
+        "@type": "StringCharacteristic"
+      }
+      {% endif %}
+      {% if index %},
+      {
+        "name": "index",
+        "valueType": "string",
+        "value": {{ index | tojson }},
+        "@type": "StringCharacteristic"
+      }
+      {% endif %}
+      {% if genieSpaceId %},
+      {
+        "name": "genieSpaceId",
+        "valueType": "string",
+        "value": "{{ genieSpaceId }}",
+        "@type": "StringCharacteristic"
+      }
+      {% endif %}
+      {% if functionRef %},
+      {
+        "name": "function",
+        "valueType": "string",
+        "value": {{ functionRef | tojson }},
+        "@type": "StringCharacteristic"
+      }
+      {% endif %}
     ],
     "serviceSpecification": {
       "id": "1",
@@ -115,11 +147,59 @@
           "@type": "StringCharacteristic"
         }
         {% endif %}
+        {% if dataProductId %},
+        {
+          "name": "dataProductId",
+          "valueType": "string",
+          "description": "Provider-specific identifier for a data product, for example a databricks catalog.schema.table or a data mesh data product id.",
+          "@type": "StringCharacteristic"
+        }
+        {% endif %}
+        {% if dataProductType %},
+        {
+          "name": "dataProductType",
+          "valueType": "string",
+          "description": "The type of the data product, for example delta-table, sql-view, or data-mesh-product.",
+          "@type": "StringCharacteristic"
+        }
+        {% endif %}
         {% if provider %},
         {
           "name": "provider",
           "valueType": "string",
           "description": "The platform provider exposing the dependency, for example databricks.",
+          "@type": "StringCharacteristic"
+        }
+        {% endif %}
+        {% if catalogRef %},
+        {
+          "name": "catalogRef",
+          "valueType": "string",
+          "description": "JSON metadata identifying the catalog/schema/object for a structured data resource.",
+          "@type": "StringCharacteristic"
+        }
+        {% endif %}
+        {% if index %},
+        {
+          "name": "index",
+          "valueType": "string",
+          "description": "JSON metadata identifying the provider vector search index.",
+          "@type": "StringCharacteristic"
+        }
+        {% endif %}
+        {% if genieSpaceId %},
+        {
+          "name": "genieSpaceId",
+          "valueType": "string",
+          "description": "Provider-specific identifier for a conversational analytics or Genie space.",
+          "@type": "StringCharacteristic"
+        }
+        {% endif %}
+        {% if functionRef %},
+        {
+          "name": "function",
+          "valueType": "string",
+          "description": "JSON metadata identifying the provider function exposed as a callable tool.",
           "@type": "StringCharacteristic"
         }
         {% endif %}

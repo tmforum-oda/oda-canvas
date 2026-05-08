@@ -29,7 +29,23 @@ class ServiceInventoryAPI:
         # )
         # =======================================================================
 
-    def create_service(self, componentName, dependencyName, url, specification, state, dependencyKind=None, accessType=None, provider=None,):
+    def create_service(
+            self, 
+            componentName, 
+            dependencyName, 
+            url, 
+            specification, 
+            state, 
+            dependencyKind=None, 
+            accessType=None, 
+            provider=None,
+            dataProductId=None,
+            dataProductType=None,
+            catalogRef=None,
+            index=None,
+            genieSpaceId=None,
+            functionRef=None,
+        ):
         """
         curl -X 'POST' \
           'http://localhost:8638/service' \
@@ -50,6 +66,12 @@ class ServiceInventoryAPI:
             dependencyKind=dependencyKind,
             accessType=accessType,
             provider=provider,
+            dataProductId=dataProductId,
+            dataProductType=dataProductType,
+            catalogRef=catalogRef,
+            index=index,
+            genieSpaceId=genieSpaceId,
+            functionRef=functionRef,
         )
         payload_dict = json.loads(payload)
 
@@ -119,7 +141,22 @@ class ServiceInventoryAPI:
         return result
 
     def update_service(
-        self, id, componentName, dependencyName, url, specification, state, dependencyKind=None, accessType=None, provider=None,
+        self, 
+        id, 
+        componentName, 
+        dependencyName, 
+        url, 
+        specification, 
+        state, 
+        dependencyKind=None, 
+        accessType=None, 
+        provider=None,
+        dataProductId=None,
+        dataProductType=None,
+        catalogRef=None,
+        index=None,
+        genieSpaceId=None,
+        functionRef=None,
     ):
         """
         curl -X 'PATCH' \
@@ -142,6 +179,12 @@ class ServiceInventoryAPI:
             dependencyKind=dependencyKind,
             accessType=accessType,
             provider=provider,
+            dataProductId=dataProductId,
+            dataProductType=dataProductType,
+            catalogRef=catalogRef,
+            index=index,
+            genieSpaceId=genieSpaceId,
+            functionRef=functionRef,
         )
         payload_dict = json.loads(payload)
 
