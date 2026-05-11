@@ -14,6 +14,21 @@ entries:
   api-operator-apisix:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-05-11T15:14:11.553920359Z"
+    dependencies:
+    - alias: apisix
+      name: apisix
+      repository: https://charts.apiseven.com
+      version: 2.7.0
+    description: A Helm chart for Kubernetes
+    digest: e915511985efc48d3272309850fbf491e424d37d40cc485f1cc39fd22eda3e4f
+    name: api-operator-apisix
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-apisix-1.1.0/api-operator-apisix-1.1.0.tgz
+    version: 1.1.0
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-11-28T13:07:15.398694703Z"
     dependencies:
     - alias: apisix
@@ -58,6 +73,16 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-apisix-1.0.2/api-operator-apisix-1.0.2.tgz
     version: 1.0.2
   api-operator-istio:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2026-05-11T15:14:11.715442638Z"
+    description: A helm chart to deploy the api operator for istio
+    digest: 931dd9135c8ec726941e85e3a7124dc45dcfb2139485f06ef9fb385d8346ed74
+    name: api-operator-istio
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-istio-1.1.4/api-operator-istio-1.1.4.tgz
+    version: 1.1.4
   - apiVersion: v2
     appVersion: v1
     created: "2025-08-05T20:51:25.015931271Z"
@@ -129,6 +154,21 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-istio-1.0.2/api-operator-istio-1.0.2.tgz
     version: 1.0.2
   api-operator-kong:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2026-05-11T15:14:11.910683748Z"
+    dependencies:
+    - alias: kong
+      name: kong
+      repository: https://charts.konghq.com
+      version: 2.34.0
+    description: A Helm chart for Kubernetes
+    digest: ae01e897fccb4cb36dd1b8ed4991c6c95d3c843855230c33f49e56e4025b6bc9
+    name: api-operator-kong
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/api-operator-kong-1.1.0/api-operator-kong-1.1.0.tgz
+    version: 1.1.0
   - apiVersion: v2
     appVersion: v1
     created: "2025-11-28T13:07:15.658388864Z"
@@ -2767,6 +2807,19 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/credentialsmanagement-operator-1.0.0/credentialsmanagement-operator-1.0.0.tgz
     version: 1.0.0
+  dependency-management-keycloak-authz:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2026-05-11T15:14:12.343124542Z"
+    description: 'Helm chart for the TMFOP005 Dependency Management operator — Keycloak
+      Authorization implementation. Polls the Keycloak Admin Events API for CLIENT_ROLE_MAPPING
+      changes in the configured realm and logs each event. '
+    digest: d2ad57fa810bb7174dde5c870e579630a75a88102de467c6a985a9fce5302260
+    name: dependency-management-keycloak-authz
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/dependency-management-keycloak-authz-0.1.0/dependency-management-keycloak-authz-0.1.0.tgz
+    version: 0.1.0
   dependentapi-simple-operator:
   - apiVersion: v2
     appVersion: v1
@@ -3025,6 +3078,58 @@ entries:
     type: application
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/kong-gateway-0.1.0/kong-gateway-0.1.0.tgz
+    version: 0.1.0
+  observability-stack:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2026-05-11T15:14:12.611928875Z"
+    dependencies:
+    - alias: prometheus
+      condition: prometheus.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      tags:
+      - monitoring
+      - metrics
+      version: 55.5.0
+    - condition: opentelemetry.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      tags:
+      - tracing
+      - telemetry
+      version: 0.77.0
+    - condition: jaeger.enabled
+      name: jaeger
+      repository: https://jaegertracing.github.io/helm-charts
+      tags:
+      - tracing
+      - distributed-tracing
+      version: 0.71.2
+    description: Open-source observability stack for ODA Canvas including Prometheus,
+      Grafana, Jaeger, and OpenTelemetry
+    digest: 84403f2f336b4e3daf8cfdc28fa2b9acef831c19f3a3e8bb2b2056b8c46b57b8
+    home: https://github.com/tmforum-oda/oda-canvas
+    keywords:
+    - observability
+    - monitoring
+    - tracing
+    - metrics
+    - prometheus
+    - grafana
+    - jaeger
+    - opentelemetry
+    - oda
+    - tmforum
+    maintainers:
+    - email: oda@tmforum.org
+      name: TM Forum ODA Team
+    name: observability-stack
+    sources:
+    - https://github.com/tmforum-oda/oda-canvas
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/observability-stack-0.1.0/observability-stack-0.1.0.tgz
     version: 0.1.0
   oda-crds:
   - apiVersion: v2
@@ -3301,4 +3406,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2026-03-21T20:31:15.639323136Z"
+generated: "2026-05-11T15:14:12.760464778Z"
