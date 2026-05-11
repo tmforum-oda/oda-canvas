@@ -101,6 +101,23 @@ dependentapi-simple-operator:
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
+dependency-management-keycloak-authz:
+  displayName: Dependency-Management-Keycloak-Authz
+  fileName: dependency-management-keycloak-authz
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .dependency-management-keycloak-authz.deployment.image
+  valuesPathVersion: .dependency-management-keycloak-authz.deployment.version
+  valuesPathPrereleaseSuffix: .dependency-management-keycloak-authz.deployment.prereleaseSuffix
+  
+  paths:
+    - source/operators/TMFOP005-Dependency-Management/dependency-management-using-keycloak-authorization/docker/**/*
+  buildContext: source/operators/TMFOP005-Dependency-Management/dependency-management-using-keycloak-authorization/docker
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile: 
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
 tmf638-service-inventory-api:
   displayName: TMF-638 Service Inventory API
   fileName: tmf638-service-inventory-api

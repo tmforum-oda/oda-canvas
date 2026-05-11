@@ -18,7 +18,6 @@ from request_file_mocker import RequestFileMocker
 from service_inventory_client import ServiceInventoryAPI
 import json
 
-
 ## for local tests to the cluster use:
 ## kubectl port-forward -n canvas svc/info 8638:80
 BASE_URL = "http://localhost:8638"

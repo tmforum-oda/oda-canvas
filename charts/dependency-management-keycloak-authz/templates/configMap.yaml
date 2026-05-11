@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dependency-management-keycloak-authz-configmap
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "dependency-management-keycloak-authz.labels" . | nindent 4 }}
+data:
+  LOGGING: {{ .Values.configmap.loglevel | quote }}
+  KEYCLOAK_BASE: {{ .Values.configmap.kcbase | quote }}
+  KEYCLOAK_REALM: {{ .Values.configmap.kcrealm | quote }}
+  POD_NAMESPACE: {{ .Release.Namespace | quote }}
+  POLL_INTERVAL_SECONDS: {{ .Values.configmap.pollIntervalSeconds | quote }}
+  CANVAS_INFO_ENDPOINT: {{ .Values.configmap.canvasInfoEndpoint | quote }}

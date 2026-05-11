@@ -4,7 +4,7 @@ import logging
 EXEC_INFO = True if os.getenv("EXEC_INFO") == "True" else False
 LOG_HANDLER = os.getenv("LOG_HANDLER", "Stream")
 LOG_FILE_PATH = os.getenv("LOG_FILE_PATH", "app.log")
-LOGLEVEL = os.getenv('LOGLEVEL', 'INFO').upper()
+LOGLEVEL = os.getenv("LOGLEVEL", "INFO").upper()
 
 if LOG_HANDLER not in {"File", "Stream"}:
     LOG_HANDLER = "Stream"
@@ -27,7 +27,7 @@ class CustomFormatter(logging.Formatter):
         logging.INFO: grey + logging_format + reset,
         logging.WARNING: yellow + logging_format + reset,
         logging.ERROR: red + logging_format + reset,
-        logging.CRITICAL: bold_red + logging_format + reset
+        logging.CRITICAL: bold_red + logging_format + reset,
     }
 
     def format(self, record):

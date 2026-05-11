@@ -9,7 +9,6 @@ from service_inventory_client import ServiceInventoryAPI
 
 from log_wrapper import LogWrapper, logwrapper
 
-
 DEPAPI_GROUP = "oda.tmforum.org"
 DEPAPI_VERSION = "v1"
 DEPAPI_PLURAL = "dependentapis"
@@ -123,6 +122,7 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
             ):
                 return exp_api["status"]["apiStatus"]["url"]
     return None
+
 
 def quick_get_comp_name(body):
     return safe_get(None, body, "metadata", "labels", componentname_label)

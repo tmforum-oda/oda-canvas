@@ -177,7 +177,7 @@ def logwrapper(*lw_args, **lw_kwargs):
         # called as @decorator
         def inject_logw(*args, **kwargs):
             func = lw_args[0]
-            (args, kwargs) = inject_logw_args(func, args, kwargs, {})
+            args, kwargs = inject_logw_args(func, args, kwargs, {})
             result = func(*args, **kwargs)
             return result
 
@@ -187,7 +187,7 @@ def logwrapper(*lw_args, **lw_kwargs):
         # called as @decorator(*args, **kwargs)
         def outer_inject_logw(func):
             def inject_logw(*args, **kwargs):
-                (args, kwargs) = inject_logw_args(func, args, kwargs, lw_kwargs)
+                args, kwargs = inject_logw_args(func, args, kwargs, lw_kwargs)
                 result = func(*args, **kwargs)
                 return result
 

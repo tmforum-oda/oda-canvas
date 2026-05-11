@@ -7,7 +7,6 @@ import asyncio
 sys.path.append("..")
 from componentOperator import safe_get, securitySecretsManagement, summary
 
-
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.DEBUG)
 kopf_logger = logging.getLogger()

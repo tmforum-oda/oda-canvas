@@ -22,8 +22,9 @@ GROUP = "oda.tmforum.org"
 VERSION = "v1"
 APIS_PLURAL = "exposedapis"
 
+
 def get_istio_ingress_external():
-    #Returns the external IP or hostname for the Istio ingressgateway service , check with team later if any other method required
+    # Returns the external IP or hostname for the Istio ingressgateway service , check with team later if any other method required
     try:
         # Load in-cluster config ,make if only in cluster after proper helm chart
         try:
@@ -49,78 +50,84 @@ def get_istio_ingress_external():
 
     return ""
 
+
 BUNDLE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Initialize Apigee client
-apigee = Apigee(
-    apigee_type="x",
-    org=APIGEE_ORG
-)
+apigee = Apigee(apigee_type="x", org=APIGEE_ORG)
+
 
 @kopf.on.create(GROUP, VERSION, APIS_PLURAL, retries=5)
 def create_exposedapi_handler(body, **kwargs):
     logger.info("ExposedAPI created")
 
     # 1) Extract core properties from CR
-    API_NAME = body['metadata']['name']
-    UNIQUE_ID = body['metadata']['uid']
-    RESOURCE_VERSION = body['metadata']['resourceVersion']
-    
+    API_NAME = body["metadata"]["name"]
+    UNIQUE_ID = body["metadata"]["uid"]
+    RESOURCE_VERSION = body["metadata"]["resourceVersion"]
+
     # 2) Discover the external IP or hostname
     external_ip = get_istio_ingress_external()
     if not external_ip:
-        raise kopf.TemporaryError("No external IP found for Istio ingressgateway service.")
+        raise kopf.TemporaryError(
+            "No external IP found for Istio ingressgateway service."
+        )
 
     # 3) Construct TARGET_URL from the discovered IP
     TARGET_URL = f"https://{external_ip}/"
-    #logger.info(f"Using istio-ingress {TARGET_URL} as the target URL.")
-    BASE_PATH = body['spec']['path']
-    
+    # logger.info(f"Using istio-ingress {TARGET_URL} as the target URL.")
+    BASE_PATH = body["spec"]["path"]
+
     # Read the template field (if any) from the CR.
-    TEMPLATE = body['spec'].get('template', "").strip()
-    
+    TEMPLATE = body["spec"].get("template", "").strip()
+
     STAGING_DIR = f"{UNIQUE_ID}-{RESOURCE_VERSION}"
     staging_path = os.path.join(BUNDLE_PATH, "generated", STAGING_DIR)
 
     # 2) Determine if SpikeArrest is required
-    SPIKE_ARREST_REQUIRED = body['spec']['rateLimit']['enabled']
+    SPIKE_ARREST_REQUIRED = body["spec"]["rateLimit"]["enabled"]
     SPIKE_ARREST_IDENTIFIER = ""
     SPIKE_ARREST_RATE = ""
     SPIKE_ARREST_STEP = ""
-    
+
     if SPIKE_ARREST_REQUIRED:
         logger.info(f"SpikeArrest policy is enabled for {API_NAME}.")
-        SPIKE_ARREST_IDENTIFIER = body['spec']['rateLimit']['identifier']
-        limit = body['spec']['rateLimit']['limit']
-        interval = body['spec']['rateLimit']['interval']
+        SPIKE_ARREST_IDENTIFIER = body["spec"]["rateLimit"]["identifier"]
+        limit = body["spec"]["rateLimit"]["limit"]
+        interval = body["spec"]["rateLimit"]["interval"]
         SPIKE_ARREST_RATE = f"{limit}{interval}"
         SPIKE_ARREST_STEP = "<Step><Name>SpikeArrest.RateLimit</Name></Step>"
     else:
         logger.info(f"SpikeArrest policy NOT enabled for {API_NAME}.")
 
     # 3) Determine if VerifyAPIKey is required
-    VERIFY_API_KEY_REQUIRED = body['spec']['apiKeyVerification']['enabled']
+    VERIFY_API_KEY_REQUIRED = body["spec"]["apiKeyVerification"]["enabled"]
     API_KEY_LOCATION = ""
     VERIFY_API_KEY_STEP = ""
-    
+
     if VERIFY_API_KEY_REQUIRED:
         logger.info(f"VerifyAPIKey policy is enabled for {API_NAME}.")
-        API_KEY_LOCATION = body['spec']['apiKeyVerification']['location']
+        API_KEY_LOCATION = body["spec"]["apiKeyVerification"]["location"]
         VERIFY_API_KEY_STEP = "<Step><Name>VerifyAPIKey.Validate</Name></Step>"
     else:
         logger.info(f"VerifyAPIKey policy NOT enabled for {API_NAME}.")
 
     # 4) Determine if CORS is enabled.
-    cors = body['spec'].get('CORS', {})
-    cors_enabled = cors.get('enabled', False)
+    cors = body["spec"].get("CORS", {})
+    cors_enabled = cors.get("enabled", False)
     if cors_enabled:
-        cors_allowCredentials = cors.get('allowCredentials', False)
-        cors_allowOrigins = cors.get('allowOrigins', '*')
-        cors_handlePreflight = cors.get('handlePreflightRequests', {})
-        cors_handlePreflightEnabled = cors_handlePreflight.get('enabled', True)
-        cors_handlePreflightAllowHeaders = cors_handlePreflight.get('allowHeaders', 'Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers')
-        cors_handlePreflightAllowMethods = cors_handlePreflight.get('allowMethods', 'GET, POST, HEAD, OPTIONS')
-        cors_handlePreflightMaxAge = cors_handlePreflight.get('maxAge', 1800)
+        cors_allowCredentials = cors.get("allowCredentials", False)
+        cors_allowOrigins = cors.get("allowOrigins", "*")
+        cors_handlePreflight = cors.get("handlePreflightRequests", {})
+        cors_handlePreflightEnabled = cors_handlePreflight.get("enabled", True)
+        cors_handlePreflightAllowHeaders = cors_handlePreflight.get(
+            "allowHeaders",
+            "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers",
+        )
+        cors_handlePreflightAllowMethods = cors_handlePreflight.get(
+            "allowMethods", "GET, POST, HEAD, OPTIONS"
+        )
+        cors_handlePreflightMaxAge = cors_handlePreflight.get("maxAge", 1800)
         logger.info(f"CORS policy is enabled for {API_NAME}.")
     else:
         cors_enabled = False
@@ -151,16 +158,16 @@ def create_exposedapi_handler(body, **kwargs):
         cors_handlePreflightAllowHeaders=cors_handlePreflightAllowHeaders,
         cors_handlePreflightAllowMethods=cors_handlePreflightAllowMethods,
         cors_handlePreflightMaxAge=cors_handlePreflightMaxAge,
-        template_name=TEMPLATE
+        template_name=TEMPLATE,
     )
 
-    # 6) Zip up the newly created directory 
+    # 6) Zip up the newly created directory
     def zipdir(path, ziph):
         for root, _, files in os.walk(path):
             for file in files:
                 ziph.write(
                     os.path.join(root, file),
-                    os.path.relpath(os.path.join(root, file), os.path.join(path, ".."))
+                    os.path.relpath(os.path.join(root, file), os.path.join(path, "..")),
                 )
 
     def create_proxy_bundle(proxy_bundle_directory, api_name, target_dir):
@@ -171,9 +178,9 @@ def create_exposedapi_handler(body, **kwargs):
 
     logger.info(f"Creating proxy bundle zip for {API_NAME} ({STAGING_DIR})...")
     proxy_bundle_zip = create_proxy_bundle(
-        proxy_bundle_directory=staging_path, 
+        proxy_bundle_directory=staging_path,
         api_name=API_NAME,
-        target_dir=os.path.join(staging_path, "apiproxy")
+        target_dir=os.path.join(staging_path, "apiproxy"),
     )
 
     # 7) Deploy the proxy bundle to Apigee
@@ -183,14 +190,16 @@ def create_exposedapi_handler(body, **kwargs):
     else:
         logger.info(f"Deployment succeeded for {API_NAME} ({STAGING_DIR})")
 
+
 @kopf.on.delete(GROUP, VERSION, APIS_PLURAL, retries=5)
 def delete_exposedapi_handler(body, **kwargs):
-    API_NAME = body['metadata']['name']
+    API_NAME = body["metadata"]["name"]
     logger.info("Deletion requested for ExposedAPI %s", API_NAME)
     if apigee.delete_api(API_NAME):
         logger.info("Proxy %s deleted successfully.", API_NAME)
     else:
         logger.error("Failed to delete proxy %s.", API_NAME)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     kopf.run()

@@ -1,0 +1,6 @@
+kopf==1.37.2
+kubernetes==27.2.0
+python-json-logger==2.0.7
+PyYAML
+requests
+Jinja2
