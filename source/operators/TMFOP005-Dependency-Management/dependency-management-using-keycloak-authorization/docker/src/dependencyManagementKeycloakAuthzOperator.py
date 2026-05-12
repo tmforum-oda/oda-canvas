@@ -805,7 +805,21 @@ async def configure(settings: kopf.OperatorSettings, logger, **kwargs):
             else:
                 logw.info("Keycloak admin events are enabled", f"realm={keycloak_realm}")
         except Exception as e:
-            logw.warning("Could not verify Keycloak admin events configuration", str(e))
+            logw.warning(
+                "Could not verify Keycloak admin events configuration",
+                f"realm={keycloak_realm} error={e}",
+            )
+
+    if _POLLER_TASK is not None and _POLLER_TASK.done():
+        try:
+            task_exception = _POLLER_TASK.exception()
+        except asyncio.CancelledError:
+            task_exception = None
+        if task_exception is not None:
+            logw.warning(
+                "Restarting Keycloak admin event poller task after unexpected exit",
+                str(task_exception),
+            )
 
     if _POLLER_TASK is None or _POLLER_TASK.done():
         _POLLER_STOP_EVENT = asyncio.Event()
@@ -889,53 +903,49 @@ async def keycloak_admin_event_poller(stop_event: asyncio.Event, logger):
         f"resource_types={RESOURCE_TYPES} operation_types={OPERATION_TYPES}",
     )
 
-    try:
-        while not stop_event.is_set():
-            try:
-                poll_started_at: int = int(time.time() * 1000)
+    while not stop_event.is_set():
+        try:
+            poll_started_at: int = int(time.time() * 1000)
 
-                token = kc.get_token(keycloak_user, keycloak_password)
-                raw_events: list = kc.get_admin_events(
-                    token=token,
-                    realm=keycloak_realm,
-                    resource_types=RESOURCE_TYPES,
-                    operation_types=OPERATION_TYPES,
-                    date_from=last_poll_time,
+            token = kc.get_token(keycloak_user, keycloak_password)
+            raw_events: list = kc.get_admin_events(
+                token=token,
+                realm=keycloak_realm,
+                resource_types=RESOURCE_TYPES,
+                operation_types=OPERATION_TYPES,
+                date_from=last_poll_time,
+            )
+
+            events = _reduce_to_latest_per_path(raw_events)
+
+            new_count = 0
+            for event in events:
+                event_key = (
+                    event.get("time"),
+                    event.get("operationType"),
+                    event.get("resourcePath"),
+                )
+                if event_key in seen_events:
+                    continue
+                seen_events.add(event_key)
+                _process_event(
+                    logw, event, token, kc, keycloak_realm, k8s_custom, cache
+                )
+                new_count += 1
+
+            if new_count:
+                logw.debug(
+                    "Poll complete", f"realm={keycloak_realm} new_events={new_count}"
                 )
 
-                events = _reduce_to_latest_per_path(raw_events)
+            last_poll_time = poll_started_at
 
-                new_count = 0
-                for event in events:
-                    event_key = (
-                        event.get("time"),
-                        event.get("operationType"),
-                        event.get("resourcePath"),
-                    )
-                    if event_key in seen_events:
-                        continue
-                    seen_events.add(event_key)
-                    _process_event(
-                        logw, event, token, kc, keycloak_realm, k8s_custom, cache
-                    )
-                    new_count += 1
+        except Exception as e:
+            logw.exception("Error polling Keycloak admin events", e)
 
-                if new_count:
-                    logw.debug(
-                        "Poll complete", f"realm={keycloak_realm} new_events={new_count}"
-                    )
-
-                last_poll_time = poll_started_at
-
-            except Exception as e:
-                logw.exception("Error polling Keycloak admin events", e)
-
-            try:
-                # Use stop_event.wait() with a timeout as an interruptible sleep so
-                # operator shutdown can wake the loop immediately.
-                await asyncio.wait_for(stop_event.wait(), timeout=POLL_INTERVAL_SECONDS)
-            except asyncio.TimeoutError:
-                pass
-    except asyncio.CancelledError:
-        logw.info("Keycloak admin event poller task cancelled")
-        raise
+        try:
+            # Use stop_event.wait() with a timeout as an interruptible sleep so
+            # operator shutdown can wake the loop immediately.
+            await asyncio.wait_for(stop_event.wait(), timeout=POLL_INTERVAL_SECONDS)
+        except asyncio.TimeoutError:
+            pass
