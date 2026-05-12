@@ -810,6 +810,7 @@ async def configure(settings: kopf.OperatorSettings, logger, **kwargs):
                 f"realm={keycloak_realm} error={e}",
             )
 
+    should_start_poller = _POLLER_TASK is None or _POLLER_TASK.done()
     if _POLLER_TASK is not None and _POLLER_TASK.done():
         try:
             task_exception = _POLLER_TASK.exception()
@@ -821,7 +822,7 @@ async def configure(settings: kopf.OperatorSettings, logger, **kwargs):
                 str(task_exception),
             )
 
-    if _POLLER_TASK is None or _POLLER_TASK.done():
+    if should_start_poller:
         _POLLER_STOP_EVENT = asyncio.Event()
         _POLLER_TASK = asyncio.create_task(
             keycloak_admin_event_poller(_POLLER_STOP_EVENT, logger)
@@ -848,7 +849,7 @@ async def cleanup(logger, **kwargs):
         stop_event.set()
         try:
             await asyncio.wait_for(
-                asyncio.shield(task),
+                task,
                 timeout=POLL_INTERVAL_SECONDS + SHUTDOWN_GRACE_PERIOD_SECONDS,
             )
             should_cancel_task = False
