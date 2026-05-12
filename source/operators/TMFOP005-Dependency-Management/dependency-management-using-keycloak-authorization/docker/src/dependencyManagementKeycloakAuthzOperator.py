@@ -818,20 +818,29 @@ async def cleanup(logger, **kwargs):
 
     logw = LogWrapper(logger, function_name="cleanup", handler_name="cleanup")
 
-    if _POLLER_TASK is None:
+    task = _POLLER_TASK
+    stop_event = _POLLER_STOP_EVENT
+    _POLLER_TASK = None
+    _POLLER_STOP_EVENT = None
+
+    if task is None:
         return
 
-    if _POLLER_STOP_EVENT is not None:
-        _POLLER_STOP_EVENT.set()
+    if stop_event is not None:
+        stop_event.set()
+        try:
+            await asyncio.wait_for(asyncio.shield(task), timeout=POLL_INTERVAL_SECONDS + 1)
+            return
+        except asyncio.TimeoutError:
+            logw.warning(
+                "Timed out waiting for Keycloak admin event poller task to stop gracefully"
+            )
 
-    _POLLER_TASK.cancel()
+    task.cancel()
     try:
-        await _POLLER_TASK
+        await task
     except asyncio.CancelledError:
         logw.info("Keycloak admin event poller task cancelled")
-    finally:
-        _POLLER_TASK = None
-        _POLLER_STOP_EVENT = None
 
 
 @kopf.on.probe(id="keycloak-connection")
