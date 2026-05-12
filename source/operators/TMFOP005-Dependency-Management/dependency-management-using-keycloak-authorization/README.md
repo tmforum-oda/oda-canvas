@@ -15,13 +15,13 @@ This approach ties dependency resolution to Keycloak role grants, meaning a comp
 
 ## Architecture
 
-The operator uses a single `@kopf.daemon()` polling loop anchored to its own ConfigMap. This gives exactly one active loop per operator instance, independent of the number of ODA Component CRD objects in the cluster.
+The operator uses a single startup-managed background polling task. This gives exactly one active loop per operator instance, independent of the number of ODA Component CRD objects in the cluster, without placing a Kopf finalizer on a Helm-managed ConfigMap.
 
 ```
 Keycloak Admin Events API
         │  CLIENT_ROLE_MAPPING (CREATE / UPDATE / DELETE)
         ▼
-keycloak_admin_event_poller (kopf daemon)
+keycloak_admin_event_poller (background task)
         │
         ├─ _resolve_event_components()
         │       ├─ user UUID  → service-account username → user-component name
@@ -90,7 +90,6 @@ The operator's `ClusterRole` (defined in `charts/dependency-management-keycloak-
 
 | Resource | Verbs |
 |----------|-------|
-| `configmaps` | `list`, `watch`, `get`, `patch` |
 | `dependentapis` | `list`, `get`, `patch` |
 | `exposedapis` | `list`, `get`, `patch` |
 
