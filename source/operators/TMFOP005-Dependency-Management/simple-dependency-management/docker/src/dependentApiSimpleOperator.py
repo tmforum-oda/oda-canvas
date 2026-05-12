@@ -460,17 +460,30 @@ async def updateDepedentAPIReady(
             parent_component_name = None
             for owner in meta.get("ownerReferences", []):
                 if (
-                    owner.get("apiVersion"
-                    == f"{COMP_GROUP}/{COMP_VERSION}") 
+                    owner.get("apiVersion") == f"{COMP_GROUP}/{COMP_VERSION}"
                     and owner.get("kind") == "Component"
                 ):
                     parent_component_name = owner.get("name")
                     break
-
+            
+            # Fallback: use deterministic Canvas componentName label.
+            # This keeps coreFunction DependentAPIs progressing even when the
+            # ownerReference is absent or owned by another controller.
+            if not parent_component_name:
+                parent_component_name = safe_get(
+                    None,
+                    body,
+                    "metadata",
+                    "labels",
+                    componentname_label,
+                )
             # No component owner -> skip
 
             if not parent_component_name:
-                logw.info(f"No Component ownerReference found for {name}.{namespace}")
+                logw.info(
+                    "SkipComponentStatusPatch",
+                    f"No Component ownerReference found for {name}.{namespace}"
+                )
                 return
             
             logw.info(f"reading component {parent_component_name}")
