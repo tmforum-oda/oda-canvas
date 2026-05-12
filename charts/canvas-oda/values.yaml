@@ -219,8 +219,8 @@ dependency-management-keycloak-authz:
   deployment:
     operatorName: dependency-management-keycloak-authz
     image: tmforumodacanvas/dependency-management-keycloak-authz
-    version: 0.2.0
-    prereleaseSuffix:
+    version: 0.2.1
+    prereleaseSuffix: issue599
     imagePullPolicy: IfNotPresent
     keycloak:
       port: 8083
