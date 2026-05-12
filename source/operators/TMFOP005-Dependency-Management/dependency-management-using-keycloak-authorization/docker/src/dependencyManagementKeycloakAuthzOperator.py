@@ -79,6 +79,9 @@ CANVAS_INFO_ENDPOINT: str = os.environ.get(
 POLL_INTERVAL_SECONDS: int = int(os.environ.get("POLL_INTERVAL_SECONDS", "5"))
 """How often (in seconds) to query Keycloak for new admin events."""
 
+SHUTDOWN_GRACE_PERIOD_SECONDS = 1
+"""Additional grace period when waiting for the background poller to stop."""
+
 RESOURCE_TYPES = ["CLIENT_ROLE_MAPPING"]
 """Keycloak admin-event resourceTypes to monitor."""
 
@@ -826,21 +829,26 @@ async def cleanup(logger, **kwargs):
     if task is None:
         return
 
+    should_cancel_task = True
     if stop_event is not None:
         stop_event.set()
         try:
-            await asyncio.wait_for(asyncio.shield(task), timeout=POLL_INTERVAL_SECONDS + 1)
-            return
+            await asyncio.wait_for(
+                asyncio.shield(task),
+                timeout=POLL_INTERVAL_SECONDS + SHUTDOWN_GRACE_PERIOD_SECONDS,
+            )
+            should_cancel_task = False
         except asyncio.TimeoutError:
             logw.warning(
                 "Timed out waiting for Keycloak admin event poller task to stop gracefully"
             )
 
-    task.cancel()
-    try:
-        await task
-    except asyncio.CancelledError:
-        logw.info("Keycloak admin event poller task cancelled")
+    if should_cancel_task:
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            logw.info("Keycloak admin event poller task cancelled")
 
 
 @kopf.on.probe(id="keycloak-connection")
@@ -923,6 +931,8 @@ async def keycloak_admin_event_poller(stop_event: asyncio.Event, logger):
                 logw.exception("Error polling Keycloak admin events", e)
 
             try:
+                # Use stop_event.wait() with a timeout as an interruptible sleep so
+                # operator shutdown can wake the loop immediately.
                 await asyncio.wait_for(stop_event.wait(), timeout=POLL_INTERVAL_SECONDS)
             except asyncio.TimeoutError:
                 pass
