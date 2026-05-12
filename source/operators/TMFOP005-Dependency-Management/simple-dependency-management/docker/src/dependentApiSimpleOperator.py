@@ -435,66 +435,99 @@ async def updateDepedentAPIReady(
         resource_name=f"DepAPI/{name}",
     )
     logw.debugInfo(f"updateDepedentAPIReady called for {name}.{namespace}", body)
+    # Only coreFunction dependent APIs should update Component.status.coreDependentAPIs on Component CRD
+    segment = safe_get("coreFunction", body, "spec", "segment")
+    if segment != "coreFunction":
+        logw.info(
+            "SkipComponentStatusPatch",
+            f"Skipping Component coreDependentAPIs status patch for segment={segment}",
+        )
+        return
+    
+    # Skip data-resource dependency status
+    if is_data_resource_depapi(body):
+        logw.info(
+            "SkipDataResourceStatusPatch",
+            f"Skipping Component status patch for data-resource DependentAPI {name}.{namespace}",
+        )
+        return
+    
     if "ready" in status["implementation"].keys():
         if status["implementation"]["ready"] == True:
             depapi_url = safe_get(None, status, "depapiStatus", "url")
-            if "ownerReferences" in meta.keys():
-                parent_component_name = meta["ownerReferences"][0]["name"]
-                logw.info(f"reading component {parent_component_name}")
-                try:
-                    api_instance = kubernetes.client.CustomObjectsApi()
-                    parent_component = api_instance.get_namespaced_custom_object(
-                        COMP_GROUP,
-                        COMP_VERSION,
-                        namespace,
-                        COMP_PLURAL,
-                        parent_component_name,
-                    )
-                except ApiException as e:
-                    # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
-                    if e.status == HTTP_NOT_FOUND:
-                        raise kopf.TemporaryError(
-                            "Cannot find parent component " + parent_component_name
-                        )
-                    logw.exception(
-                        f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}",
-                        e.body,
-                    )
+
+            # Find Component owner reference
+            parent_component_name = None
+            for owner in meta.get("ownerReferences", []):
+                if (
+                    owner.get("apiVersion"
+                    == f"{COMP_GROUP}/{COMP_VERSION}") 
+                    and owner.get("kind") == "Component"
+                ):
+                    parent_component_name = owner.get("name")
+                    break
+
+            # No component owner -> skip
+
+            if not parent_component_name:
+                logw.info(f"No Component ownerReference found for {name}.{namespace}")
+                return
+            
+            logw.info(f"reading component {parent_component_name}")
+            try:
+                api_instance = kubernetes.client.CustomObjectsApi()
+                parent_component = api_instance.get_namespaced_custom_object(
+                    COMP_GROUP,
+                    COMP_VERSION,
+                    namespace,
+                    COMP_PLURAL,
+                    parent_component_name,
+                )
+            except ApiException as e:
+                # Cant find parent component (if component in same chart as other kubernetes resources it may not be created yet)
+                if e.status == HTTP_NOT_FOUND:
                     raise kopf.TemporaryError(
-                        f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}"
+                        "Cannot find parent component " + parent_component_name
                     )
-                # find the correct array entry to update either in coreDependentAPIs, managementAPIs or securityAPIs
-                for key in range(len(parent_component["status"]["coreDependentAPIs"])):
+                logw.exception(
+                    f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}",
+                    e.body,
+                )
+                raise kopf.TemporaryError(
+                    f"Exception when calling api_instance.get_namespaced_custom_object {parent_component_name}: {e.body}"
+                )
+            # find the correct array entry to update either in coreDependentAPIs, managementAPIs or securityAPIs
+            for key in range(len(parent_component["status"]["coreDependentAPIs"])):
+                if (
+                    parent_component["status"]["coreDependentAPIs"][key]["uid"]
+                    == meta["uid"]
+                ):
                     if (
-                        parent_component["status"]["coreDependentAPIs"][key]["uid"]
-                        == meta["uid"]
-                    ):
-                        if (
-                            parent_component["status"]["coreDependentAPIs"][key][
-                                "ready"
-                            ]
-                            != True
-                        ):  # avoid recursion
-                            logw.info(
-                                f"patching coreDependentAPI {key} in component {parent_component_name}"
+                        parent_component["status"]["coreDependentAPIs"][key][
+                            "ready"
+                        ]
+                        != True
+                    ):  # avoid recursion
+                        logw.info(
+                            f"patching coreDependentAPI {key} in component {parent_component_name}"
+                        )
+                        parent_component["status"]["coreDependentAPIs"][key][
+                            "ready"
+                        ] = True
+                        parent_component["status"]["coreDependentAPIs"][key][
+                            "url"
+                        ] = depapi_url
+                        try:
+                            _ = api_instance.patch_namespaced_custom_object(
+                                COMP_GROUP,
+                                COMP_VERSION,
+                                namespace,
+                                COMP_PLURAL,
+                                parent_component_name,
+                                parent_component,
                             )
-                            parent_component["status"]["coreDependentAPIs"][key][
-                                "ready"
-                            ] = True
-                            parent_component["status"]["coreDependentAPIs"][key][
-                                "url"
-                            ] = depapi_url
-                            try:
-                                _ = api_instance.patch_namespaced_custom_object(
-                                    COMP_GROUP,
-                                    COMP_VERSION,
-                                    namespace,
-                                    COMP_PLURAL,
-                                    parent_component_name,
-                                    parent_component,
-                                )
-                            except ApiException as e:
-                                raise kopf.TemporaryError(
-                                    f"updateDepedentAPIReady: Exception in patch_namespaced_custom_object: {e.body}"
-                                )
-                        return
+                        except ApiException as e:
+                            raise kopf.TemporaryError(
+                                f"updateDepedentAPIReady: Exception in patch_namespaced_custom_object: {e.body}"
+                            )
+                    return
