@@ -167,7 +167,7 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
     
     logw.info(f"Trying MCP lookup for dependent API {depapi_api_name}")
     
-    # MCP fallback lookup by apiType + API name
+    # MCP lookup by apiType + API name
     if depapi_apitype == "mcp":
         for exp_api in exp_apis["items"]:
             if (
@@ -177,6 +177,16 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
             ):
                 return exp_api["status"]["apiStatus"]["url"]
 
+    # A2A lookup 
+    if depapi_apitype == "a2a":
+        for exp_api in exp_apis["items"]:
+            if (
+                safe_get(None, exp_api, "spec", "apiType") == "a2a"
+                and safe_get(None, exp_api, "spec", "name") == depapi_api_name
+                and safe_get(False, exp_api, "status", "implementation", "ready") is True
+            ):
+                return exp_api["status"]["apiStatus"]["url"]
+            
     return None
 
 def quick_get_comp_name(body):
