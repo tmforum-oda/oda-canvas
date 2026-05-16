@@ -65,14 +65,8 @@ The list below shows the features organized by use case, with their current test
 
 ### UC015 - API Gateway configuration
 * ✅ [F001 - Create Apisix Api Gateway Route](features/UC015-F001-Create-ApisixApiGateway-Route.feature)
-  Verifies that the Apisix operator creates an `ApisixRoute` custom resource for each `ExposedAPI` resource, and removes it when the component is uninstalled. Requires `@ApisixGateway` tag and an Apisix deployment.
-
 * ✅ [F002 - Create Kong Api Gateway Route](features/UC015-F002-Create-KongApiGateway-Route.feature)
-  Verifies that the Kong operator creates an `HTTPRoute` custom resource for each `ExposedAPI` resource, and removes it when the component is uninstalled. Requires `@KongGateway` tag and a Kong deployment.
-
 * ✅ [F003 - Create Apisix Api Gateway Plugin](features/UC015-F003-Create-ApisixApiGateway-Plugin.feature)
-  Verifies that the Apisix operator creates and configures `ApisixPlugin` resources (rate limiting, authentication) based on the `gatewayConfiguration` in the `ExposedAPI` spec. Requires `@ApisixGateway` tag.
-
 * ✅ [F004 - Create Kong Api Gateway Plugin](features/UC015-F004-Create-KongApiGateway-Plugin.feature)
 * ✅ [F005 - Create FlexGateway A2A Istio VirtualService](features/UC015-F005-Create-FlexGateway-A2A-IstioVirtualService.feature)
 * ✅ [F006 - Create FlexGateway A2A Flex Mode](features/UC015-F006-Create-FlexGateway-A2A-FlexMode.feature)
