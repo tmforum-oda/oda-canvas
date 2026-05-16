@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name}}-a2aagentapi
+  labels:
+    app: {{.Release.Name}}-{{.Values.component.name}}
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+spec:
+  ports:
+  - port: {{.Values.agent.port}}
+    targetPort: {{.Release.Name}}-agapi
+    name: http-{{.Release.Name}}-a2aagentapi
+  type: NodePort
+  selector:
+    impl: {{.Release.Name}}-a2aagentapi

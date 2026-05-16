@@ -65,9 +65,22 @@ The list below shows the features organized by use case, with their current test
 
 ### UC015 - API Gateway configuration
 * ✅ [F001 - Create Apisix Api Gateway Route](features/UC015-F001-Create-ApisixApiGateway-Route.feature)
+  Verifies that the Apisix operator creates an `ApisixRoute` custom resource for each `ExposedAPI` resource, and removes it when the component is uninstalled. Requires `@ApisixGateway` tag and an Apisix deployment.
+
 * ✅ [F002 - Create Kong Api Gateway Route](features/UC015-F002-Create-KongApiGateway-Route.feature)
+  Verifies that the Kong operator creates an `HTTPRoute` custom resource for each `ExposedAPI` resource, and removes it when the component is uninstalled. Requires `@KongGateway` tag and a Kong deployment.
+
 * ✅ [F003 - Create Apisix Api Gateway Plugin](features/UC015-F003-Create-ApisixApiGateway-Plugin.feature)
+  Verifies that the Apisix operator creates and configures `ApisixPlugin` resources (rate limiting, authentication) based on the `gatewayConfiguration` in the `ExposedAPI` spec. Requires `@ApisixGateway` tag.
+
 * ✅ [F004 - Create Kong Api Gateway Plugin](features/UC015-F004-Create-KongApiGateway-Plugin.feature)
+  Verifies that the Kong operator creates and configures `KongPlugin` resources based on the `gatewayConfiguration` in the `ExposedAPI` spec. Requires `@KongGateway` tag.
+
+* ✅ [F005 - Create FlexGateway A2A Istio VirtualService](features/UC015-F005-Create-FlexGateway-A2A-IstioVirtualService.feature)
+  Verifies that the FlexGateway operator creates an Istio `VirtualService` for an `ExposedAPI` of `apiType: a2a` that carries **no** `gatewayConfiguration.template`. This path applies both in `ISTIO_ONLY_MODE` (no Anypoint credentials) and when the component author intentionally omits a Flex policy template. The test installs the `productcatalog-a2a-v1` mock chart, waits for the operator to process the deployment, asserts that the `agenta2a` ExposedAPI resource appears with `implementation.ready=true` and a public HTTPS URL in `status.apiStatus.url`, and confirms the VirtualService is created in the `components` namespace referencing the `canvas/component-gateway`. A second scenario verifies the VirtualService is removed when the component is uninstalled. Requires `@FlexGateway` tag; automatically skipped if the FlexGateway operator is not deployed.
+
+* ✅ [F006 - Create FlexGateway A2A Flex Mode](features/UC015-F006-Create-FlexGateway-A2A-FlexMode.feature)
+  Verifies the full Anypoint Exchange + Managed Flex Gateway provisioning path for an `ExposedAPI` of `apiType: a2a` that **does** carry a `gatewayConfiguration.template`. When valid Anypoint credentials are present, the FlexGateway operator resolves the upstream URL via Istio ingress, fetches the A2A agent card from `/.well-known/agent-card.json` (served by the mock nginx in `productcatalog-a2a-flex-v1`), publishes the asset to Anypoint Exchange, creates an API Manager instance, deploys it to the Managed Flex Gateway, and applies the policy template. The test asserts that `status.flexGatewayBind.apiInstanceId` is set, `status.flexGatewayBind.apiPublicUrl` matches `status.apiStatus.url`, and `status.implementation.ready=true`. A second scenario verifies the Anypoint API instance is removed when the component is uninstalled. Requires `@FlexGateway` and `@FlexGatewayFlex` tags; automatically skipped if the operator is absent or Anypoint credentials (`flexgateway-anypoint-creds` secret) are not configured.
 
 
 

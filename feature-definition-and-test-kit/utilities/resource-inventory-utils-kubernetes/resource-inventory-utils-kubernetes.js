@@ -372,6 +372,64 @@ const resourceInventoryUtils = {
     }
     },
     
+    // ── Istio / FlexGateway helpers ──────────────────────────────────────────
+
+    /**
+     * Returns the Istio VirtualService created by the FlexGateway operator for
+     * an a2a ExposedAPI (Istio path — no gatewayConfiguration.template).
+     *
+     * The operator names the VirtualService identically to the ExposedAPI
+     * metadata.name, which follows the pattern:
+     *   <releaseName>-<componentName>-<apiName>
+     *
+     * @param {string} apiName        - spec.name of the ExposedAPI (e.g. 'agenta2a')
+     * @param {string} componentName  - spec.componentMetadata.name (e.g. 'productagenta2a')
+     * @param {string} releaseName    - Helm release name (default: 'ctk')
+     * @param {string} inNamespace    - Namespace (default: 'components')
+     * @returns {Object|null}
+     */
+    getVirtualServiceForComponent: async function (apiName, componentName, inNamespace = 'components') {
+      const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
+      const vsName = `${componentName}-${apiName}`;
+
+      try {
+        const response = await k8sCustomApi.listNamespacedCustomObject(
+          'networking.istio.io', 'v1', inNamespace, 'virtualservices'
+        );
+        const items = response.body.items;
+        console.log('Found VirtualServices:', items.map(vs => vs.metadata.name));
+        const match = items.find(vs => vs.metadata.name === vsName);
+
+        if (!match) {
+          console.error(`VirtualService '${vsName}' not found in namespace '${inNamespace}'.`);
+          return null;
+        }
+
+        console.log(`Matched VirtualService: ${match.metadata.name}`);
+        return match;
+      } catch (error) {
+        console.error(`Error fetching VirtualService '${vsName}':`, error.message);
+        throw error;
+      }
+    },
+
+    /**
+     * Returns the flexGatewayBind sub-status from an ExposedAPI resource.
+     * Present only when the FlexGateway operator has successfully provisioned
+     * an Anypoint API instance (Flex mode with gatewayConfiguration.template).
+     * Returns null when the ExposedAPI does not exist or has no flexGatewayBind.
+     *
+     * @param {string} apiName       - spec.name of the ExposedAPI
+     * @param {string} componentName - component spec name
+     * @param {string} inNamespace   - Namespace (default: 'components')
+     * @returns {Object|null}
+     */
+    getFlexGatewayBindStatus: async function (apiName, componentName, inNamespace = 'components') {
+      const resource = await this.getExposedAPIResource(apiName, componentName, inNamespace);
+      if (!resource) return null;
+      return resource?.status?.flexGatewayBind || null;
+    },
+
     getApisixPluginForComponent: async function (componentName, pluginName, inNamespace = 'istio-ingress') {
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
     const apisixPluginResourceName = `${pluginName}`;

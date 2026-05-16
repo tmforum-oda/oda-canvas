@@ -1,0 +1,53 @@
+component:
+  id: TMFAG001
+  name: productagenta2a
+  version: "1.0.0"
+  functionalBlock: CoreCommerce
+  publicationDate: "2026-01-01T00:00:00Z"
+  storageClassName: default
+  apipolicy:
+    apiKeyVerification:
+      enabled: false
+      location: "header"
+    rateLimit:
+      enabled: false
+      identifier: "IP"
+      limit: "6"
+      interval: "pm"
+    quota:
+      identifier: ""
+      limit: ""
+    OASValidation:
+      requestEnabled: false
+      responseEnabled: false
+      allowUnspecifiedHeaders: false
+      allowUnspecifiedQueryParams: false
+      allowUnspecifiedCookies: false
+    CORS:
+      enabled: false
+      allowCredentials: false
+      allowOrigins: "https://allowed-origin.com"
+      handlePreflightRequests:
+        enabled: false
+        allowHeaders: "Accept, Content-Type"
+        allowMethods: "GET, POST"
+        maxAge: 36000
+
+security:
+  canvasSystemRole: Admin
+
+mongodb:
+  port: 27017
+  database: tmf
+
+agent:
+  image: nginx:alpine
+  port: 8080
+
+partyrole:
+  image: lesterthomas/partyroleapi:1.0
+  versionLabel: partyroleapi-1.0
+
+canvasinfo:
+  host: info.canvas.svc.cluster.local
+  basepath: /

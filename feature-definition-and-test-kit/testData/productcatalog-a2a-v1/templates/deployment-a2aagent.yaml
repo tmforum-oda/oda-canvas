@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-a2aagentapi
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      impl: {{.Release.Name}}-a2aagentapi
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-{{.Values.component.name}}
+        impl: {{.Release.Name}}-a2aagentapi
+        version: nginx-alpine
+    spec:
+      containers:
+      - name: {{.Release.Name}}-a2aagentapi
+        image: {{.Values.agent.image}}
+        env:
+        - name: RELEASE_NAME
+          value: {{.Release.Name}}
+        - name: COMPONENT_NAME
+          value: {{.Release.Name}}-{{.Values.component.name}}
+        - name: CANVAS_INFO_HOST_PORT
+          value: "{{.Values.canvasinfo.host}}"
+        - name: CANVAS_INFO_BASEPATH
+          value: "{{.Values.canvasinfo.basepath}}"
+        imagePullPolicy: Always
+        ports:
+        - name: {{.Release.Name}}-agapi
+          containerPort: {{.Values.agent.port}}
+        volumeMounts:
+        - name: nginxconf
+          mountPath: /etc/nginx/conf.d
+        startupProbe:
+          httpGet:
+            path: /
+            port: {{.Values.agent.port}}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 12
+      volumes:
+      - name: nginxconf
+        configMap:
+          name: {{.Release.Name}}-{{.Values.component.name}}-nginxconf

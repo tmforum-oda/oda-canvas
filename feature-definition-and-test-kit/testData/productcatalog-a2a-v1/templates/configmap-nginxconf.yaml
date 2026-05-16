@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.Release.Name}}-{{.Values.component.name}}-nginxconf
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+data:
+  default.conf: |
+    server {
+        listen {{.Values.agent.port}};
+        root /usr/share/nginx/html;
+
+        location / {
+            return 200 'OK';
+            add_header Content-Type text/plain;
+        }
+    }

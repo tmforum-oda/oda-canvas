@@ -1,0 +1,60 @@
+apiVersion: oda.tmforum.org/v1
+kind: Component
+metadata:
+  name: {{.Release.Name}}-{{.Values.component.name}}
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+spec:
+  componentMetadata:
+    id: {{.Values.component.id}}
+    name: {{.Values.component.name}}
+    functionalBlock: {{.Values.component.functionalBlock}}
+    publicationDate: {{.Values.component.publicationDate}}
+    status: specified
+    version: {{.Values.component.version}}
+    description: "Mock ODA A2A Agent Component for FlexGateway BDD testing — Flex Gateway path."
+    maintainers:
+    - name: CTK Test
+      email: ctk@tmforum.org
+    owners:
+    - name: CTK Test
+      email: ctk@tmforum.org
+  coreFunction:
+    exposedAPIs:
+    - name: agenta2a
+      apiType: a2a
+      specification:
+      - url: "https://raw.githubusercontent.com/google-a2a/A2A/refs/heads/main/specification/json/a2a.json"
+      implementation: {{.Release.Name}}-a2aagentflex
+      path: /{{.Release.Name}}-{{.Values.component.name}}/a2a
+      port: {{.Values.agent.port}}
+      gatewayConfiguration:
+        template: "{{.Release.Name}}-{{.Values.component.name}}-flextemplate/a2a.yaml"
+    dependentAPIs: []
+  eventNotification:
+    publishedEvents: []
+    subscribedEvents: []
+  managementFunction:
+    exposedAPIs:
+    - name: metrics
+      apiType: prometheus
+      implementation: {{.Release.Name}}-{{.Values.component.name}}-sm
+      path: /{{.Release.Name}}-{{.Values.component.name}}/metrics
+      port: 4000
+  securityFunction:
+    canvasSystemRole: {{ .Values.security.canvasSystemRole }}
+    exposedAPIs:
+    - name: partyrole
+      specification:
+      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
+      implementation: {{.Release.Name}}-partyroleapi
+      apiType: openapi
+      gatewayConfiguration:
+        apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
+        rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
+        quota: {{.Values.component.apipolicy.quota | toYaml | nindent 10}}
+        OASValidation: {{.Values.component.apipolicy.OASValidation | toYaml | nindent 10}}
+        CORS: {{.Values.component.apipolicy.CORS | toYaml | nindent 10}}
+      path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4
+      developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4/docs
+      port: 8080

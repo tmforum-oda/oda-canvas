@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-a2aagentflex
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      impl: {{.Release.Name}}-a2aagentflex
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-{{.Values.component.name}}
+        impl: {{.Release.Name}}-a2aagentflex
+        version: nginx-alpine
+    spec:
+      initContainers:
+      - name: init-agentcard
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - "mkdir -p /html/.well-known && cp /card/agent-card.json /html/.well-known/agent-card.json"
+        volumeMounts:
+        - name: agentcard-json
+          mountPath: /card
+        - name: html-root
+          mountPath: /html
+      containers:
+      - name: {{.Release.Name}}-a2aagentflex
+        image: {{.Values.agent.image}}
+        env:
+        - name: RELEASE_NAME
+          value: {{.Release.Name}}
+        - name: COMPONENT_NAME
+          value: {{.Release.Name}}-{{.Values.component.name}}
+        - name: CANVAS_INFO_HOST_PORT
+          value: "{{.Values.canvasinfo.host}}"
+        - name: CANVAS_INFO_BASEPATH
+          value: "{{.Values.canvasinfo.basepath}}"
+        imagePullPolicy: Always
+        ports:
+        - name: {{.Release.Name}}-agflex
+          containerPort: {{.Values.agent.port}}
+        volumeMounts:
+        - name: nginxconf
+          mountPath: /etc/nginx/conf.d
+        - name: html-root
+          mountPath: /usr/share/nginx/html
+        startupProbe:
+          httpGet:
+            path: /
+            port: {{.Values.agent.port}}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 12
+      volumes:
+      - name: nginxconf
+        configMap:
+          name: {{.Release.Name}}-{{.Values.component.name}}-agentcard
+          items:
+          - key: default.conf
+            path: default.conf
+      - name: agentcard-json
+        configMap:
+          name: {{.Release.Name}}-{{.Values.component.name}}-agentcard
+          items:
+          - key: agent-card.json
+            path: agent-card.json
+      - name: html-root
+        emptyDir: {}

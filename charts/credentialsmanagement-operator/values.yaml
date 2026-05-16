@@ -1,3 +1,8 @@
+global:
+  imagePullSecrets: []
+  image:
+    registry: ""
+
 deployment:
   operatorName: credentialsmanagement-operator
   credopImage: tmforumodacanvas/credentialsmanagement-operator

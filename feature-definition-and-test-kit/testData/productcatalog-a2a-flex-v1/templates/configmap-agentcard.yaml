@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.component.name }}-agentcard
+data:
+  # nginx config: rewrite any path ending in /.well-known/agent-card.json to
+  # the file root so the mock serves the card regardless of URL prefix.
+  default.conf: |
+    server {
+        listen {{ .Values.agent.port }};
+        root /usr/share/nginx/html;
+
+        location ~ /\.well-known/agent-card\.json$ {
+            try_files /.well-known/agent-card.json =404;
+            add_header Content-Type application/json;
+        }
+
+        location / {
+            return 200 'OK';
+            add_header Content-Type text/plain;
+        }
+    }
+
+  # Minimal A2A agent card that satisfies Exchange AMF validation.
+  # protocolVersion "0.3.0" is required by Exchange.
+  agent-card.json: |
+    {
+      "name": "CTK Mock A2A Agent",
+      "description": "Mock ODA Canvas A2A Agent for FlexGateway BDD testing",
+      "url": "https://localhost/{{ .Release.Name }}-{{ .Values.component.name }}/a2a/",
+      "protocolVersion": "0.3.0",
+      "version": "1.0.0",
+      "defaultInputModes": ["text/plain"],
+      "defaultOutputModes": ["application/json"],
+      "skills": [
+        {
+          "id": "ctk-test-skill",
+          "name": "CTK Test Query",
+          "description": "Mock agent capability for BDD testing",
+          "tags": ["query", "test"]
+        }
+      ],
+      "capabilities": {
+        "pushNotifications": false,
+        "streaming": false
+      }
+    }

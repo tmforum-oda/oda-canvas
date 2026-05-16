@@ -62,6 +62,29 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Docker registry prefix — empty when no global registry is set (standalone installs)
+*/}}
+{{- define "docker.registry" -}}
+{{- if .Values.global.image.registry }}
+{{- $registry := (trimSuffix "/" .Values.global.image.registry) }}
+{{- printf "%s/" $registry }}
+{{- end }}
+{{- end }}
+
+{{/*
+Image pull secrets
+*/}}
+{{- define "image-pull-secrets" -}}
+{{- range .Values.global.imagePullSecrets }}
+  {{- if eq (typeOf .) "map[string]interface {}" }}
+- {{ toYaml . | nindent 0 | trim }}
+  {{- else }}
+- name: {{ . }}
+  {{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
 build the full credop docker image name from image + version + prereleaseSuffix
 */}}
 {{- define "credentialsmanagement-operator.credopImage" -}}

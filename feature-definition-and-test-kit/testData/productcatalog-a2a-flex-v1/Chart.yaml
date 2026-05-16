@@ -1,0 +1,6 @@
+apiVersion: v2
+name: productagenta2aflex
+description: Mock ODA A2A Agent Component for FlexGateway BDD testing — Flex Gateway path (with gatewayConfiguration.template and Anypoint creds required)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

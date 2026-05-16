@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.component.name }}-agenta2a-setup
+  # This VirtualService is pre-created by the test chart so the FlexGateway
+  # operator can fetch the A2A agent card through Istio ingress during its
+  # Anypoint Exchange publish step.  It is NOT the VirtualService managed by
+  # the operator; the operator creates one only in Istio-only mode (no template).
+  # In Flex mode the operator routes traffic through the Managed Flex Gateway.
+spec:
+  gateways:
+    - canvas/component-gateway
+  hosts:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: /{{ .Release.Name }}-{{ .Values.component.name }}/a2a
+      route:
+        - destination:
+            host: {{ .Release.Name }}-a2aagentflex
+            port:
+              number: {{ .Values.agent.port }}
