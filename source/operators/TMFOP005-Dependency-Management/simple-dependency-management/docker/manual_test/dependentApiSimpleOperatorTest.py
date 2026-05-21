@@ -27,7 +27,6 @@ from dependentApiSimpleOperator import (
     updateDepedentAPIReady,
 )
 
-
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.DEBUG)
 kopf_logger = logging.getLogger()

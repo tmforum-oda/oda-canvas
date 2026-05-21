@@ -113,6 +113,7 @@ SEGMENT_CONFIG = {
 def configure(settings: kopf.OperatorSettings, **_):
     settings.watching.server_timeout = 1 * 60
 
+
 @kopf.on.resume(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.create(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
 @kopf.on.update(GROUP, VERSION, COMPONENTS_PLURAL, retries=5)
@@ -604,7 +605,7 @@ async def identityConfig(
                         "port": api["port"],
                     }
                     break
-            
+
             if partyRoleAPI:
                 logw.info("Adding componentRole-PartyRole dynamically defined roles")
                 identityConfigResource["partyRoleAPI"] = partyRoleAPI
@@ -984,6 +985,7 @@ async def deleteIdentityConfig(
             f"Exception when calling CustomObjectsApi->delete_namespaced_custom_object {e}"
         )
 
+
 def infer_major_version_from_url(url: str, fallback: str | None = "v4") -> str:
     """
     Given an OAS URL, extract the major TMF API version.
@@ -1011,6 +1013,7 @@ def infer_major_version_from_url(url: str, fallback: str | None = "v4") -> str:
         return f"v{match.group(1)}"
 
     return fallback
+
 
 def normalize_apis(api_list: list, api_type: str = "exposed") -> list:
     """
@@ -1072,7 +1075,7 @@ def normalize_apis(api_list: list, api_type: str = "exposed") -> list:
 
         name = api_obj.get("name")
         api_id = api_obj.get("id")
-        
+
         root_fields = {k: api_obj.get(k) for k in keys_to_flatten if k in api_obj}
         # Also allow root-level url/version/specification as defaults
         root_url = api_obj.get("url")
@@ -1094,7 +1097,7 @@ def normalize_apis(api_list: list, api_type: str = "exposed") -> list:
 
         if not specs:
             specs = [{}]
-        
+
         for spec in specs:
             if not isinstance(spec, dict):
                 continue
@@ -1115,7 +1118,7 @@ def normalize_apis(api_list: list, api_type: str = "exposed") -> list:
                     spec_version = None
             else:
                 spec_version = root_version
-            
+
             if spec_version:
                 entry["version"] = spec_version
             if spec_url:
@@ -1137,8 +1140,9 @@ def normalize_apis(api_list: list, api_type: str = "exposed") -> list:
                 entry["specification"] = spec_obj
 
             normalized_apis.append(entry)
-    
+
     return normalized_apis
+
 
 def safe_get(default_value, dictionary, *paths):
     result = dictionary
@@ -1210,8 +1214,8 @@ async def processExposedAPIs(
     oldAPIs = []  # fmt: skip
 
     # normalized APIs for core Function Exposed APIs
-    #isCoreAPIs = False
-    #if status_key == "coreAPIs":
+    # isCoreAPIs = False
+    # if status_key == "coreAPIs":
     #    isCoreAPIs = True
     raw_apis = safe_get([], spec, spec_path, "exposedAPIs")
     normalized_apis = normalize_apis(raw_apis, "exposed")
@@ -1221,23 +1225,21 @@ async def processExposedAPIs(
         # Update a component - look in old and new to see if we need to delete any API resources
         if status_key in status.keys():
             oldAPIs = status[status_key]
-        
-        #if isCoreAPIs:
+
+        # if isCoreAPIs:
         newAPIs = normalized_apis
-        #else:
+        # else:
         #    newAPIs = spec[spec_path]["exposedAPIs"]
 
         # Find APIs in old that are missing in new, or need patching
         for oldAPI in oldAPIs:
             found = False
             for newAPI in newAPIs:
-                #if isCoreAPIs:
+                # if isCoreAPIs:
                 expectedName = build_exposedapi_name(name, newAPI)
-                #else:
+                # else:
                 #    expectedName = name + "-" + newAPI["name"].lower()
-                logw.debug(
-                    f"Comparing {oldAPI['name']} to {expectedName}"
-                )
+                logw.debug(f"Comparing {oldAPI['name']} to {expectedName}")
                 if oldAPI["name"] == expectedName:
                     found = True
                     logw.info(f"Patching ExposedAPI {oldAPI['name']}")
@@ -1252,9 +1254,9 @@ async def processExposedAPIs(
                 )
 
     # Get exposed APIs from spec
-    #if isCoreAPIs: 
+    # if isCoreAPIs:
     exposedAPIs = normalized_apis
-    #else:
+    # else:
     #    exposedAPIs = spec[spec_path]["exposedAPIs"]
     logw.debug(f"Exposed API list {exposedAPIs}")
 
@@ -1262,14 +1264,12 @@ async def processExposedAPIs(
     for api in exposedAPIs:
         # Check if we have already patched this API
         alreadyProcessed = False
-        #if isCoreAPIs:
+        # if isCoreAPIs:
         expectedName = build_exposedapi_name(name, api)
-        #else:
+        # else:
         #    expectedName = name + "-" + api["name"].lower()
         for processedAPI in apiChildren:
-            logw.debug(
-                f"Comparing {processedAPI['name']} to {expectedName}"
-            )
+            logw.debug(f"Comparing {processedAPI['name']} to {expectedName}")
             if processedAPI["name"] == expectedName:
                 alreadyProcessed = True
         if not alreadyProcessed:
@@ -1339,10 +1339,12 @@ async def processDependentAPIs(
         old_cr_name = (oldDependentAPI.get("name") or "").lower()
         if not old_cr_name:
             continue
-        
+
         if old_cr_name not in desired_by_cr_name:
             logw.info(f"Deleting DependentAPI {old_cr_name} ({status_key})")
-            await deleteDependentAPI(logw, old_cr_name, name, status, namespace, status_key)
+            await deleteDependentAPI(
+                logw, old_cr_name, name, status, namespace, status_key
+            )
         else:
             # TODO[FH] implement check for update
             logw.info(f"TODO: Update DependentAPI {old_cr_name}")
@@ -1366,6 +1368,7 @@ async def processDependentAPIs(
 
     return dependentAPIChildren
 
+
 def build_exposedapi_name(component_name: str, api_entry: dict) -> str:
     """
     Build the expected Kubernetes resource name for an ExposedAPI CR.
@@ -1376,7 +1379,7 @@ def build_exposedapi_name(component_name: str, api_entry: dict) -> str:
     Version suffix is appended only when version exists.
 
     Examples:
-        rc-1-resourcecatalog + resourcecatalogmanagement + v4  -> 
+        rc-1-resourcecatalog + resourcecatalogmanagement + v4  ->
             rc-1-resourcecatalog-resourcecatalogmanagement-v4
 
         rc-1-resourcecatalog + productcatalog + v5  ->
@@ -1406,6 +1409,7 @@ def build_exposedapi_name(component_name: str, api_entry: dict) -> str:
 
     return cr_name.lower()
 
+
 def build_dependentapi_name(component_name: str, api: dict) -> str:
     """
     Build a deterministic DependentAPI CR name based on component, API name and version.
@@ -1425,6 +1429,7 @@ def build_dependentapi_name(component_name: str, api: dict) -> str:
         return f"{component_name}-{api_name}-{version}".lower()
 
     return f"{component_name}-{api_name}".lower()
+
 
 def constructAPIResourcePayload(inExposedAPI, component_name: str, segment=None):
     """Helper function to create payloads for API Custom objects.
@@ -1448,7 +1453,9 @@ def constructAPIResourcePayload(inExposedAPI, component_name: str, segment=None)
     # Make it our child: assign the namespace, name, labels, owner references, etc.
     kopf.adopt(APIResource)
 
-    APIResource["metadata"]["name"] = build_exposedapi_name(component_name, inExposedAPI)
+    APIResource["metadata"]["name"] = build_exposedapi_name(
+        component_name, inExposedAPI
+    )
 
     spec = {}
     # Standard fields copied from normalized API entry if present
@@ -1487,7 +1494,7 @@ def constructAPIResourcePayload(inExposedAPI, component_name: str, segment=None)
     # Add segment to spec if provided
     if segment:
         spec["segment"] = segment
-        
+
     APIResource["spec"] = spec
     return APIResource
 
@@ -1537,7 +1544,7 @@ def constructDependentAPIResourcePayload(inDependentAPI, cr_name, segment=None):
 
     spec["specification"] = inDependentAPI.get("specification")
     DependentAPIResource["spec"] = spec
-    #DependentAPIResource["spec"] = inDependentAPI
+    # DependentAPIResource["spec"] = inDependentAPI
     # Add segment to spec if provided
     if segment:
         DependentAPIResource["spec"]["segment"] = segment
@@ -1615,7 +1622,7 @@ async def patchAPIResource(
     logw.debug(f"patchAPIResource {inExposedAPI} ")
 
     APIResource = constructAPIResourcePayload(inExposedAPI, name, segment)
-    #APIResource = constructAPIResourcePayload(inExposedAPI, segment)
+    # APIResource = constructAPIResourcePayload(inExposedAPI, segment)
 
     apiReadyStatus = False
     returnAPIObject = {}
@@ -1691,7 +1698,7 @@ async def createAPIResource(
     logw.debug(f"createAPIResource {inExposedAPI} ")
 
     APIResource = constructAPIResourcePayload(inExposedAPI, name, segment)
-    #APIResource = constructAPIResourcePayload(inExposedAPI, segment)
+    # APIResource = constructAPIResourcePayload(inExposedAPI, segment)
 
     apiReadyStatus = False
     returnAPIObject = {}

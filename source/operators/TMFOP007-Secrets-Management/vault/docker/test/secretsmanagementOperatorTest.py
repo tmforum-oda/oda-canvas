@@ -16,7 +16,6 @@ from secretsmanagementOperatorHC import (
     podmutate,
 )
 
-
 # Setup logging
 logging_level = os.environ.get("LOGGING", logging.DEBUG)
 root_logger = logging.getLogger()

@@ -11,7 +11,6 @@ from component_reg_client import ComponentRegistryClient
 
 from log_wrapper import LogWrapper, logwrapper
 
-
 DEPAPI_GROUP = "oda.tmforum.org"
 DEPAPI_VERSION = "v1"
 DEPAPI_PLURAL = "dependentapis"

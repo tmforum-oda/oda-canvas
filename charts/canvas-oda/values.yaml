@@ -115,6 +115,8 @@ keycloak:
         {
           "enabled": true,
           "realm": "odari",
+          "adminEventsEnabled": true,
+          "adminEventsDetailsEnabled": true,
           "clients": [
             {
               "clientId": "canvassystem",
@@ -207,6 +209,11 @@ identityconfig-operator-keycloak:
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
       
+# -----------------------------------------------------------------------------
+# TMFOP005 Dependency Management operator — choose one implementation.
+# Set enabled: true on exactly one of the two operators below.
+# dependentapi-simple-operator is the default.
+# -----------------------------------------------------------------------------
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
@@ -218,6 +225,26 @@ dependentapi-simple-operator:
   # comment out 'componentRegistryUrl' if ComponentRegistry is not used
   componentRegistryUrl: http://canvas-compreg.canvas.svc.cluster.local
   
+
+dependency-management-keycloak-authz:
+  enabled: false
+  deployment:
+    operatorName: dependency-management-keycloak-authz
+    image: tmforumodacanvas/dependency-management-keycloak-authz
+    version: 0.2.0
+    prereleaseSuffix:
+    imagePullPolicy: IfNotPresent
+    keycloak:
+      port: 8083
+  credentials:
+    user: admin
+    pass: adpass
+  configmap:
+    kcbase: http://canvas-keycloak-headless.canvas:8083/auth
+    kcrealm: odari
+    loglevel: "20"
+    pollIntervalSeconds: "5"
+    canvasInfoEndpoint: "http://info.canvas.svc.cluster.local"
 
 canvas-vault:
   enabled: true
@@ -461,20 +488,9 @@ api-operator-kong:
       API_CONNECT_TIMEOUT: 60   #value in seconds supported
       API_READ_TIMEOUT: 900     #value in seconds supported
       API_WRITE_TIMEOUT: 900    #value in seconds supported
-      API_CONNECT_TIMEOUT: 60   #value in seconds supported
-      API_READ_TIMEOUT: 900     #value in seconds supported
-      API_WRITE_TIMEOUT: 900    #value in seconds supported
     kong:
       postgresql:
         nameOverride: "postgresql-kong"
-        enabled: true
-        auth:
-          username: "kong"
-          password: "kong"
-          database: "kong"
-        image:
-          repository: bitnamilegacy/postgresql
-          tag: "13.11.0-debian-11-r20"
         enabled: true
         auth:
           username: "kong"
@@ -524,7 +540,7 @@ api-operator-kong:
     kongoperatorimage:
       kongopImage: tmforumodacanvas/api-operator-kong
       kongopVersion: 1.1.0
-      kongopPrereleaseSuffix:
+      kongopPrereleaseSuffix: 
       pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
 
@@ -550,11 +566,6 @@ api-operator-apisix:
       #block for etcd to correct repo to be used to overwrite bitnami old repo.
       image:
         repository: bitnamilegacy/etcd
-    etcd:
-      enabled: true
-      #block for etcd to correct repo to be used to overwrite bitnami old repo.
-      image:
-        repository: bitnamilegacy/etcd
     ingress-controller:
       enabled: true   # Enable the ingress controller
       config:
@@ -570,7 +581,7 @@ api-operator-apisix:
   apisixoperatorimage:
     apisixopImage: tmforumodacanvas/api-operator-apisix
     apisixopVersion: 1.1.0
-    apisixopPrereleaseSuffix:
+    apisixopPrereleaseSuffix: 
     pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
   IstioGatewaymonitoredNamespaces: components
