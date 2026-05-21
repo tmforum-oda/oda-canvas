@@ -9,7 +9,6 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
-
 # Configuration from environment variables
 SECRET_KEY = os.getenv("OAUTH2_SECRET_KEY")
 ALGORITHM = os.getenv("OAUTH2_ALGORITHM", "HS256")

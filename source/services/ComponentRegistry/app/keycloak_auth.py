@@ -11,7 +11,6 @@ import logging
 
 from app.oauth2_httpx_async import auth_client
 
-
 logger = logging.getLogger(__name__)
 
 # Keycloak configuration from environment variables

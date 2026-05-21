@@ -6,7 +6,6 @@ import threading
 import time
 from typing import List
 
-
 APP_NAME = "SimpleIPC"
 MAX_PROCESSES = 16
 DEFAULT_SHM_SIZE = 1000

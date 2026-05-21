@@ -20,7 +20,7 @@ class Testdata:
         self.base_path = Path(base_folder)
         self.allow_overwrite = allow_overwrite
 
-    def filepath(self, *name_parts: str, ext:str="txt"):
+    def filepath(self, *name_parts: str, ext: str = "txt"):
         filtered_name_parts = [
             name_part for name_part in name_parts if name_part is not None
         ]
@@ -28,7 +28,7 @@ class Testdata:
         filename = f"{filename}.{ext}"
         return self.base_path / filename
 
-    def write(self, content: str, *name_parts: str, ext:str="txt"):
+    def write(self, content: str, *name_parts: str, ext: str = "txt"):
         path = self.filepath(*name_parts, ext=ext)
         os.makedirs(path.parent, exist_ok=True)
         if not self.allow_overwrite and path.is_file():
@@ -36,13 +36,13 @@ class Testdata:
         with path.open("w") as f:
             f.write(content)
 
-    def exists(self, *name_parts: str, ext:str="txt"):
+    def exists(self, *name_parts: str, ext: str = "txt"):
         return self.filepath(*name_parts, ext=ext).is_file()
 
     def exists_json(self, *name_parts: str):
         return self.exists(*name_parts, ext="json")
 
-    def read(self, *name_parts: str, default_result=None, ext:str="txt"):
+    def read(self, *name_parts: str, default_result=None, ext: str = "txt"):
         path = self.filepath(*name_parts, ext=ext)
         if not path.is_file():
             if default_result is not None:
@@ -126,9 +126,9 @@ class RequestFileMocker:
         else:
             for shortcut, long_url in self.url_shortcuts.items():
                 if result.lower().startswith(f"{long_url}/"):
-                    result = shortcut+result[len(long_url):]
+                    result = shortcut + result[len(long_url) :]
                     break
-            
+
         qm = result.find("?")
         if qm != -1:
             result = result[:qm]
@@ -139,7 +139,9 @@ class RequestFileMocker:
             if "*" not in self.mock_info:
                 self.mock_info["*"] = [(method, path, name, status_code, 1)]
             else:
-                self.mock_info["*"].append((method, path, name, status_code, len(self.mock_info["*"]) + 1))
+                self.mock_info["*"].append(
+                    (method, path, name, status_code, len(self.mock_info["*"]) + 1)
+                )
         else:
             if f"{method}_{path}" not in self.mock_info:
                 self.mock_info[f"{method}_{path}"] = [(name, status_code)]
@@ -224,12 +226,14 @@ class RequestFileMocker:
     def record_callback(self, request, context):
         method = request.method
         path = self.extract_path(request.url)
-        expected_requests = self.mock_info.get("*",  [])
+        expected_requests = self.mock_info.get("*", [])
         assert (
             len(expected_requests) > 0
         ), f"no request expeceted, method: '{method}', path: '{path}'"
-        expected_method, expected_path, name, expected_status_code, count = expected_requests.pop(0)
-        
+        expected_method, expected_path, name, expected_status_code, count = (
+            expected_requests.pop(0)
+        )
+
         if expected_method == None:
             expected_method = method
         if expected_path == None:
@@ -252,7 +256,9 @@ class RequestFileMocker:
                 request_data = request.text
                 if request_data:
                     self.testdata.write(request_data, method, name, "payload")
-                response = requests.request(method, request.url, data=request_data, headers=request.headers)
+                response = requests.request(
+                    method, request.url, data=request_data, headers=request.headers
+                )
             self.on()
 
             status_code = response.status_code
@@ -281,7 +287,9 @@ class RequestFileMocker:
                 self.testdata.write_json(qs, method, name, "params")
 
             self.off()
-            response = requests.request(method, f"{self.base_url}/{path}", params=qs, headers=request.headers)
+            response = requests.request(
+                method, f"{self.base_url}/{path}", params=qs, headers=request.headers
+            )
             self.on()
 
             status_code = response.status_code

@@ -3,7 +3,6 @@ import time
 from typing import List
 from multiprocessing import shared_memory
 
-
 APP_NAME = "CompReg"
 MAX_PROCESSES = 16
 MAX_DATA_SIZE = 256

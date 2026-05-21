@@ -3,7 +3,6 @@ import sys
 import os
 import re
 
-
 """
 # preparation for local tests:
 
@@ -48,7 +47,6 @@ from request_file_mocker import RequestFileMocker
 from component_reg_client import ComponentRegistryClient
 import json
 
-
 ## for local tests to the cluster use:
 ## kubectl port-forward -n canvas svc/canvas-compreg 8080:80
 BASE_URL = "http://localhost:8080"
@@ -85,19 +83,46 @@ def test_find_spec_success(comp_reg, rfmock):
     assert len(comps) == 2
     comps = sorted(comps, key=lambda c: c["name"])
 
-    assert comps[0]["name"] == "f-cat-productcatalogmanagement-productcatalogmanagement-v4"
+    assert (
+        comps[0]["name"] == "f-cat-productcatalogmanagement-productcatalogmanagement-v4"
+    )
     assert comps[0]["category"] == "API"
-    assert comps[0]["resourceRelationship"][0]["resource"]["id"] == "self:f-cat-productcatalogmanagement"
+    assert (
+        comps[0]["resourceRelationship"][0]["resource"]["id"]
+        == "self:f-cat-productcatalogmanagement"
+    )
     actual_url = getCharacteristicValue(comps[0]["resourceCharacteristic"], "url")
-    assert re.match(r"https?://[^/]+/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4$", actual_url), f"Unexpected URL: {actual_url}"
-    assert getCharacteristicValue(comps[0]["resourceCharacteristic"], "specification")["url"] == oas_spec
+    assert re.match(
+        r"https?://[^/]+/f-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4$",
+        actual_url,
+    ), f"Unexpected URL: {actual_url}"
+    assert (
+        getCharacteristicValue(comps[0]["resourceCharacteristic"], "specification")[
+            "url"
+        ]
+        == oas_spec
+    )
 
-    assert comps[1]["name"] == "r-cat-productcatalogmanagement-productcatalogmanagement-v4"
+    assert (
+        comps[1]["name"] == "r-cat-productcatalogmanagement-productcatalogmanagement-v4"
+    )
     assert comps[1]["category"] == "API"
-    assert comps[1]["resourceRelationship"][0]["resource"]["id"] == "self:r-cat-productcatalogmanagement"
+    assert (
+        comps[1]["resourceRelationship"][0]["resource"]["id"]
+        == "self:r-cat-productcatalogmanagement"
+    )
     actual_url = getCharacteristicValue(comps[1]["resourceCharacteristic"], "url")
-    assert re.match(r"https?://[^/]+/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4$", actual_url), f"Unexpected URL: {actual_url}"
-    assert getCharacteristicValue(comps[1]["resourceCharacteristic"], "specification")["url"] == oas_spec
+    assert re.match(
+        r"https?://[^/]+/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4$",
+        actual_url,
+    ), f"Unexpected URL: {actual_url}"
+    assert (
+        getCharacteristicValue(comps[1]["resourceCharacteristic"], "specification")[
+            "url"
+        ]
+        == oas_spec
+    )
+
 
 def test_find_spec_no_result(comp_reg, rfmock):
     oas_spec = "https://invalid.oas/spec.json"
@@ -112,7 +137,9 @@ def test_get_upstream_registries(comp_reg, rfmock):
     regs = comp_reg.get_upstream_registries()
     # print(f"\nUPSTREAM REGISTRIES:\n{json.dumps(regs,indent=2)}\n")
     assert len(regs) == 1
-    assert re.match(r"https?://global-compreg\.", regs[0]), f"Unexpected registry URL: {regs[0]}"
+    assert re.match(
+        r"https?://global-compreg\.", regs[0]
+    ), f"Unexpected registry URL: {regs[0]}"
 
 
 if __name__ == "__main__":

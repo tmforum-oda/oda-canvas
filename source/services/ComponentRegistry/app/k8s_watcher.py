@@ -21,7 +21,6 @@ from kubernetes.client import api_client
 from kubernetes.client.exceptions import ApiException
 from kubernetes.dynamic.client import DynamicClient
 
-
 # DEFAULT_NAMESPACES = ["components", "odacompns-*"]  # use None for all namespaces
 DEFAULT_NAMESPACES = None
 DEFAULT_CALLBACK_DELAY = 10  # seconds

@@ -12,12 +12,12 @@ from oauth2_requests import auth_requests
 
 
 class ComponentRegistryClient:
-    
     """
     Helper class to communicate with a ComponentRegistry endpoint.
     """
+
     def __init__(self, base_url: str):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
 
     def find_exposed_apis(self, oas_specification: str) -> List[Dict[str, Any]]:
         """
@@ -44,7 +44,14 @@ class ComponentRegistryClient:
             response = auth_requests.get(url, timeout=10)
             response.raise_for_status()
             registries = response.json()  # List of ComponentRegistry objects
-            return [reg["callback"].replace("/sync", "") for reg in registries if "callback" in reg]
+            return [
+                reg["callback"].replace("/sync", "")
+                for reg in registries
+                if "callback" in reg
+            ]
         except Exception as e:
-            print(f"Error fetching upstream registries from {self.base_url}: {e}", file=sys.stderr)
+            print(
+                f"Error fetching upstream registries from {self.base_url}: {e}",
+                file=sys.stderr,
+            )
             return []
