@@ -17,7 +17,9 @@ Component Registry Service Information:
 - ODA Canvas Component: {{ index .Values.odaCanvas.labels "oda.tmforum.org/componentName" }}
 
 Secrets:
-- oaut2SecretKey: {{ include "component-registry.oauth2-secret-key" . | b64dec}}
+- OAuth2 Secret Name: {{ include "component-registry.fullname" . }}
+- To retrieve the OAuth2 secret key securely, run:
+  kubectl get secret {{ include "component-registry.fullname" . }} -n {{ .Release.Namespace }} -o jsonpath="{.data.oaut2SecretKey}" | base64 -d
 
 
 For more information about ODA Canvas Component Registry, visit:
