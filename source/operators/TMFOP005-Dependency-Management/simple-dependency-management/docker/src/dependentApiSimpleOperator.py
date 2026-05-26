@@ -125,10 +125,10 @@ def get_characteristic(characteristics: List[Dict[str, Any]], name: str) -> Any:
 @logwrapper
 def compreg_service_discovery(
     logw: LogWrapper, oas_specification: str, own_comp_name: str
-) -> List[Dict[str, Any]]:
+) -> str:
     """
     Recursively search for ExposedAPIs implementing the oas_specification, starting from the given registry.
-    Returns a list of matching ExposedAPIs (with their parent Component info).
+    Returns the first matching ExposedAPI.
     """
     logw.info(f"searching for spec", oas_specification)
     component_registry_urls = [COMPONENT_REGISTRY_URL]
@@ -145,7 +145,7 @@ def compreg_service_discovery(
         logw.debugInfo(f"found {len(matches)} in {current_url}", matches)
         if matches:
             # sort matches from same component to end of list
-            sorted(
+            matches = sorted(
                 matches,
                 key=lambda api: (
                     1 if api.get("name", "").startswith(own_comp_name) else 0
@@ -170,7 +170,7 @@ def compreg_service_discovery(
         upstreams = client.get_upstream_registries()
         component_registry_urls.extend(upstreams)
 
-    return []  # No matches found in any registry
+    return None  # No matches found in any registry
 
 
 @logwrapper

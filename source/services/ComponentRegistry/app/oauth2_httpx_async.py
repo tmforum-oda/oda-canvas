@@ -5,6 +5,9 @@ import logging
 import httpx
 
 
+logger = logging.getLogger(__name__)
+
+
 class OAuthAsyncClient:
 
     def __init__(
@@ -34,7 +37,7 @@ class OAuthAsyncClient:
 
     def _set_auth_required(self, url: str):
         base_url = self._extract_base_url(url)
-        print(f"Setting auth required for base URL: {base_url}")
+        logger.info(f"Setting auth required for base URL: {base_url}")
         self._auth_base_urls.add(base_url)
 
     def _extract_base_url(self, url: str) -> str:
