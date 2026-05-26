@@ -157,6 +157,7 @@ def get_depapi_url(logw: LogWrapper, depapi_name, depapi_namespace):
                 safe_get(None, exp_api, "spec", "apiType") == "openapi"
                 and exp_url is not None
                 and dep_url is not None
+                and depapi_apitype == "openapi"
                 and exp_url == dep_url
                 and safe_get(False, exp_api, "status", "implementation", "ready")
             ):

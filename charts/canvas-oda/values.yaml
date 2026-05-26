@@ -203,7 +203,7 @@ dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
   version: 1.0.2
-  prereleaseSuffix: ai-canvas-0.1.6
+  prereleaseSuffix: ai-canvas-0.1.7
   imagePullPolicy: Always
   loglevel: '20'
 
