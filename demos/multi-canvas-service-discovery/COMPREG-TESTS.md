@@ -186,25 +186,8 @@ kubectl rollout restart deployment -n components f-cat-prodcatapi
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## deploy canvas from filesystem
 
-```
-
-```
 
 windows
 
