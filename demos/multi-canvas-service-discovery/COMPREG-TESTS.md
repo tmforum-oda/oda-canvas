@@ -2,7 +2,7 @@
 
 ```
 # [blue] - IHC-DT-A
-set PROMPT=$_[IHC-DT] $g$s
+set PROMPT=$_[IHC-DT-A] $g$s
 set KUBECONFIG=%USERPROFILE%\.kube\config-ihc-dt-a
 set DOMAIN=ihc-dt-a.cluster-2.de
 REM set COMPREG_EXTNAME=compreg-ihc-dt-a

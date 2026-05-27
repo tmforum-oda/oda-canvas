@@ -16,7 +16,7 @@ from typing import List, Optional
 from threading import Thread, Lock, Event
 from multiprocessing import Process
 
-from kubernetes import config
+from kubernetes import config, client as k8s_client
 from kubernetes.client import api_client
 from kubernetes.client.exceptions import ApiException
 from kubernetes.dynamic.client import DynamicClient
@@ -95,7 +95,7 @@ def init_k8s(proxy=None):  # proxy="http://sia-lb.telekom.de:8080"
             print("Using kubeconfig for Kubernetes configuration")
         k8s_proxy = os.getenv("K8S_PROXY", proxy)
         if k8s_proxy:
-            api_client.Configuration._default.proxy = k8s_proxy
+            k8s_client.Configuration.get_default_copy().proxy = k8s_proxy
             print(f"set proxy to {k8s_proxy}")
 
     except Exception as e:
@@ -235,7 +235,9 @@ class K8SWatcher:
         self._queue = ThreadSafeEventQueue()
         self._threads = []
         init_k8s()
-        self._dyn_client = DynamicClient(api_client.ApiClient())
+        # Explicitly pass the loaded configuration so the service account token is used
+        configuration = k8s_client.Configuration.get_default_copy()
+        self._dyn_client = DynamicClient(k8s_client.ApiClient(configuration=configuration))
         self._updated_versions = {}
         self._sent_versions = {}
 
