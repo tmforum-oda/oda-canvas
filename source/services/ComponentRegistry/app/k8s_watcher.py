@@ -294,10 +294,13 @@ class K8SWatcher:
             if oldest_update is not None:
                 age = sec_age(oldest_update["ts"])
                 if age >= self._callback_delay:
+                    print(f"[EC] sending callback after {age}s/{self._callback_delay}s")
                     await self.send_callback(oldest_update)
                 else:
+                    print(f"[EC] sleeping for waiting {self._callback_delay-age}s")
                     await asyncio.sleep(self._callback_delay - age)
             else:
+                print("[EC] no updates, waiting for next event")
                 next_event = await self._queue.next()
 
     async def send_callback(self, info):
@@ -311,6 +314,8 @@ class K8SWatcher:
             else self._sent_versions[(kind, namespace, name)]["rv"]
         )
         if rv == old_rv:
+            del self._updated_versions[(kind, namespace, name)]
+            print(f"[SC] no change {kind} {namespace}:{name}, skipping")
             return
         print(
             f"Sending callback for {kind} {namespace}:{name} with rv {rv} (was {old_rv})"
