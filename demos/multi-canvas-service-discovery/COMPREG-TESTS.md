@@ -144,6 +144,16 @@ helm upgrade --install -n compreg global-compreg-vs demos/multi-canvas-service-d
 
 * https://global-compreg.ihc-dt-a.cluster-2.de
 
+### optional deploy observability and virtual services
+
+```
+helm upgrade --install canvas -n canvas --create-namespace charts/canvas-oda --set api-operator-istio.deployment.openMetricsImplementation=ServiceMonitor --set keycloak.service.type=ClusterIP
+helm upgrade --install observability -n monitoring --create-namespace charts/observability-stack
+helm upgrade --install monitoring -n monitoring %USERPROFILE%/git/oda-canvas-notes/virtualservices/monitoring --set=domain=%DOMAIN%  --set=componentGateway=istio-gateway/ihcdta-gateway 
+```
+
+https://monitoring-grafana.ihc-dt-a.cluster-2.de/
+
 
 ## list dependencies in canvas info service
 
