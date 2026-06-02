@@ -237,7 +237,9 @@ class K8SWatcher:
         init_k8s()
         # Explicitly pass the loaded configuration so the service account token is used
         configuration = k8s_client.Configuration.get_default_copy()
-        self._dyn_client = DynamicClient(k8s_client.ApiClient(configuration=configuration))
+        self._dyn_client = DynamicClient(
+            k8s_client.ApiClient(configuration=configuration)
+        )
         self._updated_versions = {}
         self._sent_versions = {}
 
