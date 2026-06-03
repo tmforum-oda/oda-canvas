@@ -6,12 +6,6 @@ const axios = require('axios');
 const assert = require('assert');
 
 
-// assert the environment variables are set
-if (!process.env.RESOURCE_INVENTORY_BASE_URL) {
-  console.log('Please set the environment variables KEYCLOAK_USER, KEYCLOAK_PASSWORD, KEYCLOAK_BASE_URL and KEYCLOAK_REALM');
-  process.exit(1);
-}
-
 const API_BASE_URL = process.env.RESOURCE_INVENTORY_BASE_URL || 'http://localhost:8639/tmf-api/resourceInventoryManagement/v5';
 
 console.log('Resource Inventory TMF639 with RESOURCE_INVENTORY_BASE_URL:', API_BASE_URL);

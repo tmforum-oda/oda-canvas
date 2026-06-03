@@ -25,8 +25,8 @@ To execute the tests, first you install the necessary packages and set the envir
   KEYCLOAK_USER=admin 
   KEYCLOAK_PASSWORD=adpass 
   KEYCLOAK_BASE_URL=http://keycloack-ip:8083/auth/
-  RESOURCE_INVENTORY_BASE_URL=http://localhost:8639/tmf-api/resourceInventoryManagement/v5
   KEYCLOAK_REALM=odari
+  RESOURCE_INVENTORY_BASE_URL=http://localhost:8639/tmf-api/resourceInventoryManagement/v5
   ```
 
 
