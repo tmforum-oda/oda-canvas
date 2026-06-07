@@ -919,10 +919,13 @@ helm install canvas -n canvas --create-namespace ./charts/canvas-oda
 ## port forwardings
 
 ```
-kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083
-kubectl -n canvas port-forward svc/resource-inventory 8639:80
-kubectl port-forward -n istio-ingress svc/istio-ingress 443:443
+start /B kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083
+start /B kubectl -n canvas port-forward svc/resource-inventory 8639:80
+start /B kubectl port-forward -n istio-ingress svc/istio-ingress 443:443
+start /B kubectl port-forward -n canvas svc/canvas-compreg 8001:80
 ```
+
+* CompReg: http://localhost:8001
 
 ```
 curl http://localhost:8639/tmf-api/resourceInventoryManagement/v5/resource
@@ -1000,8 +1003,5 @@ find failed usecases:
 ```
 type cucumber-report.jsonl | jq -rs ". as $root | [.[] | select(.testStepFinished?.testStepResult.status == \"FAILED\") | .testStepFinished.testStepId] as $failedStepIds | [.[] | select(.testCase) | select(.testCase.testSteps[]?.id | IN($failedStepIds[])) | .testCase.pickleId] | unique as $failedPickleIds | $root[] | select(.pickle) | select(.pickle.id | IN($failedPickleIds[])) | \"\(.pickle.tags[-1].name) - \(.pickle.name)\""
 ```
-
-
-
 
 

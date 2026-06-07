@@ -165,6 +165,9 @@ def compreg_service_discovery(
                         f"return url {api_url} for api {api_name} from component {comp_name} in registry {comp_reg}"
                     )
                     return api_url
+                raise kopf.TemporaryError(
+                    f"compreg_service_discovery: API {api_name} in component {comp_name} is not ready (status: {api_status}) or missing url"
+                )
 
         # 2. Query upstream registries
         upstreams = client.get_upstream_registries()
