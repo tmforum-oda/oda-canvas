@@ -846,3 +846,162 @@ Cookie JWT payload:
 }
 ```
 
+
+# Tests with kind
+
+```
+#curl.exe -Lo kind-windows-amd64.exe https://kind.sigs.k8s.io/dl/v0.32.0/kind-windows-amd64
+curl.exe -sLo kind-windows-amd64.exe https://kind.sigs.k8s.io/dl/v0.23.0/kind-windows-amd64
+Move .\kind-windows-amd64.exe c:\dev\bin\kind.exe
+```
+
+```
+kind create cluster --image kindest/node:v1.30.0
+kubectl get nodes --show-labels
+```
+
+```
+cd %USERPROFILE%\git\oda-canvas\demos\kind
+#git clone --branch v0.10.0 --depth 1 https://github.com/kubernetes-sigs/cloud-provider-kind.git
+```
+
+```
+helm repo add istio https://istio-release.storage.googleapis.com/charts
+helm repo update
+kubectl create namespace istio-system
+helm install istio-base istio/base -n istio-system
+helm install istiod istio/istiod -n istio-system --wait
+kubectl create namespace istio-ingress
+kubectl label namespace istio-ingress istio-injection=enabled
+echo "Installing istio gateway pinned to version 1.26.3"
+sleep 5
+kubectl version
+helm version
+helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway 
+```
+
+## manually set external IP to localhost:
+
+```
+kubectl patch service istio-ingress -n istio-ingress --subresource=status --type=merge -p "{\"status\":{\"loadBalancer\":{\"ingress\":[{\"hostname\":\"istio-ingress.istio-ingress.svc.cluster.local\"}]}}}"
+```
+
+```
+kubectl get svc -n istio-ingress
+NAME            TYPE           CLUSTER-IP      EXTERNAL-IP                                     PORT(S)                                      AGE
+istio-ingress   LoadBalancer   10.96.235.142   istio-ingress.istio-ingress.svc.cluster.local   15021:30665/TCP,80:32372/TCP,443:31791/TCP   37h
+```
+
+## patch etc host in windows
+
+edit file C:\Windows\System32\drivers\etc\hosts
+
+```
+..
+127.0.0.1 istio-ingress.istio-ingress.svc.cluster.local
+```
+
+
+## install canvas
+
+```
+helm dependency update ./charts/cert-manager-init
+helm dependency update ./charts/apisix-gateway
+helm dependency update ./charts/kong-gateway
+helm dependency update ./charts/canvas-vault
+helm dependency update ./charts/pdb-management-operator
+echo DEBUG: update ./charts/canvas-oda
+helm dependency update ./charts/canvas-oda
+echo DEBUG: helm install canvas -n canvas
+helm install canvas -n canvas --create-namespace ./charts/canvas-oda
+```
+
+## port forwardings
+
+```
+kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083
+kubectl -n canvas port-forward svc/resource-inventory 8639:80
+kubectl port-forward -n istio-ingress svc/istio-ingress 443:443
+```
+
+```
+curl http://localhost:8639/tmf-api/resourceInventoryManagement/v5/resource
+```
+
+```
+helm install ctk feature-definition-and-test-kit/testData/productcatalog-static-roles-v1/ -n components     
+helm install pcother feature-definition-and-test-kit/testData/productcatalog-v1/ -n odacompns-1 --create-namespace     
+```
+
+```
+kubectl get components -A
+kubectl get exposedapis -A
+```
+
+```
+helm uninstall ctk -n components
+```
+
+## install Node.JS
+
+https://nodejs.org/en/download/current
+
+```
+set PATH=%PATH%;C:\DEV\node-v26.3.0
+```
+
+
+## run tests
+
+```
+cd feature-definition-and-test-kit/utilities/identity-manager-utils-keycloak
+npm install
+cd ../package-manager-utils-helm
+npm install
+cd ../resource-inventory-utils-kubernetes
+npm install
+cd ..
+cd ..
+npm install
+```
+
+```
+set KEYCLOAK_USER=admin 
+set KEYCLOAK_PASSWORD=adpass 
+set KEYCLOAK_BASE_URL="http://localhost:8083/auth/"
+set KEYCLOAK_REALM=odari
+set RESOURCE_INVENTORY_BASE_URL=http://localhost:8639/tmf-api/resourceInventoryManagement/v5
+```
+
+
+```
+cd %USERPROFILE%\git\oda-canvas\feature-definition-and-test-kit
+
+npm start
+
+npm run start:tags -- "@UC007-F002"
+```
+
+
+# cucumber reports
+
+for report URL
+
+https://reports.cucumber.io/reports/d59fcd2f-ad2a-4339-8172-5b2c73dddda3 
+
+download jsonl data by adding .../api/...
+
+```
+curl -so cucumber-report.jsonl https://reports.cucumber.io/api/reports/d59fcd2f-ad2a-4339-8172-5b2c73dddda3 
+```
+
+find failed usecases:
+
+```
+type cucumber-report.jsonl | jq -rs ". as $root | [.[] | select(.testStepFinished?.testStepResult.status == \"FAILED\") | .testStepFinished.testStepId] as $failedStepIds | [.[] | select(.testCase) | select(.testCase.testSteps[]?.id | IN($failedStepIds[])) | .testCase.pickleId] | unique as $failedPickleIds | $root[] | select(.pickle) | select(.pickle.id | IN($failedPickleIds[])) | \"\(.pickle.tags[-1].name) - \(.pickle.name)\""
+```
+
+
+
+
+
