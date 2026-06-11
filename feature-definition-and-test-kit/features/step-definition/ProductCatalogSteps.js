@@ -177,7 +177,6 @@ When('I query the {string} component for {string} data:', async function (compon
     console.error(`❌ Error during Product Catalog data query: ${error.message}`);
     console.error('Error details:');
     console.error(`- Component: '${componentName}'`);
-    console.error(`- Release: '${releaseName}'`);
     console.error(`- Resource type: '${resourceType}'`);
     console.error(`- Error type: ${error.constructor.name}`);
     
