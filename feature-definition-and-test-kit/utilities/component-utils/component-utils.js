@@ -229,8 +229,8 @@ const componentUtils = {
   */
   getDebugInfoDepApis: function () {
     try {
-      const debugInfo1 = execSync(`kubectl get dependentapis,exposedapis -A`, { encoding: 'utf-8' });
-	  const debugInfo2 = execSync(`curl -X 'GET' 'http://info.canvas.svc.cluster.local/service' -H 'accept: application/json'`, { encoding: 'utf-8' });
+	  const debugInfo1 = execSync(`kubectl get dependentapis,exposedapis,components -A`, { encoding: 'utf-8' });
+	  const debugInfo2 = execSync(`kubectl exec -n components deployment/r-cat-prodcatapi -- curl -s http://info.canvas.svc.cluster.local/service -H "accept: application/json"`, { encoding: 'utf-8' });
       return `${debugInfo1}\n\n--- info service ---\n\n${debugInfo2}`;
     } catch (error) {
       console.error(`Error getting debug infos for dependent apis: ${error.message}`);
