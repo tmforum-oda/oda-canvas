@@ -222,6 +222,23 @@ const componentUtils = {
       console.error(`Error showing logs of deployment ${deploymentName} in namespace ${namespace}: ${error.message}`);
       return null;
     }
-  }
+  },
+  /**
+  * show debug info for dependent apis
+  * @return {String} debug info
+  */
+  getDebugInfoDepApis: function () {
+    try {
+      const debugInfo1 = execSync(`kubectl get dependentapis,exposedapis -A`, { encoding: 'utf-8' });
+	  const debugInfo2 = execSync(`curl -X 'GET' 'http://info.canvas.svc.cluster.local/service' -H 'accept: application/json'`, { encoding: 'utf-8' });
+      return `${debugInfo1}\n\n--- info service ---\n\n${debugInfo2}`;
+    } catch (error) {
+      console.error(`Error getting debug infos for dependent apis: ${error.message}`);
+      return null;
+    }
+  },
+
+
 }
+
 module.exports = componentUtils

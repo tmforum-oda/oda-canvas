@@ -267,7 +267,6 @@ Then('I should see the following {string} data in the federated product catalog:
 });
 
 
-
 /**
  * Debugging: show logs of xxx-prodcatapi.
  *
@@ -297,3 +296,65 @@ Then('show debug log of {string} deployment', async function (deploymentName) {
   }
 });
 
+
+/**
+ * Debugging: show logs of canvas-xxx in namespace canvas.
+ *
+* @param {string} deploymentName - The name of the deployment.
+* @param {string} namespace - The name of the deployment.
+ * @returns {Promise<void>} - A Promise that resolves when the query is complete.
+ */
+Then('show debug log of {string} deployment in namespace {string}', async function (deploymentName, namespace) {
+  console.log(`\n=== Start log of Deployment '${deploymentName}' in namespace {namespace} ===`);
+
+  try {
+  
+    const deploymentLog = await componentUtils.getDeploymentLog(deploymentName, namespace, 100);
+    assert.notEqual(deploymentLog, null, `Can't get log for deployment '${deploymentName}' in namespace '${namespace}'`);
+    
+    console.log(deploymentLog);
+
+    console.log(`=== End log of Deployment '${deploymentName}' in namespace ${namespace} ===`);
+
+  } catch (error) {
+    console.error(`❌ Error during getting deployment log: ${error.message}`);
+    console.error('Error details:');
+	console.error(`- Deployment: '${deploymentName}'`);
+	console.error(`- Namespace: '${namespace}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+
+	console.log('=== Show deployment log Failed ===');
+    throw error;
+  }
+});
+
+
+
+/**
+ * Debugging: depapi status
+ *
+* @param {string} deploymentName - The name of the deployment.
+* @param {string} namespace - The name of the deployment.
+ * @returns {Promise<void>} - A Promise that resolves when the query is complete.
+ */
+Then('show debug info for dependent apis', async function () {
+  console.log(`\n=== Debug info for dependent APIs ===`);
+
+  try {
+  
+    const debugInfo = await componentUtils.getDebugInfoDepApis();
+    assert.notEqual(debugInfo, null, `Can't get debug ingo for dependent apis`);
+    
+    console.log(debugInfo);
+
+    console.log(`=== End debug info ===`);
+
+  } catch (error) {
+    console.error(`❌ Error during getting debug infos: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Error type: ${error.constructor.name}`);
+
+	console.log('=== Show debug info Failed ===');
+    throw error;
+  }
+});
