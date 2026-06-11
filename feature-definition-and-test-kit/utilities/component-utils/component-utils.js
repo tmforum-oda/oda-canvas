@@ -1,6 +1,7 @@
 const k8s = require('@kubernetes/client-node')
 const fs = require('fs')
 const axios = require('axios')
+const execSync = require('child_process').execSync;
 
 const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 
@@ -205,6 +206,22 @@ const componentUtils = {
       }
     }
     return validatedSuccessfully
+  },
+  /**
+  * show log of deployment
+  * @param  {string} namespace - The namespace to list releases from.
+  * @param  {string} deploymentName - Name of the deployment to show log
+  * @param  {Number} numberOfLines - limit to the last n number of lines 
+  * @return {String} content of log
+  */
+  getDeploymentLog: function (deploymentName, namespace = 'components', numberOfLines = 100) {
+    try {
+      const logText = execSync(`kubectl logs deployment/${deploymentName} -n ${namespace} --tail ${numberOfLines}`, { encoding: 'utf-8' });
+      return logText;
+    } catch (error) {
+      console.error(`Error showing logs of deployment ${deploymentName} in namespace ${namespace}: ${error.message}`);
+      return null;
+    }
   }
 }
 module.exports = componentUtils

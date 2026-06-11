@@ -265,3 +265,35 @@ Then('I should see the following {string} data in the federated product catalog:
     throw error;
   }
 });
+
+
+
+/**
+ * Debugging: show logs of xxx-prodcatapi.
+ *
+ * @param {string} deploymentName - The name of the deployment.
+ * @returns {Promise<void>} - A Promise that resolves when the query is complete.
+ */
+Then('show debug log of {string} deployment', async function (deploymentName) {
+  console.log(`\n=== Start log of Deployment '${deploymentName}' ===`);
+
+  try {
+  
+    const deploymentLog = await componentUtils.getDeploymentLog(deploymentName, NAMESPACE, 100);
+    assert.notEqual(deploymentLog, null, `Can't get log for deployment '${deploymentName}'`);
+    
+    console.log(deploymentLog);
+
+    console.log(`=== End log of Deployment '${deploymentName}' ===`);
+
+  } catch (error) {
+    console.error(`❌ Error during getting deployment log: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Deployment: '${deploymentName}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+
+	console.log('=== Show deployment log Failed ===');
+    throw error;
+  }
+});
+

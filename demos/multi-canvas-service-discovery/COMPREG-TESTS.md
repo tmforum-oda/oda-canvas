@@ -974,6 +974,10 @@ set KEYCLOAK_PASSWORD=adpass
 set KEYCLOAK_BASE_URL="http://localhost:8083/auth/"
 set KEYCLOAK_REALM=odari
 set RESOURCE_INVENTORY_BASE_URL=http://localhost:8639/tmf-api/resourceInventoryManagement/v5
+
+# overwrite with public domains
+set KEYCLOAK_BASE_URL="https://canvas-keycloak.ihc-dt-a.cluster-2.de/auth/"
+set RESOURCE_INVENTORY_BASE_URL=http://canvas-resource-inventory.ihc-dt-a.cluster-2.de/tmf-api/resourceInventoryManagement/v5
 ```
 
 
