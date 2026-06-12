@@ -16,6 +16,9 @@ Feature: UC007-F002 Dependent APIs: Configure Dependent API to single downstream
         Then show debug log of 'r-cat-prodcatapi' deployment
         Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'f-cat-productcatalogmanagement' component with a ready status
         And the 'f-cat-productcatalogmanagement' component has a deployment status of 'Complete'
+        Then show debug log of 'canvas-depapi-op' deployment in namespace 'canvas'
+        Then show debug info for dependent apis
+        Then show debug log of 'f-cat-prodcatapi' deployment
 
     Scenario Outline: Populate and verify data in federated product catalog
         # Populate the retail product catalog with sample data
