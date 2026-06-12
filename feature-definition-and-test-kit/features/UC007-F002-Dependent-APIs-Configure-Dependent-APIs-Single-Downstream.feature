@@ -32,6 +32,8 @@ Feature: UC007-F002 Dependent APIs: Configure Dependent API to single downstream
         Then show debug log of 'canvas-depapi-op' deployment in namespace 'canvas'
         Then show debug info for dependent apis
         Then show debug log of 'f-cat-prodcatapi' deployment
+        When I query the 'f-cat-productcatalogmanagement' component for 'category' data:
+        Then show debug log of 'f-cat-prodcatapi' deployment
         Then I should see the following 'category' data in the federated product catalog:
             | name                      | description                                       |
             | Internet line of product  | Fiber and ADSL broadband products                 |

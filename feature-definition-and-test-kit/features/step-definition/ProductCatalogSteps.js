@@ -346,6 +346,9 @@ Then('show debug info for dependent apis', async function () {
     
     console.log(debugInfo);
 
+	console.log(`--- existing data ---`);
+	console.log(JSON.stringify(this.existingData, null, 2));
+
     console.log(`=== End debug info ===`);
 
   } catch (error) {
