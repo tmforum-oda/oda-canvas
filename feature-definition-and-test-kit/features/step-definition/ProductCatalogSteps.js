@@ -360,3 +360,29 @@ Then('show debug info for dependent apis', async function () {
     throw error;
   }
 });
+
+
+
+After({ tags: '@UC002-F001' }, async function (scenario) {
+  if (scenario.result.status === 'FAILED') {
+    // läuft nur für mit @UC002-F001 getaggte Szenarien
+	try {
+		console.log('\n=== AUTO DEBUG after failed scenario ===');
+		console.log('\n--- Component-Operator logs ---');
+	  
+        const deploymentLog = await componentUtils.getDeploymentLog("component-operator", "canvas", 100);
+        console.log(deploymentLog);
+		
+		console.log('\n--- Dependent APIs Debug Info ---');
+		
+		const debugInfo = await componentUtils.getDebugInfoDepApis();
+		console.log(debugInfo);
+
+        console.log(`=== End AUTO DEBUG ===`);
+
+	} catch (e) {
+	  console.warn('AUTO DEBUG failed:', e.message);
+	}	
+  }
+});
+
