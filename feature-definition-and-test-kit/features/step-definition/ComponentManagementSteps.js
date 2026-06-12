@@ -378,6 +378,7 @@ When('the {string} component has a deployment status of {string} or {string}', {
       }
     }
   }
+  console.log(`Component '${componentName}' in namespace '${namespace}: ` + JSON.stringify(componentResource, null, 2));
 });
 
 /**
