@@ -6,24 +6,22 @@
 @UC002-F001    # tagged as use feature 1 within use case 2
 Feature: UC002-F001 Install Component
 
-#    Scenario Outline: Create ExposedAPI resources for each segment
-#        Given an example package '<PackageName>' with '<ExposedApiCount>' ExposedAPI in its '<SegmentName>' segment
-#        When I install the '<PackageName>' package as release '<ReleaseName>'
-#        And the '<ComponentName>' component has a deployment status of 'Complete'
-#        Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
-#
-#    Examples:
-#    | Name           | PackageName       | ReleaseName  | ExposedAPIName           | ComponentName                | SegmentName        | ExposedApiCount |
-#    | Core API       | productcatalog-v1 |      ctk     | productcatalogmanagement | ctk-productcatalogmanagement | coreFunction       | 1               |
-#    | Management API | productcatalog-v1 |      ctk     | metrics                  | ctk-productcatalogmanagement | managementFunction | 1               |
-#    | Security API   | productcatalog-v1 |      ctk     | userrolesandpermissions  | ctk-productcatalogmanagement | securityFunction   | 1               |
+    Scenario Outline: Create ExposedAPI resources for each segment
+        Given an example package '<PackageName>' with '<ExposedApiCount>' ExposedAPI in its '<SegmentName>' segment
+        When I install the '<PackageName>' package as release '<ReleaseName>'
+        And the '<ComponentName>' component has a deployment status of 'Complete'
+        Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
+
+    Examples:
+    | Name           | PackageName       | ReleaseName  | ExposedAPIName           | ComponentName                | SegmentName        | ExposedApiCount |
+    | Core API       | productcatalog-v1 |      ctk     | productcatalogmanagement | ctk-productcatalogmanagement | coreFunction       | 1               |
+    | Management API | productcatalog-v1 |      ctk     | metrics                  | ctk-productcatalogmanagement | managementFunction | 1               |
+    | Security API   | productcatalog-v1 |      ctk     | userrolesandpermissions  | ctk-productcatalogmanagement | securityFunction   | 1               |
 
     Scenario Outline: Create DependentAPI resources for each segment
         Given an example package '<PackageName>' with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package as release '<ReleaseName>'
         And the '<ComponentName>' component has a deployment status of 'Complete' or 'In-Progress-DepApi'
-        Then show debug info for dependent apis
-		Then show debug log of 'component-operator' deployment in namespace 'canvas'
         Then I should see the '<DependentAPIName>' DependentAPI resource on the '<ComponentName>' component
 
     Examples:
@@ -35,16 +33,4 @@ Feature: UC002-F001 Install Component
     Scenario Outline: Debug Logging 2
 		Then show debug log of 'component-operator' deployment in namespace 'canvas'
         Then show debug info for dependent apis
-
-    Scenario Outline: Create DependentAPI resources for managementFunction segment
-        Given an example package '<PackageName>' with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
-        When I install the '<PackageName>' package as release '<ReleaseName>'
-        And the '<ComponentName>' component has a deployment status of 'Complete' or 'In-Progress-DepApi'
-        Then show debug info for dependent apis
-        Then I should see the '<DependentAPIName>' DependentAPI resource on the '<ComponentName>' component
-
-    Examples:
-    | Name           | PackageName                              | ReleaseName | DependentAPIName                | ComponentName                | SegmentName        | DependentApiCount |
-    | Management API | productcatalog-mgmt-dependent-API-v1     |      ctk    | downstreamresourcecatalog       | ctk-productcatalogmanagement | managementFunction | 1                 |
- 
 
