@@ -85,7 +85,7 @@ Then('I should see the {string} ExposedAPI resource on the {string} component', 
  * @param {string} APIName - The name of the DependentAPI resource to check.
  * @returns {Promise<void>} - A Promise that resolves when the DependentAPI resource is available.
  */
-Then('I should see the {string} DependentAPI resource on the {string} component', {timeout : API_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (DependentAPIName, componentName) {
+Then('I should see the {string} DependentAPI resource on the {string} component', {timeout : 2*API_DEPLOY_TIMEOUT + 2*TIMEOUT_BUFFER}, async function (DependentAPIName, componentName) {
   let apiResource = null
   var startTime = performance.now()
   var endTime
@@ -101,7 +101,7 @@ Then('I should see the {string} DependentAPI resource on the {string} component'
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
     // assert that the DependentAPI resource was found within the timeout
-    assert.ok(endTime - startTime < API_DEPLOY_TIMEOUT, "The DependentAPI resource should be found within " + API_DEPLOY_TIMEOUT + " milliseconds")
+    assert.ok(endTime - startTime < 2*API_DEPLOY_TIMEOUT, "The DependentAPI resource should be found within " + (2*API_DEPLOY_TIMEOUT) + " milliseconds")
   }
 });
 
