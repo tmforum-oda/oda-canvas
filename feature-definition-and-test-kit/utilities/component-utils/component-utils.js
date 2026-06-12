@@ -237,6 +237,19 @@ const componentUtils = {
       return null;
     }
   },
+  /**
+  * show debug info for dependent apis
+  * @return {String} debug info
+  */
+  getComponentYAML: function (componentName, namespace = 'components') {
+    try {
+    const result = execSync(`kubectl get component -n ${namespace} ${componentName}`, { encoding: 'utf-8' });
+      return result;
+    } catch (error) {
+      console.error(`Error getting component ${componentName} in namespace ${namespace}: ${error.message}`);
+      return null;
+    }
+  },
 
 
 }

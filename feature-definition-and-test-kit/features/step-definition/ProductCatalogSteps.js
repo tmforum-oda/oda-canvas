@@ -346,6 +346,10 @@ Then('show debug info for dependent apis', async function () {
     
     console.log(debugInfo);
 
+	console.log(`--- component yaml ---`);
+	const compYaml = await componentUtils.getComponentYAML("ctk-productcatalogmanagement", "components");
+	console.log(compYaml);
+	
 	console.log(`--- existing data ---`);
 	console.log(JSON.stringify(this.existingData, null, 2));
 
@@ -378,7 +382,10 @@ After({ tags: '@UC002-F001' }, async function (scenario) {
 		const debugInfo = await componentUtils.getDebugInfoDepApis();
 		console.log(debugInfo);
 
-        console.log(`=== End AUTO DEBUG ===`);
+		const compYaml = await componentUtils.getComponentYAML("ctk-productcatalogmanagement", "components");
+		console.log(compYaml);
+
+		console.log(`=== End AUTO DEBUG ===`);
 
 	} catch (e) {
 	  console.warn('AUTO DEBUG failed:', e.message);
