@@ -2,7 +2,7 @@
 // Replace the library with your own implementation library if you use a different implementation technology.
 const componentUtils = require('component-utils');
 
-const { Given, When, Then, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
+const { Given, When, Then, After, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const assert = require('assert');
