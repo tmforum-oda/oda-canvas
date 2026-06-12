@@ -158,7 +158,7 @@ const resourceInventoryUtils = {
       candidates = all.filter(o => this._hasComponentOwnerRef(o, componentName));
     }
 
-	console.log(`CANDIDATES: ${candidates.map(o => o?.metadata?.name).join(', ')}`);
+	console.log(`CANDIDATES: ${JSON.stringify(candidates, null, 2)}`);
 
     if (!candidates || candidates.length === 0) return null;
 
@@ -205,7 +205,7 @@ const resourceInventoryUtils = {
       return tb - ta; // newest first
     });
 
-	console.log(`POOL: ${pool.map(o => o?.metadata?.name).join(', ')}`);
+	console.log(`POOL: ${JSON.stringify(pool, null, 2)}`);
     return pool[0] || null;
   },
 
