@@ -21,6 +21,10 @@ Feature: UC002-F001 Install Component
     Scenario Outline: Create DependentAPI resources for each segment
         Given an example package '<PackageName>' with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package as release '<ReleaseName>'
+        Then show debug info for dependent apis
+        Then show debug log of 'component-operator' deployment in namespace 'canvas'
+        Then show debug info for dependent apis
+        Then show debug log of 'component-operator' deployment in namespace 'canvas'
         Then I should see the '<DependentAPIName>' DependentAPI resource on the '<ComponentName>' component
 
     Examples:
