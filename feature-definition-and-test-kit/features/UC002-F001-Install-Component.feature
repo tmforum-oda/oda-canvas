@@ -18,21 +18,6 @@ Feature: UC002-F001 Install Component
 #    | Management API | productcatalog-v1 |      ctk     | metrics                  | ctk-productcatalogmanagement | managementFunction | 1               |
 #    | Security API   | productcatalog-v1 |      ctk     | userrolesandpermissions  | ctk-productcatalogmanagement | securityFunction   | 1               |
 
-    Scenario Outline: Create DependentAPI resources for managementFunction segment
-        Given an example package '<PackageName>' with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
-        When I install the '<PackageName>' package as release '<ReleaseName>'
-        And the '<ComponentName>' component has a deployment status of 'Complete' or 'In-Progress-DepApi'
-        Then show debug info for dependent apis
-        Then I should see the '<DependentAPIName>' DependentAPI resource on the '<ComponentName>' component
-
-    Examples:
-    | Name           | PackageName                              | ReleaseName | DependentAPIName                | ComponentName                | SegmentName        | DependentApiCount |
-    | Management API | productcatalog-mgmt-dependent-API-v1     |      ctk    | downstreamresourcecatalog       | ctk-productcatalogmanagement | managementFunction | 1                 |
- 
-    Scenario Outline: Debug Logging 2
-        Then show debug info for dependent apis
-		Then show debug log of 'canvas-depapi-op' deployment in namespace 'canvas'
-
     Scenario Outline: Create DependentAPI resources for each segment
         Given an example package '<PackageName>' with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
         When I install the '<PackageName>' package as release '<ReleaseName>'
@@ -45,4 +30,19 @@ Feature: UC002-F001 Install Component
     | Management API | productcatalog-mgmt-dependent-API-v1     |      ctk    | downstreamresourcecatalog       | ctk-productcatalogmanagement | managementFunction | 1                 |
     | Security API   | productcatalog-sec-dependent-API-v1      |      ctk    | downstreamuserrolepermissions   | ctk-productcatalogmanagement | securityFunction   | 1                 |
 
-		
+    Scenario Outline: Debug Logging 2
+        Then show debug info for dependent apis
+		Then show debug log of 'canvas-depapi-op' deployment in namespace 'canvas'
+
+    Scenario Outline: Create DependentAPI resources for managementFunction segment
+        Given an example package '<PackageName>' with '<DependentApiCount>' DependentAPI in its '<SegmentName>' segment
+        When I install the '<PackageName>' package as release '<ReleaseName>'
+        And the '<ComponentName>' component has a deployment status of 'Complete' or 'In-Progress-DepApi'
+        Then show debug info for dependent apis
+        Then I should see the '<DependentAPIName>' DependentAPI resource on the '<ComponentName>' component
+
+    Examples:
+    | Name           | PackageName                              | ReleaseName | DependentAPIName                | ComponentName                | SegmentName        | DependentApiCount |
+    | Management API | productcatalog-mgmt-dependent-API-v1     |      ctk    | downstreamresourcecatalog       | ctk-productcatalogmanagement | managementFunction | 1                 |
+ 
+

@@ -97,7 +97,7 @@ Then('I should see the {string} DependentAPI resource on the {string} component'
     endTime = performance.now()
     if (!apiResource) {
       // Brief wait before retrying
-      console.log(`Waiting for DependentAPI '${DependentAPIName}' on component '${componentName}'...`);
+      console.log(`Waiting for DependentAPI '${DependentAPIName}' on component '${componentName}' in namespace ${namespace}...`);
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
     // assert that the DependentAPI resource was found within the timeout
