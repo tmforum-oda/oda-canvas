@@ -345,6 +345,42 @@ When('the {string} component has a deployment status of {string}', {timeout : CO
 });
 
 /**
+ * Wait for a specified component to have a deployment status of a specified value.
+ *
+ * @param {string} componentName - The name of the component to check.
+ * @param {string} deploymentStatus - The expected deployment status of the component.
+ * @returns {Promise<void>} - A Promise that resolves when the component has the expected deployment status.
+ */
+When('the {string} component has a deployment status of {string} or {string}', {timeout : COMPONENT_DEPLOY_TIMEOUT + TIMEOUT_BUFFER}, async function (componentName, deploymentStatus1, deploymentStatus2) {
+  let componentResource = null
+  var startTime = performance.now()
+  var endTime
+
+  let namespace = global.namespace || NAMESPACE;
+  
+  console.log(`Waiting for component '${componentName}' in namespace '${namespace}' to have deployment status '${deploymentStatus1}' or '${deploymentStatus2}'...`);
+
+  // wait until the component resource is found or the timeout is reached
+  while (componentResource == null) {
+    componentResource = await resourceInventoryUtils.getComponentResource( componentName, namespace)
+    endTime = performance.now()
+
+    // assert that the component resource was found within the timeout
+    assert.ok(endTime - startTime < COMPONENT_DEPLOY_TIMEOUT, "The Component resource should be found within " + COMPONENT_DEPLOY_TIMEOUT/1000 + " seconds")
+
+    // check if the component deployment status is deploymentStatus
+    if ((!componentResource) || (!componentResource.hasOwnProperty('status')) || (!componentResource.status.hasOwnProperty('summary/status')) || (!componentResource.status['summary/status'].hasOwnProperty('deployment_status'))) {
+      componentResource = null // reset the componentResource to null so that we can try again
+    } else {
+	  deploymentStatus = componentResource.status['summary/status']['deployment_status']
+      if (!(deploymentStatus == deploymentStatus1 || deploymentStatus == deploymentStatus2)) {
+        componentResource = null // reset the componentResource to null so that we can try again
+      }
+    }
+  }
+});
+
+/**
  * Upgrade a specified package using using the packageManagerUtils.upgradePackage function
  *
  * @param {string} componentPackage - The name of the package to upgrade.
