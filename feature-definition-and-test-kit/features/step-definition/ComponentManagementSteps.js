@@ -15,7 +15,7 @@ const DEFAULT_RELEASE_NAME = 'ctk';
 const COMPONENT_DEPLOY_TIMEOUT = 600 * 1000; // 10 minutes
 const TIMEOUT_BUFFER = 5 * 1000; // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const CLEANUP_PACKAGE = false; // set to true to uninstall the package after each Scenario
-const DEBUG_LOGS = true; // set to true to log the controller logs after each failed Scenario
+const DEBUG_LOGS = false; // set to true to log the controller logs after each failed Scenario
 global.currentReleaseName = null;
 global.namespace = null;
 
