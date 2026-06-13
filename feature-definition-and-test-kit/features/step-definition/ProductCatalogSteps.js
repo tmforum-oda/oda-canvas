@@ -272,27 +272,13 @@ Then('I should see the following {string} data in the federated product catalog:
  * @param {string} deploymentName - The name of the deployment.
  * @returns {Promise<void>} - A Promise that resolves when the query is complete.
  */
-Then('show debug log of {string} deployment', async function (deploymentName) {
-  console.log(`\n=== Start log of Deployment '${deploymentName}' ===`);
+Then('wait for {string} seconds', async function (seconds) {
+  console.log(`\n=== waiting for {seconds} seconds ===`);
 
-  try {
-  
-    const deploymentLog = await componentUtils.getDeploymentLog(deploymentName, NAMESPACE, 100);
-    assert.notEqual(deploymentLog, null, `Can't get log for deployment '${deploymentName}'`);
-    
-    console.log(deploymentLog);
+  // wait given seconds
+  await new Promise(resolve => setTimeout(resolve, seconds * 1000));
 
-    console.log(`=== End log of Deployment '${deploymentName}' ===`);
-
-  } catch (error) {
-    console.error(`❌ Error during getting deployment log: ${error.message}`);
-    console.error('Error details:');
-    console.error(`- Deployment: '${deploymentName}'`);
-    console.error(`- Error type: ${error.constructor.name}`);
-
-	console.log('=== Show deployment log Failed ===');
-    throw error;
-  }
+  console.log('=== Finished waiting ===');
 });
 
 
@@ -328,6 +314,42 @@ Then('show debug log of {string} deployment in namespace {string}', async functi
 });
 
 
+
+/**
+ * Debugging: depapi status
+ *
+* @param {string} deploymentName - The name of the deployment.
+* @param {string} namespace - The name of the deployment.
+ * @returns {Promise<void>} - A Promise that resolves when the query is complete.
+ */
+Then('show debug info for dependent apis', async function () {
+  console.log(`\n=== Debug info for dependent APIs ===`);
+
+  try {
+  
+    const debugInfo = await componentUtils.getDebugInfoDepApis();
+    assert.notEqual(debugInfo, null, `Can't get debug ingo for dependent apis`);
+    
+    console.log(debugInfo);
+
+	console.log(`--- component yaml ---`);
+	const compYaml = await componentUtils.getComponentYAML("ctk-productcatalogmanagement", "components");
+	console.log(compYaml);
+	
+	console.log(`--- existing data ---`);
+	console.log(JSON.stringify(this.existingData, null, 2));
+
+    console.log(`=== End debug info ===`);
+
+  } catch (error) {
+    console.error(`❌ Error during getting debug infos: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Error type: ${error.constructor.name}`);
+
+	console.log('=== Show debug info Failed ===');
+    throw error;
+  }
+});
 
 /**
  * Debugging: depapi status
