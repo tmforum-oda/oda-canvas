@@ -267,7 +267,7 @@ Then('I should see the following {string} data in the federated product catalog:
 
 
 /**
- * Debugging: show logs of xxx-prodcatapi.
+ * wait seconds
  *
  * @param {string} deploymentName - The name of the deployment.
  * @returns {Promise<void>} - A Promise that resolves when the query is complete.
@@ -350,43 +350,6 @@ Then('show debug info for dependent apis', async function () {
     throw error;
   }
 });
-
-/**
- * Debugging: depapi status
- *
-* @param {string} deploymentName - The name of the deployment.
-* @param {string} namespace - The name of the deployment.
- * @returns {Promise<void>} - A Promise that resolves when the query is complete.
- */
-Then('show debug info for dependent apis', async function () {
-  console.log(`\n=== Debug info for dependent APIs ===`);
-
-  try {
-  
-    const debugInfo = await componentUtils.getDebugInfoDepApis();
-    assert.notEqual(debugInfo, null, `Can't get debug ingo for dependent apis`);
-    
-    console.log(debugInfo);
-
-	console.log(`--- component yaml ---`);
-	const compYaml = await componentUtils.getComponentYAML("ctk-productcatalogmanagement", "components");
-	console.log(compYaml);
-	
-	console.log(`--- existing data ---`);
-	console.log(JSON.stringify(this.existingData, null, 2));
-
-    console.log(`=== End debug info ===`);
-
-  } catch (error) {
-    console.error(`❌ Error during getting debug infos: ${error.message}`);
-    console.error('Error details:');
-    console.error(`- Error type: ${error.constructor.name}`);
-
-	console.log('=== Show debug info Failed ===');
-    throw error;
-  }
-});
-
 
 
 After({ tags: '@UC002-F001' }, async function (scenario) {
