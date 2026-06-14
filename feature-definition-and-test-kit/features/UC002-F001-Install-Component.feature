@@ -31,7 +31,3 @@ Feature: UC002-F001 Install Component
     | Management API | productcatalog-mgmt-dependent-API-v1     |      ctk    | downstreamresourcecatalog       | ctk-productcatalogmanagement | managementFunction | 1                 |
     | Security API   | productcatalog-sec-dependent-API-v1      |      ctk    | downstreamuserrolepermissions   | ctk-productcatalogmanagement | securityFunction   | 1                 |
 
-    Scenario Outline: Debug Logging 2
-		Then show debug log of 'component-operator' deployment in namespace 'canvas'
-        Then show debug info for dependent apis
-

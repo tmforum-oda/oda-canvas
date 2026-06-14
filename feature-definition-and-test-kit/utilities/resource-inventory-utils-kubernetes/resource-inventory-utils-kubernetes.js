@@ -112,7 +112,7 @@ const resourceInventoryUtils = {
    * 6) deterministic pick: prefer ready, else newest
    */
   _findApiResource: async function (plural, apiName, componentName, namespace, options = {}, kindHint = 'ExposedAPI') {
-	console.log(`_findApiResource called with plural=${plural}, apiName=${apiName}, componentName=${componentName}, namespace=${namespace}, options=${JSON.stringify(options)}, kindHint=${kindHint}`);
+	// console.log(`_findApiResource called with plural=${plural}, apiName=${apiName}, componentName=${componentName}, namespace=${namespace}, options=${JSON.stringify(options)}, kindHint=${kindHint}`);
     const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
 
     const versionOpt = options?.version;           // e.g. "v4"
@@ -121,7 +121,7 @@ const resourceInventoryUtils = {
     // ---- 1) legacy fast path: metadata.name == "<componentName>-<apiName>"
     try {
       const legacyName = `${componentName}-${apiName}`;
-	  console.log(`1) listNamespacedCustomObject(g=${GROUP}, v=${VERSION}, ns=${namespace}, name=${legacyName}`);
+	  // console.log(`1) listNamespacedCustomObject(g=${GROUP}, v=${VERSION}, ns=${namespace}, name=${legacyName}`);
       const legacyResp = await k8sCustomApi.listNamespacedCustomObject(
         GROUP, VERSION, namespace, plural,
         undefined, undefined,
@@ -137,7 +137,7 @@ const resourceInventoryUtils = {
     let candidates = [];
     try {
       const labelSelector = `oda.tmforum.org/componentName=${componentName}`;
-	  console.log(`2) listNamespacedCustomObject(g=${GROUP}, v=${VERSION}, ns=${namespace}, labelSelector=${labelSelector}`);
+	  // console.log(`2) listNamespacedCustomObject(g=${GROUP}, v=${VERSION}, ns=${namespace}, labelSelector=${labelSelector}`);
       const resp = await k8sCustomApi.listNamespacedCustomObject(
         GROUP, VERSION, namespace, plural,
         undefined, undefined,
@@ -151,7 +151,7 @@ const resourceInventoryUtils = {
 
     // ownerRef fallback if label selector yielded nothing
     if (!candidates || candidates.length === 0) {
-	  console.log(`2b) listNamespacedCustomObject(g=${GROUP}, v=${VERSION}, ns=${namespace}, ownerRef=${componentName})`);
+	  // console.log(`2b) listNamespacedCustomObject(g=${GROUP}, v=${VERSION}, ns=${namespace}, ownerRef=${componentName})`);
         		
       const resp = await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, namespace, plural);
       const all = resp?.body?.items || [];
@@ -159,18 +159,18 @@ const resourceInventoryUtils = {
     }
 
 	// for full debug info use: console.log(`CANDIDATES: ${JSON.stringify(candidates, null, 2)}`);
-	console.log(`CANDIDATES: ${JSON.stringify(candidates.map(o => o?.metadata?.name))}`);
+	// console.log(`CANDIDATES: ${JSON.stringify(candidates.map(o => o?.metadata?.name))}`);
 
     if (!candidates || candidates.length === 0) return null;
 
     // ---- 3) filter by spec.name
-	console.log(`3) filter apiName=${apiName} in candidates by spec.name`);
+	// console.log(`3) filter apiName=${apiName} in candidates by spec.name`);
     let matches = candidates.filter(o => this._eqCI(o?.spec?.name, apiName));
     if (matches.length === 0) return null;
 
     // ---- 4) if version provided, filter by spec.specification[].version
     if (versionOpt) {
-	  console.log(`4) filter _getSpecVersions versionOpt=${versionOpt}`);
+	  // console.log(`4) filter _getSpecVersions versionOpt=${versionOpt}`);
       const vMatches = matches.filter(o => {
         const versions = this._getSpecVersions(o);
         return versions.some(v => this._eqCI(v, versionOpt));
@@ -180,7 +180,7 @@ const resourceInventoryUtils = {
 
     // ---- 5) if still >1 and segment provided, use it only if CR actually has spec.segment
     if (matches.length > 1 && segmentOpt) {
-	  console.log(`5) filterfilter segmentOpt=${segmentOpt}`);
+	  // console.log(`5) filterfilter segmentOpt=${segmentOpt}`);
       const hasAnySegment = matches.some(o => o?.spec?.segment !== undefined && o?.spec?.segment !== null);
       if (hasAnySegment) {
         const sMatches = matches.filter(o => this._eqCI(o?.spec?.segment, segmentOpt));
@@ -193,7 +193,7 @@ const resourceInventoryUtils = {
     let pool = matches;
 
     if (checkReady) {
-	  console.log(`6) filter isReady ${kindHint}`);
+	  // console.log(`6) filter isReady ${kindHint}`);
       const ready = matches.filter(o => this._isReady(o, kindHint));
       if (ready.length > 0) {
         pool = ready;
@@ -207,7 +207,7 @@ const resourceInventoryUtils = {
     });
 
 	// for full debug info use: console.log(`POOL: ${JSON.stringify(pool, null, 2)}`);
-	console.log(`POOL: ${JSON.stringify(pool.map(o => o?.metadata?.name))}`);
+	// console.log(`POOL: ${JSON.stringify(pool.map(o => o?.metadata?.name))}`);
 	
     return pool[0] || null;
   },
