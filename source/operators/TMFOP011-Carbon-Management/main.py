@@ -113,7 +113,7 @@ async def carbonManagement(
         try:
             current_forecast = fetcher.fetch_current(now)
             requeue_interval = current_forecast.duration
-            logger.info(f"Current carbon intensity: {current_forecast.value} at {current_forecast.timestamp}")
+            logger.info(f"Current carbon intensity: {current_forecast.value} at {now}")
         except Exception as e:
             logger.error(f"Failed to fetch current carbon forecast: {e}")
             max_replica_count = scaler_spec.default_max_replicas

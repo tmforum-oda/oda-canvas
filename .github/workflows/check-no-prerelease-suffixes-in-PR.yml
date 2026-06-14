@@ -53,23 +53,23 @@ jobs:
         run: |
           echo "::error file=baseimages/kubectl-curl/version.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_2.outputs.result }}]" && exit 1
       
-      - name: check if there are nonempty version suffixes in charts/credentialsmanagement-operator/values.yaml
+      - name: check if there are nonempty version suffixes in charts/carbon-management-operator/values.yaml
         id: values_yaml_contains_version_suffix_3
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.deployment.credopPrereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/credentialsmanagement-operator/values.yaml
+          cmd: yq '[.deployment.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/carbon-management-operator/values.yaml
 
-      - name: collect existing version suffixes in charts/credentialsmanagement-operator/values.yaml for error report
+      - name: collect existing version suffixes in charts/carbon-management-operator/values.yaml for error report
         id: version_suffixes_3
         if: steps.values_yaml_contains_version_suffix_3.outputs.result=='true'
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.deployment.credopPrereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/credentialsmanagement-operator/values.yaml
+          cmd: yq '[.deployment.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/carbon-management-operator/values.yaml
           
-      - name: report error in charts/credentialsmanagement-operator/values.yaml
+      - name: report error in charts/carbon-management-operator/values.yaml
         if: steps.values_yaml_contains_version_suffix_3.outputs.result=='true'
         run: |
-          echo "::error file=charts/credentialsmanagement-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_3.outputs.result }}]" && exit 1
+          echo "::error file=charts/carbon-management-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_3.outputs.result }}]" && exit 1
       
       - name: check if there are nonempty version suffixes in charts/experimental/oauth2-envoyfilter-operator/values.yaml
         id: values_yaml_contains_version_suffix_4
@@ -88,3 +88,21 @@ jobs:
         if: steps.values_yaml_contains_version_suffix_4.outputs.result=='true'
         run: |
           echo "::error file=charts/experimental/oauth2-envoyfilter-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_4.outputs.result }}]" && exit 1
+      
+      - name: check if there are nonempty version suffixes in charts/carbon-intensity-service/values.yaml
+        id: values_yaml_contains_version_suffix_5
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/carbon-intensity-service/values.yaml
+
+      - name: collect existing version suffixes in charts/carbon-intensity-service/values.yaml for error report
+        id: version_suffixes_5
+        if: steps.values_yaml_contains_version_suffix_5.outputs.result=='true'
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/carbon-intensity-service/values.yaml
+          
+      - name: report error in charts/carbon-intensity-service/values.yaml
+        if: steps.values_yaml_contains_version_suffix_5.outputs.result=='true'
+        run: |
+          echo "::error file=charts/carbon-intensity-service/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_5.outputs.result }}]" && exit 1

@@ -1,8 +1,8 @@
 deployment:
   operatorName: carbon-management-operator
-  image: adarshkrm/carbon-management-operator
+  image: tmforumodacanvas/carbon-management-operator
   version: 1.0.0
-  prereleaseSuffix: ""
+  prereleaseSuffix: akm1
   imagePullPolicy: IfNotPresent
   resources:
     requests:

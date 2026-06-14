@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-carbon-intensity
+  name: carbon-intensity-service
   labels:
-    app: {{ .Release.Name }}-carbon-intensity
+    app: carbon-intensity-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-carbon-intensity
+      app: carbon-intensity-service
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-carbon-intensity
+        app: carbon-intensity-service
     spec:
       containers:
-      - name: {{ .Release.Name }}-carbon-intensity
+      - name: carbon-intensity-service
         image: {{ include "carbon-intensity-service.dockerimage" . }}
         imagePullPolicy: {{ include "carbon-intensity-service.imagePullPolicy" . }}
         env:

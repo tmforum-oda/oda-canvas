@@ -224,10 +224,10 @@ api-operator-kong:
   #platforms: linux/amd64,linux/arm64
 
 
-credentialsmanagement-operator:
-  displayName: Credentialsmanagement-operator
-  fileName: credentialsmanagement-operator
-  valuesYamlFile: charts/credentialsmanagement-operator/values.yaml
+carbon-management-operator:
+  displayName: carbon-management-operator
+  fileName: carbon-management-operator
+  valuesYamlFile: charts/carbon-management-operator/values.yaml
   valuesPathImage: .deployment.credopImage
   valuesPathVersion: .deployment.credopVersion
   valuesPathPrereleaseSuffix: .deployment.credopPrereleaseSuffix
@@ -235,7 +235,7 @@ credentialsmanagement-operator:
     - source/operators/TMFOP004-Credentials-Management/credentials-management/*
   buildContext: source/operators/TMFOP004-Credentials-Management/credentials-management
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/TMFOP004-Credentials-Management/credentials-management/credentialsmanagement-operator-dockerfile
+  buildDockerfile: source/operators/TMFOP004-Credentials-Management/credentials-management/carbon-management-operator-dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
@@ -288,5 +288,38 @@ tmf639-resource-inventory-api:
   buildContext: source/tmf-services/TMF639_Resource_Inventory
   # default is "Dockerfile" in buildContext
   #buildDockerfile: 
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+tmf628-carbon-intensity-api:
+  displayName: TMF-628 Carbon Intensity API
+  fileName: tmf628-carbon-intensity-api
+  
+  valuesYamlFile: charts/carbon-intensity-service/values.yaml
+  valuesPathImage: .image
+  valuesPathVersion: .version
+  valuesPathPrereleaseSuffix: .prereleaseSuffix
+  
+  paths:
+    - source/tmf-services/TMF628_Performance_Management/**/*
+  buildContext: source/tmf-services/TMF628_Performance_Management
+  # default is "Dockerfile" in buildContext
+  #buildDockerfile: 
+  # default is "linux/amd64,linux/arm64"
+  #platforms: linux/amd64,linux/arm64
+
+carbon-management-operator:
+  displayName: Carbon-Management-Operator
+  fileName: carbon-management-operator
+
+  valuesYamlFile: charts/carbon-management-operator/values.yaml
+  valuesPathImage: .deployment.image
+  valuesPathVersion: .deployment.version
+  valuesPathPrereleaseSuffix: .deployment.prereleaseSuffix
+  paths:
+    - source/operators/TMFOP011-Carbon-Management/*
+  buildContext: source/operators/TMFOP011-Carbon-Management
+  # default is "Dockerfile" in buildContext
+  buildDockerfile: source/operators/TMFOP011-Carbon-Management/Dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
