@@ -18,10 +18,6 @@ spec:
         {{- include "carbon-management-operator.labels" . | nindent 8 }}
     spec:
       serviceAccountName: carbon-management-account
-      {{- if .Values.global.imagePullSecrets }}
-      imagePullSecrets:
-      {{- include "image-pull-secrets" . |nindent 6 }}
-      {{- end }}
       containers:
       - name: {{.Values.deployment.operatorName}}
         image: {{ include "carbon-management-operator.image" . }}

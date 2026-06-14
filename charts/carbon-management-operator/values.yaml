@@ -1,5 +1,5 @@
 deployment:
-  operatorNname: carbon-management-operator
+  operatorName: carbon-management-operator
   image: adarshkrm/carbon-management-operator
   version: 1.0.0
   prereleaseSuffix: ""

@@ -6,4 +6,4 @@ metadata:
     {{- include "carbon-management-operator.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 data:
-  CARBON_INTENSITY_API_URL: "{{  .Values.configmap.carbonIntensityApiUrl }}"
+  CARBON_INTENSITY_API_URL: "{{  .Values.env.carbonIntensityApiUrl }}"
