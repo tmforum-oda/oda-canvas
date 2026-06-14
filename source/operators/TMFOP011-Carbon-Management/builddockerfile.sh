@@ -1,0 +1,1 @@
+docker buildx build -t "adarshkrm/carbon-management-operator:1.0.0" --platform "linux/amd64,linux/arm64" -f Dockerfile . --push
