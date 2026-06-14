@@ -1,0 +1,27 @@
+deployment:
+  operatorNname: carbon-management-operator
+  image: adarshkrm/carbon-management-operator
+  version: 1.0.0
+  prereleaseSuffix: ""
+  imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  monitoredNamespaces: "canvas"
+
+service:
+  metrics:
+    port: 8080
+
+env:
+  CARBON_INTENSITY_API_URL: "http://carbon-intensity-service.canvas.svc.cluster.local/tmf-api/performance/v5"
+
+serviceAccount:
+  create: true
+
+rbac:
+  create: true
