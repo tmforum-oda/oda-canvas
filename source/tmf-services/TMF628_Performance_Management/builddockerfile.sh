@@ -1,0 +1,1 @@
+docker buildx build -t "adarshkrm/tmf628-carbon:0.7" --platform "linux/amd64,linux/arm64" -f Dockerfile . --push
