@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-carbon-intensity
+  labels:
+    app: {{ .Release.Name }}-carbon-intensity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-carbon-intensity
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-carbon-intensity
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-carbon-intensity
+        image: {{ include "carbon-intensity-service.dockerimage" . }}
+        imagePullPolicy: {{ include "carbon-intensity-service.imagePullPolicy" . }}
+        env:
+        - name: SERVER_URL
+          value: {{ .Values.serverUrl }}
+        ports:
+        - containerPort: 8628

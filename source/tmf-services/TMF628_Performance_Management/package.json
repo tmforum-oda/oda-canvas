@@ -1,7 +1,7 @@
 {
   "name": "tmf628-carbon-intensity-api",
   "version": "1.0.0",
-  "description": "TMF628 Performance Management API for Carbon Intensity Data - provides read-only access to carbon intensity measurements for carbon-aware workload scheduling",
+  "description": "TMF628 Performance Management API for Carbon Intensity Data - provides access to carbon intensity measurements for carbon-aware workload scheduling",
   "main": "index.js",
   "scripts": {
     "prestart": "npm install",

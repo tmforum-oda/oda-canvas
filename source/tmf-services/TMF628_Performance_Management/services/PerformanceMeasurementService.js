@@ -5,8 +5,8 @@ const path = require('path');
 const DataLoader = require('../utils/dataLoader');
 
 // Initialize data loader with file watching
-const mockDataPath = path.join(__dirname, '..', 'data', 'carbon-intensity-mock.json');
-const dataLoader = new DataLoader(mockDataPath);
+const dataPath = path.join(__dirname, '..', 'data', 'carbon-intensity-data.json');
+const dataLoader = new DataLoader(dataPath);
 
 // Load initial data
 dataLoader.load();
@@ -26,7 +26,7 @@ dataLoader.onChange((newData) => {
 });
 
 // Helper function to get current data
-const getMockData = () => dataLoader.getData();
+const getData = () => dataLoader.getData();
 
 /**
  * List or find PerformanceMeasurement objects (Carbon Intensity measurements)
@@ -42,8 +42,8 @@ const listPerformanceMeasurement = (args, context) =>
   new Promise(
     async (resolve) => {
       try {
-        let mockData = getMockData();
-        logger.info(`listPerformanceMeasurement: total ${mockData.length} measurements`);
+        let carbonIntensityData = getData();
+        logger.info(`listPerformanceMeasurement: total ${carbonIntensityData.length} measurements`);
 
         // Extract query parameters (may be in args.dynamic from Controller)
         const validForTimestamp = args.validForTimestamp || (args.dynamic && args.dynamic.validForTimestamp);
@@ -63,7 +63,7 @@ const listPerformanceMeasurement = (args, context) =>
             }
 
             // First try exact date/time match
-            let filteredData = mockData.filter(measurement => {
+            let filteredData = carbonIntensityData.filter(measurement => {
               const validFor = measurement.validFor;
               if (!validFor || !validFor.startDateTime || !validFor.endDateTime) {
                 return false;
@@ -87,7 +87,7 @@ const listPerformanceMeasurement = (args, context) =>
               const targetSecond = targetTime.getUTCSeconds();
 
               // Find measurements that match by time-of-day
-              const timeMatchedData = mockData.filter(measurement => {
+              const timeMatchedData = carbonIntensityData.filter(measurement => {
                 const validFor = measurement.validFor;
                 if (!validFor || !validFor.startDateTime || !validFor.endDateTime) {
                   return false;
@@ -147,7 +147,7 @@ const listPerformanceMeasurement = (args, context) =>
               }
             }
 
-            mockData = filteredData;
+            carbonIntensityData = filteredData;
           } catch (err) {
             resolve(Service.rejectResponse(
               `Invalid validForTimestamp parameter: ${err.message}`,
@@ -159,15 +159,15 @@ const listPerformanceMeasurement = (args, context) =>
 
         // Apply region filtering if region is provided
         if (region) {
-          mockData = mockData.filter(measurement => {
+          carbonIntensityData = carbonIntensityData.filter(measurement => {
             const tag = measurement.tag || {};
             return tag.region === region;
           });
-          logger.info(`Filtered by region ${region}: ${mockData.length} measurements`);
+          logger.info(`Filtered by region ${region}: ${carbonIntensityData.length} measurements`);
         }
 
         // Apply pagination and field filtering
-        const queryResult = Service.applyQuery(mockData, { 
+        const queryResult = Service.applyQuery(carbonIntensityData, { 
           fields: fields,
           offset: offset,
           limit: limit 
@@ -198,10 +198,10 @@ const retrievePerformanceMeasurement = (args, context) =>
       try {
         logger.info(`retrievePerformanceMeasurement: id=${args.id}`);
 
-        const mockData = getMockData();
+        const carbonIntensityData = getData();
         
         // Find the measurement by ID
-        const measurement = mockData.find(m => m.id === args.id);
+        const measurement = carbonIntensityData.find(m => m.id === args.id);
 
         if (!measurement) {
           const error = new Error(`PerformanceMeasurement with id ${args.id} not found`);
@@ -239,10 +239,10 @@ const updatePerformanceMeasurement = (args, context) =>
       try {
         logger.info(`updatePerformanceMeasurement: id=${args.id}`);
 
-        const mockData = getMockData();
+        const carbonIntensityData = getData();
         
         // Find the measurement by ID
-        const index = mockData.findIndex(m => m.id === args.id);
+        const index = carbonIntensityData.findIndex(m => m.id === args.id);
 
         if (index === -1) {
           const error = new Error(`PerformanceMeasurement with id ${args.id} not found`);
@@ -255,16 +255,16 @@ const updatePerformanceMeasurement = (args, context) =>
         const updateData = args.body || args.performanceMeasurement || {};
 
         // Merge the update data with existing measurement (shallow merge for top-level fields)
-        mockData[index] = {
-          ...mockData[index],
+        carbonIntensityData[index] = {
+          ...carbonIntensityData[index],
           ...updateData,
           id: args.id, // Ensure ID doesn't change
-          href: mockData[index].href // Preserve href
+          href: carbonIntensityData[index].href // Preserve href
         };
 
         logger.info(`Updated PerformanceMeasurement ${args.id} successfully`);
         
-        resolve(Service.createResponse(mockData[index]));
+        resolve(Service.createResponse(carbonIntensityData[index]));
 
       } catch (e) {
         logger.error("updatePerformanceMeasurement: error=" + e);
@@ -278,7 +278,7 @@ const updatePerformanceMeasurement = (args, context) =>
 
 /**
  * Reload data from file
- * Admin operation to reload carbon-intensity-mock.json into memory
+ * Admin operation to reload carbon-intensity-data.json into memory
  *
  * returns Object Status message
  **/
@@ -288,12 +288,12 @@ const reloadDataFromFile = (args, context) =>
       try {
         logger.info('reloadDataFromFile: Reloading data from file');
 
-        const previousCount = getMockData().length;
+        const previousCount = getData().length;
         
         // Use DataLoader's reload method
         dataLoader.load();
         
-        const newCount = getMockData().length;
+        const newCount = getData().length;
 
         const message = `Successfully reloaded ${newCount} measurements from file (previous: ${previousCount})`;
         logger.info(message);
@@ -327,20 +327,20 @@ const getDataStatistics = (args, context) =>
       try {
         logger.info('getDataStatistics: Getting data statistics');
 
-        const mockData = getMockData();
+        const carbonIntensityData = getData();
 
         const stats = {
-          totalMeasurements: mockData.length,
-          dataFilePath: mockDataPath,
+          totalMeasurements: carbonIntensityData.length,
+          dataFilePath: dataPath,
           fileWatchEnabled: ENABLE_FILE_WATCH,
-          sampleIds: mockData.slice(0, 5).map(m => m.id),
-          locations: [...new Set(mockData.map(m => m.tag?.location).filter(Boolean))],
+          sampleIds: carbonIntensityData.slice(0, 5).map(m => m.id),
+          locations: [...new Set(carbonIntensityData.map(m => m.tag?.location).filter(Boolean))],
           dateRange: {
-            earliest: mockData.reduce((min, m) => {
+            earliest: carbonIntensityData.reduce((min, m) => {
               const start = m.validFor?.startDateTime;
               return !min || (start && start < min) ? start : min;
             }, null),
-            latest: mockData.reduce((max, m) => {
+            latest: carbonIntensityData.reduce((max, m) => {
               const end = m.validFor?.endDateTime;
               return !max || (end && end > max) ? end : max;
             }, null)

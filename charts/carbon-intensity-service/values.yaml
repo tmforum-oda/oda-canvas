@@ -1,0 +1,5 @@
+image: adarshkrm/tmf628-carbon-intensity
+version: 0.4
+prereleaseSuffix:
+imagePullPolicy: IfNotPresent
+serverUrl: http://carbon-intensity-service.canvas.svc.cluster.local/tmf-api/performance/v5
