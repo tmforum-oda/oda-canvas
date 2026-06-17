@@ -14,7 +14,7 @@ For each release, we will support a min and max Kubernetes version.
 | v1beta2               | 1.22                   | 1.27                   |
 | v1beta3               | 1.22                   | 1.29                   |
 | v1beta4               | 1.22                   | 1.29                   |
-| v1                    | 1.22                   | 1.30                   |
+| v1                    | 1.22                   | 1.33                   |
 
 If you are connected to an ODA Canvas, to test what version of Canvas it is, use the command:
 
@@ -37,6 +37,7 @@ We will test the Reference Implementation Canvas against a range of kubernetes v
 | Docker Desktop        | Yes    | see also [devcontainer.md](../devcontainer.md)                                                                            |
 | Kind                  | Yes    | Used in all the GitHub action automated testing.                                                                          |
 | K3s                   | Yes    |                                                                                                                           |
+| Colima (macOS)        | Yes    | Use `--dns 8.8.8.8` flag and install canvas without `--wait`; see [Local Development (Colima)](#local-development-colima) |
 | (other)               |        | To suggest additional environments please add to this [issue](https://github.com/tmforum-oda/oda-canvas-charts/issues/52) |
 
 The environment where the chart has been tested has the following
@@ -406,4 +407,101 @@ To  uninstall the oda-canvas chart:
 
 ```bash
 helm uninstall oda-canvas -n canvas
+```
+
+## Local Development (Colima)
+
+This section describes a fully tested local setup on macOS using [Colima](https://github.com/abiosoft/colima) (a lightweight VM-based container runtime). The same steps apply to any k3s-based local cluster.
+
+### Prerequisites
+
+- [Colima](https://github.com/abiosoft/colima) installed (`brew install colima`)
+- Docker, kubectl, helm installed
+
+### Step 1 — Start Colima with Kubernetes and DNS fix
+
+k3s clusters inside Colima can fail to resolve external DNS (e.g. `registry-1.docker.io`) unless an explicit DNS server is provided. Always start with `--dns 8.8.8.8`:
+
+```bash
+colima start canvas-demo --kubernetes --kubernetes-version v1.33.6+k3s1 --dns 8.8.8.8
+kubectl config use-context colima-canvas-demo
+kubectl get nodes   # verify node is Ready
+```
+
+### Step 2 — Add Helm repositories
+
+```bash
+helm repo add istio https://istio-release.storage.googleapis.com/charts
+helm repo add jetstack https://charts.jetstack.io
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+```
+
+### Step 3 — Install Istio
+
+Use reduced resource requests to fit a local machine:
+
+```bash
+kubectl create namespace istio-system
+helm install istio-base istio/base -n istio-system --set defaultRevision=default
+helm install istiod istio/istiod -n istio-system --wait --timeout=10m \
+  --set pilot.resources.requests.cpu=50m \
+  --set pilot.resources.requests.memory=128Mi
+
+kubectl create namespace istio-ingress
+kubectl label namespace istio-ingress istio-injection=enabled
+helm install istio-ingress istio/gateway -n istio-ingress \
+  --set labels.app=istio-ingress \
+  --set labels.istio=ingressgateway \
+  --set resources.requests.cpu=50m \
+  --set resources.requests.memory=128Mi
+```
+
+### Step 4 — Build local chart dependencies
+
+```bash
+cd <path-to-oda-canvas-repo>
+helm dependency update ./charts/cert-manager-init
+helm dependency update ./charts/canvas-oda
+```
+
+### Step 5 — Install the Canvas
+
+> **Important:** Do **not** use `--wait`. The canvas webhook pod (`compcrdwebhook`) depends on a TLS secret that is created by a cert-manager post-install hook. Using `--wait` causes a circular deadlock where Helm waits for the pod to be ready before running the hook, but the pod can't start without the secret the hook creates. Omitting `--wait` lets the hooks run immediately after resource creation.
+
+```bash
+helm install canvas ./charts/canvas-oda \
+  -n canvas --create-namespace \
+  --set canvas-vault.enabled=false \
+  --set preqrequisitechecks.istio=false \
+  --timeout=15m
+```
+
+### Step 6 — Verify
+
+Wait ~2 minutes for cert-manager to issue the TLS certificates, then:
+
+```bash
+kubectl get certificates -n canvas          # both should be Ready=True
+kubectl get pods -n canvas                  # all pods Running (except canvas-smanop — see note)
+kubectl get crd | grep oda                  # 8 ODA CRDs registered
+kubectl get crd components.oda.tmforum.org \
+  -o jsonpath='{.spec.versions[?(@.served==true)].name}'   # v1beta2 v1beta3 v1beta4 v1
+```
+
+### Known behaviours in local setup
+
+| Pod | Status | Reason |
+| --- | ------ | ------ |
+| `canvas-smanop` | `CreateContainerConfigError` | Expected — Secrets Management Operator requires HashiCorp Vault. Safe to ignore when `canvas-vault.enabled=false`. |
+| `canvas-sm-preinst-*`, `job-hook-postinstall-*`, `canvas-loadbalancer-*` | `Completed` | One-off jobs, normal. |
+
+### Deploy a test ODA Component
+
+```bash
+helm repo add oda-components https://tmforum-oda.github.io/reference-example-components/
+helm install pc oda-components/productcatalog -n components --create-namespace
+kubectl get components -n components
+kubectl get exposedapis -n components
 ```

@@ -24,6 +24,7 @@ spec:
     - name: productcatalogmanagement
       specification:
       - url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
+      - version: v4.0.0
       implementation: {{.Release.Name}}-prodcatapi
       apiType: openapi
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
