@@ -15,12 +15,12 @@ spec:
   scaledObjectTemplate:
     pollingInterval: 30
     cooldownPeriod: 300
-    minReplicaCount: 1
+    minReplicaCount: 0
     maxReplicaCount: 10
     triggers:
       - type: prometheus
         metadata:
-          serverAddress: http://observability-prometheus-prometheus.monitoring.svc:9090
+          serverAddress: http://prometheus-kube-prometheus-prometheus.monitoring.svc:9090
           metricName: pending_orders
           threshold: '5'
           # Query the pending orders gauge exposed by the metrics microservice
@@ -30,11 +30,11 @@ spec:
   # Carbon-aware scaling: Adjust max replicas based on carbon intensity
   maxReplicasByCarbonIntensity:
     - carbonIntensityThreshold: 400
-      maxReplicas: 6
+      maxReplicas: 9
     - carbonIntensityThreshold: 500
-      maxReplicas: 4
+      maxReplicas: 5
     - carbonIntensityThreshold: 550
-      maxReplicas: 2
+      maxReplicas: 1
   
   # Fallback to default max replicas when carbon intensity data is unavailable
   defaultMaxReplicas: 10

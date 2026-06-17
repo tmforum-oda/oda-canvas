@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL="https://136.113.31.182/ocv1-productordercaptureandvalidation/tmf-api/productOrderingManagement/v4/productOrder"
+URL="https://34.136.181.67/ocv1-productordercaptureandvalidation/tmf-api/productOrderingManagement/v4/productOrder"
 
 # Optional headers (update if needed)
 HEADERS=(
@@ -10,7 +10,7 @@ HEADERS=(
 
 echo "Starting order creation..."
 
-for i in $(seq 21 40)
+for i in $(seq 1 80)
 do
   # Vary speed for testing
   SPEED=$((50 + i * 10))"Mbps"
@@ -47,4 +47,4 @@ EOF
 
 done
 
-echo "All 20 orders submitted."
+echo "All 80 orders submitted."
