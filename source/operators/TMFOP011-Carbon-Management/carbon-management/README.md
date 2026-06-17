@@ -26,15 +26,49 @@ This operator follows the [Kubernetes Operator Pattern](https://kubernetes.io/do
 
 ```
 ODA Component (ProductOrderCaptureAndValidation)
-└── CarbonManagement Resource (1 per component)
-    ├── Discovers Deployments (via label matching)
-    │   └── Labels: oda.tmforum.org/componentName, carbon-aware: enabled
-    ├── Queries Carbon Intensity Service
-    │   └── TMF628 Performance Management API
-    ├── Calculates Max Replicas (based on intensity thresholds)
-    └── Manages ScaledObjects (one per deployment)
-        ├── ocv1-productorderprocessor-carbon-scaled → Deployment: ocv1-productorderprocessor
-        └── Updates maxReplicaCount dynamically
+├── Deployments (labeled: oda.tmforum.org/componentName, carbon-aware: enabled)
+└── Business Metrics → Prometheus (pending_orders, completed_orders)
+
+              ↓
+
+CarbonManagement Resource (CRD)
+├── deploymentSelector (label matching)
+├── scaledObjectTemplate (KEDA triggers + Prometheus query)
+├── maxReplicasByCarbonIntensity (400→9, 500→5, 550→1 replicas)
+└── carbonIntensityForecastDataSource (TMF628 API endpoint)
+
+              ↓ Reconciles every 5 min
+
+Carbon Management Operator (main.py)
+├── 1. Fetch Carbon Intensity (carbon_tmf628_fetcher.py → TMF628 API)
+│      Example: 545 gCO2eq/kWh at 08:30 UTC
+├── 2. Calculate Max Replicas (max_replica_getter.py)
+│      545 falls in 500-550 range → maxReplicas = 1
+├── 3. Discover Deployments (scaled_object_manager.py)
+│      Found: ocv1-productorderprocessor
+├── 4. Create/Update ScaledObject
+│      ocv1-productorderprocessor-carbon-scaled:
+│      ├── scaleTargetRef: ocv1-productorderprocessor
+│      ├── maxReplicaCount: 1 (carbon-aware limit)
+│      └── triggers: Prometheus query (pending_orders > 5)
+└── 5. Update Status & Metrics
+
+              ↓
+
+KEDA (Event-Driven Autoscaler)
+├── Polls Prometheus: pending_orders = 50 (exceeds threshold of 5)
+├── Calculates desired: ~10 replicas needed for workload
+├── Applies carbon limit: maxReplicaCount = 1 (enforced)
+└── Creates HPA → Scales to 1 replica (prioritizes carbon reduction)
+
+              ↓
+
+Kubernetes Deployment
+└── Runs 1 pod (reduced capacity during high-carbon period)
+
+              ↓ Next cycle: intensity drops to 380
+
+Operator Updates → maxReplicas = 9 → KEDA scales to 9 pods
 ```
 
 ## Managed Resources
@@ -120,7 +154,7 @@ This service provides carbon intensity forecasts via the TMF628 Performance Mana
 First, apply the `CarbonManagement` Custom Resource Definition:
 
 ```bash
-kubectl apply -f ./carbonmanagemt-crd.yaml
+kubectl apply -f ./manifests/carbonmanagemt-crd.yaml
 ```
 
 Verify the CRD installation:
@@ -156,7 +190,7 @@ For development and testing, run the operator locally using Python and KOPF:
 pip install -r requirements.txt
 
 # Run operator locally (uses kubeconfig for cluster access)
-python main.py
+python src/main.py
 
 # Expected output:
 # INFO:__main__:Carbon Management Operator started
@@ -274,7 +308,7 @@ spec:
 Apply the resource:
 
 ```bash
-kubectl apply -f productorder-scaler.yaml
+kubectl apply -f ./manifests/productorder-scaler.yaml
 ```
 
 ### Step 5: Verify Operator Functionality
@@ -352,10 +386,10 @@ Generate test orders to trigger the scaling behavior:
 
 ```bash
 # Make the script executable
-chmod +x order-creator.sh
+chmod +x ./scripts/order-creator.sh
 
 # Run the script to create orders
-./order-creator.sh
+./scripts/order-creator.sh
 
 # The script creates multiple orders, increasing the pending_orders metric
 ```
@@ -381,7 +415,7 @@ curl -k ${METRICS_URL}
 
 Example metrics output:
 
-![Metrics output showing pending and completed orders gauges](screenshots/orders_gauge.png)
+![Metrics output showing pending and completed orders gauges](docs/screenshots/orders_gauge.png)
 
 #### Confirm Prometheus Query Works
 
@@ -780,21 +814,23 @@ kubectl get crd carbonmanagements.oda.tmforum.org
   - `requests` - HTTP client for TMF628 API
   - `pydantic` - Data validation
 
-### Project Structure
+## Key Files
 
-```
-carbon-management/
-├── main.py                        # Main operator entry point
-├── models.py                      # Pydantic data models for CRDs
-├── carbon_tmf628_fetcher.py       # TMF628 API client
-├── max_replica_getter.py          # Carbon intensity calculation logic
-├── scaled_object_manager.py       # ScaledObject lifecycle management
-├── utils.py                       # Utility functions
-├── requirements.txt               # Python dependencies
-├── Dockerfile                     # Container image definition
-├── carbonmanagemt-crd.yaml       # CRD definition
-└── README.md                      # This file
-```
+| File | Purpose |
+|------|---------|
+| `src/main.py` | Main operator entry point |
+| `src/models.py` | Pydantic data models for CRDs |
+| `src/carbon_tmf628_fetcher.py` | TMF628 API client |
+| `src/carbon_forecast_fetcher.py` | Carbon forecast abstraction |
+| `src/max_replica_getter.py` | Carbon intensity calculation logic |
+| `src/scaled_object_manager.py` | ScaledObject lifecycle management |
+| `src/metrics.py` | Prometheus metrics |
+| `src/utils.py` | Utility functions |
+| `manifests/carbonmanagemt-crd.yaml` | CRD definition |
+| `manifests/productorder-scaler.yaml` | Example CarbonManagement resource |
+| `scripts/order-creator.sh` | Test workload generator |
+| `requirements.txt` | Python dependencies |
+| `Dockerfile` | Container image definition |
 
 ### Reconciliation Loop
 
@@ -833,7 +869,7 @@ kubectl get nodes
 
 5. Apply CRD:
 ```bash
-kubectl apply -f carbonmanagemt-crd.yaml
+kubectl apply -f ./manifests/carbonmanagemt-crd.yaml
 ```
 
 ### Interactive Development and Testing
@@ -841,7 +877,7 @@ kubectl apply -f carbonmanagemt-crd.yaml
 Run the operator locally in standalone mode:
 
 ```bash
-kopf run --namespace=components --standalone ./main.py --verbose
+kopf run --namespace=components --standalone ./src/main.py --verbose
 ```
 
 **Benefits of Standalone Mode**:
@@ -943,12 +979,3 @@ helm uninstall carbon-intensity-service -n canvas
 - **KEDA Documentation**: https://keda.sh/docs/
 - **Canvas Design**: [Canvas-design.md](../../../../Canvas-design.md)
 - **Operators Overview**: [source/operators/README.md](../../README.md)
-
-
-## Contributing
-
-For information about contributing to this operator, see [CONTRIBUTING.md](../../../../CONTRIBUTING.md).
-
-## License
-
-This operator is part of the ODA Canvas project. See [LICENSE](../../../../LICENSE) for details.
