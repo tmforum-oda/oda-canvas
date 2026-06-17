@@ -317,9 +317,9 @@ carbon-management-operator:
   valuesPathVersion: .deployment.version
   valuesPathPrereleaseSuffix: .deployment.prereleaseSuffix
   paths:
-    - source/operators/TMFOP011-Carbon-Management/*
-  buildContext: source/operators/TMFOP011-Carbon-Management
+    - source/operators/TMFOP011-Carbon-Management/carbon-management/*
+  buildContext: source/operators/TMFOP011-Carbon-Management/carbon-management
   # default is "Dockerfile" in buildContext
-  buildDockerfile: source/operators/TMFOP011-Carbon-Management/Dockerfile
+  buildDockerfile: source/operators/TMFOP011-Carbon-Management/carbon-management/Dockerfile
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64

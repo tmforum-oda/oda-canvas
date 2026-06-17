@@ -15,5 +15,4 @@ COPY ./scaled_object_manager.py /carbonOperator/
 COPY ./metrics.py /carbonOperator/
 COPY ./utils.py /carbonOperator/
 
-
 CMD kopf run --namespace=components --verbose /carbonOperator/main.py
