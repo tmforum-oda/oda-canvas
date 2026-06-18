@@ -9,11 +9,10 @@ A helm chart to deploy the carbon management operator
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | configmap.carbonIntensityApiUrl | string | `"http://carbon-intensity-service.canvas.svc.cluster.local/tmf-api/performance/v5"` |  |
-| deployment.carbonImage | string | `"adarshkrm/carbon-management-operator"` |  |
-| deployment.carbonPrereleaseSuffix | string | `nil` |  |
-| deployment.carbonVersion | string | `"1.0.0"` |  |
+| deployment.image | string | `"tmforumodacanvas/carbon-management-operator"` |  |
+| deployment.prereleaseSuffix | string | `nil` |  |
+| deployment.version | string | `"1.0.0"` |  |
 | deployment.imagePullPolicy | string | `"IfNotPresent"` |  |
-| deployment.monitoredNamespaces | string | `"canvas"` |  |
 | deployment.operatorName | string | `"carbon-management-operator"` |  |
 | deployment.replicas | int | `1` |  |
 | deployment.resources.limits.cpu | string | `"500m"` |  |

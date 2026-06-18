@@ -421,7 +421,6 @@ info: Filtered by region us-central1-c: 48 measurements
 
 ## Related Resources
 
-- **Helm Chart**: [charts/carbon-intensity-service](../../charts/carbon-intensity-service/)
-- **Carbon Management Operator**: [charts/carbon-management-operator](../../charts/carbon-management-operator/)
-- **TMF628 Specification**: [TMF Forum Performance Management API](https://www.tmforum.org/resources/specification/tmf628-performance-management-api-rest-specification-r19-5-0/)
-- **ODA Canvas**: [ODA Canvas Repository](../../README.md)
+- **Helm Chart**: [charts/carbon-intensity-service](../../../charts/carbon-intensity-service/)
+- **Carbon Management Operator**: [charts/carbon-management-operator](../../../charts/carbon-management-operator/)
+- **TMF628 Specification**: [TMF Forum Performance Management API](../TMF628_Performance_Management/api/TMF628-Performance-v5.0.0.oas.yaml)

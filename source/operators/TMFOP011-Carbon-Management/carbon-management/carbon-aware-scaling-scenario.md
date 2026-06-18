@@ -245,13 +245,15 @@ The `generation` field incremented from 1 to 2, confirming the operator successf
 
 ### HPA and Scaling Behavior
 
-The HPA status now reflects the expanded scaling capacity.With the maximum raised to 9 replicas, the HPA can scale up aggressively to handle the pending orders backlog.
+The HPA status now reflects the expanded scaling capacity.With the maximum raised to 9 replicas, the HPA scales up from `0 -> 4 -> 8 -> 9` pods,aggressively to handle the pending orders backlog 
 
 ![HPA Status - Low Carbon](docs/screenshots/hpa_status_lowCI.png)
 
 Pod count increases significantly as KEDA scales the deployment in response to the pending orders metric. Multiple replicas work in parallel to process the order backlog rapidly.
 
-![Pod Scaling - Low Carbon](docs/screenshots/no._of_pods_during_lowCI.png)
+As shown in the image, the number of running pods is 9.
+
+![Pod Scaling - Low Carbon](docs/screenshots/no._of_pods_during_scaling_lowCI.png)
 
 ### Results Summary - Low Carbon Intensity
 
@@ -342,9 +344,9 @@ The ProductOrderCaptureAndValidation component successfully processed the same o
 
 ## Related Resources
 
-- [Carbon Management Operator Documentation](../README.md)
+- [Carbon Management Operator Documentation](./README.md)
 - [TMF628 Performance Management API Specification](../../../tmf-services/TMF628_Performance_Management/api/TMF628-Performance-v5.0.0.oas.yaml)
 - [KEDA Documentation](https://keda.sh/)
-- [ODA Component Specification](https://github.com/tmforum-oda/reference-example-components/tree/master/source/ProductOrderCaptureAndValidation)
+- [ODA Component Specification](https://github.com/tmforum-oda/reference-example-components/tree/master/charts)
 
 
