@@ -1,0 +1,47 @@
+{{- if .Values.rbac.modelGatewayAccess.enabled }}
+{{- $saName := include "canvas-portal.backend.serviceAccountName" . }}
+{{- $saNs   := .Release.Namespace }}
+{{- $fullname := include "canvas-portal.backend.fullname" . }}
+{{- $labels := include "canvas-portal.backend.labels" . }}
+
+
+{{- range $namespace := .Values.rbac.modelGatewayAccess.targetNamespaces }}
+{{- if $.Values.rbac.modelGatewayAccess.createNamespaces }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $namespace }}
+  labels:
+    {{- $labels | nindent 4 }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $fullname }}-model-gateway-writer
+  namespace: {{ $namespace }}
+  labels:
+    {{- $labels | nindent 4 }}
+rules:
+  - apiGroups: ["oda.tmforum.org"]
+    resources: ["modelgatewayservices"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $fullname }}-model-gateway-writer
+  namespace: {{ $namespace }}
+  labels:
+    {{- $labels | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $fullname }}-model-gateway-writer
+subjects:
+  - kind: ServiceAccount
+    name: {{ $saName }}
+    namespace: {{ $saNs }}
+{{- end }}
+{{- end }}

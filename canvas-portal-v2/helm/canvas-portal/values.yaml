@@ -1,0 +1,163 @@
+nameOverride: ""
+fullnameOverride: ""
+imagePullSecrets: []
+rbac:
+  canvasInstallAccess:
+    enabled: true
+    clusterRoleName: admin
+    # Existing namespaces where Canvas operators/admins should be allowed
+    # to install and manage Helm releases. To install into a new namespace,
+    # add it here and re-run `helm upgrade` on this chart.
+    targetNamespaces:
+      - components
+      - odacompns-1
+    createNamespaces: false
+  backendGatewayReadAccess:
+    enabled: true
+  modelGatewayAccess:
+    # Grants the backend ServiceAccount namespaced write permission on
+    # modelgatewayservices.oda.tmforum.org in the listed namespaces. 
+    enabled: true
+    targetNamespaces:
+      - components
+    createNamespaces: false
+  canvasConformanceAccess:
+    enabled: true
+    targetNamespaces:
+      - components
+      - temp-namespace
+    createNamespaces: false
+frontend:
+  replicaCount: 1
+  image:
+    repository: tmforumodacanvas/canvas-portal
+    tag: frontend-0.1.0
+    pullPolicy: IfNotPresent
+  service:
+    type: LoadBalancer
+    port: 80
+    annotations: {}
+    loadBalancerIP: ""
+  runtime:
+    apiBaseUrl: ""
+    keycloakUrl: /auth
+    keycloakRealm: odari
+    keycloakClientId: canvas-portal
+  nginx:
+    backendUpstream: ""
+    keycloakUpstream: "https://136.115.158.138:8443/auth"
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: ""
+  podAnnotations: {}
+  podLabels: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+keycloak:
+  init:
+    # Set to true to run a post-install/post-upgrade Job that creates
+    # the required groups and service-account permissions in Keycloak.
+    enabled: true
+    adminUser: testadminpo.
+    adminPassword: ""
+    # Target realm. Defaults to backend.env.KEYCLOAK_REALM (odari).
+    realm: "odari"
+backend:
+  replicaCount: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  helm:
+    allowedChartSources: []
+    # - https://rj-acc.github.io/CanvasPortalTMF
+    # - https://charts.tmforum.org
+  auth:
+    cookieSecure: false
+    cookieSameSite: strict
+  image:
+    repository: tmforumodacanvas/canvas-portal
+    tag: backend-0.1.0
+    pullPolicy: IfNotPresent
+  service:
+    type: LoadBalancer
+    port: 8080
+    targetPort: 8080
+    annotations: {}
+    loadBalancerIP: ""
+  persistence:
+    enabled: true
+    # Helm repository catalog and synced chart metadata are stored
+    mountPath: /app/data
+    helmRepositoryCatalogPath: /app/data/helm-repositories.json
+    existingClaim: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+    storageClass: ""
+    annotations: {}
+    persistentVolume:
+      enabled: false
+      name: ""
+      capacity: ""
+      accessModes: []
+      storageClass: ""
+      reclaimPolicy: Retain
+      volumeMode: Filesystem
+      annotations: {}
+      hostPath:
+        path: ""
+        type: DirectoryOrCreate
+      nfs:
+        server: ""
+        path: ""
+  env:
+    APP_ENV: production
+    LOG_LEVEL: info
+    IDM_PROVIDER: keycloak
+    # Public Keycloak issuer base URL expected by the backend, for example:
+    # http://app.example.com/auth
+    KEYCLOAK_URL: "https://136.115.158.138:8443/auth"
+    KEYCLOAK_REALM: odari
+    KEYCLOAK_CLIENT_ID: canvas-portal
+    KEYCLOAK_ADMIN_CLIENT_ID: canvas-portal-admin
+    ENTRAID_TENANT_ID: ""
+    ENTRAID_CLIENT_ID: ""
+    K8S_MODE: incluster
+    K8S_REMOTE_API_URL: ""
+    CANVAS_TYPE: auto
+    CORS_ORIGINS:
+      - http://localhost:3000 # frontend dev server (Vite default)
+      - http://localhost:5173 # frontend dev server (Vite alt)
+      - http://xx.xx.xx.xx # frontend LoadBalancer external IP
+  conformance:
+    canvasBDD:
+      repo_url: https://github.com/tmforum-oda/oda-canvas.git
+      branch: main
+      env:
+        KEYCLOAK_USER: ""
+        KEYCLOAK_PASSWORD: ""
+        KEYCLOAK_BASE_URL: ""
+        KEYCLOAK_REALM: ""
+      defaultTags: ""
+  observability:
+    providers: []
+    # Example:
+    # providers:
+    #   - provider: grafana
+    #     url: https://grafana.example.com
+    #   - provider: prometheus
+    #     url: https://prometheus.example.com
+  secretEnv:
+    KEYCLOAK_ADMIN_CLIENT_SECRET: ""
+    ENTRAID_CLIENT_SECRET: ""
+    K8S_REMOTE_SA_TOKEN: ""
+    K8S_REMOTE_CA_CERT: ""
+  podAnnotations: {}
+  podLabels: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
