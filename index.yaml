@@ -2546,6 +2546,30 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-vault-0.2.1/canvas-vault-0.2.1.tgz
     version: 0.2.1
+  carbon-intensity-service:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2026-06-22T04:41:23.13929682Z"
+    description: A Helm chart to deploy TMF628 Carbon Intensity Performance Management
+      API
+    digest: 39d6dde08fd37a917271da42317ae54b39612db12483bd059d13fcf599c6b6a5
+    name: carbon-intensity-service
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/carbon-intensity-service-1.0.0/carbon-intensity-service-1.0.0.tgz
+    version: 1.0.0
+  carbon-management-operator:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2026-06-22T04:41:23.377318777Z"
+    description: A helm chart to deploy the TMFOP011 Carbon Management operator on
+      ODA Canvas
+    digest: 12f21476206daf272d8a5a562ce11a7af1ebeb3b24ad65fd8f471ce38c53265e
+    name: carbon-management-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/carbon-management-operator-1.0.0/carbon-management-operator-1.0.0.tgz
+    version: 1.0.0
   cert-manager-init:
   - apiVersion: v2
     appVersion: v1
@@ -3406,4 +3430,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2026-05-11T15:14:12.760464778Z"
+generated: "2026-06-22T04:41:23.377550289Z"
