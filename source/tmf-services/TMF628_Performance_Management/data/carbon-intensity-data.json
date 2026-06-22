@@ -1,0 +1,1346 @@
+[
+  {
+    "id": "ci-us-central1-c-001",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-001",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T00:00:00Z",
+      "endDateTime": "2026-05-30T00:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "500"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-002",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-002",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T00:30:00Z",
+      "endDateTime": "2026-05-30T01:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "500"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-003",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-003",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T01:00:00Z",
+      "endDateTime": "2026-05-30T01:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "501"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-004",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-004",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T01:30:00Z",
+      "endDateTime": "2026-05-30T02:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "501"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-005",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-005",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T02:00:00Z",
+      "endDateTime": "2026-05-30T02:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "502"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-006",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-006",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T02:30:00Z",
+      "endDateTime": "2026-05-30T03:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "503"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-007",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-007",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T03:00:00Z",
+      "endDateTime": "2026-05-30T03:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "503"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-008",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-008",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T03:30:00Z",
+      "endDateTime": "2026-05-30T04:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "503"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-009",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-009",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T04:00:00Z",
+      "endDateTime": "2026-05-30T04:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "504"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-010",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-010",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T04:30:00Z",
+      "endDateTime": "2026-05-30T05:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "505"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-011",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-011",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T05:00:00Z",
+      "endDateTime": "2026-05-30T05:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "506"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-012",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-012",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T05:30:00Z",
+      "endDateTime": "2026-05-30T06:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "506"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-013",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-013",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T06:00:00Z",
+      "endDateTime": "2026-05-30T06:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "517"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-014",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-014",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T06:30:00Z",
+      "endDateTime": "2026-05-30T07:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "523"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-015",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-015",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T07:00:00Z",
+      "endDateTime": "2026-05-30T07:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "528"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-016",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-016",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T07:30:00Z",
+      "endDateTime": "2026-05-30T08:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "534"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-017",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-017",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T08:00:00Z",
+      "endDateTime": "2026-05-30T08:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "539"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-018",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-018",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T08:30:00Z",
+      "endDateTime": "2026-05-30T09:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "545"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-019",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-019",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T09:00:00Z",
+      "endDateTime": "2026-05-30T09:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "550"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-020",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-020",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T09:30:00Z",
+      "endDateTime": "2026-05-30T10:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "556"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-021",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-021",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T10:00:00Z",
+      "endDateTime": "2026-05-30T10:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "562"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-022",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-022",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T10:30:00Z",
+      "endDateTime": "2026-05-30T11:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "568"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-023",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-023",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T11:00:00Z",
+      "endDateTime": "2026-05-30T11:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "574"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-024",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-024",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T11:30:00Z",
+      "endDateTime": "2026-05-30T12:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "581"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-025",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-025",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T12:00:00Z",
+      "endDateTime": "2026-05-30T12:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "587"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-026",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-026",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T12:30:00Z",
+      "endDateTime": "2026-05-30T13:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "593"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-027",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-027",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T13:00:00Z",
+      "endDateTime": "2026-05-30T13:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "600"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-028",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-028",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T13:30:00Z",
+      "endDateTime": "2026-05-30T14:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "597"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-029",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-029",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T14:00:00Z",
+      "endDateTime": "2026-05-30T14:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "594"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-030",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-030",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T14:30:00Z",
+      "endDateTime": "2026-05-30T15:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "592"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-031",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-031",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T15:00:00Z",
+      "endDateTime": "2026-05-30T15:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "590"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-032",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-032",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T15:30:00Z",
+      "endDateTime": "2026-05-30T16:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "587"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-033",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-033",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T16:00:00Z",
+      "endDateTime": "2026-05-30T16:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "584"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-034",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-034",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T16:30:00Z",
+      "endDateTime": "2026-05-30T17:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "581"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-035",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-035",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T17:00:00Z",
+      "endDateTime": "2026-05-30T17:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "579"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-036",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-036",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T17:30:00Z",
+      "endDateTime": "2026-05-30T18:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "581"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-037",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-037",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T18:00:00Z",
+      "endDateTime": "2026-05-30T18:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "584"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-038",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-038",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T18:30:00Z",
+      "endDateTime": "2026-05-30T19:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "587"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-039",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-039",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T19:00:00Z",
+      "endDateTime": "2026-05-30T19:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "589"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-040",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-040",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T19:30:00Z",
+      "endDateTime": "2026-05-30T20:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "592"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-041",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-041",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T20:00:00Z",
+      "endDateTime": "2026-05-30T20:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "594"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-042",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-042",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T20:30:00Z",
+      "endDateTime": "2026-05-30T21:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "582"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-043",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-043",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T21:00:00Z",
+      "endDateTime": "2026-05-30T21:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "570"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-044",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-044",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T21:30:00Z",
+      "endDateTime": "2026-05-30T22:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "559"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-045",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-045",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T22:00:00Z",
+      "endDateTime": "2026-05-30T22:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "547"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-046",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-046",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T22:30:00Z",
+      "endDateTime": "2026-05-30T23:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "535"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-047",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-047",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T23:00:00Z",
+      "endDateTime": "2026-05-30T23:30:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "523"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  },
+  {
+    "id": "ci-us-central1-c-048",
+    "href": "/tmf-api/performance/v5/performanceMeasurement/ci-us-central1-c-048",
+    "description": "Carbon intensity measurement for us-central1-c region",
+    "@type": "PerformanceMeasurementAtomic",
+    "@baseType": "PerformanceMeasurement",
+    "validFor": {
+      "startDateTime": "2026-05-30T23:30:00Z",
+      "endDateTime": "2026-05-31T00:00:00Z"
+    },
+    "performanceIndicatorValue": [
+      {
+        "performanceIndicatorSpecification": {
+          "id": "pi-carbon-intensity",
+          "name": "Carbon Intensity",
+          "indicatorCategory": "Environmental",
+          "indicatorUnit": "gCO2eq/kWh",
+          "@type": "PerformanceIndicatorSpecification"
+        },
+        "observedValue": "512"
+      }
+    ],
+    "tag": {
+      "region": "us-central1-c",
+      "country": "United States",
+      "gridOperator": "MISO"
+    }
+  }
+]

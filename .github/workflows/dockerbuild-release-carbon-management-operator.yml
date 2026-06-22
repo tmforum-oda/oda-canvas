@@ -5,18 +5,18 @@
 # automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml #
 ################################################################################
 
-name: Build Credentialsmanagement-Operator Release Dockerimage
-run-name: Build Credentialsmanagement-Operator Release Dockerimage
+name: Build Carbon-Management-Operator Release Dockerimage
+run-name: Build Carbon-Management-Operator Release Dockerimage
 on:
   workflow_dispatch:
   push:
     branches:
     - main
     paths: 
-      - source/operators/TMFOP004-Credentials-Management/credentials-management/*
+      - source/operators/TMFOP011-Carbon-Management/carbon-management/**/*
 
 jobs:
-  build-credentialsmanagement-operator-release-dockerfile-job:
+  build-carbon-management-operator-release-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -26,17 +26,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of credentialsmanagement-operator from values.yaml
+      - name: read image of carbon-management-operator from values.yaml
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.deployment.credopImage' charts/credentialsmanagement-operator/values.yaml
+          cmd: yq '.deployment.image' charts/carbon-management-operator/values.yaml
           
-      - name: read versionnumber of credentialsmanagement-operator from values.yaml
+      - name: read versionnumber of carbon-management-operator from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.deployment.credopVersion, .deployment.credopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/credentialsmanagement-operator/values.yaml
+          cmd: yq '[.deployment.version, .deployment.prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/carbon-management-operator/values.yaml
           
       - name: Check Version
         id: check-tag
@@ -74,8 +74,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/TMFOP004-Credentials-Management/credentials-management
-          file: source/operators/TMFOP004-Credentials-Management/credentials-management/credentialsmanagement-operator-dockerfile
+          context: source/operators/TMFOP011-Carbon-Management/carbon-management
+          file: source/operators/TMFOP011-Carbon-Management/carbon-management/Dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

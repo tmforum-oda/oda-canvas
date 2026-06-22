@@ -1,0 +1,363 @@
+openapi: 3.0.1
+info:
+  title: Performance Management
+  description: >-
+    TMF628 Performance Management API (Carbon Intensity subset)
+
+    ### Operations
+
+    This API provides read-only access to Performance Measurements for Carbon Intensity data:
+
+    - Retrieve a collection of PerformanceMeasurement entities
+    
+    - Retrieve a specific PerformanceMeasurement entity by ID
+
+    This is a simplified implementation focusing on serving carbon intensity measurements
+    to support carbon-aware workload scheduling and scaling in ODA Canvas.
+  version: 5.0.0
+servers:
+  - url: 'http://localhost:8628/tmf-api/performance/v5'
+tags:
+  - name: performanceMeasurement
+    description: Operations for PerformanceMeasurement Resource
+paths:
+  /performanceMeasurement:
+    get:
+      tags:
+        - performanceMeasurement
+      summary: List or find PerformanceMeasurement objects
+      description: List or find PerformanceMeasurement objects (Carbon Intensity measurements)
+      operationId: listPerformanceMeasurement
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/ValidForTimestamp'
+        - $ref: '#/components/parameters/Region'
+      responses:
+        '200':
+          $ref: '#/components/responses/200PerformanceMeasurementArray'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '503':
+          $ref: '#/components/responses/503'
+  '/performanceMeasurement/{id}':
+    get:
+      tags:
+        - performanceMeasurement
+      summary: Retrieves a PerformanceMeasurement by ID
+      description: >-
+        This operation retrieves a PerformanceMeasurement entity. Attribute selection enabled for all
+        first level attributes.
+      operationId: retrievePerformanceMeasurement
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          $ref: '#/components/responses/200PerformanceMeasurement_Get'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '503':
+          $ref: '#/components/responses/503'
+    patch:
+      tags:
+        - performanceMeasurement
+      summary: Partially updates a PerformanceMeasurement
+      description: >-
+        This operation updates specific fields of a PerformanceMeasurement entity.
+        Only the provided fields are updated; other fields remain unchanged.
+        This is a dynamic update operation that does not require service restart.
+      operationId: updatePerformanceMeasurement
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        description: Partial PerformanceMeasurement data with fields to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerformanceMeasurement'
+      responses:
+        '200':
+          $ref: '#/components/responses/200PerformanceMeasurement_Get'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '503':
+          $ref: '#/components/responses/503'
+components:
+  schemas:
+    Extensible:
+      type: object
+      description: >-
+        Base Extensible schema for use in TMForum Open-APIs
+      properties:
+        '@type':
+          type: string
+          description: 'When sub-classing, this defines the sub-class Extensible name'
+        '@baseType':
+          type: string
+          description: 'When sub-classing, this defines the super-class'
+        '@schemaLocation':
+          type: string
+          description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      required:
+        - '@type'
+    Addressable:
+      type: object
+      description: Base schema for addressable entities
+      properties:
+        href:
+          type: string
+          description: Hyperlink reference
+        id:
+          type: string
+          description: unique identifier
+    Entity:
+      type: object
+      description: Base entity schema for use in TMForum Open-APIs
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/Addressable'
+    TimePeriod:
+      type: object
+      description: 'A period of time, either as a deadline (endDateTime only) a startDateTime only, or both'
+      properties:
+        startDateTime:
+          description: 'Start of the time period, using IETC-RFC-3339 format'
+          type: string
+          format: date-time
+          example: '2026-05-30T10:00:00Z'
+        endDateTime:
+          description: 'End of the time period, using IETC-RFC-3339 format'
+          type: string
+          format: date-time
+          example: '2026-05-30T10:30:00Z'
+    PerformanceIndicatorSpecification:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: >-
+            Holds the definition of a Performance Indicator including its name, value
+            type, and units.
+          properties:
+            name:
+              description: Name of the PerformanceIndicatorSpecification
+              type: string
+            indicatorCategory:
+              description: Category grouping for the indicator
+              type: string
+            indicatorUnit:
+              description: >-
+                The unit by which the indicator is measured (e.g., gCO2eq/kWh)
+              type: string
+    PerformanceIndicatorValue:
+      type: object
+      description: A value of a performance indicator
+      properties:
+        performanceIndicatorSpecification:
+          $ref: '#/components/schemas/PerformanceIndicatorSpecification'
+        observedValue:
+          type: string
+          description: The measurement value
+        tag:
+          description: Optional tag object attached to this observed value
+          type: object
+    PerformanceMeasurement:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: A measurement of a performance indicator
+          properties:
+            description:
+              type: string
+              description: A free-text description of the performance measurement
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            tag:
+              description: Optional tag object attached to measurement (e.g., region, country)
+              type: object
+    PerformanceMeasurementAtomic:
+      allOf:
+        - $ref: '#/components/schemas/PerformanceMeasurement'
+        - type: object
+          description: A measurement of a single performance indicator
+          properties:
+            performanceIndicatorValue:
+              type: array
+              items:
+                $ref: '#/components/schemas/PerformanceIndicatorValue'
+              minItems: 1
+    Error:
+      type: object
+      description: Used when an API throws an Error, typically with a HTTP error response-code (3xx, 4xx, 5xx)
+      required:
+        - code
+        - reason
+      properties:
+        code:
+          type: string
+          description: Application relevant detail, defined in the API or a common list
+        reason:
+          type: string
+          description: Explanation of the reason for the error which can be shown to a client user
+        message:
+          type: string
+          description: >-
+            More details and corrective actions related to the error which can be shown to a client
+            user
+        status:
+          type: string
+          description: HTTP Error code extension
+        referenceError:
+          type: string
+          format: uri
+          description: URI of documentation describing the error
+        '@baseType':
+          type: string
+          description: 'When sub-classing, this defines the super-class'
+        '@schemaLocation':
+          type: string
+          format: uri
+          description: >-
+            A URI to a JSON-Schema file that defines additional attributes and relationships
+        '@type':
+          type: string
+          description: 'When sub-classing, this defines the sub-class entity name'
+  parameters:
+    Id:
+      name: id
+      required: true
+      schema:
+        type: string
+      in: path
+      description: Identifier of the Resource
+    Fields:
+      name: fields
+      in: query
+      description: Comma-separated properties to be provided in response
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: Requested index for start of resources to be provided in response
+      schema:
+        type: integer
+    Limit:
+      name: limit
+      in: query
+      description: Requested number of resources to be provided in response
+      schema:
+        type: integer
+    ValidForTimestamp:
+      name: validForTimestamp
+      in: query
+      description: ISO 8601 timestamp to filter measurements by validFor period. Returns only measurements where the timestamp falls within the validFor start and end times.
+      schema:
+        type: string
+        format: date-time
+      example: "2024-03-15T10:30:00Z"
+    Region:
+      name: region
+      in: query
+      description: Filter measurements by region tag (e.g., "UK-South", "EU-West", "US-East")
+      schema:
+        type: string
+      example: "UK-South"
+  responses:
+    200PerformanceMeasurementArray:
+      description: Success
+      headers:
+        X-Total-Count:
+          description: Total number of items matching criteria
+          schema:
+            type: integer
+        X-Result-Count:
+          description: Actual number of items returned in the response body
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/PerformanceMeasurement'
+    200PerformanceMeasurement_Get:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PerformanceMeasurement'
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    405:
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    503:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
