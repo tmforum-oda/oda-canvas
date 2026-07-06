@@ -2,6 +2,8 @@
 
 Enables carbon-aware computing by measuring energy and carbon consumption of ODA Components and providing services to optimize workload operations based on carbon intensity data. This operator reduces the environmental impact of software by dynamically adjusting resource allocation during periods of high-carbon electricity generation.
 
+[![Carbon Aware Software - Optimizing Telecom Workloads for a Greener Grid](https://img.youtube.com/vi/I78MSow6RQg/0.jpg)](https://youtu.be/I78MSow6RQg)
+
 ---
 
 At present, there is one implementation:
