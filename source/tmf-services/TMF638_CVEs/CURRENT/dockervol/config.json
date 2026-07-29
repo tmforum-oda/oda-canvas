@@ -1,0 +1,46 @@
+{
+
+
+  "db_prot": "mongodb",
+  "db_user": "mongodb",
+  "db_password": "mongodb",
+  "db_host": "mongo",
+  "db_port": 27017,
+  "db_name": "tmf",
+
+  "alarm_host": "http://localhost:10011",
+  "alarm_url_hal": "/api/",
+
+  "redis_host": "redis",
+  "strict_schema": true,
+
+  "schemaValidationType": "USE_LOCAL_CACHE, USE_OPTIMISTIC_LOCAL, USE_LOCAL_MAPPING, USE_REMOTE_LOOKUP",
+
+  "localSchemaMapping": [
+    { "schema": "https://mycsp.com:8080/tmf-api/schema/Service/ServiceCandidate.yml", 
+      "file": "ServiceCandidate.yml" 
+    },
+    { "schema": "@schemaLocation", 
+      "file": "ServiceCandidate.yml" 
+    }
+  ],
+
+  "localSchemaLocation": "schema",
+
+  "injectListenerPostings": true,
+
+  "notExternal": true,
+  "SERVER_URL" : "http://127.0.0.1:8638/tmf-api/serviceInventoryManagement/v5",
+  "SCHEMA_URL" : "http://127.0.0.1:8638/openapi",
+
+
+  "apiNum": "638",
+
+  "exposedPort": 8638,
+
+  "apiUrl": "http://127.0.0.1:8638/tmf-api/serviceInventoryManagement/v5",
+
+  "hub": "EventsSubscription",
+  "OPENAPI": "/openapi"
+
+}

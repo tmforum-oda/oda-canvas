@@ -1,0 +1,29 @@
+FROM node:17-alpine
+
+LABEL org.opencontainers.image.title="tmf620-v5-ri" \
+      org.opencontainers.image.description="TMF620 RI by TM Forum" \
+      org.opencontainers.image.licenses="RAND"
+
+ENV NODE_ENV=development
+WORKDIR /usr/src/app
+
+# Proper init for signal/zombie handling
+RUN apk add --no-cache tini
+
+# Copy only package.json (no lock file)
+COPY package.json ./
+
+# Install dependencies without lockfile
+RUN npm install --omit=dev --no-audit --no-fund \
+  && npm cache clean --force
+
+COPY . .
+
+RUN chown -R node:node /usr/src/app
+USER node
+
+EXPOSE 8080
+# tiny init helps with zombie reaping; present in node:alpine as /sbin/tini in some tags
+# If not present, remove the entrypoint line below.
+ENTRYPOINT ["/sbin/tini","--"]
+CMD ["node","index.js"]
