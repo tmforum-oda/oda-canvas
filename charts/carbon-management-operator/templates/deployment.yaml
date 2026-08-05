@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carbon-management-operator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "carbon-management-operator.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.deployment.operatorName}}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: {{.Values.deployment.operatorName}}
+        {{- include "carbon-management-operator.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: carbon-management-account
+      containers:
+      - name: {{.Values.deployment.operatorName}}
+        image: {{ include "carbon-management-operator.image" . }}
+        imagePullPolicy: {{ include "carbon-management-operator.imagePullPolicy" . }}
+        env:
+            - name: KOPF_LOG_FORMAT
+              value: "json"
+            - name: KOPF_LOG_LEVEL
+              value: "INFO"
+            - name: CARBON_INTENSITY_API_URL
+              value: {{ quote .Values.env.CARBON_INTENSITY_API_URL }}
+        resources:
+          requests:
+            cpu: {{ .Values.deployment.resources.requests.cpu }}
+            memory: {{ .Values.deployment.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.deployment.resources.limits.cpu }}
+            memory: {{ .Values.deployment.resources.limits.memory }}

@@ -5,8 +5,8 @@
 # automation/generators/dockerbuild-workflow-generator/dockerbuild-config.yaml #
 ################################################################################
 
-name: Build Credentialsmanagement-Operator Prerelease Dockerimage
-run-name: Build Credentialsmanagement-Operator Prerelease Dockerimage
+name: Build TMF-628 Carbon Intensity API Prerelease Dockerimage
+run-name: Build TMF-628 Carbon Intensity API Prerelease Dockerimage
 on:
   workflow_dispatch:
   push:
@@ -14,10 +14,10 @@ on:
     - feature/*
     - odaa-*
     paths: 
-      - source/operators/TMFOP004-Credentials-Management/credentials-management/*
+      - source/tmf-services/TMF628_Performance_Management/**/*
 
 jobs:
-  build-credentialsmanagement-operator-prerelease-dockerfile-job:
+  build-tmf628-carbon-intensity-api-prerelease-dockerfile-job:
     runs-on: ubuntu-latest
     steps:
 
@@ -27,17 +27,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: read image of credentialsmanagement-operator from values.yaml
+      - name: read image of tmf628-carbon-intensity-api from values.yaml
         id: get_values_image
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.deployment.credopImage' charts/credentialsmanagement-operator/values.yaml
+          cmd: yq '.image' charts/carbon-intensity-service/values.yaml
           
-      - name: read versionnumber of credentialsmanagement-operator from values.yaml
+      - name: read versionnumber of tmf628-carbon-intensity-api from values.yaml
         id: get_values_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.deployment.credopVersion, .deployment.credopPrereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/credentialsmanagement-operator/values.yaml
+          cmd: yq '[.version, .prereleaseSuffix] | filter(.!=null and .!="") | join("-")' charts/carbon-intensity-service/values.yaml
           
       - name: Check Version
         id: check-tag
@@ -49,11 +49,11 @@ jobs:
               echo "::error::Version ${{ steps.get_values_version.outputs.result }} does not match prerelease format <n>.<n>.<n>-<prerelease>" && exit 1
           fi        
 
-      - name: read release versionnumber of credentialsmanagement-operator from values.yaml
+      - name: read release versionnumber of tmf628-carbon-intensity-api from values.yaml
         id: get_values_release_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.deployment.credopVersion' charts/credentialsmanagement-operator/values.yaml
+          cmd: yq '.version' charts/carbon-intensity-service/values.yaml
               
       - name: Get Git commit timestamps
         run: |
@@ -81,8 +81,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/TMFOP004-Credentials-Management/credentials-management
-          file: source/operators/TMFOP004-Credentials-Management/credentials-management/credentialsmanagement-operator-dockerfile
+          context: source/tmf-services/TMF628_Performance_Management
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

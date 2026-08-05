@@ -1,0 +1,47 @@
+apiVersion: oda.tmforum.org/v1alpha1
+kind: CarbonManagement
+metadata:
+  name: productorder
+  namespace: components
+spec:
+  # Deployment discovery - targets ProductOrderCaptureAndValidation component
+  # Note: Replace 'ocv1' with your actual Helm release name
+  deploymentSelector:
+    matchLabels:
+      oda.tmforum.org/componentName: ocv1-productordercaptureandvalidation
+      carbon-aware: enabled
+  
+  # ScaledObject template (applied to discovered deployments)
+  scaledObjectTemplate:
+    pollingInterval: 30
+    cooldownPeriod: 300
+    minReplicaCount: 0
+    maxReplicaCount: 10
+    triggers:
+      - type: prometheus
+        metadata:
+          serverAddress: http://prometheus-kube-prometheus-prometheus.monitoring.svc:9090
+          metricName: pending_orders
+          threshold: '5'
+          # Query the pending orders gauge exposed by the metrics microservice
+          # Note: Replace 'ocv1_productordercaptureandvalidation' with the actual metric name based on your release
+          query: ocv1_productordercaptureandvalidation_pending_orders
+    
+  # Carbon-aware scaling: Adjust max replicas based on carbon intensity
+  maxReplicasByCarbonIntensity:
+    - carbonIntensityThreshold: 400
+      maxReplicas: 9
+    - carbonIntensityThreshold: 500
+      maxReplicas: 5
+    - carbonIntensityThreshold: 550
+      maxReplicas: 1
+  
+  # Fallback to default max replicas when carbon intensity data is unavailable
+  defaultMaxReplicas: 10
+  
+  # Carbon intensity data source
+  carbonIntensityForecastDataSource:
+    tmf628Api:
+      url: "http://carbon-intensity-service.canvas.svc.cluster.local/tmf-api/performance/v5"
+      region: "us-central1-c"
+      timeout: 10

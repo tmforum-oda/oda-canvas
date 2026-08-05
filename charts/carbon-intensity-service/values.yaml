@@ -1,0 +1,5 @@
+image: tmforumodacanvas/tmf628-carbon-intensity-api
+version: 1.0.0
+prereleaseSuffix:
+imagePullPolicy: IfNotPresent
+serverUrl: http://carbon-intensity-service.canvas.svc.cluster.local/tmf-api/performance/v5
