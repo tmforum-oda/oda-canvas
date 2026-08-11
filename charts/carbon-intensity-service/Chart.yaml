@@ -1,0 +1,12 @@
+apiVersion: v2
+name: carbon-intensity-service
+description: A Helm chart to deploy TMF628 Carbon Intensity Performance Management API
+
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 1.0.0
+
+# This is the version number of the application being deployed.
+appVersion: "v1"

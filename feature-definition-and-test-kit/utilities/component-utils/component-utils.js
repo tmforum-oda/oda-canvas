@@ -1,6 +1,7 @@
 const k8s = require('@kubernetes/client-node')
 const fs = require('fs')
 const axios = require('axios')
+const execSync = require('child_process').execSync;
 
 const resourceInventoryUtils = require('resource-inventory-utils-kubernetes');
 
@@ -205,6 +206,52 @@ const componentUtils = {
       }
     }
     return validatedSuccessfully
-  }
+  },
+  /**
+  * show log of deployment
+  * @param  {string} namespace - The namespace to list releases from.
+  * @param  {string} deploymentName - Name of the deployment to show log
+  * @param  {Number} numberOfLines - limit to the last n number of lines 
+  * @return {String} content of log
+  */
+  getDeploymentLog: function (deploymentName, namespace = 'components', numberOfLines = 100) {
+    try {
+      const logText = execSync(`kubectl logs deployment/${deploymentName} -n ${namespace} --tail ${numberOfLines}`, { encoding: 'utf-8' });
+      return logText;
+    } catch (error) {
+      console.error(`Error showing logs of deployment ${deploymentName} in namespace ${namespace}: ${error.message}`);
+      return null;
+    }
+  },
+  /**
+  * show debug info for dependent apis
+  * @return {String} debug info
+  */
+  getDebugInfoDepApis: function () {
+    try {
+	  const debugInfo1 = execSync(`kubectl get dependentapis,exposedapis,components -A`, { encoding: 'utf-8' });
+	  const debugInfo2 = execSync(`kubectl exec -n canvas deployment/canvas-info-service -- curl -s http://info.canvas.svc.cluster.local/service -H "accept: application/json"`, { encoding: 'utf-8' });
+      return `${debugInfo1}\n\n--- info service ---\n\n${debugInfo2}`;
+    } catch (error) {
+      console.error(`Error getting debug infos for dependent apis: ${error.message}`);
+      return null;
+    }
+  },
+  /**
+  * show debug info for dependent apis
+  * @return {String} debug info
+  */
+  getComponentYAML: function (componentName, namespace = 'components') {
+    try {
+    const result = execSync(`kubectl get component -n ${namespace} ${componentName}`, { encoding: 'utf-8' });
+      return result;
+    } catch (error) {
+      console.error(`Error getting component ${componentName} in namespace ${namespace}: ${error.message}`);
+      return null;
+    }
+  },
+
+
 }
+
 module.exports = componentUtils

@@ -2,7 +2,7 @@
 // Replace the library with your own implementation library if you use a different implementation technology.
 const componentUtils = require('component-utils');
 
-const { Given, When, Then, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
+const { Given, When, Then, After, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const assert = require('assert');
@@ -177,7 +177,6 @@ When('I query the {string} component for {string} data:', async function (compon
     console.error(`❌ Error during Product Catalog data query: ${error.message}`);
     console.error('Error details:');
     console.error(`- Component: '${componentName}'`);
-    console.error(`- Release: '${releaseName}'`);
     console.error(`- Resource type: '${resourceType}'`);
     console.error(`- Error type: ${error.constructor.name}`);
     
@@ -265,3 +264,149 @@ Then('I should see the following {string} data in the federated product catalog:
     throw error;
   }
 });
+
+
+/**
+ * wait seconds
+ *
+ * @param {string} deploymentName - The name of the deployment.
+ * @returns {Promise<void>} - A Promise that resolves when the query is complete.
+ */
+Then('wait for {string} seconds', async function (seconds) {
+  console.log(`\n=== waiting for {seconds} seconds ===`);
+
+  // wait given seconds
+  await new Promise(resolve => setTimeout(resolve, seconds * 1000));
+
+  console.log('=== Finished waiting ===');
+});
+
+
+/**
+ * Debugging: show logs of canvas-xxx in namespace canvas.
+ *
+ * @param {string} deploymentName - The name of the deployment.
+ * @param {string} namespace - The name of the deployment.
+ * @returns {Promise<void>} - A Promise that resolves when the query is complete.
+ */
+Then('show debug log of {string} deployment in namespace {string}', async function (deploymentName, namespace) {
+  console.log(`\n=== Start log of Deployment '${deploymentName}' in namespace {namespace} ===`);
+
+  try {
+  
+    const deploymentLog = await componentUtils.getDeploymentLog(deploymentName, namespace, 100);
+    assert.notEqual(deploymentLog, null, `Can't get log for deployment '${deploymentName}' in namespace '${namespace}'`);
+    
+    console.log(deploymentLog);
+
+    console.log(`=== End log of Deployment '${deploymentName}' in namespace ${namespace} ===`);
+
+  } catch (error) {
+    console.error(`❌ Error during getting deployment log: ${error.message}`);
+    console.error('Error details:');
+	console.error(`- Deployment: '${deploymentName}'`);
+	console.error(`- Namespace: '${namespace}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+
+	console.log('=== Show deployment log Failed ===');
+    throw error;
+  }
+});
+
+
+
+/**
+ * Debugging: show logs of ctk-xxx.
+ *
+ * @param {string} deploymentName - The name of the deployment.
+ * @returns {Promise<void>} - A Promise that resolves when the query is complete.
+ */
+Then('show debug log of {string} deployment', async function (deploymentName) {
+  console.log(`\n=== Start log of Deployment '${deploymentName}' ===`);
+
+  try {
+    const namespace = NAMESPACE; // default namespace for deployments in this context
+    const deploymentLog = await componentUtils.getDeploymentLog(deploymentName, namespace, 100);
+    assert.notEqual(deploymentLog, null, `Can't get log for deployment '${deploymentName}' in namespace '${namespace}'`);
+    
+    console.log(deploymentLog);
+
+    console.log(`=== End log of Deployment '${deploymentName}' in namespace ${namespace} ===`);
+
+  } catch (error) {
+    console.error(`❌ Error during getting deployment log: ${error.message}`);
+    console.error('Error details:');
+	console.error(`- Deployment: '${deploymentName}'`);
+	console.error(`- Namespace: '${namespace}'`);
+    console.error(`- Error type: ${error.constructor.name}`);
+
+	console.log('=== Show deployment log Failed ===');
+    throw error;
+  }
+});
+
+
+
+/**
+ * Debugging: depapi status
+ *
+* @param {string} deploymentName - The name of the deployment.
+* @param {string} namespace - The name of the deployment.
+ * @returns {Promise<void>} - A Promise that resolves when the query is complete.
+ */
+Then('show debug info for dependent apis', async function () {
+  console.log(`\n=== Debug info for dependent APIs ===`);
+
+  try {
+  
+    const debugInfo = await componentUtils.getDebugInfoDepApis();
+    assert.notEqual(debugInfo, null, `Can't get debug ingo for dependent apis`);
+    
+    console.log(debugInfo);
+
+	console.log(`--- component yaml ---`);
+	const compYaml = await componentUtils.getComponentYAML("ctk-productcatalogmanagement", "components");
+	console.log(compYaml);
+	
+	console.log(`--- existing data ---`);
+	console.log(JSON.stringify(this.existingData, null, 2));
+
+    console.log(`=== End debug info ===`);
+
+  } catch (error) {
+    console.error(`❌ Error during getting debug infos: ${error.message}`);
+    console.error('Error details:');
+    console.error(`- Error type: ${error.constructor.name}`);
+
+	console.log('=== Show debug info Failed ===');
+    throw error;
+  }
+});
+
+
+After({ tags: '@UC002-F001' }, async function (scenario) {
+  if (scenario.result.status === 'FAILED') {
+    // läuft nur für mit @UC002-F001 getaggte Szenarien
+	try {
+		console.log('\n=== AUTO DEBUG after failed scenario ===');
+		console.log('\n--- Component-Operator logs ---');
+	  
+        const deploymentLog = await componentUtils.getDeploymentLog("component-operator", "canvas", 100);
+        console.log(deploymentLog);
+		
+		console.log('\n--- Dependent APIs Debug Info ---');
+		
+		const debugInfo = await componentUtils.getDebugInfoDepApis();
+		console.log(debugInfo);
+
+		const compYaml = await componentUtils.getComponentYAML("ctk-productcatalogmanagement", "components");
+		console.log(compYaml);
+
+		console.log(`=== End AUTO DEBUG ===`);
+
+	} catch (e) {
+	  console.warn('AUTO DEBUG failed:', e.message);
+	}	
+  }
+});
+

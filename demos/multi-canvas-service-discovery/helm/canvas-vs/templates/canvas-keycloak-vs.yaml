@@ -1,0 +1,25 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: canvas-keycloak-vs
+  namespace: canvas
+  labels:
+    app: canvas-keycloak
+spec:
+  gateways:
+  - {{ .Values.componentGateway }}
+  hosts:
+  - 'canvas-keycloak.{{ .Values.domain }}'
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: {{ .Values.keycloakVS.host }}
+        port:
+          number: {{ .Values.keycloakVS.port }}
+      #headers:
+      #  request:
+      #    set:
+      #	      X-Forwarded-Proto: https

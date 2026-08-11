@@ -1,0 +1,214 @@
+apiVersion: "apiextensions.k8s.io/v1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "carbonmanagements.oda.tmforum.org"
+spec:
+  scope: "Namespaced"
+  group: "oda.tmforum.org"
+  names:
+    plural: "carbonmanagements"
+    singular: "carbonmanagement"
+    kind: "CarbonManagement"
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values.'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase.'
+            type: string
+          metadata:
+            type: object
+          spec:
+            type: object
+            properties:
+              carbonIntensityForecastDataSource:
+                description: Carbon intensity forecast data source using TMF628 Performance Management API
+                type: object
+                properties:
+                  tmf628Api:
+                    description: TMF628 API configuration for fetching carbon intensity data
+                    type: object
+                    properties:
+                      url:
+                        description: Base URL of TMF628 Performance Management API
+                        type: string
+                      region:
+                        description: Optional region filter (e.g., UK-South, EU-West, US-East)
+                        type: string
+                      timeout:
+                        description: HTTP request timeout in seconds
+                        format: int32
+                        type: integer
+                        default: 10
+                    required:
+                    - url  
+                required:
+                - tmf628Api
+              defaultMaxReplicas:
+                description: default maximum number of replicas when carbon intensity data is unavailable
+                type: integer
+                format: int32 
+              deploymentSelector:
+                description: selector for discovering deployments by label matching
+                type: object
+                properties:
+                  matchLabels:
+                    description: label selector to match deployments (e.g., oda.tmforum.org/componentName, carbon-aware, etc.)
+                    type: object
+                    additionalProperties:
+                      type: string
+                  namespace:
+                    description: namespace to search for deployments (optional, defaults to carbonmanagement resource namespace)
+                    type: string
+                  deploymentOverrides:
+                    description: per-deployment overrides for specific settings
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                required:
+                - matchLabels
+              scaledObjectTemplate:
+                description: template for creating ScaledObjects automatically
+                properties:
+                  triggers:
+                    description: KEDA triggers configuration
+                    items:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    minItems: 1
+                    type: array
+                  pollingInterval:
+                    description: polling interval in seconds
+                    format: int32
+                    type: integer
+                    default: 30
+                  cooldownPeriod:
+                    description: cooldown period in seconds
+                    format: int32
+                    type: integer
+                    default: 300
+                  minReplicaCount:
+                    description: minimum number of replicas
+                    format: int32
+                    type: integer
+                    default: 1
+                  maxReplicaCount:
+                    description: maximum number of replicas
+                    format: int32
+                    type: integer
+                    default: 10
+                  fallback:
+                    description: fallback configuration
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                required:
+                - triggers
+                type: object
+              maxReplicasByCarbonIntensity:
+                description: array of carbon intensity values preferrably in ascending
+                  order; each threshold value represents the upper limit and previous
+                  entry represents lower limit
+                items:
+                  description: CarbonIntensityConfig represents the configuration
+                    to scale the number of replicas based on carbon intensity
+                  properties:
+                    carbonIntensityThreshold:
+                      description: carbon intensity threshold to scale the number
+                        of replicas
+                      format: int32
+                      type: integer
+                    maxReplicas:
+                      description: maximum number of replicas to scale to when the
+                        carbon intensity threshold meets or exceeds carbonIntensityThreshold
+                      format: int32
+                      type: integer
+                  required:
+                  - carbonIntensityThreshold
+                  - maxReplicas
+                  type: object
+                minItems: 1
+                type: array
+            required:
+            - carbonIntensityForecastDataSource
+            - defaultMaxReplicas
+            - maxReplicasByCarbonIntensity
+          status:
+            description: CarbonManagementStatus defines the observed state of
+              CarbonManagement
+            properties:
+              deploymentsDiscovered:
+                description: number of deployments discovered by deployment selector
+                format: int32
+                type: integer
+              scaledObjectsManaged:
+                description: number of ScaledObjects successfully managed
+                format: int32
+                type: integer
+              scaledObjectsFailed:
+                description: number of ScaledObjects that failed to be managed
+                format: int32
+                type: integer
+              conditions:
+                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                  of cluster'
+                items:
+                  description: "Condition contains details for one aspect of the current
+                    state of this API Resource. --- This struct is intended for direct
+                    use as an array at the field path .status.conditions"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition
+                        transitioned from one status to another. This should be when
+                        the underlying condition changed.  If that is not known, then
+                        using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating
+                        details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    reason:
+                      description: reason contains a programmatic identifier indicating
+                        the reason for the condition's last transition. Producers
+                        of specific condition types may define expected values and
+                        meanings for this field, and whether the values are considered
+                        a guaranteed API. The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+            type: object
+    subresources:
+      status: {}

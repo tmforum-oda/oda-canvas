@@ -1,0 +1,10 @@
+domain: ihc-dt.cluster-2.de
+componentGateway: canvas/component-gateway
+
+keycloakVS:
+  host: canvas-keycloak.canvas.svc.cluster.local
+  port: 8083
+  landigpagePrefix: /
+  adminPwdSecretName: canvas-keycloak
+  adminPwdSecretKey: admin-password
+  loginPath: /auth

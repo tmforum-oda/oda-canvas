@@ -1,0 +1,16 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-kc-init-secrets-manager
+  labels:
+    app: keycloak-init
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-kc-init-secrets-manager
+subjects:
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-kc-init
+  namespace: {{ .Release.Namespace }}

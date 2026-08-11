@@ -2,13 +2,15 @@
 
 Manages the overall lifecycle of an ODA Component. It ensures all ODA Components are deployed, configured, secured, monitored, and continuously governed in a consistent way across the enterprise. Rather than delivering business functionality itself, it acts as the behind-the-scenes operator that keeps those capabilities running reliably, scaling when demand increases, enforcing policy and compliance standards, and managing upgrades or changes without disrupting customer-facing services. Technically it breaks the main ODA Component resource into sub-resources for the other operators to process.
 
+---
+
 At present, there is one implementation:
 
 ## Component Management Operator
 
-This is the reference implementiton of a component operator that manages the overall lifecycle of an ODA Component. The component operator takes the `Component` custom resource and creates multiple sub-reaources for each part of the component specification. At present it creates sub-resources for `ExposedAPI`, `DependentAPI`, `PublishedNotification`, `SubscribedNotification` and `SecretsManagement`. In the near future it will also create custom resources for `IdentityConfig` and `ObservabilityConfig`.
+This is the reference implementation of a component operator that manages the overall lifecycle of an ODA Component. The component operator takes the `Component` custom resource and creates multiple sub-resources for each part of the component specification. At present it creates sub-resources for `ExposedAPI`, `DependentAPI`, `PublishedNotification`, `SubscribedNotification` and `SecretsManagement`. In the near future it will also create custom resources for `IdentityConfig` and `ObservabilityConfig`.
 
-Separate operators then process the sub-resources and manage the relavant services in the ODA Canvas. This allows technology-specific versions of these operators. For example, if you were using an open source Kong API Gateway, you install the kong-specific API Management operator which would take metadata from the `ExposedAPI` resource and use it to configure APIs in Kong.
+Separate operators then process the sub-resources and manage the relevant services in the ODA Canvas. This allows technology-specific versions of these operators. For example, if you were using an open source Kong API Gateway, you install the kong-specific API Management operator which would take metadata from the `ExposedAPI` resource and use it to configure APIs in Kong.
 
 
 ## Sequence Diagram
@@ -24,10 +26,10 @@ There is more detail, including sequence diagrams for upgrade and deletion in us
 
 ## Reference Implementation
 
-The reference implementation of the component operator written in Python, using the [KOPF](https://kopf.readthedocs.io/) operator framework. You are free to re-use this implementation, extend or customize it, or develop your own component operator. Any custom component operator should use the same `Component` Custom Resource definition that is a foundational part of the ODA Canvas. To be compatible with other operators in the reference implementation, it should also use the `ExposedAPI`, `DependentAPI`, `PublishedNotification`, `SubscribedNotification` and `SecretsManagement` and (in the future)`IdentityConfig` and `ObservabilityConfig` custom resources. 
+The reference implementation of the component operator is written in Python, using the [KOPF](https://kopf.readthedocs.io/) operator framework. You are free to re-use this implementation, extend or customize it, or develop your own component operator. Any custom component operator should use the same `Component` Custom Resource definition that is a foundational part of the ODA Canvas. To be compatible with other operators in the reference implementation, it should also use the `ExposedAPI`, `DependentAPI`, `PublishedNotification`, `SubscribedNotification` and `SecretsManagement` and (in the future)`IdentityConfig` and `ObservabilityConfig` custom resources. 
 
 
-**Interactive development and Testing of operator using KOPF**
+### Interactive development and testing
 
 When deployed in an ODA Canvas, the operator will execute inside a Kubernetes Pod. For development and testing, it is possible to run the operator on the command-line (or inside a debugger). Kopf includes a `--standalone` attribute to allow the operator to execute in a standalone mode. This means that the operator will run independently, without relying on any external operators or frameworks. It is particularly useful for development and debugging purposes, as it allows you to run and test your operator locally on your machine.
 
