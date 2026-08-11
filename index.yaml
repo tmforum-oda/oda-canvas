@@ -384,6 +384,84 @@ entries:
   canvas-oda:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-08-11T06:54:51.1112914Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.1.2
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.3.2
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.3
+    - name: component-operator
+      repository: file://../component-operator
+      version: 1.4.3
+    - name: identityconfig-operator-keycloak
+      repository: file://../identityconfig-operator-keycloak
+      version: 1.2.7
+    - condition: api-operator-istio.enabled
+      name: api-operator-istio
+      repository: file://../api-operator-istio
+      version: 1.1.4
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 1.0.5
+    - condition: dependency-management-keycloak-authz.enabled
+      name: dependency-management-keycloak-authz
+      repository: file://../dependency-management-keycloak-authz
+      version: 0.1.0
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 1.0.2
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 1.0.2
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.2.3
+    - condition: kong-gateway-install.enabled
+      name: api-operator-kong
+      repository: file://../kong-gateway
+      version: 1.1.0
+    - condition: apisix-gateway-install.enabled
+      name: api-operator-apisix
+      repository: file://../apisix-gateway
+      version: 1.1.0
+    - condition: canvas-info-service.enabled
+      name: canvas-info-service
+      repository: file://../canvas-info-service
+      version: 1.0.1
+    - condition: resource-inventory.enabled
+      name: resource-inventory
+      repository: file://../resource-inventory
+      version: 1.1.0
+    - condition: pdb-management-operator.enabled
+      name: pdb-management-operator
+      repository: file://../pdb-management-operator
+      version: 0.1.0
+    - condition: component-registry.enabled
+      name: component-registry
+      repository: file://../component-registry
+      version: 0.1.0
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 5660d0d4cd963495f7f5e03c1ee495ff8365856d3b9269ccd79485ae18e1c4d8
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.2.6-rc1/canvas-oda-1.2.6-rc1.tgz
+    version: 1.2.6-rc1
+  - apiVersion: v2
+    appVersion: v1
     created: "2026-03-21T20:31:15.638810629Z"
     dependencies:
     - name: cert-manager-init
@@ -2737,6 +2815,17 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/component-operator-1.2.1/component-operator-1.2.1.tgz
     version: 1.2.1
+  component-registry:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2026-08-11T06:54:51.283115507Z"
+    description: A Helm chart for ODA Canvas Component-Registry Microservice
+    digest: 7768c456a2ec50e1eb44684f6c3172382e16d8f6d1524a8fb3d82e163cc22f48
+    name: component-registry
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/component-registry-0.1.0/component-registry-0.1.0.tgz
+    version: 0.1.0
   controller:
   - apiVersion: v2
     appVersion: 1.0.0
@@ -2845,6 +2934,16 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/dependency-management-keycloak-authz-0.1.0/dependency-management-keycloak-authz-0.1.0.tgz
     version: 0.1.0
   dependentapi-simple-operator:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2026-08-11T06:54:51.437776819Z"
+    description: The DependentAPI Simple Operator
+    digest: 2217801402ee408b0ff53030a3268ed50fde4f22b5eb8724f3ac1fffa6bd5f01
+    name: dependentapi-simple-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/dependentapi-simple-operator-1.0.5/dependentapi-simple-operator-1.0.5.tgz
+    version: 1.0.5
   - apiVersion: v2
     appVersion: v1
     created: "2025-08-05T20:51:26.176796695Z"
@@ -3371,6 +3470,16 @@ entries:
   resource-inventory:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-08-11T06:54:51.614202046Z"
+    description: A helm chart to deploy Resource Inventory
+    digest: 30631942350b5a0cddc518e9c559f3831e4a664671bee8938e4528490d0b15b1
+    name: resource-inventory
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/resource-inventory-1.1.0/resource-inventory-1.1.0.tgz
+    version: 1.1.0
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-08-11T11:29:27.917251087Z"
     description: A helm chart to deploy Resource Inventory
     digest: af2e0289ff4e0eb0090a20c3fea5da657d294a936bf265a3d999b32df8bf6cb7
@@ -3430,4 +3539,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2026-06-22T04:41:23.377550289Z"
+generated: "2026-08-11T06:54:51.614846675Z"
