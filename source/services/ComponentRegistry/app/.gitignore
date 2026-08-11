@@ -1,0 +1,5 @@
+/*.sqbpro
+/*.db
+/.env_*
+.env
+.env2

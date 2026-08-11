@@ -131,6 +131,13 @@ keycloak:
               "enabled": true,
               "standardFlowEnabled": false,
               "serviceAccountsEnabled": true
+            },
+            {
+              "clientId": "compreg-manager",
+              "name": "Component Registry Manager",
+              "enabled": true,
+              "standardFlowEnabled": false,
+              "serviceAccountsEnabled": true
             }
           ],
           "users": [
@@ -197,6 +204,7 @@ identityconfig-operator-keycloak:
     user: admin
     pass: adpass
   configmap:
+    #kcbase: http://canvas-keycloak-headless.canvas.svc.cluster.local:8083/auth  # trying to parameterise this in the configmap
     kcrealm: odari
     # -- Log level [python] (https://docs.python.org/3/library/logging.html
     loglevel: '20'
@@ -209,10 +217,14 @@ identityconfig-operator-keycloak:
 dependentapi-simple-operator:
   enabled: true
   image: tmforumodacanvas/dependentapi-simple-operator
-  version: 1.0.1
-  prereleaseSuffix: 
+  version: 1.0.2
+  prereleaseSuffix:
+
   imagePullPolicy: IfNotPresent
   loglevel: '20'
+  # comment out 'componentRegistryUrl' if ComponentRegistry is not used
+  componentRegistryUrl: http://canvas-compreg.canvas.svc.cluster.local
+  
 
 dependency-management-keycloak-authz:
   enabled: false
@@ -618,15 +630,44 @@ canvas-info-service:
 # -----------------------------------------------------------------------------
 
 
-# -----------------------------------------------------------------------------
-# Canvas Resource service parameters
-# -----------------------------------------------------------------------------
-
-
 resource-inventory:
   enabled: true
   image: tmforumodacanvas/tmf639-resource-inventory-api
-  version: 1.0.0
-  prereleaseSuffix: 
+  version: 1.1.0
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
+  serviceType: LoadBalancer
+
+
+# -----------------------------------------------------------------------------
+# Component Registry service parameters
+# -----------------------------------------------------------------------------
+
+
+component-registry:
+  enabled: true
+  image: tmforumodacanvas/component-registry
+  version: 0.1.0
+  prereleaseSuffix:
+  imagePullPolicy: IfNotPresent
+   
+  ownRegistryName: canvas-compreg
+   
+  # define log level, 10=DEBUG, 20=INFO
+  loglevel: "10"
+   
+  # Persistence for SQLite database file
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 1Gi
+   
+  keycloak:
+    enabled: false
+    setup:
+      enabled: false
+
+  oauth2:
+    enabled: false
+    

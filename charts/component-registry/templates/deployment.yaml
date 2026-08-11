@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "component-registry.fullname" . }}
+  labels:
+    {{- include "component-registry.labels" . | nindent 4 }}
+    {{- with .Values.odaCanvas.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "component-registry.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "component-registry.selectorLabels" . | nindent 8 }}
+        {{- with .Values.odaCanvas.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "component-registry.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ include "component-registry.dockerimage" . }}"
+          imagePullPolicy: "{{ include "component-registry.imagePullPolicy" . }}"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+            successThreshold: {{ .Values.probes.liveness.successThreshold }}
+          {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            successThreshold: {{ .Values.probes.readiness.successThreshold }}
+          {{- end }}
+          env:
+            - name: PORT
+              value: "{{ .Values.port }}"
+            - name: DATABASE_URL
+              value: "{{ .Values.databaseUrl }}"
+            - name: CANVAS_RESOURCE_INVENTORY
+              value: "{{ .Values.canvasResourceInventory }}"
+            - name: WATCHED_NAMESPACES
+              value: "{{ .Values.watchedNamespaces }}"
+            - name: OWN_REGISTRY_NAME
+              value: "{{ include "component-registry.own-registry-name" . }}"
+            - name: LOGGING
+              value: "{{ .Values.loglevel }}"
+
+            - name: OAUTH2_ENABLED 
+              value: "{{ .Values.oauth2.enabled }}"
+            - name: OAUTH2_SECRET_KEY 
+              value: {{ include "component-registry.oauth2-secret-key" . | quote }}
+            - name: OAUTH2_ALGORITHM 
+              value: "{{ .Values.oauth2.algorithm }}"
+            - name: OAUTH2_ACCESS_TOKEN_EXPIRE_MINUTES 
+              value: "{{ .Values.oauth2.tokenExpireMinutes }}"
+
+            - name: KEYCLOAK_ENABLED
+              value: "{{ .Values.keycloak.enabled }}"
+            - name: KEYCLOAK_URL
+              value: "{{ .Values.keycloak.url }}"
+            - name: KEYCLOAK_AUDIENCE
+              value: "{{ .Values.keycloak.audience }}"
+            - name: KEYCLOAK_VALID_ISSUERS
+              value: "{{ .Values.keycloak.validIssuers }}"
+            - name: KEYCLOAK_CLIENT_ID
+              {{ if .Values.keycloak.clientId -}}
+              value: "{{ .Values.keycloak.clientId }}"
+              {{- else -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: client_id
+                  optional: true
+              {{- end }}
+            - name: KEYCLOAK_CLIENT_SECRET
+              {{ if .Values.keycloak.clientSecret -}}
+              value: "{{ .Values.keycloak.clientSecret }}"
+              {{- else -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: client_secret
+                  optional: true
+              {{- end }}
+
+            - name: OAUTH2_CLIENT_ID
+              {{ if .Values.oauth2.clientId -}}
+              value: "{{ .Values.oauth2.clientId }}"
+              {{- else -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: client_id
+                  optional: true
+              {{- end }}
+            - name: OAUTH2_CLIENT_SECRET
+              {{ if .Values.oauth2.clientSecret -}}
+              value: "{{ .Values.oauth2.clientSecret }}"
+              {{- else -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: client_secret
+                  optional: true
+              {{- end }}
+            - name: OAUTH2_TOKEN_URL
+              {{ if .Values.oauth2.tokenUrl -}}
+              value: "{{ .Values.oauth2.tokenUrl }}"
+              {{- else -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2.tokenSecretName }}
+                  key: token_url
+                  optional: true
+              {{- end }}
+              
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: data-storage
+              mountPath: /app/data
+          {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: data-storage
+          persistentVolumeClaim:
+            claimName: {{ include "component-registry.fullname" . }}-data
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

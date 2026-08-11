@@ -1,0 +1,295 @@
+[
+	{
+		"resourceVersion": "1777964577234751015",
+		"@type": "LogicalResource",
+		"@baseType": "Resource",
+		"name": "r-cat-productcatalogmanagement-metrics",
+		"description": "Exposed API: metrics",
+		"category": "API",
+		"resourceSpecification": {
+			"@type": "ResourceSpecificationRef",
+			"id": "API",
+			"name": "API"
+		},
+		"resourceCharacteristic": [
+			{
+				"@type": "Characteristic",
+				"name": "namespace",
+				"value": "components"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiName",
+				"value": "metrics"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiType",
+				"value": "prometheus"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "url",
+				"value": "https://34.51.232.176/r-cat-productcatalogmanagement/metrics"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "implementation",
+				"value": "r-cat-productcatalogmanagement-sm"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiDocs"
+			}
+		],
+		"resourceStatus": "available",
+		"operationalState": "enable",
+		"administrativeState": "unlocked",
+		"usageState": "active",
+		"startDate": "2026-05-05T07:02:51Z",
+		"resourceRelationship": [
+			{
+				"@type": "ResourceRelationship",
+				"relationshipType": "exposedBy",
+				"resource": {
+					"id": "self:r-cat-productcatalogmanagement",
+					"href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement",
+					"@type": "LogicalResource"
+				}
+			}
+		],
+		"id": "self:r-cat-productcatalogmanagement-metrics",
+		"href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement-metrics"
+	},
+	{
+		"resourceVersion": "1777964610739935008",
+		"@type": "LogicalResource",
+		"@baseType": "Resource",
+		"name": "r-cat-productcatalogmanagement",
+		"description": "ODA Component: r-cat-productcatalogmanagement",
+		"category": "ODAComponent",
+		"resourceSpecification": {
+			"@type": "ResourceSpecificationRef",
+			"id": "ODAComponent",
+			"name": "ODA Component"
+		},
+		"resourceCharacteristic": [
+			{
+				"@type": "Characteristic",
+				"name": "namespace",
+				"value": "components"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "deploymentStatus",
+				"value": "Complete"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "description",
+				"value": "Simple Product Catalog ODA-Component from Open-API reference implementation."
+			},
+			{
+				"@type": "Characteristic",
+				"name": "functionalBlock",
+				"value": "CoreCommerce"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "id",
+				"value": "TMFC001"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "maintainers",
+				"value": [
+					{
+						"email": "lester.thomas@vodafone.com",
+						"name": "Lester Thomas"
+					}
+				]
+			},
+			{
+				"@type": "Characteristic",
+				"name": "name",
+				"value": "productcatalogmanagement"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "owners",
+				"value": [
+					{
+						"email": "lester.thomas@vodafone.com",
+						"name": "Lester Thomas"
+					}
+				]
+			},
+			{
+				"@type": "Characteristic",
+				"name": "publicationDate",
+				"value": "2024-09-17T00:00:00.000Z"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "status",
+				"value": "specified"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "version",
+				"value": "0.0.1"
+			}
+		],
+		"resourceStatus": "available",
+		"operationalState": "enable",
+		"administrativeState": "unlocked",
+		"usageState": "active",
+		"startDate": "2026-05-05T07:02:50Z",
+		"id": "self:r-cat-productcatalogmanagement",
+		"href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement"
+	},
+	{
+		"resourceVersion": "1777964587148927008",
+		"@type": "LogicalResource",
+		"@baseType": "Resource",
+		"name": "r-cat-productcatalogmanagement-productcatalogmanagement-v4",
+		"description": "Exposed API: productcatalogmanagement",
+		"category": "API",
+		"resourceSpecification": {
+			"@type": "ResourceSpecificationRef",
+			"id": "API",
+			"name": "API",
+			"version": "v4"
+		},
+		"resourceCharacteristic": [
+			{
+				"@type": "Characteristic",
+				"name": "namespace",
+				"value": "components"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiName",
+				"value": "productcatalogmanagement"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiType",
+				"value": "openapi"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "url",
+				"value": "https://34.51.232.176/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "implementation",
+				"value": "r-cat-prodcatapi"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "specification",
+				"value": {
+					"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
+					"version": "v4"
+				}
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiDocs",
+				"value": "https://34.51.232.176/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs"
+			}
+		],
+		"resourceStatus": "available",
+		"operationalState": "enable",
+		"administrativeState": "unlocked",
+		"usageState": "active",
+		"startDate": "2026-05-05T07:02:51Z",
+		"resourceRelationship": [
+			{
+				"@type": "ResourceRelationship",
+				"relationshipType": "exposedBy",
+				"resource": {
+					"id": "self:r-cat-productcatalogmanagement",
+					"href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement",
+					"@type": "LogicalResource"
+				}
+			}
+		],
+		"id": "self:r-cat-productcatalogmanagement-productcatalogmanagement-v4",
+		"href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement-productcatalogmanagement-v4"
+	},
+	{
+		"resourceVersion": "1777964591816767021",
+		"@type": "LogicalResource",
+		"@baseType": "Resource",
+		"name": "r-cat-productcatalogmanagement-userrolesandpermissions-v5",
+		"description": "Exposed API: userrolesandpermissions",
+		"category": "API",
+		"resourceSpecification": {
+			"@type": "ResourceSpecificationRef",
+			"id": "API",
+			"name": "API",
+			"version": "v5"
+		},
+		"resourceCharacteristic": [
+			{
+				"@type": "Characteristic",
+				"name": "namespace",
+				"value": "components"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiName",
+				"value": "userrolesandpermissions"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiType",
+				"value": "openapi"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "url",
+				"value": "https://34.51.232.176/r-cat-productcatalogmanagement/rolesAndPermissionsManagement/v5"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "implementation",
+				"value": "r-cat-permissionspecapi"
+			},
+			{
+				"@type": "Characteristic",
+				"name": "specification",
+				"value": {
+					"url": "https://raw.githubusercontent.com/tmforum-apis/TMF672_UserRolePermissions/master/TMF672-UserRolePermissions-v5.0.0.swagger.json",
+					"version": "v5"
+				}
+			},
+			{
+				"@type": "Characteristic",
+				"name": "apiDocs",
+				"value": "https://34.51.232.176/r-cat-productcatalogmanagement/rolesAndPermissionsManagement/v5/docs"
+			}
+		],
+		"resourceStatus": "available",
+		"operationalState": "enable",
+		"administrativeState": "unlocked",
+		"usageState": "active",
+		"startDate": "2026-05-05T07:02:51Z",
+		"resourceRelationship": [
+			{
+				"@type": "ResourceRelationship",
+				"relationshipType": "exposedBy",
+				"resource": {
+					"id": "self:r-cat-productcatalogmanagement",
+					"href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement",
+					"@type": "LogicalResource"
+				}
+			}
+		],
+		"id": "self:r-cat-productcatalogmanagement-userrolesandpermissions-v5",
+		"href": "http://localhost:8080/resource/self:r-cat-productcatalogmanagement-userrolesandpermissions-v5"
+	}
+]
