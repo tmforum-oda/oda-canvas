@@ -4,7 +4,7 @@
 
 image: tmforumodacanvas/component-registry
 version: 0.1.0
-prereleaseSuffix: issue384c
+prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 
 # define log level, 10=DEBUG, 20=INFO
