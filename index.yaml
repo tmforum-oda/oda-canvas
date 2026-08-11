@@ -384,6 +384,84 @@ entries:
   canvas-oda:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-08-11T08:28:39.551121563Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.1.2
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.3.2
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.3
+    - name: component-operator
+      repository: file://../component-operator
+      version: 1.4.3
+    - name: identityconfig-operator-keycloak
+      repository: file://../identityconfig-operator-keycloak
+      version: 1.2.7
+    - condition: api-operator-istio.enabled
+      name: api-operator-istio
+      repository: file://../api-operator-istio
+      version: 1.1.4
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 1.0.5
+    - condition: dependency-management-keycloak-authz.enabled
+      name: dependency-management-keycloak-authz
+      repository: file://../dependency-management-keycloak-authz
+      version: 0.2.1
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 1.0.2
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 1.0.2
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.2.3
+    - condition: kong-gateway-install.enabled
+      name: api-operator-kong
+      repository: file://../kong-gateway
+      version: 1.1.0
+    - condition: apisix-gateway-install.enabled
+      name: api-operator-apisix
+      repository: file://../apisix-gateway
+      version: 1.1.0
+    - condition: canvas-info-service.enabled
+      name: canvas-info-service
+      repository: file://../canvas-info-service
+      version: 1.0.1
+    - condition: resource-inventory.enabled
+      name: resource-inventory
+      repository: file://../resource-inventory
+      version: 1.1.0
+    - condition: pdb-management-operator.enabled
+      name: pdb-management-operator
+      repository: file://../pdb-management-operator
+      version: 0.1.0
+    - condition: component-registry.enabled
+      name: component-registry
+      repository: file://../component-registry
+      version: 0.1.0
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 9c394b63d8f65d0fa13bae0d9f5acabdc2f498378ddc6e7e40a2aad8a337b38b
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.2.6-rc2/canvas-oda-1.2.6-rc2.tgz
+    version: 1.2.6-rc2
+  - apiVersion: v2
+    appVersion: v1
     created: "2026-08-11T06:54:51.1112914Z"
     dependencies:
     - name: cert-manager-init
@@ -2923,6 +3001,18 @@ entries:
   dependency-management-keycloak-authz:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-08-11T08:28:39.688254353Z"
+    description: 'Helm chart for the TMFOP005 Dependency Management operator — Keycloak
+      Authorization implementation. Polls the Keycloak Admin Events API for CLIENT_ROLE_MAPPING
+      changes in the configured realm and logs each event. '
+    digest: a30cf6feafaea4ee84cc8f78b82c1cad1f85c363bebbf8449a3007fa18a17e9d
+    name: dependency-management-keycloak-authz
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/dependency-management-keycloak-authz-0.2.1/dependency-management-keycloak-authz-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: v1
     created: "2026-05-11T15:14:12.343124542Z"
     description: 'Helm chart for the TMFOP005 Dependency Management operator — Keycloak
       Authorization implementation. Polls the Keycloak Admin Events API for CLIENT_ROLE_MAPPING
@@ -3539,4 +3629,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2026-08-11T06:54:51.614846675Z"
+generated: "2026-08-11T08:28:39.689438991Z"
