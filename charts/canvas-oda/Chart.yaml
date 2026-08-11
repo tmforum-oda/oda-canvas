@@ -16,8 +16,9 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.6-rc1
-# version: 1.2.6-rc1  - issue 384 - added Component-Registry, update Simple-Dependent-API Operator and Resource-Inventory
+version: 1.2.6-rc2
+# version: 1.2.6-rc2 - issue 599 - fix blocking configmap after canvas deinstallation
+# version: 1.2.6-rc1 - issue 384 - added Component-Registry, update Simple-Dependent-API Operator and Resource-Inventory
 # version: 1.2.5     - New release ahead of Elevate Asia
 # version: 1.2.5-AK1 - updated component crd schema to allow multiple versions of an api under coreFunction and supporting functions
 # version: 1.2.5-LT5 - added segment to ExposedAPI and DependentAPI crds and enabled DependentAPIs for Management and Security
@@ -107,7 +108,7 @@ dependencies:
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: dependency-management-keycloak-authz
-    version: "0.1.0"
+    version: "0.2.1"
     repository: 'file://../dependency-management-keycloak-authz'
     condition: dependency-management-keycloak-authz.enabled
   - name: secretsmanagement-operator

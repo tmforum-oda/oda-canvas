@@ -15,9 +15,9 @@ the operator:
   4. On a match, patches the DependentAPI status (url, implementation.ready)
      and creates or updates the corresponding Service Inventory entry.
 
-The polling loop is implemented as a @kopf.daemon() anchored to the operator's
-own ConfigMap, giving a single continuous background loop that is independent
-of any application-level CRD objects.
+The polling loop is implemented as a startup-managed background task, giving a
+single continuous loop per operator instance that is independent of any
+application-level CRD objects.
 
 Keycloak compatibility notes:
   - Tested against Keycloak 20.  AdminEventRepresentation has no 'id' field;
@@ -34,7 +34,7 @@ Code structure:
   DependentAPI status    — patch DependentAPI ready status
   Component status       — propagate DependentAPI ready/url back to parent Component
   Event processing       — reduce, deduplicate, log, and act on events
-  Kopf handlers          — startup, liveness probe, and polling daemon
+  Kopf handlers          — startup, cleanup, liveness probe, and polling task
 
 Environment variables (supplied via ConfigMap and Secret):
   KEYCLOAK_BASE         - Keycloak base URL
@@ -71,9 +71,6 @@ from utils import safe_get
 # Configuration
 # ---------------------------------------------------------------------------
 
-OPERATOR_CONFIGMAP_NAME = "dependency-management-keycloak-authz-configmap"
-"""Name of the ConfigMap the daemon attaches to.  Must match the Helm template."""
-
 CANVAS_INFO_ENDPOINT: str = os.environ.get(
     "CANVAS_INFO_ENDPOINT", "http://info.canvas.svc.cluster.local"
 )
@@ -81,6 +78,9 @@ CANVAS_INFO_ENDPOINT: str = os.environ.get(
 
 POLL_INTERVAL_SECONDS: int = int(os.environ.get("POLL_INTERVAL_SECONDS", "5"))
 """How often (in seconds) to query Keycloak for new admin events."""
+
+SHUTDOWN_GRACE_PERIOD_SECONDS = 1
+"""Additional grace period when waiting for the background poller to stop."""
 
 RESOURCE_TYPES = ["CLIENT_ROLE_MAPPING"]
 """Keycloak admin-event resourceTypes to monitor."""
@@ -102,6 +102,9 @@ _RESOURCE_PATH_RE = re.compile(r"users/([^/]+)/role-mappings/clients/([^/]+)")
 
 _SERVICE_ACCOUNT_PREFIX = "service-account-"
 """Keycloak service-account username prefix; strip it to get the component name."""
+
+_POLLER_TASK: asyncio.Task | None = None
+_POLLER_STOP_EVENT: asyncio.Event | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -753,13 +756,15 @@ def _process_event(
 
 
 # ---------------------------------------------------------------------------
-# Kopf handlers — startup, probe, and polling daemon
+# Kopf handlers — startup, cleanup, probe, and polling task
 # ---------------------------------------------------------------------------
 
 
 @kopf.on.startup()
 async def configure(settings: kopf.OperatorSettings, logger, **kwargs):
     """Configure operator settings and verify Keycloak admin-events are enabled."""
+    global _POLLER_TASK, _POLLER_STOP_EVENT
+
     logw = LogWrapper(logger, function_name="configure", handler_name="startup")
 
     settings.peering.name = "dependency-mgmt-keycloak"
@@ -778,30 +783,87 @@ async def configure(settings: kopf.OperatorSettings, logger, **kwargs):
 
     if not keycloak_base:
         logw.warning("KEYCLOAK_BASE is not set", "admin event polling will fail")
+    else:
+        kc = Keycloak(keycloak_base)
+        try:
+            token = kc.get_token(
+                os.environ.get("KEYCLOAK_USER", ""), os.environ.get("KEYCLOAK_PASSWORD", "")
+            )
+            events_config = kc.get_realm_events_config(token, keycloak_realm)
+            if not events_config.get("adminEventsEnabled", False):
+                logw.warning(
+                    "adminEventsEnabled is False in Keycloak realm config",
+                    f"realm={keycloak_realm} — enable admin events under "
+                    "Realm Settings > Events > Admin Events",
+                )
+            elif not events_config.get("adminEventsDetailsEnabled", False):
+                logw.warning(
+                    "adminEventsDetailsEnabled is False in Keycloak realm config",
+                    f"realm={keycloak_realm} — enable 'Include Representation' under "
+                    "Realm Settings > Events > Admin Events",
+                )
+            else:
+                logw.info("Keycloak admin events are enabled", f"realm={keycloak_realm}")
+        except Exception as e:
+            logw.warning(
+                "Could not verify Keycloak admin events configuration",
+                f"realm={keycloak_realm} error={e}",
+            )
+
+    should_start_poller = _POLLER_TASK is None or _POLLER_TASK.done()
+    if _POLLER_TASK is not None and _POLLER_TASK.done():
+        try:
+            task_exception = _POLLER_TASK.exception()
+        except asyncio.CancelledError:
+            task_exception = None
+        if task_exception is not None:
+            logw.warning(
+                "Restarting Keycloak admin event poller task after unexpected exit",
+                str(task_exception),
+            )
+
+    if should_start_poller:
+        _POLLER_STOP_EVENT = asyncio.Event()
+        _POLLER_TASK = asyncio.create_task(
+            keycloak_admin_event_poller(_POLLER_STOP_EVENT, logger)
+        )
+
+
+@kopf.on.cleanup()
+async def cleanup(logger, **kwargs):
+    """Stop the background poller task during operator shutdown."""
+    global _POLLER_TASK, _POLLER_STOP_EVENT
+
+    logw = LogWrapper(logger, function_name="cleanup", handler_name="cleanup")
+
+    task = _POLLER_TASK
+    stop_event = _POLLER_STOP_EVENT
+    _POLLER_TASK = None
+    _POLLER_STOP_EVENT = None
+
+    if task is None:
         return
 
-    kc = Keycloak(keycloak_base)
-    try:
-        token = kc.get_token(
-            os.environ.get("KEYCLOAK_USER", ""), os.environ.get("KEYCLOAK_PASSWORD", "")
-        )
-        events_config = kc.get_realm_events_config(token, keycloak_realm)
-        if not events_config.get("adminEventsEnabled", False):
-            logw.warning(
-                "adminEventsEnabled is False in Keycloak realm config",
-                f"realm={keycloak_realm} — enable admin events under "
-                "Realm Settings > Events > Admin Events",
+    should_cancel_task = True
+    if stop_event is not None:
+        stop_event.set()
+        try:
+            await asyncio.wait_for(
+                task,
+                timeout=POLL_INTERVAL_SECONDS + SHUTDOWN_GRACE_PERIOD_SECONDS,
             )
-        elif not events_config.get("adminEventsDetailsEnabled", False):
+            should_cancel_task = False
+        except asyncio.TimeoutError:
             logw.warning(
-                "adminEventsDetailsEnabled is False in Keycloak realm config",
-                f"realm={keycloak_realm} — enable 'Include Representation' under "
-                "Realm Settings > Events > Admin Events",
+                "Timed out waiting for Keycloak admin event poller task to stop gracefully"
             )
-        else:
-            logw.info("Keycloak admin events are enabled", f"realm={keycloak_realm}")
-    except Exception as e:
-        logw.warning("Could not verify Keycloak admin events configuration", str(e))
+
+    if should_cancel_task:
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            logw.info("Keycloak admin event poller task cancelled")
 
 
 @kopf.on.probe(id="keycloak-connection")
@@ -814,21 +876,10 @@ async def check_keycloak_connection(**kwargs):
     return "ok"
 
 
-@kopf.daemon(
-    "",
-    "v1",
-    "configmaps",
-    when=lambda name, **_: name == OPERATOR_CONFIGMAP_NAME,
-    cancellation_timeout=1.0,
-)
-async def keycloak_admin_event_poller(stopped, logger, **kwargs):
-    """Single background daemon that polls Keycloak for CLIENT_ROLE_MAPPING admin events.
-
-    Anchored to the operator's own ConfigMap so there is exactly one active polling
-    loop regardless of how many application-level CRD objects exist in the cluster.
-    """
+async def keycloak_admin_event_poller(stop_event: asyncio.Event, logger):
+    """Single background task that polls Keycloak for CLIENT_ROLE_MAPPING admin events."""
     logw = LogWrapper(
-        logger, function_name="keycloak_admin_event_poller", handler_name="daemon"
+        logger, function_name="keycloak_admin_event_poller", handler_name="task"
     )
 
     keycloak_base = os.environ.get("KEYCLOAK_BASE", "")
@@ -848,12 +899,12 @@ async def keycloak_admin_event_poller(stopped, logger, **kwargs):
     seen_events: set = set()
 
     logw.info(
-        "Keycloak admin event poller daemon started",
+        "Keycloak admin event poller task started",
         f"realm={keycloak_realm} interval={POLL_INTERVAL_SECONDS}s "
         f"resource_types={RESOURCE_TYPES} operation_types={OPERATION_TYPES}",
     )
 
-    while not stopped:
+    while not stop_event.is_set():
         try:
             poll_started_at: int = int(time.time() * 1000)
 
@@ -893,4 +944,9 @@ async def keycloak_admin_event_poller(stopped, logger, **kwargs):
         except Exception as e:
             logw.exception("Error polling Keycloak admin events", e)
 
-        await asyncio.sleep(POLL_INTERVAL_SECONDS)
+        try:
+            # Use stop_event.wait() with a timeout as an interruptible sleep so
+            # operator shutdown can wake the loop immediately.
+            await asyncio.wait_for(stop_event.wait(), timeout=POLL_INTERVAL_SECONDS)
+        except asyncio.TimeoutError:
+            pass
