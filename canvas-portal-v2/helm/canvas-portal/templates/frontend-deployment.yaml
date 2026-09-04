@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "canvas-portal.frontend.fullname" . }}
+  labels:
+    {{- include "canvas-portal.frontend.labels" . | nindent 4 }}
+{{- $keycloakProxyUpstream := include "canvas-portal.keycloak.proxyUpstream" . }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "canvas-portal.frontend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "canvas-portal.frontend.selectorLabels" . | nindent 8 }}
+        {{- with .Values.frontend.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.frontend.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          env:
+            - name: FRONTEND_PORT
+              value: "80"
+            - name: NGINX_ENTRYPOINT_LOCAL_RESOLVERS
+              value: "1"
+            - name: BACKEND_UPSTREAM
+              value: {{ default (printf "http://%s.%s.svc.cluster.local:%v" (include "canvas-portal.backend.fullname" .) .Release.Namespace .Values.backend.service.port) .Values.frontend.nginx.backendUpstream | quote }}
+            - name: KEYCLOAK_UPSTREAM
+              value: {{ $keycloakProxyUpstream | quote }}
+            - name: APP_API_BASE_URL
+              value: {{ .Values.frontend.runtime.apiBaseUrl | quote }}
+            - name: APP_KEYCLOAK_URL
+              value: {{ .Values.frontend.runtime.keycloakUrl | quote }}
+            - name: APP_KEYCLOAK_REALM
+              value: {{ .Values.frontend.runtime.keycloakRealm | quote }}
+            - name: APP_KEYCLOAK_CLIENT_ID
+              value: {{ .Values.frontend.runtime.keycloakClientId | quote }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+      {{- with .Values.frontend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.frontend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.frontend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
