@@ -8,7 +8,8 @@ description: >
 type: application
 
 # Increment this version each time the chart or its templates change.
-version: 0.1.0
+version: 0.2.1
+# version: 0.2.1 - issue 599 - fix blocking configmap after canvas deinstallation
 # version: 0.1.0 - initial version
 
 # Tracks the ODA Component Standard version supported by this operator.

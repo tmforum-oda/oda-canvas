@@ -4,7 +4,19 @@ import logging
 import kopf
 import asyncio
 
+# port forwarding to local machine for testing:
+#
+#   $ kubectl port-forward -n canvas svc/canvas-compreg 8080:80
+#   $ kubectl port-forward -n canvas svc/info 8638:80
+#
 os.environ["CANVAS_INFO_ENDPOINT"] = "http://localhost:8638"
+# os.environ["COMPONENT_REGISTRY_URL"] = "http://localhost:8080"
+
+# public endpoints for testing (virtual services):
+#
+# os.environ["CANVAS_INFO_ENDPOINT"] = "https://canvas-info.ihc-dt-a.cluster-2.de"
+# os.environ["COMPONENT_REGISTRY_URL"] = "https://canvas-compreg.ihc-dt-a.cluster-2.de/"
+
 
 sys.path.append("../src")
 from dependentApiSimpleOperator import (
@@ -74,7 +86,8 @@ def k8s_load_config(proxy=False):
 
 
 def test_dependentApiCreate():
-    body_json_file = "testdata/CREATE_prodcat.json"
+    # body_json_file = "testdata/CREATE_prodcat.json"
+    body_json_file = "testdata/create_depapi.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -130,7 +143,7 @@ def test_dependentApiCreate():
 
 
 def test_dependentApiUpdate():
-    body_json_file = "testdata/UPDATE_prodcat.json"
+    body_json_file = "testdata/UPDATE_prodcat2.json"
     with open(body_json_file, "r") as f:
         body = json.load(f)
     meta = body["metadata"]
@@ -299,9 +312,9 @@ def test_updateDepedentAPIReady():
 
 if __name__ == "__main__":
     logging.info(f"main called")
-    k8s_load_config(proxy=False)
+    k8s_load_config(proxy=True)
     test_kubeconfig()
-    # test_dependentApiCreate()
+    test_dependentApiCreate()
     # test_dependentApiUpdate()
-    test_dependentApiDelete()
+    # test_dependentApiDelete()
     # test_updateDepedentAPIReady()

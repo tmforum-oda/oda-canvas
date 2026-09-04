@@ -21,14 +21,14 @@ jobs:
         id: values_yaml_contains_version_suffix_1
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.oda-webhook.prereleaseSuffix, .component-operator.deployment.compopPrereleaseSuffix, .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix, .identityconfig-operator-keycloak.deployment.idlistkeyPrereleaseSuffix, .api-operator-istio.deployment.apiopPrereleaseSuffix, .dependentapi-simple-operator.prereleaseSuffix, .dependency-management-keycloak-authz.deployment.prereleaseSuffix, .canvas-info-service.prereleaseSuffix, .secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix, .api-operator-apisix.apisixoperatorimage.apisixopPrereleaseSuffix, .api-operator-kong.kongoperatorimage.kongopPrereleaseSuffix, .pdb-management-operator.deployment.prereleaseSuffix, .resource-inventory.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/canvas-oda/values.yaml
+          cmd: yq '[.oda-webhook.prereleaseSuffix, .component-operator.deployment.compopPrereleaseSuffix, .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix, .identityconfig-operator-keycloak.deployment.idlistkeyPrereleaseSuffix, .api-operator-istio.deployment.apiopPrereleaseSuffix, .dependentapi-simple-operator.prereleaseSuffix, .dependency-management-keycloak-authz.deployment.prereleaseSuffix, .canvas-info-service.prereleaseSuffix, .secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix, .api-operator-apisix.apisixoperatorimage.apisixopPrereleaseSuffix, .api-operator-kong.kongoperatorimage.kongopPrereleaseSuffix, .pdb-management-operator.deployment.prereleaseSuffix, .resource-inventory.prereleaseSuffix, .component-registry.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/canvas-oda/values.yaml
 
       - name: collect existing version suffixes in charts/canvas-oda/values.yaml for error report
         id: version_suffixes_1
         if: steps.values_yaml_contains_version_suffix_1.outputs.result=='true'
         uses: mikefarah/yq@master
         with:
-          cmd: yq '[.oda-webhook.prereleaseSuffix, .component-operator.deployment.compopPrereleaseSuffix, .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix, .identityconfig-operator-keycloak.deployment.idlistkeyPrereleaseSuffix, .api-operator-istio.deployment.apiopPrereleaseSuffix, .dependentapi-simple-operator.prereleaseSuffix, .dependency-management-keycloak-authz.deployment.prereleaseSuffix, .canvas-info-service.prereleaseSuffix, .secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix, .api-operator-apisix.apisixoperatorimage.apisixopPrereleaseSuffix, .api-operator-kong.kongoperatorimage.kongopPrereleaseSuffix, .pdb-management-operator.deployment.prereleaseSuffix, .resource-inventory.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/canvas-oda/values.yaml
+          cmd: yq '[.oda-webhook.prereleaseSuffix, .component-operator.deployment.compopPrereleaseSuffix, .identityconfig-operator-keycloak.deployment.idkopPrereleaseSuffix, .identityconfig-operator-keycloak.deployment.idlistkeyPrereleaseSuffix, .api-operator-istio.deployment.apiopPrereleaseSuffix, .dependentapi-simple-operator.prereleaseSuffix, .dependency-management-keycloak-authz.deployment.prereleaseSuffix, .canvas-info-service.prereleaseSuffix, .secretsmanagement-operator.prereleaseSuffix, .secretsmanagement-operator.sidecarPrereleaseSuffix, .api-operator-apisix.apisixoperatorimage.apisixopPrereleaseSuffix, .api-operator-kong.kongoperatorimage.kongopPrereleaseSuffix, .pdb-management-operator.deployment.prereleaseSuffix, .resource-inventory.prereleaseSuffix, .component-registry.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/canvas-oda/values.yaml
           
       - name: report error in charts/canvas-oda/values.yaml
         if: steps.values_yaml_contains_version_suffix_1.outputs.result=='true'
@@ -89,38 +89,56 @@ jobs:
         run: |
           echo "::error file=charts/experimental/oauth2-envoyfilter-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_4.outputs.result }}]" && exit 1
       
-      - name: check if there are nonempty version suffixes in charts/carbon-intensity-service/values.yaml
+      - name: check if there are nonempty version suffixes in source/services/ComponentRegistry/keycloaksetup/version.yaml
         id: values_yaml_contains_version_suffix_5
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' source/services/ComponentRegistry/keycloaksetup/version.yaml
+
+      - name: collect existing version suffixes in source/services/ComponentRegistry/keycloaksetup/version.yaml for error report
+        id: version_suffixes_5
+        if: steps.values_yaml_contains_version_suffix_5.outputs.result=='true'
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' source/services/ComponentRegistry/keycloaksetup/version.yaml
+          
+      - name: report error in source/services/ComponentRegistry/keycloaksetup/version.yaml
+        if: steps.values_yaml_contains_version_suffix_5.outputs.result=='true'
+        run: |
+          echo "::error file=source/services/ComponentRegistry/keycloaksetup/version.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_5.outputs.result }}]" && exit 1
+      
+      - name: check if there are nonempty version suffixes in charts/carbon-intensity-service/values.yaml
+        id: values_yaml_contains_version_suffix_6
         uses: mikefarah/yq@master
         with:
           cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/carbon-intensity-service/values.yaml
 
       - name: collect existing version suffixes in charts/carbon-intensity-service/values.yaml for error report
-        id: version_suffixes_5
-        if: steps.values_yaml_contains_version_suffix_5.outputs.result=='true'
+        id: version_suffixes_6
+        if: steps.values_yaml_contains_version_suffix_6.outputs.result=='true'
         uses: mikefarah/yq@master
         with:
           cmd: yq '[.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/carbon-intensity-service/values.yaml
           
       - name: report error in charts/carbon-intensity-service/values.yaml
-        if: steps.values_yaml_contains_version_suffix_5.outputs.result=='true'
+        if: steps.values_yaml_contains_version_suffix_6.outputs.result=='true'
         run: |
-          echo "::error file=charts/carbon-intensity-service/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_5.outputs.result }}]" && exit 1
+          echo "::error file=charts/carbon-intensity-service/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_6.outputs.result }}]" && exit 1
       
       - name: check if there are nonempty version suffixes in charts/carbon-management-operator/values.yaml
-        id: values_yaml_contains_version_suffix_6
+        id: values_yaml_contains_version_suffix_7
         uses: mikefarah/yq@master
         with:
           cmd: yq '[.deployment.prereleaseSuffix] | filter(.!=null and .!="")  | length | . != "0"' charts/carbon-management-operator/values.yaml
 
       - name: collect existing version suffixes in charts/carbon-management-operator/values.yaml for error report
-        id: version_suffixes_6
-        if: steps.values_yaml_contains_version_suffix_6.outputs.result=='true'
+        id: version_suffixes_7
+        if: steps.values_yaml_contains_version_suffix_7.outputs.result=='true'
         uses: mikefarah/yq@master
         with:
           cmd: yq '[.deployment.prereleaseSuffix] | filter(.!=null and .!="") | join(", ")' charts/carbon-management-operator/values.yaml
           
       - name: report error in charts/carbon-management-operator/values.yaml
-        if: steps.values_yaml_contains_version_suffix_6.outputs.result=='true'
+        if: steps.values_yaml_contains_version_suffix_7.outputs.result=='true'
         run: |
-          echo "::error file=charts/carbon-management-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_6.outputs.result }}]" && exit 1
+          echo "::error file=charts/carbon-management-operator/values.yaml::values.yaml contains prereleaseSuffixes: [${{ steps.version_suffixes_7.outputs.result }}]" && exit 1

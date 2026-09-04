@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: canvas-vault
+  name: canvas-vault-landing-page-init-cm
+data:
+  init.sh: |
+    #!/bin/sh
+    cat <<EOF | envsubst > /usr/share/nginx/html/index.html
+    <HTML>
+      <HEAD><TITLE>Vault (Token-Page)</TITLE></HEAD>
+      <BODY>
+        <H1>Vault (token page)</H1>
+        <p>Your login token is:</p>
+        <p> <span style="border: 1px solid black;padding:2;">$LOGIN_TOKEN</span> </p>
+        <p>Continue to <a href="/ui">Vault login</a></p>
+      </BODY>
+    </HTML>
+    EOF
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: canvas-vault
+  name: canvas-vault-landing-page
+  labels:
+    app: canvas-vault-landing-page
+spec:
+  selector:
+    app: canvas-vault-landing-page
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: canvas-vault
+  name: canvas-vault-landing-page
+  labels: 
+    app: canvas-vault-landing-page
+spec:
+  selector:
+    matchLabels:
+      app: canvas-vault-landing-page
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: canvas-vault-landing-page
+    spec:
+      containers:
+        - name: canvas-vault-landing-page
+          image: nginx
+          env:
+          - name: LOGIN_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: canvas-vault-hc-secrets
+                key: rootToken
+          volumeMounts:
+          - name: init-script
+            mountPath: /docker-entrypoint.d/init
+      volumes:
+        - name: init-script
+          configMap:
+            name: canvas-vault-landing-page-init-cm
+            defaultMode: 0777
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  labels:
+    app: canvas-vault-landing-page
+  name: canvas-vault-landing-page-vs
+  namespace: canvas-vault
+spec:
+  gateways:
+  - {{ .Values.componentGateway }}
+  hosts:
+  - canvas-vault-hc.{{ .Values.domain }}
+  http:
+  - match:
+    - uri:
+        exact: /
+    route:
+    - destination:
+        host: canvas-vault-landing-page.canvas-vault.svc.cluster.local
+        port:
+          number: 80

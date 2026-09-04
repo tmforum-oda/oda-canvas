@@ -1,0 +1,81 @@
+# Default values for productcatalog.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+component:
+  # Specifies whether a service account should be created
+  id: TMFC001
+  name: productcatalogmanagement
+  functionalBlock: CoreCommerce
+  publicationDate: 2024-09-17T00:00:00.000Z
+  version: "0.0.1"
+  storageClassName: default
+  dependentAPIs:
+    enabled: true
+    rejectUnauthorizedCertificates: false
+    productcatalogmanagementUrl: https://raw.githubusercontent.com:443/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+  apipolicy:
+    apiKeyVerification:
+      enabled: false
+      location: "header"
+    rateLimit:
+      enabled: false
+      identifier: "IP"
+      limit: "6"
+      interval: "pm"
+    quota:
+      identifier: ""
+      limit: ""
+    OASValidation:
+      requestEnabled: false
+      responseEnabled: false
+      allowUnspecifiedHeaders: false
+      allowUnspecifiedQueryParams: false
+      allowUnspecifiedCookies: false
+    CORS:
+      enabled: false
+      allowCredentials: false
+      allowOrigins: "https://allowed-origin.com, https://allowed-origin2.com"    
+      handlePreflightRequests:
+        enabled: false
+        allowHeaders: "Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
+        allowMethods: "GET, POST"
+        maxAge: 36000    
+security:
+  canvasSystemRole: Admin
+mongodb:
+  port: 27017
+  database: tmf
+api:
+  image: lesterthomas/productcatalogapi:1.6
+  versionlabel: productcatalogapi-1.6
+  otlp:
+    console:
+      enabled: false
+    protobuffCollector:
+      enabled: true
+      url: http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces
+      # Datadog telemetry collector is       http://datadog-agent.default.svc.cluster.local:4318/v1/traces
+  cacheDownstreamApis: false
+partyrole:
+  image: lesterthomas/partyroleapi:1.0
+  versionLabel: partyroleapi-1.0
+permissionspec:
+  image: lesterthomas/permissionspecapi:0.20
+  versionLabel: permissionspecapi-0.20
+  # Set to true to use permissionspec API instead of partyrole API
+  enabled: true
+promotionmgmt:
+  image: lesterthomas/promotionmgmtapi:0.5
+  versionlabel: promotionmgmtapi-0.5
+  otlp:
+    console:
+      enabled: false
+    protobuffCollector:
+      enabled: true
+      url: http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces
+      # Datadog telemetry collector is       http://datadog-agent.default.svc.cluster.local:4318/v1/traces
+canvasinfo:
+  host: info.canvas.svc.cluster.local
+  basepath: /

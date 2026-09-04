@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  labels:
+    app: canvas-compreg
+  name: canvas-compreg-vs
+  namespace: canvas
+spec:
+  gateways:
+  - {{ .Values.componentGateway }}
+  hosts:
+  - canvas-compreg.{{ .Values.domain }}
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: canvas-compreg.canvas.svc.cluster.local
+        port:
+          number: 80

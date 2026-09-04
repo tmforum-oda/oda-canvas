@@ -8,7 +8,7 @@ Each ODA Component includes a declarative definition of its requirements for cre
 
 A Canvas platform can use any Identity Management system. IdentityConfig Operators automate the configuration of whatever Identity Management service is used.
 
-The Component Operator takes the `Component` custom resource and extracts the identity configuration requirements into an IdentityConfig resource. The IdentityConfig Operator is a class of Canvas Operator then manages the lifecycle of these `IdentityConfig` resources. In a given Canvas implementation, you can implement any Identity Management system by installing the corresponding IdentityConfig operator as part of the Canvas installation.  
+The Component Operator takes the `Component` custom resource and extracts the identity configuration requirements into an IdentityConfig resource. The IdentityConfig Operator is a class of Canvas Operator that then manages the lifecycle of these `IdentityConfig` resources. In a given Canvas implementation, you can implement any Identity Management system by installing the corresponding IdentityConfig operator as part of the Canvas installation.  
 
 At present, there are IdentityConfig Operators for the following:
 

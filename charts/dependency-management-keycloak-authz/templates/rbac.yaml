@@ -36,12 +36,6 @@ rules:
     resources: [events]
     verbs: [create]
 
-  # Application: watch the operator's own ConfigMap to anchor the daemon.
-  # patch is required by kopf to store finalizers and handler progress state.
-  - apiGroups: [""]
-    resources: [configmaps]
-    verbs: [list, watch, get, patch]
-
   # Application: list and patch DependentAPI and ExposedAPI resources to resolve dependencies
   # and to propagate DependentAPI ready/url status back to the parent Component.
   - apiGroups: [oda.tmforum.org]

@@ -291,6 +291,32 @@ tmf639-resource-inventory-api:
   # default is "linux/amd64,linux/arm64"
   #platforms: linux/amd64,linux/arm64
 
+component-registry:
+  displayName: ComponentRegistry
+  fileName: component-registry
+  
+  valuesYamlFile: charts/canvas-oda/values.yaml
+  valuesPathImage: .component-registry.image
+  valuesPathVersion: .component-registry.version
+  valuesPathPrereleaseSuffix: .component-registry.prereleaseSuffix
+  
+  paths:
+    - source/services/ComponentRegistry/**/*
+  buildContext: source/services/ComponentRegistry
+
+compreg-kc-setup:
+  displayName: ComponentRegistry-KeyCloak-Setup
+  fileName: compreg-kc-setup
+  
+  valuesYamlFile: source/services/ComponentRegistry/keycloaksetup/version.yaml
+  valuesPathImage: .image
+  valuesPathVersion: .version
+  valuesPathPrereleaseSuffix: .prereleaseSuffix
+  
+  paths:
+    - source/services/ComponentRegistry/keycloaksetup/**/*
+  buildContext: source/services/ComponentRegistry/keycloaksetup
+  
 tmf628-carbon-intensity-api:
   displayName: TMF-628 Carbon Intensity API
   fileName: tmf628-carbon-intensity-api
