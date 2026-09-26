@@ -230,7 +230,7 @@ Given('an AvailabilityPolicy {string} with priority {string}', async function (p
     spec: {
       priority: parseInt(priority),
       componentSelector: {},
-      availabilityConfig: {}
+      availabilityClass: 'standard'
     }
   };
 });
@@ -569,7 +569,7 @@ Given('an AvailabilityPolicy {string} with maintenance window {string}', async f
     spec: {
       maintenanceWindow: maintenanceWindow,
       componentSelector: {},
-      availabilityConfig: {}
+      availabilityClass: 'standard'
     }
   };
 });
@@ -660,7 +660,7 @@ Given('an AvailabilityPolicy {string} exists', async function (policyName) {
     name: policyName,
     spec: {
       componentSelector: {},
-      availabilityConfig: {}
+      availabilityClass: 'standard'
     }
   };
 });
@@ -706,7 +706,7 @@ Given('the policy specifies minAvailable as {string} absolute value', async func
 Given('the policy specifies unhealthyPodEvictionPolicy as {string}', async function (policy) {
   const policyNames = Object.keys(testContext.policies);
   const currentPolicyName = policyNames[policyNames.length - 1];
-  testContext.policies[currentPolicyName].spec.availabilityConfig.unhealthyPodEvictionPolicy = policy;
+  testContext.policies[currentPolicyName].spec.customPDBConfig.unhealthyPodEvictionPolicy = policy;
 });
 
 Then('the PDB should have {string} as minAvailable absolute value', async function (value) {
@@ -756,7 +756,7 @@ Given('an AvailabilityPolicy {string} with priority {int}', async function (poli
     spec: {
       priority: priority,
       componentSelector: {},
-      availabilityConfig: {}
+      availabilityClass: 'standard'
     }
   };
 });
