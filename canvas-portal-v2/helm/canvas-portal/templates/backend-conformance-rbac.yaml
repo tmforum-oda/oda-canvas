@@ -1,0 +1,142 @@
+{{- if .Values.rbac.canvasConformanceAccess.enabled }}
+{{- $saName := include "canvas-portal.backend.serviceAccountName" . }}
+{{- $saNs   := .Release.Namespace }}
+{{- $fullname := include "canvas-portal.backend.fullname" . }}
+{{- $labels := include "canvas-portal.backend.labels" . }}
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $fullname }}-conformance-cluster-read
+  labels:
+    {{- $labels | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "services"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["oda.tmforum.org"]
+    resources: ["components", "exposedapis", "dependentapis"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["availability.oda.tmforum.org"]
+    resources: ["availabilitypolicies"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apisix.apache.org"]
+    resources: ["apisixroutes", "apisixpluginconfigs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["configuration.konghq.com"]
+    resources: ["kongplugins"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["monitoring.coreos.com"]
+    resources: ["servicemonitors"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $fullname }}-conformance-cluster-read
+  labels:
+    {{- $labels | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $fullname }}-conformance-cluster-read
+subjects:
+  - kind: ServiceAccount
+    name: {{ $saName }}
+    namespace: {{ $saNs }}
+
+{{- if .Values.rbac.canvasConformanceAccess.createNamespaces }}
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $fullname }}-conformance-namespace-create
+  labels:
+    {{- $labels | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $fullname }}-conformance-namespace-create
+  labels:
+    {{- $labels | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $fullname }}-conformance-namespace-create
+subjects:
+  - kind: ServiceAccount
+    name: {{ $saName }}
+    namespace: {{ $saNs }}
+{{- end }}
+
+
+{{- range $namespace := .Values.rbac.canvasConformanceAccess.targetNamespaces }}
+{{- if $.Values.rbac.canvasConformanceAccess.createNamespaces }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $namespace }}
+  labels:
+    {{- $labels | nindent 4 }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $fullname }}-conformance-sandbox
+  namespace: {{ $namespace }}
+  labels:
+    {{- $labels | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["services", "persistentvolumeclaims", "pods", "pods/log"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["oda.tmforum.org"]
+    resources: ["components", "exposedapis", "dependentapis"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["availability.oda.tmforum.org"]
+    resources: ["availabilitypolicies"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "watch", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $fullname }}-conformance-sandbox
+  namespace: {{ $namespace }}
+  labels:
+    {{- $labels | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $fullname }}-conformance-sandbox
+subjects:
+  - kind: ServiceAccount
+    name: {{ $saName }}
+    namespace: {{ $saNs }}
+{{- end }}
+{{- end }}

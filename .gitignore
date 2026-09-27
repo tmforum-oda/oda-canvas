@@ -22,3 +22,12 @@ source/tmf-services/TMF639_Resource_Inventory/error.log
 source/tmf-services/TMF639_Resource_Inventory/nul
 source/tmf-services/TMF639_Resource_Inventory/.claude/settings.local.json
 nul
+
+# canvas-portal-v2 
+canvas-portal-v2/backend/venv/
+canvas-portal-v2/frontend/node_modules/
+canvas-portal-v2/frontend/dist/
+
+# Python bytecode 
+**/__pycache__/
+*.pyc

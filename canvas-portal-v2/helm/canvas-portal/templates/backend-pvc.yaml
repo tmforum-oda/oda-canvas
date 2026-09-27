@@ -1,0 +1,23 @@
+{{- if and .Values.backend.persistence.enabled (not .Values.backend.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "canvas-portal.backend.pvcName" . }}
+  labels:
+    {{- include "canvas-portal.backend.labels" . | nindent 4 }}
+  {{- with .Values.backend.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    {{- toYaml .Values.backend.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.backend.persistence.size | default "1Gi" }}
+  {{- if .Values.backend.persistence.persistentVolume.enabled }}
+  storageClassName: {{ default .Values.backend.persistence.storageClass .Values.backend.persistence.persistentVolume.storageClass | quote }}
+  {{- else if .Values.backend.persistence.storageClass }}
+  storageClassName: {{ .Values.backend.persistence.storageClass | quote }}
+  {{- end }}
+{{- end }}
