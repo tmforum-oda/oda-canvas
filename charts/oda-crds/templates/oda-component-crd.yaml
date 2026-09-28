@@ -1976,8 +1976,7 @@ spec:
                                 - openapi
                                 - mcp
                                 - a2a
-                                - sse
-                                description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                                description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                               apiSDO:
                                 type: string
                                 description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
@@ -2098,8 +2097,7 @@ spec:
                           - openapi
                           - mcp
                           - a2a
-                          - sse
-                          description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                          description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
@@ -2265,8 +2263,7 @@ spec:
                                 - openapi
                                 - mcp
                                 - a2a
-                                - sse
-                                description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                                description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                               apiSDO:
                                 type: string
                                 description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
@@ -2284,8 +2281,7 @@ spec:
                           - openapi
                           - mcp
                           - a2a
-                          - sse
-                          description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                          description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard
@@ -2345,8 +2341,7 @@ spec:
                                 - openapi
                                 - mcp
                                 - a2a
-                                - sse
-                                description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                                description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                               implementation:
                                 type: string
                                 description: The name of the service receiving the notifications
@@ -2391,8 +2386,7 @@ spec:
                                 - openapi
                                 - mcp
                                 - a2a
-                                - sse
-                                description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                                description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                               implementation:
                                 type: string
                                 description: The name of the service receiving the notifications
@@ -2445,8 +2439,7 @@ spec:
                                 - openmetrics
                                 - mcp
                                 - a2a
-                                - sse
-                                description: The type of API specification. Currently OpenAPI (swagger) and Prometheus/OpenMetrics (metrics) and MCP,A2A,SSE APIs are supported.
+                                description: The type of API specification. Currently OpenAPI (swagger), Prometheus/OpenMetrics (metrics), MCP, and A2A APIs are supported.
                               apiSDO:
                                 type: string
                                 description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2569,8 +2562,7 @@ spec:
                           - openmetrics
                           - mcp
                           - a2a
-                          - sse
-                          description: The type of API specification. Currently OpenAPI (swagger) and Prometheus/OpenMetrics (metrics) and MCP,A2A,SSE APIs are supported.
+                          description: The type of API specification. Currently OpenAPI (swagger), Prometheus/OpenMetrics (metrics), MCP, and A2A APIs are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2735,8 +2727,7 @@ spec:
                                 - openapi
                                 - mcp
                                 - a2a
-                                - sse
-                                description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                                description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                               apiSDO:
                                 type: string
                                 description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2754,8 +2745,7 @@ spec:
                           - openapi
                           - mcp
                           - a2a
-                          - sse
-                          description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                          description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2845,8 +2835,7 @@ spec:
                                 - openapi
                                 - mcp
                                 - a2a
-                                - sse
-                                description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                                description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                               apiSDO:
                                 type: string
                                 description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -2967,8 +2956,7 @@ spec:
                           - openapi
                           - mcp
                           - a2a
-                          - sse
-                          description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                          description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -3134,8 +3122,7 @@ spec:
                                 - openapi
                                 - mcp
                                 - a2a
-                                - sse
-                                description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                                description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                               apiSDO:
                                 type: string
                                 description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
@@ -3153,8 +3140,7 @@ spec:
                           - openapi
                           - mcp
                           - a2a
-                          - sse
-                          description: The type of API specification. Currently OpenAPI (swagger) and MCP,A2A,SSE are supported.
+                          description: The type of API specification. Currently OpenAPI (swagger), MCP, and A2A APIs are supported.
                         apiSDO:
                           type: string
                           description: (optional) The name of the SDO (Standards Definition Organization) that defines the API standard                          
