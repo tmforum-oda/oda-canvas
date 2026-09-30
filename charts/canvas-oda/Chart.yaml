@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.6-rc3
+version: 1.2.6-rc4
+# version: 1.2.6-rc4 - issue 615 - bug-fix for canvas images to remove end-of-life or floating base images
 # version: 1.2.6-rc3 - issue 612 - bug-fix for component crd and exposedapi crd to re-add a2a under apiType enum
 # version: 1.2.6-rc2 - issue 599 - fix blocking configmap after canvas deinstallation
 # version: 1.2.6-rc1 - issue 384 - added Component-Registry, update Simple-Dependent-API Operator and Resource-Inventory
