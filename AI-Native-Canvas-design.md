@@ -308,6 +308,7 @@ The Canvas provides the foundation for CSPs to confidently deploy and operate mu
 * [Authentication Design](Authentication-design.md)
 * [Event-based Integration Design](Event-based-integration-design.md)
 * [Observability Design](Observability-design.md)
+* [Agentic Authorization Design Note](Agentic-Authorization-design-note.md)
 
 ## Reference Video
 
