@@ -1,0 +1,14 @@
+apiVersion: oda.tmforum.org.oda.tmforum.org/v1beta1
+kind: MLModel
+metadata:
+  labels:
+    app.kubernetes.io/name: demo-mlmodel-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: mlmodel-sample-larger
+spec:
+  modelURL: "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tf_model.h5"
+  storageSize: "5Gi"
+  framework: "tensorflow"
+  replicas: 1
+  expose: true
+

@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - oda.tmforum.org.oda.tmforum.org
+  resources:
+  - mlmodels
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - oda.tmforum.org.oda.tmforum.org
+  resources:
+  - mlmodels/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - oda.tmforum.org.oda.tmforum.org
+  resources:
+  - mlmodels/status
+  verbs:
+  - get
+  - patch
+  - update
