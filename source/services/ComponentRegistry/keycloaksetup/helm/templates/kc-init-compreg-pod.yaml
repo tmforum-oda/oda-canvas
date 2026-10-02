@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-kc-init-compreg"
+spec:
+  serviceAccountName: {{ .Release.Name }}-kc-init
+  containers:
+    - name: kc-init-compreg
+      image: ocfork/kc-init:1.0.3
+      env:
+      - name: KC_USERNAME
+        value: {{ .Values.kcUsername }}
+      - name: KC_PASSWORD
+        {{ if .Values.kcPassword -}}
+        value: "{{ .Values.kcPassword }}"
+        {{- else -}}
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Values.canvasKeycloakSecret }}
+            key: {{ .Values.adminPasswordKey }}
+        {{- end }}
+      - name: KC_ADMIN_CLIENT_ID
+        value: {{ .Values.kcAdminClientID }}
+      - name: KC_ADMIN_CLIENT_SECRET
+        value: "{{ .Values.kcAdminClientSecret }}"
+      - name: KC_BASE_URL
+        value: {{ .Values.kcBaseUrl }}
+      - name: KC_REALM
+        value: {{ .Values.kcRealm }}
+      - name: COMPREG_ADMIN_INIT_PASSWORD
+        value: "{{ .Values.compregAdminInitPassword }}"
+      - name: COMPREG_VIEWER_INIT_PASSWORD
+        value: "{{ .Values.compregViewerInitPassword }}"
+      - name: K8S_NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      command: ["/bin/sh"]
+      args: ["-c", "date -Iseconds;
+      python3 -u kc_setup_compreg.py;
+      date -Iseconds;
+      sleep 3600"]
+  restartPolicy: Never

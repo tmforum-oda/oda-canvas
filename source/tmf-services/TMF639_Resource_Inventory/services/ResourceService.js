@@ -22,8 +22,11 @@ const listResource = (args, context /* fieldsoffsetlimit */) =>
       context.operationId = "listResource";
       context.method = "get";
       try {
+		let namespace = args.namespace || (args.dynamic && args.dynamic.namespace) || null;
+		logger.info(`namespace: ${namespace}`);
+
         // Get all resources from Kubernetes using the new method
-        let allResources = await k8sService.listResources();
+        let allResources = await k8sService.listResources(namespace);
 
         // Apply JSONPath filtering if filter param is present
         let filterQuery = args.filter || (args.dynamic && args.dynamic.filter);
@@ -75,8 +78,12 @@ const retrieveResource = (args, context /* idfields */) =>
       context.operationId = "retrieveResource";
       context.method = "get";      
       try {
+
+		let namespace = args.namespace || (args.dynamic && args.dynamic.namespace);
+		logger.info(`namespace: ${namespace}`);
+		
         // Get the specific resource by ID
-        const resource = await k8sService.getResourceById(args.id);
+        const resource = await k8sService.getResourceById(args.id, namespace);
 
         if (!resource) {
           resolve(Service.rejectResponse(

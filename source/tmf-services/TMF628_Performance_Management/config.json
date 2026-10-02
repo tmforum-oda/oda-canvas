@@ -1,0 +1,9 @@
+{
+  "servers": [
+    { 
+      "url": "http://localhost:8628/tmf-api/performance/v5" 
+    }
+  ],
+  "OPENAPI": "/openapi",
+  "tmfid": "TMF628"
+}

@@ -13,7 +13,7 @@ on:
     branches:
     - main
     paths: 
-      - source/operators/identity-config/keycloak/*
+      - source/operators/TMFOP003-Identity-Config/keycloak/*
 
 jobs:
   build-identityconfig-operator-keycloak-release-dockerfile-job:
@@ -74,8 +74,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/identity-config/keycloak
-          file: source/operators/identity-config/keycloak/identityconfig-operator-keycloak-dockerfile
+          context: source/operators/TMFOP003-Identity-Config/keycloak
+          file: source/operators/TMFOP003-Identity-Config/keycloak/identityconfig-operator-keycloak-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

@@ -17,7 +17,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.0.0
+version: 1.1.0
+# version: 1.1.0 - issue 384 - patch OpenAPI one-of -> any-of, add support for different namespaces, remove "place" to fix schema validation 
 # version: 1.0.0 - initial version - helm chart packaging for TMF639-API
 
 # This is the version number of the application being deployed. We are versioning the canvas as the

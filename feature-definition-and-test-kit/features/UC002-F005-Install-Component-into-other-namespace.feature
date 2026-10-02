@@ -15,5 +15,5 @@ Feature: UC002-F005 Install Component into other namespace
     | PackageName       | ReleaseName | Namespace   | ExposedAPIName           | ComponentName                    |
     | productcatalog-v1 |  pcother    | odacompns-1 | productcatalogmanagement | pcother-productcatalogmanagement |
     | productcatalog-v1 |  pcother    | odacompns-1 | metrics                  | pcother-productcatalogmanagement |
-    | productcatalog-v1 |  pcother    | odacompns-1 | partyrole                | pcother-productcatalogmanagement |
+    | productcatalog-v1 |  pcother    | odacompns-1 | userrolesandpermissions  | pcother-productcatalogmanagement |
 

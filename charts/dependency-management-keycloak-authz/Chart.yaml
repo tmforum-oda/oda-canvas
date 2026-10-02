@@ -1,0 +1,16 @@
+apiVersion: v2
+name: dependency-management-keycloak-authz
+description: >
+  Helm chart for the TMFOP005 Dependency Management operator — Keycloak
+  Authorization implementation. Polls the Keycloak Admin Events API for
+  CLIENT_ROLE_MAPPING changes in the configured realm and logs each event.
+
+type: application
+
+# Increment this version each time the chart or its templates change.
+version: 0.2.1
+# version: 0.2.1 - issue 599 - fix blocking configmap after canvas deinstallation
+# version: 0.1.0 - initial version
+
+# Tracks the ODA Component Standard version supported by this operator.
+appVersion: "v1"

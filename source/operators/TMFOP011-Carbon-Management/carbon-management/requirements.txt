@@ -1,0 +1,14 @@
+# Kubernetes Operator Framework
+kopf>=1.37.2
+
+# Kubernetes Python Client
+kubernetes>=27.2.0
+
+# Prometheus metrics
+prometheus-client>=0.19.0
+
+# Date/time utilities
+python-dateutil>=2.8.2
+
+# HTTP client for TMF628 API
+requests>=2.28.0

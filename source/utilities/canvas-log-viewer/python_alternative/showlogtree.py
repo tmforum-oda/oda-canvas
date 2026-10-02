@@ -200,7 +200,7 @@ def sysinreader():
     sysinq = config["sysinq"]
     while True:
         line = sys.stdin.readline()
-        sysinq.put(line.rstrip())
+        sysinq.put(line)
 
 
 if __name__ == "__main__":

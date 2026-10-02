@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.operatorName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "dependency-management-keycloak-authz.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.operatorName }}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: {{ .Values.deployment.operatorName }}
+        {{- include "dependency-management-keycloak-authz.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: dependency-management-keycloak-authz-account
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- include "image-pull-secrets" . | nindent 6 }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.deployment.operatorName }}
+          image: {{ include "dependency-management-keycloak-authz.image" . }}
+          imagePullPolicy: {{ include "dependency-management-keycloak-authz.imagePullPolicy" . }}
+          envFrom:
+            - configMapRef:
+                name: dependency-management-keycloak-authz-configmap
+            - secretRef:
+                name: dependency-management-keycloak-authz-secret

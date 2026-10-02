@@ -10,6 +10,7 @@ Feature: UC017-F002 PDB Management - Policy Based
         Given the PDB Management Operator is deployed in the 'canvas' namespace
         And the operator is running and ready
 
+    @UC017-F002-TS001
     Scenario Outline: Test AvailabilityPolicy enforcement modes
         Given an AvailabilityPolicy '<PolicyName>' with enforcement mode '<EnforcementMode>'
         And the policy targets deployments with label '<LabelSelector>'
@@ -20,13 +21,14 @@ Feature: UC017-F002 PDB Management - Policy Based
         And the PDB operator processes the deployment
         Then a PDB named '<DeploymentName>-pdb' should be created
         And the PDB should have '<ExpectedMinAvailable>' as minAvailable
-
+        And I delete the deployment '<DeploymentName>'
     Examples:
     | PolicyName        | EnforcementMode | LabelSelector           | PolicyClass       | DeploymentName | Replicas | LabelKey    | LabelValue  | AnnotationClass   | ExpectedMinAvailable |
     | production-policy | strict          | environment=production  | mission-critical  | prod-app       | 5        | environment | production  | standard          | 90%                  |
     | staging-policy    | flexible        | environment=staging     | high-availability | staging-app    | 3        | environment | staging     | mission-critical  | 90%                  |
     | dev-policy        | advisory        | environment=development | standard          | dev-app        | 2        | environment | development | non-critical      | 20%                  |
 
+    @UC017-F002-TS002
     Scenario: Policy priority resolution with strict enforcement
         Given an AvailabilityPolicy 'high-priority' with priority '100'
         And the policy targets deployments with label 'tier=critical'
@@ -42,7 +44,9 @@ Feature: UC017-F002 PDB Management - Policy Based
         And the PDB operator processes the deployment
         Then a PDB named 'critical-app-pdb' should be created
         And the PDB should have '90%' as minAvailable
+        And I delete the deployment 'critical-app'
 
+    @UC017-F002-TS003
     Scenario: Strict enforcement ignores annotations
         Given an AvailabilityPolicy 'strict-policy' with enforcement mode 'strict'
         And the policy targets deployments with label 'require-pdb=true'
@@ -53,7 +57,9 @@ Feature: UC017-F002 PDB Management - Policy Based
         And the PDB operator processes the deployment
         Then a PDB named 'must-have-pdb-pdb' should be created
         And the PDB should have '75%' as minAvailable
+        And I delete the deployment 'must-have-pdb'
 
+    @UC017-F002-TS004
     Scenario: Flexible enforcement with minimum class
         Given an AvailabilityPolicy 'flex-policy' with enforcement mode 'flexible'
         And the policy targets deployments with label 'flex=true'
@@ -65,7 +71,9 @@ Feature: UC017-F002 PDB Management - Policy Based
         And the PDB operator processes the deployment
         Then a PDB named 'flex-app-pdb' should be created
         And the PDB should have '50%' as minAvailable
+        And I delete the deployment 'flex-app'
 
+    @UC017-F002-TS005
     Scenario: Advisory enforcement allows annotation override
         Given an AvailabilityPolicy 'advisory-policy' with enforcement mode 'advisory'
         And the policy targets deployments with label 'advisory=true'
@@ -76,7 +84,9 @@ Feature: UC017-F002 PDB Management - Policy Based
         And the PDB operator processes the deployment
         Then a PDB named 'advisory-app-pdb' should be created
         And the PDB should have '50%' as minAvailable
+        And I delete the deployment 'advisory-app'
 
+    @UC017-F002-TS006
     Scenario: Policy with custom availability class
         Given an AvailabilityPolicy 'custom-policy' with custom PDB config
         And the policy specifies minAvailable as '2' absolute value
@@ -88,7 +98,9 @@ Feature: UC017-F002 PDB Management - Policy Based
         And the PDB operator processes the deployment
         Then a PDB named 'custom-app-pdb' should be created
         And the PDB should have '2' as minAvailable absolute value
+        And I delete the deployment 'custom-app'
 
+    @UC017-F002-TS007
     Scenario: Flexible enforcement allows higher availability class
         Given an AvailabilityPolicy 'flex-policy' with enforcement mode 'flexible'
         And the policy specifies 'standard' as minimumClass
@@ -100,7 +112,9 @@ Feature: UC017-F002 PDB Management - Policy Based
         And the PDB operator processes the deployment
         Then a PDB named 'flex-upgrade-pdb' should be created
         And the PDB should have '90%' as minAvailable
+        And I delete the deployment 'flex-upgrade'
 
+    @UC017-F002-TS008
     Scenario: Advisory enforcement with override reason
         Given an AvailabilityPolicy 'advisory-strict' with enforcement mode 'advisory'
         And the policy requires override reason
@@ -114,3 +128,4 @@ Feature: UC017-F002 PDB Management - Policy Based
         Then a PDB named 'advisory-test-pdb' should be created
         And the PDB should have '20%' as minAvailable
         And the operator should log the override reason
+        And I delete the deployment 'advisory-test'

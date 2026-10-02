@@ -16,6 +16,8 @@ Feature: UC017-F001 PDB Management - Annotation Based
         When the PDB operator processes the deployment
         Then a PDB named '<DeploymentName>-pdb' should be created
         And the PDB should have '<ExpectedMinAvailable>' as minAvailable
+        And I delete the deployment '<DeploymentName>'
+
 
     Examples:
     | DeploymentName    | Namespace  | Replicas | AvailabilityClass | ExpectedMinAvailable |
@@ -32,6 +34,7 @@ Feature: UC017-F001 PDB Management - Annotation Based
         Then a PDB named '<DeploymentName>-pdb' should be created
         And the PDB should have '<ExpectedMinAvailable>' as minAvailable
         And the operator should log component function upgrade if applicable
+        And I delete the deployment '<DeploymentName>'
 
     Examples:
     | DeploymentName | Namespace  | Replicas | AvailabilityClass | ComponentFunction | ExpectedMinAvailable |
@@ -40,6 +43,7 @@ Feature: UC017-F001 PDB Management - Annotation Based
     | mgmt-std       | components | 3        | standard          | management        | 50%                  |
     | security-ha    | components | 6        | high-availability | security          | 75%                  |
 
+    @UC017-F001-TS005
     Scenario: Update PDB when deployment annotations change
         Given a deployment 'update-test' with '4' replicas in namespace 'components'
         And the deployment has annotation 'oda.tmforum.org/availability-class' set to 'standard'
@@ -50,6 +54,7 @@ Feature: UC017-F001 PDB Management - Annotation Based
         And the PDB operator processes the deployment
         Then the PDB named 'update-test-pdb' should be updated
         And the PDB should have '75%' as minAvailable
+        And I delete the deployment 'update-test'
 
     Scenario: Remove PDB when deployment is deleted
         Given a deployment 'delete-test' with '3' replicas in namespace 'components'
@@ -66,6 +71,7 @@ Feature: UC017-F001 PDB Management - Annotation Based
         When the PDB operator processes the deployment
         Then a PDB named 'invalid-test-pdb' should be created
         And the PDB should have '50%' as minAvailable
+        And I delete the deployment 'invalid-test'
 
     Scenario: Skip PDB creation for single replica deployments
         Given a deployment 'single-replica' with '1' replicas in namespace 'components'
@@ -73,6 +79,7 @@ Feature: UC017-F001 PDB Management - Annotation Based
         When the PDB operator processes the deployment
         Then a PDB should not be created for 'single-replica'
         And the operator should log that PDB is skipped for single replica
+        And I delete the deployment 'single-replica'
 
     Scenario: Handle maintenance window annotations
         Given a deployment 'maintenance-app' with '5' replicas in namespace 'components'
@@ -81,6 +88,7 @@ Feature: UC017-F001 PDB Management - Annotation Based
         When the PDB operator processes the deployment
         Then a PDB named 'maintenance-app-pdb' should be created
         And the PDB should have '75%' as minAvailable
+        And I delete the deployment 'maintenance-app'
 
     Scenario: Component name tracking for ODA components
         Given a deployment 'oda-component' with '3' replicas in namespace 'components'
@@ -89,3 +97,4 @@ Feature: UC017-F001 PDB Management - Annotation Based
         When the PDB operator processes the deployment
         Then a PDB named 'oda-component-pdb' should be created
         And the PDB should have '50%' as minAvailable
+        And I delete the deployment 'oda-component'

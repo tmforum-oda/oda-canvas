@@ -5,7 +5,10 @@
 const axios = require('axios');
 const assert = require('assert');
 
-const API_BASE_URL = 'http://localhost:8639/tmf-api/resourceInventoryManagement/v5';
+
+const API_BASE_URL = process.env.RESOURCE_INVENTORY_BASE_URL || 'http://localhost:8639/tmf-api/resourceInventoryManagement/v5';
+
+console.log('Resource Inventory TMF639 with RESOURCE_INVENTORY_BASE_URL:', API_BASE_URL);
 
 const resourceInventoryUtilsTMF639 = {
   /**

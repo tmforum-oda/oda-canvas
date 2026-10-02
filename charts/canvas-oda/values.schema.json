@@ -31,67 +31,124 @@
           }
         },
         "required": ["enabled"]
+      },
+      "dependentapi-simple-operator": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": ["enabled"]
+      },
+      "dependency-management-keycloak-authz": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": ["enabled"]
       }
     },
-    "oneOf": [
+    "allOf": [
       {
-        "properties": {
-          "api-operator-istio": {
+        "oneOf": [
+          {
             "properties": {
-              "enabled": { "const": true }
+              "api-operator-istio": {
+                "properties": {
+                  "enabled": { "const": true }
+                }
+              },
+              "kong-gateway-install": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              },
+              "apisix-gateway-install": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              }
             }
           },
-          "kong-gateway-install": {
+          {
             "properties": {
-              "enabled": { "const": false }
+              "api-operator-istio": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              },
+              "kong-gateway-install": {
+                "properties": {
+                  "enabled": { "const": true }
+                }
+              },
+              "apisix-gateway-install": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              }
             }
           },
-          "apisix-gateway-install": {
+          {
             "properties": {
-              "enabled": { "const": false }
+              "api-operator-istio": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              },
+              "kong-gateway-install": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              },
+              "apisix-gateway-install": {
+                "properties": {
+                  "enabled": { "const": true }
+                }
+              }
             }
           }
-        }
+        ],
+        "errorMessage": "Only one of api-operator-istio.enabled, kong-gateway-install.enabled, or apisix-gateway-install.enabled must be true."
       },
       {
-        "properties": {
-          "api-operator-istio": {
+        "oneOf": [
+          {
             "properties": {
-              "enabled": { "const": false }
+              "dependentapi-simple-operator": {
+                "properties": {
+                  "enabled": { "const": true }
+                }
+              },
+              "dependency-management-keycloak-authz": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              }
             }
           },
-          "kong-gateway-install": {
+          {
             "properties": {
-              "enabled": { "const": true }
-            }
-          },
-          "apisix-gateway-install": {
-            "properties": {
-              "enabled": { "const": false }
+              "dependentapi-simple-operator": {
+                "properties": {
+                  "enabled": { "const": false }
+                }
+              },
+              "dependency-management-keycloak-authz": {
+                "properties": {
+                  "enabled": { "const": true }
+                }
+              }
             }
           }
-        }
-      },
-      {
-        "properties": {
-          "api-operator-istio": {
-            "properties": {
-              "enabled": { "const": false }
-            }
-          },
-          "kong-gateway-install": {
-            "properties": {
-              "enabled": { "const": false }
-            }
-          },
-          "apisix-gateway-install": {
-            "properties": {
-              "enabled": { "const": true }
-            }
-          }
-        }
+        ],
+        "errorMessage": "Exactly one of dependentapi-simple-operator.enabled or dependency-management-keycloak-authz.enabled must be true."
       }
-    ],
-    "errorMessage": "Only one of api-operator-istio.enabled, kong-gateway-install.enabled, or apisix-gateway-install.enabled must be true."
+    ]
   }
   

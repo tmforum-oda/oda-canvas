@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "canvas-portal.backend.fullname" . }}
+  labels:
+    {{- include "canvas-portal.backend.labels" . | nindent 4 }}
+{{- $keycloakBackendUrl := include "canvas-portal.keycloak.backendUrl" . }}
+{{- $conformance := .Values.backend.conformance | default dict }}
+{{- $canvasBDD := $conformance.canvasBDD | default dict }}
+{{- $canvasBDDEnv := $canvasBDD.env | default dict }}
+data:
+  APP_ENV: {{ .Values.backend.env.APP_ENV | quote }}
+  LOG_LEVEL: {{ .Values.backend.env.LOG_LEVEL | quote }}
+  IDM_PROVIDER: {{ .Values.backend.env.IDM_PROVIDER | quote }}
+  KEYCLOAK_URL: {{ $keycloakBackendUrl | quote }}
+  KEYCLOAK_REALM: {{ .Values.backend.env.KEYCLOAK_REALM | quote }}
+  KEYCLOAK_CLIENT_ID: {{ .Values.backend.env.KEYCLOAK_CLIENT_ID | quote }}
+  KEYCLOAK_ADMIN_CLIENT_ID: {{ .Values.backend.env.KEYCLOAK_ADMIN_CLIENT_ID | quote }}
+  ENTRAID_TENANT_ID: {{ .Values.backend.env.ENTRAID_TENANT_ID | quote }}
+  ENTRAID_CLIENT_ID: {{ .Values.backend.env.ENTRAID_CLIENT_ID | quote }}
+  K8S_MODE: {{ .Values.backend.env.K8S_MODE | quote }}
+  K8S_REMOTE_API_URL: {{ .Values.backend.env.K8S_REMOTE_API_URL | quote }}
+  CANVAS_TYPE: {{ .Values.backend.env.CANVAS_TYPE | quote }}
+  HELM_REPOSITORY_CATALOG_PATH: {{ .Values.backend.persistence.helmRepositoryCatalogPath | quote }}
+  CORS_ORIGINS: {{ .Values.backend.env.CORS_ORIGINS | toJson | quote }}
+  CONFORMANCE_REPO_URL: {{ default "https://github.com/tmforum-oda/oda-canvas.git" (index $canvasBDD "repo_url") | quote }}
+  CONFORMANCE_REPO_BRANCH: {{ default "main" (index $canvasBDD "branch") | quote }}
+  CONFORMANCE_DEFAULT_TAGS: {{ default "" (index $canvasBDD "defaultTags") | quote }}
+  CONFORMANCE_KEYCLOAK_USER: {{ default .Values.keycloak.init.adminUser (index $canvasBDDEnv "KEYCLOAK_USER") | quote }}
+  CONFORMANCE_KEYCLOAK_BASE_URL: {{ default $keycloakBackendUrl (index $canvasBDDEnv "KEYCLOAK_BASE_URL") | quote }}
+  CONFORMANCE_KEYCLOAK_REALM: {{ default .Values.backend.env.KEYCLOAK_REALM (index $canvasBDDEnv "KEYCLOAK_REALM") | quote }}
+  OBSERVABILITY_PROVIDERS_JSON: {{ ((.Values.backend.observability).providers | default list) | toJson | quote }}
+  # JSON-encoded list of namespaces the portal is allowed to install helm
+  # releases into. Sourced from rbac.canvasInstallAccess.targetNamespaces so
+  # the install UI matches the RoleBindings the chart actually creates.
+  INSTALL_TARGET_NAMESPACES_JSON: {{ (.Values.rbac.canvasInstallAccess.targetNamespaces | default list) | toJson | quote }}
+  ALLOWED_CHART_SOURCES_JSON: {{ (((.Values.backend.helm) | default dict).allowedChartSources | default list) | toJson | quote }}
+  AUTH_COOKIE_SECURE: {{ ((.Values.backend.auth | default dict).cookieSecure | default false) | quote }}
+  AUTH_COOKIE_SAMESITE: {{ ((.Values.backend.auth | default dict).cookieSameSite | default "strict") | quote }}

@@ -1,0 +1,166 @@
+{
+	"apiVersion": "oda.tmforum.org/v1",
+	"kind": "DependentAPI",
+	"metadata": {
+		"annotations": {
+			"kopf.zalando.org/dependentApiCreate": "{\"started\":\"2026-05-05T07:10:38.227174+00:00\",\"delayed\":\"2026-05-05T07:13:39.550432+00:00\",\"purpose\":\"create\",\"retries\":3,\"success\":false,\"failure\":false,\"message\":\"0\"}",
+			"kopf.zalando.org/touch-dummy": "2026-05-05T07:13:39.580096+00:00"
+		},
+		"creationTimestamp": "2026-05-05T07:10:37Z",
+		"finalizers": [
+			"kopf.zalando.org/KopfFinalizerMarker"
+		],
+		"generateName": "f-cat-productcatalogmanagement-",
+		"generation": 7,
+		"labels": {
+			"app.kubernetes.io/managed-by": "Helm",
+			"oda.tmforum.org/componentName": "f-cat-productcatalogmanagement"
+		},
+		"managedFields": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:generateName": {
+						},
+						"f:labels": {
+							".": {
+							},
+							"f:app.kubernetes.io/managed-by": {
+							},
+							"f:oda.tmforum.org/componentName": {
+							}
+						},
+						"f:ownerReferences": {
+							".": {
+							},
+							"k:{\"uid\":\"73f7d3f0-15a8-4f07-8918-f2c3e5ac3d80\"}": {
+							}
+						}
+					},
+					"f:spec": {
+						".": {
+						},
+						"f:apiType": {
+						},
+						"f:id": {
+						},
+						"f:name": {
+						},
+						"f:segment": {
+						},
+						"f:specification": {
+							".": {
+							},
+							"f:url": {
+							},
+							"f:version": {
+							}
+						}
+					}
+				},
+				"manager": "OpenAPI-Generator",
+				"operation": "Update",
+				"time": "2026-05-05T07:10:37Z"
+			},
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"fieldsType": "FieldsV1",
+				"fieldsV1": {
+					"f:metadata": {
+						"f:annotations": {
+							".": {
+							},
+							"f:kopf.zalando.org/dependentApiCreate": {
+							},
+							"f:kopf.zalando.org/touch-dummy": {
+							}
+						},
+						"f:finalizers": {
+							".": {
+							},
+							"v:\"kopf.zalando.org/KopfFinalizerMarker\"": {
+							}
+						}
+					},
+					"f:status": {
+						".": {
+						},
+						"f:kopf": {
+							".": {
+							},
+							"f:dummy": {
+							},
+							"f:progress": {
+								".": {
+								},
+								"f:dependentApiCreate": {
+									".": {
+									},
+									"f:delayed": {
+									},
+									"f:failure": {
+									},
+									"f:message": {
+									},
+									"f:purpose": {
+									},
+									"f:retries": {
+									},
+									"f:started": {
+									},
+									"f:success": {
+									}
+								}
+							}
+						}
+					}
+				},
+				"manager": "kopf",
+				"operation": "Update",
+				"time": "2026-05-05T07:13:39Z"
+			}
+		],
+		"name": "f-cat-productcatalogmanagement-downstreamproductcatalog-v4",
+		"namespace": "components",
+		"ownerReferences": [
+			{
+				"apiVersion": "oda.tmforum.org/v1",
+				"blockOwnerDeletion": true,
+				"controller": true,
+				"kind": "Component",
+				"name": "f-cat-productcatalogmanagement",
+				"uid": "73f7d3f0-15a8-4f07-8918-f2c3e5ac3d80"
+			}
+		],
+		"resourceVersion": "1777965219599839003",
+		"uid": "65cb7125-f742-4f61-be02-c32ccca84ac8"
+	},
+	"spec": {
+		"apiType": "openapi",
+		"id": null,
+		"name": "downstreamproductcatalog",
+		"segment": "coreFunction",
+		"specification": {
+			"url": "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json",
+			"version": "v4"
+		}
+	},
+	"status": {
+		"kopf": {
+			"dummy": "2026-05-05T07:13:39.580096+00:00",
+			"progress": {
+				"dependentApiCreate": {
+					"delayed": "2026-05-05T07:13:39.550432+00:00",
+					"failure": false,
+					"message": "0",
+					"purpose": "create",
+					"retries": 3,
+					"started": "2026-05-05T07:10:38.227174+00:00",
+					"success": false
+				}
+			}
+		}
+	}
+}

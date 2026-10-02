@@ -173,6 +173,8 @@ Components which do not request Secrets-Management will work without any errors.
 
 2. Install the reference implementation
 
+   **Do not use `--wait` on `helm install` or `helm upgrade`.** The chart runs post-install hooks that create TLS certificates and initialize Vault. With `--wait`, Helm blocks until Deployments and StatefulSets are Ready before running those hooks; but since several workloads need hook-created secrets first, the whole installation ends in a deadlock. Install without `--wait`; hooks run immediately after the manifest phase and pods recover as secrets appear. A `--timeout` is still useful for hook completion.
+
    **Istio API Operator as the Default:**
    By default, the Istio API Operator is enabled in the Canvas installation. If you do not modify the [values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/main/charts/canvas-oda/values.yaml) file, Canvas will use the Istio API Operator which manages a Canvas environment that exposes APIs through the Istio Service Mesh without any additional API Gateway.
 

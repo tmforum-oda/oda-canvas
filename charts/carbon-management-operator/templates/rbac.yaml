@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: carbon-management-account
+  labels:
+    {{- include "carbon-management-operator.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: carbon-management-role-cluster
+  labels:
+    {{- include "carbon-management-operator.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [apiextensions.k8s.io]
+    resources: [customresourcedefinitions]
+    verbs: [list, watch, get]
+    
+  # Framework: posting the events about the handlers progress/errors.
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create, patch]
+
+  # Application: read-only access for watching cluster-wide.
+  - apiGroups: [oda.tmforum.org]
+    resources: [carbonmanagements]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: [oda.tmforum.org]
+    resources: [carbonmanagements/status, carbonmanagements/finalizers]
+    verbs: [list, watch, patch, get, update]
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["services", "services/status", "pods", "persistentvolumeclaims", "persistentvolumeclaims/status", "namespaces", "configmaps", "configmaps/status", "secrets", "secrets/status", "serviceaccounts", "serviceaccounts/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "ingresses/status", "httproutes"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["extensions", "apps"]
+    resources: ["deployments", "deployments/status", "statefulsets", "statefulsets/status"]
+    verbs: [list, watch, patch, get, create, update, delete]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: [get, list, patch, watch]
+  - apiGroups: ["keda.sh"]
+    resources: ["scaledobjects", "scaledjobs"]
+    verbs: [list, watch, patch, get, create, update, delete]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: carbon-management-role-cluster-binding
+  labels:
+    {{- include "carbon-management-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: carbon-management-role-cluster
+subjects:
+  - kind: ServiceAccount
+    name: carbon-management-account
+    namespace: {{ .Release.Namespace }}

@@ -1,0 +1,166 @@
+apiVersion: v1
+items:
+- apiVersion: oda.tmforum.org/v1
+  kind: Component
+  metadata:
+    annotations:
+      kopf.zalando.org/last-handled-configuration: |
+        {"spec":{"componentMetadata":{"description":"Simple Product Catalog ODA-Component with TMF634 DependentAPI in managementFunction.","functionalBlock":"CoreCommerce","id":"TMFC001","maintainers":[{"email":"lester.thomas@vodafone.com","name":"Lester Thomas"}],"name":"productcatalogmanagement","owners":[{"email":"lester.thomas@vodafone.com","name":"Lester Thomas"}],"publicationDate":"2024-09-17T00:00:00.000Z","status":"specified","version":"0.0.1"},"coreFunction":{"dependentAPIs":[{"apiType":"openapi","name":"downstreamproductcatalog","specification":[{"url":"https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"}]}],"exposedAPIs":[{"apiType":"openapi","developerUI":"/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs","implementation":"ctk-prodcatapi","name":"productcatalogmanagement","path":"/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4","port":8080,"specification":[{"url":"https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"}]}]},"eventNotification":{"publishedEvents":[],"subscribedEvents":[]},"managementFunction":{"dependentAPIs":[{"apiType":"openapi","name":"downstreamresourcecatalog","specification":[{"url":"https://raw.githubusercontent.com/tmforum-apis/TMF634_ResourceCatalog/master/TMF634-ResourceCatalog-v4.0.0.swagger.json"}]}],"exposedAPIs":[{"apiType":"prometheus","implementation":"ctk-productcatalogmanagement-sm","name":"metrics","path":"/ctk-productcatalogmanagement/metrics","port":4000}]},"securityFunction":{"canvasSystemRole":"Admin","exposedAPIs":[{"apiType":"openapi","developerUI":"/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5/docs","gatewayConfiguration":{"CORS":{"allowCredentials":false,"allowOrigins":"https://allowed-origin.com, https://allowed-origin2.com","enabled":false,"handlePreflightRequests":{"allowHeaders":"Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers","allowMethods":"GET, POST","enabled":false,"maxAge":36000}},"OASValidation":{"allowUnspecifiedCookies":false,"allowUnspecifiedHeaders":false,"allowUnspecifiedQueryParams":false,"requestEnabled":false,"responseEnabled":false},"apiKeyVerification":{"enabled":false,"location":"header"},"quota":{"identifier":"","limit":""},"rateLimit":{"enabled":false,"identifier":"IP","interval":"pm","limit":"6"},"template":""},"implementation":"ctk-permissionspecapi","name":"userrolesandpermissions","path":"/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5","port":8080,"specification":[{"url":"https://raw.githubusercontent.com/tmforum-apis/TMF672_UserRolePermissions/master/TMF672-UserRolePermissions-v5.0.0.swagger.json"}]}]}},"metadata":{"labels":{"app.kubernetes.io/managed-by":"Helm","oda.tmforum.org/componentName":"ctk-productcatalogmanagement"},"annotations":{"meta.helm.sh/release-name":"ctk","meta.helm.sh/release-namespace":"components"}},"status":{"coreAPIs":[{"developerUI":"https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs","implementation":"ctk-prodcatapi","ip":"34.51.232.176","name":"ctk-productcatalogmanagement-productcatalogmanagement-v4","path":"/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4","port":8080,"ready":true,"uid":"d56a6df5-aa0f-43a5-b8c8-e8e76ef2941b","url":"https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4"}],"coreDependentAPIs":[{"name":"ctk-productcatalogmanagement-downstreamproductcatalog-v4","ready":true,"uid":"545fb2e3-b621-405d-ab09-9ef97f13d337","url":"https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4"}],"identityConfig":{"identityProvider":"Keycloak","listenerRegistered":true},"identityConfig/status.summary/status.deployment_status":"identityConfig resource unchanged","managementAPIs":[{"implementation":"ctk-productcatalogmanagement-sm","ip":"34.51.232.176","name":"ctk-productcatalogmanagement-metrics","path":"/ctk-productcatalogmanagement/metrics","port":4000,"ready":true,"uid":"f7eff3c2-e57e-4124-ab87-ac6bd9334acf","url":"https://34.51.232.176/ctk-productcatalogmanagement/metrics"}],"managementDependentAPIs":[],"publishedEvents":[],"securityAPIs":[{"developerUI":"https://34.51.232.176/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5/docs","implementation":"ctk-permissionspecapi","ip":"34.51.232.176","name":"ctk-productcatalogmanagement-userrolesandpermissions-v5","path":"/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5","port":8080,"ready":true,"uid":"0adc1041-7260-4372-becc-a91e16789397","url":"https://34.51.232.176/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5"}],"securityDependentAPIs":[],"securitySecretsManagement":{},"subscribedEvents":[],"summary/status":{"coreAPIsummary":"https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4 ","coreDependentAPIsummary":"https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4 ","deployment_status":"Complete","developerUIsummary":"https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs https://34.51.232.176/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5/docs ","managementAPIsummary":"https://34.51.232.176/ctk-productcatalogmanagement/metrics ","managementDependentAPIsummary":"","securityAPIsummary":"https://34.51.232.176/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5 ","securityDependentAPIsummary":"","securitySecretsManagementSummary":""}}}
+      meta.helm.sh/release-name: ctk
+      meta.helm.sh/release-namespace: components
+    creationTimestamp: "2026-06-12T11:09:31Z"
+    generation: 1240
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      oda.tmforum.org/componentName: ctk-productcatalogmanagement
+    name: ctk-productcatalogmanagement
+    namespace: components
+    resourceVersion: "1781305681033615021"
+    uid: 8f27cc57-881a-42ee-a197-a3922611b31e
+  spec:
+    componentMetadata:
+      description: Simple Product Catalog ODA-Component with TMF634 DependentAPI in
+        managementFunction.
+      functionalBlock: CoreCommerce
+      id: TMFC001
+      maintainers:
+      - email: lester.thomas@vodafone.com
+        name: Lester Thomas
+      name: productcatalogmanagement
+      owners:
+      - email: lester.thomas@vodafone.com
+        name: Lester Thomas
+      publicationDate: "2024-09-17T00:00:00.000Z"
+      status: specified
+      version: 0.0.1
+    coreFunction:
+      dependentAPIs:
+      - apiType: openapi
+        name: downstreamproductcatalog
+        specification:
+        - url: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+      exposedAPIs:
+      - apiType: openapi
+        developerUI: /ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs
+        implementation: ctk-prodcatapi
+        name: productcatalogmanagement
+        path: /ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+        port: 8080
+        specification:
+        - url: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+    eventNotification:
+      publishedEvents: []
+      subscribedEvents: []
+    managementFunction:
+      dependentAPIs:
+      - apiType: openapi
+        name: downstreamresourcecatalog
+        specification:
+        - url: https://raw.githubusercontent.com/tmforum-apis/TMF634_ResourceCatalog/master/TMF634-ResourceCatalog-v4.0.0.swagger.json
+      exposedAPIs:
+      - apiType: prometheus
+        implementation: ctk-productcatalogmanagement-sm
+        name: metrics
+        path: /ctk-productcatalogmanagement/metrics
+        port: 4000
+    securityFunction:
+      canvasSystemRole: Admin
+      exposedAPIs:
+      - apiType: openapi
+        developerUI: /ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5/docs
+        gatewayConfiguration:
+          CORS:
+            allowCredentials: false
+            allowOrigins: https://allowed-origin.com, https://allowed-origin2.com
+            enabled: false
+            handlePreflightRequests:
+              allowHeaders: Accept, X-Requested-With, Content-Type, Access-Control-Request-Method,
+                Access-Control-Request-Headers
+              allowMethods: GET, POST
+              enabled: false
+              maxAge: 36000
+          OASValidation:
+            allowUnspecifiedCookies: false
+            allowUnspecifiedHeaders: false
+            allowUnspecifiedQueryParams: false
+            requestEnabled: false
+            responseEnabled: false
+          apiKeyVerification:
+            enabled: false
+            location: header
+          quota:
+            identifier: ""
+            limit: ""
+          rateLimit:
+            enabled: false
+            identifier: IP
+            interval: pm
+            limit: "6"
+          template: ""
+        implementation: ctk-permissionspecapi
+        name: userrolesandpermissions
+        path: /ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5
+        port: 8080
+        specification:
+        - url: https://raw.githubusercontent.com/tmforum-apis/TMF672_UserRolePermissions/master/TMF672-UserRolePermissions-v5.0.0.swagger.json
+  status:
+    coreAPIs:
+    - developerUI: https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs
+      implementation: ctk-prodcatapi
+      ip: 34.51.232.176
+      name: ctk-productcatalogmanagement-productcatalogmanagement-v4
+      path: /ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+      port: 8080
+      ready: true
+      uid: d56a6df5-aa0f-43a5-b8c8-e8e76ef2941b
+      url: https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+    coreDependentAPIs:
+    - name: ctk-productcatalogmanagement-downstreamproductcatalog-v4
+      ready: true
+      uid: 545fb2e3-b621-405d-ab09-9ef97f13d337
+      url: https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+    identityConfig:
+      identityProvider: Keycloak
+      listenerRegistered: true
+    identityConfig/status.summary/status.deployment_status: identityConfig resource
+      unchanged
+    kopf:
+      progress: {}
+    managementAPIs:
+    - implementation: ctk-productcatalogmanagement-sm
+      ip: 34.51.232.176
+      name: ctk-productcatalogmanagement-metrics
+      path: /ctk-productcatalogmanagement/metrics
+      port: 4000
+      ready: true
+      uid: f7eff3c2-e57e-4124-ab87-ac6bd9334acf
+      url: https://34.51.232.176/ctk-productcatalogmanagement/metrics
+    managementDependentAPIs: []
+    publishedEvents: []
+    securityAPIs:
+    - developerUI: https://34.51.232.176/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5/docs
+      implementation: ctk-permissionspecapi
+      ip: 34.51.232.176
+      name: ctk-productcatalogmanagement-userrolesandpermissions-v5
+      path: /ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5
+      port: 8080
+      ready: true
+      uid: 0adc1041-7260-4372-becc-a91e16789397
+      url: https://34.51.232.176/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5
+    securityDependentAPIs: []
+    securitySecretsManagement: {}
+    subscribedEvents: []
+    summary/status:
+      coreAPIsummary: 'https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4 '
+      coreDependentAPIsummary: 'https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4 '
+      deployment_status: Complete
+      developerUIsummary: 'https://34.51.232.176/ctk-productcatalogmanagement/tmf-api/productCatalogManagement/v4/docs
+        https://34.51.232.176/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5/docs '
+      managementAPIsummary: 'https://34.51.232.176/ctk-productcatalogmanagement/metrics '
+      managementDependentAPIsummary: ""
+      securityAPIsummary: 'https://34.51.232.176/ctk-productcatalogmanagement/rolesAndPermissionsManagement/v5 '
+      securityDependentAPIsummary: ""
+      securitySecretsManagementSummary: ""
+kind: List
+metadata:
+  resourceVersion: ""

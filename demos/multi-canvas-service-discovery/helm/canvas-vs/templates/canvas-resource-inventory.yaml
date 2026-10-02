@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  labels:
+    app: canvas-resource-inventory
+  name: canvas-resource-inventory-vs
+  namespace: canvas
+spec:
+  gateways:
+  - {{ .Values.componentGateway }}
+  hosts:
+  - canvas-resource-inventory.{{ .Values.domain }}
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: resource-inventory.canvas.svc.cluster.local
+        port:
+          number: 80

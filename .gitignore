@@ -16,7 +16,18 @@ canvas-portal/portal-web/package-lock.json
 canvas-portal/portal-service/src/main/resources/static/
 /ignore/
 .claude/settings.local.json
+.claude/worktrees
 source/tmf-services/TMF639_Resource_Inventory/combined.log
 source/tmf-services/TMF639_Resource_Inventory/error.log
 source/tmf-services/TMF639_Resource_Inventory/nul
 source/tmf-services/TMF639_Resource_Inventory/.claude/settings.local.json
+nul
+
+# canvas-portal-v2 
+canvas-portal-v2/backend/venv/
+canvas-portal-v2/frontend/node_modules/
+canvas-portal-v2/frontend/dist/
+
+# Python bytecode 
+**/__pycache__/
+*.pyc

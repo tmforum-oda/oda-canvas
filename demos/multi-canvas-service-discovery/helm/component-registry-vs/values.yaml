@@ -1,0 +1,5 @@
+componentGateway: canvas/component-gateway  
+fullnameOverride: ""
+nameOverride: ""
+domain: ihc-dt.cluster-2.de
+

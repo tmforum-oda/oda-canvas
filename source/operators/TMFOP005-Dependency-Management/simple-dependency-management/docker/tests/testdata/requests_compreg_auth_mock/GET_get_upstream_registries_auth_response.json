@@ -1,0 +1,7 @@
+[
+  {
+    "id": "upup-compreg",
+    "callback": "https://upup-compreg.ihc-dt.cluster-2.de/sync",
+    "query": "source=global-compreg"
+  }
+]

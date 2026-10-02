@@ -10,6 +10,7 @@
     "license": "Apache-2.0",
     "dependencies": {
       "@kubernetes/client-node": "^0.12.3",
-      "axios": "^0.26.0"
+      "axios": "^0.26.0",
+      "resource-inventory-utils-kubernetes": "file:../resource-inventory-utils-kubernetes"
     }
 }

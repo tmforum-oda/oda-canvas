@@ -1,0 +1,201 @@
+{{- if and (eq .Values.backend.env.IDM_PROVIDER "keycloak") .Values.keycloak.init.enabled }}
+{{- $realm := default .Values.backend.env.KEYCLOAK_REALM .Values.keycloak.init.realm }}
+{{- $keycloakUrl := include "canvas-portal.keycloak.backendUrl" . }}
+---
+# ConfigMap holding the init script — created before the Job 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "canvas-portal.fullname" . }}-keycloak-init
+  labels:
+    {{- include "canvas-portal.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-6"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+data:
+  init.py: |
+    import os, sys, json, ssl, time, urllib.request, urllib.error, urllib.parse
+
+    KEYCLOAK_URL     = os.environ["KEYCLOAK_URL"].rstrip("/")
+    REALM            = os.environ["KEYCLOAK_REALM"]
+    ADMIN_CLIENT_ID  = os.environ["KEYCLOAK_ADMIN_CLIENT_ID"]
+    KC_ADMIN_USER    = os.environ["KC_ADMIN_USER"]
+    KC_ADMIN_PASS    = os.environ["KC_ADMIN_PASSWORD"]
+
+    REQUIRED_ROLES  = ["manage-users", "view-users", "query-users"]
+
+    _ctx = ssl.create_default_context()
+    _ctx.check_hostname = False
+    _ctx.verify_mode = ssl.CERT_NONE
+
+    def req(method, url, data=None, headers=None, ok=(200, 201, 204)):
+        headers = dict(headers or {})
+        body = None
+        if data is not None:
+            if isinstance(data, (dict, list)):
+                body = json.dumps(data).encode()
+                headers.setdefault("Content-Type", "application/json")
+            else:
+                body = data.encode() if isinstance(data, str) else data
+        r = urllib.request.Request(url, data=body, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(r, context=_ctx, timeout=30) as resp:
+                raw = resp.read()
+                if resp.status not in ok:
+                    raise RuntimeError(f"{method} {url} -> {resp.status}: {raw[:200]}")
+                return resp.status, (json.loads(raw) if raw else None)
+        except urllib.error.HTTPError as e:
+            raw = e.read()
+            if e.code in ok:
+                return e.code, (json.loads(raw) if raw else None)
+            raise RuntimeError(f"{method} {url} -> {e.code}: {raw.decode()[:200]}")
+
+    def get_master_token():
+        print("Obtaining Keycloak master-admin token …")
+        data = urllib.parse.urlencode({
+            "grant_type": "password",
+            "client_id": "admin-cli",
+            "username": KC_ADMIN_USER,
+            "password": KC_ADMIN_PASS,
+        }).encode()
+        _, resp = req("POST",
+                      f"{KEYCLOAK_URL}/realms/master/protocol/openid-connect/token",
+                      data=data,
+                      headers={"Content-Type": "application/x-www-form-urlencoded"})
+        return resp["access_token"]
+
+    def hdrs(token):
+        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+    def assign_service_account_roles(token):
+        print(f"Configuring service-account roles for client '{ADMIN_CLIENT_ID}' …")
+
+        # Locate the admin client
+        _, clients = req("GET",
+                         f"{KEYCLOAK_URL}/admin/realms/{REALM}/clients"
+                         f"?clientId={urllib.parse.quote(ADMIN_CLIENT_ID)}",
+                         headers=hdrs(token))
+        if not clients:
+            print(f"  WARNING: client '{ADMIN_CLIENT_ID}' not found in realm '{REALM}' — skipping.")
+            return
+        client_uuid = clients[0]["id"]
+
+        # Get service account user
+        _, sa = req("GET",
+                    f"{KEYCLOAK_URL}/admin/realms/{REALM}/clients/{client_uuid}/service-account-user",
+                    headers=hdrs(token))
+        sa_id = sa["id"]
+        print(f"  Service-account user ID: {sa_id}")
+
+        # Locate realm-management client
+        _, rm_clients = req("GET",
+                            f"{KEYCLOAK_URL}/admin/realms/{REALM}/clients?clientId=realm-management",
+                            headers=hdrs(token))
+        if not rm_clients:
+            print("  WARNING: realm-management client not found — skipping role assignment.")
+            return
+        rm_id = rm_clients[0]["id"]
+
+        # Build a map of all available roles in realm-management
+        _, all_roles = req("GET",
+                           f"{KEYCLOAK_URL}/admin/realms/{REALM}/clients/{rm_id}/roles",
+                           headers=hdrs(token))
+        role_map = {r["name"]: r for r in all_roles}
+
+        # Check which roles are already assigned
+        _, assigned = req("GET",
+                          f"{KEYCLOAK_URL}/admin/realms/{REALM}/users/{sa_id}"
+                          f"/role-mappings/clients/{rm_id}",
+                          headers=hdrs(token))
+        assigned_names = {r["name"] for r in assigned}
+
+        to_assign = [role_map[r] for r in REQUIRED_ROLES
+                     if r in role_map and r not in assigned_names]
+        if to_assign:
+            print(f"  Assigning roles: {[r['name'] for r in to_assign]}")
+            req("POST",
+                f"{KEYCLOAK_URL}/admin/realms/{REALM}/users/{sa_id}"
+                f"/role-mappings/clients/{rm_id}",
+                data=to_assign, headers=hdrs(token), ok=(204,))
+        else:
+            print("  All required roles already assigned.")
+
+    def main():
+        for attempt in range(1, 6):
+            try:
+                token = get_master_token()
+                assign_service_account_roles(token)
+                print("Keycloak initialisation complete.")
+                return
+            except Exception as exc:
+                print(f"Attempt {attempt}/5 failed: {exc}")
+                if attempt < 5:
+                    print("Retrying in 15 s …")
+                    time.sleep(15)
+                else:
+                    sys.exit(1)
+
+    main()
+---
+# Secret holding the master-admin password 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "canvas-portal.fullname" . }}-keycloak-init
+  labels:
+    {{- include "canvas-portal.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-6"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+type: Opaque
+stringData:
+  adminPassword: {{ .Values.keycloak.init.adminPassword | quote }}
+---
+# Job that runs the init script (runs after ConfigMap+Secret)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "canvas-portal.fullname" . }}-keycloak-init
+  labels:
+    {{- include "canvas-portal.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        {{- include "canvas-portal.labels" . | nindent 8 }}
+        app.kubernetes.io/component: keycloak-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: keycloak-init
+          image: python:3.12-alpine
+          command: [python3, /scripts/init.py]
+          env:
+            - name: KEYCLOAK_URL
+              value: {{ $keycloakUrl | quote }}
+            - name: KEYCLOAK_REALM
+              value: {{ $realm | quote }}
+            - name: KEYCLOAK_ADMIN_CLIENT_ID
+              value: {{ .Values.backend.env.KEYCLOAK_ADMIN_CLIENT_ID | quote }}
+            - name: KC_ADMIN_USER
+              value: {{ .Values.keycloak.init.adminUser | quote }}
+            - name: KC_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "canvas-portal.fullname" . }}-keycloak-init
+                  key: adminPassword
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ include "canvas-portal.fullname" . }}-keycloak-init
+{{- end }}

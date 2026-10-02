@@ -14,7 +14,7 @@ on:
     - feature/*
     - odaa-*
     paths: 
-      - source/operators/api-management/apache-apisix/*
+      - source/operators/TMFOP002-API-Management/apache-apisix/*
 
 jobs:
   build-api-operator-apisix-prerelease-dockerfile-job:
@@ -81,8 +81,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/api-management/apache-apisix
-          file: source/operators/api-management/apache-apisix/apache-apisix-dockerfile
+          context: source/operators/TMFOP002-API-Management/apache-apisix
+          file: source/operators/TMFOP002-API-Management/apache-apisix/apache-apisix-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}

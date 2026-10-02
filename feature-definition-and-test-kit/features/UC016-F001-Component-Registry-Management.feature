@@ -14,19 +14,19 @@ Feature: UC016-F001 Component Registry Management
         Given only the 'productcatalog-v1' package is installed
         When the 'ctk-productcatalogmanagement' component has a deployment status of 'Complete'
         Then the Resource Inventory API should contain the following resources:
-            | resource id                                           | category      |
-            | ctk-productcatalogmanagement                          | ODAComponent  |
-            | ctk-productcatalogmanagement-metrics                  | API           |
-            | ctk-productcatalogmanagement-productcatalogmanagement | API           |
+            | resource id                                               | category      |
+            | ctk-productcatalogmanagement                              | ODAComponent  |
+            | ctk-productcatalogmanagement-metrics                      | API           |
+            | ctk-productcatalogmanagement-productcatalogmanagement-v4  | API           |
 
     @UC016-F001-002
     Scenario: Query a specific resource by id
         Given only the 'productcatalog-v1' package is installed
         When the 'ctk-productcatalogmanagement' component has a deployment status of 'Complete'
         Then I can query the Resource Inventory API for each of the following resources:
-            | resource id                                           | category      |
-            | ctk-productcatalogmanagement                          | ODAComponent  |
-            | ctk-productcatalogmanagement-productcatalogmanagement | API           |
+            | resource id                                               | category      |
+            | ctk-productcatalogmanagement                              | ODAComponent  |
+            | ctk-productcatalogmanagement-productcatalogmanagement-v4  | API           |
 
     @UC016-F001-003
     Scenario: Query for resources matching a filter

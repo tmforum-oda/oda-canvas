@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: canvas-vault
+  name: canvas-vault-hc-tls
+spec:
+  ports:
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 8200
+  selector:
+    app.kubernetes.io/instance: canvas
+    app.kubernetes.io/name: vault-hc
+    component: server
+  type: ClusterIP
+---
+# https://github.com/istio/istio/issues/38683
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  namespace: canvas-vault
+  name: canvas-vault-hc-dr
+spec:
+  host: canvas-vault-hc-tls.canvas-vault.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+      insecureSkipVerify: true
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  namespace: canvas-vault
+  name: canvas-vault-hc-vs
+  labels:
+    app: canvas-vault-hc
+spec:
+  gateways:
+  - {{ .Values.componentGateway }}
+  hosts:
+  - canvas-vault-hc.{{ .Values.domain }}
+  http:
+  - match:
+    - port: 443
+    route:
+    - destination:
+        host: canvas-vault-hc-tls.canvas-vault.svc.cluster.local
+        port:
+          number: 443

@@ -12,8 +12,10 @@ Feature: UC007-F001 Dependent APIs: Create Dependent API Resource
         Then I should see the '<ResourceName>' DependentAPI resource on the '<ComponentName>' component
         
     Examples:
-       | Name           | PackageName                        | ResourceName             | ComponentName                | SegmentName    | ApiCount |
-       | Core API       | productcatalog-dependendent-API-v1 | downstreamproductcatalog | ctk-productcatalogmanagement | coreFunction   | 1        |
+       | Name           | PackageName                          | ResourceName                  | ComponentName                | SegmentName        | ApiCount |
+       | Core API       | productcatalog-dependendent-API-v1   | downstreamproductcatalog      | ctk-productcatalogmanagement | coreFunction       | 1        |
+       | Management API | productcatalog-mgmt-dependent-API-v1 | downstreamresourcecatalog     | ctk-productcatalogmanagement | managementFunction | 1        |
+       | Security API   | productcatalog-sec-dependent-API-v1  | downstreamuserrolepermissions | ctk-productcatalogmanagement | securityFunction   | 1        |
 
 
     Scenario Outline: Remove DependentAPI Resource when Component deleted
@@ -22,5 +24,7 @@ Feature: UC007-F001 Dependent APIs: Create Dependent API Resource
         Then I should not see the '<ResourceName>' DependentAPI resource on the '<ComponentName>' component
 
     Examples:
-       | Name           | PackageName                        | ResourceName             | ComponentName                | SegmentName    | ApiCount |
-       | Core API       | productcatalog-dependendent-API-v1 | downstreamproductcatalog | ctk-productcatalogmanagement | coreFunction   | 1        |
+       | Name           | PackageName                          | ResourceName                  | ComponentName                | SegmentName        | ApiCount |
+       | Core API       | productcatalog-dependendent-API-v1   | downstreamproductcatalog      | ctk-productcatalogmanagement | coreFunction       | 1        |
+       | Management API | productcatalog-mgmt-dependent-API-v1 | downstreamresourcecatalog     | ctk-productcatalogmanagement | managementFunction | 1        |
+       | Security API   | productcatalog-sec-dependent-API-v1  | downstreamuserrolepermissions | ctk-productcatalogmanagement | securityFunction   | 1        |

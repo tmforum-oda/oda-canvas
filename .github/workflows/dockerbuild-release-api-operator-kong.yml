@@ -13,7 +13,7 @@ on:
     branches:
     - main
     paths: 
-      - source/operators/api-management/kong/*
+      - source/operators/TMFOP002-API-Management/kong/*
 
 jobs:
   build-api-operator-kong-release-dockerfile-job:
@@ -74,8 +74,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: source/operators/api-management/kong
-          file: source/operators/api-management/kong/kong-dockerfile
+          context: source/operators/TMFOP002-API-Management/kong
+          file: source/operators/TMFOP002-API-Management/kong/kong-dockerfile
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }}
