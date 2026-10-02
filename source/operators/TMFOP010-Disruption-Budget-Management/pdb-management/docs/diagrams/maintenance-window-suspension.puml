@@ -1,0 +1,26 @@
+@startuml
+actor KubernetesAPI
+participant Operator
+participant DeploymentController
+participant PDBController
+database Kubernetes as K8s
+
+== Deployment Created ==
+
+KubernetesAPI -> Operator: Deployment Created
+Operator -> DeploymentController: Reconcile()
+
+DeploymentController -> DeploymentController: Lookup Matching Policies
+DeploymentController -> DeploymentController: Check Maintenance Window
+
+alt Maintenance Window Active
+    DeploymentController -> Operator: Emit Event (MaintenanceActive)
+    DeploymentController -> DeploymentController: Skip PDB Enforcement
+else No maintenance
+    DeploymentController -> PDBController: Create/Update PDB
+    PDBController -> K8s: Apply PodDisruptionBudget
+    PDBController -> DeploymentController: Return Success/Failure
+end
+
+DeploymentController -> Operator: Record Metrics
+@enduml

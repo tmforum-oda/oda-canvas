@@ -3,14 +3,15 @@ kind: RoleBinding
 metadata:
   labels:
     app.kubernetes.io/name: pdb-management
+    app.kubernetes.io/component: operator
     app.kubernetes.io/managed-by: kustomize
-  name: leader-election-rolebinding
+  name: pdb-management-leader-election-rolebinding
   namespace: canvas
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: leader-election-role
+  name: pdb-management-leader-election-role
 subjects:
 - kind: ServiceAccount
-  name: controller-manager
+  name: pdb-management-operator
   namespace: canvas

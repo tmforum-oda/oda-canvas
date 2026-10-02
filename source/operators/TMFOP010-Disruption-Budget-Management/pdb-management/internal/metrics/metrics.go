@@ -17,6 +17,7 @@ limitations under the License.
 package metrics
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -162,6 +163,106 @@ var (
 		[]string{"resolution", "enforcement_mode", "namespace"},
 	)
 
+	// Multi-policy resolution metrics
+	MultiPolicyMatches = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pdb_management_multi_policy_matches_total",
+			Help: "Total times multiple policies matched a deployment",
+		},
+		[]string{"namespace", "policy_count"},
+	)
+
+	PolicyTieBreaks = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pdb_management_policy_tie_breaks_total",
+			Help: "Total policy tie-break resolutions",
+		},
+		[]string{"namespace", "resolution_method"},
+	)
+
+	// Retry metrics
+	RetryAttempts = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pdb_management_retry_attempts_total",
+			Help: "Total retry attempts by operation and error type",
+		},
+		[]string{"operation", "error_type", "attempt"},
+	)
+
+	RetryExhausted = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pdb_management_retry_exhausted_total",
+			Help: "Total times retries were exhausted without success",
+		},
+		[]string{"operation", "final_error_type"},
+	)
+
+	RetrySuccessAfterRetry = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pdb_management_retry_success_after_retry_total",
+			Help: "Total successful operations that required at least one retry",
+		},
+		[]string{"operation", "attempts_required"},
+	)
+
+	// Webhook status metrics
+	WebhookStatus = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pdb_management_webhook_status",
+			Help: "Webhook status (1=enabled, 0=disabled)",
+		},
+		[]string{"status", "reason"},
+	)
+
+	// MCP Server metrics
+	MCPRequestsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pdb_management_mcp_requests_total",
+			Help: "Total MCP requests by method and status",
+		},
+		[]string{"method", "status"},
+	)
+
+	MCPRequestDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "pdb_management_mcp_request_duration_seconds",
+			Help:    "Duration of MCP requests in seconds",
+			Buckets: []float64{0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0},
+		},
+		[]string{"method"},
+	)
+
+	MCPToolExecutions = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pdb_management_mcp_tool_executions_total",
+			Help: "Total MCP tool executions by tool name and status",
+		},
+		[]string{"tool", "status"},
+	)
+
+	MCPActiveConnections = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "pdb_management_mcp_active_connections",
+			Help: "Number of active MCP connections",
+		},
+	)
+
+	MCPAIProxyRequests = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pdb_management_mcp_ai_proxy_requests_total",
+			Help: "Total AI proxy requests by provider and status",
+		},
+		[]string{"provider", "status"},
+	)
+
+	MCPRateLimitExceeded = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pdb_management_mcp_rate_limit_exceeded_total",
+			Help: "Total times MCP rate limit was exceeded",
+		},
+		[]string{"client", "path"},
+	)
+
 	// Resource usage metrics
 	ReconcileQueueLength = prometheus.NewGaugeFunc(
 		prometheus.GaugeOpts{
@@ -195,6 +296,18 @@ func init() {
 		OverrideAttempts,
 		PolicyEvaluations,
 		PolicyConflicts,
+		MultiPolicyMatches,
+		PolicyTieBreaks,
+		RetryAttempts,
+		RetryExhausted,
+		RetrySuccessAfterRetry,
+		WebhookStatus,
+		MCPRequestsTotal,
+		MCPRequestDuration,
+		MCPToolExecutions,
+		MCPActiveConnections,
+		MCPAIProxyRequests,
+		MCPRateLimitExceeded,
 	)
 
 	// Set operator info (these should be set via build flags)
@@ -305,6 +418,46 @@ func RecordPolicyConflict(resolution, mode, namespace string) {
 	PolicyConflicts.WithLabelValues(resolution, mode, namespace).Inc()
 }
 
+// RecordMultiPolicyMatch records when multiple policies match a deployment
+func RecordMultiPolicyMatch(namespace string, count int) {
+	MultiPolicyMatches.WithLabelValues(namespace, fmt.Sprintf("%d", count)).Inc()
+}
+
+// RecordPolicyTieBreak records a tie-break resolution
+func RecordPolicyTieBreak(namespace, method string) {
+	PolicyTieBreaks.WithLabelValues(namespace, method).Inc()
+}
+
+// RecordRetryAttempt records a retry attempt
+func RecordRetryAttempt(operation, errorType string, attempt int) {
+	RetryAttempts.WithLabelValues(operation, errorType, fmt.Sprintf("%d", attempt)).Inc()
+}
+
+// RecordRetryExhausted records when retries are exhausted
+func RecordRetryExhausted(operation, finalErrorType string) {
+	RetryExhausted.WithLabelValues(operation, finalErrorType).Inc()
+}
+
+// RecordRetrySuccess records successful operation after retries
+func RecordRetrySuccess(operation string, attempts int) {
+	if attempts > 1 {
+		RetrySuccessAfterRetry.WithLabelValues(operation, fmt.Sprintf("%d", attempts)).Inc()
+	}
+}
+
+// RecordWebhookStatus records the webhook status
+func RecordWebhookStatus(status, reason string) {
+	// Reset all statuses first
+	WebhookStatus.Reset()
+
+	value := 0.0
+	if status == "enabled" {
+		value = 1.0
+	}
+
+	WebhookStatus.WithLabelValues(status, reason).Set(value)
+}
+
 // Helper functions
 func getErrorType(err error) string {
 	if err == nil {
@@ -312,14 +465,14 @@ func getErrorType(err error) string {
 	}
 
 	errStr := err.Error()
-	switch {
-	case errStr == "conflict":
+	switch errStr {
+	case "conflict":
 		return "conflict"
-	case errStr == "not found":
+	case "not found":
 		return "not_found"
-	case errStr == "forbidden":
+	case "forbidden":
 		return "forbidden"
-	case errStr == "timeout":
+	case "timeout":
 		return "timeout"
 	default:
 		return "unknown"
@@ -346,4 +499,55 @@ func getBuildDate() string {
 		return time.Now().Format(time.RFC3339)
 	}
 	return buildDate
+}
+
+// MCP metrics helper functions
+
+// RecordMCPRequest records an MCP request
+func RecordMCPRequest(method string, duration time.Duration, err error) {
+	status := "success"
+	if err != nil {
+		status = "error"
+	}
+	MCPRequestsTotal.WithLabelValues(method, status).Inc()
+	MCPRequestDuration.WithLabelValues(method).Observe(duration.Seconds())
+}
+
+// RecordMCPToolExecution records an MCP tool execution
+func RecordMCPToolExecution(tool string, err error) {
+	status := "success"
+	if err != nil {
+		status = "error"
+	}
+	MCPToolExecutions.WithLabelValues(tool, status).Inc()
+}
+
+// IncrementMCPConnections increments the active MCP connections gauge
+func IncrementMCPConnections() {
+	MCPActiveConnections.Inc()
+}
+
+// DecrementMCPConnections decrements the active MCP connections gauge
+func DecrementMCPConnections() {
+	MCPActiveConnections.Dec()
+}
+
+// RecordMCPAIProxyRequest records an AI proxy request
+func RecordMCPAIProxyRequest(provider string, err error) {
+	status := "success"
+	if err != nil {
+		status = "error"
+	}
+	MCPAIProxyRequests.WithLabelValues(provider, status).Inc()
+}
+
+// RecordMCPRateLimitExceeded records a rate limit exceeded event
+func RecordMCPRateLimitExceeded(client, path string) {
+	// Sanitize client IP to avoid high cardinality
+	// Just use the first part of the IP for grouping
+	sanitizedClient := client
+	if len(client) > 20 {
+		sanitizedClient = client[:20]
+	}
+	MCPRateLimitExceeded.WithLabelValues(sanitizedClient, path).Inc()
 }

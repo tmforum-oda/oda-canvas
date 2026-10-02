@@ -409,7 +409,7 @@ pdb-management-operator:
   deployment:
     operatorName: pdb-management-operator
     image: tmforumodacanvas/pdb-management-operator
-    version: 1.0.0
+    version: 1.1.0
     prereleaseSuffix:
     imagePullPolicy: IfNotPresent
     watchNamespace: ''

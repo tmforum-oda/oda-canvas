@@ -12,9 +12,14 @@ The PDB Management Operator automatically creates and manages Pod Disruption Bud
 - **ODA Canvas Integration**: Native support for TM Forum ODA component metadata
 - **Intelligent Defaults**: Component function-aware availability levels
 - **Maintenance Windows**: Time-based PDB suspension for scheduled maintenance
+- **AI-Powered Analysis**: Integrated MCP server for cluster analysis and intelligent recommendations
 - **High Performance**: Optimized for 200+ deployments with intelligent caching
 - **Comprehensive Observability**: Built-in metrics, tracing, and audit logging
 - **Admission Webhooks**: Validate and default AvailabilityPolicy resources
+
+## Architecture Overview
+
+![PDB Management Operator](diagrams/pdb-management-operator.png)
 
 ## Quick Start
 
@@ -113,6 +118,28 @@ spec:
 | `custom`            | User-defined | User-defined | Custom requirements    | Special cases           |
 
 \*Security components are automatically promoted to higher availability levels
+
+## Configuration
+
+The operator supports extensive configuration via CLI flags:
+
+```bash
+# Cache configuration
+--policy-cache-ttl=5m              # TTL for cached policies
+--policy-cache-size=100            # Maximum policies to cache
+--maintenance-window-cache-ttl=1m  # TTL for maintenance window cache
+
+# Retry configuration
+--retry-max-attempts=5             # Maximum retry attempts
+--retry-initial-delay=100ms        # Initial retry delay
+--retry-max-delay=30s              # Maximum retry delay
+--retry-backoff-factor=2.0         # Backoff multiplier
+
+# Webhook (gracefully degrades if cert-manager unavailable)
+--enable-webhook=true              # Enable admission webhooks
+```
+
+See [Performance and Caching](PERFORMANCE_AND_CACHING.md) for detailed tuning guidance.
 
 ## Advanced Features
 
@@ -236,11 +263,24 @@ AVAILABILITY_CONFIGS='{
 
 ### Key Metrics
 
+#### Core Metrics
 - `pdb_management_pdbs_created_total` - Total PDBs created
 - `pdb_management_pdbs_updated_total` - Total PDBs updated
 - `pdb_management_reconciliation_duration_seconds` - Reconciliation performance
 - `pdb_management_enforcement_decisions_total` - Policy enforcement decisions
 - `pdb_management_cache_hits_total` - Cache efficiency metrics
+
+#### Multi-Policy Resolution
+- `pdb_management_multi_policy_matches_total` - Times multiple policies matched a deployment
+- `pdb_management_policy_tie_breaks_total` - Policy tie-break resolutions
+
+#### Retry Operations
+- `pdb_management_retry_attempts_total` - Retry attempts by operation and error type
+- `pdb_management_retry_exhausted_total` - Operations that exhausted all retries
+- `pdb_management_retry_success_after_retry_total` - Successful operations after retry
+
+#### Webhook Status
+- `pdb_management_webhook_status` - Current webhook state (enabled/disabled/failed)
 
 ### Health Checks
 
@@ -349,7 +389,7 @@ The operator supports configurable log levels:
 
 ```bash
 # Set log level via environment variable
-kubectl set env deployment/canvas-pdb-management-operator \
+kubectl set env deployment/pdb-management-controller-manager \
   -n canvas LOG_LEVEL=debug
 
 # Available levels: debug, info, warn, error
@@ -361,15 +401,15 @@ Use structured logging for advanced analysis:
 
 ```bash
 # Filter logs by trace ID
-kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
+kubectl logs -n canvas deployment/pdb-management-controller-manager | \
   jq 'select(.trace.trace_id == "2b4148def0c46c496b41c1ade1c7cc7f")'
 
 # Find all audit logs for a specific resource
-kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
+kubectl logs -n canvas deployment/pdb-management-controller-manager | \
   jq 'select(.msg == "Audit log" and .details.resource == "my-app-pdb")'
 
 # Track reconciliation flow
-kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
+kubectl logs -n canvas deployment/pdb-management-controller-manager | \
   jq 'select(.reconcileID == "deployment-f959cd46-f5c8-497f-b84d-b6d0d0ce04a2")'
 ```
 
@@ -388,13 +428,13 @@ kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
 
 ```bash
 # Check operator logs
-kubectl -n canvas logs deployment/canvas-pdb-management-operator
+kubectl -n canvas logs deployment/pdb-management-controller-manager
 
 # Verify annotations
 kubectl get deployment my-app -o jsonpath='{.metadata.annotations}'
 
 # Check if PDB management is enabled
-kubectl -n canvas get deployment canvas-pdb-management-operator -o yaml | grep ENABLE_PDB
+kubectl -n canvas get deployment pdb-management-controller-manager -o yaml | grep ENABLE_PDB
 ```
 
 **Policy not matching deployments?**
@@ -417,15 +457,35 @@ kubectl get deployment my-app --show-labels
 curl http://operator-pod:8080/metrics | grep cache
 
 # Enable debug logging
-kubectl set env deployment/canvas-pdb-management-operator \
+kubectl set env deployment/pdb-management-controller-manager \
   -n canvas LOG_LEVEL=debug
 ```
 
 ## Documentation
 
 - [Technical Documentation](TECHNICAL_DOCUMENTATION.md) - Architecture and internals
+- [MCP Integration](MCP_INTEGRATION.md) - AI-powered analysis via Model Context Protocol
 - [Performance and Caching](PERFORMANCE_AND_CACHING.md) - Performance optimization and caching strategies
-- [Examples](examples/) - Sample configurations
+- [Webhook Deployment](WEBHOOK_DEPLOYMENT.md) - Admission webhook setup
+- [Operational Runbook](OPERATIONAL_RUNBOOK.md) - Operations and troubleshooting guide
+- [Verification Guide](VERIFICATION.md) - Testing and validation
+
+## Diagrams
+
+All architecture and sequence diagrams are available in the [diagrams](diagrams/) directory:
+
+| Diagram | Description |
+|---------|-------------|
+| [pdb-management-operator](diagrams/pdb-management-operator.png) | Full reconciliation sequence |
+| [annotation-based-deployment-creation](diagrams/annotation-based-deployment-creation.png) | Annotation-based PDB creation flow |
+| [policy-based-creation-strict-enforcement](diagrams/policy-based-creation-strict-enforcement.png) | Strict enforcement mode |
+| [policy-based-creation-flexible-enforcement](diagrams/policy-based-creation-flexible-enforcement.png) | Flexible enforcement mode |
+| [policy-based-creation-advisory-override](diagrams/policy-based-creation-advisory-override.png) | Advisory mode with overrides |
+| [policy-priority-resolution](diagrams/policy-priority-resolution.png) | Policy priority resolution |
+| [policy-conflict-resolution](diagrams/policy-conflict-resolution.png) | Conflict resolution logic |
+| [maintenance-window-suspension](diagrams/maintenance-window-suspension.png) | Maintenance window handling |
+| [admission-webhook-validation](diagrams/admission-webhook-validation.png) | Webhook validation flow |
+| [deployment-deletion](diagrams/deployment-deletion.png) | Deployment deletion cleanup |
 
 ## Contributing
 

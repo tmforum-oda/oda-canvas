@@ -132,6 +132,23 @@ func (l *Logger) WithOperation(operation string) *Logger {
 	return l.WithValues("operation", operation)
 }
 
+// WithMCPRequest adds MCP request context to the logger
+func (l *Logger) WithMCPRequest(method, id string) *Logger {
+	return l.WithValues(
+		"mcp.method", method,
+		"mcp.requestId", id,
+		"mcp.protocol", "json-rpc",
+	)
+}
+
+// WithMCPTool adds MCP tool context to the logger
+func (l *Logger) WithMCPTool(toolName string) *Logger {
+	return l.WithValues(
+		"mcp.tool", toolName,
+		"mcp.type", "tool_call",
+	)
+}
+
 // WithError adds error context to the logger
 func (l *Logger) WithError(err error) *Logger {
 	if err == nil {
@@ -218,6 +235,34 @@ func (l *Logger) AuditReconciliation(controller, namespace, name string, duratio
 	}
 
 	l.Audit("RECONCILE", fmt.Sprintf("%s/%s", namespace, name), controller, namespace, name, result, metadata)
+}
+
+// AuditMCPRequest logs MCP request audit
+func (l *Logger) AuditMCPRequest(method, requestID, source string, duration time.Duration, result AuditResult, err error) {
+	metadata := map[string]interface{}{
+		"mcp.method":    method,
+		"mcp.requestId": requestID,
+		"mcp.source":    source,
+		"duration":      duration.String(),
+		"durationMs":    duration.Milliseconds(),
+	}
+
+	if err != nil {
+		metadata["error"] = err.Error()
+	}
+
+	l.Audit("MCP_REQUEST", requestID, "MCPRequest", "", method, result, metadata)
+}
+
+// AuditMCPToolCall logs MCP tool call audit
+func (l *Logger) AuditMCPToolCall(toolName string, arguments map[string]interface{}, result AuditResult, metadata map[string]interface{}) {
+	if metadata == nil {
+		metadata = make(map[string]interface{})
+	}
+	metadata["tool"] = toolName
+	metadata["argumentCount"] = len(arguments)
+
+	l.Audit("MCP_TOOL_CALL", toolName, "MCPTool", "", toolName, result, metadata)
 }
 
 // GetLoggerFromContext creates a logger from context with proper trace fields

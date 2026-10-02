@@ -1,0 +1,16 @@
+@startuml
+actor KubernetesAPI
+participant Operator
+participant AdmissionWebhook as Webhook
+
+== Policy Creation ==
+
+KubernetesAPI -> Webhook: Create AvailabilityPolicy
+
+Webhook -> Webhook: Validate CRD fields
+alt Valid Policy
+    Webhook --> KubernetesAPI: Admission Allowed
+else Validation Error
+    Webhook --> KubernetesAPI: Admission Denied
+end
+@enduml
