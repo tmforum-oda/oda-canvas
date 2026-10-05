@@ -4,6 +4,8 @@ description: A Helm chart for PDB Management Operator
 
 type: application
 
-version: 0.1.0
+version: 0.1.1
+# version: 0.1.1 - PR 574 - operator 1.1.0: MCP integration (off by default), Web UI, enhanced testing, Go 1.25
+# version: 0.1.0 - initial version
 
-appVersion: "1.0.0"
+appVersion: "1.1.0"

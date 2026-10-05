@@ -1,0 +1,88 @@
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+mode: deployment
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: 'otel-collector'
+            static_configs:
+              - targets: ['0.0.0.0:8888']
+
+
+  processors:
+    batch:
+      timeout: 1s
+      send_batch_size: 1024
+      send_batch_max_size: 2048
+    memory_limiter:
+      limit_mib: 256
+      spike_limit_mib: 64
+      check_interval: 1s
+    resource:
+      attributes:
+        - key: service.name
+          value: "pdb-management-operator"
+          action: upsert
+        - key: service.version
+          value: "v1.0.0"
+          action: upsert
+
+  exporters:
+    otlp/tempo:
+      endpoint: tempo-distributor.monitoring.svc.cluster.local:4317
+      tls:
+        insecure: true
+    # FIXED: Use correct Loki exporter configuration
+    loki:
+      endpoint: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+      headers:
+        "X-Scope-OrgID": "tenant1"
+    prometheus:
+      endpoint: "0.0.0.0:8889"
+
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, batch, resource]
+        exporters: [otlp/tempo]
+      metrics:
+        receivers: [otlp, prometheus]
+        processors: [memory_limiter, batch]
+        exporters: [prometheus]
+      logs:
+        receivers: [otlp]
+        processors: [memory_limiter, batch]
+        exporters: [loki]
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+ports:
+  otlp:
+    enabled: true
+    containerPort: 4317
+    servicePort: 4317
+  otlp-http:
+    enabled: true
+    containerPort: 4318
+    servicePort: 4318
+  metrics:
+    enabled: true
+    containerPort: 8888
+    servicePort: 8888 

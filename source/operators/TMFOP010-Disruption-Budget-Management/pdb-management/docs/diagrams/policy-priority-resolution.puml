@@ -1,0 +1,122 @@
+@startuml Policy Priority Resolution
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+
+title PDB Management Operator - Policy Priority Resolution
+
+actor User as U
+participant "Deployment" as D
+participant "PDB Operator" as O
+participant "Policy Cache" as C
+participant "Policy 1\n(priority 100)" as P1
+participant "Policy 2\n(priority 50)" as P2
+participant "PDB" as PDB
+
+== Deployment Reconciliation ==
+
+U -> D: Create deployment\n(test-controller-deployment)
+D -> O: Reconcile deployment
+
+== Component Function Classification ==
+
+O -> O: inferComponentFunction()
+note right
+  Check deployment name patterns:
+  - Security: auth, security, identity, etc.
+  - Management: operator, controller, manager, etc.
+  - Default: core
+end note
+
+alt Deployment name contains "controller"
+    O -> O: Classify as "management"
+else Deployment name contains "auth"
+    O -> O: Classify as "security"
+else Other patterns
+    O -> O: Classify as "core"
+end
+
+== Policy Discovery ==
+
+O -> C: Get all AvailabilityPolicies
+C -> O: Return policies list
+
+loop For each policy
+    O -> P1: Check policy selector
+    P1 -> O: Return match criteria
+    
+    O -> O: policyMatchesDeployment()
+    note right
+      Check:
+      - Component functions
+      - Namespace selectors
+      - Label selectors
+      - Match expressions
+    end note
+    
+    alt Policy matches deployment
+        O -> O: Store policy with priority
+    else Policy doesn't match
+        O -> O: Skip policy
+    end
+end
+
+== Priority Resolution ==
+
+O -> O: resolveConfiguration()
+note right
+  Compare policies by priority:
+  - Higher priority wins
+  - Same priority: annotation > policy
+  - Enforcement mode affects behavior
+end note
+
+alt Multiple matching policies
+    O -> O: Select highest priority policy
+    note right
+      Priority 100 > Priority 50
+      core-components-ha wins over
+      management-components-standard
+    end note
+else Single matching policy
+    O -> O: Use the matching policy
+else No matching policies
+    O -> O: Skip PDB creation
+end
+
+== PDB Creation/Update ==
+
+alt Deployment has 2+ replicas
+    O -> O: Check for existing PDBs
+    O -> O: cleanupDuplicatePDBs()
+    
+    alt Duplicate PDBs found
+        O -> O: Delete duplicates
+        O -> O: Keep expected PDB
+    end
+    
+    O -> PDB: Create/Update PDB
+    PDB -> O: PDB created/updated
+    
+    O -> O: Record metrics and events
+    O -> O: Audit log entry
+    
+else Deployment has 1 replica
+    O -> O: Skip PDB creation
+    O -> O: Log "insufficient replicas"
+end
+
+== Result ==
+
+O -> U: Return reconciliation result
+
+note over O
+  Final PDB configuration:
+  - Policy: core-components-ha (priority 100)
+  - Class: high-availability
+  - MinAvailable: 75%
+  - Enforcement: strict
+end note
+
+@enduml 

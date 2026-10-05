@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: mcp-server
+    app.kubernetes.io/created-by: pdb-management
+    app.kubernetes.io/instance: mcp-config
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: mcp-config
+    app.kubernetes.io/part-of: pdb-management
+  name: pdb-management-mcp-config
+  namespace: canvas
+data:
+  mcp-server-config.yaml: |
+    server:
+      name: "pdb-management-mcp-server"
+      version: "v1.0.0"
+      bind_address: ":8090"
+      
+    capabilities:
+      - "tools"
+      - "prompts" 
+      - "resources"
+      - "notifications"
+      
+    tools:
+      analysis:
+        - name: "analyze_cluster_availability"
+          description: "Analyze cluster-wide PDB coverage and availability status"
+          enabled: true
+        - name: "analyze_workload_patterns"
+          description: "Analyze deployment patterns and workload characteristics"
+          enabled: true
+          
+      recommendations:
+        - name: "recommend_availability_classes"
+          description: "Recommend optimal availability classes for deployments"
+          enabled: true
+        - name: "recommend_policies"
+          description: "Recommend availability policies based on cluster analysis"
+          enabled: true
+          
+      management:
+        - name: "create_availability_policy"
+          description: "Create new AvailabilityPolicy resources"
+          enabled: true
+        - name: "update_deployment_annotations"
+          description: "Update availability annotations on deployments"
+          enabled: true
+        - name: "simulate_policy_impact"
+          description: "Simulate policy impact before applying"
+          enabled: true
+          
+    security:
+      enable_auth: false  # Set to true in production with proper authentication
+      allowed_clients: []  # List of allowed client IDs/patterns
+      
+    logging:
+      level: "info"
+      format: "json"
+      
+    metrics:
+      enabled: true
+      path: "/metrics"
+      
+    health:
+      enabled: true
+      path: "/health"
