@@ -4,7 +4,8 @@ description: The Canvas Info Service
 
 type: application
 
-version: 1.0.1
+version: 1.0.2
+# version: 1.0.2 - Updated dockerfile to use node:22-alpine base image
 # version: 1.0.1 - Added support for custom/private docker registry and image pull secrets
 # version: 1.0.0 - initial version
 

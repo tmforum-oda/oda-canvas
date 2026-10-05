@@ -436,8 +436,8 @@ pdb-management-operator:
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
-  version: 1.0.2
-  prereleaseSuffix: 
+  version: 1.0.3
+  prereleaseSuffix: issue615
   imagePullPolicy: IfNotPresent
  
 # -----------------------------------------------------------------------------
@@ -611,8 +611,8 @@ api-operator-apisix:
 canvas-info-service:
   enabled: true
   image: tmforumodacanvas/tmf638-service-inventory-api
-  version: 1.0.0
-  prereleaseSuffix:
+  version: 1.0.1
+  prereleaseSuffix: issue615
   imagePullPolicy: IfNotPresent
   serverUrl: http://info.canvas.svc.cluster.local
   mongodb:
@@ -633,8 +633,8 @@ canvas-info-service:
 resource-inventory:
   enabled: true
   image: tmforumodacanvas/tmf639-resource-inventory-api
-  version: 1.1.0
-  prereleaseSuffix:
+  version: 1.1.1
+  prereleaseSuffix: issue615
   imagePullPolicy: IfNotPresent
   serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5
   serviceType: LoadBalancer
