@@ -1,31 +1,100 @@
-{{- $initial_delay := ( .Values.leaseWaitTimeonStartup) | float64 -}}
-{{- $delay := $initial_delay -}}
-{{- if (lookup "coordination.k8s.io/v1" "Lease" "kube-system" "cert-manager-cainjector-leader-election") }}
-{{- $delay := add $initial_delay 60}}
-{{- end }}
-
+{{- /*
+Waits until the cert-manager webhook can admit an Issuer before the post-install
+Issuer and Certificate hooks (weights -5 and 0) run. A fixed sleep was not enough
+when cert-manager images download slowly or the cainjector has not yet injected
+the webhook CA, which fails the install with "x509: certificate signed by unknown authority".
+*/ -}}
+{{- $namespace := include "cert-manager-init.namespace" . -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cert-manager-ready-check
+  namespace: {{ $namespace }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-15"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cert-manager-ready-check
+  namespace: {{ $namespace }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-15"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: ["cert-manager.io"]
+    resources: ["issuers"]
+    verbs: ["get", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cert-manager-ready-check
+  namespace: {{ $namespace }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-15"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cert-manager-ready-check
+subjects:
+  - kind: ServiceAccount
+    name: cert-manager-ready-check
+    namespace: {{ $namespace }}
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: job-hook-postinstall
+  namespace: {{ $namespace }}
   annotations:
-    "helm.sh/hook-weight": "-10"  
+    "helm.sh/hook-weight": "-10"
     "helm.sh/hook": "post-install"
     "helm.sh/hook-delete-policy": "before-hook-creation"
 spec:
   template:
     spec:
+      serviceAccountName: cert-manager-ready-check
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
       {{- include "image-pull-secrets" . |nindent 6 }}
       {{- end }}
       containers:
         - name: post-install
-          image: {{ include "docker.registry" .}}{{ .Values.global.hookImages.busybox }}
+          image: {{ include "docker.registry" .}}{{ .Values.global.hookImages.kubectlCurl }}
           imagePullPolicy: IfNotPresent
-          command: ['sleep', '{{- $delay}}']
-      restartPolicy: OnFailure
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # A server-side dry run goes through the cert-manager webhook, so it only
+              # succeeds once the webhook is serving with a CA the API server trusts.
+              TIMEOUT={{ .Values.certManagerReadyTimeout | int }}
+              END=$(( $(date +%s) + TIMEOUT ))
+              until cat <<EOF | kubectl apply --dry-run=server -f -
+              apiVersion: cert-manager.io/v1
+              kind: Issuer
+              metadata:
+                name: cert-manager-ready-check
+                namespace: {{ $namespace }}
+              spec:
+                selfSigned: {}
+              EOF
+              do
+                if [ "$(date +%s)" -ge "$END" ]; then
+                  echo "cert-manager webhook did not become ready within ${TIMEOUT}s"
+                  exit 1
+                fi
+                echo "Waiting for the cert-manager webhook to be ready..."
+                sleep 5
+              done
+              echo "cert-manager webhook is ready"
+      restartPolicy: Never
       terminationGracePeriodSeconds: 0
-
-  backoffLimit: 1
+  backoffLimit: 0
   completions: 1

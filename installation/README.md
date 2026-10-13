@@ -383,10 +383,9 @@ Force the release of the lease without waiting for a timeout
 kubectl delete lease cert-manager-cainjector-leader-election -n kube-system
 ```
 
-The installation has a configurable wait time *cert-manager.leaseWaitTimeonStartup*
-Increase `leaseWaitTimeonStartup` value btw 80-100 in `canvas-oda/values.yaml`
-
-Reinstall it with the new time.
+The post-install hook waits for the cert-manager webhook to be ready before creating issuers, for up to
+`cert-manager-init.certManagerReadyTimeout` seconds (default 600). If the wait timed out, increase it, for example
+`--set cert-manager-init.certManagerReadyTimeout=900`, and reinstall.
 
 ## Changes
 
