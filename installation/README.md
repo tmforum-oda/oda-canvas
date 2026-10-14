@@ -255,6 +255,32 @@ Components which do not request Secrets-Management will work without any errors.
     --set kong-gateway-install.enabled=true
     ```
 
+### Local clusters (kind)
+
+kind has no load balancer, so the `istio-ingress` service never gets an external IP. Two things depend on that address.
+
+**The Istio pre-install check.** `pre-install-check-istio` fails while the ingress has no external IP. Skip it, as the CI workflows do:
+
+```bash
+helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set preqrequisitechecks.istio=false
+```
+
+**API URLs.** The API operator builds each `ExposedAPI` URL from the ingress address. Without one, the URLs stay empty and components stay at `In-Progress-CompCon`. Give the ingress an address **before installing components**, because the operator reads it when the APIs are created (see [#621](https://github.com/tmforum-oda/oda-canvas/issues/621)). Either:
+
+- run [cloud-provider-kind](https://github.com/kubernetes-sigs/cloud-provider-kind), which allocates LoadBalancer IPs (used in the `Chart-Releaser-ReleasedChartTester-TrivyScanner` workflow); or
+- on a single machine, set the address yourself and forward the gateway ports to it:
+
+  ```bash
+  kubectl patch svc istio-ingress -n istio-ingress --subresource=status --type=merge \
+    -p '{"status":{"loadBalancer":{"ingress":[{"ip":"127.0.0.1"}]}}}'
+  kubectl port-forward -n istio-ingress svc/istio-ingress 80:80 443:443
+  ```
+
+**Conformance testing.** The TM Forum Open API CTKs run in Docker containers and call the URLs the canvas publishes. Inside a container `127.0.0.1` is the container itself, so use an address that both your machine and its containers can reach:
+
+- **Docker Desktop:** use the hostname `host.docker.internal` (`{"hostname":"host.docker.internal"}` in the patch above). The containers reach it through Docker Desktop; to call the APIs from the host as well, the port-forward must also listen on the address `host.docker.internal` resolves to on the host.
+- **Linux:** use the `docker0` address (for example `172.17.0.1`) and run the port-forward with `--address 0.0.0.0`.
+
 ## Troubleshooting
 
 ### Error installing: values don't meet the specifications of the schema(s)
@@ -403,8 +429,8 @@ The Helm chart has been refactored to move all the different subcharts to the sa
 
 ## oda-canvas helm chart uninstallation
 
-To  uninstall the oda-canvas chart:
+Uninstall any components first: the chart's pre-uninstall check aborts the uninstallation while components are deployed. Then uninstall the canvas release (named `canvas` in the install steps above):
 
 ```bash
-helm uninstall oda-canvas -n canvas
+helm uninstall canvas -n canvas
 ```

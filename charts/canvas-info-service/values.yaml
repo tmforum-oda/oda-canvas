@@ -1,5 +1,5 @@
 image: tmforumodacanvas/tmf638-service-inventory-api
-version: 1.0.0
+version: 1.0.1
 prereleaseSuffix:
 imagePullPolicy: IfNotPresent
 serverUrl: http://info.canvas.svc.cluster.local
