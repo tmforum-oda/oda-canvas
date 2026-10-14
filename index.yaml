@@ -332,6 +332,16 @@ entries:
   canvas-info-service:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-10-14T07:29:10.545239113Z"
+    description: The Canvas Info Service
+    digest: 3631590e0e872b73d7bb4642ed734580c50f02c3ceb3a5242bcdd22cf5b45045
+    name: canvas-info-service
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-info-service-1.0.2/canvas-info-service-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-08-05T20:51:25.283694435Z"
     description: The Canvas Info Service
     digest: 00777aa30ede04cf72578defe1000a4c00311e5a7432970fd2f487c045ddd5bc
@@ -382,6 +392,84 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-namespaces-0.1.0/canvas-namespaces-0.1.0.tgz
     version: 0.1.0
   canvas-oda:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2026-10-14T07:29:10.760469367Z"
+    dependencies:
+    - name: cert-manager-init
+      repository: file://../cert-manager-init
+      version: 1.1.2
+    - condition: canvas-namespaces.enabled
+      name: canvas-namespaces
+      repository: file://../canvas-namespaces
+      version: 1.0.1
+    - condition: oda-crds.enabled
+      name: oda-crds
+      repository: file://../oda-crds
+      version: 1.3.3
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.3
+    - name: component-operator
+      repository: file://../component-operator
+      version: 1.4.3
+    - name: identityconfig-operator-keycloak
+      repository: file://../identityconfig-operator-keycloak
+      version: 1.2.7
+    - condition: api-operator-istio.enabled
+      name: api-operator-istio
+      repository: file://../api-operator-istio
+      version: 1.1.4
+    - condition: dependentapi-simple-operator.enabled
+      name: dependentapi-simple-operator
+      repository: file://../dependentapi-simple-operator
+      version: 1.0.5
+    - condition: dependency-management-keycloak-authz.enabled
+      name: dependency-management-keycloak-authz
+      repository: file://../dependency-management-keycloak-authz
+      version: 0.2.1
+    - name: secretsmanagement-operator
+      repository: file://../secretsmanagement-operator
+      version: 1.0.2
+    - condition: canvas-vault.enabled
+      name: canvas-vault
+      repository: file://../canvas-vault
+      version: 1.0.2
+    - name: oda-webhook
+      repository: file://../oda-webhook
+      version: 1.2.4
+    - condition: kong-gateway-install.enabled
+      name: api-operator-kong
+      repository: file://../kong-gateway
+      version: 1.1.0
+    - condition: apisix-gateway-install.enabled
+      name: api-operator-apisix
+      repository: file://../apisix-gateway
+      version: 1.1.0
+    - condition: canvas-info-service.enabled
+      name: canvas-info-service
+      repository: file://../canvas-info-service
+      version: 1.0.2
+    - condition: resource-inventory.enabled
+      name: resource-inventory
+      repository: file://../resource-inventory
+      version: 1.1.1
+    - condition: pdb-management-operator.enabled
+      name: pdb-management-operator
+      repository: file://../pdb-management-operator
+      version: 0.1.1
+    - condition: component-registry.enabled
+      name: component-registry
+      repository: file://../component-registry
+      version: 0.1.0
+    description: A Helm of helm to orchestrate the ODA installation
+    digest: 76f20b1a2c4d31f7a8c40d60f2e13830b16b0075330af24c22345d7f5b056676
+    name: canvas-oda
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/canvas-oda-1.2.6-rc5/canvas-oda-1.2.6-rc5.tgz
+    version: 1.2.6-rc5
   - apiVersion: v2
     appVersion: v1
     created: "2026-10-02T15:18:52.437505571Z"
@@ -2861,6 +2949,17 @@ entries:
   carbon-intensity-service:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-10-14T07:29:10.914338158Z"
+    description: A Helm chart to deploy TMF628 Carbon Intensity Performance Management
+      API
+    digest: 4e51e20a1e933e95508e8695ab9181c636ab7db65c17e58cba1fae6dff7d52cb
+    name: carbon-intensity-service
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/carbon-intensity-service-1.0.1/carbon-intensity-service-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
+    appVersion: v1
     created: "2026-06-22T04:41:23.13929682Z"
     description: A Helm chart to deploy TMF628 Carbon Intensity Performance Management
       API
@@ -3614,6 +3713,16 @@ entries:
   oda-webhook:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-10-14T07:29:11.068753529Z"
+    description: A Helm chart to deploy the webhook following pattern in https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion
+    digest: 8458ddcb60cf1703d3daa01067b951bd1a770ff27d663d754997ee73d4c2045c
+    name: oda-webhook
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/oda-webhook-1.2.4/oda-webhook-1.2.4.tgz
+    version: 1.2.4
+  - apiVersion: v2
+    appVersion: v1
     created: "2025-08-05T20:51:26.720619768Z"
     description: A Helm chart to deploy the webhook following pattern in https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion
     digest: 734276c2f17ee3b7083389fce1d711a0b6d34db53e647941c27bc1f03dbbc5a5
@@ -3736,6 +3845,16 @@ entries:
   resource-inventory:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-10-14T07:29:11.246883569Z"
+    description: A helm chart to deploy Resource Inventory
+    digest: 5e286195e521c3253f52e725863f9911c0261a167cf65d4cd9fd3e16186549ce
+    name: resource-inventory
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/resource-inventory-1.1.1/resource-inventory-1.1.1.tgz
+    version: 1.1.1
+  - apiVersion: v2
+    appVersion: v1
     created: "2026-08-11T06:54:51.614202046Z"
     description: A helm chart to deploy Resource Inventory
     digest: 30631942350b5a0cddc518e9c559f3831e4a664671bee8938e4528490d0b15b1
@@ -3805,4 +3924,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2026-10-02T15:18:52.682092183Z"
+generated: "2026-10-14T07:29:11.24745016Z"
