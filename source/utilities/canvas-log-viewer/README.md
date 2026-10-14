@@ -4,6 +4,8 @@ This is a simple kubectl utility to display log information on the ODA Canvas fo
 
 # Installation
 
+Requires Node.js 20 or later.
+
 ```
 npm install @lesterthomas/kubectl-canvas_logs -g
 ```
@@ -23,6 +25,15 @@ The utility will use the current kubeconfig to connect to the Kubernetes cluster
 To exit the utility, type `CTRL-C`
 
 
+
+## Development
+
+The log parsing and tree-building logic is in `lib/logTree.js` and the Kubernetes helpers are in `lib/kubernetes.js`. Unit tests use the built-in Node.js test runner:
+
+```
+npm install
+npm test
+```
 
 ## Publishing
 
