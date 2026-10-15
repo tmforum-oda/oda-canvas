@@ -1,0 +1,24 @@
+name: Component Viewer unit tests
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'source/utilities/component-viewer/**'
+      - '.github/workflows/component-viewer-unit-tests.yml'
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: source/utilities/component-viewer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/utilities/component-viewer/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm audit --omit=dev
