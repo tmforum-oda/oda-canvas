@@ -119,6 +119,7 @@ function classifyPath (file, context) {
   if (matchesAny(file, config.docs)) return { path: file, category: 'docs', matched: ['documentation'], tags: [] }
   if (matchesAny(file, config.noTests)) return { path: file, category: 'noTests', matched: ['no BDD features'], tags: [] }
   if (matchesAny(file, config.fullSuite)) return { path: file, category: 'fullSuite', matched: ['full suite'], tags: [] }
+  if ((config.canvasChart || []).includes(file)) return classifyCanvasChartPath(file, context)
 
   const featurePrefix = `${KIT_PATH}/features/`
   if (file.startsWith(featurePrefix) && file.endsWith('.feature') && !file.slice(featurePrefix.length).includes('/')) {
@@ -147,6 +148,97 @@ function classifyPath (file, context) {
   }
 
   return { path: file, category: 'unmapped', matched: [], tags: [] }
+}
+
+const TOP_LEVEL_KEY = /^([A-Za-z0-9_.-]+)\s*:/
+const DEPENDENCY_NAME = /^\s*-\s+name:\s*['"]?([^'"\s#]+)/
+
+// Returns the sections of a canvas-oda chart file that a unified diff changes.
+// In values.yaml a section is a top-level key, such as `component-operator`.
+// In Chart.yaml it's the name of a dependency, or `chart-metadata` for the
+// chart's own fields, such as its version. Blank and comment-only lines are
+// ignored. `unknown` is true when a changed line can't be placed in a section.
+function changedSections (patch, isChartYaml) {
+  const sections = new Set()
+  let unknown = false
+  let inHunk = false
+  let top = null
+  let dependency = null
+  for (const line of patch.split(/\r?\n/)) {
+    const hunk = /^@@ [^@]* @@ ?(.*)$/.exec(line)
+    if (hunk) {
+      // git puts the last top-level line before the hunk in its header
+      const key = TOP_LEVEL_KEY.exec(hunk[1])
+      top = key ? key[1] : null
+      dependency = null
+      inHunk = true
+      continue
+    }
+    if (!inHunk || !line || !' +-'.includes(line[0])) continue
+    const marker = line[0]
+    const text = line.slice(1)
+    const key = TOP_LEVEL_KEY.exec(text)
+    if (key) {
+      top = key[1]
+      dependency = null
+    }
+    const name = DEPENDENCY_NAME.exec(text)
+    if (name && top === 'dependencies') dependency = name[1]
+    if (marker === ' ' || /^\s*(#.*)?$/.test(text)) continue
+
+    if (isChartYaml && top === 'dependencies' && !key) {
+      if (dependency) sections.add(dependency)
+      else unknown = true
+    } else if (isChartYaml) {
+      sections.add(top === 'dependencies' ? 'dependencies' : 'chart-metadata')
+    } else if (top) {
+      sections.add(top)
+    } else {
+      unknown = true
+    }
+  }
+  return { sections, unknown }
+}
+
+// Classifies a change to a canvas-oda chart file by the sections it changes,
+// so that bumping one operator's values runs that operator's features. A
+// section that no rule lists, or a change without a diff, runs the full suite.
+function classifyCanvasChartPath (file, context) {
+  const unmapped = reason => ({ path: file, category: 'unmapped', matched: [reason], tags: [] })
+  const patch = context.patches && context.patches.get(file)
+  if (typeof patch !== 'string') return unmapped('canvas chart file, but no diff was available')
+
+  const { sections, unknown } = changedSections(patch, /(^|\/)Chart\.yaml$/.test(file))
+  if (unknown) return unmapped('canvas chart lines outside any section')
+  if (!sections.size) return { path: file, category: 'noTests', matched: ['comments or blank lines only'], tags: [] }
+
+  const rules = (context.config.rules || []).filter(rule => (rule.canvasSections || []).some(s => sections.has(s)))
+  const listed = new Set(rules.flatMap(rule => rule.canvasSections))
+  const unlisted = [...sections].filter(s => !listed.has(s)).sort()
+  if (unlisted.length) return unmapped(`canvas chart sections not in the map: ${unlisted.join(', ')}`)
+
+  return {
+    path: file,
+    category: 'rule',
+    matched: rules.map(rule => `${rule.name} (${rule.canvasSections.filter(s => sections.has(s)).join(', ')})`),
+    tags: rules.map(rule => rule.tags).filter(Boolean)
+  }
+}
+
+// Reads the output of the GitHub "list pull request files" API, saved by
+// `gh api --paginate --slurp`, or a single page of it. Returns the changed
+// paths (renamed files under both names) and a Map of path -> patch.
+function parsePrFiles (text) {
+  const parsed = JSON.parse(text)
+  const entries = Array.isArray(parsed) ? parsed.flat() : []
+  const files = []
+  const patches = new Map()
+  for (const entry of entries) {
+    files.push(entry.filename)
+    if (entry.previous_filename) files.push(entry.previous_filename)
+    if (typeof entry.patch === 'string') patches.set(entry.filename, entry.patch)
+  }
+  return { files, patches }
 }
 
 // Splits a selection into runs: the default run on the Istio canvas, and one
@@ -189,7 +281,10 @@ function selectFeatures (changedFiles, context) {
   if (crdPaths.length || unmapped.length) {
     const reasons = []
     if (crdPaths.length) reasons.push(`${crdPaths.length} changed path(s) always run the full suite: ${crdPaths.map(p => p.path).join(', ')}`)
-    if (unmapped.length) reasons.push(`${unmapped.length} changed path(s) aren't in the test-selection map: ${unmapped.map(p => p.path).join(', ')}`)
+    if (unmapped.length) {
+      const described = unmapped.map(p => p.matched.length ? `${p.path} (${p.matched.join('; ')})` : p.path)
+      reasons.push(`${unmapped.length} changed path(s) aren't in the test-selection map: ${described.join(', ')}`)
+    }
     return result('full', 'Full suite. ' + reasons.join('. ') + '.', null)
   }
 
@@ -242,11 +337,15 @@ function checkSelection (context) {
     else selects(gateway.tag, label)
   }
 
+  const knownSections = context.canvasSectionNames || new Set()
   for (const [index, rule] of (config.rules || []).entries()) {
     const label = `rules[${index}] ${rule.name || '(no name)'}`
     if (!rule.name) errors.push(`${label}: missing name`)
     if (!rule.paths || !rule.paths.length) errors.push(`${label}: missing paths`)
     if (rule.tags) selects(rule.tags, label)
+    for (const section of rule.canvasSections || []) {
+      if (!knownSections.has(section)) errors.push(`${label}: canvas chart section "${section}" isn't a top-level key or dependency in ${(config.canvasChart || []).join(' or ')}`)
+    }
   }
 
   // Every glob matches a tracked file, so a renamed or removed path is noticed.
@@ -254,6 +353,7 @@ function checkSelection (context) {
     ['docs', config.docs],
     ['noTests', config.noTests],
     ['fullSuite', config.fullSuite],
+    ['canvasChart', config.canvasChart],
     ...(config.rules || []).map(rule => [`rule "${rule.name}"`, rule.paths])
   ]
   for (const [label, globs] of sections) {
@@ -289,11 +389,29 @@ function git (args) {
   return execFileSync('git', args, { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
 }
 
+// The section names a rule can list in canvasSections: the top-level keys of
+// the canvas chart's values files, the dependency names in its Chart.yaml,
+// and `chart-metadata`.
+function loadCanvasSectionNames (config, repoRoot = REPO_ROOT) {
+  const names = new Set(['chart-metadata'])
+  for (const file of config.canvasChart || []) {
+    const fullPath = path.join(repoRoot, file)
+    if (!fs.existsSync(fullPath)) continue
+    const doc = YAML.parse(fs.readFileSync(fullPath, 'utf8')) || {}
+    if (/(^|\/)Chart\.yaml$/.test(file)) {
+      for (const dependency of doc.dependencies || []) names.add(dependency.name)
+    } else {
+      for (const key of Object.keys(doc)) names.add(key)
+    }
+  }
+  return names
+}
+
 function loadContext () {
   const config = loadConfig()
   const features = loadFeatures()
   const charts = loadCharts()
-  return { config, features, charts, usage: chartUsage(features, charts) }
+  return { config, features, charts, usage: chartUsage(features, charts), canvasSectionNames: loadCanvasSectionNames(config) }
 }
 
 function formatText (result) {
@@ -301,7 +419,8 @@ function formatText (result) {
   if (result.tagExpression) lines.push(`Tag expression: ${result.tagExpression}`)
   lines.push('', 'Changed paths:')
   for (const p of result.paths) {
-    lines.push(`  ${p.path}  ->  ${p.matched.length ? p.matched.join(', ') : 'not in the map'}`)
+    const matched = p.matched.length ? p.matched.join(', ') : 'not in the map'
+    lines.push(`  ${p.path}  ->  ${p.category === 'unmapped' ? `full suite: ${matched}` : matched}`)
   }
   for (const run of result.runs) {
     lines.push('', `Run "${run.name}" (${run.features.length} features, ${run.scenarios} scenarios)`)
@@ -319,12 +438,33 @@ function parseArgs (argv) {
     if (arg === '--check') args.check = true
     else if (arg === '--base') args.base = argv[++i]
     else if (arg === '--files') args.files = argv[++i]
+    else if (arg === '--pr-files') args.prFiles = argv[++i]
     else if (arg === '--format') args.format = argv[++i]
     else throw new Error(`Unknown argument: ${arg}`)
   }
   if (!['text', 'json'].includes(args.format)) throw new Error(`Unknown format: ${args.format}`)
-  if (!args.check && !args.base && !args.files) throw new Error('Pass --base <ref>, --files <file|-> or --check')
+  if (!args.check && !args.base && !args.files && !args.prFiles) {
+    throw new Error('Pass --base <ref>, --files <file|->, --pr-files <file> or --check')
+  }
   return args
+}
+
+// Reads the changed paths, and the diffs of the canvas chart files, from the
+// arguments: a git ref to diff against, a GitHub PR files API response, or a
+// plain list of paths (which has no diffs, so a canvas chart change in it runs
+// the full suite).
+function readChanges (args, config) {
+  if (args.prFiles) return parsePrFiles(fs.readFileSync(args.prFiles, 'utf8'))
+  if (args.files) {
+    return { files: fs.readFileSync(args.files === '-' ? 0 : args.files, 'utf8').split(/\r?\n/), patches: new Map() }
+  }
+  const range = `${args.base}...HEAD`
+  const files = git(['diff', '--name-only', '--no-renames', range]).split('\n').filter(Boolean)
+  const patches = new Map()
+  for (const file of files.filter(f => (config.canvasChart || []).includes(f))) {
+    patches.set(file, git(['diff', '--no-renames', range, '--', file]))
+  }
+  return { files, patches }
 }
 
 function main (argv) {
@@ -342,10 +482,8 @@ function main (argv) {
     return 0
   }
 
-  const changedFiles = args.files
-    ? fs.readFileSync(args.files === '-' ? 0 : args.files, 'utf8').split(/\r?\n/)
-    : git(['diff', '--name-only', '--no-renames', `${args.base}...HEAD`]).split('\n')
-  const result = selectFeatures(changedFiles, context)
+  const { files, patches } = readChanges(args, context.config)
+  const result = selectFeatures(files, { ...context, patches })
   console.log(args.format === 'json' ? JSON.stringify(result, null, 2) : formatText(result))
   return 0
 }
@@ -361,6 +499,9 @@ if (require.main === module) {
 
 module.exports = {
   globToRegExp,
+  changedSections,
+  parsePrFiles,
+  loadCanvasSectionNames,
   parseFeature,
   loadContext,
   featureTagFromName,
