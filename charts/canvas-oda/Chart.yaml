@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.6-rc5
+version: 1.2.6-hv1
+# version: 1.2.6-hv1 - issue 620 - cert-manager-init 1.1.3: wait for the cert-manager webhook before creating issuers
 # version: 1.2.6-rc5 - issue 615 - bug-fix for canvas images to remove end-of-life or floating base images
 # version: 1.2.6-rc4 - PR 574 - PDB Management Operator 1.1.0 (MCP integration, Web UI, enhanced testing)
 # version: 1.2.6-rc3 - issue 612 - bug-fix for component crd and exposedapi crd to re-add a2a under apiType enum
@@ -82,7 +83,7 @@ appVersion: "v1"
 
 dependencies:
   - name: cert-manager-init
-    version: "1.1.2"
+    version: "1.1.3"
     repository: 'file://../cert-manager-init'
   - name: canvas-namespaces
     version: "1.0.1"
