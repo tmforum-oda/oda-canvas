@@ -1,5 +1,5 @@
 @UC015
-@UC015-F002
+@UC015-F003
 @ApisixGateway
 Feature: UC015-F003 Create API Resource and Verify Rate-Limiting and Authentication ApisixPlugin Creation for API
 

@@ -119,7 +119,6 @@ Available in `feature-definition-and-test-kit/testData/`:
 - `productcatalog-dependendent-API-v1` — Component with dependent API configurations
 - `productcatalog-dynamic-roles-v1` — Component with dynamic role definitions
 - `productcatalog-enhanced-v1` — Component with enhanced API configurations
-- `productinventory-v1` — Product inventory component
 
 **Default release name**: `ctk` (Canvas Test Kit)
 **Default namespace**: `components`

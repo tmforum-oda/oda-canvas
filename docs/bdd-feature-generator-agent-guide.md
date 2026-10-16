@@ -129,7 +129,6 @@ Please update the README.md to include this feature in the UC015 section.
 - `productcatalog-v1` - Standard product catalog component
 - `productcatalog-dependendent-API-v1` - With dependent APIs
 - `productcatalog-dynamic-roles-v1` - With dynamic roles
-- `productinventory-v1` - Inventory component
 - And more in `feature-definition-and-test-kit/testData/`
 
 ### Utility Libraries
