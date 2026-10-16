@@ -154,6 +154,9 @@ jobs:
   # has no features for it, for example for a documentation-only PR.
   run_tests_job:
     runs-on: ubuntu-latest
+    # A full run takes about 30 minutes; each failing scenario can add up to
+    # 10 minutes of timeouts
+    timeout-minutes: 180
     needs: check_skip_tests_job
     if: "!needs.check_skip_tests_job.outputs.COMMITMSG_SKIPTESTS && !needs.check_skip_tests_job.outputs.PRERELEASESUFFIX_SKIPTESTS && needs.check_skip_tests_job.outputs.RUN_DEFAULT == 'true'"
 
@@ -176,6 +179,7 @@ jobs:
   run_gateway_tests_job:
     name: run_gateway_tests_job (${{ matrix.run.name }})
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: check_skip_tests_job
     if: "!needs.check_skip_tests_job.outputs.COMMITMSG_SKIPTESTS && !needs.check_skip_tests_job.outputs.PRERELEASESUFFIX_SKIPTESTS && needs.check_skip_tests_job.outputs.GATEWAY_RUNS != '' && needs.check_skip_tests_job.outputs.GATEWAY_RUNS != '[]'"
     strategy:

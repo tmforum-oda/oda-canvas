@@ -179,13 +179,18 @@ runs:
         export KEYCLOAK_PASSWORD=adpass
         export KEYCLOAK_BASE_URL="http://localhost:8083/auth/"
         export KEYCLOAK_REALM=odari
+        # Runs cucumber-js directly rather than `npm start`, to leave out
+        # --publish: the upload to reports.cucumber.io can hang until the job
+        # times out, and the anonymous report is deleted after 24 hours anyway.
+        # The badges and the test-report artifact use /tmp/cucumber.json.
+        CUCUMBER_ARGS=(--publish-quiet --format json:/tmp/cucumber.json)
         if [ -n "$TAGS" ]; then
           echo "Running the BDD features selected by: $TAGS"
-          npm run start:tags -- "$TAGS" 2>&1 | tee /tmp/test_results.log
+          CUCUMBER_ARGS+=(--tags "$TAGS")
         else
           echo "Running every BDD feature"
-          npm start 2>&1 | tee /tmp/test_results.log
         fi
+        npx cucumber-js "${CUCUMBER_ARGS[@]}" 2>&1 | tee /tmp/test_results.log
         kubectl get exposedapis -n components
         kubectl -n canvas logs deployment/component-operator | tee /tmp/component-operator.log
         # The gateway runs deploy the Kong or APISIX operator instead of Istio's
