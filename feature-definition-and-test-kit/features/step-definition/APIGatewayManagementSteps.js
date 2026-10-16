@@ -130,15 +130,39 @@ Given('a component {string} is deployed from package {string}', async function (
   }
 });
 
+// The gateway operators act asynchronously on ExposedAPI events, so the checks below poll
+// until the gateway resource appears (or disappears) instead of sleeping for a fixed time.
+const GATEWAY_RESOURCE_TIMEOUT = 60 * 1000; // 60 seconds
+const GATEWAY_POLL_INTERVAL = 2 * 1000; // 2 seconds
+const TIMEOUT_BUFFER = 5 * 1000; // additional buffer for the wrapping step
 
 /**
- * Delete a specified package using the packageManagerUtils.uninstallPackage function.
+ * Poll a lookup until it returns a resource (expectPresent=true) or null (expectPresent=false).
  *
- * @param {string} componentPackage - The name of the package to delete.
+ * @param {Function} lookup - Async function that returns the resource or null.
+ * @param {boolean} expectPresent - Whether to wait for the resource to exist or to be removed.
+ * @returns {Promise<Object|null>} - The last lookup result.
+ */
+async function waitForGatewayResource(lookup, expectPresent) {
+  const startTime = performance.now();
+  let resource = await lookup();
+  while (Boolean(resource) !== expectPresent && performance.now() - startTime < GATEWAY_RESOURCE_TIMEOUT) {
+    await new Promise(resolve => setTimeout(resolve, GATEWAY_POLL_INTERVAL));
+    resource = await lookup();
+  }
+  return resource;
+}
+
+/**
+ * Verify that an ExposedAPI created by an earlier scenario still exists.
+ *
+ * @param {string} resourceName - The name of the ExposedAPI in the component spec.
+ * @param {string} componentName - The name of the component.
+ * @param {string} packageName - The name of the package the component was installed from.
  */
 Given('an existing API resource {string} on component {string} from package {string}', async function (resourceName, componentName, packageName) {
-  const exposedAPI = await resourceInventoryUtils.getExposedAPIResource(resourceName, componentName, global.currentReleaseName, NAMESPACE);
-  assert.ok(exposedAPI, `The ExposedAPI resource ${resourceName} should exist on component ${componentName}.`);
+  const exposedAPI = await resourceInventoryUtils.getExposedAPIResource(resourceName, componentName, NAMESPACE);
+  assert.ok(exposedAPI, `The ExposedAPI resource ${resourceName} should exist on component ${componentName} (package ${packageName}).`);
 });
 
 /**
@@ -147,32 +171,13 @@ Given('an existing API resource {string} on component {string} from package {str
  * @param {string} componentPackage - The name of the package to install.
  */
 When('I install the {string} package for testing API resources', async function (componentPackage) {
-  global.currentReleaseName = DEFAULT_RELEASE_NAME
-  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE)
-  const delayAfterInstall = 5000; // Introduced a delay to allow for complete creation of resources. 5 seconds as faced issue in less than 5 sec
-  console.log(`Waiting ${delayAfterInstall}ms after installing ${global.currentReleaseName}`);
-  await new Promise(resolve => setTimeout(resolve, delayAfterInstall));
+  global.currentReleaseName = DEFAULT_RELEASE_NAME;
+  global.namespace = null;
+  await packageManagerUtils.installPackage(componentPackage, global.currentReleaseName, NAMESPACE);
 });
 
 When('I delete the {string} package', async function (componentPackage) {
-  await packageManagerUtils.uninstallPackage(global.currentReleaseName, NAMESPACE);
-  const delayAfterUninstall = 5000; //Introduce a delay to allow for complete cleanup of resources. 5 seconds as faced issue in less than 5 sec
-  console.log(`Waiting ${delayAfterUninstall}ms after uninstalling ${global.currentReleaseName}`);
-  await new Promise(resolve => setTimeout(resolve, delayAfterUninstall));
-});
-
-/**
- * Verify that the specified ExposedAPI resource no longer exists.
- *
- * @param {string} resourceName - The name of the ExposedAPI resource to check.
- * @param {string} componentName - The name of the component to check.
- */
-Then('I should not see the {string} ExposedAPI resources on the {string} component', async function (resourceName, componentName) {
-  const exposedAPI = await resourceInventoryUtils.getExposedAPIResource(resourceName, componentName, global.currentReleaseName, NAMESPACE);
-  if (!exposedAPI) {
-    console.log(`ExposedAPI resource ${resourceName} successfully deleted.`);
-  }
-  assert.ok(!exposedAPI, `The ExposedAPI resources ${resourceName} should not exist.`);
+  await packageManagerUtils.uninstallPackage(global.currentReleaseName || DEFAULT_RELEASE_NAME, NAMESPACE);
 });
 
 /**
@@ -183,7 +188,7 @@ Then('I should not see the {string} ExposedAPI resources on the {string} compone
  * @param {string} componentSegmentName - The name of the component segment.
  */
 Given('an example package {string} with a {string} component in its {string} segment', async function (componentPackage, componentName, componentSegmentName) {
-  const exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, 'ctk', componentSegmentName);
+  const exposedAPIs = packageManagerUtils.getExposedAPIsFromPackage(componentPackage, DEFAULT_RELEASE_NAME, componentSegmentName);
   assert.ok(exposedAPIs && exposedAPIs.length > 0, `The component segment ${componentSegmentName} should contain at least one ExposedAPI.`);
 });
 
@@ -192,111 +197,74 @@ Given('an example package {string} with a {string} component in its {string} seg
 When('the Kong operator processes the deployment', function () {
 });
 
-Then('I should see an HTTPRoute resource created for {string}', async function (componentName) {
-  const httpRoute = await resourceInventoryUtils.getHTTPRouteForComponent(componentName, NAMESPACE);
-  assert.ok(httpRoute, `HTTPRoute for ${componentName} should exist.`);
+When('the Kong operator processes the deletion', function () {
+});
+
+Then('I should see an HTTPRoute resource created for the {string} ExposedAPI on the {string} component', {timeout: GATEWAY_RESOURCE_TIMEOUT + TIMEOUT_BUFFER}, async function (apiName, componentName) {
+  const httpRoute = await waitForGatewayResource(
+    () => resourceInventoryUtils.getHTTPRouteForComponent(componentName, apiName, NAMESPACE), true);
+  assert.ok(httpRoute, `HTTPRoute for ExposedAPI ${apiName} on ${componentName} should exist within ${GATEWAY_RESOURCE_TIMEOUT} milliseconds.`);
+});
+
+Then('I should not see an HTTPRoute resource for the {string} ExposedAPI on the {string} component', {timeout: GATEWAY_RESOURCE_TIMEOUT + TIMEOUT_BUFFER}, async function (apiName, componentName) {
+  const httpRoute = await waitForGatewayResource(
+    () => resourceInventoryUtils.getHTTPRouteForComponent(componentName, apiName, NAMESPACE), false);
+  assert.ok(!httpRoute, `HTTPRoute ${httpRoute?.metadata?.name} for ExposedAPI ${apiName} on ${componentName} should be removed within ${GATEWAY_RESOURCE_TIMEOUT} milliseconds.`);
 });
 
 /**
- * Wait for the Kong operator to process the deletion.
- * This step simulates waiting for the Kong operator to complete its task.
- */
-When('the Kong operator processes the deletion', async function () {
-  console.log('Waiting for Kong operator to process deletion...');
-  await new Promise(resolve => setTimeout(resolve, 5000)); // Waiting for 5 seconds
-});
-
-/**
- * Verify that the HTTPRoute for a specified component no longer exists.
+ * Verify that the Kong operator created a KongPlugin for an ExposedAPI.
  *
- * @param {string} componentName - The name of the component to check.
+ * @param {string} pluginPrefix - The KongPlugin name prefix the Kong operator uses (e.g. 'rate-limit', 'apiauthentication').
  */
-Then('I should not see an HTTPRoute resource for {string}', async function (componentName) {
-  const httpRoute = await resourceInventoryUtils.getHTTPRouteForComponent(componentName, global.currentReleaseName, NAMESPACE);
-  assert.ok(!httpRoute, `The HTTPRoute for ${componentName} should not exist.`);
+Then('I should see a {string} KongPlugin resource created for the {string} ExposedAPI on the {string} component', {timeout: GATEWAY_RESOURCE_TIMEOUT + TIMEOUT_BUFFER}, async function (pluginPrefix, apiName, componentName) {
+  const kongPlugin = await waitForGatewayResource(
+    () => resourceInventoryUtils.getKongPluginForComponent(componentName, apiName, pluginPrefix, NAMESPACE), true);
+  assert.ok(kongPlugin, `KongPlugin ${pluginPrefix} for ExposedAPI ${apiName} on ${componentName} should exist within ${GATEWAY_RESOURCE_TIMEOUT} milliseconds.`);
 });
 
-Then('I should see an KongPlugin Rate Limit resource created for {string} with the name {string}', async function (componentName, RateLimitPluginName) {
-  const kongPluginName = `${RateLimitPluginName}-ctk-${componentName}-${componentName}`;
-  const kongplugin = await resourceInventoryUtils.getKongPluginForComponent(componentName, kongPluginName, NAMESPACE);
-  assert.ok(kongplugin, `KongPlugin ${kongPluginName} for ${componentName} should exist.`);
-});
-
-Then('I should see an KongPlugin API Authentication resource created for {string} with the name {string}', async function (componentName, ApiAuthPluginName) {
-  const kongPluginName = `${ApiAuthPluginName}-ctk-${componentName}-${componentName}`;
-  const kongplugin = await resourceInventoryUtils.getKongPluginForComponent(componentName, kongPluginName, NAMESPACE);
-  assert.ok(kongplugin, `KongPlugin ${kongPluginName} for ${componentName} should exist.`);
-});
-
-/**
- * Verify that the specific KongPlugin resources for a component no longer exist.
- *
- * @param {string} componentName - The name of the component to check.
- */
-Then('I should not see an KongPlugin resource for {string}', async function (componentName) {
-  const namespace = NAMESPACE;
-  const apiAuthPluginName = `key-auth-ctk-${componentName}-${componentName}`;  
-  const rateLimitPluginName = `rate-limit-ctk-${componentName}-${componentName}`; 
-  console.log(`Checking that HTTPRoute or KongPlugin resources for ${componentName} do not exist in namespace ${namespace}`);
-  const apiAuthPlugin = await resourceInventoryUtils.getKongPluginForComponent(componentName, apiAuthPluginName, namespace); 
-  assert.ok(!apiAuthPlugin, `The KongPlugin ${apiAuthPluginName} for ${componentName} should not exist.`);
-  const rateLimitPlugin = await resourceInventoryUtils.getKongPluginForComponent(componentName, rateLimitPluginName, namespace);
-  assert.ok(!rateLimitPlugin, `The KongPlugin ${rateLimitPluginName} for ${componentName} should not exist.`);
+Then('I should not see a {string} KongPlugin resource for the {string} ExposedAPI on the {string} component', {timeout: GATEWAY_RESOURCE_TIMEOUT + TIMEOUT_BUFFER}, async function (pluginPrefix, apiName, componentName) {
+  const kongPlugin = await waitForGatewayResource(
+    () => resourceInventoryUtils.getKongPluginForComponent(componentName, apiName, pluginPrefix, NAMESPACE), false);
+  assert.ok(!kongPlugin, `KongPlugin ${kongPlugin?.metadata?.name} for ExposedAPI ${apiName} on ${componentName} should be removed within ${GATEWAY_RESOURCE_TIMEOUT} milliseconds.`);
 });
 
 
 //For Apisix BDDs
 When('the Apisix operator processes the deployment', function () {
 });
-Then('I should see an ApisixRoute resource created for {string}', async function (componentName) {
-  const ApisixRoute = await resourceInventoryUtils.getApisixRouteForComponent(componentName, NAMESPACE);
-  assert.ok(ApisixRoute, `ApisixRoute for ${componentName} should exist.`);
+
+When('the Apisix operator processes the deletion', function () {
+});
+
+Then('I should see an ApisixRoute resource created for the {string} ExposedAPI on the {string} component', {timeout: GATEWAY_RESOURCE_TIMEOUT + TIMEOUT_BUFFER}, async function (apiName, componentName) {
+  const apisixRoute = await waitForGatewayResource(
+    () => resourceInventoryUtils.getApisixRouteForComponent(componentName, apiName), true);
+  assert.ok(apisixRoute, `ApisixRoute for ExposedAPI ${apiName} on ${componentName} should exist within ${GATEWAY_RESOURCE_TIMEOUT} milliseconds.`);
+});
+
+Then('I should not see an ApisixRoute resource for the {string} ExposedAPI on the {string} component', {timeout: GATEWAY_RESOURCE_TIMEOUT + TIMEOUT_BUFFER}, async function (apiName, componentName) {
+  const apisixRoute = await waitForGatewayResource(
+    () => resourceInventoryUtils.getApisixRouteForComponent(componentName, apiName), false);
+  assert.ok(!apisixRoute, `ApisixRoute ${apisixRoute?.metadata?.name} for ExposedAPI ${apiName} on ${componentName} should be removed within ${GATEWAY_RESOURCE_TIMEOUT} milliseconds.`);
 });
 
 /**
- * Wait for the Apisix operator to process the deletion.
- * This step simulates waiting for the Apisix operator to complete its task.
- */
-When('the Apisix operator processes the deletion', async function () {
-  console.log('Waiting for Apisix operator to process deletion...');
-  await new Promise(resolve => setTimeout(resolve, 5000)); // Waiting for 5 seconds
-});
-
-/**
- * Verify that the ApisixRoute for a specified component no longer exists.
+ * Verify that the APISIX operator's combined ApisixPluginConfig for an ExposedAPI includes a plugin.
  *
- * @param {string} componentName - The name of the component to check.
+ * @param {string} pluginName - The APISIX plugin name (e.g. 'limit-req', 'key-auth').
  */
-Then('I should not see an ApisixRoute resource for {string}', async function (componentName) {
-  const apisixRoute = await resourceInventoryUtils.getApisixRouteForComponent(componentName, global.currentReleaseName, NAMESPACE);
-  assert.ok(!apisixRoute, `The ApisixRoute for ${componentName} should not exist.`);
+Then('I should see an ApisixPluginConfig with the {string} plugin for the {string} ExposedAPI on the {string} component', {timeout: GATEWAY_RESOURCE_TIMEOUT + TIMEOUT_BUFFER}, async function (pluginName, apiName, componentName) {
+  const hasPlugin = (config) => (config?.spec?.plugins || []).some(plugin => plugin.name === pluginName);
+  const apisixPluginConfig = await waitForGatewayResource(async () => {
+    const config = await resourceInventoryUtils.getApisixPluginForComponent(componentName, apiName);
+    return hasPlugin(config) ? config : null;
+  }, true);
+  assert.ok(apisixPluginConfig, `ApisixPluginConfig for ExposedAPI ${apiName} on ${componentName} should include the ${pluginName} plugin within ${GATEWAY_RESOURCE_TIMEOUT} milliseconds.`);
 });
 
-Then('I should see an ApisixPluginConfig Rate Limit resource created for {string} with the name {string}', async function (componentName, RateLimitPluginName) {
-  const apisixPluginName = `combined-apisixpluginconfig-ctk-${componentName}-${componentName}`;
-  const namespace = 'istio-ingress'; 
-  console.log(`Checking ApisixPluginConfig: ${apisixPluginName} in namespace ${namespace} for ${RateLimitPluginName}`);
-  const apisixplugin = await resourceInventoryUtils.getApisixPluginForComponent(componentName, apisixPluginName, namespace);
-  assert.ok(apisixplugin, `ApisixPluginConfig ${apisixPluginName} for ${componentName} should exist.`);
-});
-
-Then('I should see an ApisixPluginConfig API Authentication resource created for {string} with the name {string}', async function (componentName, ApiAuthPluginName) {
-  const apisixPluginName = `combined-apisixpluginconfig-ctk-${componentName}-${componentName}`;
-  const namespace = 'istio-ingress'; 
-  console.log(`Checking ApisixPluginConfig: ${apisixPluginName} in namespace ${namespace} for ${ApiAuthPluginName}`);
-  const apisixplugin = await resourceInventoryUtils.getApisixPluginForComponent(componentName, apisixPluginName, namespace);
-  assert.ok(apisixplugin, `ApisixPluginConfig ${apisixPluginName} for ${componentName} should exist.`);
-});
-
-/**
- * Verify that the ApisixPluginConfig for a specified component no longer exists.
- *
- * @param {string} componentName - The name of the component to check.
- */
-Then('I should not see an ApisixPlugin resource for {string}', async function (componentName) {
-  const namespace = 'istio-ingress'; // Namespace where the resource is expected to exist
-  const apisixPluginName = `combined-apisixpluginconfig-ctk-${componentName}-${componentName}`; // Construct the resource name
-  console.log(`Checking that ApisixPluginConfig ${apisixPluginName} does not exist in namespace ${namespace}`);
-  const apisixplugin = await resourceInventoryUtils.getApisixPluginForComponent(componentName, apisixPluginName, namespace);
-  assert.ok(!apisixplugin, `The ApisixPluginConfig ${apisixPluginName} for ${componentName} should not exist.`);
+Then('I should not see an ApisixPluginConfig for the {string} ExposedAPI on the {string} component', {timeout: GATEWAY_RESOURCE_TIMEOUT + TIMEOUT_BUFFER}, async function (apiName, componentName) {
+  const apisixPluginConfig = await waitForGatewayResource(
+    () => resourceInventoryUtils.getApisixPluginForComponent(componentName, apiName), false);
+  assert.ok(!apisixPluginConfig, `ApisixPluginConfig ${apisixPluginConfig?.metadata?.name} for ExposedAPI ${apiName} on ${componentName} should be removed within ${GATEWAY_RESOURCE_TIMEOUT} milliseconds.`);
 });

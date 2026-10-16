@@ -8,21 +8,20 @@ Feature: UC015-F002 Expose APIs: Create and Verify HTTProute for ExposedAPI Reso
         When I install the '<PackageName>' package
         And the Kong operator processes the deployment
         Then I should see the '<ResourceName>' ExposedAPI resource on the '<ComponentName>' component
-        And I should see an HTTPRoute resource created for "<ComponentName>"
+        And I should see an HTTPRoute resource created for the '<ResourceName>' ExposedAPI on the '<ComponentName>' component
 
     Examples:
-       | Name           | PackageName            | ResourceName             | ComponentName            | SegmentName        | ApiCount |
-       | Core API       | productcatalog-v1beta3 | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1        |
+       | Name           | PackageName            | ResourceName             | ComponentName                | SegmentName        | ApiCount |
+       | Core API       | productcatalog-v1beta3 | productcatalogmanagement | ctk-productcatalogmanagement | coreFunction       | 1        |
 
 
     Scenario Outline: Delete API Resource and Verify HTTPRoute Removal
         Given an existing API resource '<ResourceName>' on component '<ComponentName>' from package '<PackageName>'
         When I delete the '<PackageName>' package
         And the Kong operator processes the deletion
-        Then I should not see the '<ResourceName>' ExposedAPI resources on the '<ComponentName>' component
-        And I should not see an HTTPRoute resource for "<ComponentName>"
+        Then I should not see the '<ResourceName>' ExposedAPI resource on the '<ComponentName>' component
+        And I should not see an HTTPRoute resource for the '<ResourceName>' ExposedAPI on the '<ComponentName>' component
 
     Examples:
-       | Name           | PackageName            | ResourceName             | ComponentName            | SegmentName        | ApiCount |
-       | Core API       | productcatalog-v1beta3 | productcatalogmanagement | productcatalogmanagement | coreFunction       | 1        |
-    
+       | Name           | PackageName            | ResourceName             | ComponentName                |
+       | Core API       | productcatalog-v1beta3 | productcatalogmanagement | ctk-productcatalogmanagement |
