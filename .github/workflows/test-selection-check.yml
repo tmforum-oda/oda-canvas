@@ -1,0 +1,26 @@
+name: BDD test selection check
+
+# Checks the BDD test-selection map (feature-definition-and-test-kit/test-selection.yaml)
+# against the feature files and the repository, and runs the selector's unit tests.
+# It runs on every PR, with no paths filter, because renaming a chart or operator
+# anywhere in the repository can leave a path in the map stale.
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: feature-definition-and-test-kit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Check the test-selection map
+        run: npm run check:selection
+      - name: Unit tests
+        run: npm run test:selection

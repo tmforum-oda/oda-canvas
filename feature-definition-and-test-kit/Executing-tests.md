@@ -59,6 +59,33 @@ Or run the tests for a single feature with the following command:
 npm run start:tags -- "@UC003-F001"
 ```
 
+## Selecting the tests for a change
+
+[`test-selection.yaml`](test-selection.yaml) maps the paths a change touches to the features it should run. The selector reads it and prints the features in scope, the tag expression for each run, and the reason for a full run or a skip:
+
+```bash
+npm run select-features -- --base origin/main
+```
+
+You can also pass the changed paths yourself, one per line (`-` reads them from stdin):
+
+```bash
+git diff --name-only origin/main | npm run select-features -- --files -
+```
+
+Add `--format json` for machine-readable output.
+
+The Kong and APISIX features need a canvas installed with that gateway instead of Istio, so they get a run of their own. The selector prints the `--set` values to install the canvas for that run.
+
+When you add a feature or a test chart, or rename a path that the map lists, run the check and the unit tests:
+
+```bash
+npm run check:selection
+npm run test:selection
+```
+
+The check fails when a feature has no rule that selects it, when a feature's tags don't match its file name, when a test chart isn't used by any feature, or when a path in the map matches no file.
+
 ## Updating the master test status
 
 

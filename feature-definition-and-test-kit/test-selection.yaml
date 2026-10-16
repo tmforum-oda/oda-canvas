@@ -1,0 +1,168 @@
+# Maps the paths a pull request changes to the BDD features it should run.
+#
+# Used by test-selection/select-features.js. For each changed path, the
+# selector checks these sections in order and uses the first that matches:
+#
+#   1. docs       - documentation; on its own it runs no features
+#   2. noTests    - code the BDD suite doesn't install or test; runs no features
+#   3. fullSuite  - shared code; runs the full suite
+#   4. features/<UCnnn-Fnnn>-*.feature - runs that feature (its @UCnnn-Fnnn tag)
+#   5. testData/<chart>/**             - runs every feature that uses the chart
+#   6. rules      - runs the rule's tag expression (a path can match several rules)
+#
+# A changed path that matches none of these runs the full suite, so a gap in
+# this map can't hide a regression. Any selection that runs features also
+# runs the smoke test.
+#
+# Paths are relative to the repository root. Globs support `*` (within one
+# path segment), `**` (any number of segments) and `?`.
+#
+# When you add a feature, make sure a rule below selects it:
+# `npm run check:selection` fails for a feature that no rule selects.
+
+smoke: "@UC002-F001"
+
+# The Kong and APISIX features need a canvas with that gateway installed
+# instead of Istio: the canvas-oda chart allows only one gateway operator.
+# Selected features with one of these tags run in a separate run on its own
+# cluster, installed with `helmSet`. All other features run on the default
+# Istio canvas. A full run includes every gateway run.
+gateways:
+  - name: kong
+    tag: "@KongGateway"
+    helmSet:
+      - api-operator-istio.enabled=false
+      - apisix-gateway-install.enabled=false
+      - kong-gateway-install.enabled=true
+  - name: apisix
+    tag: "@ApisixGateway"
+    helmSet:
+      - api-operator-istio.enabled=false
+      - apisix-gateway-install.enabled=true
+      - kong-gateway-install.enabled=false
+
+docs:
+  - "**/*.md"
+  - "docs/**"
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.svg"
+  - "**/*.puml"
+  - "**/LICENSE"
+
+noTests:
+  # API gateways the BDD suite has no features for
+  - "source/operators/TMFOP002-API-Management/apigee/**"
+  - "source/operators/TMFOP002-API-Management/azure-apim/**"
+  - "source/operators/TMFOP002-API-Management/whalecloud-apim/**"
+  - "charts/apigee-gateway/**"
+  # Operators and services that the canvas-oda chart doesn't install
+  - "source/operators/TMFOP004-Credentials-Management/**"
+  - "charts/credentialsmanagement-operator/**"
+  - "source/operators/TMFOP008-OAuth2-Config/**"
+  - "charts/experimental/**"
+  - "source/operators/TMFOP011-Carbon-Management/**"
+  - "charts/carbon-management-operator/**"
+  - "charts/carbon-intensity-service/**"
+  - "source/tmf-services/TMF628_Performance_Management/**"
+  - "source/tmf-services/MCP_Resource_Inventory/**"
+  - "charts/observability-stack/**"
+  # Tools and UIs outside the canvas install
+  - "canvas-portal/**"
+  - "canvas-portal-v2/**"
+  - "source/utilities/**"
+  - "demos/**"
+  - "**/.gitignore"
+  # Workflows that build images or run other checks
+  - ".github/workflows/dockerbuild-*.yml"
+  - ".github/workflows/lint-python-code.yml"
+  - ".github/workflows/component-viewer-unit-tests.yml"
+  - ".github/workflows/check-no-prerelease-suffixes-in-PR.yml"
+  - ".github/workflows/test-selection-check.yml"
+
+fullSuite:
+  # Every feature depends on the CRDs
+  - "charts/oda-crds/**"
+
+rules:
+  - name: Component Management operator
+    paths:
+      - "source/operators/TMFOP001-Component-Management/**"
+      - "charts/component-operator/**"
+    tags: "@UC002 or @UC013"
+
+  - name: API Management operator (Istio)
+    paths:
+      - "source/operators/TMFOP002-API-Management/istio/**"
+      - "charts/api-operator-istio/**"
+    tags: "@UC003 or @UC012"
+
+  # The UC003 features run on the Istio canvas, so they don't exercise Kong
+  # or APISIX. The gateway features run on their own canvas (see gateways).
+  - name: API Management operator (Kong)
+    paths:
+      - "source/operators/TMFOP002-API-Management/kong/**"
+      - "charts/kong-gateway/**"
+    tags: "@KongGateway"
+
+  - name: API Management operator (APISIX)
+    paths:
+      - "source/operators/TMFOP002-API-Management/apache-apisix/**"
+      - "charts/apisix-gateway/**"
+    tags: "@ApisixGateway"
+
+  - name: Identity Config operator (Keycloak)
+    paths:
+      - "source/operators/TMFOP003-Identity-Config/**"
+      - "charts/identityconfig-operator-keycloak/**"
+    tags: "@UC005 or @UC010"
+
+  - name: Dependency Management operators
+    paths:
+      - "source/operators/TMFOP005-Dependency-Management/**"
+      - "charts/dependentapi-simple-operator/**"
+      - "charts/dependency-management-keycloak-authz/**"
+    tags: "@UC007"
+
+  # The dependent API operator registers resolved dependencies in the
+  # canvas info service (TMF638).
+  - name: Canvas info service (TMF638 Service Inventory)
+    paths:
+      - "source/tmf-services/TMF638_Service_Inventory/**"
+      - "charts/canvas-info-service/**"
+    tags: "@UC007"
+
+  - name: Resource inventory (TMF639)
+    paths:
+      - "source/tmf-services/TMF639_Resource_Inventory/**"
+      - "charts/resource-inventory/**"
+    tags: "@UC016"
+
+  - name: Component Registry
+    paths:
+      - "source/services/ComponentRegistry/**"
+      - "charts/component-registry/**"
+    tags: "@UC016"
+
+  # The webhook converts components between CRD versions.
+  - name: ODA webhook
+    paths:
+      - "source/webhooks/**"
+      - "charts/oda-webhook/**"
+    tags: "@UC013"
+
+  - name: Disruption Budget Management operator
+    paths:
+      - "source/operators/TMFOP010-Disruption-Budget-Management/**"
+      - "charts/pdb-management-operator/**"
+    tags: "@UC017"
+
+  # Installed by the canvas-oda chart, but no feature tests them directly.
+  # A rule with no tags runs only the smoke test.
+  - name: Canvas install prerequisites
+    paths:
+      - "source/operators/TMFOP007-Secrets-Management/**"
+      - "charts/secretsmanagement-operator/**"
+      - "charts/canvas-vault/**"
+      - "charts/cert-manager-init/**"
+      - "charts/canvas-namespaces/**"
