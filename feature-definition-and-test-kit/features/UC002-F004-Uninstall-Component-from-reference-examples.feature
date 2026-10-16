@@ -7,12 +7,14 @@
 Feature: UC002-F004 Uninstall a component and verify resources removal
 
     Scenario Outline: Uninstall a component and verify resources removal
-        Given I install the '<PackageName>' package as release '<ReleaseName>' from the '<RepoName>' repository
+        Given I install version '<PackageVersion>' of the '<PackageName>' package as release '<ReleaseName>' from the '<RepoName>' repository
         And the '<ComponentName>' component has a deployment status of 'Complete' for the '<ReleaseName>' release
         When I uninstall the release '<ReleaseName>'
         And the canvas operator process the uninstallation of components and exposedapis
         Then I should not see the '<ComponentName>' component after '<ReleaseName>' release uninstall
 
+    # The reference productcatalog chart is pinned to 1.4.4: 1.4.5 uses tmforumodacanvas images that
+    # aren't published yet (tmforum-oda/reference-example-components#84). Remove the pin when they are.
     Examples:
-    | RepoName       | ReferenceExampleRepoURL                                         | PackageName       | ReleaseName  |  ComponentName                    |
-    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |
+    | RepoName       | ReferenceExampleRepoURL                                         | PackageName       | PackageVersion | ReleaseName  |  ComponentName                    |
+    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | 1.4.4          | pc-repo      |  pc-repo-productcatalogmanagement |

@@ -310,6 +310,17 @@ When('I install the {string} package as release {string} from the {string} repos
 });
 
 /**
+ * Installing a specific version of a package from a repository.
+ */
+When('I install version {string} of the {string} package as release {string} from the {string} repository', async function (packageVersion, packageName, releaseName, repoName) {
+  console.log(`Installing version '${packageVersion}' of package '${packageName}' as release '${releaseName}' from repo '${repoName}'...`);
+  global.currentReleaseName = releaseName;
+
+  await packageManagerUtils.installupgradePackageFromRepo(repoName, packageName, releaseName, NAMESPACE, packageVersion);
+  console.log(`Successfully installed/upgraded version '${packageVersion}' of package '${packageName}' as release '${releaseName}'.`);
+});
+
+/**
  * Wait for a specified component to have a deployment status of a specified value.
  *
  * @param {string} componentName - The name of the component to check.

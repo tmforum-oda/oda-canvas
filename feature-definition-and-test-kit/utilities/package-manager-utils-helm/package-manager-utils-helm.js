@@ -218,20 +218,22 @@ const packageManagerUtils = {
    * @param {string} packageName - Name of the Helm package.
    * @param {string} releaseName - Release name.
    * @param {string} namespace -  namespace.
+   * @param {string} [version] - Chart version to install. Omit for the latest.
    */
-  installupgradePackageFromRepo: async function (repoName, packageName, releaseName, namespace) {
+  installupgradePackageFromRepo: async function (repoName, packageName, releaseName, namespace, version) {
     console.log(`Checking if release '${releaseName}' exists in namespace '${namespace}'...`);
     const helmList = execSync(`helm list -o json -n ${namespace}`, { encoding: 'utf-8' });
     const releases = JSON.parse(helmList);
 
     const releaseExists = releases.some(release => release.name === releaseName);
+    const versionArg = version ? ` --version ${version}` : '';
 
     if (releaseExists) {
       console.log(`Upgrading existing release '${releaseName}' from repo '${repoName}'...`);
-      await executeHelmCommand(`helm upgrade ${releaseName} ${repoName}/${packageName} -n ${namespace}`);
+      await executeHelmCommand(`helm upgrade ${releaseName} ${repoName}/${packageName} -n ${namespace}${versionArg}`);
     } else {
       console.log(`Installing new release '${releaseName}' from repo '${repoName}'...`);
-      await executeHelmCommand(`helm install ${releaseName} ${repoName}/${packageName} -n ${namespace}`);
+      await executeHelmCommand(`helm install ${releaseName} ${repoName}/${packageName} -n ${namespace}${versionArg}`);
     }
   },
 

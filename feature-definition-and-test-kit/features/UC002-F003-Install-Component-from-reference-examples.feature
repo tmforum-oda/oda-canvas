@@ -8,16 +8,18 @@ Feature: UC002-F003 Install Component from Repository
 
     Scenario Outline: Install a component and verify ExposedAPI resources creation
         Given the repository '<RepoName>' with URL '<ReferenceExampleRepoURL>' is added and updated
-        When I install the '<PackageName>' package as release '<ReleaseName>' from the '<RepoName>' repository 
+        When I install version '<PackageVersion>' of the '<PackageName>' package as release '<ReleaseName>' from the '<RepoName>' repository 
         And the '<ComponentName>' component has a deployment status of 'Complete' for the '<ReleaseName>' release
         Then I should see the '<ExposedAPIName>' ExposedAPI resource on the '<ComponentName>' component
 
+    # The reference productcatalog chart is pinned to 1.4.4: 1.4.5 uses tmforumodacanvas images that
+    # aren't published yet (tmforum-oda/reference-example-components#84). Remove the pin when they are.
     Examples:
     
-    | RepoName       | ReferenceExampleRepoURL                                         | PackageName       | ReleaseName  |  ComponentName                    |  ExposedAPIName             |
-    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |  productcatalogmanagement   |
-    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |  metrics                    |
-    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |  userrolesandpermissions    |
-    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | pc-repo      |  pc-repo-productcatalogmanagement |  promotionmanagement        |
+    | RepoName       | ReferenceExampleRepoURL                                         | PackageName       | PackageVersion | ReleaseName  |  ComponentName                    |  ExposedAPIName             |
+    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | 1.4.4          | pc-repo      |  pc-repo-productcatalogmanagement |  productcatalogmanagement   |
+    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | 1.4.4          | pc-repo      |  pc-repo-productcatalogmanagement |  metrics                    |
+    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | 1.4.4          | pc-repo      |  pc-repo-productcatalogmanagement |  userrolesandpermissions    |
+    | oda-components | https://tmforum-oda.github.io/reference-example-components      | productcatalog    | 1.4.4          | pc-repo      |  pc-repo-productcatalogmanagement |  promotionmanagement        |
 
 
