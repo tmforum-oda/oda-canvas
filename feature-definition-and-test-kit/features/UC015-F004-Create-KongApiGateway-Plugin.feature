@@ -1,5 +1,5 @@
 @UC015
-@UC015-F002
+@UC015-F004
 @KongGateway
 Feature:UC015-F004 Create API Resource and Verify Rate-Limiting and Authentication KongPlugin Creation for API
 

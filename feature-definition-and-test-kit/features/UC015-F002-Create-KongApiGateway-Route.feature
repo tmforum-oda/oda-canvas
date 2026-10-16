@@ -1,5 +1,5 @@
 @UC015
-@UC015-F001
+@UC015-F002
 @KongGateway
 Feature: UC015-F002 Expose APIs: Create and Verify HTTProute for ExposedAPI Resource
 
