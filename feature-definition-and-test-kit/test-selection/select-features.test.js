@@ -9,6 +9,9 @@ const test = require('node:test')
 const assert = require('node:assert/strict')
 const {
   globToRegExp,
+  changedSections,
+  parsePrFiles,
+  loadCanvasSectionNames,
   parseFeature,
   loadContext,
   chartUsage,
@@ -57,10 +60,146 @@ test('a PR that changes the CRDs runs the full suite, including every gateway ru
 })
 
 test('a changed path that is not in the map runs the full suite and is named', () => {
-  const result = select(['charts/canvas-oda/values.yaml', 'docs/README.md'])
+  const result = select(['charts/canvas-oda/templates/prehook.yaml', 'docs/README.md'])
   assert.equal(result.mode, 'full')
-  assert.match(result.reason, /aren't in the test-selection map: charts\/canvas-oda\/values\.yaml\./)
-  assert.equal(result.paths.find(p => p.path === 'charts/canvas-oda/values.yaml').category, 'unmapped')
+  assert.match(result.reason, /aren't in the test-selection map: charts\/canvas-oda\/templates\/prehook\.yaml\./)
+  assert.equal(result.paths.find(p => p.path === 'charts/canvas-oda/templates/prehook.yaml').category, 'unmapped')
+})
+
+test('canvas-oda chart files are mapped by the sections that changed', async t => {
+  const VALUES = 'charts/canvas-oda/values.yaml'
+  const CHART = 'charts/canvas-oda/Chart.yaml'
+  const selectWith = (patches, extra = []) => selectFeatures([...Object.keys(patches), ...extra], { ...context, patches: new Map(Object.entries(patches)) })
+
+  // Hunk headers carry the last top-level line before the hunk, as git writes them
+  const componentOperatorBump = [
+    '@@ -177,7 +177,7 @@ component-operator:',
+    '     compopVersion: 1.1.2',
+    '-    compopPrereleaseSuffix: -rc1',
+    '+    compopPrereleaseSuffix: -rc2',
+    '     imagePullPolicy: IfNotPresent'
+  ].join('\n')
+  const chartVersionBump = [
+    '@@ -16,7 +16,8 @@ type: application',
+    ' ',
+    '-version: 1.2.6-rc4',
+    '+version: 1.2.6-rc5',
+    '+# version: 1.2.6-rc5 - issue 615 - bug-fix for canvas images'
+  ].join('\n')
+
+  await t.test('an operator bump in values.yaml and Chart.yaml runs that operator\'s features', () => {
+    const result = selectWith({ [VALUES]: componentOperatorBump, [CHART]: chartVersionBump })
+    assert.equal(result.mode, 'selected')
+    assert.equal(result.tagExpression, '(@UC002-F001) or (@UC002 or @UC013)')
+    assert.match(result.paths.find(p => p.path === VALUES).matched[0], /Component Management operator \(component-operator\)/)
+  })
+
+  await t.test('a chart version bump on its own runs only the smoke test', () => {
+    const result = selectWith({ [CHART]: chartVersionBump })
+    assert.equal(result.mode, 'selected')
+    assert.equal(result.tagExpression, '(@UC002-F001)')
+  })
+
+  await t.test('a Chart.yaml dependency bump runs that dependency\'s features', () => {
+    const patch = [
+      '@@ -60,7 +60,7 @@ dependencies:',
+      '     condition: dependency-management-keycloak-authz.enabled',
+      '   - name: pdb-management-operator',
+      '-    version: "0.1.1"',
+      '+    version: "0.1.2"',
+      "     repository: 'file://../pdb-management-operator'"
+    ].join('\n')
+    assert.equal(selectWith({ [CHART]: patch }).tagExpression, '(@UC002-F001) or (@UC017)')
+  })
+
+  await t.test('a section no rule lists runs the full suite and is named', () => {
+    const patch = ['@@ -7,4 +7,4 @@ global:', '   certificate:', '-    enabled: true', '+    enabled: false'].join('\n')
+    const result = selectWith({ [VALUES]: patch })
+    assert.equal(result.mode, 'full')
+    assert.match(result.reason, /charts\/canvas-oda\/values\.yaml \(canvas chart sections not in the map: global\)/)
+  })
+
+  await t.test('a hunk that spans sections selects each one', () => {
+    const patch = [
+      '@@ -180,10 +180,10 @@ component-operator:',
+      '-    istioGateway: true',
+      '+    istioGateway: false',
+      ' ',
+      ' identityconfig-operator-keycloak:',
+      '   deployment:',
+      '-    imagePullPolicy: IfNotPresent',
+      '+    imagePullPolicy: Always'
+    ].join('\n')
+    assert.equal(selectWith({ [VALUES]: patch }).tagExpression, '(@UC002-F001) or (@UC002 or @UC013) or (@UC005 or @UC010)')
+  })
+
+  await t.test('a Kong section selects the Kong gateway run', () => {
+    const patch = ['@@ -474,2 +474,2 @@ kong-gateway-install:', '-  enabled: false', '+  enabled: true'].join('\n')
+    const result = selectWith({ [VALUES]: patch })
+    assert.deepEqual(result.runs.map(r => r.name), ['default', 'kong'])
+  })
+
+  await t.test('comment-only changes run nothing', () => {
+    const patch = ['@@ -173,3 +173,3 @@ component-operator:', '-  # old comment', '+  # new comment', '   deployment:'].join('\n')
+    assert.equal(selectWith({ [VALUES]: patch }).mode, 'skip')
+  })
+
+  await t.test('a change outside any section runs the full suite', () => {
+    const patch = ['@@ -1,3 +1,3 @@', '-  indented: before-any-key', '+  indented: changed'].join('\n')
+    assert.equal(selectWith({ [VALUES]: patch }).mode, 'full')
+  })
+
+  await t.test('a Chart.yaml dependency change whose name is outside the hunk runs the full suite', () => {
+    const patch = ['@@ -61,4 +61,4 @@ dependencies:', "     repository: 'file://../x'", '-    condition: x.enabled', '+    condition: y.enabled'].join('\n')
+    assert.equal(selectWith({ [CHART]: patch }).mode, 'full')
+  })
+
+  await t.test('without a diff the file runs the full suite', () => {
+    const result = select([VALUES])
+    assert.equal(result.mode, 'full')
+    assert.match(result.reason, /no diff was available/)
+  })
+})
+
+test('changedSections reads git diff output, headers included', () => {
+  const patch = [
+    'diff --git a/charts/canvas-oda/values.yaml b/charts/canvas-oda/values.yaml',
+    'index 1111111..2222222 100644',
+    '--- a/charts/canvas-oda/values.yaml',
+    '+++ b/charts/canvas-oda/values.yaml',
+    '@@ -405,3 +405,3 @@ pdb-management-operator:',
+    '-  enabled: true',
+    '+  enabled: false'
+  ].join('\r\n')
+  const { sections, unknown } = changedSections(patch, false)
+  assert.deepEqual([...sections], ['pdb-management-operator'])
+  assert.equal(unknown, false)
+})
+
+test('parsePrFiles reads the GitHub PR files API, paginated or not', () => {
+  const page = [
+    { filename: 'charts/canvas-oda/values.yaml', patch: '@@ -1 +1 @@ x:' },
+    { filename: 'charts/new-name/Chart.yaml', previous_filename: 'charts/old-name/Chart.yaml' },
+    { filename: 'images/big.png' }
+  ]
+  for (const text of [JSON.stringify(page), JSON.stringify([page, [{ filename: 'README.md' }]])]) {
+    const { files, patches } = parsePrFiles(text)
+    assert.ok(files.includes('charts/old-name/Chart.yaml'))
+    assert.ok(files.includes('charts/new-name/Chart.yaml'))
+    assert.equal(patches.get('charts/canvas-oda/values.yaml'), '@@ -1 +1 @@ x:')
+    assert.equal(patches.has('images/big.png'), false)
+  }
+})
+
+test('canvas chart sections are checked against the chart', () => {
+  const names = loadCanvasSectionNames({ canvasChart: ['charts/canvas-oda/values.yaml', 'charts/canvas-oda/Chart.yaml'] })
+  for (const name of ['component-operator', 'global', 'kongnamespace', 'oda-crds', 'keycloak', 'chart-metadata']) assert.ok(names.has(name), name)
+  const errors = checkSelection({
+    ...context,
+    config: { ...context.config, rules: [{ name: 'Typo', paths: ['charts/component-operator/**'], canvasSections: ['component-operatr'], tags: '@UC002' }] },
+    trackedFiles: ['charts/component-operator/Chart.yaml', 'charts/canvas-oda/values.yaml', 'charts/canvas-oda/Chart.yaml', 'README.md', 'docs/a', 'images/a.png', 'charts/oda-crds/Chart.yaml']
+  })
+  assert.ok(errors.some(e => /canvas chart section "component-operatr"/.test(e)), errors.join('\n'))
 })
 
 test('step definitions are shared, so changing them runs the full suite', () => {

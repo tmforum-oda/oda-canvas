@@ -107,9 +107,10 @@ jobs:
       with:
         node-version: '22'
 
-    # Lists the files the whole PR changes (not just the last commit) through
-    # the API, which also works for PRs from forks. Renamed files count under
-    # both their old and new paths.
+    # Lists the files the whole PR changes (not just the last commit), with
+    # their diffs, through the API, which also works for PRs from forks.
+    # Renamed files count under both their old and new paths. The selector
+    # reads the diffs of the canvas-oda chart to see which sections changed.
     - name: Select BDD features
       id: select_features
       shell: bash
@@ -122,9 +123,8 @@ jobs:
       run: |
         npm install --no-audit --no-fund
         if [ "$EVENT_NAME" = "pull_request" ]; then
-          gh api "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --paginate \
-            --jq '.[] | .filename, (.previous_filename // empty)' > /tmp/changed-files.txt
-          SELECT_ARGS=(--files /tmp/changed-files.txt)
+          gh api "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --paginate --slurp > /tmp/pr-files.json
+          SELECT_ARGS=(--pr-files /tmp/pr-files.json)
         else
           SELECT_ARGS=(--all)
         fi
@@ -146,7 +146,7 @@ jobs:
         path: |
           /tmp/test-selection.json
           /tmp/test-selection.txt
-          /tmp/changed-files.txt
+          /tmp/pr-files.json
         if-no-files-found: ignore
 
 
