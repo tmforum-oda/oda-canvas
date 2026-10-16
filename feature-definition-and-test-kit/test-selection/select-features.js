@@ -157,8 +157,13 @@ function buildRuns (selection, context) {
   const base = selection ? `(${selection})` : null
   const defaultExpression = [base, ...gateways.map(g => `not ${g.tag}`)].filter(Boolean).join(' and ')
   const runs = [
-    { name: 'default', helmSet: [], tagExpression: defaultExpression || null },
-    ...gateways.map(g => ({ name: g.name, helmSet: g.helmSet || [], tagExpression: base ? `${base} and ${g.tag}` : g.tag }))
+    { name: 'default', helmSet: [], preInstall: [], tagExpression: defaultExpression || null },
+    ...gateways.map(g => ({
+      name: g.name,
+      helmSet: g.helmSet || [],
+      preInstall: g.preInstall || [],
+      tagExpression: base ? `${base} and ${g.tag}` : g.tag
+    }))
   ]
   return runs
     .map(run => {
@@ -173,7 +178,8 @@ function buildRuns (selection, context) {
 // Returns { mode, reason, tagExpression, paths, runs, scenarios }, where mode
 // is 'skip' (no runs), 'selected' (the features tagExpression selects) or
 // 'full' (every feature; tagExpression is null). Each run has its own
-// tagExpression, the helmSet values for its canvas, and its features in scope.
+// tagExpression, the helmSet values and preInstall commands for its canvas,
+// and its features in scope.
 function selectFeatures (changedFiles, context) {
   const files = [...new Set(changedFiles.map(f => f.trim().replace(/\\/g, '/')).filter(Boolean))].sort()
   const paths = files.map(file => classifyPath(file, context))
@@ -201,6 +207,12 @@ function selectFeatures (changedFiles, context) {
   const expressions = [...new Set([context.config.smoke, ...paths.flatMap(p => p.tags)])]
   const tagExpression = expressions.map(e => `(${e})`).join(' or ')
   return result('selected', 'Selected from the test-selection map, plus the smoke test.', tagExpression)
+}
+
+// A full run of every feature, whatever changed. Used for on-demand runs.
+function selectAll (reason, context) {
+  const runs = buildRuns(null, context)
+  return { mode: 'full', reason, tagExpression: null, paths: [], runs, scenarios: runs.reduce((n, r) => n + r.scenarios, 0) }
 }
 
 // Checks the map and the feature files. Returns a list of error messages.
@@ -306,10 +318,32 @@ function formatText (result) {
   for (const run of result.runs) {
     lines.push('', `Run "${run.name}" (${run.features.length} features, ${run.scenarios} scenarios)`)
     lines.push(`  Tag expression: ${run.tagExpression || '(all)'}`)
+    for (const command of run.preInstall) lines.push(`  Before the canvas install: ${command}`)
     if (run.helmSet.length) lines.push(`  Canvas install: --set ${run.helmSet.join(' --set ')}`)
     for (const f of run.features) lines.push(`  ${f.name} (${f.scenarios})`)
   }
   return lines.join('\n')
+}
+
+// Step outputs for trigger_tests.yml, as name=value lines for $GITHUB_OUTPUT.
+// GATEWAY_RUNS is the matrix for the gateway runs, one entry per run.
+function formatGithubOutput (result) {
+  const defaultRun = result.runs.find(run => run.name === 'default')
+  const gatewayRuns = result.runs
+    .filter(run => run.name !== 'default')
+    .map(run => ({ name: run.name, tags: run.tagExpression || '', helmSet: run.helmSet.join('\n'), preInstall: run.preInstall.join('\n') }))
+  return [
+    `MODE=${result.mode}`,
+    `RUN_DEFAULT=${Boolean(defaultRun)}`,
+    `DEFAULT_TAGS=${(defaultRun && defaultRun.tagExpression) || ''}`,
+    `GATEWAY_RUNS=${JSON.stringify(gatewayRuns)}`
+  ].join('\n')
+}
+
+const FORMATTERS = {
+  text: formatText,
+  json: result => JSON.stringify(result, null, 2),
+  'github-output': formatGithubOutput
 }
 
 function parseArgs (argv) {
@@ -317,13 +351,14 @@ function parseArgs (argv) {
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     if (arg === '--check') args.check = true
+    else if (arg === '--all') args.all = true
     else if (arg === '--base') args.base = argv[++i]
     else if (arg === '--files') args.files = argv[++i]
     else if (arg === '--format') args.format = argv[++i]
     else throw new Error(`Unknown argument: ${arg}`)
   }
-  if (!['text', 'json'].includes(args.format)) throw new Error(`Unknown format: ${args.format}`)
-  if (!args.check && !args.base && !args.files) throw new Error('Pass --base <ref>, --files <file|-> or --check')
+  if (!FORMATTERS[args.format]) throw new Error(`Unknown format: ${args.format}`)
+  if (!args.check && !args.all && !args.base && !args.files) throw new Error('Pass --base <ref>, --files <file|->, --all or --check')
   return args
 }
 
@@ -342,11 +377,16 @@ function main (argv) {
     return 0
   }
 
-  const changedFiles = args.files
-    ? fs.readFileSync(args.files === '-' ? 0 : args.files, 'utf8').split(/\r?\n/)
-    : git(['diff', '--name-only', '--no-renames', `${args.base}...HEAD`]).split('\n')
-  const result = selectFeatures(changedFiles, context)
-  console.log(args.format === 'json' ? JSON.stringify(result, null, 2) : formatText(result))
+  let result
+  if (args.all) {
+    result = selectAll('Full suite requested.', context)
+  } else {
+    const changedFiles = args.files
+      ? fs.readFileSync(args.files === '-' ? 0 : args.files, 'utf8').split(/\r?\n/)
+      : git(['diff', '--name-only', '--no-renames', `${args.base}...HEAD`]).split('\n')
+    result = selectFeatures(changedFiles, context)
+  }
+  console.log(FORMATTERS[args.format](result))
   return 0
 }
 
@@ -368,5 +408,7 @@ module.exports = {
   featuresInScope,
   buildRuns,
   selectFeatures,
+  selectAll,
+  formatGithubOutput,
   checkSelection
 }

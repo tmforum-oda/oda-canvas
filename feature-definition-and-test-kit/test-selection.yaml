@@ -26,10 +26,14 @@ smoke: "@UC002-F001"
 # instead of Istio: the canvas-oda chart allows only one gateway operator.
 # Selected features with one of these tags run in a separate run on its own
 # cluster, installed with `helmSet`. All other features run on the default
-# Istio canvas. A full run includes every gateway run.
+# Istio canvas. A full run includes every gateway run. `preInstall` lists
+# shell commands the workflow runs before installing the canvas.
 gateways:
   - name: kong
     tag: "@KongGateway"
+    # Kong needs the Gateway API CRDs (see installation/README.md)
+    preInstall:
+      - kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.0.0/standard-install.yaml
     helmSet:
       - api-operator-istio.enabled=false
       - apisix-gateway-install.enabled=false
