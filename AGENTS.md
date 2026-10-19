@@ -77,9 +77,12 @@ mvn spring-boot:run         # Run Spring Boot applications
 ### Python Operators (KOPF Framework)
 ```bash
 cd source/operators
-pip install -r requirements.txt     # Install Python dependencies
-python componentOperator.py         # Run component operator
+pip install -r requirements.txt     # Install the shared Python dependencies
+cd TMFOP001-Component-Management/component-management
+kopf run --namespace=components componentOperator.py   # Run the component operator against your kubeconfig's cluster
 ```
+
+Each operator lives in `source/operators/TMFOPnnn-Name/<implementation>/`; see `source/operators/AGENTS.md`.
 
 ### TMF Services
 
@@ -94,7 +97,7 @@ npm start                   # Start TMF639 service
 ```bash
 cd source/tmf-services/MCP_Resource_Inventory
 # Using UV package manager
-uv install                  # Install dependencies
+uv sync                     # Install dependencies
 uv run pytest              # Run tests
 uv run python resource_inventory_mcp_server.py  # Start server
 
@@ -204,7 +207,7 @@ Always check version compatibility when working with CRDs and webhook conversion
 
 ## Good and Bad Examples
 
-- Preferred operator pattern: see `source/operators/componentOperator/`
+- Preferred operator pattern: see `source/operators/TMFOP001-Component-Management/component-management/`
 - Preferred BDD style: see feature files following TAC-353 style guide in `feature-definition-and-test-kit/features/`
 - Preferred use case format: see `usecase-library/UC003-Configure-Exposed-APIs.md`
 - Preferred Helm chart structure: see `charts/canvas-oda/`
