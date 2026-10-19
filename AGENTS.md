@@ -130,6 +130,18 @@ helm lint charts/canvas-oda
 kubectl apply --dry-run=client -f path/to/component.yaml
 ```
 
+### Webhook (CRD version conversion)
+```bash
+cd source/webhooks/implementation
+npm install
+node app.js test            # Run the webhook in test mode (HTTP on port 8002)
+
+cd source/webhooks/command-line
+node convert.js             # Convert a component locally between API versions
+```
+
+More in `source/AGENTS.md`.
+
 ## Project Structure
 
 - `charts/`: Helm charts for deploying the Canvas: the `canvas-oda` umbrella chart, `oda-crds`, `oda-webhook`, and one chart per operator and service
@@ -172,6 +184,43 @@ BDD features and scenarios are used to create executable tests. The test kit val
 - Go: `make test` in `source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/`
 - Java: `mvn test` in Java modules
 - Node.js: `npm test` in service directories
+
+### Testing operators
+
+- Python operator tests live in each operator's `test/` folder (for example
+  `source/operators/TMFOP001-Component-Management/component-management/test/componentOperatorTest_DEPAPI.py`),
+  with fixtures in `test/testdata_*` folders. There is no shared pytest config or conftest.
+- Run one test file from its `test/` folder, after installing `source/operators/requirements.txt`:
+  `pytest componentOperatorTest_DEPAPI.py`. The tests import the operator from the parent folder.
+- The tests load your kubeconfig and talk to that cluster (`HTTPS_PROXY` is used if set), and some create or
+  update resources. Run them against a disposable test cluster only.
+- Set `LOGGING` to change the log level.
+
+## Charts and images
+
+- `charts/` holds one chart per operator or service (for example `component-operator`, `api-operator-istio`,
+  `identityconfig-operator-keycloak`, `pdb-management-operator`, `resource-inventory`), plus `oda-crds`
+  (the CRDs), `oda-webhook` (the conversion webhook) and the `canvas-oda` umbrella chart that installs them.
+- Each chart's `values.yaml` names its image, version and prerelease suffix (for example
+  `compopImage: tmforumodacanvas/component-operator`, `compopVersion`, `compopPrereleaseSuffix`).
+- Validate a chart with `helm lint charts/<chart>`.
+- Before a PR to `main`, remove every prerelease suffix from chart and image versions. CI rejects the PR
+  otherwise (see below).
+
+## CI
+
+- `.github/workflows/` has a pair of workflows per image:
+  - `dockerbuild-prerelease-<image>.yml` builds a prerelease image on pushes to `feature/*` and `odaa-*` branches;
+  - `dockerbuild-release-<image>.yml` builds the release image on pushes to `main`.
+
+  Each pair runs only when files under that image's source folder change.
+- `check-no-prerelease-suffixes-in-PR.yml` fails any PR to `main` that leaves a prerelease suffix in
+  `charts/canvas-oda/values.yaml`, or in the other values and `version.yaml` files it lists (for example
+  `charts/credentialsmanagement-operator/values.yaml`).
+- `trigger_tests.yml` runs the Canvas tests on every PR to `main` (add `[skip tests]` to the PR title to skip
+  them). `lint-python-code.yml` lints the Python code.
+- Dockerfiles are named `<operator>-dockerfile` in the older operator layout, or `docker/Dockerfile` in the
+  newer one.
 
 ## Component Specification Versions
 
