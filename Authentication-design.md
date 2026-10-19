@@ -4,7 +4,7 @@ This document describes the design artefacts for the Authentication part of the 
 
 There is an introductory Video at 
 
-[![Authentication-video](Authentication-video.png)](https://www.youtube.com/watch?v=w0iQv9FtuiM)
+[![Authentication and Authorization in the ODA Canvas](https://img.youtube.com/vi/a6j6tUDTS80/0.jpg)](https://youtu.be/a6j6tUDTS80)
 
 ## Use cases
 
