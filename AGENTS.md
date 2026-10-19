@@ -32,7 +32,7 @@ The ODA Canvas implements a modular architecture with independent operators:
 - Use PlantUML for sequence diagrams in use cases
 - Default to small, focused diffs
 - Follow BDD approach: create use cases first, then BDD scenarios, then implementation
-- Support N-2 versions of ODA Component Standard (currently v1, v1beta4, v1beta3)
+- Support every served version of the ODA Component Standard (currently v1, v1beta4, v1beta3, and the deprecated v1beta2)
 - Include comprehensive docstrings in source code
 - Follow existing code conventions and patterns in each language
 - Create tests for all new functionality
@@ -45,7 +45,7 @@ The ODA Canvas implements a modular architecture with independent operators:
 - Do not hard-code namespace references; use Helm template variables
 - Do not add new CRD fields without updating the webhook conversion logic
 - Do not write BDD steps that reference specific operator implementations
-- Do not modify CRD schemas without considering backward compatibility across N-2 versions
+- Do not modify CRD schemas without considering backward compatibility across all served versions
 
 ## Development Commands
 
@@ -132,25 +132,28 @@ kubectl apply --dry-run=client -f path/to/component.yaml
 
 ## Project Structure
 
-- `charts/`: Helm charts for deploying Canvas components
-- `canvas-portal/`: Spring Boot + Vue.js web portal for Canvas management
+- `charts/`: Helm charts for deploying the Canvas: the `canvas-oda` umbrella chart, `oda-crds`, `oda-webhook`, and one chart per operator and service
+- `canvas-portal/`: Spring Boot + Vue.js web portal for Canvas management (the original portal)
+- `canvas-portal-v2/`: Canvas Portal v2: React + Vite frontend and a FastAPI backend, with its Helm chart in `canvas-portal-v2/helm/`
 - `docs/`: Additional documentation for developers
 - `feature-definition-and-test-kit/`: BDD tests and utilities for Canvas validation
 - `installation/`: Installation guides and deployment scripts
 - `source/`: Core Canvas implementation
-  - `operators/`: Kubernetes operators (Component, API, Identity, Secrets Management)
+  - `operators/`: Kubernetes operators in `TMFOPnnn-Name/` groups (Python/KOPF, plus the Go/kubebuilder disruption budget operator); each is packaged as a chart under `charts/`
+  - `services/`: Canvas services, such as the `ComponentRegistry`
   - `webhooks/`: Kubernetes admission webhooks
   - `utilities/`: Development and troubleshooting tools
   - `tmf-services/`: TMF API implementations
+- `skills/`: Agent skills (`SKILL.md` folders) for AI coding assistants working in this repository
 - `usecase-library/`: Use cases documenting component-canvas interactions
 
 ## Technology Stack
 
-- **Backend**: Python (KOPF framework), Java (Spring Boot), Node.js
-- **Frontend**: Vue.js 3, Element Plus UI, Vite
+- **Backend**: Python (KOPF framework, FastAPI), Go (kubebuilder, for the disruption budget operator), Java (Spring Boot), Node.js
+- **Frontend**: Vue.js 3, Element Plus UI, Vite (`canvas-portal/`); React, Vite (`canvas-portal-v2/`)
 - **Container**: Docker, Kubernetes
 - **Deployment**: Helm charts
-- **Testing**: Cucumber.js (BDD), JUnit (Java), pytest (Python)
+- **Testing**: Cucumber.js (BDD), JUnit (Java), pytest (Python), `go test` (Go)
 - **Package Management**: Maven (Java), npm (Node.js), uv/pip (Python)
 
 ## Testing
@@ -165,16 +168,20 @@ npm start
 BDD features and scenarios are used to create executable tests. The test kit validates Canvas implementations. Components are tested against the standard ODA Component Specification. Tests are automated to ensure compliance with security principles.
 
 ### Unit Tests
-- Python: `pytest` in operator directories
+- Python: `pytest` in an operator's `test/` directory (see "Testing operators" below)
+- Go: `make test` in `source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/`
 - Java: `mvn test` in Java modules
 - Node.js: `npm test` in service directories
 
 ## Component Specification Versions
 
-The Canvas supports multiple versions of the ODA Component Standard:
-- **v1**: Current stable version
+The Canvas supports multiple versions of the ODA Component Standard. The CRDs in `charts/oda-crds` serve all of
+them, and the conversion webhook (`source/webhooks/implementation/app.js`, `supportedAPIVersions`) converts between
+them:
+- **v1**: Current stable version (the storage version)
 - **v1beta4**: Previous version, still supported
-- **v1beta3**: Oldest supported version (deprecation warnings may apply)
+- **v1beta3**: Older version, still supported
+- **v1beta2**: Oldest version, still served but marked deprecated in the CRD
 
 Always check version compatibility when working with CRDs and webhook conversions.
 
