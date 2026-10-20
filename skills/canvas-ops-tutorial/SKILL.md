@@ -63,7 +63,7 @@ When explaining resource structures, reference these sources:
 | Directory | Demonstrates |
 |-----------|-------------|
 | `productcatalog-v1/` | Base component: core, management, and security functions |
-| `productcatalog-dependendent-API-v1/` | Declaring dependent APIs |
+| `productcatalog-dependent-API-v1/` | Declaring dependent APIs |
 | `productcatalog-static-roles-v1/` | Static `componentRole` definitions |
 | `productcatalog-dynamic-roles-v1/` | MCP API type + gatewayConfiguration |
 

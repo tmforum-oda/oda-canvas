@@ -32,7 +32,7 @@ The CRD definition is in `charts/oda-crds/templates/oda-dependentapi-crd.yaml` (
 
 An example of a component declaring dependent APIs is in:
 ```
-feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1/templates/component-productcatalog.yaml
+feature-definition-and-test-kit/testData/productcatalog-dependent-API-v1/templates/component-productcatalog.yaml
 ```
 
 ## Focus

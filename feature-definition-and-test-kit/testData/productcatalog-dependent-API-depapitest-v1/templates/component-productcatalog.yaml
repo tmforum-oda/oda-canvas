@@ -26,15 +26,32 @@ spec:
       - url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-prodcatapi
       apiType: openapi
+      id: TMF620
+      gatewayConfiguration:
+        apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
+        rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
+        quota: {{.Values.component.apipolicy.quota | toYaml | nindent 10}}
+        OASValidation: {{.Values.component.apipolicy.OASValidation | toYaml | nindent 10}}
+        CORS: {{.Values.component.apipolicy.CORS | toYaml | nindent 10}}
+        template: "{{.Values.component.apipolicy.template}}"
       path: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/productCatalogManagement/v4/docs
-      port: 8080 
+      port: 8080
+    {{- if .Values.component.MCPServer.enabled }}
+    - name: productcatalogmcp
+      implementation: {{.Release.Name}}-prodcatmcp
+      apiType: mcp
+      path: /{{.Release.Name}}-{{.Values.component.name}}/mcp
+      port: 8080
+    {{- end }}      
     dependentAPIs: 
     {{- if .Values.component.dependentAPIs.enabled }}
     - name: downstreamproductcatalog 
-      apiType: openapi     
+      apiType: openapi
+      id: TMF620     
       specification: 
-      - url: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
+      # :443 matches only productcatalog-depapitest-v1's ExposedAPI (UC007-F002)
+      - url: https://raw.githubusercontent.com:443/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
     {{- else }}
       []
     {{- end }}
@@ -45,18 +62,26 @@ spec:
     exposedAPIs: 
     - name: metrics
       apiType: prometheus
+      gatewayConfiguration:
+        apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
+        rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
+        quota: {{.Values.component.apipolicy.quota | toYaml | nindent 10}}
+        OASValidation: {{.Values.component.apipolicy.OASValidation | toYaml | nindent 10}}
+        CORS: {{.Values.component.apipolicy.CORS | toYaml | nindent 10}}
+        template: "{{.Values.component.apipolicy.template}}"
       implementation: {{.Release.Name}}-{{.Values.component.name}}-sm
       path: /{{.Release.Name}}-{{.Values.component.name}}/metrics
-      port: 4000    
+      port: 4000      
   securityFunction:
     canvasSystemRole: {{ .Values.security.canvasSystemRole }}
     exposedAPIs: 
     {{- if .Values.permissionspec.enabled }}
     - name: userrolesandpermissions
       specification:
-      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF672_UserRolePermissions/master/TMF672-UserRolePermissions-v5.0.0.swagger.json"
+      - url: "https://raw.githubusercontent.com/tmforum-oda/reference-example-components/master/source/ProductCatalog/permissionSpecificationSetMicroservice/implementation/api/TMF672-Roles_And_Permissions-v5.0.0.oas.yaml"
       implementation: {{.Release.Name}}-permissionspecapi
       apiType: openapi
+      id: TMF672
       gatewayConfiguration:
         apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
         rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
@@ -73,6 +98,7 @@ spec:
       - url: "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-partyroleapi
       apiType: openapi
+      id: TMF669
       gatewayConfiguration:
         apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
         rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
@@ -84,4 +110,3 @@ spec:
       developerUI: /{{.Release.Name}}-{{.Values.component.name}}/tmf-api/partyRoleManagement/v4/docs
       port: 8080
     {{- end }}
-

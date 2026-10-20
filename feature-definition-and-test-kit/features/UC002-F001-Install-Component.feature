@@ -27,7 +27,7 @@ Feature: UC002-F001 Install Component
 
     Examples:
     | Name           | PackageName                              | ReleaseName | DependentAPIName                | ComponentName                | SegmentName        | DependentApiCount |
-    | Core API       | productcatalog-dependendent-API-v1       |      ctk    | downstreamproductcatalog        | ctk-productcatalogmanagement | coreFunction       | 1                 |
+    | Core API       | productcatalog-dependent-API-v1          |      ctk    | downstreamproductcatalog        | ctk-productcatalogmanagement | coreFunction       | 1                 |
     | Management API | productcatalog-mgmt-dependent-API-v1     |      ctk    | downstreamresourcecatalog       | ctk-productcatalogmanagement | managementFunction | 1                 |
     | Security API   | productcatalog-sec-dependent-API-v1      |      ctk    | downstreamuserrolepermissions   | ctk-productcatalogmanagement | securityFunction   | 1                 |
 

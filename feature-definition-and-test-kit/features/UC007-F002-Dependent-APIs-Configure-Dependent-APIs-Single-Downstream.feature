@@ -12,7 +12,7 @@ Feature: UC007-F002 Dependent APIs: Configure Dependent API to single downstream
         And the 'r-cat-productcatalogmanagement' component has a deployment status of 'Complete'
         And I should see the 'productcatalogmanagement' ExposedAPI resource on the 'r-cat-productcatalogmanagement' component with a url on the Service Mesh or Gateway
         # Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
-        When I install the 'productcatalog-dependendent-API-depapitest-v1' package as release 'f-cat'
+        When I install the 'productcatalog-dependent-API-depapitest-v1' package as release 'f-cat'
         Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'f-cat-productcatalogmanagement' component with a ready status
         And the 'f-cat-productcatalogmanagement' component has a deployment status of 'Complete'
 

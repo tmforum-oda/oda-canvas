@@ -14,7 +14,7 @@ spec:
       labels:
         app: {{.Release.Name}}-{{.Values.component.name}}
         impl: {{.Release.Name}}-prodcatapi
-        version: {{.Values.api.versionlabel}}
+        version: {{.Values.api.versionLabel}}
     spec:
       containers:
       - name: {{.Release.Name}}-prodcatapi
@@ -22,6 +22,8 @@ spec:
         env:
         - name: DEPENDENT_APIS_REJECT_UNAUTHORIZED_CERTIFICATES
           value: "{{.Values.component.dependentAPIs.rejectUnauthorizedCertificates}}"
+        - name: API_DEPENDENCY_NAME
+          value: "{{.Values.component.dependentAPIs.dependencyName}}"
         - name: RELEASE_NAME
           value: {{.Release.Name}}
         - name: COMPONENT_NAME
@@ -44,15 +46,6 @@ spec:
           value: "{{.Values.canvasinfo.host}}" 
         - name: CANVAS_INFO_BASEPATH
           value: "{{.Values.canvasinfo.basepath}}" 
-        {{ if .Values.add_dependency_envvars -}}
-        envFrom:
-        - configMapRef:
-            name: deps-{{.Release.Name}}-{{.Values.component.name}}
-            optional: true
-        volumeMounts:
-        - name: dependencies-volume
-          mountPath: /src/dependencies
-        {{- end }}
         imagePullPolicy: Always
         ports:
         - name: {{.Release.Name}}-pcapi
@@ -64,10 +57,3 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
           failureThreshold: 30
-      {{ if .Values.add_dependency_envvars -}}
-      volumes:
-      - name: dependencies-volume
-        configMap:
-          name: deps-{{.Release.Name}}-{{.Values.component.name}}
-          optional: true             
-      {{- end }}

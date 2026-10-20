@@ -18,7 +18,7 @@ in RequestFileMocker initialization set recording=True to record new test data
 deploy r-cat and f-cat from BDD tests:
 
 helm upgrade --install r-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
-helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependent-API-v1
 """
 
 

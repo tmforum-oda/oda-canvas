@@ -127,7 +127,7 @@ Please update the README.md to include this feature in the UC015 section.
 
 ### Available Test Data
 - `productcatalog-v1` - Standard product catalog component
-- `productcatalog-dependendent-API-v1` - With dependent APIs
+- `productcatalog-dependent-API-v1` - With dependent APIs
 - `productcatalog-dynamic-roles-v1` - With dynamic roles
 - And more in `feature-definition-and-test-kit/testData/`
 
