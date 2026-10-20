@@ -17,7 +17,8 @@
 # runs the smoke test.
 #
 # Paths are relative to the repository root. Globs support `*` (within one
-# path segment), `**` (any number of segments) and `?`.
+# path segment), `**` (any number of segments) and `?`, and ignore case, so
+# `**/*.png` also matches `Issues.PNG`.
 #
 # When you add a feature, make sure a rule below selects it:
 # `npm run check:selection` fails for a feature that no rule selects.
@@ -52,6 +53,7 @@ docs:
   - "docs/**"
   - "**/*.png"
   - "**/*.jpg"
+  - "**/*.jpeg"
   - "**/*.svg"
   - "**/*.puml"
   - "**/LICENSE"
@@ -79,12 +81,47 @@ noTests:
   - "source/utilities/**"
   - "demos/**"
   - "**/.gitignore"
+  # Developer tooling, examples and agent skills that no BDD run uses
+  - ".devcontainer/**"
+  - ".github/ISSUE_TEMPLATE/**"
+  - ".github/skills"
+  - ".nojekyll"
+  - "skills/**"
+  - "scripts/**"
+  - "automation/generators/**"
+  - "release-notes/**"
+  - "installation/azure/**"
+  - "installation/CanvasVault/**"
+  - "installation/precheck.sh"
+  - "package-lock.json"
+  - "temp.yaml"
+  - "source/.github/**"
+  - "source/.vscode/**"
+  - "source/pv.yaml"
+  - "source/operators/.vscode/**"
+  - "source/operators/KOPFDevInstall.sh"
+  - "source/operators/peering.yaml"
+  - "source/operators/rbac.yaml"
+  - "source/operators/requirements.txt"
+  - "source/operators/testAPIResource.yaml"
+  - "source/operators/tests/**"
+  - "source/operators/TMFOP002-API-Management/ExposedAPI-example.yaml"
+  - "feature-definition-and-test-kit/local-tests/**"
+  - "feature-definition-and-test-kit/getTags.js"
+  # The selection itself; test-selection-check.yml checks it on every PR
+  - "feature-definition-and-test-kit/test-selection.yaml"
+  - "feature-definition-and-test-kit/test-selection/**"
+  - ".github/actions/select-bdd-tests/**"
   # Workflows that build images or run other checks
   - ".github/workflows/dockerbuild-*.yml"
   - ".github/workflows/lint-python-code.yml"
   - ".github/workflows/component-viewer-unit-tests.yml"
   - ".github/workflows/check-no-prerelease-suffixes-in-PR.yml"
   - ".github/workflows/test-selection-check.yml"
+  - ".github/workflows/bdd-selection-comment.yml"
+  - ".github/workflows/canvas-log-viewer-unit-tests.yml"
+  - ".github/workflows/local-test.yml"
+  - ".github/workflows/Chart-Releaser-ReleasedChartTester-TrivyScanner.yml"
 
 fullSuite:
   # Every feature depends on the CRDs
