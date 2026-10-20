@@ -16,6 +16,8 @@ const {
   loadContext,
   chartUsage,
   selectFeatures,
+  selectAll,
+  formatGithubOutput,
   checkSelection
 } = require('./select-features')
 
@@ -267,6 +269,21 @@ test('a Kong change runs the Kong features on a Kong canvas', () => {
   assert.ok(kong.helmSet.includes('api-operator-istio.enabled=false'))
 })
 
+test('the Kong run installs the Gateway API CRDs before the canvas', () => {
+  const kong = run(select(['charts/kong-gateway/values.yaml']), 'kong')
+  assert.equal(kong.preInstall.length, 1)
+  assert.match(kong.preInstall[0], /gateway-api.*standard-install\.yaml/)
+  assert.deepEqual(run(select(['charts/kong-gateway/values.yaml']), 'default').preInstall, [])
+})
+
+test('selectAll runs every feature, including every gateway run', () => {
+  const result = selectAll('Full suite requested.', context)
+  assert.equal(result.mode, 'full')
+  assert.deepEqual(result.paths, [])
+  assert.deepEqual(result.runs.map(r => r.name), ['default', 'kong', 'apisix'])
+  assert.equal(result.scenarios, context.features.reduce((n, f) => n + f.scenarioTags.length, 0))
+})
+
 test('an APISIX change runs the APISIX features on an APISIX canvas', () => {
   const result = select(['charts/apisix-gateway/values.yaml'])
   assert.deepEqual(result.runs.map(r => r.name), ['default', 'apisix'])
@@ -297,6 +314,44 @@ test('Windows path separators are normalised', () => {
   const result = select(['charts\\pdb-management-operator\\values.yaml'])
   assert.equal(result.paths[0].path, 'charts/pdb-management-operator/values.yaml')
   assert.equal(result.mode, 'selected')
+})
+
+test('formatGithubOutput', async t => {
+  const outputs = result => Object.fromEntries(formatGithubOutput(result).split('\n').map(line => {
+    const at = line.indexOf('=')
+    return [line.slice(0, at), line.slice(at + 1)]
+  }))
+
+  await t.test('one line per output, and the matrix is single-line JSON', () => {
+    const text = formatGithubOutput(selectAll('Full suite requested.', context))
+    assert.deepEqual(text.split('\n').map(line => line.split('=')[0]), ['MODE', 'RUN_DEFAULT', 'DEFAULT_TAGS', 'GATEWAY_RUNS'])
+  })
+  await t.test('a PDB change has a default run and no gateway runs', () => {
+    const o = outputs(select(['charts/pdb-management-operator/values.yaml']))
+    assert.equal(o.MODE, 'selected')
+    assert.equal(o.RUN_DEFAULT, 'true')
+    assert.equal(o.DEFAULT_TAGS, '((@UC002-F001) or (@UC017)) and not @KongGateway and not @ApisixGateway')
+    assert.deepEqual(JSON.parse(o.GATEWAY_RUNS), [])
+  })
+  await t.test('a documentation-only change has no runs', () => {
+    const o = outputs(select(['README.md']))
+    assert.equal(o.MODE, 'skip')
+    assert.equal(o.RUN_DEFAULT, 'false')
+    assert.equal(o.DEFAULT_TAGS, '')
+    assert.deepEqual(JSON.parse(o.GATEWAY_RUNS), [])
+  })
+  await t.test('a full run lists each gateway with its install settings', () => {
+    const o = outputs(selectAll('Full suite requested.', context))
+    assert.equal(o.MODE, 'full')
+    assert.equal(o.DEFAULT_TAGS, 'not @KongGateway and not @ApisixGateway')
+    const [kong, apisix] = JSON.parse(o.GATEWAY_RUNS)
+    assert.equal(kong.name, 'kong')
+    assert.equal(kong.tags, '@KongGateway')
+    assert.equal(kong.helmSet, 'api-operator-istio.enabled=false\napisix-gateway-install.enabled=false\nkong-gateway-install.enabled=true')
+    assert.match(kong.preInstall, /^kubectl apply -f https:\/\/github\.com\/kubernetes-sigs\/gateway-api\//)
+    assert.equal(apisix.name, 'apisix')
+    assert.equal(apisix.preInstall, '')
+  })
 })
 
 test('checkSelection passes for the map and features in the repository', () => {

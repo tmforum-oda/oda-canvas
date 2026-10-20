@@ -75,6 +75,8 @@ git diff --name-only origin/main | npm run select-features -- --files -
 
 Add `--format json` for machine-readable output.
 
+A change to `charts/canvas-oda/values.yaml` or `charts/canvas-oda/Chart.yaml` is mapped by the sections it changes, so bumping one operator's version runs only that operator's features. The selector needs the diff for this. It gets it from git with `--base`, or from a saved GitHub PR files API response with `--pr-files`. A plain `--files` list has no diffs, so a change to either file in it runs the full suite.
+
 The Kong and APISIX features need a canvas installed with that gateway instead of Istio, so they get a run of their own. The selector prints the `--set` values to install the canvas for that run.
 
 When you add a feature or a test chart, or rename a path that the map lists, run the check and the unit tests:
@@ -85,6 +87,19 @@ npm run test:selection
 ```
 
 The check fails when a feature has no rule that selects it, when a feature's tags don't match its file name, when a test chart isn't used by any feature, or when a path in the map matches no file.
+
+### In CI
+
+The [`trigger_test`](../.github/workflows/trigger_tests.yml) workflow uses the selector on every pull request to `main`:
+
+- `check_skip_tests_job` lists the files the PR changes and selects the features. The job summary shows the selection.
+- `run_tests_job` runs the default selection on a kind cluster with Istio. It's skipped when nothing is selected, for example for a documentation-only PR.
+- `run_gateway_tests_job` runs the Kong and APISIX features, when they're selected, each on its own kind cluster with that gateway.
+- The BDD badges are updated only after a full run.
+
+`[skip tests]` in the PR title or the last commit message, or a last commit that only removes prerelease suffixes, still skips the tests.
+
+To run the full suite, including both gateway runs, open **Actions > trigger_test > Run workflow**, then pick the branch or enter a tag or commit.
 
 ## Updating the master test status
 
