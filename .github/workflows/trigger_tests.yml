@@ -19,16 +19,17 @@ on:
 
 jobs:
 
+  # Decides whether to skip the tests and selects the features to run (see
+  # .github/actions/select-bdd-tests). The same selection is posted on the PR
+  # by the BDD test selection comment workflow.
   check_skip_tests_job:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.pull_request.title, '[skip tests]')"
     outputs:
-      COMMITMSG_SKIPTESTS: ${{ steps.check_skiptests_msg.outputs.SKIPTESTS }}
-      PRERELEASESUFFIX_SKIPTESTS: ${{ steps.check_prereleasesuffixremoval.outputs.SKIPTESTS }}
-      MODE: ${{ steps.select_features.outputs.MODE }}
-      RUN_DEFAULT: ${{ steps.select_features.outputs.RUN_DEFAULT }}
-      DEFAULT_TAGS: ${{ steps.select_features.outputs.DEFAULT_TAGS }}
-      GATEWAY_RUNS: ${{ steps.select_features.outputs.GATEWAY_RUNS }}
+      SKIP_REASON: ${{ steps.select.outputs.SKIP_REASON }}
+      MODE: ${{ steps.select.outputs.MODE }}
+      RUN_DEFAULT: ${{ steps.select.outputs.RUN_DEFAULT }}
+      DEFAULT_TAGS: ${{ steps.select.outputs.DEFAULT_TAGS }}
+      GATEWAY_RUNS: ${{ steps.select.outputs.GATEWAY_RUNS }}
     steps:
 
     - name: Checkout code
@@ -38,116 +39,9 @@ jobs:
         repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
         fetch-depth: 2    # this is needed for getting the diff of the last commit
 
-    - name: Check for [skip tests] in Message
-      id: check_skiptests_msg
-      if: github.event_name == 'pull_request'
-      run: |
-        message=$(git log -1 --format=oneline --pretty=format:"%s")
-        echo "GIT COMMIT MESSAGE: $message"
-        if echo $message | grep "\[skip tests\]" >/dev/null
-        then
-          echo "SKIPPING TESTS"
-          echo "SKIPTESTS=1" >> $GITHUB_OUTPUT
-        else
-          echo "'[skip tests]' magic words were not found in commit message, not skipping tests"
-        fi
-
-    - name: check last commit contains only prerelease suffix removals
-      id: check_prereleasesuffixremoval
-      if: github.event_name == 'pull_request'
-      shell: bash
-      run: |
-        echo "---- CHANGED FILES ----"
-        git diff --name-only HEAD~1
-        echo "---- ------------- ----"
-        export CHANGED_FILES=$(git diff --name-only HEAD~1)
-        if [ "$CHANGED_FILES" == "charts/canvas-oda/values.yaml" ]
-        then
-          echo "only charts/canvas-oda/values.yaml was changed."
-          echo "checking changes if only prerelease suffixes were removed."
-
-          echo "---- DIFF FROM LAST COMMIT ----"
-          git diff -w -U0 --color=always HEAD~1
-          echo "---- --------------------- ----"
-
-          git diff -w -U0 --color=never HEAD~1 > gitdiff.txt
-          export OLD_LINES=$(cat gitdiff.txt | grep -i "^- " | wc -l)
-          export NEW_LINES=$(cat gitdiff.txt | grep -i "^+ " | wc -l)
-          export NEW_LINES_WITH_EMPTY_PRS=$(cat gitdiff.txt | grep -i "^+ .*prereleasesuffix:\s*$" | wc -l)
-
-          echo "OLD LINES ($OLD_LINES)"
-          cat gitdiff.txt | grep -i "^- " || true
-          echo "---- -------------------- ----"
-          echo "NEW LINES ($NEW_LINES)"
-          cat gitdiff.txt | grep -i "^+ " || true
-          echo "---- -------------------- ----"
-          echo "NEW LINES WITH EMPTY PRERELEASESUFFIX ($NEW_LINES_WITH_EMPTY_PRS)"
-          cat gitdiff.txt | grep -i "^+ .*prereleasesuffix:\s*$" || true
-          echo "---- -------------------- ----"
-
-          if [ "$OLD_LINES" != "$NEW_LINES" ]
-          then
-            echo "Number of old lines and new lines differs, not skipping tests"
-          else
-            if [ "$NEW_LINES" != "$NEW_LINES_WITH_EMPTY_PRS" ]
-            then
-              echo "not all new lines are empty prereleasesuffixes, not skipping tests"
-            else
-              echo "detected only prerelease suffix removals in changed files"
-              echo "SKIPPING TESTS"
-              echo "SKIPTESTS=1" >> $GITHUB_OUTPUT
-            fi
-          fi
-        else
-          echo "changes to other files than values.yaml detected, not skipping tests"
-        fi
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-
-    # Lists the files the whole PR changes (not just the last commit), with
-    # their diffs, through the API, which also works for PRs from forks.
-    # Renamed files count under both their old and new paths. The selector
-    # reads the diffs of the canvas-oda chart to see which sections changed.
-    - name: Select BDD features
-      id: select_features
-      shell: bash
-      working-directory: feature-definition-and-test-kit
-      env:
-        GH_TOKEN: ${{ github.token }}
-        EVENT_NAME: ${{ github.event_name }}
-        REPOSITORY: ${{ github.repository }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
-      run: |
-        npm install --no-audit --no-fund
-        if [ "$EVENT_NAME" = "pull_request" ]; then
-          gh api "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --paginate --slurp > /tmp/pr-files.json
-          SELECT_ARGS=(--pr-files /tmp/pr-files.json)
-        else
-          SELECT_ARGS=(--all)
-        fi
-        node test-selection/select-features.js "${SELECT_ARGS[@]}" --format json > /tmp/test-selection.json
-        node test-selection/select-features.js "${SELECT_ARGS[@]}" | tee /tmp/test-selection.txt
-        {
-          echo "## BDD test selection"
-          echo
-          echo '```'
-          cat /tmp/test-selection.txt
-          echo '```'
-        } >> "$GITHUB_STEP_SUMMARY"
-        node test-selection/select-features.js "${SELECT_ARGS[@]}" --format github-output | tee -a "$GITHUB_OUTPUT"
-
-    - name: Upload test selection
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-selection
-        path: |
-          /tmp/test-selection.json
-          /tmp/test-selection.txt
-          /tmp/pr-files.json
-        if-no-files-found: ignore
+    - name: Select BDD tests
+      id: select
+      uses: ./.github/actions/select-bdd-tests
 
 
   # The default run, on a canvas with Istio. It's skipped when the selection
@@ -158,7 +52,7 @@ jobs:
     # 10 minutes of timeouts
     timeout-minutes: 180
     needs: check_skip_tests_job
-    if: "!needs.check_skip_tests_job.outputs.COMMITMSG_SKIPTESTS && !needs.check_skip_tests_job.outputs.PRERELEASESUFFIX_SKIPTESTS && needs.check_skip_tests_job.outputs.RUN_DEFAULT == 'true'"
+    if: "needs.check_skip_tests_job.outputs.SKIP_REASON == '' && needs.check_skip_tests_job.outputs.RUN_DEFAULT == 'true'"
 
     steps:
     - name: Checkout code
@@ -181,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     needs: check_skip_tests_job
-    if: "!needs.check_skip_tests_job.outputs.COMMITMSG_SKIPTESTS && !needs.check_skip_tests_job.outputs.PRERELEASESUFFIX_SKIPTESTS && needs.check_skip_tests_job.outputs.GATEWAY_RUNS != '' && needs.check_skip_tests_job.outputs.GATEWAY_RUNS != '[]'"
+    if: "needs.check_skip_tests_job.outputs.SKIP_REASON == '' && needs.check_skip_tests_job.outputs.GATEWAY_RUNS != '' && needs.check_skip_tests_job.outputs.GATEWAY_RUNS != '[]'"
     strategy:
       fail-fast: false
       matrix:
@@ -206,9 +100,12 @@ jobs:
 # ---------------------
 # Build and push badges
 # ---------------------
-  # The badges count the whole suite, so only full runs update them.
+  # The badges show the full regression test of main that comes before each
+  # general release (see CONTRIBUTING.md). So only a run started from the
+  # Actions tab on main, and not for another ref, updates them; pull request
+  # runs, even full ones, don't.
   build_badges_job:
-    if: ${{ always() && needs.check_skip_tests_job.outputs.MODE == 'full' && (needs.run_tests_job.result == 'success' || needs.run_tests_job.result == 'failure') }}
+    if: ${{ always() && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && (inputs.ref == '' || inputs.ref == 'main' || inputs.ref == 'refs/heads/main') && needs.check_skip_tests_job.outputs.MODE == 'full' && (needs.run_tests_job.result == 'success' || needs.run_tests_job.result == 'failure') }}
     runs-on: ubuntu-latest
     needs: [check_skip_tests_job, run_tests_job, run_gateway_tests_job]
     permissions:

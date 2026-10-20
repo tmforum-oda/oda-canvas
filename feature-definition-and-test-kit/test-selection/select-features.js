@@ -15,6 +15,7 @@ const YAML = require('yaml')
 const { Parser, AstBuilder, GherkinClassicTokenMatcher, compile } = require('@cucumber/gherkin')
 const { IdGenerator } = require('@cucumber/messages')
 const parseTagExpression = require('@cucumber/tag-expressions').default
+const { formatComment } = require('./format-comment')
 
 const KIT_DIR = path.resolve(__dirname, '..')
 const REPO_ROOT = path.resolve(KIT_DIR, '..')
@@ -22,7 +23,8 @@ const KIT_PATH = path.relative(REPO_ROOT, KIT_DIR).split(path.sep).join('/')
 const CONFIG_FILE = path.join(KIT_DIR, 'test-selection.yaml')
 
 // Converts a path glob to a RegExp: `*` matches within one path segment,
-// `**` matches any number of segments and `?` matches one character.
+// `**` matches any number of segments and `?` matches one character. Matching
+// ignores case, so `**/*.png` also matches `Issues.PNG`.
 function globToRegExp (glob) {
   let re = ''
   for (let i = 0; i < glob.length; i++) {
@@ -43,7 +45,7 @@ function globToRegExp (glob) {
       re += c.replace(/[.+^${}()|[\]\\]/g, '\\$&')
     }
   }
-  return new RegExp('^' + re + '$')
+  return new RegExp('^' + re + '$', 'i')
 }
 
 function matchesAny (file, globs) {
@@ -462,7 +464,8 @@ function formatGithubOutput (result) {
 const FORMATTERS = {
   text: formatText,
   json: result => JSON.stringify(result, null, 2),
-  'github-output': formatGithubOutput
+  'github-output': formatGithubOutput,
+  markdown: result => formatComment(result)
 }
 
 function parseArgs (argv) {
