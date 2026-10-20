@@ -65,9 +65,7 @@ When explaining resource structures, reference these sources:
 | `productcatalog-v1/` | Base component: core, management, and security functions |
 | `productcatalog-dependendent-API-v1/` | Declaring dependent APIs |
 | `productcatalog-static-roles-v1/` | Static `componentRole` definitions |
-| `productcatalog-v1-sman/` | `secretsManagement` sidecar config |
 | `productcatalog-dynamic-roles-v1/` | MCP API type + gatewayConfiguration |
-| `productinventory-v1/` | Product Inventory component |
 
 The rendered component template is in each directory's `templates/component-productcatalog.yaml`. Show these to users as concrete examples of Component specifications.
 
