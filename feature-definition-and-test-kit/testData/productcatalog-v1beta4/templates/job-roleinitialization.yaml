@@ -18,14 +18,14 @@ spec:
     spec:
       containers:
       - name: {{.Release.Name}}-roleinitialization
-        image: lesterthomas/roleinitialization:0.6
+        image: {{.Values.roleinitialization.image}}
         env:
         - name: RELEASE_NAME
           value: {{.Release.Name}}           
         - name: COMPONENT_NAME
           value: {{.Release.Name}}-{{.Values.component.name}}
         - name: USE_PERMISSION_SPEC
-          value: "false"
+          value: "{{.Values.permissionspec.enabled}}"
         imagePullPolicy: Always
       restartPolicy: OnFailure
   backoffLimit: 10

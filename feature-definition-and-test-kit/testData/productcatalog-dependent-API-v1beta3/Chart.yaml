@@ -1,0 +1,58 @@
+apiVersion: v2
+name: productcatalog
+description: BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component as an oda.tmforum.org/v1beta3 Component, with its dependent API enabled
+
+# A chart can be either an 'application' or a 'library' chart.
+#
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
+#
+# Library charts provide useful utilities or functions for the chart developer. They're included as
+# a dependency of application charts to inject those utilities and functions into the rendering
+# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 1.4.5
+# BDD test chart productcatalog-dependent-API-v1beta3: the N-2 Component version with a dependent API,
+# for UC013-F001.
+# It is the ProductCatalog chart 1.4.5 from https://github.com/tmforum-oda/reference-example-components
+# with its Component converted from oda.tmforum.org/v1 to oda.tmforum.org/v1beta3, and these changes:
+# - Component metadata (id, name, version, ...) is at the root of spec, not in componentMetadata.
+# - Each exposedAPI specification is a list of URLs, and its gateway settings (apiKeyVerification,
+#   rateLimit, quota, OASValidation, CORS, template) are on the API itself, not in gatewayConfiguration.
+# - The dependent API specification is a single URL.
+# - No id on the exposed and dependent APIs, and securityFunction.controllerRole, not canvasSystemRole.
+# - The optional MCP server (its ExposedAPI, deployment, service and values) is removed: v1beta3 only
+#   allows apiType openapi in the core function.
+# - component.dependentAPIs.enabled is true, so the Component declares the downstreamproductcatalog
+#   dependent API.
+#
+# version: 1.4.5 - Images moved to the tmforumodacanvas Docker Hub organization as 1.0.0 (issue 84)
+# version: 1.4.4 - Fixed TMF672 specification URL (issue 63)
+# version: 1.4.3 - Added architecture diagram to README
+# version: 1.4.2 - Updated for consistency using agent skill.
+# version: 1.4.1 - Fixed hardcoded release name in MCP API URL.
+# version: 1.4.0 - Updated MCP to Streamable-HTTP.
+# version: 1.3.0 - Added User Roles and Permissions API for dynamic role management.
+# version: 1.2.7 - Updated ProductCatalog component to v1 of the Component spec.
+# version: 1.2.5 - Self-signed certificates is an option in the helm chart: component.dependentAPIs.rejectUnauthorizedCertificates=false
+# version: 1.2.4 - Added dev environment workaround for localhost and self-signed certificates
+# version: 1.2.3 - Made dependent APIs optional (enabled with --set component.dependentAPIs.enabled=true)
+# version: 1.2.2 - Added filter by componentName to dependent APIs
+# version: 1.2.1 - Bug fix for apiType on dependent APIs
+# version: 1.2.0 - Added the federation of downstream catalogs using dependent APIs
+# version: 1.1.4 - Changed to exposedapis from apis
+# version: 1.1.3 - Added the optional TMF671 Promotion Management API
+# version: 1.1.2 - Fixed a bug in the deployment spec template labels
+# version: 1.1.1 - Improved logging and added extra methods for troubleshooting to PartyRole API
+# version: 1.1.0 - updated component to support array for the specification field in the exposed API
+# version: 1.0.0 - baseline version
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+# It is recommended to use it with quotes.
+appVersion: "1.16.0"
