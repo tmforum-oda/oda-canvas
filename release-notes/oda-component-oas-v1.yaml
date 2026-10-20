@@ -10,11 +10,11 @@ openAPIV3Schema:
                 properties:
                   id:
                     type: string
-                    description: This is the id of functional component and must refer to the id of a TM Forum published golden component.
+                    description: This is the id of functional component and must refer to the id of a TM Forum published component specification (https://github.com/tmforum-rand/TMForum-ODA-Ready-for-publication).
                     example: TMFC001
                   name:
                     type: string
-                    description: This is the name of functional component and must refer to the name of a TM Forum published golden component.
+                    description: This is the name of functional component and must refer to the name of a TM Forum published component specification (https://github.com/tmforum-rand/TMForum-ODA-Ready-for-publication).
                     example: ProductCatalogManagement
                   version:
                     type: string
@@ -29,10 +29,10 @@ openAPIV3Schema:
                   publicationDate:
                     type: string
                     format: date-time
-                    description: This is the date that the golden component was published.
+                    description: This is the date that the component specification was published.
                   status:
                     type: string
-                    description: This is the status of the golden component.
+                    description: This is the status of the component specification.
                   eTom:
                     type: array
                     description: This is the eTom mapping of the component with the Open Digital Architecture.
