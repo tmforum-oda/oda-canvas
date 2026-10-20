@@ -95,7 +95,7 @@ The [`trigger_test`](../.github/workflows/trigger_tests.yml) workflow uses the s
 - `check_skip_tests_job` lists the files the PR changes and selects the features, using the [`select-bdd-tests`](../.github/actions/select-bdd-tests/action.yml) action. The job summary shows the selection.
 - `run_tests_job` runs the default selection on a kind cluster with Istio. It's skipped when nothing is selected, for example for a documentation-only PR.
 - `run_gateway_tests_job` runs the Kong and APISIX features, when they're selected, each on its own kind cluster with that gateway.
-- The BDD badges are updated only after a full run.
+- The BDD badges are updated only by a full run started from the Actions tab on `main`, the regression test before a general release. Pull request runs never update them.
 
 `[skip tests]` in the PR title or the last commit message, or a last commit that only removes prerelease suffixes, still skips the tests.
 
