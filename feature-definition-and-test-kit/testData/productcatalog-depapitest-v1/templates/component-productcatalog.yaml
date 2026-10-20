@@ -23,7 +23,7 @@ spec:
     exposedAPIs: 
     - name: productcatalogmanagement
       specification:
-      # :443 makes this URL unique: productcatalog-dependent-API-depapitest-v1 depends on it (UC007-F002)
+      # :443 makes this URL unique: productordercaptureandvalidation-v1 depends on it (UC007-F002)
       - url: "https://raw.githubusercontent.com:443/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-prodcatapi
       apiType: openapi

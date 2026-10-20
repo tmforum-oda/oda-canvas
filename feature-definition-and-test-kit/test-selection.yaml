@@ -206,6 +206,13 @@ rules:
       - canvas-info-service
     tags: "@UC007"
 
+  # Step definitions are shared, so a change to them runs the full suite,
+  # except for the product ordering steps, which only UC007-F002 uses.
+  - name: Product ordering steps
+    paths:
+      - "feature-definition-and-test-kit/features/step-definition/ProductOrderingSteps.js"
+    tags: "@UC007-F002"
+
   - name: Resource inventory (TMF639)
     paths:
       - "source/tmf-services/TMF639_Resource_Inventory/**"

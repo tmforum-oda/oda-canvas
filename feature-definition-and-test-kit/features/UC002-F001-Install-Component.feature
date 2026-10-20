@@ -26,8 +26,8 @@ Feature: UC002-F001 Install Component
         Then I should see the '<DependentAPIName>' DependentAPI resource on the '<ComponentName>' component
 
     Examples:
-    | Name           | PackageName                              | ReleaseName | DependentAPIName                | ComponentName                | SegmentName        | DependentApiCount |
-    | Core API       | productcatalog-dependent-API-v1          |      ctk    | downstreamproductcatalog        | ctk-productcatalogmanagement | coreFunction       | 1                 |
-    | Management API | productcatalog-mgmt-dependent-API-v1     |      ctk    | downstreamresourcecatalog       | ctk-productcatalogmanagement | managementFunction | 1                 |
-    | Security API   | productcatalog-sec-dependent-API-v1      |      ctk    | downstreamuserrolepermissions   | ctk-productcatalogmanagement | securityFunction   | 1                 |
-
+    | Name                   | PackageName                                            | ReleaseName | DependentAPIName              | ComponentName                        | SegmentName        | DependentApiCount |
+    | Core API (catalog)     | productordercaptureandvalidation-v1                    |      poc    | downstreamproductcatalog      | poc-productordercaptureandvalidation | coreFunction       | 2                 |
+    | Core API (inventory)   | productordercaptureandvalidation-v1                    |      poc    | downstreamproductinventory    | poc-productordercaptureandvalidation | coreFunction       | 2                 |
+    | Management API         | productordercaptureandvalidation-mgmt-dependent-API-v1 |      poc    | downstreamresourcecatalog     | poc-productordercaptureandvalidation | managementFunction | 1                 |
+    | Security API           | productordercaptureandvalidation-sec-dependent-API-v1  |      poc    | downstreamuserrolepermissions | poc-productordercaptureandvalidation | securityFunction   | 1                 |

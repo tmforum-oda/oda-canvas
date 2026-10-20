@@ -116,7 +116,7 @@ ODA Components are structured into three segments:
 Available in `feature-definition-and-test-kit/testData/`:
 - `productcatalog-v1` — Basic product catalog component
 - `productcatalog-v1beta3` — Legacy version for seamless upgrade testing
-- `productcatalog-dependent-API-v1` — Component with dependent API configurations
+- `productordercaptureandvalidation-v1` — Component with dependent APIs on a product catalog and a product inventory
 - `productcatalog-dynamic-roles-v1` — Component with dynamic role definitions
 - `productcatalog-enhanced-v1` — Component with enhanced API configurations
 

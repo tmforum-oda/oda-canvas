@@ -23,9 +23,9 @@ version: 1.4.5
 # - the optional TMF671 Promotion Management API (its ExposedAPI, deployment, service and values) is
 #   removed, as in productcatalog-v1;
 # - templates/component-productcatalog.yaml gives the productcatalogmanagement ExposedAPI the TMF620
-#   specification URL with an explicit :443 port. productcatalog-dependent-API-depapitest-v1 depends on
-#   that URL, and the dependent API operator matches DependentAPIs to ExposedAPIs by specification URL,
-#   so its DependentAPI resolves to this component only, not to itself or another product catalog.
+#   specification URL with an explicit :443 port. productordercaptureandvalidation-v1 depends on that
+#   URL, and the dependent API operator matches DependentAPIs to ExposedAPIs by specification URL, so
+#   its downstreamproductcatalog DependentAPI resolves to this component only.
 #
 # version: 1.4.5 - Images moved to the tmforumodacanvas Docker Hub organization as 1.0.0 (issue 84)
 # version: 1.4.4 - Fixed TMF672 specification URL (issue 63)
