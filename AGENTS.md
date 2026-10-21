@@ -55,6 +55,8 @@ cd feature-definition-and-test-kit
 npm install
 npm start                    # Run BDD tests and publish results
 npm run start:tags          # Run BDD tests with specific tags
+npm run check:selection     # Check the CI test-selection map and the test charts
+npm run chart-inventory     # Update the test chart inventory in testData/README.md
 ```
 
 ### Canvas Portal (Vue.js Frontend)
