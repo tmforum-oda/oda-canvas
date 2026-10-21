@@ -15,6 +15,10 @@ Feature: UC007-F002 Dependent APIs: Configure Dependent APIs to a downstream Pro
         And I install the 'productinventory-v1' package as release 'inv'
         And the 'inv-productinventory' component has a deployment status of 'Complete'
         And I should see the 'productinventorymanagement' ExposedAPI resource on the 'inv-productinventory' component with a url on the Service Mesh or Gateway
+        # Make sure an earlier poc release (left by UC002-F001 or UC007-F001) has gone completely: installing
+        # poc again while its old pods and volumes are still terminating can leave the new pods unready
+        And the release 'poc' is not installed
+        And the 'poc' release has finished uninstalling
         # Install the product order component, which depends on a product catalog and a product inventory, as release poc
         When I install the 'productordercaptureandvalidation-v1' package as release 'poc'
         Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'poc-productordercaptureandvalidation' component with a ready status
