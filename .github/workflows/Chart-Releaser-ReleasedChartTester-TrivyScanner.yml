@@ -57,13 +57,53 @@ jobs:
 
 
 
+      - name: Record the release start time
+        id: start
+        run: echo "time=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      # The GitHub releases are marked afterwards: pre-releases as
+      # pre-releases, and only a canvas-oda general release as Latest
       - name: Run chart-releaser for Canvas Helm Charts
+        id: chart_releaser
         uses: helm/chart-releaser-action@v1.6.0
         with:
           charts_dir: ./charts
+          mark_as_latest: false
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: true
+
+      # Follows the release model in CONTRIBUTING.md. A chart version with a
+      # SemVer pre-release suffix (1.2.6-rc6) is a pre-release, and is never
+      # Latest. A canvas-oda version without a suffix (1.2.6) is a general
+      # release of the Canvas, and becomes Latest. Only the releases this run
+      # created are changed, not existing ones for charts whose files changed
+      # without a version bump.
+      - name: Mark pre-releases and the latest general release
+        if: steps.chart_releaser.outputs.changed_charts != ''
+        env:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CHANGED_CHARTS: ${{ steps.chart_releaser.outputs.changed_charts }}
+          STARTED_AT: ${{ steps.start.outputs.time }}
+        run: |
+          IFS=',' read -ra charts <<< "$CHANGED_CHARTS"
+          for chart in "${charts[@]}"; do
+            name=$(yq '.name' "$chart/Chart.yaml")
+            version=$(yq '.version' "$chart/Chart.yaml")
+            tag="$name-$version"
+            created=$(gh release view "$tag" --json createdAt --jq .createdAt 2>/dev/null || true)
+            if [ -z "$created" ] || [[ "$created" < "$STARTED_AT" ]]; then
+              echo "$tag: not created by this run, left as it is"
+            elif [[ "$version" == *-* ]]; then
+              gh release edit "$tag" --prerelease --latest=false
+              echo "$tag: marked as a pre-release"
+            elif [ "$name" = "canvas-oda" ]; then
+              gh release edit "$tag" --latest
+              echo "$tag: marked as the latest release"
+            else
+              echo "$tag: general release of a sub-chart, not marked Latest"
+            fi
+          done
 
       - name: Sleep for 60 seconds
         run: sleep 60
