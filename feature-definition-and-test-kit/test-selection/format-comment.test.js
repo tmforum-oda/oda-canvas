@@ -19,8 +19,8 @@ test('the comment starts with the marker the workflow looks for', () => {
 
 test('a selection lists the runs, the features in scope and the changed paths', () => {
   const text = formatComment(select(['charts/pdb-management-operator/values.yaml', 'README.md']))
-  assert.match(text, /\*\*Selected:\*\* 5 features, 49 scenarios, chosen from the paths this PR changes\./)
-  assert.match(text, /\| default \| Istio \| 5 \| 49 \| `\(\(@UC002-F001\) or \(@UC017\)\) and not @KongGateway and not @ApisixGateway` \|/)
+  assert.match(text, /\*\*Selected:\*\* 5 features, 50 scenarios, chosen from the paths this PR changes\./)
+  assert.match(text, /\| default \| Istio \| 5 \| 50 \| `\(\(@UC002-F001\) or \(@UC017\)\) and not @KongGateway and not @ApisixGateway` \|/)
   assert.match(text, /- `UC017-F002-PDB-Management-Policy-Based\.feature` \(10 scenarios\)/)
   assert.match(text, /\| `charts\/pdb-management-operator\/values\.yaml` \| Disruption Budget Management operator \|/)
   assert.match(text, /\| `README\.md` \| documentation \|/)
