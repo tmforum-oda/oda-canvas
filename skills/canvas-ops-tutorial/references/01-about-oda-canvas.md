@@ -140,9 +140,10 @@ Real component YAML files used in BDD tests. Key examples:
 | Directory | What it demonstrates |
 |-----------|---------------------|
 | `productcatalog-v1/` | Base component with core, management, and security functions |
-| `productcatalog-dependendent-API-v1/` | Component declaring dependent APIs |
 | `productcatalog-static-roles-v1/` | Static `componentRole` definitions in securityFunction |
-| `productcatalog-dynamic-roles-v1/` | MCP API type + gatewayConfiguration on all APIs |
+| `productcatalog-dynamic-roles-v1/` | Dynamic roles: permission specification sets created through the TMF672 API |
+
+The full list of test charts, and the features that use each one, is in `feature-definition-and-test-kit/testData/README.md`.
 
 The rendered component template is in each directory's `templates/component-productcatalog.yaml`. Show users these files as concrete examples of ODA Component specifications.
 
