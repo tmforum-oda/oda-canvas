@@ -425,6 +425,27 @@ const resourceInventoryUtils = {
   },
 
   /**
+   * Function that lists what is left of a Helm release in a namespace: the Components, Pods and
+   * PersistentVolumeClaims whose names start with '<release name>-'
+   * @param    {String} inReleaseName     Release name of the component instance
+   * @param    {String} inNamespace       Namespace where the component instance was running
+   * @return   {String[]}                 'Kind/name' of each remaining resource, empty when none is left
+   */
+  getReleaseResources: async function (inReleaseName, inNamespace) {
+    const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api)
+    const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi)
+    const prefix = inReleaseName + '-'
+    const components = (await k8sCustomApi.listNamespacedCustomObject(GROUP, VERSION, inNamespace, COMPONENTS_PLURAL)).body.items
+    const pods = (await k8sCoreApi.listNamespacedPod(inNamespace)).body.items
+    const pvcs = (await k8sCoreApi.listNamespacedPersistentVolumeClaim(inNamespace)).body.items
+    return [
+      ...components.map(item => 'Component/' + item.metadata.name),
+      ...pods.map(item => 'Pod/' + item.metadata.name),
+      ...pvcs.map(item => 'PersistentVolumeClaim/' + item.metadata.name)
+    ].filter(name => name.split('/')[1].startsWith(prefix))
+  },
+
+  /**
    * Function that ensures a namespace exists
    * @param    {String} namespaceName     Name of the namespace
    */
