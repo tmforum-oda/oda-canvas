@@ -128,20 +128,11 @@ helm repo add jetstack https://charts.jetstack.io
 helm repo add bitnami https://charts.bitnami.com/bitnami
 ```
 
-### 3. Istio
+### 3. Istio (Prerequisites)
 
-We follow the helm steps provided by [Istio](https://istio.io/latest/docs/setup/install/helm/)
+The Canvas Reference Implementation requires Istio to be pre-installed. Install Istio (istio-base and istiod) from the prerequisites repository BEFORE deploying Canvas.
 
-``` bash
-helm repo add istio https://istio-release.storage.googleapis.com/charts
-helm repo update
-kubectl create namespace istio-system
-helm install istio-base istio/base -n istio-system
-helm install istiod istio/istiod -n istio-system --wait
-kubectl create namespace istio-ingress
-kubectl label namespace istio-ingress istio-injection=enabled
-helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway --wait
-```
+The Canvas pre-install validation will verify that Istio is ready before proceeding with installation.
 
 ### 4. HashiCorp Vault
 

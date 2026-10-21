@@ -4,6 +4,39 @@
 
 A Helm of helm to orchestrate the ODA installation
 
+## Prerequisites
+
+Before installing this Canvas Helm chart, ensure the following prerequisites are deployed:
+
+### Istio Control Plane (Required)
+
+The Canvas requires an Istio control plane (istio-system namespace with istiod) to be pre-deployed. This is installed from the prerequisites repository.
+
+**Required Istio Components:**
+- `istio-system` namespace with istio-base (CRDs and base resources)
+- `istiod` pod running in istio-system
+- Istio v1.16.1+ (minimum supported version)
+
+**Verification Before Canvas Installation:**
+
+```bash
+# Check istio-system namespace exists
+kubectl get namespace istio-system
+
+# Verify istiod pod is running
+kubectl get pods -n istio-system -l app=istiod
+
+# Verify Istio CRDs are available
+kubectl get crd virtualservices.networking.istio.io
+kubectl get crd gateways.networking.istio.io
+```
+
+If any of these checks fail, deploy the prerequisites repository first before proceeding with Canvas installation.
+
+**Pre-Install Validation:**
+
+This Canvas chart includes a pre-install hook that automatically verifies all prerequisites. If prerequisites are not ready, the installation will fail with a clear error message indicating what needs to be deployed.
+
 ## Requirements
 
 | Repository | Name | Version |

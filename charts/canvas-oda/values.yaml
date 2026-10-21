@@ -7,7 +7,7 @@
 global:
   image:
     # docker registry to pull images from, e.g. "myreg.io/" (include the trailing slash)
-    registry: ""
+    registry: "docker.io/"
   
   # image pull secret to pull images from private registry
   imagePullSecrets: []

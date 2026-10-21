@@ -37,6 +37,79 @@ This is an outline of how the Canvas design is documented, and a pointer to the 
 2. [Webhooks](source/webhooks/README.md) - The Reference implementation Canvas utilizes webhooks to integrate with the Kubernetes Control Plane. The initial use of this is for the Canvas to support multiple versions of the ODA Component Standard, allowing seamless upgrades of components and appropriate deprecation warnings.
 3. [Utilities](source/utilities/README.md) - The reference implementation includes some simple utilities to help with the development of the Canvas. These are not part of the Canvas itself, but are useful for development and troubleshooting. We may in the future support a command-line interface to the Canvas, similar to [kubectl](https://kubernetes.io/docs/reference/kubectl/) (for Kubernetes) or [istioctl](https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/) (for Istio).
 
+## Deployment Architecture
+
+The Canvas Reference Implementation uses a modular deployment architecture with clear separation of concerns between prerequisites and the Canvas itself.
+
+### Prerequisites (Separate Repository)
+
+The prerequisites repository provides the foundational Kubernetes infrastructure that the Canvas depends on:
+
+- **Istio Control Plane** (`istio-system` namespace)
+  - `istio-base`: CRDs and foundational Istio resources
+  - `istiod`: Istio control plane (service mesh orchestration)
+  - Provides: VirtualService, Gateway, DestinationRule, ServiceEntry CRDs
+
+Prerequisites must be deployed BEFORE Canvas installation. During Canvas pre-install, verification checks ensure:
+- `istio-system` namespace exists
+- `istiod` pod is running
+- Istio CRDs are available
+
+### Canvas Deployment
+
+The Canvas is deployed into multiple Kubernetes namespaces, each with specific responsibilities:
+
+**Canvas Namespaces** (created by canvas-oda chart):
+- **`canvas`** (primary namespace)
+  - Canvas operators: component-operator, api-operator-istio, identityconfig-operator-keycloak, dependentapi-simple-operator, secretsmanagement-operator
+  - Canvas services: canvas-info-service, canvas-vault, component-registry
+  - Infrastructure: cert-manager webhook, Vault
+
+- **`components`** (component deployment namespace)
+  - Default namespace for ODA Components
+  - Istio sidecar injection enabled
+  - Monitored by Canvas operators for component lifecycle and API management
+
+- **`odacompns-*`** (additional component namespaces, optional)
+  - Pattern-based additional namespaces for multi-tenant scenarios
+  - Same Istio configuration as `components` namespace
+
+- **`istio-ingress`** (Canvas-managed Istio gateway)
+  - Istio ingress gateway pods
+  - LoadBalancer service: `istio-ingress`
+  - TLS termination for external API access
+  - Installed by Canvas (NOT by prerequisites)
+
+- **`cert-manager`** (external, pre-existing)
+  - Cert-manager deployment (prerequisite or Canvas-installed)
+  - Manages TLS certificates for Canvas and component APIs
+
+- **`canvas-vault`** (optional secrets storage)
+  - HashiCorp Vault deployment for secrets management
+  - Installed by Canvas if enabled
+
+### Responsibility Boundaries
+
+| Component | Installed By | Namespace | Responsibility |
+|-----------|--------------|-----------|-----------------|
+| istio-base, istiod | Prerequisites repo | istio-system | Service mesh control plane |
+| VirtualService, Gateway CRDs | Prerequisites repo (via istio-base) | cluster-wide | Istio resource definitions |
+| istio-ingress gateway | Canvas repo | istio-ingress | Canvas API ingress endpoint |
+| Canvas operators | Canvas repo | canvas | Component lifecycle management |
+| Component APIs | Canvas repo (via operators) | components | ODA Component deployments |
+
+### Communication Flow
+
+```
+External Clients → istio-ingress (istio-ingress ns, Canvas-managed)
+                 ↓
+              Istio Mesh (istio-system ns, Prerequisites)
+                 ↓
+              VirtualServices (components ns, Canvas operators)
+                 ↓
+              ODA Components (components ns, Canvas-deployed)
+```
+
 ## Interaction with ODA Component standard
 
 The Canvas reads the Component requirements as metadata in the Component spec. We may need to propose changes to the Component standard to meet the Canvas requirements. The Canvas should be able to support any Component that meets the Component standard, but not every Component will necessarily use all the features of the Canvas. The Component design guidelines are documented at [ODA Component Design Guidelines](https://github.com/tmforum-oda/oda-ca-docs/blob/master/ODAComponentDesignGuidelines.md).
