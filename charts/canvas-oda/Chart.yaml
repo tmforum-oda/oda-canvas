@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.6-rc7
+version: 1.2.6-rc8
+# version: 1.2.6-rc8 - issue 650 - Kong API operator creates the ServiceMonitor for prometheus/openmetrics ExposedAPIs again
 # version: 1.2.6-rc7 - oda-crds 1.3.4 - v1 component crd componentMetadata descriptions refer to component specifications instead of golden components
 # version: 1.2.6-rc6 - issue 625 - Kong and APISIX operators no longer block ExposedAPI deletion
 # version: 1.2.6-rc5 - issue 615 - bug-fix for canvas images to remove end-of-life or floating base images
@@ -127,7 +128,7 @@ dependencies:
     version: "1.2.4"
     repository: 'file://../oda-webhook'
   - name: api-operator-kong
-    version: "1.1.1"
+    version: "1.1.2"
     repository: 'file://../kong-gateway'
     condition: kong-gateway-install.enabled
   - name: api-operator-apisix
