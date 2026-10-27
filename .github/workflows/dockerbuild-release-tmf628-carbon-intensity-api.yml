@@ -12,9 +12,10 @@ on:
   push:
     branches:
     - main
-    paths: 
+    paths:
       - source/tmf-services/TMF628_Performance_Management/**/*
-
+      # changes to tests alone don't need a new release image
+      - '!**/tests/**'
 jobs:
   build-tmf628-carbon-intensity-api-release-dockerfile-job:
     runs-on: ubuntu-latest

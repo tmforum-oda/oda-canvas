@@ -12,9 +12,10 @@ on:
   push:
     branches:
     - main
-    paths: 
+    paths:
       - source/operators/TMFOP002-API-Management/apache-apisix/*
-
+      # changes to tests alone don't need a new release image
+      - '!**/tests/**'
 jobs:
   build-api-operator-apisix-release-dockerfile-job:
     runs-on: ubuntu-latest

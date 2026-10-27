@@ -12,9 +12,10 @@ on:
   push:
     branches:
     - main
-    paths: 
+    paths:
       - baseimages/kubectl-curl/**/*
-
+      # changes to tests alone don't need a new release image
+      - '!**/tests/**'
 jobs:
   build-baseimage-kubectl-curl-release-dockerfile-job:
     runs-on: ubuntu-latest
