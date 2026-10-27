@@ -1,6 +1,6 @@
 apiVersion: v2
 name: productcatalog
-description: A reference example TMFC001-ProductCatalogManagement ODA Component
+description: BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component as an oda.tmforum.org/v1beta4 Component
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -15,7 +15,25 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.2.5
+version: 1.4.5
+# BDD test chart productcatalog-v1beta4: the N-1 Component version for UC013-F001.
+# It is the ProductCatalog chart 1.4.5 from https://github.com/tmforum-oda/reference-example-components
+# with its Component converted from oda.tmforum.org/v1 to oda.tmforum.org/v1beta4, and these changes:
+# - No id on the security function API or the dependent API: v1beta4 only has an id on core
+#   function APIs.
+# - The optional MCP server (its ExposedAPI, deployment, service and values) is removed: v1beta4 only
+#   allows apiType openapi in the core function.
+# - The optional TMF671 Promotion Management API (its ExposedAPI, deployment, service and values)
+#   is removed: UC013-F001 expect 1 ExposedAPI in the core function.
+#
+# version: 1.4.5 - Images moved to the tmforumodacanvas Docker Hub organization as 1.0.0 (issue 84)
+# version: 1.4.4 - Fixed TMF672 specification URL (issue 63)
+# version: 1.4.3 - Added architecture diagram to README
+# version: 1.4.2 - Updated for consistency using agent skill.
+# version: 1.4.1 - Fixed hardcoded release name in MCP API URL.
+# version: 1.4.0 - Updated MCP to Streamable-HTTP.
+# version: 1.3.0 - Added User Roles and Permissions API for dynamic role management.
+# version: 1.2.7 - Updated ProductCatalog component to v1 of the Component spec.
 # version: 1.2.5 - Self-signed certificates is an option in the helm chart: component.dependentAPIs.rejectUnauthorizedCertificates=false
 # version: 1.2.4 - Added dev environment workaround for localhost and self-signed certificates
 # version: 1.2.3 - Made dependent APIs optional (enabled with --set component.dependentAPIs.enabled=true)

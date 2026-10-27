@@ -51,7 +51,7 @@ The list below shows the features organized by use case, with their current test
 
 ### UC007 - Dependent APIs
 * ✅ [F001 - Create Dependent API Resource](features/UC007-F001-Dependent-APIs-Create-Dependent-API-Resource.feature)
-* ✅ [F002 - Configure Dependent API Single Downstream](features/UC007-F002-Dependent-APIs-Configure-Dependent-APIs-Single-Downstream.feature)
+* ✅ [F002 - Configure Dependent APIs to a downstream Product Catalog and Product Inventory](features/UC007-F002-Dependent-APIs-Configure-Dependent-APIs-Catalog-and-Inventory.feature)
 
 ### UC010 - Authentication External
 * ⏳ [F001 - Logging and Monitoring of Authentication Activity](features/UC010-F001-External-Authentication-Logging-and-Monitoring-of-Authentication-Activity.feature)
