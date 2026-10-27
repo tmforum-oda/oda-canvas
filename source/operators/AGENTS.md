@@ -89,6 +89,7 @@ Only one API operator is enabled in a Canvas at a time.
 - Put a new operator type in a new `TMFOPnnn-Name/` group (next free number, Title-Case name), with a kebab-case implementation subdirectory (e.g., `TMFOP012-My-Operator/my-implementation/`)
 - Include a `log_wrapper.py` in each operator directory
 - Name Dockerfiles descriptively: `<operator-name>-dockerfile` (or `docker/Dockerfile` in the newer layout)
+- Work on a `feature/*` (or `odaa-*`) branch: only those branch names build the prerelease image the tests pull (see CI in the root `AGENTS.md`)
 - Add PlantUML sequence diagrams in a `sequenceDiagrams/` subdirectory
 - Write tests that load fixture data from `test/testdata_*` folders
 
