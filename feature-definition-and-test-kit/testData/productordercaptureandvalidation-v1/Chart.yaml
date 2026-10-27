@@ -1,0 +1,25 @@
+apiVersion: v2
+name: productordercaptureandvalidation
+description: BDD test chart - the reference TMFC002-ProductOrderCaptureAndValidation ODA Component, with DependentAPIs on a product catalog and a product inventory
+
+type: application
+
+version: 0.2.2
+# BDD test chart productordercaptureandvalidation-v1, used by UC002-F001 and UC007-F001 (DependentAPIs in
+# the coreFunction segment) and by UC007-F002 (DependentAPIs resolved to a downstream product catalog and
+# product inventory).
+# It is the ProductOrderCaptureAndValidation chart 0.2.2 from
+# https://github.com/tmforum-oda/reference-example-components (commit be11fd0) with one change:
+# - templates/component-productordercaptureandvalidation.yaml gives the downstreamproductcatalog DependentAPI
+#   the TMF620 specification URL with an explicit :443 port, which only productcatalog-depapitest-v1
+#   exposes. The dependent API operator matches DependentAPIs to ExposedAPIs by specification URL across
+#   the cluster, so UC007-F002 resolves to that catalog and not to another product catalog left on the
+#   canvas. downstreamproductinventory keeps the reference TMF637 URL: productinventory-v1 is the only
+#   test chart that exposes it.
+#
+# version: 0.2.2 - Images moved to the tmforumodacanvas Docker Hub organization as 1.0.0 (issue 84)
+# version: 0.2.1 - Fixed TMF672 specification URL (issue 63)
+# version: 0.2.0 - Added product order processor backend and order metrics (#69); added architecture diagram to README
+# version: 0.1.0 - Initial version with TMF622 exposed API and TMF620/TMF637 dependent APIs
+
+appVersion: "1.0.0"

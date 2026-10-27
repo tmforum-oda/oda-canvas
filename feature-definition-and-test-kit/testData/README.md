@@ -12,21 +12,21 @@ The table is generated from each chart's `Chart.yaml` and the feature files: run
 
 | Test chart | Chart name | Description | Used by |
 | --- | --- | --- | --- |
-| [`productcatalog-depapitest-v1`](productcatalog-depapitest-v1/Chart.yaml) | `productcatalog` | A reference example TMFC001-ProductCatalogManagement ODA Component | UC007-F002 |
-| [`productcatalog-dependendent-API-depapitest-v1`](productcatalog-dependendent-API-depapitest-v1/Chart.yaml) | `productcatalog` | A reference example TMFC001-ProductCatalogManagement ODA Component | UC007-F002 |
-| [`productcatalog-dependendent-API-v1`](productcatalog-dependendent-API-v1/Chart.yaml) | `productcatalog` | A reference example TMFC001-ProductCatalogManagement ODA Component | UC002-F001, UC007-F001 |
-| [`productcatalog-dependendent-API-v1beta3`](productcatalog-dependendent-API-v1beta3/Chart.yaml) | `productcatalog` | A reference example TMFC001-ProductCatalogManagement ODA Component | UC013-F001 |
-| [`productcatalog-dependendent-API-v1beta4`](productcatalog-dependendent-API-v1beta4/Chart.yaml) | `productcatalog` | A reference example TMFC001-ProductCatalogManagement ODA Component | UC013-F001 |
+| [`productcatalog-depapitest-v1`](productcatalog-depapitest-v1/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component as the downstream catalog for UC007-F002 | UC007-F002 |
+| [`productcatalog-dependent-API-v1beta3`](productcatalog-dependent-API-v1beta3/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component as an oda.tmforum.org/v1beta3 Component, with its dependent API enabled | UC013-F001 |
+| [`productcatalog-dependent-API-v1beta4`](productcatalog-dependent-API-v1beta4/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component as an oda.tmforum.org/v1beta4 Component, with its dependent API enabled | UC013-F001 |
 | [`productcatalog-dynamic-roles-v1`](productcatalog-dynamic-roles-v1/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component, unchanged | UC005-F002 |
 | [`productcatalog-enhanced-v1`](productcatalog-enhanced-v1/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component, unchanged | UC002-F002, UC003-F004, UC003-F005 |
-| [`productcatalog-mgmt-dependent-API-v1`](productcatalog-mgmt-dependent-API-v1/Chart.yaml) | `productcatalog-mgmt-dependent-API-v1` | A sample implementation of TMF620 Product Catalog API with DependentAPI in managementFunction | UC002-F001, UC007-F001 |
-| [`productcatalog-sec-dependent-API-v1`](productcatalog-sec-dependent-API-v1/Chart.yaml) | `productcatalog-sec-dependent-API-v1` | A sample implementation of TMF620 Product Catalog API with DependentAPI in securityFunction | UC002-F001, UC007-F001 |
 | [`productcatalog-static-roles-v1`](productcatalog-static-roles-v1/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component with static componentRoles | UC005-F003 |
 | [`productcatalog-updated-v1`](productcatalog-updated-v1/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component with an updated TMF620 specification URL | UC002-F002 |
 | [`productcatalog-v1`](productcatalog-v1/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component without the optional TMF671 Promotion Management API | UC002-F001, UC002-F002, UC002-F005, UC002-F006, UC003-F001, UC003-F002, UC003-F003, UC003-F004, UC003-F005, UC005-F001, UC012-F001, UC012-F002, UC013-F002, UC016-F001 |
-| [`productcatalog-v1beta3`](productcatalog-v1beta3/Chart.yaml) | `productcatalog` | A reference example TMFC001-ProductCatalogManagement ODA Component | UC013-F001, UC015-F001, UC015-F002 |
-| [`productcatalog-v1beta3-plugin`](productcatalog-v1beta3-plugin/Chart.yaml) | `productcatalog` | A reference example TMFC001-ProductCatalogManagement ODA Component | UC015-F003, UC015-F004 |
-| [`productcatalog-v1beta4`](productcatalog-v1beta4/Chart.yaml) | `productcatalog` | A reference example TMFC001-ProductCatalogManagement ODA Component | UC013-F001 |
+| [`productcatalog-v1beta3`](productcatalog-v1beta3/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component as an oda.tmforum.org/v1beta3 Component | UC013-F001, UC015-F001, UC015-F002 |
+| [`productcatalog-v1beta3-plugin`](productcatalog-v1beta3-plugin/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component as an oda.tmforum.org/v1beta3 Component, with API key verification and rate limiting enabled | UC015-F003, UC015-F004 |
+| [`productcatalog-v1beta4`](productcatalog-v1beta4/Chart.yaml) | `productcatalog` | BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component as an oda.tmforum.org/v1beta4 Component | UC013-F001 |
+| [`productinventory-v1`](productinventory-v1/Chart.yaml) | `productinventory` | BDD test chart - the reference TMFC005-ProductInventoryManagement ODA Component | UC007-F002 |
+| [`productordercaptureandvalidation-mgmt-dependent-API-v1`](productordercaptureandvalidation-mgmt-dependent-API-v1/Chart.yaml) | `productordercaptureandvalidation` | BDD test chart - the reference TMFC002-ProductOrderCaptureAndValidation ODA Component with a DependentAPI in its managementFunction segment | UC002-F001, UC007-F001 |
+| [`productordercaptureandvalidation-sec-dependent-API-v1`](productordercaptureandvalidation-sec-dependent-API-v1/Chart.yaml) | `productordercaptureandvalidation` | BDD test chart - the reference TMFC002-ProductOrderCaptureAndValidation ODA Component with a DependentAPI in its securityFunction segment | UC002-F001, UC007-F001 |
+| [`productordercaptureandvalidation-v1`](productordercaptureandvalidation-v1/Chart.yaml) | `productordercaptureandvalidation` | BDD test chart - the reference TMFC002-ProductOrderCaptureAndValidation ODA Component, with DependentAPIs on a product catalog and a product inventory | UC002-F001, UC007-F001, UC007-F002 |
 
 <!-- chart-inventory:end -->
 

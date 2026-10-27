@@ -1,6 +1,6 @@
 apiVersion: v2
 name: productcatalog
-description: A reference example TMFC001-ProductCatalogManagement ODA Component
+description: BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component as an oda.tmforum.org/v1beta3 Component
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -15,7 +15,37 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.2
+version: 1.4.5
+# BDD test chart productcatalog-v1beta3: the N-2 Component version for UC013-F001, and the
+# gateway route tests UC015-F001 (APISIX) and UC015-F002 (Kong).
+# It is the ProductCatalog chart 1.4.5 from https://github.com/tmforum-oda/reference-example-components
+# with its Component converted from oda.tmforum.org/v1 to oda.tmforum.org/v1beta3, and these changes:
+# - Component metadata (id, name, version, ...) is at the root of spec, not in componentMetadata.
+# - Each exposedAPI specification is a list of URLs, and its gateway settings (apiKeyVerification,
+#   rateLimit, quota, OASValidation, CORS, template) are on the API itself, not in gatewayConfiguration.
+# - The dependent API specification is a single URL.
+# - No id on the exposed and dependent APIs, and securityFunction.controllerRole, not canvasSystemRole.
+# - The optional MCP server (its ExposedAPI, deployment, service and values) is removed: v1beta3 only
+#   allows apiType openapi in the core function.
+# - The optional TMF671 Promotion Management API (its ExposedAPI, deployment, service and values)
+#   is removed: UC013-F001, UC015-F001 and UC015-F002 expect 1 ExposedAPI in the core function.
+#
+# version: 1.4.5 - Images moved to the tmforumodacanvas Docker Hub organization as 1.0.0 (issue 84)
+# version: 1.4.4 - Fixed TMF672 specification URL (issue 63)
+# version: 1.4.3 - Added architecture diagram to README
+# version: 1.4.2 - Updated for consistency using agent skill.
+# version: 1.4.1 - Fixed hardcoded release name in MCP API URL.
+# version: 1.4.0 - Updated MCP to Streamable-HTTP.
+# version: 1.3.0 - Added User Roles and Permissions API for dynamic role management.
+# version: 1.2.7 - Updated ProductCatalog component to v1 of the Component spec.
+# version: 1.2.5 - Self-signed certificates is an option in the helm chart: component.dependentAPIs.rejectUnauthorizedCertificates=false
+# version: 1.2.4 - Added dev environment workaround for localhost and self-signed certificates
+# version: 1.2.3 - Made dependent APIs optional (enabled with --set component.dependentAPIs.enabled=true)
+# version: 1.2.2 - Added filter by componentName to dependent APIs
+# version: 1.2.1 - Bug fix for apiType on dependent APIs
+# version: 1.2.0 - Added the federation of downstream catalogs using dependent APIs
+# version: 1.1.4 - Changed to exposedapis from apis
+# version: 1.1.3 - Added the optional TMF671 Promotion Management API
 # version: 1.1.2 - Fixed a bug in the deployment spec template labels
 # version: 1.1.1 - Improved logging and added extra methods for troubleshooting to PartyRole API
 # version: 1.1.0 - updated component to support array for the specification field in the exposed API

@@ -231,7 +231,7 @@ test('documentation alongside code does not stop the selection', () => {
 })
 
 test('a changed feature file runs that feature and the smoke test', () => {
-  const result = select(['feature-definition-and-test-kit/features/UC007-F002-Dependent-APIs-Configure-Dependent-APIs-Single-Downstream.feature'])
+  const result = select(['feature-definition-and-test-kit/features/UC007-F002-Dependent-APIs-Configure-Dependent-APIs-Catalog-and-Inventory.feature'])
   assert.equal(result.mode, 'selected')
   assert.equal(result.tagExpression, '(@UC002-F001) or (@UC007-F002)')
   assert.deepEqual(featureIds(run(result, 'default')), ['UC002-F001', 'UC007-F002'])

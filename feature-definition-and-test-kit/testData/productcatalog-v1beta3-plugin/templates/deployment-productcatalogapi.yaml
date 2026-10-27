@@ -14,7 +14,7 @@ spec:
       labels:
         app: {{.Release.Name}}-{{.Values.component.name}}
         impl: {{.Release.Name}}-prodcatapi
-        version: {{.Values.api.versionlabel}}
+        version: {{.Values.api.versionLabel}}
     spec:
       containers:
       - name: {{.Release.Name}}-prodcatapi
@@ -22,6 +22,8 @@ spec:
         env:
         - name: DEPENDENT_APIS_REJECT_UNAUTHORIZED_CERTIFICATES
           value: "{{.Values.component.dependentAPIs.rejectUnauthorizedCertificates}}"
+        - name: API_DEPENDENCY_NAME
+          value: "{{.Values.component.dependentAPIs.dependencyName}}"
         - name: RELEASE_NAME
           value: {{.Release.Name}}
         - name: COMPONENT_NAME

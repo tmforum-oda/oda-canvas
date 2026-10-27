@@ -140,6 +140,7 @@ Real component YAML files used in BDD tests. Key examples:
 | Directory | What it demonstrates |
 |-----------|---------------------|
 | `productcatalog-v1/` | Base component with core, management, and security functions |
+| `productordercaptureandvalidation-v1/` | Component declaring dependent APIs on a product catalog and a product inventory |
 | `productcatalog-static-roles-v1/` | Static `componentRole` definitions in securityFunction |
 | `productcatalog-dynamic-roles-v1/` | Dynamic roles: permission specification sets created through the TMF672 API |
 
