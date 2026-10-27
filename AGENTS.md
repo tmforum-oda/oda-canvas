@@ -214,6 +214,11 @@ BDD features and scenarios are used to create executable tests. The test kit val
   - `dockerbuild-release-<image>.yml` builds the release image on pushes to `main`.
 
   Each pair runs only when files under that image's source folder change.
+- Name a branch that changes an operator or service `feature/<issue>-<description>` (or `odaa-*`). On any other
+  branch name no prerelease image is built, so the BDD tests on the PR fail with `ErrImagePull` for the new
+  `<version>-<prereleaseSuffix>` tag. If the branch already has another name, build the image by hand:
+  `gh workflow run dockerbuild-prerelease-<image>.yml --ref <branch>`, then re-run the tests once it is
+  published.
 - `check-no-prerelease-suffixes-in-PR.yml` fails any PR to `main` that leaves a prerelease suffix in
   `charts/canvas-oda/values.yaml`, or in the other values and `version.yaml` files it lists (for example
   `charts/credentialsmanagement-operator/values.yaml`).
