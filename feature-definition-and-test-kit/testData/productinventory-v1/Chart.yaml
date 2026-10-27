@@ -1,15 +1,33 @@
 apiVersion: v2
 name: productinventory
-description: A reference example TMFC005-ProductInventoryManagement ODA Component
+description: BDD test chart - the reference TMFC005-ProductInventoryManagement ODA Component
 
 # A chart can be either an 'application' or a 'library' chart.
+#
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
+#
+# Library charts provide useful utilities or functions for the chart developer. They're included as
+# a dependency of application charts to inject those utilities and functions into the rendering
+# pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.1
-# version: 1.0.1 - Moved from :latest tag to 1.0 for PartyRole API microservice
+version: 1.3.3
+# BDD test chart productinventory-v1, used by UC007-F002 as the downstream product inventory, release
+# inv. It is the ProductInventory chart 1.3.3 from https://github.com/tmforum-oda/reference-example-components
+# (commit be11fd0), unchanged.
+#
+# version: 1.3.3 - Images moved to the tmforumodacanvas Docker Hub organization as 1.0.0 (issue 84)
+# version: 1.3.2 - Fixed TMF672 specification URL (issue 63)
+# version: 1.3.1 - Added TMF632 id to party dependent API; added architecture diagram to README
+# version: 1.3.0 - updated to lesterthomas images, added metrics/initialization/permissionspec support
+# version: 1.2.0 - upgrade to v1 spec
+# version: 1.1.2 - added option to pass api  gateway policies through helm chart
+# version: 1.1.1 - Changed to exposedapis from apis
+# version: 1.1.0 - upgrade to v1beta3 spec
 # version: 1.0.0 - baseline version
 
 # This is the version number of the application being deployed. This version number should be

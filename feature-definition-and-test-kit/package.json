@@ -4,12 +4,18 @@
   "scripts": {
     "start": "cucumber-js  --publish --format json:/tmp/cucumber.json",
     "start:tags": "cucumber-js --publish --format json:/tmp/cucumber.json --tags",
-    "get-tags": "node getTags.js"
+    "get-tags": "node getTags.js",
+    "select-features": "node test-selection/select-features.js",
+    "check:selection": "node test-selection/select-features.js --check",
+    "test:selection": "node --test test-selection/select-features.test.js test-selection/format-comment.test.js"
   },
   "license": "Apache-2.0",
   "author": "Lester Thomas",
   "dependencies": {
     "@cucumber/cucumber": "^7.3.2",
+    "@cucumber/gherkin": "^19.0.3",
+    "@cucumber/messages": "^16.0.1",
+    "@cucumber/tag-expressions": "^3.0.1",
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
     "resource-inventory-utils-kubernetes": "file:utilities/resource-inventory-utils-kubernetes",

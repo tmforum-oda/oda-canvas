@@ -538,7 +538,7 @@ api-operator-kong:
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
       kongopImage: tmforumodacanvas/api-operator-kong
-      kongopVersion: 1.1.0
+      kongopVersion: 1.1.1
       kongopPrereleaseSuffix: 
       pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
@@ -579,7 +579,7 @@ api-operator-apisix:
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
     apisixopImage: tmforumodacanvas/api-operator-apisix
-    apisixopVersion: 1.1.0
+    apisixopVersion: 1.1.1
     apisixopPrereleaseSuffix: 
     pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"

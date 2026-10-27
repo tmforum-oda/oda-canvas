@@ -6,7 +6,7 @@ The ODA canvas is itself a modular and extensible platform. The list below shows
 
 ## How do I buy or build an ODA Canvas?
 
-[![How do I buy or build an ODA Canvas?](https://img.youtube.com/vi/dYyyCDPlVHY/0.jpg)](https://youtu.be/dYyyCDPlVHY?si=n8-NRN-rDFA_Sin4)
+[![How do I buy or build an ODA Canvas?](https://img.youtube.com/vi/fMXEmWalRFc/0.jpg)](https://youtu.be/fMXEmWalRFc)
 
 ## Types of Operators
 

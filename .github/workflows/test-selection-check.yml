@@ -1,0 +1,38 @@
+name: BDD test selection check
+
+# Checks the BDD test-selection map (feature-definition-and-test-kit/test-selection.yaml)
+# against the feature files and the repository, and runs the selector's unit tests.
+# It runs on every PR, with no paths filter, because renaming a chart or operator
+# anywhere in the repository can leave a path in the map stale.
+#
+# For PRs to main it also selects the BDD features trigger_test will run, and
+# uploads the selection. When this workflow finishes, the BDD test selection
+# comment workflow (bdd-selection-comment.yml) posts it on the PR, a couple of
+# minutes after each push rather than after the tests.
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: feature-definition-and-test-kit
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          fetch-depth: 2    # the skip check diffs the last commit
+      - name: Select BDD tests
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        uses: ./.github/actions/select-bdd-tests
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Check the test-selection map
+        run: npm run check:selection
+      - name: Unit tests
+        run: npm run test:selection

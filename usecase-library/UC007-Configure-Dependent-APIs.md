@@ -2,7 +2,7 @@
 
 This use-case describes how a component discovers the url and credentials for a dependent API. The use case uses the following assumptions:
 
-* The API Dependency is an explicit part of the ODA Component definition. The Golden Components will include this dependency as part of their definition and the dependency can also be tested by the Component CTK. The dependent APIs can be part of the **core function**, **security function** or **management function** part of the component definition.
+* The API Dependency is an explicit part of the ODA Component definition. The TM Forum component specifications, published in [TMForum-ODA-Ready-for-publication](https://github.com/tmforum-rand/TMForum-ODA-Ready-for-publication), include this dependency as part of their definition and the dependency can also be tested by the Component CTK. The dependent APIs can be part of the **core function**, **security function** or **management function** part of the component definition.
 
 * The ODA Components are **not** given raised privileges to query the Canvas to find their dependencies; Instead, the component must call an API Service at a fixed url `info.canvas.svc.cluster.local`. The service implements the [Service Inventory API](https://www.tmforum.org/resources/standard/tmf638-service-inventory-api-user-guide-v5-0-0/) API and should return to each component just the dependent APIs that the component has been authorized to call.
 
