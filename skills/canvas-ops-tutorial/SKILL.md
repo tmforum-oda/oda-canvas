@@ -65,7 +65,9 @@ When explaining resource structures, reference these sources:
 | `productcatalog-v1/` | Base component: core, management, and security functions |
 | `productordercaptureandvalidation-v1/` | Declaring dependent APIs (TMF620 Product Catalog and TMF637 Product Inventory) |
 | `productcatalog-static-roles-v1/` | Static `componentRole` definitions |
-| `productcatalog-dynamic-roles-v1/` | MCP API type + gatewayConfiguration |
+| `productcatalog-dynamic-roles-v1/` | Dynamic roles: permission specification sets created through the TMF672 API |
+
+The full list of test charts, and the features that use each one, is in `feature-definition-and-test-kit/testData/README.md`.
 
 The rendered component template is in each directory's `templates/component-productcatalog.yaml`. Show these to users as concrete examples of Component specifications.
 
