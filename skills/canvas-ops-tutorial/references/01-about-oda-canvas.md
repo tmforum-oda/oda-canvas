@@ -140,7 +140,7 @@ Real component YAML files used in BDD tests. Key examples:
 | Directory | What it demonstrates |
 |-----------|---------------------|
 | `productcatalog-v1/` | Base component with core, management, and security functions |
-| `productcatalog-dependendent-API-v1/` | Component declaring dependent APIs |
+| `productordercaptureandvalidation-v1/` | Component declaring dependent APIs on a product catalog and a product inventory |
 | `productcatalog-static-roles-v1/` | Static `componentRole` definitions in securityFunction |
 | `productcatalog-dynamic-roles-v1/` | MCP API type + gatewayConfiguration on all APIs |
 

@@ -38,6 +38,7 @@ The step definitions follow a modular approach where:
   - `APIManagementSteps.js` - API resource management
   - `APIGatewayManagementSteps.js` - API Gateway specific operations
   - `ProductCatalogSteps.js` - TMF product catalog interactions
+  - `ProductOrderingSteps.js` - TMF622 product orders and their downstream product catalog and inventory
   - `ApiGatewayCheck.js` - Infrastructure validation utilities
 
 ### Standard Imports and Setup
