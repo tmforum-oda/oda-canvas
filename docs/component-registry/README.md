@@ -143,6 +143,37 @@ helm upgrade --install -n compreg global-compreg --create-namespace charts/compo
 The only difference is to unset the canvasResourceInventory value.
 If this canvasResourceInventory is set, then a background process is started, 
 which listens to changes in the local cluster and replicates the data from the 
-ResourceInventory to the Compoennt-Registry.
+ResourceInventory to the Compoennt-Registry. The standalone Component-Registry
+should only contain replicated values.
+
+
+### Connect Local Component-Registry to Global Component-Registry
+
+for setting up a replication each Component-Registry has a /sync endpoint which 
+allows configuring upstream registries. The UI supports this operation "Add New Upstream Subscription":
+
+<kbd><img src="images/add-upstream-registry.png" alt="Add Upstream Registry" /></kbd>
+ 
+The only input which has to be provided is the /sync endpoint of the upstream registry (global-compreg).
+
+The name of the downstream (local) Component-Registry is automatically set to "canvas-compreg" as this was 
+automatically set using the default oda-canvas values.
+
+The URL can be retrieved from the UI of the Global-Compreg UI:
+
+<kbd><img src="images/copy-sync-link.png" alt="Copy Sync Link" /></kbd>
+
+After successfull registration at the upstream registry the ID "global-compreg" appears in the Event-Subscription view.
+Here is a comparison, how the Component-Registry looks like local (left) and global (right):
+
+<kbd><img src="images/compare-local-to-global-compreg.png" alt="Copy Sync Link" /></kbd>
+
+Also it is to see, that the IDs of all resources are prefixed with "self:" in the local registry,
+while in the golbal registry the registered name of the downstream registry is used "canvas-compreg:".
+
+
+
+  
+  
 
 
