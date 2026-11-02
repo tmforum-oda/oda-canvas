@@ -30,4 +30,7 @@ After a few seconds the UI shows the new ODA Component r-cat:
 
 <kbd><img src="images/compreg-02-r-cat.png" alt="r-cat" /></kbd>
 
+with style border:
+
+<img src="images/compreg-02-r-cat.png" alt="r-cat" style="border: 2px solid #888;">
 
