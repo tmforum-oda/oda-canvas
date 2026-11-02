@@ -88,11 +88,35 @@ To see the dependency resolution we look into the logfile of the Depent-API Oper
 kubectl logs -n canvas deployment/canvas-depapi-op
 ```
 
-As this is hard to read we can also use the pretty printed output of the [kubectl canvaslogs plugin](/oda-canvas/source/utilities/canvas-log-viewer/python_alternative/README.md): 
+As this is hard to read we can also use the pretty printed output of the [kubectl canvaslogs plugin](/source/utilities/canvas-log-viewer/python_alternative/README.md): 
 
 ```
 kubectl canvaslogs depapi
 ```
 
 <kbd><img src="images/depapi-log.png" alt="Dependent API Operator log" /></kbd>
+
+
+In the red marked block we can see that the Dependant-API Operator contacted the cluster local Component-Registry 
+and got one matching endpoint r-cat-productcatalogmanagement.
+
+We can see the details in the DependentAPI custom resource:
+ 
+
+```
+$ kubectl get DependentAPI -n components   # or shorter: kubectl get depapi -n components
+
+NAME                                                         READY   AGE   SVCINVID
+URL
+f-cat-productcatalogmanagement-downstreamproductcatalog-v4   true    38m   64c513db-2fb1-42b5-9fdb-cb60024fe2e5
+https://11.22.33.44/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+```
+
+# Multi-Canvas Support
+
+The Component-Registry supports replication to an upstream Component-Registry.
+This allows a setup where multiple ODA Canvas instances replicate there exposed APIs
+into a central Component-Registry. For our scenario it looks like this:
+
+<kbd><img src="images/BDD-UC007-F002-Multicanvas.png" alt="Multi-Canvas Scenario" /></kbd>
 
