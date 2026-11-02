@@ -30,7 +30,38 @@ After a few seconds the UI shows the new ODA Component r-cat:
 
 <kbd><img src="images/compreg-02-r-cat.png" alt="r-cat" /></kbd>
 
-with style border:
+### Exposed API Information
 
-<img src="images/compreg-02-r-cat.png" alt="r-cat" style="border: 2px solid #888;">
+In the column "Exposed APIs" there additional info for each endpoint is shown.
+
+The name of the Exposed API is a link which can be clicked and shows the raw TMF-639 data for this endpoint.
+
+<table>
+
+<tr><td><img src="images/button-openapi.png" alt="openapi" height="18" /></td>
+<td>The exposed API is of format Open-Api. Clicking on the icon will open the link in a new tab.</td></tr>
+
+<tr><td><img src="images/button-prometheus.png" alt="prometheus" height="18" /></td>
+<td>The exposed API is of format Prometheus for scraping metrics.</td></tr>
+
+<tr><td></td>
+<td></td></tr>
+
+<tr><td><img src="images/button-url.png" alt="URL" height="18" /></td>
+<td>URL to the API endpoint. Klicking the icon opens the URL in a new tab.</td></tr>
+
+<tr><td><img src="images/button-dev-ui.png" alt="Dev UI" height="18" /></td>
+<td>URL to the Swagger UI.Klicking the icon opens the Swagger UI in a new tab.</td></tr>
+
+<tr><td><img src="images/button-available.png" alt="available" height="18" /></td>
+<td>Shows thet the Exposed API is available. If unavailable a red icon is shown.</td></tr>
+
+</table>
+
+
+
+
+
+
+
 
