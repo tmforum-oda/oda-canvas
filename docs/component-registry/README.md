@@ -198,6 +198,7 @@ Now we can take a look at the Dependent-API Operator logs:
 
 And here we can see, that there was no matching Exposed API found in the canvas local Component-Registry,
 but looking at the upstream registry "global-compreg" the "r-cat" entry from "canvas-b" was found.
+The upstream Component-Registry is automatically detected from the service discovery if the local Component-Registry has an upstream subscription.
 
 The success can also be seen in the DeppendentAPI custom resource:
 
