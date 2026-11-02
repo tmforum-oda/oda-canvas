@@ -17,7 +17,7 @@ Open UI in Browser:
 
 http://localhost:8080
 
-![Empty Component-Registry](images/compreg-01-empty.png)
+<img src="images/compreg-01-empty.png" alt="Empty Component-Registry" style="border: 1px solid #999;" />
 
 
 ## Deploy ODA Component r-cat
@@ -28,6 +28,6 @@ helm upgrade --install r-cat -n components --create-namespace feature-definition
 
 After a few seconds the UI shows the new ODA Component r-cat:
 
-![r-cat](images/compreg-02-r-cat.png)
+<img src="images/compreg-02-r-cat.png" alt="r-cat" style="border: 1px solid #999;" />
 
 
