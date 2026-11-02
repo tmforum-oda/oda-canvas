@@ -114,9 +114,35 @@ https://11.22.33.44/r-cat-productcatalogmanagement/tmf-api/productCatalogManagem
 
 # Multi-Canvas Support
 
+## Warning
+
+The following description uses an unsecured installation of the central Component-Registry.
+This is to simplify the Use-Case and make it easy to understand.
+A description how a secure setup of Component-Registry can be done can be found in 
+[Secured Setup of Component-Registry](SECURED-SETUP-COMPREG.md)
+
+
+## Overview
+
 The Component-Registry supports replication to an upstream Component-Registry.
 This allows a setup where multiple ODA Canvas instances replicate there exposed APIs
 into a central Component-Registry. For our scenario it looks like this:
 
 <kbd><img src="images/BDD-UC007-F002-Multicanvas.png" alt="Multi-Canvas Scenario" /></kbd>
+
+
+## Install a Central (Standalone) Component-Registry
+
+The Helm charts used for installing the cluster-local Component-Registry can also be used to 
+install the standalon Component-Registry:
+
+```
+helm upgrade --install -n compreg global-compreg --create-namespace charts/component-registry --set=canvasResourceInventory=  
+```
+
+The only difference is to unset the canvasResourceInventory value.
+If this canvasResourceInventory is set, then a background process is started, 
+which listens to changes in the local cluster and replicates the data from the 
+ResourceInventory to the Compoennt-Registry.
+
 
