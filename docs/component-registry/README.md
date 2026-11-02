@@ -170,10 +170,42 @@ Here is a comparison, how the Component-Registry looks like local (left) and glo
 
 Also it is to see, that the IDs of all resources are prefixed with "self:" in the local registry,
 while in the golbal registry the registered name of the downstream registry is used "canvas-compreg:".
+The name of the canvas registry can be overwritten when installing the canvas with the "ownRegistryName" setting:
+
+```
+helm upgrade --install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set component-registry.ownRegistryName=compreg-canvas-a
+```
 
 
+## Multi-Canvas Service Discovery
 
+Using this parameter we can now test a multi-canvas service discovery.
+The first cluster "canvas-a" was installed with helm value `-set component-registry.ownRegistryName=compreg-canvas-a` and 
+the second cluster "canvas-b" was installed with helm value `-set component-registry.ownRegistryName=compreg-canvas-b`.
+Both were connected (sync) with the Global Component-Registry.
+In "canvas-b" r-cat was deployed as above.
+In "canvas-a" f-cat was deployed as above.
+
+Now looking at the global-compreg we see the following data:
+
+<kbd><img src="images/global-compreg-multicanvas-ab.png" alt="Global Component-Registry Multi-Canvas Setup" /></kbd>
+
+Both ODA Component have a different prefix. "compreg-canvas-b:" for r-cat and "compreg-canvas-a:" for f-cat.
+
+Now we can take a look at the Dependent-API Operator logs:
+
+<kbd><img src="images/depapi-log2.png" alt="Dependent-API Operator Logs MultiCanvas" /></kbd>
+
+And here we can see, that there was no matching Exposed API found in the canvas local Component-Registry,
+but looking at the upstream registry "global-compreg" the "r-cat" entry from "canvas-b" was found.
+
+The success can also be seen in the DeppendentAPI custom resource:
+
+```
+[IHC-DT-A] > kubectl get depapi -A
+NAMESPACE    NAME                                                         READY   AGE   SVCINVID                               
+URL
+components   f-cat-productcatalogmanagement-downstreamproductcatalog-v4   true    18m   416497a6-0285-42e2-9959-20c48d27b71a   
+https://22.33.44.55/r-cat-productcatalogmanagement/tmf-api/productCatalogManagement/v4
+``` 
   
-  
-
-
