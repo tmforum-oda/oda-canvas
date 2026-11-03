@@ -126,10 +126,8 @@ Please update the README.md to include this feature in the UC015 section.
 - Gateway route and plugin configuration
 
 ### Available Test Data
-- `productcatalog-v1` - Standard product catalog component
-- `productordercaptureandvalidation-v1` - Product Order Capture and Validation, with dependent APIs on a product catalog and a product inventory
-- `productcatalog-dynamic-roles-v1` - With dynamic roles
-- And more in `feature-definition-and-test-kit/testData/`
+- `productcatalog-v1` - The reference Product Catalog component, the base chart for most features
+- [feature-definition-and-test-kit/testData/README.md](../feature-definition-and-test-kit/testData/README.md) lists every test chart and the features that use it
 
 ### Utility Libraries
 - `resource-inventory-utils-kubernetes` - K8s resource operations

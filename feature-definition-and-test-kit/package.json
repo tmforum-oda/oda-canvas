@@ -7,6 +7,7 @@
     "get-tags": "node getTags.js",
     "select-features": "node test-selection/select-features.js",
     "check:selection": "node test-selection/select-features.js --check",
+    "chart-inventory": "node test-selection/select-features.js --write-chart-inventory",
     "test:selection": "node --test test-selection/select-features.test.js test-selection/format-comment.test.js"
   },
   "license": "Apache-2.0",

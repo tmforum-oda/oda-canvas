@@ -397,3 +397,45 @@ test('checkSelection reports broken tags, rules and charts', () => {
   }
   assert.equal(errors.length, expected.length, errors.join('\n'))
 })
+
+test('the chart inventory lists each chart, its Chart.yaml details and the features that use it', () => {
+  const { formatChartInventory } = require('./select-features')
+  const ctx = {
+    charts: ['chart-a', 'chart-b'],
+    usage: new Map([['chart-a', ['UC002-F001-A.feature', 'UC007-F002-B.feature']], ['chart-b', []]]),
+    chartInfo: new Map([
+      ['chart-a', { name: 'productcatalog', description: 'BDD test chart - with a | pipe', personalImageFiles: [] }],
+      ['chart-b', { name: 'other', description: '', personalImageFiles: [] }]
+    ])
+  }
+  assert.equal(formatChartInventory(ctx), [
+    '| Test chart | Chart name | Description | Used by |',
+    '| --- | --- | --- | --- |',
+    '| [`chart-a`](chart-a/Chart.yaml) | `productcatalog` | BDD test chart - with a \\| pipe | UC002-F001, UC007-F002 |',
+    '| [`chart-b`](chart-b/Chart.yaml) | `other` |  | (none) |'
+  ].join('\n'))
+})
+
+test('checkSelection reports personal images and an out-of-date chart inventory', () => {
+  const { formatChartInventory, INVENTORY_START, INVENTORY_END } = require('./select-features')
+  const feature = parseFeature('UC001-F001-A.feature', '@UC001 @UC001-F001\nFeature: x\n  Scenario: y\n    Given z uses chart-a\n')
+  const base = {
+    config: { smoke: '@UC001-F001', rules: [{ name: 'r', paths: ['README.md'], tags: '@UC001' }] },
+    features: [feature],
+    charts: ['chart-a'],
+    usage: chartUsage([feature], ['chart-a']),
+    trackedFiles: ['README.md']
+  }
+  const info = files => new Map([['chart-a', { name: 'n', description: 'd', personalImageFiles: files }]])
+  const readme = table => `# Charts\n\n${INVENTORY_START}\n\n${table}\n\n${INVENTORY_END}\n`
+
+  const good = { ...base, chartInfo: info([]) }
+  assert.deepEqual(checkSelection({ ...good, inventoryReadme: readme(formatChartInventory(good)) }), [])
+
+  const errors = checkSelection({ ...base, chartInfo: info(['values.yaml']), inventoryReadme: readme('| stale |') })
+  assert.ok(errors.some(e => /testData\/chart-a\/values\.yaml: references a lesterthomas\/ image/.test(e)), errors.join('\n'))
+  assert.ok(errors.some(e => /the chart inventory is out of date/.test(e)), errors.join('\n'))
+
+  const missing = checkSelection({ ...good, inventoryReadme: '# No table\n' })
+  assert.ok(missing.some(e => /missing the chart inventory/.test(e)), missing.join('\n'))
+})
