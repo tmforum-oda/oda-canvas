@@ -539,7 +539,7 @@ api-operator-kong:
     kongoperatorimage:
       kongopImage: tmforumodacanvas/api-operator-kong
       kongopVersion: 1.1.2
-      kongopPrereleaseSuffix: issue650
+      kongopPrereleaseSuffix: 
       pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
 
