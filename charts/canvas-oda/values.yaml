@@ -51,16 +51,15 @@ cert-manager-init:
   #
   # -- Duration of the certificates generate for the webhook in hours |
   certificateDuration: 21600h
-  #Cert manager get a lease  object on kube-system namespace to elect leader.
-  #The time to wait for a leader is 60s.
-  #The lease can survive among installations, so cainjectot can waits up to 60s to become leader
-  #If cainjector is not fully initialized we can find the following error
+  #The post-install hook waits until the cert-manager webhook can admit an Issuer before creating
+  #the Issuers and Certificates. Creating them earlier (e.g. while cert-manager images are still
+  #downloading, or while the cainjector waits for a leftover leader-election lease) fails with
   #  cert-manager-init/templates/issuer.yaml failed: Internal error occurred:
   #  failed calling webhook "webhook.cert-manager.io": failed to call webhook:
   #  Post "https://cert-manager-webhook.cert-manager.svc:443/mutate?timeout=10s": x509: certificate signed by unknown authority
   # In seconds
-  # -- Time to wait CertManager to be ready to prevent issuer creation errors
-  leaseWaitTimeonStartup: 80
+  # -- Maximum time to wait for the cert-manager webhook to be ready before creating issuers
+  certManagerReadyTimeout: 600
 
   cert-manager:
     enabled: true

@@ -452,11 +452,12 @@ kubectl delete pvc -n canvas data-canvas-postgresql-0
 kubectl delete lease cert-manager-cainjector-leader-election -n kube-system
 ```
 
-Then increase the wait time and reinstall:
+Then reinstall. The post-install hook waits up to `cert-manager-init.certManagerReadyTimeout` seconds
+(default 600) for the cert-manager webhook; if that timed out, increase it:
 
 ```bash
 helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace \
-  --set cert-manager-init.leaseWaitTimeonStartup=100
+  --set cert-manager-init.certManagerReadyTimeout=900
 ```
 
 ### Pods stuck in Pending

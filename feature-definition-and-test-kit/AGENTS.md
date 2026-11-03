@@ -21,7 +21,9 @@ feature-definition-and-test-kit/
       IdentityManagementSteps.js
       ObservabilitySteps.js
       ...
-  testData/                             # Test component YAMLs and fixtures
+  testData/                             # Helm charts the features install; README.md lists them
+  test-selection.yaml                   # Maps changed paths to the features CI runs
+  test-selection/                       # Selector, PR comment formatter and their unit tests
   utilities/                            # Shared utility npm packages (local)
     component-utils/
     identity-manager-utils-keycloak/
@@ -86,6 +88,8 @@ Use single-quoted `'<ParamName>'` convention in Gherkin step text.
 - Start feature files with a comment block explaining the business context
 - Use `Scenario Outline` with `Examples` tables for parameterised tests
 - Update the use case library README when adding new features
+- Make sure a rule in `test-selection.yaml` selects every new feature. `npm run check:selection` fails otherwise
+- Build a new test chart from a component in reference-example-components, with only the changes its scenarios need, and run `npm run chart-inventory` (see `testData/README.md`)
 
 ## Don't
 
@@ -93,6 +97,7 @@ Use single-quoted `'<ParamName>'` convention in Gherkin step text.
 - Do not make direct Kubernetes API calls in step definitions — use the utility packages
 - Do not skip the header comment explaining the feature's business context
 - Do not run tests without a live Kubernetes cluster with Canvas deployed
+- Do not use images from personal Docker Hub accounts in `testData`. `npm run check:selection` fails on `lesterthomas/` images
 
 ## Commands
 
@@ -108,6 +113,16 @@ npm run start:tags
 
 # Run a single feature
 npx cucumber-js features/UC003-F001-Expose-APIs-Create-API-Resource.feature
+
+# Show which features a change runs in CI
+npm run select-features -- --base origin/main
+
+# Check the test-selection map, the test charts and their inventory, and run the selector's unit tests
+npm run check:selection
+npm run test:selection
+
+# Update the test chart inventory in testData/README.md
+npm run chart-inventory
 ```
 
 ## Utilities

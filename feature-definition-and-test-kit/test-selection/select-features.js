@@ -381,6 +381,23 @@ function checkSelection (context) {
     if (!usage.get(chart).length) errors.push(`testData/${chart}: no feature uses this chart`)
   }
 
+  // The test charts use the organisation's images, not images from personal
+  // Docker Hub accounts (#369), and testData/README.md lists them all
+  const chartInfo = context.chartInfo || new Map()
+  for (const [chart, info] of chartInfo) {
+    for (const file of info.personalImageFiles) {
+      errors.push(`testData/${chart}/${file}: references a lesterthomas/ image; use the tmforumodacanvas images of the reference components (#369)`)
+    }
+  }
+  if (context.inventoryReadme !== undefined) {
+    const current = extractChartInventory(context.inventoryReadme)
+    if (current === null) {
+      errors.push(`testData/README.md: missing the chart inventory between ${INVENTORY_START} and ${INVENTORY_END}`)
+    } else if (current !== formatChartInventory(context)) {
+      errors.push('testData/README.md: the chart inventory is out of date; run `npm run chart-inventory` in feature-definition-and-test-kit')
+    }
+  }
+
   // Every feature is selected by some rule, so a new feature can't be left
   // out of the runs for the code it tests. Features with no scenarios yet
   // are placeholders and are skipped.
@@ -421,11 +438,80 @@ function loadCanvasSectionNames (config, repoRoot = REPO_ROOT) {
   return names
 }
 
+const INVENTORY_START = '<!-- chart-inventory:start -->'
+const INVENTORY_END = '<!-- chart-inventory:end -->'
+const INVENTORY_FILE = path.join(KIT_DIR, 'testData', 'README.md')
+
+// Reads each test chart's name and description from its Chart.yaml, and finds
+// the files in it that reference a lesterthomas/ (personal account) image.
+function loadChartInfo (charts, kitDir = KIT_DIR) {
+  const info = new Map()
+  for (const chart of charts) {
+    const dir = path.join(kitDir, 'testData', chart)
+    const chartYaml = path.join(dir, 'Chart.yaml')
+    const doc = fs.existsSync(chartYaml) ? YAML.parse(fs.readFileSync(chartYaml, 'utf8')) || {} : {}
+    const personalImageFiles = []
+    const walk = (sub) => {
+      for (const entry of fs.readdirSync(path.join(dir, sub), { withFileTypes: true })) {
+        const rel = sub ? `${sub}/${entry.name}` : entry.name
+        if (entry.isDirectory()) walk(rel)
+        else if (/lesterthomas\//.test(fs.readFileSync(path.join(dir, rel), 'utf8'))) personalImageFiles.push(rel)
+      }
+    }
+    walk('')
+    info.set(chart, { name: doc.name || '', description: (doc.description || '').trim(), personalImageFiles: personalImageFiles.sort() })
+  }
+  return info
+}
+
+// The Markdown table of test charts in testData/README.md: each chart, the
+// chart name and description from its Chart.yaml, and the features that use it.
+function formatChartInventory (context) {
+  const cell = text => String(text).replace(/\|/g, '\\|').replace(/[\r\n]+/g, ' ')
+  const lines = ['| Test chart | Chart name | Description | Used by |', '| --- | --- | --- | --- |']
+  for (const chart of context.charts) {
+    const info = (context.chartInfo && context.chartInfo.get(chart)) || { name: '', description: '' }
+    const users = context.usage.get(chart).map(name => featureTagFromName(name).slice(1))
+    lines.push(`| [\`${chart}\`](${chart}/Chart.yaml) | \`${cell(info.name)}\` | ${cell(info.description)} | ${users.join(', ') || '(none)'} |`)
+  }
+  return lines.join('\n')
+}
+
+function extractChartInventory (text) {
+  const normalised = text.replace(/\r\n/g, '\n')
+  const start = normalised.indexOf(INVENTORY_START)
+  const end = normalised.indexOf(INVENTORY_END)
+  if (start < 0 || end < start) return null
+  return normalised.slice(start + INVENTORY_START.length, end).trim()
+}
+
+// Rewrites the chart inventory in testData/README.md. Returns true if it changed.
+function writeChartInventory (context, file = INVENTORY_FILE) {
+  const raw = fs.readFileSync(file, 'utf8')
+  const nl = raw.includes('\r\n') ? '\r\n' : '\n'
+  const text = raw.replace(/\r\n/g, '\n')
+  const start = text.indexOf(INVENTORY_START)
+  const end = text.indexOf(INVENTORY_END)
+  if (start < 0 || end < start) throw new Error(`${file} has no ${INVENTORY_START} ... ${INVENTORY_END} block`)
+  const updated = text.slice(0, start + INVENTORY_START.length) + '\n\n' + formatChartInventory(context) + '\n\n' + text.slice(end)
+  if (updated === text) return false
+  fs.writeFileSync(file, updated.replace(/\n/g, nl))
+  return true
+}
+
 function loadContext () {
   const config = loadConfig()
   const features = loadFeatures()
   const charts = loadCharts()
-  return { config, features, charts, usage: chartUsage(features, charts), canvasSectionNames: loadCanvasSectionNames(config) }
+  return {
+    config,
+    features,
+    charts,
+    usage: chartUsage(features, charts),
+    canvasSectionNames: loadCanvasSectionNames(config),
+    chartInfo: loadChartInfo(charts),
+    inventoryReadme: fs.existsSync(INVENTORY_FILE) ? fs.readFileSync(INVENTORY_FILE, 'utf8') : ''
+  }
 }
 
 function formatText (result) {
@@ -474,6 +560,7 @@ function parseArgs (argv) {
     const arg = argv[i]
     if (arg === '--check') args.check = true
     else if (arg === '--all') args.all = true
+    else if (arg === '--write-chart-inventory') args.writeChartInventory = true
     else if (arg === '--base') args.base = argv[++i]
     else if (arg === '--files') args.files = argv[++i]
     else if (arg === '--pr-files') args.prFiles = argv[++i]
@@ -481,8 +568,8 @@ function parseArgs (argv) {
     else throw new Error(`Unknown argument: ${arg}`)
   }
   if (!FORMATTERS[args.format]) throw new Error(`Unknown format: ${args.format}`)
-  if (!args.check && !args.all && !args.base && !args.files && !args.prFiles) {
-    throw new Error('Pass --base <ref>, --files <file|->, --pr-files <file>, --all or --check')
+  if (!args.check && !args.writeChartInventory && !args.all && !args.base && !args.files && !args.prFiles) {
+    throw new Error('Pass --base <ref>, --files <file|->, --pr-files <file>, --all, --check or --write-chart-inventory')
   }
   return args
 }
@@ -508,6 +595,12 @@ function readChanges (args, config) {
 function main (argv) {
   const args = parseArgs(argv)
   const context = loadContext()
+
+  if (args.writeChartInventory) {
+    const changed = writeChartInventory(context)
+    console.log(`testData/README.md: chart inventory ${changed ? 'updated' : 'already up to date'} (${context.charts.length} test charts).`)
+    return 0
+  }
 
   if (args.check) {
     const errors = checkSelection({ ...context, trackedFiles: git(['ls-files']).split('\n').filter(Boolean) })
@@ -542,6 +635,11 @@ if (require.main === module) {
 
 module.exports = {
   globToRegExp,
+  formatChartInventory,
+  extractChartInventory,
+  loadChartInfo,
+  INVENTORY_START,
+  INVENTORY_END,
   changedSections,
   parsePrFiles,
   loadCanvasSectionNames,

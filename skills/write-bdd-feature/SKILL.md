@@ -113,12 +113,11 @@ ODA Components are structured into three segments:
 
 ## Test Data Packages
 
-Available in `feature-definition-and-test-kit/testData/`:
-- `productcatalog-v1` — Basic product catalog component
-- `productcatalog-v1beta3` — Legacy version for seamless upgrade testing
-- `productordercaptureandvalidation-v1` — Component with dependent APIs on a product catalog and a product inventory
-- `productcatalog-dynamic-roles-v1` — Component with dynamic role definitions
-- `productcatalog-enhanced-v1` — Component with enhanced API configurations
+The Helm charts in `feature-definition-and-test-kit/testData/` are the components the features install. Read `feature-definition-and-test-kit/testData/README.md` for the full list, the features that use each chart, and the rules for adding one. In short:
+- `productcatalog-v1` is the base chart: the reference Product Catalog component, without its optional Promotion Management API.
+- Reuse an existing chart where you can. A new chart starts from a component in [reference-example-components](https://github.com/tmforum-oda/reference-example-components), with only the changes the scenarios need. It uses the `tmforumodacanvas` images, never a personal account's.
+- Charts installed as the same release (usually `ctk`) must render identical Jobs, because the features switch between them with `helm upgrade`.
+- After adding or changing a chart, run `npm run chart-inventory`.
 
 **Default release name**: `ctk` (Canvas Test Kit)
 **Default namespace**: `components`
@@ -206,7 +205,10 @@ Located in `feature-definition-and-test-kit/utilities/` (local npm packages link
 3. Use utility libraries — never make direct K8s API calls
 4. Add error handling and debug logging
 
-### Step 4: Update README.md
+### Step 4: Make sure CI runs the feature
+Each pull request runs only the features its changes affect, using `feature-definition-and-test-kit/test-selection.yaml`. A new feature runs when its own file changes. A rule in the map must also select it, so that changes to the code it tests run it. Check its `@UC{number}` tag matches a rule's `tags`, or add a rule. Then run `npm run check:selection` in `feature-definition-and-test-kit`. It fails for a feature that no rule selects, or for tags that don't match the file name.
+
+### Step 5: Update README.md
 Add entry to `feature-definition-and-test-kit/README.md` in the "List of BDD Features" section:
 ```markdown
 ### UC{number} - {Use Case Title}
