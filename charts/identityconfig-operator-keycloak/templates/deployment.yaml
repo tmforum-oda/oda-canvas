@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "identityconfig-operator-keycloak.labels" . | nindent 4 }}
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: identityconfig-operator-keycloak
+    oda.tmforum.org/operatorId: TMFOP003
 spec:
   replicas: 1
   selector:

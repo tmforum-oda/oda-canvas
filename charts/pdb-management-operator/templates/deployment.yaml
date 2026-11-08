@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "pdb-management-operator.labels" . | nindent 4 }}
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: pdb-management-operator
+    oda.tmforum.org/operatorId: TMFOP010
 spec:
   replicas: {{ .Values.deployment.replicas }}
   selector:

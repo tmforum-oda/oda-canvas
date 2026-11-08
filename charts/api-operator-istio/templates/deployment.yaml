@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "api-operator-istio.labels" . | nindent 4 }}
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: api-operator-istio
+    oda.tmforum.org/operatorId: TMFOP002
 spec:
   replicas: 1
   selector:

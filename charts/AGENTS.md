@@ -52,6 +52,7 @@ Each sub-chart follows:
 - Namespaces are **never hardcoded** — use `{{ .Release.Namespace }}` or Helm template variables
 - Image references use `{{ .Values.global.image.registry }}` prefix
 - Use `_helpers.tpl` for reusable template snippets
+- Operator Deployments carry the Canvas Portal v2 discovery labels on their own `metadata.labels`: `oda.tmforum.org/operator: "true"`, `oda.tmforum.org/operatorName: <slug>` and `oda.tmforum.org/operatorId: TMFOPnnn`. Never put them in `spec.selector`. See `canvas-portal-v2/README.md` and the helm-chart-development skill.
 
 ## Do
 
@@ -61,6 +62,7 @@ Each sub-chart follows:
 - Add a version changelog comment in `Chart.yaml` when bumping versions
 - Use `helm lint` to validate chart changes
 - Use template variables for all namespace references
+- Add the `oda.tmforum.org/operator*` discovery labels to every new operator Deployment
 
 ## Don't
 

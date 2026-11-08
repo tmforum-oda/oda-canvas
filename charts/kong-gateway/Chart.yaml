@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.1.2
+version: 1.1.3
+# version: 1.1.3 - issue 656 - add oda.tmforum.org operator labels so Canvas Portal v2 discovers the operator
 # version: 1.1.2 - kong operator: check the ExposedAPI 'apiType' key (not 'apitype') so ServiceMonitors are created for metrics APIs (issue 650)
 # version: 1.1.1 - kong operator: skip ExposedAPI status field handlers during deletion so the finalizer is released promptly (issue 625)
 # version: 1.1.0 - Added PrometheusAnnotation option for openmetrics scraping
