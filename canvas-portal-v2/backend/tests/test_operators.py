@@ -156,6 +156,32 @@ def test_operator_name_label_sets_display_and_tmf_name():
     assert op["tmfName"] == "Acme-Operator"
 
 
+@pytest.mark.parametrize(
+    "operator_id, expected_tmf_name",
+    [
+        ("TMFOP001", "Component Management Operator"),
+        ("TMFOP099", "component-operator"),
+    ],
+)
+def test_known_operator_keeps_full_tmf_name_when_id_matches(
+    operator_id, expected_tmf_name
+):
+    deploy = _deployment(
+        "component-operator",
+        labels={
+            operators.OPERATOR_LABEL: "true",
+            operators.TMF_OPERATOR_LABEL_NAME: "component-operator",
+            operators.TMF_OPERATOR_LABEL_ID: operator_id,
+        },
+    )
+
+    [op] = operators._deployment_to_operators(deploy, [])
+
+    assert op["name"] == "component-operator"
+    assert op["tmfId"] == operator_id
+    assert op["tmfName"] == expected_tmf_name
+
+
 def test_signature_match_without_labels_is_unchanged():
     deploy = _deployment(
         "canvas-component-operator",

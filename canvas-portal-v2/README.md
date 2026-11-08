@@ -20,7 +20,7 @@ All keys go on the Deployment's own `metadata`, not on the Pod template.
 |---|---|---|
 | `oda.tmforum.org/operator` | label | `"true"` (any case) opts the Deployment in. |
 | `oda.tmforum.org/operatorName` | label | Display name on the card. Defaults to the Deployment name. |
-| `oda.tmforum.org/operatorId` | label | TMF operator ID shown as a badge (for example `TMFOP001`). Also opts the Deployment in. |
+| `oda.tmforum.org/operatorId` | label | TMF operator ID shown as a badge (for example `TMFOP001`). Also opts the Deployment in. The badge tooltip shows the full TMF name when the portal knows the operator under that ID, else the `operatorName` value. |
 | `oda.tmforum.org/operatorContainer` | annotation | Container used for the image and readiness when the Deployment has several containers. Defaults to the container named after the operator or the Deployment, else the first container. |
 
 Label values must be 63 characters or fewer and may contain only letters, digits, `-`, `_` and `.`. Use a slug such as `Acme-Operator` for `operatorName`; the card shows the value as written.

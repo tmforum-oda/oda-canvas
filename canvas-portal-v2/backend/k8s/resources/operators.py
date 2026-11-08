@@ -336,9 +336,13 @@ def _pod_summary(pod: dict, preferred_container_name: str) -> dict:
 def _resolve_tmf_identity(operator_name: str, labels: dict) -> tuple[str | None, str | None]:
     label_id = labels.get(TMF_OPERATOR_LABEL_ID)
     label_name = labels.get(TMF_OPERATOR_LABEL_NAME)
-    if label_id:
-        return label_id, label_name
     static = TMF_OPERATOR_IDS.get(operator_name)
+    if label_id:
+        # Label values can't contain spaces, so keep the full TMF name when the
+        # built-in table knows this operator under the same ID.
+        if static and static[0] == label_id:
+            return label_id, static[1]
+        return label_id, label_name
     if static:
         return static[0], static[1]
     return None, None
