@@ -48,8 +48,9 @@ async def validate_token(token: str) -> dict[str, Any]:
 
 def extract_groups(claims: dict[str, Any]) -> list[str]:
     if settings.IDM_PROVIDER == "keycloak":
-        groups = claims.get("groups", [])
-        if not groups:
-            groups = claims.get("realm_access", {}).get("roles", [])
-        return groups
+        # Groups (needs a group-membership mapper) and realm roles both count,
+        # so access can be granted through either one.
+        groups = claims.get("groups") or []
+        roles = (claims.get("realm_access") or {}).get("roles") or []
+        return list(dict.fromkeys([*groups, *roles]))
     return claims.get("groups", [])

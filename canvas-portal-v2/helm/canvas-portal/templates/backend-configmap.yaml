@@ -37,3 +37,5 @@ data:
   ALLOWED_CHART_SOURCES_JSON: {{ (((.Values.backend.helm) | default dict).allowedChartSources | default list) | toJson | quote }}
   AUTH_COOKIE_SECURE: {{ ((.Values.backend.auth | default dict).cookieSecure | default false) | quote }}
   AUTH_COOKIE_SAMESITE: {{ ((.Values.backend.auth | default dict).cookieSameSite | default "strict") | quote }}
+  AUTHZ_ADMIN_GROUPS: {{ ((.Values.backend.auth | default dict).adminGroups | default list) | toJson | quote }}
+  AUTHZ_ALLOW_ALL_AUTHENTICATED: {{ ((.Values.backend.auth | default dict).allowAllAuthenticated | default false) | quote }}
