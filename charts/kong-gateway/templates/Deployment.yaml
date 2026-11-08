@@ -3,6 +3,10 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-kongistio-operator
   namespace: {{ .Values.kongistiooperatordeploymentnamespace }}
+  labels:
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: api-operator-kong
+    oda.tmforum.org/operatorId: TMFOP002
 spec:
   replicas: {{ .Values.kongoperatorreplicaCount }}
   selector:

@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "component-operator.labels" . | nindent 4 }}
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: component-operator
+    oda.tmforum.org/operatorId: TMFOP001
 spec:
   replicas: 1
   selector:

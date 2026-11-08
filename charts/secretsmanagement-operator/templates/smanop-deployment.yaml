@@ -2,6 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-smanop
+  labels:
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: secretsmanagement-operator
+    oda.tmforum.org/operatorId: TMFOP007
 spec:
   replicas: 1
   strategy:

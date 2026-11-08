@@ -16,7 +16,8 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 1.2.6-rc8
+version: 1.2.6-rc9
+# version: 1.2.6-rc9 - issue 656 - operator charts carry the oda.tmforum.org operator labels read by Canvas Portal v2
 # version: 1.2.6-rc8 - issue 650 - Kong API operator creates the ServiceMonitor for prometheus/openmetrics ExposedAPIs again
 # version: 1.2.6-hv1 - issue 620 - cert-manager-init 1.1.3: wait for the cert-manager webhook before creating issuers
 # version: 1.2.6-rc7 - oda-crds 1.3.4 - v1 component crd componentMetadata descriptions refer to component specifications instead of golden components
@@ -101,25 +102,25 @@ dependencies:
     repository: 'https://charts.bitnami.com/bitnami'
     condition: keycloak.enabled
   - name: component-operator
-    version: "1.4.3"
+    version: "1.4.4"
     repository: 'file://../component-operator'
   - name: identityconfig-operator-keycloak
-    version: "1.2.7"
+    version: "1.2.8"
     repository: 'file://../identityconfig-operator-keycloak'  
   - name: api-operator-istio
-    version: "1.1.4"
+    version: "1.1.5"
     repository: 'file://../api-operator-istio'
     condition: api-operator-istio.enabled
   - name: dependentapi-simple-operator
-    version: "1.0.5"
+    version: "1.0.6"
     repository: 'file://../dependentapi-simple-operator'
     condition: dependentapi-simple-operator.enabled
   - name: dependency-management-keycloak-authz
-    version: "0.2.1"
+    version: "0.2.2"
     repository: 'file://../dependency-management-keycloak-authz'
     condition: dependency-management-keycloak-authz.enabled
   - name: secretsmanagement-operator
-    version: "1.0.2"
+    version: "1.0.3"
     repository: 'file://../secretsmanagement-operator'
   - name: canvas-vault
     version: "1.0.2"
@@ -129,11 +130,11 @@ dependencies:
     version: "1.2.4"
     repository: 'file://../oda-webhook'
   - name: api-operator-kong
-    version: "1.1.2"
+    version: "1.1.3"
     repository: 'file://../kong-gateway'
     condition: kong-gateway-install.enabled
   - name: api-operator-apisix
-    version: "1.1.1"
+    version: "1.1.2"
     repository: 'file://../apisix-gateway'
     condition: apisix-gateway-install.enabled
   - name: canvas-info-service
@@ -145,7 +146,7 @@ dependencies:
     repository: 'file://../resource-inventory'
     condition: resource-inventory.enabled
   - name: pdb-management-operator
-    version: "0.1.1"
+    version: "0.1.2"
     repository: 'file://../pdb-management-operator'
     condition: pdb-management-operator.enabled
   - name: component-registry

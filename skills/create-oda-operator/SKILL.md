@@ -522,6 +522,21 @@ imagePullSecrets:
 {{- end }}
 ```
 
+### Portal Discovery Labels
+
+Add these labels to the operator Deployment's `metadata.labels` so it appears on the Canvas Portal v2 **Operators** page without a portal change:
+
+```yaml
+metadata:
+  labels:
+    {{- include "myoperator.labels" . | nindent 4 }}
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: myoperator     # fixed slug, max 63 chars
+    oda.tmforum.org/operatorId: TMFOP0xx         # the operator's TMF ID
+```
+
+See the helm-chart-development skill ("Operator Discovery Labels") for the rules.
+
 ### RBAC Requirements
 
 All kopf operators need `ClusterRole` permissions for:
