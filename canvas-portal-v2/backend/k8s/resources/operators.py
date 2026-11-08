@@ -66,6 +66,12 @@ TMF_OPERATOR_IDS: dict[str, tuple[str, str]] = {
 TMF_OPERATOR_LABEL_ID = "oda.tmforum.org/operatorId"
 TMF_OPERATOR_LABEL_NAME = "oda.tmforum.org/operatorName"
 
+# Opt-in label: a Deployment carrying it (or an operatorId label) is listed as an operator
+# without needing an OPERATOR_SIGNATURES entry.
+OPERATOR_LABEL = "oda.tmforum.org/operator"
+# Optional annotation naming the operator container in a multi-container Deployment.
+OPERATOR_CONTAINER_ANNOTATION = "oda.tmforum.org/operatorContainer"
+
 CANVAS_OPERATOR_NAMESPACES = [
     "canvas",
     "canvas-system",
@@ -155,7 +161,44 @@ def _pick_container_for_operator(containers: list[dict], operator_name: str) -> 
     return containers[0] if containers else {}
 
 
+def _discover_labelled_operator(deploy: dict) -> dict | None:
+    """Return the operator a Deployment declares through its labels, or None.
+
+    A Deployment opts in with ``oda.tmforum.org/operator: "true"`` or by carrying an
+    ``oda.tmforum.org/operatorId`` label. The display name comes from
+    ``oda.tmforum.org/operatorName``, else the Deployment name. The operator container is the
+    one named by the ``oda.tmforum.org/operatorContainer`` annotation, else the one named
+    after the operator or the Deployment, else the first container.
+    """
+    metadata = deploy.get("metadata", {}) or {}
+    labels = metadata.get("labels", {}) or {}
+    annotations = metadata.get("annotations", {}) or {}
+    opted_in = str(labels.get(OPERATOR_LABEL, "")).lower() == "true"
+    if not opted_in and not labels.get(TMF_OPERATOR_LABEL_ID):
+        return None
+
+    deployment_name = metadata.get("name", "")
+    name = labels.get(TMF_OPERATOR_LABEL_NAME) or deployment_name
+    containers = _deployment_containers(deploy)
+    by_name = {container.get("name"): container for container in containers}
+    container = (
+        by_name.get(annotations.get(OPERATOR_CONTAINER_ANNOTATION))
+        or by_name.get(name)
+        or by_name.get(deployment_name)
+        or (containers[0] if containers else {})
+    )
+    return {
+        "name":          name,
+        "containerName": container.get("name", ""),
+        "image":         container.get("image", ""),
+    }
+
+
 def _discover_logical_operators(deploy: dict) -> list[dict]:
+    labelled = _discover_labelled_operator(deploy)
+    if labelled:
+        return [labelled]
+
     deployment_name = deploy.get("metadata", {}).get("name", "")
     containers = _deployment_containers(deploy)
     matches: dict[str, dict] = {}
@@ -293,9 +336,13 @@ def _pod_summary(pod: dict, preferred_container_name: str) -> dict:
 def _resolve_tmf_identity(operator_name: str, labels: dict) -> tuple[str | None, str | None]:
     label_id = labels.get(TMF_OPERATOR_LABEL_ID)
     label_name = labels.get(TMF_OPERATOR_LABEL_NAME)
-    if label_id:
-        return label_id, label_name
     static = TMF_OPERATOR_IDS.get(operator_name)
+    if label_id:
+        # Label values can't contain spaces, so keep the full TMF name when the
+        # built-in table knows this operator under the same ID.
+        if static and static[0] == label_id:
+            return label_id, static[1]
+        return label_id, label_name
     if static:
         return static[0], static[1]
     return None, None

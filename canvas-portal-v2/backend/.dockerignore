@@ -6,3 +6,6 @@ __pycache__/
 *.pyd
 *.log
 *.tmp
+tests/
+requirements-dev.txt
+.pytest_cache/
