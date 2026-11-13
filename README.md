@@ -69,6 +69,7 @@ Security principles for the ODA Canvas design are documented in [ODA Security Pr
 
 | | |
 | ---- | ---- |
-| [Component-Registry](./docs/component-registry/README.md) | Not yet released, but will be included in the next release.<br> Contains a documentation of the Component-Registry UI as well as how to install a standalone Component-Registry for a multi canvas scenario |
-| [How-To work with Dockerimages](./docs/developer/work-with-dockerimages.md) | For developers, documents the build and release process for Docker images in this repository | 
+| [Component Registry](./docs/component-registry/README.md) | Not yet released, but will be included in the next release.<br> 
+Contains documentation of Component Registry UI as well as how to install a standalone Component Registry for a multi-canvas scenario |
+| [How To work with Dockerimages](./docs/developer/work-with-dockerimages.md) | For developers, documents the build and release process for Docker images in this repository | 
  
