@@ -168,7 +168,7 @@ Components which do not request Secrets-Management will work without any errors.
 > [!NOTE]
 > The Component Registry is included in the `main` branch, but is not part of the latest release (1.2.5 from March 2026).
 
-By default, the Component Registry is deployed into the canvas namespace. 
+By default, the Component Registry is deployed into the canvas namespace.  
 The deployment can be disabled by setting `component-registry.enabled` to `false` in the `values.yaml`:
 
 https://github.com/tmforum-oda/oda-canvas/blob/6218a78420c731a36456b62b0f6de5c07d4bafd4/charts/canvas-oda/values.yaml#L647-L648
