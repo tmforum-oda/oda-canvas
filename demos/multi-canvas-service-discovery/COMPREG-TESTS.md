@@ -139,7 +139,7 @@ helm upgrade --install -n istio-gateway canvas-vs demos/multi-canvas-service-dis
 ### otional create global-compreg virtual service
 
 ```
-helm upgrade --install -n compreg global-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=fullNameOverride=global-compreg --set=domain=%DOMAIN%  --set=componentGateway=istio-gateway/ihcdta-gateway
+helm upgrade --install -n compreg --create-namespace global-compreg-vs demos/multi-canvas-service-discovery/helm/component-registry-vs --set=fullNameOverride=global-compreg --set=domain=%DOMAIN%  --set=componentGateway=istio-gateway/ihcdta-gateway
 ```
 
 * https://global-compreg.ihc-dt-a.cluster-2.de
