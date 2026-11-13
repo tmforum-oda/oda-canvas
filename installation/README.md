@@ -275,7 +275,7 @@ To tell the dependency resolver that there is no Component Registry the `compone
 
 https://github.com/tmforum-oda/oda-canvas/blob/6218a78420c731a36456b62b0f6de5c07d4bafd4/charts/canvas-oda/values.yaml#L224-L225
 
-Instead of changing the `values.yaml`, the value can also be overridden on the command line:
+Instead of changing the `values.yaml`, the values can also be overridden on the command line:
 
 ```
 helm install canvas oda-canvas/canvas-oda \
@@ -284,7 +284,7 @@ helm install canvas oda-canvas/canvas-oda \
    --set dependentapi-simple-operator.componentRegistryUrl=
 ```
 
-In a single canvas scenario everything works as expected. 
+In a single canvas scenario everything works as expected.  
 Dependencies are resolved by directly using Kubernetes Custom Resources instead of the Component Registry.
 
 
