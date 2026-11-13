@@ -163,35 +163,7 @@ If HashiCorp Vault is **NOT** installed:
 Components which do not request Secrets-Management will work without any errors.
 
 
-### 5. Component Registry
-
-> [!NOTE]
-> The Component Registry is included in the `main` branch, but is not part of the latest release (1.2.5 from March 2026).
-
-By default, the Component Registry is deployed into the canvas namespace.  
-The deployment can be disabled by setting `component-registry.enabled` to `false` in the `values.yaml`:
-
-https://github.com/tmforum-oda/oda-canvas/blob/6218a78420c731a36456b62b0f6de5c07d4bafd4/charts/canvas-oda/values.yaml#L647-L648
-
-To tell the dependency resolver that there is no Component Registry the `componentRegistryUrl` has to be removed:
-
-https://github.com/tmforum-oda/oda-canvas/blob/6218a78420c731a36456b62b0f6de5c07d4bafd4/charts/canvas-oda/values.yaml#L224-L225
-
-Instead of changing the `values.yaml`, the value can also be overridden on the command line:
-
-```
-helm install canvas oda-canvas/canvas-oda \
-   -n canvas --create-namespace \\   --set component-registry.enabled=false \
-   --set dependentapi-simple-operator.componentRegistryUrl=```
-
-In a single canvas scenario everything works as expected. 
-Dependencies are resolved by directly using Kubernetes Custom Resources instead of the Component Registry.
-
-A detailed description and instructions on how to set up Component Registry for a multi-canvas scenario
-can be found here: [Component Registry](./docs/component-registry/README.md)
-
-
-### 6. Reference implementation
+### 5. Reference implementation
 
 1. Add oda-canvas helm repo
 
@@ -283,6 +255,38 @@ can be found here: [Component Registry](./docs/component-registry/README.md)
     --set apisix-gateway-install.enabled=false \
     --set kong-gateway-install.enabled=true
     ```
+
+### Component Registry
+
+> [!NOTE]
+> The Component Registry is included in the `main` branch, but is not part of the latest release (1.2.5 from March 2026).
+
+By default, the Component Registry is deployed into the canvas namespace.  
+A description of the UI and instructions on how to set up Component Registry for a multi-canvas scenario  
+can be found here: [Component Registry](./docs/component-registry/README.md)
+
+#### Disable Component Registry
+  
+The deployment of the Component Registry can be disabled by setting `component-registry.enabled` to `false` in the `values.yaml`:
+
+https://github.com/tmforum-oda/oda-canvas/blob/6218a78420c731a36456b62b0f6de5c07d4bafd4/charts/canvas-oda/values.yaml#L647-L648
+
+To tell the dependency resolver that there is no Component Registry the `componentRegistryUrl` has to be removed:
+
+https://github.com/tmforum-oda/oda-canvas/blob/6218a78420c731a36456b62b0f6de5c07d4bafd4/charts/canvas-oda/values.yaml#L224-L225
+
+Instead of changing the `values.yaml`, the value can also be overridden on the command line:
+
+```
+helm install canvas oda-canvas/canvas-oda \
+   -n canvas --create-namespace \\
+   --set component-registry.enabled=false \
+   --set dependentapi-simple-operator.componentRegistryUrl=
+```
+
+In a single canvas scenario everything works as expected. 
+Dependencies are resolved by directly using Kubernetes Custom Resources instead of the Component Registry.
+
 
 ### Local clusters (kind)
 
