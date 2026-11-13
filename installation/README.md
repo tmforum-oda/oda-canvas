@@ -180,8 +180,9 @@ https://github.com/tmforum-oda/oda-canvas/blob/6218a78420c731a36456b62b0f6de5c07
 Instead of changing the `values.yaml`, the value can also be overridden on the command line:
 
 ```
-helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set component-registry.enabled=false --set dependentapi-simple-operator.componentRegistryUrl=
-```
+helm install canvas oda-canvas/canvas-oda \
+   -n canvas --create-namespace \\   --set component-registry.enabled=false \
+   --set dependentapi-simple-operator.componentRegistryUrl=```
 
 In a single canvas scenario everything works as expected. 
 Dependencies are resolved by directly using Kubernetes Custom Resources instead of the Component Registry.
