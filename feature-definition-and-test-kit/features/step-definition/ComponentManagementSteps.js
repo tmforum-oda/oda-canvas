@@ -13,6 +13,7 @@ chai.use(chaiHttp);
 const NAMESPACE = 'components';
 const DEFAULT_RELEASE_NAME = 'ctk';
 const COMPONENT_DEPLOY_TIMEOUT = 600 * 1000; // 10 minutes
+const UNINSTALL_TIMEOUT = 300 * 1000; // 5 minutes
 const TIMEOUT_BUFFER = 5 * 1000; // 5 seconds as additional buffer to the timeouts above for the wrapping function
 const CLEANUP_PACKAGE = false; // set to true to uninstall the package after each Scenario
 const DEBUG_LOGS = false; // set to true to log the controller logs after each failed Scenario
@@ -482,6 +483,26 @@ Given('the {string} component has a deployment status of {string} for the {strin
       }
     }
   }
+});
+
+/**
+ * Wait until an uninstalled release has gone from the namespace: no Component, Pod or
+ * PersistentVolumeClaim whose name starts with '<release name>-' is left. Helm returns from
+ * an uninstall before the pods and volumes have terminated, and installing the same release
+ * again while they are still terminating can leave the new pods unready.
+ *
+ * @param {string} releaseName - The release name that was uninstalled.
+ */
+Given('the {string} release has finished uninstalling', {timeout : UNINSTALL_TIMEOUT + TIMEOUT_BUFFER}, async function (releaseName) {
+  const startTime = performance.now()
+  let remaining = await resourceInventoryUtils.getReleaseResources(releaseName, NAMESPACE)
+  while (remaining.length > 0) {
+    assert.ok(performance.now() - startTime < UNINSTALL_TIMEOUT, `The '${releaseName}' release should be removed within ${UNINSTALL_TIMEOUT / 1000} seconds, but these are left: ${remaining.join(', ')}`)
+    console.log(`Waiting for the '${releaseName}' release to finish uninstalling: ${remaining.join(', ')}`)
+    await new Promise((resolve) => setTimeout(resolve, 5000))
+    remaining = await resourceInventoryUtils.getReleaseResources(releaseName, NAMESPACE)
+  }
+  console.log(`The '${releaseName}' release has finished uninstalling (${Math.round((performance.now() - startTime) / 1000)} seconds)`)
 });
 
 /**

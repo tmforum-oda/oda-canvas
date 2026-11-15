@@ -3,14 +3,13 @@ kind: Service
 metadata:
   name: {{.Release.Name}}-productinventoryapi
   labels:
-    app: {{.Release.Name}}-productinventoryapi
-    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
+    app: {{.Release.Name}}-{{.Values.component.name}}
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
 spec:
   ports:
   - port: 8080
-    targetPort: 8080
-    # switched port name from "productinventoryapi" to "prodinvapi" to match the name used in the deployment
-    name: prodinvapi
+    targetPort: {{.Release.Name}}-prodinvapi
+    name: http-{{.Release.Name}}-productinventoryapi
   type: NodePort
   selector:
-    app: {{.Release.Name}}-productinventoryapi
+    impl: {{.Release.Name}}-productinventoryapi

@@ -18,7 +18,7 @@ export BASE_URL=http://localhost:8080
 # deploy r-cat and f-cat from BDD tests:
 
 helm upgrade --install r-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1
-helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1 --set component.dependentAPIs.enabled=true
 
 
 # deploy and register upstream global-compreg

@@ -20,10 +20,10 @@ Feature: UC013-F001 Seamless upgrade: Installing component using previous versio
 
     Scenario: Installing a component with Dependent APIs using a previous (N-1) version
         # Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
-        When I install the 'productcatalog-dependendent-API-v1beta4' package as release 'f-cat'
+        When I install the 'productcatalog-dependent-API-v1beta4' package as release 'f-cat'
         Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'f-cat-productcatalogmanagement' component with a ready status
 
     Scenario: Installing a component with Dependent APIs using a previous (N-2) version
         # Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
-        When I install the 'productcatalog-dependendent-API-v1beta3' package as release 'f-cat'
+        When I install the 'productcatalog-dependent-API-v1beta3' package as release 'f-cat'
         Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'f-cat-productcatalogmanagement' component with a ready status

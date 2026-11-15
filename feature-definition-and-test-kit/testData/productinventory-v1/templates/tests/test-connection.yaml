@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: "{{ include "productinventory.fullname" . }}-test-connection"
   labels:
-    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
+    oda.tmforum.org/componentName: {{.Release.Name}}-productinventory
   annotations:
     "helm.sh/hook": test
 spec:

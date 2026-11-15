@@ -26,6 +26,7 @@ spec:
       - url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-prodcatapi
       apiType: openapi
+      id: TMF620
       gatewayConfiguration:
         apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
         rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
@@ -48,6 +49,7 @@ spec:
       - url: "https://raw.githubusercontent.com/tmforum-apis/TMF671_Promotion/master/TMF671-Promotion-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-promgmtapi
       apiType: openapi
+      id: TMF671
       gatewayConfiguration:
         apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
         rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
@@ -61,7 +63,8 @@ spec:
     dependentAPIs: 
     {{- if .Values.component.dependentAPIs.enabled }}
     - name: downstreamproductcatalog 
-      apiType: openapi     
+      apiType: openapi
+      id: TMF620     
       specification: 
       - url: https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json
     {{- else }}
@@ -90,9 +93,10 @@ spec:
     {{- if .Values.permissionspec.enabled }}
     - name: userrolesandpermissions
       specification:
-      - url: "https://raw.githubusercontent.com/tmforum-apis/TMF672_UserRolePermissions/master/TMF672-UserRolePermissions-v5.0.0.swagger.json"
+      - url: "https://raw.githubusercontent.com/tmforum-oda/reference-example-components/master/source/ProductCatalog/permissionSpecificationSetMicroservice/implementation/api/TMF672-Roles_And_Permissions-v5.0.0.oas.yaml"
       implementation: {{.Release.Name}}-permissionspecapi
       apiType: openapi
+      id: TMF672
       gatewayConfiguration:
         apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
         rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}
@@ -109,6 +113,7 @@ spec:
       - url: "https://raw.githubusercontent.com/tmforum-apis/TMF669_PartyRole/master/TMF669-PartyRole-v4.0.0.swagger.json"
       implementation: {{.Release.Name}}-partyroleapi
       apiType: openapi
+      id: TMF669
       gatewayConfiguration:
         apiKeyVerification: {{.Values.component.apipolicy.apiKeyVerification | toYaml | nindent 10}}
         rateLimit: {{.Values.component.apipolicy.rateLimit | toYaml | nindent 10}}

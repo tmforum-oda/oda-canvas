@@ -51,7 +51,7 @@ The list below shows the features organized by use case, with their current test
 
 ### UC007 - Dependent APIs
 * ✅ [F001 - Create Dependent API Resource](features/UC007-F001-Dependent-APIs-Create-Dependent-API-Resource.feature)
-* ✅ [F002 - Configure Dependent API Single Downstream](features/UC007-F002-Dependent-APIs-Configure-Dependent-APIs-Single-Downstream.feature)
+* ✅ [F002 - Configure Dependent APIs to a downstream Product Catalog and Product Inventory](features/UC007-F002-Dependent-APIs-Configure-Dependent-APIs-Catalog-and-Inventory.feature)
 
 ### UC010 - Authentication External
 * ⏳ [F001 - Logging and Monitoring of Authentication Activity](features/UC010-F001-External-Authentication-Logging-and-Monitoring-of-Authentication-Activity.feature)
@@ -75,6 +75,12 @@ The list below shows the features organized by use case, with their current test
 ## Executing the BDD tests
 
 Follow the instructions in [executing tests](Executing-tests.md) to run the BDD tests.
+
+In CI, each pull request runs only the BDD features its changes affect, as mapped in [test-selection.yaml](test-selection.yaml). A comment on the pull request shows the selection. [Executing tests](Executing-tests.md) explains the selection and how to run the full suite.
+
+## Test charts
+
+The features install the Helm charts in [testData](testData) as the ODA Components they test. Each one is a component from [reference-example-components](https://github.com/tmforum-oda/reference-example-components), using its published `tmforumodacanvas` images, with only the changes its scenarios need. [testData/README.md](testData/README.md) lists every chart and the features that use it, and explains how to add one.
 
 When you run the tests, the test results are reported in the console and in a HTML report. The console output is shown below:
 

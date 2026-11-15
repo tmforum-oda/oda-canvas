@@ -22,6 +22,8 @@ spec:
         env:
         - name: DEPENDENT_APIS_REJECT_UNAUTHORIZED_CERTIFICATES
           value: "{{.Values.component.dependentAPIs.rejectUnauthorizedCertificates}}"
+        - name: API_DEPENDENCY_NAME
+          value: "{{.Values.component.dependentAPIs.dependencyName}}"
         - name: RELEASE_NAME
           value: {{.Release.Name}}
         - name: COMPONENT_NAME

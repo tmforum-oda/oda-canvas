@@ -1,0 +1,112 @@
+name: Select BDD tests
+description: >
+  Decides whether trigger_test skips the BDD tests ([skip tests] in the PR
+  title or last commit message, or a last commit that only removes prerelease
+  suffixes) and selects the features to run from the files the PR changes,
+  using feature-definition-and-test-kit/test-selection.yaml. Writes the
+  selection to the job summary and uploads it as the test-selection artifact,
+  which the BDD test selection comment workflow posts on the PR. A
+  workflow_dispatch run selects the full suite. The caller checks out the PR
+  head with fetch-depth 2.
+
+outputs:
+  SKIP_REASON:
+    description: Why the tests are skipped whatever the selection, or empty.
+    value: ${{ steps.check_skip.outputs.SKIP_REASON }}
+  MODE:
+    description: skip, selected or full.
+    value: ${{ steps.select_features.outputs.MODE }}
+  RUN_DEFAULT:
+    description: true when the default (Istio) run has features to run.
+    value: ${{ steps.select_features.outputs.RUN_DEFAULT }}
+  DEFAULT_TAGS:
+    description: Tag expression for the default run.
+    value: ${{ steps.select_features.outputs.DEFAULT_TAGS }}
+  GATEWAY_RUNS:
+    description: JSON matrix of the gateway runs.
+    value: ${{ steps.select_features.outputs.GATEWAY_RUNS }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check whether to skip the tests
+      id: check_skip
+      shell: bash
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+      run: |
+        reason=""
+        if [ "$EVENT_NAME" = "pull_request" ]; then
+          message=$(git log -1 --format=oneline --pretty=format:"%s")
+          echo "GIT COMMIT MESSAGE: $message"
+          if [[ "$PR_TITLE" == *"[skip tests]"* ]]; then
+            reason="[skip tests] is in the PR title"
+          elif [[ "$message" == *"[skip tests]"* ]]; then
+            reason="[skip tests] is in the last commit message"
+          else
+            echo "---- CHANGED FILES ----"
+            git diff --name-only HEAD~1
+            echo "---- ------------- ----"
+            CHANGED_FILES=$(git diff --name-only HEAD~1)
+            if [ "$CHANGED_FILES" == "charts/canvas-oda/values.yaml" ]; then
+              echo "only charts/canvas-oda/values.yaml was changed."
+              echo "checking changes if only prerelease suffixes were removed."
+              git diff -w -U0 --color=never HEAD~1 > /tmp/gitdiff.txt
+              cat /tmp/gitdiff.txt
+              OLD_LINES=$(grep -i "^- " /tmp/gitdiff.txt | wc -l)
+              NEW_LINES=$(grep -i "^+ " /tmp/gitdiff.txt | wc -l)
+              NEW_LINES_WITH_EMPTY_PRS=$(grep -i "^+ .*prereleasesuffix:\s*$" /tmp/gitdiff.txt | wc -l)
+              echo "OLD LINES ($OLD_LINES), NEW LINES ($NEW_LINES), NEW LINES WITH EMPTY PRERELEASESUFFIX ($NEW_LINES_WITH_EMPTY_PRS)"
+              if [ "$OLD_LINES" == "$NEW_LINES" ] && [ "$NEW_LINES" == "$NEW_LINES_WITH_EMPTY_PRS" ]; then
+                reason="the last commit only removes prerelease suffixes"
+              fi
+            fi
+          fi
+        fi
+        if [ -n "$reason" ]; then echo "SKIPPING TESTS: $reason"; else echo "Not skipping tests"; fi
+        echo "SKIP_REASON=$reason" >> "$GITHUB_OUTPUT"
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    # Lists the files the whole PR changes (not just the last commit), with
+    # their diffs, through the API, which also works for PRs from forks.
+    # Renamed files count under both their old and new paths. The selector
+    # reads the diffs of the canvas-oda chart to see which sections changed.
+    - name: Select BDD features
+      id: select_features
+      shell: bash
+      working-directory: feature-definition-and-test-kit
+      env:
+        GH_TOKEN: ${{ github.token }}
+        EVENT_NAME: ${{ github.event_name }}
+        REPOSITORY: ${{ github.repository }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        SKIP_REASON: ${{ steps.check_skip.outputs.SKIP_REASON }}
+      run: |
+        npm install --no-audit --no-fund
+        if [ "$EVENT_NAME" = "pull_request" ]; then
+          gh api "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --paginate --slurp > /tmp/pr-files.json
+          SELECT_ARGS=(--pr-files /tmp/pr-files.json)
+        else
+          SELECT_ARGS=(--all)
+        fi
+        node test-selection/select-features.js "${SELECT_ARGS[@]}" --format json > /tmp/test-selection.json
+        node test-selection/select-features.js "${SELECT_ARGS[@]}"
+        # The comment workflow checks prNumber against the run's head commit
+        jq -n --arg pr "$PR_NUMBER" --arg skip "$SKIP_REASON" '{prNumber: $pr, skipReason: $skip}' > /tmp/test-selection-meta.json
+        node test-selection/format-comment.js /tmp/test-selection.json /tmp/test-selection-meta.json >> "$GITHUB_STEP_SUMMARY"
+        node test-selection/select-features.js "${SELECT_ARGS[@]}" --format github-output | tee -a "$GITHUB_OUTPUT"
+
+    - name: Upload test selection
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-selection
+        path: |
+          /tmp/test-selection.json
+          /tmp/test-selection-meta.json
+          /tmp/pr-files.json
+        if-no-files-found: ignore

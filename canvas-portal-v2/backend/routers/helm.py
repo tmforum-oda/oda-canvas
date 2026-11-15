@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
-from auth.middleware import get_current_user
+from auth.middleware import get_current_user, require_admin
 from auth.models import AuthUser
 from config import get_settings
 from k8s.helm.installer import install_chart, uninstall_chart, list_releases, get_chart_values, get_release_history, get_release_values
@@ -15,7 +15,7 @@ from models.helm import (
     HelmUninstallRequest,
 )
 
-router = APIRouter(prefix="/api/helm", tags=["helm"])
+router = APIRouter(prefix="/api/helm", tags=["helm"], dependencies=[Depends(require_admin)])
 
 logger = logging.getLogger(__name__)
 

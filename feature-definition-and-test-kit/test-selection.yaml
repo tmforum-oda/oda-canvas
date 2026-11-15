@@ -1,0 +1,265 @@
+# Maps the paths a pull request changes to the BDD features it should run.
+#
+# Used by test-selection/select-features.js. For each changed path, the
+# selector checks these sections in order and uses the first that matches:
+#
+#   1. docs       - documentation; on its own it runs no features
+#   2. noTests    - code the BDD suite doesn't install or test; runs no features
+#   3. fullSuite  - shared code; runs the full suite
+#   4. canvasChart - the canvas-oda chart files, mapped by the sections that
+#                   changed (see canvasChart below)
+#   5. features/<UCnnn-Fnnn>-*.feature - runs that feature (its @UCnnn-Fnnn tag)
+#   6. testData/<chart>/**             - runs every feature that uses the chart
+#   7. rules      - runs the rule's tag expression (a path can match several rules)
+#
+# A changed path that matches none of these runs the full suite, so a gap in
+# this map can't hide a regression. Any selection that runs features also
+# runs the smoke test.
+#
+# Paths are relative to the repository root. Globs support `*` (within one
+# path segment), `**` (any number of segments) and `?`, and ignore case, so
+# `**/*.png` also matches `Issues.PNG`.
+#
+# When you add a feature, make sure a rule below selects it:
+# `npm run check:selection` fails for a feature that no rule selects.
+
+smoke: "@UC002-F001"
+
+# The Kong and APISIX features need a canvas with that gateway installed
+# instead of Istio: the canvas-oda chart allows only one gateway operator.
+# Selected features with one of these tags run in a separate run on its own
+# cluster, installed with `helmSet`. All other features run on the default
+# Istio canvas. A full run includes every gateway run. `preInstall` lists
+# shell commands the workflow runs before installing the canvas.
+gateways:
+  - name: kong
+    tag: "@KongGateway"
+    # Kong needs the Gateway API CRDs (see installation/README.md)
+    preInstall:
+      - kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.0.0/standard-install.yaml
+    helmSet:
+      - api-operator-istio.enabled=false
+      - apisix-gateway-install.enabled=false
+      - kong-gateway-install.enabled=true
+  - name: apisix
+    tag: "@ApisixGateway"
+    helmSet:
+      - api-operator-istio.enabled=false
+      - apisix-gateway-install.enabled=true
+      - kong-gateway-install.enabled=false
+
+docs:
+  - "**/*.md"
+  - "docs/**"
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.jpeg"
+  - "**/*.svg"
+  - "**/*.puml"
+  - "**/LICENSE"
+
+noTests:
+  # API gateways the BDD suite has no features for
+  - "source/operators/TMFOP002-API-Management/apigee/**"
+  - "source/operators/TMFOP002-API-Management/azure-apim/**"
+  - "source/operators/TMFOP002-API-Management/whalecloud-apim/**"
+  - "charts/apigee-gateway/**"
+  # Operators and services that the canvas-oda chart doesn't install
+  - "source/operators/TMFOP004-Credentials-Management/**"
+  - "charts/credentialsmanagement-operator/**"
+  - "source/operators/TMFOP008-OAuth2-Config/**"
+  - "charts/experimental/**"
+  - "source/operators/TMFOP011-Carbon-Management/**"
+  - "charts/carbon-management-operator/**"
+  - "charts/carbon-intensity-service/**"
+  - "source/tmf-services/TMF628_Performance_Management/**"
+  - "source/tmf-services/MCP_Resource_Inventory/**"
+  - "charts/observability-stack/**"
+  # Tools and UIs outside the canvas install
+  - "canvas-portal/**"
+  - "canvas-portal-v2/**"
+  - "source/utilities/**"
+  - "demos/**"
+  - "**/.gitignore"
+  # Developer tooling, examples and agent skills that no BDD run uses
+  - ".devcontainer/**"
+  - ".github/ISSUE_TEMPLATE/**"
+  - ".github/skills"
+  - ".nojekyll"
+  - "skills/**"
+  - "scripts/**"
+  - "automation/generators/**"
+  - "release-notes/**"
+  - "installation/azure/**"
+  - "installation/CanvasVault/**"
+  - "installation/precheck.sh"
+  - "package-lock.json"
+  - "temp.yaml"
+  - "source/.github/**"
+  - "source/.vscode/**"
+  - "source/pv.yaml"
+  - "source/operators/.vscode/**"
+  - "source/operators/KOPFDevInstall.sh"
+  - "source/operators/peering.yaml"
+  - "source/operators/rbac.yaml"
+  - "source/operators/requirements.txt"
+  - "source/operators/testAPIResource.yaml"
+  - "source/operators/tests/**"
+  - "source/operators/TMFOP002-API-Management/ExposedAPI-example.yaml"
+  - "feature-definition-and-test-kit/local-tests/**"
+  - "feature-definition-and-test-kit/getTags.js"
+  # The selection itself; test-selection-check.yml checks it on every PR
+  - "feature-definition-and-test-kit/test-selection.yaml"
+  - "feature-definition-and-test-kit/test-selection/**"
+  - ".github/actions/select-bdd-tests/**"
+  # Workflows that build images or run other checks
+  - ".github/workflows/dockerbuild-*.yml"
+  - ".github/workflows/lint-python-code.yml"
+  - ".github/workflows/component-viewer-unit-tests.yml"
+  - ".github/workflows/check-no-prerelease-suffixes-in-PR.yml"
+  - ".github/workflows/test-selection-check.yml"
+  - ".github/workflows/bdd-selection-comment.yml"
+  - ".github/workflows/canvas-log-viewer-unit-tests.yml"
+  - ".github/workflows/local-test.yml"
+  - ".github/workflows/Chart-Releaser-ReleasedChartTester-TrivyScanner.yml"
+
+fullSuite:
+  # Every feature depends on the CRDs
+  - "charts/oda-crds/**"
+
+# A PR that changes an operator also bumps its version in the canvas-oda
+# chart. So these files are mapped by the sections that changed, not as a
+# whole: a top-level key in values.yaml (such as `component-operator`), a
+# dependency name in Chart.yaml, or `chart-metadata` for the chart's own
+# fields (its version, for example). A section selects the rules that list it
+# in `canvasSections`. A section that no rule lists, such as `global`,
+# `keycloak` or `oda-crds`, runs the full suite. Comment-only changes run
+# nothing. The selector reads the diffs from git (--base) or from the GitHub
+# PR files API (--pr-files); without a diff, these files run the full suite.
+canvasChart:
+  - "charts/canvas-oda/values.yaml"
+  - "charts/canvas-oda/Chart.yaml"
+
+rules:
+  - name: Component Management operator
+    paths:
+      - "source/operators/TMFOP001-Component-Management/**"
+      - "charts/component-operator/**"
+    canvasSections:
+      - component-operator
+    tags: "@UC002 or @UC013"
+
+  - name: API Management operator (Istio)
+    paths:
+      - "source/operators/TMFOP002-API-Management/istio/**"
+      - "charts/api-operator-istio/**"
+    canvasSections:
+      - api-operator-istio
+    tags: "@UC003 or @UC012"
+
+  # The UC003 features run on the Istio canvas, so they don't exercise Kong
+  # or APISIX. The gateway features run on their own canvas (see gateways).
+  - name: API Management operator (Kong)
+    paths:
+      - "source/operators/TMFOP002-API-Management/kong/**"
+      - "charts/kong-gateway/**"
+    canvasSections:
+      - kong-gateway-install
+      - kongnamespace
+      - api-operator-kong
+    tags: "@KongGateway"
+
+  - name: API Management operator (APISIX)
+    paths:
+      - "source/operators/TMFOP002-API-Management/apache-apisix/**"
+      - "charts/apisix-gateway/**"
+    canvasSections:
+      - apisix-gateway-install
+      - api-operator-apisix
+    tags: "@ApisixGateway"
+
+  - name: Identity Config operator (Keycloak)
+    paths:
+      - "source/operators/TMFOP003-Identity-Config/**"
+      - "charts/identityconfig-operator-keycloak/**"
+    canvasSections:
+      - identityconfig-operator-keycloak
+    tags: "@UC005 or @UC010"
+
+  - name: Dependency Management operators
+    paths:
+      - "source/operators/TMFOP005-Dependency-Management/**"
+      - "charts/dependentapi-simple-operator/**"
+      - "charts/dependency-management-keycloak-authz/**"
+    canvasSections:
+      - dependentapi-simple-operator
+      - dependency-management-keycloak-authz
+    tags: "@UC007"
+
+  # The dependent API operator registers resolved dependencies in the
+  # canvas info service (TMF638).
+  - name: Canvas info service (TMF638 Service Inventory)
+    paths:
+      - "source/tmf-services/TMF638_Service_Inventory/**"
+      - "charts/canvas-info-service/**"
+    canvasSections:
+      - canvas-info-service
+    tags: "@UC007"
+
+  # Step definitions are shared, so a change to them runs the full suite,
+  # except for the product ordering steps, which only UC007-F002 uses.
+  - name: Product ordering steps
+    paths:
+      - "feature-definition-and-test-kit/features/step-definition/ProductOrderingSteps.js"
+    tags: "@UC007-F002"
+
+  - name: Resource inventory (TMF639)
+    paths:
+      - "source/tmf-services/TMF639_Resource_Inventory/**"
+      - "charts/resource-inventory/**"
+    canvasSections:
+      - resource-inventory
+    tags: "@UC016"
+
+  - name: Component Registry
+    paths:
+      - "source/services/ComponentRegistry/**"
+      - "charts/component-registry/**"
+    canvasSections:
+      - component-registry
+    tags: "@UC016"
+
+  # The webhook converts components between CRD versions.
+  - name: ODA webhook
+    paths:
+      - "source/webhooks/**"
+      - "charts/oda-webhook/**"
+    canvasSections:
+      - oda-webhook
+    tags: "@UC013"
+
+  - name: Disruption Budget Management operator
+    paths:
+      - "source/operators/TMFOP010-Disruption-Budget-Management/**"
+      - "charts/pdb-management-operator/**"
+    canvasSections:
+      - pdb-management-operator
+    tags: "@UC017"
+
+  # Installed by the canvas-oda chart, but no feature tests them directly.
+  # A rule with no tags runs only the smoke test. The canvas chart's own
+  # version (chart-metadata) changes in almost every PR, so it runs only the
+  # smoke test too.
+  - name: Canvas install prerequisites
+    paths:
+      - "source/operators/TMFOP007-Secrets-Management/**"
+      - "charts/secretsmanagement-operator/**"
+      - "charts/canvas-vault/**"
+      - "charts/cert-manager-init/**"
+      - "charts/canvas-namespaces/**"
+    canvasSections:
+      - secretsmanagement-operator
+      - canvas-vault
+      - cert-manager-init
+      - canvas-namespaces
+      - chart-metadata

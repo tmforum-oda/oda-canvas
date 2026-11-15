@@ -22,7 +22,7 @@ see [Installation Guide](installation/README.md) for installation instructions.
 
 There is an introductory video on the ODA Canvas at:
 
-[![How do I buy or build an ODA Canvas?](https://img.youtube.com/vi/dYyyCDPlVHY/0.jpg)](https://youtu.be/B5lF94l-Dek?si=gKQAW57j8GEDx6Yv&t=1)
+[![Introduction to the ODA Canvas](https://img.youtube.com/vi/xLdFY9mGJxI/0.jpg)](https://youtu.be/xLdFY9mGJxI)
 
 The ODA Canvas is itself a modular architecture, with independent **operators** that embed the management and operations activities in software. The **Component Management** operator manages the lifecycle of each component, and the decomposition into ExposedAPIs, IdentityConfigs and other sub-resources (that are processed by their corresponding operators). The **API Management** operators manage the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers. You deploy the matching API Management operator for whatever API Gateway or Service Mesh you are using. The **Identity Config** operator configures the Identity Management Services. The **Secrets Management** operator is an optional operator to configure secrets. The **Dependency Management** operator provides services to allow a Component to discover API dependencies.
 

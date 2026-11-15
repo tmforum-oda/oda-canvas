@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import FileResponse, Response
 
-from auth.middleware import get_current_user
+from auth.middleware import get_current_user, require_admin
 from auth.models import AuthUser
 from conformance.runner import runner
 from models.conformance import (
@@ -12,7 +12,7 @@ from models.conformance import (
     CanvasConformanceRunRequest,
 )
 
-router = APIRouter(prefix="/api/conformance", tags=["conformance"])
+router = APIRouter(prefix="/api/conformance", tags=["conformance"], dependencies=[Depends(require_admin)])
 
 
 @router.get("/canvas/config", response_model=CanvasConformanceConfig)
