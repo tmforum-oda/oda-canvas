@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     AUTH_COOKIE_SECURE: bool = True
     AUTH_COOKIE_SAMESITE: Literal["strict", "lax", "none"] = "strict"
 
+    # Groups or realm roles allowed to use the Helm and conformance APIs.
+    # An empty list denies everyone. AUTHZ_ALLOW_ALL_AUTHENTICATED=true turns
+    # the check off and allows any authenticated user (the pre-check behaviour).
+    AUTHZ_ADMIN_GROUPS: list[str] = ["canvas-admin"]
+    AUTHZ_ALLOW_ALL_AUTHENTICATED: bool = False
+
     ENTRAID_TENANT_ID: str = ""
     ENTRAID_CLIENT_ID: str = ""
     ENTRAID_CLIENT_SECRET: str = ""

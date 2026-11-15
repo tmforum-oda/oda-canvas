@@ -58,8 +58,10 @@ frontend:
   affinity: {}
 keycloak:
   init:
-    # Set to true to run a post-install/post-upgrade Job that creates
-    # the required groups and service-account permissions in Keycloak.
+    # Set to true to run a post-install/post-upgrade Job that creates a group
+    # and a realm role for each backend.auth.adminGroups entry, and grants the
+    # canvas-portal-admin service account the realm-management user roles.
+    # It does not create the realm or clients, or assign users.
     enabled: true
     adminUser: testadminpo.
     adminPassword: ""
@@ -77,6 +79,16 @@ backend:
   auth:
     cookieSecure: false
     cookieSameSite: strict
+    # Keycloak groups or realm roles allowed to use the Helm and conformance
+    # APIs. Everyone else gets 403. The keycloak.init Job creates a group and a
+    # realm role with each name, and gives the group that role, so adding a
+    # user to the group or assigning the role both work. It does not assign
+    # users. An empty list denies everyone.
+    adminGroups:
+      - canvas-admin
+    # Set to true to turn the check off and let every authenticated user use
+    # the Helm and conformance APIs (the behaviour before the check existed).
+    allowAllAuthenticated: false
   image:
     repository: tmforumodacanvas/canvas-portal
     tag: backend-0.1.0

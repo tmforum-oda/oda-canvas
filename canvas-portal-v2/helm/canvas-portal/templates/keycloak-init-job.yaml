@@ -22,6 +22,7 @@ data:
     ADMIN_CLIENT_ID  = os.environ["KEYCLOAK_ADMIN_CLIENT_ID"]
     KC_ADMIN_USER    = os.environ["KC_ADMIN_USER"]
     KC_ADMIN_PASS    = os.environ["KC_ADMIN_PASSWORD"]
+    ADMIN_GROUPS     = json.loads(os.environ.get("AUTHZ_ADMIN_GROUPS") or "[]")
 
     REQUIRED_ROLES  = ["manage-users", "view-users", "query-users"]
 
@@ -67,6 +68,37 @@ data:
 
     def hdrs(token):
         return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+    def ensure_admin_access(token):
+        # Create a group and a realm role per admin name (409 means it exists),
+        # and map the role onto the group so members get it in realm_access.
+        for raw in ADMIN_GROUPS:
+            name = str(raw).strip().lstrip("/")
+            if not name:
+                continue
+            if "/" in name:
+                print(f"  WARNING: '{raw}' is a subgroup path; create it by hand — skipping.")
+                continue
+            status, _ = req("POST", f"{KEYCLOAK_URL}/admin/realms/{REALM}/groups",
+                            data={"name": name}, headers=hdrs(token), ok=(201, 409))
+            print(f"  Group '{name}': {'created' if status == 201 else 'already exists'}")
+            status, _ = req("POST", f"{KEYCLOAK_URL}/admin/realms/{REALM}/roles",
+                            data={"name": name,
+                                  "description": "Canvas Portal: Helm and conformance access"},
+                            headers=hdrs(token), ok=(201, 409))
+            print(f"  Realm role '{name}': {'created' if status == 201 else 'already exists'}")
+            _, found = req("GET", f"{KEYCLOAK_URL}/admin/realms/{REALM}/groups"
+                                  f"?search={urllib.parse.quote(name)}&briefRepresentation=true",
+                           headers=hdrs(token))
+            group = next((g for g in found or [] if g.get("name") == name), None)
+            if group is None:
+                print(f"  WARNING: group '{name}' not found after creation — skipping role mapping.")
+                continue
+            _, role = req("GET", f"{KEYCLOAK_URL}/admin/realms/{REALM}/roles/{urllib.parse.quote(name)}",
+                          headers=hdrs(token))
+            req("POST", f"{KEYCLOAK_URL}/admin/realms/{REALM}/groups/{group['id']}/role-mappings/realm",
+                data=[role], headers=hdrs(token), ok=(204,))
+            print(f"  Realm role '{name}' mapped to group '{name}'")
 
     def assign_service_account_roles(token):
         print(f"Configuring service-account roles for client '{ADMIN_CLIENT_ID}' …")
@@ -125,6 +157,7 @@ data:
         for attempt in range(1, 6):
             try:
                 token = get_master_token()
+                ensure_admin_access(token)
                 assign_service_account_roles(token)
                 print("Keycloak initialisation complete.")
                 return
@@ -184,6 +217,8 @@ spec:
               value: {{ $realm | quote }}
             - name: KEYCLOAK_ADMIN_CLIENT_ID
               value: {{ .Values.backend.env.KEYCLOAK_ADMIN_CLIENT_ID | quote }}
+            - name: AUTHZ_ADMIN_GROUPS
+              value: {{ ((.Values.backend.auth | default dict).adminGroups | default list) | toJson | quote }}
             - name: KC_ADMIN_USER
               value: {{ .Values.keycloak.init.adminUser | quote }}
             - name: KC_ADMIN_PASSWORD
