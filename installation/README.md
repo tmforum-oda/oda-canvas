@@ -263,7 +263,7 @@ Components which do not request Secrets-Management will work without any errors.
 
 By default, the Component Registry is deployed into the canvas namespace.  
 A description of the UI and instructions on how to set up Component Registry for a multi-canvas scenario  
-can be found here: [Component Registry](./docs/component-registry/README.md)
+can be found here: [Component Registry](../docs/component-registry/README.md)
 
 #### Disable Component Registry
   
