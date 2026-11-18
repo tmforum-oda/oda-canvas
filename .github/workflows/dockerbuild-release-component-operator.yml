@@ -12,9 +12,10 @@ on:
   push:
     branches:
     - main
-    paths: 
+    paths:
       - source/operators/TMFOP001-Component-Management/component-management/*
-
+      # changes to tests alone don't need a new release image
+      - '!**/tests/**'
 jobs:
   build-component-operator-release-dockerfile-job:
     runs-on: ubuntu-latest
