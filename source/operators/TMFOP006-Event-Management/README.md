@@ -2,7 +2,7 @@
 
 Governs how ODA Components publish and subscribe to business events across the enterprise. It automatically configures the event broker so that components can exchange real-time notifications — such as order updates, inventory changes, or customer events — without point-to-point integration. Multiple event broker implementations are supported, allowing the Canvas to align with the organisation's existing messaging infrastructure.
 
-** *Implementation Planned* **
+**Status**: *Experimental*. The operator is being developed in its own repository, [tmforum-oda/TMFOP006-Event-Management](https://github.com/tmforum-oda/TMFOP006-Event-Management). It has a reference component, TrapReceiver, that publishes TMF642 alarm events on Kafka.
 
 ## Sequence Diagrams
 
