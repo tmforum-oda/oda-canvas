@@ -16,15 +16,29 @@ We expect that there will be multiple implementations of the Canvas. This reposi
 
 ## How do I buy or build a Canvas?
 
-There are multiple options to build or buy a Canvas:
+With a traditional application, you buy the software and its platform together: every vendor brings its own API gateway, identity management and monitoring. The ODA Canvas separates the two. Components declare what they need, and the Canvas provides it using the platform services you choose. So a Canvas is not one product. It is a modular platform, built from [Canvas operators](source/operators/README.md).
 
-* Public Cloud Offerings: Multiple Public Cloud Providers are offering a managed Canvas offering on top of their managed Kubernetes services. At DTW Copenhagen there were PoC demonstrations from AWS, Azure, China Mobile, Google Cloud and Oracle Cloud. These offerings are typically based on the Reference Implementation, but may have additional features or capabilities and will typically integrate with the Public Cloud Provider's other services (for API Management, Observability etc.).
-* 'Roll your own' Canvas based on the Reference Implementation. The Reference Implementation Canvas is released as Apache 2.0 licensed assets that can be used to build your own Canvas. The Reference Implementation is designed to be extensible, and we expect that teams will add their own operators to support their own specific requirements. 
-* Infrastructure software vendors and open source projects offering operators/managers for their software. Many infrastructure software vendors and open source projects have already adopted the Kubernetes Operator Pattern to manage their software. For example, [Istio](https://istio.io/latest/docs/setup/install/operator/) and [Kong](https://docs.konghq.com/kubernetes-ingress-controller/2.0.x/deployment/kubernetes-operator/) both offer operators that can be used to manage their software on Kubernetes. These operators can be used as the basis for a Canvas implementation.
+There are three ways to get a Canvas:
 
-The ODA Canvas is itself a modular architecture, so you can mix & match these options to create your own Canvas. 
+* **Public cloud offerings.** Public cloud providers offer a managed Canvas on top of their managed Kubernetes services. At DTW Copenhagen there were proof-of-concept demonstrations from AWS, Azure, China Mobile, Google Cloud and Oracle Cloud. These offerings are typically based on the Reference Implementation, and integrate with the provider's own services for API management, observability and so on.
+* **Roll your own, from the Reference Implementation.** The Reference Implementation is released under the Apache 2.0 licence and is designed to be extended. You can install it as it is (see the [Installation Guide](installation/README.md)), or add your own operators for your own requirements.
+* **Operators from software vendors and open-source projects.** Many infrastructure products already use the Kubernetes operator pattern, and a vendor can provide a Canvas operator for its own product. For example, the API Management operators for Azure API Management, Google Apigee and Whale Cloud configure those products from the same `ExposedAPI` resource that the Istio, Kong and Apache APISIX operators use.
 
 ![Canvas Options](How-do-I-build-or-buy-a-Canvas.png)
+
+### Mix and match
+
+These are not either-or choices. Because the Canvas is modular, you can combine all three: for example, a cloud provider's API management, the reference Identity Config operator, and your own operator for an in-house system. We expect a typical production Canvas to combine standard operators with custom operators that apply the organization's own operational policies.
+
+Choosing the modules is configuration, not code. In the Reference Implementation, the [canvas-oda Helm chart values](https://github.com/tmforum-oda/oda-canvas/blob/main/charts/canvas-oda/values.yaml) select which operators are installed. Only one API operator (Istio, Kong or Apache APISIX) can be enabled at a time, and the [Dependency Management](source/operators/TMFOP005-Dependency-Management/README.md) operator has two implementations: a simple one, and one that waits for access to be granted in Keycloak. Changing an operator does not change the components.
+
+### How you know it is a Canvas
+
+Whichever route you take, there is an objective way to check the result. The behaviour that every Canvas must show is written down in two places: the [use case library](usecase-library/README.md) describes it at a high level, and the BDD (Behaviour-Driven Development) features in the [test kit](feature-definition-and-test-kit/README.md) describe it in detail, as scenarios. The test kit turns the scenarios into executable tests that can validate any Canvas implementation. The Reference Implementation runs them on every change, and the Canvas Portal has a BDD page that loads the features from this repository and runs them against your own Canvas.
+
+### Build your own operator
+
+Operators can be written in any language that follows the [Kubernetes operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). The reference operators use Python with the [KOPF](https://kopf.readthedocs.io/) framework, and Go. To work with the rest of the Canvas, an operator uses the same standard custom resources (`Component`, `ExposedAPI`, `DependentAPI`, `IdentityConfig`, `SecretsManagement` and the others). The [create-oda-operator](skills/create-oda-operator/SKILL.md) skill helps an AI coding assistant to create a new operator, and the test kit's features can be used to test it.
 
 ## Canvas Design structure
 
