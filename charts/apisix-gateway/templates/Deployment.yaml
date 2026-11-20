@@ -3,6 +3,10 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-apisixistio-operator
   namespace: {{ .Release.Namespace }}
+  labels:
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: api-operator-apisix
+    oda.tmforum.org/operatorId: TMFOP002
 spec:
   replicas: {{ .Values.apisixoperatorreplicaCount }}
   selector:

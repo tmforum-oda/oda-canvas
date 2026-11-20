@@ -169,6 +169,9 @@ metadata:
   namespace: {{ .Release.Namespace }}      # NEVER hardcode
   labels:
     {{- include "<chart>.labels" . | nindent 4 }}
+    oda.tmforum.org/operator: "true"            # operator charts only, see below
+    oda.tmforum.org/operatorName: <operator-name>
+    oda.tmforum.org/operatorId: TMFOP0xx
 spec:
   replicas: 1
   selector:
@@ -189,6 +192,17 @@ spec:
             - configMapRef:
                 name: {{ include "<chart>.fullname" . }}-config
 ```
+
+### Operator Discovery Labels
+
+Canvas Portal v2 lists an operator on its **Operators** page when the operator's Deployment carries these labels. Put them on the Deployment's own `metadata.labels`. Don't put them on the Pod template or the selector: `spec.selector` is immutable, so changing it breaks `helm upgrade`.
+
+- `oda.tmforum.org/operator: "true"`: opts the Deployment in.
+- `oda.tmforum.org/operatorName`: the operator name, used in the portal's detail page URL. Use a fixed slug (letters, digits, `-`, `_`, `.`; max 63 characters), not a templated release name. Separate the words with `-`: the portal builds the card title from the slug by starting each word with a capital letter and writing known abbreviations such as API, APISIX and PDB in capitals, so `api-operator-kong` becomes "API Operator Kong". Write `identity-config-operator-keycloak`, not `identityconfig-operator-keycloak`, which would read "Identityconfig Operator Keycloak".
+- `oda.tmforum.org/operatorId`: the TMF operator ID (`TMFOP001` ... `TMFOP011`), shown as a badge.
+- Optional annotation `oda.tmforum.org/operatorContainer`: names the operator container when the Deployment has several containers and none is named after the operator or the Deployment.
+
+Use one Deployment per operator. On the label path the portal shows one card per Deployment. See `canvas-portal-v2/README.md` for the full contract.
 
 ## RBAC Template
 
