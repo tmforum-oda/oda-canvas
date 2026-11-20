@@ -16,9 +16,11 @@ At present, there are API Operators for the following API Gateways/Service Meshe
 * [Kong](./kong/README.md): Operator for the Kong open source API Gateway (https://konghq.com/products/kong-gateway).
 * [Istio](./istio/README.md): Operator for the Istio Service Mesh (https://istio.io/).
 * [Azure API Management](azure-apim/README.md): Operator for the Azure API Gateway (https://azure.microsoft.com/en-gb/products/api-management/).
-* [Google Apigee](apigee/README.md): Operator for the Google Apigee API Gateway (https://cloud.google.com/apigee).
+* Google Apigee (in the `apigee` folder): Operator for the Google Apigee API Gateway (https://cloud.google.com/apigee).
 * [Whale Cloud API Management](whalecloud-apim/README.md): Operator for the Whale Cloud API Gateway (https://online.iwhalecloud.com/).
 
+
+Not every API operator applies every policy in the `ExposedAPI`, and the default Istio operator applies none of them. See [API exposure and gateway policies](API-exposure-and-gateway-policies.md) for how components declare policies and what each operator does with them.
 
 ## ExposedAPI Data Model
 
@@ -35,7 +37,8 @@ metadata:
 spec:
   name: productcatalogmanagement # Name of the API as defined by the Component
   specification:
-    - "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json" # URL to the specification of the API, if required. e.g. URL to the swagger file for Open API.
+    url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json" # URL to the specification of the API, if required. e.g. URL to the swagger file for Open API.
+    version: v4 # (optional) The version of the specification. Each ExposedAPI has one specification: the Component Management operator creates one ExposedAPI per version.
   apiType: openapi # The type of API specification. Currently only OpenAPI (swagger) and OpenMetrics APIs are supported.
   implementation: r1-prodcatapi # The name of the Kubernetes service where the implementation of the API is found
   path: "/r1-productcatalogmanagement/tmf-api/productCatalogManagement/v4" # The path to the root of the API
@@ -53,7 +56,8 @@ metadata:
 spec:
   name: productcatalogmanagement # Name of the API as defined by the Component
   specification:
-    - "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json" # URL to the specification of the API, if required. e.g. URL to the swagger file for Open API.
+    url: "https://raw.githubusercontent.com/tmforum-apis/TMF620_ProductCatalog/master/TMF620-ProductCatalog-v4.0.0.swagger.json" # URL to the specification of the API, if required. e.g. URL to the swagger file for Open API.
+    version: v4 # (optional) The version of the specification. Each ExposedAPI has one specification: the Component Management operator creates one ExposedAPI per version.
   apiType: openapi # The type of API specification. Currently only OpenAPI (swagger) and OpenMetrics APIs are supported.
   apiSDO: TMForum # (optional) The Standards Development Organization that defines the API
   implementation: r1-prodcatapi # The name of the Kubernetes service where the implementation of the API is found
