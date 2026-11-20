@@ -201,7 +201,7 @@ export default function OperatorDetail() {
         <div style={{ flex: 1, minWidth: 240 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <h1 style={{ fontSize: 20, fontWeight: 700, color: colors.textPrimary, margin: 0 }}>
-              {operator.name}
+              {operator.displayName}
             </h1>
             {operator.tmfId && (
               <Tag
@@ -219,7 +219,7 @@ export default function OperatorDetail() {
               </Tag>
             )}
           </div>
-          {operator.tmfName && (
+          {operator.tmfName && operator.tmfName !== operator.displayName && (
             <div style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>
               {operator.tmfName}
             </div>

@@ -120,6 +120,7 @@ noTests:
   - ".github/workflows/test-selection-check.yml"
   - ".github/workflows/bdd-selection-comment.yml"
   - ".github/workflows/canvas-log-viewer-unit-tests.yml"
+  - ".github/workflows/canvas-portal-v2-backend-unit-tests.yml"
   - ".github/workflows/local-test.yml"
   - ".github/workflows/Chart-Releaser-ReleasedChartTester-TrivyScanner.yml"
 

@@ -1,4 +1,5 @@
 import logging
+import re
 from kubernetes import client
 from auth.models import AuthUser
 from k8s.impersonation import get_impersonated_client
@@ -65,6 +66,23 @@ TMF_OPERATOR_IDS: dict[str, tuple[str, str]] = {
 
 TMF_OPERATOR_LABEL_ID = "oda.tmforum.org/operatorId"
 TMF_OPERATOR_LABEL_NAME = "oda.tmforum.org/operatorName"
+
+# Opt-in label: a Deployment carrying it (or an operatorId label) is listed as an operator
+# without needing an OPERATOR_SIGNATURES entry.
+OPERATOR_LABEL = "oda.tmforum.org/operator"
+# Optional annotation naming the operator container in a multi-container Deployment.
+OPERATOR_CONTAINER_ANNOTATION = "oda.tmforum.org/operatorContainer"
+
+# Words written in a fixed case when an operator name is turned into a display name.
+DISPLAY_NAME_WORDS = {
+    "ai":     "AI",
+    "api":    "API",
+    "apisix": "APISIX",
+    "oauth2": "OAuth2",
+    "oda":    "ODA",
+    "pdb":    "PDB",
+    "tmf":    "TMF",
+}
 
 CANVAS_OPERATOR_NAMESPACES = [
     "canvas",
@@ -155,7 +173,59 @@ def _pick_container_for_operator(containers: list[dict], operator_name: str) -> 
     return containers[0] if containers else {}
 
 
+def _display_name(operator_name: str) -> str:
+    """Turn a label-safe operator name into a readable one.
+
+    ``api-operator-kong`` becomes ``API Operator Kong``: the name is split on ``-``, ``_`` and
+    ``.``, each word starts with a capital letter, and the words in ``DISPLAY_NAME_WORDS`` keep
+    their fixed case.
+    """
+    words = [word for word in re.split(r"[-_.]+", operator_name) if word]
+    return " ".join(
+        DISPLAY_NAME_WORDS.get(word.lower(), word[:1].upper() + word[1:]) for word in words
+    )
+
+
+def _discover_labelled_operator(deploy: dict) -> dict | None:
+    """Return the operator a Deployment declares through its labels, or None.
+
+    A Deployment opts in with ``oda.tmforum.org/operator: "true"`` or by carrying an
+    ``oda.tmforum.org/operatorId`` label. The name comes from
+    ``oda.tmforum.org/operatorName``, else the Deployment name, and the display name is its
+    readable form (see ``_display_name``). The operator container is the
+    one named by the ``oda.tmforum.org/operatorContainer`` annotation, else the one named
+    after the operator or the Deployment, else the first container.
+    """
+    metadata = deploy.get("metadata", {}) or {}
+    labels = metadata.get("labels", {}) or {}
+    annotations = metadata.get("annotations", {}) or {}
+    opted_in = str(labels.get(OPERATOR_LABEL, "")).lower() == "true"
+    if not opted_in and not labels.get(TMF_OPERATOR_LABEL_ID):
+        return None
+
+    deployment_name = metadata.get("name", "")
+    name = labels.get(TMF_OPERATOR_LABEL_NAME) or deployment_name
+    containers = _deployment_containers(deploy)
+    by_name = {container.get("name"): container for container in containers}
+    container = (
+        by_name.get(annotations.get(OPERATOR_CONTAINER_ANNOTATION))
+        or by_name.get(name)
+        or by_name.get(deployment_name)
+        or (containers[0] if containers else {})
+    )
+    return {
+        "name":          name,
+        "displayName":   _display_name(name),
+        "containerName": container.get("name", ""),
+        "image":         container.get("image", ""),
+    }
+
+
 def _discover_logical_operators(deploy: dict) -> list[dict]:
+    labelled = _discover_labelled_operator(deploy)
+    if labelled:
+        return [labelled]
+
     deployment_name = deploy.get("metadata", {}).get("name", "")
     containers = _deployment_containers(deploy)
     matches: dict[str, dict] = {}
@@ -290,11 +360,13 @@ def _pod_summary(pod: dict, preferred_container_name: str) -> dict:
     }
 
 
-def _resolve_tmf_identity(operator_name: str, labels: dict) -> tuple[str | None, str | None]:
+def _resolve_tmf_identity(
+    operator_name: str, labels: dict, display_name: str
+) -> tuple[str | None, str | None]:
     label_id = labels.get(TMF_OPERATOR_LABEL_ID)
-    label_name = labels.get(TMF_OPERATOR_LABEL_NAME)
     if label_id:
-        return label_id, label_name
+        # A labelled operator names itself; the built-in table isn't consulted.
+        return label_id, display_name
     static = TMF_OPERATOR_IDS.get(operator_name)
     if static:
         return static[0], static[1]
@@ -319,10 +391,12 @@ def _deployment_to_operators(deploy: dict, pods: list[dict]) -> list[dict]:
         container_name = logical_operator.get("containerName", "")
         desired, ready, available, updated = _operator_counts(container_name, own_pods, dep_status)
         operator_name = logical_operator.get("name", metadata.get("name", ""))
-        tmf_id, tmf_name = _resolve_tmf_identity(operator_name, deploy_labels)
+        display_name = logical_operator.get("displayName", operator_name)
+        tmf_id, tmf_name = _resolve_tmf_identity(operator_name, deploy_labels, display_name)
         operators.append(
             {
                 "name":           operator_name,
+                "displayName":    display_name,
                 "deploymentName": metadata.get("name", ""),
                 "containerName":  container_name,
                 "sharedDeployment": shared_deployment,

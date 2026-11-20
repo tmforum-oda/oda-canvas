@@ -13,7 +13,7 @@ A web management portal for an ODA Canvas. It is the successor to the Spring Boo
 - **Components:** list ODA Components with status, pods, APIs and events (`/api/components`).
 - **APIs:** browse exposed and dependent APIs, with an API relationship graph and resource map.
 - **Gateway:** view Istio, Kong or APISIX resources. The backend detects the gateway at startup from the deployment names in the `canvas` namespace.
-- **Operators and pods:** view operators and pods, with live log streaming.
+- **Operators and pods:** view operators and pods, with live log streaming. See [how operators are discovered](#operators-page-how-operators-are-discovered).
 - **Helm** (admins only): manage chart repositories, then install, uninstall and view history and values for releases. Installs are limited to configured namespaces and, optionally, allowed chart sources.
 - **Conformance** (admins only): run the Canvas BDD tests from the repo, view logs, and download the cucumber and HTML reports.
 - **Model gateway:** create, edit and delete `ModelGatewayService` resources, and proxy chat requests through them.
@@ -135,6 +135,61 @@ Order of work:
 5. Verify with `GET /health`. It returns the detected `canvasType` and the IDM provider.
 
 The frontend gets its runtime settings (`APP_API_BASE_URL`, `APP_KEYCLOAK_*`) from `config.js`, which the nginx entrypoint writes at container start. nginx proxies `/api/*` and the session endpoints to `BACKEND_UPSTREAM`, and Keycloak paths under `/auth/realms|resources|js|admin` to `KEYCLOAK_UPSTREAM`.
+
+## Operators page: how operators are discovered
+
+The **Operators** page (`/operators`, backed by `GET /api/operators`) shows one card per Canvas operator. The backend scans the Deployments it can read and decides which ones are operators:
+
+1. **Labels (preferred).** A Deployment that carries the opt-in label `oda.tmforum.org/operator: "true"` or an `oda.tmforum.org/operatorId` label is listed as one operator.
+2. **Built-in signatures (fallback).** Otherwise, the backend matches the container names, images and Deployment name against a built-in list of known Canvas operators (`OPERATOR_SIGNATURES` in `backend/k8s/resources/operators.py`). A Deployment that hosts several known operators produces one card per operator.
+3. Deployments that match neither are ignored.
+
+Labelled operators therefore appear on the page as soon as they are installed. The portal needs no code change and no rebuild.
+
+### Label contract
+
+All keys go on the Deployment's own `metadata`, not on the Pod template.
+
+| Key | Kind | Meaning |
+|---|---|---|
+| `oda.tmforum.org/operator` | label | `"true"` (any case) opts the Deployment in. |
+| `oda.tmforum.org/operatorName` | label | Operator name, used in the detail page URL. Defaults to the Deployment name. The card shows a readable form of it (see below). |
+| `oda.tmforum.org/operatorId` | label | TMF operator ID shown as a badge (for example `TMFOP001`). Also opts the Deployment in. When it is set, the badge tooltip shows the readable operator name. |
+| `oda.tmforum.org/operatorContainer` | annotation | Container used for the image and readiness when the Deployment has several containers. Defaults to the container named after the operator or the Deployment, else the first container. |
+
+Label values must be 63 characters or fewer and may contain only letters, digits, `-`, `_` and `.`, so use a slug such as `api-operator-kong` for `operatorName`. The portal turns it into a readable name for the card title, the detail page heading and the badge tooltip: it splits the slug on `-`, `_` and `.`, starts each word with a capital letter, and writes a few known abbreviations (API, APISIX, AI, PDB, ODA, TMF, OAuth2) in their usual case. For example, `api-operator-kong` becomes **API Operator Kong**. The portal doesn't use its built-in list of operator names for labelled operators.
+
+### Example
+
+Add the labels to the operator's Deployment template in its Helm chart:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acme-operator
+  labels:
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: acme-operator   # shown as "Acme Operator"
+    oda.tmforum.org/operatorId: TMFOP0xx   # optional badge
+  annotations:
+    oda.tmforum.org/operatorContainer: acme-operator   # optional
+```
+
+To try it on a running operator without changing its chart:
+
+```bash
+kubectl label deployment acme-operator -n canvas oda.tmforum.org/operator=true
+```
+
+### Notes
+
+- The labels affect only what the portal displays. They grant no privileges, and the backend reads Deployments with its usual credentials.
+- The backend first lists Deployments in all namespaces. If it isn't allowed to (403/404), it scans only a built-in list of Canvas namespaces (`CANVAS_OPERATOR_NAMESPACES` in `backend/k8s/resources/operators.py`). An operator in any other namespace then stays hidden until the backend's service account can list Deployments cluster-wide.
+- Label discovery covers Deployments only. Operators that run as a StatefulSet or DaemonSet are not listed.
+- Operators that share a single Deployment should keep relying on the built-in signatures, because the label path produces one card per Deployment.
+- The detail page, pod list and logs work the same way for operators found by either path.
+- Operators found by the built-in signatures keep their built-in name (for example `component-operator`) and the full TMF name in the badge tooltip.
 
 ## Local development
 
