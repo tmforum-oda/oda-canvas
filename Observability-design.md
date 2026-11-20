@@ -59,7 +59,7 @@ Not every platform uses `ServiceMonitor` resources, so the API operator has a se
 | `PrometheusAnnotation` | Adds Prometheus scrape annotations to the component's pods | Prometheus without the Prometheus operator, and some managed Prometheus services, such as [Azure Monitor managed service for Prometheus](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/prometheus-metrics-overview) |
 | `DataDogAnnotation` | Adds pod annotations in Datadog's format | Datadog |
 
-The setting is supported by the Istio, Kong and Apache APISIX API operators. In the `canvas-oda` chart, the Istio API operator defaults to `ServiceMonitor`, and the Kong and APISIX API operators default to `PrometheusAnnotation`. With the reference observability stack, set it to `ServiceMonitor`, for example:
+The setting is supported by the Istio, Kong and Apache APISIX API operators (`<operator>.deployment.openMetricsImplementation` in the `canvas-oda` chart). The `canvas-oda` chart sets `PrometheusAnnotation` by default, so with the reference observability stack, set it to `ServiceMonitor`, for example:
 
 ```bash
 helm upgrade --install canvas charts/canvas-oda -n canvas --create-namespace \
