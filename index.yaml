@@ -3447,6 +3447,17 @@ entries:
   carbon-management-operator:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-11-20T09:37:30.428488615Z"
+    description: A helm chart to deploy the TMFOP011 Carbon Management operator on
+      ODA Canvas
+    digest: a09a1971c1a4e9174f46d57a7107e8d674f8c0f04329144f6e8f4b06336b4f86
+    name: carbon-management-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/carbon-management-operator-1.0.1/carbon-management-operator-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
+    appVersion: v1
     created: "2026-06-22T04:41:23.377318777Z"
     description: A helm chart to deploy the TMFOP011 Carbon Management operator on
       ODA Canvas
@@ -3731,6 +3742,17 @@ entries:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/controller-0.1.0/controller-0.1.0.tgz
     version: 0.1.0
   credentialsmanagement-operator:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2026-11-20T09:37:30.60257406Z"
+    description: A helm chart to deploy the credentialsmanagement operator for reference
+      implemention
+    digest: 3be60c2970b2d7d4b0bcc3173d8201bf22f6dfcc0c1b5708003699320035b63e
+    name: credentialsmanagement-operator
+    type: application
+    urls:
+    - https://github.com/tmforum-oda/oda-canvas/releases/download/credentialsmanagement-operator-1.0.2/credentialsmanagement-operator-1.0.2.tgz
+    version: 1.0.2
   - apiVersion: v2
     appVersion: v1
     created: "2025-06-13T15:35:44.868619371Z"
@@ -4486,4 +4508,4 @@ entries:
     urls:
     - https://github.com/tmforum-oda/oda-canvas/releases/download/secretsmanagement-operator-0.1.2/secretsmanagement-operator-0.1.2.tgz
     version: 0.1.2
-generated: "2026-11-20T09:25:36.183333957Z"
+generated: "2026-11-20T09:37:30.602866115Z"
