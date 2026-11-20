@@ -15,6 +15,7 @@
 #   PORTAL_PORT        host port for the Canvas Portal        (default: 8090)
 #   CANVAS_VERSION     canvas-oda chart version               (default: latest release candidate)
 #   ISTIO_VERSION      Istio chart version                    (default: latest)
+#   GATEWAY_API_VERSION  Kubernetes Gateway API CRDs version  (default: v1.0.0)
 #   INSTALL_COMPONENT  install the Product Catalog component  (default: true)
 #   INSTALL_PORTAL     install the Canvas Portal v2           (default: true)
 #   PORTAL_USER        Portal user name                       (default: demo)
@@ -31,6 +32,7 @@ HTTPS_PORT=${HTTPS_PORT:-443}
 PORTAL_PORT=${PORTAL_PORT:-8090}
 CANVAS_VERSION=${CANVAS_VERSION:-}
 ISTIO_VERSION=${ISTIO_VERSION:-}
+GATEWAY_API_VERSION=${GATEWAY_API_VERSION:-v1.0.0}
 INSTALL_COMPONENT=${INSTALL_COMPONENT:-true}
 INSTALL_PORTAL=${INSTALL_PORTAL:-true}
 PORTAL_USER=${PORTAL_USER:-demo}
@@ -99,6 +101,10 @@ helm repo add istio https://istio-release.storage.googleapis.com/charts --force-
 helm repo add oda-canvas https://tmforum-oda.github.io/oda-canvas --force-update >/dev/null
 helm repo add oda-components https://tmforum-oda.github.io/reference-example-components --force-update >/dev/null
 helm repo update >/dev/null
+
+# The Kubernetes Gateway API CRDs. Istio doesn't need them, but the Portal's
+# Gateway, Service Mesh and Policies pages fail without them, and Kong needs them.
+k apply -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/$GATEWAY_API_VERSION/standard-install.yaml" >/dev/null
 
 k create namespace istio-system --dry-run=client -o yaml | k apply -f - >/dev/null
 k create namespace istio-ingress --dry-run=client -o yaml | k apply -f - >/dev/null
@@ -210,10 +216,16 @@ if [ "$INSTALL_PORTAL" = true ]; then
   kcadm add-roles -r odari --uusername service-account-canvas-portal-admin \
     --cclientid realm-management --rolename manage-users --rolename view-users --rolename query-users
 
-  # The Portal's admin group, and a user in it
+  # The Portal's admin group, with a realm role of the same name mapped onto
+  # it. The role is what reaches the user's token (in realm_access.roles), so
+  # members get the Portal's admin features.
   if [ -z "$(csv get groups -r odari -q search=canvas-admin -q exact=true --fields id)" ]; then
     kcadm create groups -r odari -s name=canvas-admin
   fi
+  if ! kcadm get roles/canvas-admin -r odari >/dev/null 2>&1; then
+    kcadm create roles -r odari -s name=canvas-admin -s 'description=Canvas Portal: Helm and conformance access'
+  fi
+  kcadm add-roles -r odari --gname canvas-admin --rolename canvas-admin
   if [ -z "$PORTAL_PASSWORD" ]; then
     PORTAL_PASSWORD=$(head -c 48 /dev/urandom | base64 | tr -dc 'A-Za-z0-9')
     PORTAL_PASSWORD=${PORTAL_PASSWORD:0:16}

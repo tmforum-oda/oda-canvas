@@ -56,6 +56,7 @@ Set these as environment variables, for example `PORTAL_PORT=18090 ./installatio
 | `PORTAL_PORT` | `8090` | The host port for the Portal |
 | `CANVAS_VERSION` | the latest release candidate | The `canvas-oda` chart version |
 | `ISTIO_VERSION` | the latest | The Istio chart version |
+| `GATEWAY_API_VERSION` | `v1.0.0` | The Kubernetes Gateway API CRDs version |
 | `INSTALL_COMPONENT` | `true` | Set to `false` to skip the Product Catalog component |
 | `INSTALL_PORTAL` | `true` | Set to `false` to skip the Portal |
 | `PORTAL_USER`, `PORTAL_PASSWORD` | `demo`, generated | The Portal login |
@@ -75,7 +76,7 @@ kind delete cluster --name oda-demo
 The [script](https://github.com/tmforum-oda/oda-canvas/blob/main/installation/local-demo-canvas.sh) follows the full [installation guide](README.md), with the extra steps a local cluster needs. Read it to adapt it, or to do the same on another kind of cluster.
 
 1. **Creates the cluster**, mapping the host ports to fixed node ports (30080, 30443 and 30090). The gateway and the Portal use those node ports, so no `kubectl port-forward` is needed, and the ports keep working after a restart.
-2. **Installs Istio**: the `base`, `istiod` and `gateway` charts, with the gateway service named `istio-ingress`.
+2. **Installs Istio**: the `base`, `istiod` and `gateway` charts, with the gateway service named `istio-ingress`. It also installs the Kubernetes Gateway API CRDs. Istio doesn't need them, but the Portal's Gateway, Service Mesh and Policies pages fail with "Failed to load" without them.
 3. **Gives the ingress gateway the address `127.0.0.1`.** kind has no load balancer, so the gateway never gets an external address by itself. The Canvas needs one **before** you install the Canvas or any component:
    - the Canvas chart's pre-install check fails without it;
    - the API operator builds each API's URL from it when the component is installed. A component installed before the gateway has an address stays at `In-Progress-CompCon` with empty URLs, even after the address arrives ([#621](https://github.com/tmforum-oda/oda-canvas/issues/621)).
@@ -97,7 +98,7 @@ The [script](https://github.com/tmforum-oda/oda-canvas/blob/main/installation/lo
 7. **Sets up Keycloak for the Portal** with `kcadm.sh` in the `canvas-keycloak-0` pod, logging in with the admin password from the `canvas-keycloak` secret. In the `odari` realm, it creates:
    - the `canvas-portal` client: public, with direct access grants, which the Portal backend uses to log users in;
    - the `canvas-portal-admin` client: confidential, with a service account that can manage users;
-   - the `canvas-admin` group and the Portal user, in that group. Only members of `canvas-admin` can install Helm charts and run conformance tests from the Portal. Other users can view the Canvas.
+   - the `canvas-admin` group, with a `canvas-admin` realm role mapped onto it, and the Portal user, in that group. The role is what reaches the user's token. Only users with it can install Helm charts and run conformance tests from the Portal. Other users can view the Canvas.
 8. **Installs the Portal chart** from `canvas-portal-v2/helm/canvas-portal`, with values for a local cluster:
    - the locally built images;
    - the Keycloak address inside the cluster, and the admin client's secret;
@@ -113,6 +114,8 @@ The [script](https://github.com/tmforum-oda/oda-canvas/blob/main/installation/lo
 | `helm install canvas` never finishes | It was run with `--wait` (step 4). Uninstall, then install again without it. |
 | A component stays at `In-Progress-CompCon` and its exposed APIs have no URL | It was installed before the gateway had an address (step 3). Uninstall and reinstall the component. |
 | The Portal frontend restarts with `30-runtime-config.sh: not found` | The image was built from a Windows checkout with Windows line endings (step 6). |
+| The Portal's Deploy page says "Could not load Helm repositories" | The user's token doesn't carry the `canvas-admin` realm role (step 7). Run the script again, then log out and in. |
+| The Portal's Gateway, Service Mesh or Policies page says "Failed to load" | The Gateway API CRDs aren't installed (step 2). |
 | The Portal says "Invalid credentials" | Check the user and password in Keycloak's `odari` realm. Users in other realms, such as `master`, can't log in. Run the script again to set the password again. |
 
 For other problems, see the [installation guide's troubleshooting section](README.md#troubleshooting) and the [Troubleshooting guide](https://tmforum-oda.github.io/oda-ca-docs/docs/TroubleshootingGuide/index.html).
