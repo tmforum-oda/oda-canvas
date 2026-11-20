@@ -20,6 +20,8 @@ A web management portal for an ODA Canvas. It is the successor to the Spring Boo
 - **Cluster overview and observability:** a cluster summary, plus Grafana and Prometheus links if configured.
 - **Authentication:** Keycloak or Entra ID (`IDM_PROVIDER`). The backend validates the JWT and the browser keeps a refresh cookie.
 
+For a page-by-page walk-through with screenshots, see [A tour of the Canvas Portal v2](portal-tour.md).
+
 ## Prerequisites
 
 - A running ODA Canvas. The `canvas` namespace must exist for gateway detection.
