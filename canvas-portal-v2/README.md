@@ -153,11 +153,11 @@ All keys go on the Deployment's own `metadata`, not on the Pod template.
 | Key | Kind | Meaning |
 |---|---|---|
 | `oda.tmforum.org/operator` | label | `"true"` (any case) opts the Deployment in. |
-| `oda.tmforum.org/operatorName` | label | Display name on the card. Defaults to the Deployment name. |
-| `oda.tmforum.org/operatorId` | label | TMF operator ID shown as a badge (for example `TMFOP001`). Also opts the Deployment in. The badge tooltip shows the full TMF name when the portal knows the operator under that ID, else the `operatorName` value. |
+| `oda.tmforum.org/operatorName` | label | Operator name, used in the detail page URL. Defaults to the Deployment name. The card shows a readable form of it (see below). |
+| `oda.tmforum.org/operatorId` | label | TMF operator ID shown as a badge (for example `TMFOP001`). Also opts the Deployment in. When it is set, the badge tooltip shows the readable operator name. |
 | `oda.tmforum.org/operatorContainer` | annotation | Container used for the image and readiness when the Deployment has several containers. Defaults to the container named after the operator or the Deployment, else the first container. |
 
-Label values must be 63 characters or fewer and may contain only letters, digits, `-`, `_` and `.`. Use a slug such as `Acme-Operator` for `operatorName`; the card shows the value as written.
+Label values must be 63 characters or fewer and may contain only letters, digits, `-`, `_` and `.`, so use a slug such as `api-operator-kong` for `operatorName`. The portal turns it into a readable name for the card title, the detail page heading and the badge tooltip: it splits the slug on `-`, `_` and `.`, starts each word with a capital letter, and writes a few known abbreviations (API, APISIX, AI, PDB, ODA, TMF, OAuth2) in their usual case. For example, `api-operator-kong` becomes **API Operator Kong**. The portal doesn't use its built-in list of operator names for labelled operators.
 
 ### Example
 
@@ -170,7 +170,7 @@ metadata:
   name: acme-operator
   labels:
     oda.tmforum.org/operator: "true"
-    oda.tmforum.org/operatorName: Acme-Operator
+    oda.tmforum.org/operatorName: acme-operator   # shown as "Acme Operator"
     oda.tmforum.org/operatorId: TMFOP0xx   # optional badge
   annotations:
     oda.tmforum.org/operatorContainer: acme-operator   # optional
@@ -189,6 +189,7 @@ kubectl label deployment acme-operator -n canvas oda.tmforum.org/operator=true
 - Label discovery covers Deployments only. Operators that run as a StatefulSet or DaemonSet are not listed.
 - Operators that share a single Deployment should keep relying on the built-in signatures, because the label path produces one card per Deployment.
 - The detail page, pod list and logs work the same way for operators found by either path.
+- Operators found by the built-in signatures keep their built-in name (for example `component-operator`) and the full TMF name in the badge tooltip.
 
 ## Local development
 

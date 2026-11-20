@@ -136,11 +136,12 @@ def test_operator_id_label_alone_opts_in():
     [op] = operators._deployment_to_operators(deploy, [])
 
     assert op["name"] == "acme-operator"
+    assert op["displayName"] == "Acme Operator"
     assert op["tmfId"] == "TMFOP042"
-    assert op["tmfName"] is None
+    assert op["tmfName"] == "Acme Operator"
 
 
-def test_operator_name_label_sets_display_and_tmf_name():
+def test_operator_name_label_sets_name_display_name_and_tmf_name():
     deploy = _deployment(
         "acme-operator",
         labels={
@@ -152,34 +153,44 @@ def test_operator_name_label_sets_display_and_tmf_name():
     [op] = operators._deployment_to_operators(deploy, [])
 
     assert op["name"] == "Acme-Operator"
+    assert op["displayName"] == "Acme Operator"
     assert op["deploymentName"] == "acme-operator"
-    assert op["tmfName"] == "Acme-Operator"
+    assert op["tmfName"] == "Acme Operator"
 
 
 @pytest.mark.parametrize(
-    "operator_id, expected_tmf_name",
+    "operator_name, expected",
     [
-        ("TMFOP001", "Component Management Operator"),
-        ("TMFOP099", "component-operator"),
+        ("api-operator-kong", "API Operator Kong"),
+        ("api-operator-apisix", "API Operator APISIX"),
+        ("component-operator", "Component Operator"),
+        ("pdb-management-operator", "PDB Management Operator"),
+        ("oauth2-envoyfilter-operator", "OAuth2 Envoyfilter Operator"),
+        ("ai_gateway.operator", "AI Gateway Operator"),
+        ("Acme--Operator-", "Acme Operator"),
+        ("myOperator", "MyOperator"),
     ],
 )
-def test_known_operator_keeps_full_tmf_name_when_id_matches(
-    operator_id, expected_tmf_name
-):
+def test_display_name(operator_name, expected):
+    assert operators._display_name(operator_name) == expected
+
+
+def test_labelled_operator_does_not_use_built_in_tmf_names():
     deploy = _deployment(
-        "component-operator",
+        "kong-api-operator",
         labels={
             operators.OPERATOR_LABEL: "true",
-            operators.TMF_OPERATOR_LABEL_NAME: "component-operator",
-            operators.TMF_OPERATOR_LABEL_ID: operator_id,
+            operators.TMF_OPERATOR_LABEL_NAME: "api-operator-kong",
+            operators.TMF_OPERATOR_LABEL_ID: "TMFOP002",
         },
     )
 
     [op] = operators._deployment_to_operators(deploy, [])
 
-    assert op["name"] == "component-operator"
-    assert op["tmfId"] == operator_id
-    assert op["tmfName"] == expected_tmf_name
+    assert op["name"] == "api-operator-kong"
+    assert op["displayName"] == "API Operator Kong"
+    assert op["tmfId"] == "TMFOP002"
+    assert op["tmfName"] == "API Operator Kong"
 
 
 def test_signature_match_without_labels_is_unchanged():
@@ -193,6 +204,7 @@ def test_signature_match_without_labels_is_unchanged():
     [op] = operators._deployment_to_operators(deploy, [])
 
     assert op["name"] == "component-operator"
+    assert op["displayName"] == "component-operator"
     assert op["containerName"] == "component-operator"
     assert op["tmfId"] == "TMFOP001"
     assert op["tmfName"] == "Component Management Operator"

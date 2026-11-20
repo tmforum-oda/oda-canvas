@@ -42,6 +42,7 @@ interface RawOperator {
   selector?: Record<string, string> | null
   labels?: Record<string, string> | null
   strategy?: string | null
+  displayName?: string | null
   tmfId?: string | null
   tmfName?: string | null
 }
@@ -69,6 +70,7 @@ export interface OperatorPod {
 
 export interface Operator {
   name: string
+  displayName: string   // readable name for headings; `name` is the URL and lookup key
   deploymentName: string
   containerName?: string
   sharedDeployment?: boolean
@@ -115,6 +117,7 @@ function normalizeOperatorPod(raw: RawOperatorPod): OperatorPod {
 function normalizeOperator(raw: RawOperator): Operator {
   return {
     name: raw.name ?? '',
+    displayName: raw.displayName ?? raw.name ?? '',
     deploymentName: raw.deploymentName ?? raw.name ?? '',
     containerName: raw.containerName ?? undefined,
     sharedDeployment: raw.sharedDeployment ?? undefined,

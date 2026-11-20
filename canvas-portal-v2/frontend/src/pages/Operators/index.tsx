@@ -83,7 +83,7 @@ function OperatorCard({ operator, onViewDetails }: OperatorCardProps) {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 <div style={{ fontWeight: 700, color: colors.textPrimary, fontSize: 14 }}>
-                  {operator.name}
+                  {operator.displayName}
                 </div>
                 {operator.tmfId && (
                   <Tooltip title={operator.tmfName ?? operator.tmfId}>
