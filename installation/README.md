@@ -290,6 +290,8 @@ Dependencies are resolved by directly using Kubernetes Custom Resources instead 
 
 ### Local clusters (kind)
 
+To build a complete demo Canvas on kind with one script, from creating the cluster to opening the Canvas Portal, see [Run a local demo Canvas](local-demo-canvas.md).
+
 kind has no load balancer, so the `istio-ingress` service never gets an external IP. Two things depend on that address.
 
 **The Istio pre-install check.** `pre-install-check-istio` fails while the ingress has no external IP. Skip it, as the CI workflows do:
