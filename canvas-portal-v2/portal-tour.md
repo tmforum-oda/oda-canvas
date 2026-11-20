@@ -99,7 +99,7 @@ Conformance tests for components are planned (the **Components** tab).
 
 ## Known limitations
 
-These were seen while taking the screenshots for this page:
+These were seen while taking the screenshots for this page. They are tracked in [issue 687](https://github.com/tmforum-oda/oda-canvas/issues/687).
 
 - The dashboard always shows "ODA Canvas v1.1" as the Canvas version: the value is fixed in the frontend.
 - On a Canvas without the Kubernetes Gateway API CRDs, the Gateway, Service Mesh and Policies tabs fail with "Failed to load". The [local demo script](../installation/local-demo-canvas.md) installs the CRDs.
