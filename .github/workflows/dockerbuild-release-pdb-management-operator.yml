@@ -12,9 +12,10 @@ on:
   push:
     branches:
     - main
-    paths: 
+    paths:
       - source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/*
-
+      # changes to tests alone don't need a new release image
+      - '!**/tests/**'
 jobs:
   build-pdb-management-operator-release-dockerfile-job:
     runs-on: ubuntu-latest

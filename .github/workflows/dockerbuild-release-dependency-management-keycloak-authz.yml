@@ -12,9 +12,10 @@ on:
   push:
     branches:
     - main
-    paths: 
+    paths:
       - source/operators/TMFOP005-Dependency-Management/dependency-management-using-keycloak-authorization/docker/**/*
-
+      # changes to tests alone don't need a new release image
+      - '!**/tests/**'
 jobs:
   build-dependency-management-keycloak-authz-release-dockerfile-job:
     runs-on: ubuntu-latest
