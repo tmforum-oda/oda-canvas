@@ -20,17 +20,42 @@ see [Installation Guide](installation/README.md) for installation instructions.
 
 ## Introduction to ODA Canvas
 
-There is an introductory video on the ODA Canvas at:
+This video is part 1 of the ODA Canvas training series. The [training videos](https://tmforum-oda.github.io/oda-ca-docs/docs/training-videos/index.html) page on the documentation site has every part, with chapters and a transcript.
 
 [![Introduction to the ODA Canvas](https://img.youtube.com/vi/xLdFY9mGJxI/0.jpg)](https://youtu.be/xLdFY9mGJxI)
 
-The ODA Canvas is itself a modular architecture, with independent **operators** that embed the management and operations activities in software. The **Component Management** operator manages the lifecycle of each component, and the decomposition into ExposedAPIs, IdentityConfigs and other sub-resources (that are processed by their corresponding operators). The **API Management** operators manage the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers. You deploy the matching API Management operator for whatever API Gateway or Service Mesh you are using. The **Identity Config** operator configures the Identity Management Services. The **Secrets Management** operator is an optional operator to configure secrets. The **Dependency Management** operator provides services to allow a Component to discover API dependencies.
+TM Forum Open APIs standardised the interfaces between telecom IT systems. Since the Open API programme launched in 2015 they have been downloaded almost 1.4 million times by nearly 72,000 developers (September 2026). Standard interfaces were not enough on their own, though: the industry also needed a standard way to package, deploy and operate the software behind them. That is what ODA Components and the ODA Canvas provide.
 
-The Canvas now includes support for **AI-Native** capabilities, enabling ODA Components to expose MCP (Model Context Protocol) interfaces as tools for AI agents, and allowing AI agents themselves to be deployed as composable ODA Components. This includes AI-specific services such as AI Gateways for responsible AI practices, observability for language model interactions, and continuous evaluation frameworks for non-deterministic AI systems. For more information, see [AI-Native Canvas Design](AI-Native-Canvas-design.md).
+An **ODA Component** is an independently deployable unit of functionality. Alongside its business function, it declares its non-functional needs: the APIs it exposes and depends on, the events it publishes and subscribes to, its security roles and its observability. The **ODA Canvas** reads those declarations and configures the shared platform services that the component needs, so component developers can concentrate on business functionality.
 
-We foresee new operator types becoming available as the ODA Canvas matures. The ODA Canvas reference implementation includes example operators to that are freely available for organizations to re-use, extend or replace with their own implementations. We expect a typical production implementation will use a combination of standard operators and custom operators that can implement that organizations specific operational policies.
+### Composable IT
 
-For more information see [Software Operators](source/operators/README.md)
+Together, components and the Canvas give you composable IT. Use cases are assembled from standard components, the components are deployed onto a Canvas, and the Canvas configures the underlying platform services: API gateways, service meshes, identity, observability and secrets. Those services can be open-source reference modules or commercial cloud services. When a new business need appears, you assemble existing building blocks instead of starting a new integration project.
+
+### Agentic ODA
+
+The same model extends to AI. In the **AI-Native Canvas**, AI agents are packaged as agentic components that follow the same component standard. Components can expose their APIs as tools for agents with the Model Context Protocol (`apiType: mcp`), and agents can describe themselves to other agents with the Agent2Agent protocol (`apiType: a2a`). The Canvas adds AI and data services, such as an AI gateway in front of the approved language models, so agents from many vendors can be governed, observed and cost-managed in one consistent way. For more information, see [AI-Native Canvas Design](AI-Native-Canvas-design.md).
+
+### Canvas operators
+
+The ODA Canvas is itself a modular architecture, with independent **operators** that embed the management and operations activities in software, following the Kubernetes operator pattern:
+
+* The **Component Management** operator manages the lifecycle of each component. It breaks the component into sub-resources (`ExposedAPI`, `DependentAPI`, `IdentityConfig`, `SecretsManagement`, `PublishedNotification` and `SubscribedNotification`), and each one is handled by its own operator.
+* The **API Management** operators configure the API gateway or service mesh, applying any policies the component declares (such as rate limits, API-key checks, CORS and OpenAPI validation). There are six implementations: Istio, Kong, Apache APISIX, Azure API Management, Google Apigee and Whale Cloud. You deploy the one that matches your gateway. The API operator also sets up metrics scraping, for example with a Prometheus `ServiceMonitor`.
+* The **Identity Config** operator registers the component's roles in the identity platform (Keycloak or Microsoft Entra ID). Roles can be declared in the component YAML, or provided dynamically through the TMF672 User Roles and Permissions API.
+* The **Credentials Management** and **Dependency Management** operators create each component's client credentials and connect it to the APIs it depends on.
+* The **Secrets Management** operator gives each component its own vault (HashiCorp Vault in the reference implementation), which the component reaches with its Kubernetes workload identity rather than a bootstrap password.
+* The **Disruption Budget Management** operator keeps components available during cluster maintenance and upgrades.
+
+An **OAuth2 Config** operator is available as a prototype, and operators for Model-as-a-Service, data products and carbon-aware scaling are experimental. The [Software Operators](source/operators/README.md) page has the full catalogue, with the status of each operator.
+
+The reference implementation operators are freely available for organizations to re-use, extend or replace with their own implementations. We expect a typical production Canvas to combine standard operators with custom operators that implement the organization's own operational policies.
+
+### Maturity
+
+The Canvas is generally available. Release 1.2.0 introduced the `v1` component specification (December 2024), and there have been regular releases since: the latest is 1.2.5 (March 2026), and 1.2.6 is in release candidates. Every change is checked by the [BDD test kit](feature-definition-and-test-kit/README.md), running against a real Kubernetes cluster (Kind) in the GitHub Actions workflows.
+
+The Canvas has been tested on AWS EKS, Azure AKS, Google GKE, Rancher, MicroK8s, Minikube, Docker Desktop, Kind and K3s. See the [Installation Guide](installation/README.md) for the details of each platform.
 
 
 ## ODA Canvas Design
