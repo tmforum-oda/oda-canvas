@@ -35,7 +35,7 @@ helm install canvas-portal ./helm/canvas-portal -n <ns> \
   --set frontend.nginx.keycloakUpstream=https://<keycloak>/auth
 ```
 
-Images default to `tmforumodacanvas/canvas-portal` (tags `frontend-0.1.0` and `backend-0.1.0`). These tags aren't published to Docker Hub yet, so [build the images](#build-the-images) first. For a tested install on a local kind cluster, including the Keycloak clients, see [Run a local demo Canvas](../installation/local-demo-canvas.md). Review these defaults in `helm/canvas-portal/values.yaml` before installing, because several look environment-specific:
+Images default to `tmforumodacanvas/canvas-portal` (tags `frontend-0.1.0` and `backend-0.1.0`). These tags aren't published to Docker Hub yet, so [build the images](#build-the-images) first. For a tested install on a local kind cluster, including the Keycloak clients, run the script in [Run a local demo Canvas](../installation/local-demo-canvas.md). Review these defaults in `helm/canvas-portal/values.yaml` before installing, because several look environment-specific:
 
 - `KEYCLOAK_URL` and `frontend.nginx.keycloakUpstream` default to a hardcoded IP.
 - `keycloak.init.adminUser` defaults to `testadminpo.`.
