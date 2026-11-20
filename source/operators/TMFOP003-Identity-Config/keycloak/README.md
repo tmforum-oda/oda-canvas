@@ -1,13 +1,18 @@
 # Identity Config operator for Keycloak - Introduction 
 
-This is the reference implementaiton of an identity config operator that takes metadata from ODA Component and uses it to automatically configure the Identity service (using Keycloak in the reference implementation). The identity config operator expects the component to expose a TMF669 PartyRole API detailing all the roles to be added to the identity service, or to define roles statically in the component specification. The sequence diagram shows the overall flow:
+This is the reference implementation of an identity config operator that takes metadata from an ODA Component and uses it to automatically configure the Identity service (using Keycloak in the reference implementation). A component can define its roles statically in the component specification, or dynamically by exposing an API that lists the roles to be added to the identity service:
+
+* the **TMF672 User Roles and Permissions** API (`permissionSpecificationSetAPI` in the `IdentityConfig`), where each `PermissionSpecificationSet` becomes a role. This is the recommended option; or
+* the **TMF669 Party Role Management** API (`partyRoleAPI`), where each `PartyRole` becomes a role. This is still supported, but will be deprecated.
+
+See [README-PermissionSpecificationSet.md](../README-PermissionSpecificationSet.md) for the TMF672 support, and the [IdentityConfig data model](../README.md) for examples. The sequence diagrams below show the TMF669 PartyRole flow; the TMF672 flow is the same, with `PermissionSpecificationSet` events in place of `PartyRole` events. The sequence diagram shows the overall flow:
 
 
 ![Sequence diagram](sequenceDiagrams/securitySequenceKeycloak.png)
 
 
 
-The identity config operator consists of two modules, both written in Python. The first module uses the KOPF (https://kopf.readthedocs.io/) framework to listen for components being deployed in the ODA Canvas. It set's up the base `Client` registration in Keycloak and then registers for call-back events from the components PartyRole API. The second module provides the API server where these PartyRole callback events are handled. It receives create/update/delete events and creates/updates/deletes the corresponding  roles in Keycloak. See the more detailed sequence diagram below:
+The identity config operator consists of two modules, both written in Python. The first module uses the KOPF (https://kopf.readthedocs.io/) framework to listen for components being deployed in the ODA Canvas. It sets up the base `Client` registration in Keycloak and then registers for call-back events from the component's TMF672 or TMF669 API. The second module (`identity-listener-keycloak`) provides the API server where these callback events are handled. It receives create and delete events and creates or deletes the corresponding roles in Keycloak (TMF672 update events are ignored). See the more detailed sequence diagram below:
 
 
 ![Sequence diagram](sequenceDiagrams/securitySequenceKeycloakDetailed.png)
