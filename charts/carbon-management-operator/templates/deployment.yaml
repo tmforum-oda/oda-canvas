@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "carbon-management-operator.labels" . | nindent 4 }}
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: carbon-management-operator
+    oda.tmforum.org/operatorId: TMFOP011
 spec:
   replicas: 1
   selector:

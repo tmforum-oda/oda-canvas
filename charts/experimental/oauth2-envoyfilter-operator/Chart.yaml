@@ -4,7 +4,8 @@ description: A helm chart to deploy the OAuth2 EnvoyFilter Operator for referenc
 
 type: application
 
-version: 0.1.0-rc
+version: 0.1.1-rc
+# version: 0.1.1-rc - issue 662 - add oda.tmforum.org operator labels so Canvas Portal v2 discovers the operator
 # version: 0.1.0 - initial version - created oauth2-envoyfilter operator
 
 appVersion: "0.1.0"
