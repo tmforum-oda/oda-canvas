@@ -1,6 +1,7 @@
 # TMFOP011 Carbon Management Operators
 
-Enables carbon-aware computing by measuring energy and carbon consumption of ODA Components and providing services to optimize workload operations based on carbon intensity data. This operator reduces the environmental impact of software by dynamically adjusting resource allocation during periods of high-carbon electricity generation.
+Makes ODA Components carbon-aware without changing their code. The operator reads the carbon intensity of the electricity grid, and limits how far a component's flexible workloads may scale while the grid is carbon-intensive. Work moves to the hours when the grid is greener.
+
 See the video below:
 
 [![Carbon Aware Software - Optimizing Telecom Workloads for a Greener Grid](https://img.youtube.com/vi/I78MSow6RQg/0.jpg)](https://youtu.be/I78MSow6RQg)
@@ -9,7 +10,21 @@ See the video below:
 
 At present, there is one implementation:
 
-* [Carbon Management Operator](./carbon-management/): Kubernetes operator that integrates with KEDA to provide carbon-aware autoscaling based on real-time carbon intensity data from TMF628 Performance Management API.
+* [Carbon Management Operator](./carbon-management/README.md): a Kubernetes operator that integrates with KEDA to provide carbon-aware autoscaling, based on carbon intensity data from the TMF628 Performance Management API.
+
+## At a glance
+
+| | |
+|---|---|
+| Technique | Demand shaping: scale capacity with the grid's carbon intensity (implemented). Time and location shifting are planned. |
+| Custom resource | `CarbonManagement` (`oda.tmforum.org/v1alpha1`) |
+| Which workloads | Deployments labelled `carbon-aware: enabled`, selected by the resource's `deploymentSelector` |
+| What it creates | A KEDA `ScaledObject` for each selected deployment, with a carbon-adjusted `maxReplicaCount` |
+| Reconcile | Every 5 minutes |
+| Carbon data | The [TMF628 Performance Management carbon intensity service](../../tmf-services/TMF628_Performance_Management/README.md) |
+| Helm charts | [`carbon-management-operator`](../../../charts/carbon-management-operator/README.md) and [`carbon-intensity-service`](../../../charts/carbon-intensity-service/README.md) |
+| Prerequisites | KEDA, and Prometheus for the workload metric (for example the [observability stack](../../../charts/observability-stack/README.md)) |
+| Try it | The reproducible [carbon-aware scaling scenario](./carbon-management/carbon-aware-scaling-scenario.md) |
 
 ## Overview
 
@@ -44,6 +59,14 @@ Carbon-aware software is designed to optimize electricity usage by:
 [Studies](https://ieeexplore.ieee.org/document/6128960) indicate that carbon-aware practices can achieve carbon reductions ranging from 45% to 99%, depending on the proportion of renewables in the energy mix.
 
 ## Strategies for Carbon Awareness in Software
+
+There are three main techniques:
+
+| Technique | What it does | Status in the Canvas |
+|---|---|---|
+| Time shifting | Runs flexible work, such as model training, software updates or batch processing, when the grid has more renewable energy | Planned |
+| Location shifting | Moves work that isn't latency-sensitive to regions or nodes with cleaner grids | Planned (see 1 below) |
+| Demand shaping | Scales capacity up and down with the grid's carbon intensity in real time | Implemented (see 2 below) |
 
 ### 1. Scheduling Workloads Based on Carbon Intensity
 
@@ -87,7 +110,22 @@ Workloads can be scaled without modifying their code by creating a Kubernetes op
 
 **Inspiration**: [Azure Carbon-Aware KEDA Operator](https://github.com/Azure/carbon-aware-keda-operator)
 
-**Status**: *Implemented* - See [carbon-management/](./carbon-management/)
+**Status**: *Implemented* - See [carbon-management](./carbon-management/README.md)
+
+**Example**: in the [carbon-aware scaling scenario](./carbon-management/carbon-aware-scaling-scenario.md), the Product Order Capture and Validation component scales its order processor on the number of pending orders, a business metric read from Prometheus. The `CarbonManagement` resource sets these limits:
+
+| Carbon intensity (gCO2eq/kWh) | Maximum replicas |
+|---|---|
+| Up to 400 | 9 |
+| Above 400, up to 500 | 5 |
+| Above 500 | 1 |
+| No carbon data available | 10 (`defaultMaxReplicas`) |
+
+In a high-carbon period, orders are still processed, but by one replica, so the queue grows. When the grid gets greener, the limit is lifted, KEDA scales the processor up to work through the backlog, and scales it back down once the queue is empty. With no backlog, it doesn't scale up at all: carbon intensity sets the ceiling, and real demand still decides the actual scale.
+
+### Choosing which workloads are carbon-aware
+
+Not everything should be carbon-aware. Microservices that serve real-time APIs need to stay available, so leave them unlabelled. Back-end processing that can tolerate some delay, such as near-real-time order processing, is a good fit. In the scenario, only the order processor deployment (`ocv1-productorderprocessor`) has the `carbon-aware: enabled` label.
 
 ## Use Cases for Carbon-Aware Software
 
