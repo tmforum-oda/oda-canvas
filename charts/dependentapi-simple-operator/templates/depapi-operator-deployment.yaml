@@ -4,7 +4,7 @@ metadata:
   name: {{ .Release.Name }}-depapi-op
   labels:
     oda.tmforum.org/operator: "true"
-    oda.tmforum.org/operatorName: dependentapi-simple-operator
+    oda.tmforum.org/operatorName: dependent-api-simple-operator
     oda.tmforum.org/operatorId: TMFOP005
 spec:
   replicas: 1

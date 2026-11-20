@@ -531,7 +531,7 @@ metadata:
   labels:
     {{- include "myoperator.labels" . | nindent 4 }}
     oda.tmforum.org/operator: "true"
-    oda.tmforum.org/operatorName: myoperator     # fixed slug, max 63 chars
+    oda.tmforum.org/operatorName: my-operator    # hyphen-separated words; the portal shows "My Operator"
     oda.tmforum.org/operatorId: TMFOP0xx         # the operator's TMF ID
 ```
 
