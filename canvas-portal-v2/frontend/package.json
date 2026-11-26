@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --experimental-strip-types --test \"tests/**/*.test.ts\""
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.7",

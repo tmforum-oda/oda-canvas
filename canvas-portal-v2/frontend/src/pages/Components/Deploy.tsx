@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { fetchComponents } from '@/api/components'
+import AdminAccessRequired from '@/components/AdminAccessRequired'
 import HelmInstallModal, { type HelmInstallStep1Values } from '@/components/HelmInstallModal'
 import {
   addHelmRepository,
@@ -18,6 +19,7 @@ import {
   listHelmRepositories,
   syncHelmRepository,
 } from '@/api/helm'
+import { isForbiddenError } from '@/lib/forbidden'
 import { colors } from '@/theme'
 
 export default function ComponentsDeployPage() {
@@ -37,6 +39,7 @@ export default function ComponentsDeployPage() {
     data: repositories,
     isLoading: loadingRepos,
     isError: reposError,
+    error: reposErrorDetail,
     refetch: refetchRepos,
   } = useQuery({
     queryKey: ['helm-repositories'],
@@ -105,6 +108,12 @@ export default function ComponentsDeployPage() {
     } finally {
       setBusyRepoName(null)
     }
+  }
+
+  // The Helm API is admin-only. Without an admin group every Helm call
+  // answers 403, so explain that instead of showing a broken page.
+  if (isForbiddenError(reposErrorDetail)) {
+    return <AdminAccessRequired feature="Deploying components with Helm" />
   }
 
   return (

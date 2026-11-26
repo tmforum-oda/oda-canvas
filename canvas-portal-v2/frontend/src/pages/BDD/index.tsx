@@ -48,6 +48,8 @@ import {
   listCanvasConformanceRuns,
   startCanvasConformanceRun,
 } from '@/api/conformance'
+import AdminAccessRequired from '@/components/AdminAccessRequired'
+import { isForbiddenError } from '@/lib/forbidden'
 import { colors } from '@/theme'
 
 function statusTag(run: CanvasConformanceRun) {
@@ -183,7 +185,8 @@ function CanvasSuite() {
   const runsQuery = useQuery({
     queryKey: ['canvas-conformance-runs'],
     queryFn: () => listCanvasConformanceRuns(30),
-    refetchInterval: 5000,
+    // Stop polling once the API has said the user is not an admin.
+    refetchInterval: (query) => (isForbiddenError(query.state.error) ? false : 5000),
   })
 
   const runs = runsQuery.data?.runs ?? []
@@ -367,6 +370,12 @@ function CanvasSuite() {
       },
     },
   ]
+
+  // The conformance API is admin-only. Without an admin group every call
+  // answers 403, so explain that instead of showing a broken page.
+  if ([configQuery.error, catalogQuery.error, runsQuery.error].some(isForbiddenError)) {
+    return <AdminAccessRequired feature="Running the Canvas conformance (BDD) tests" />
+  }
 
   return (
     <div style={{ display: 'grid', gap: 16 }}>

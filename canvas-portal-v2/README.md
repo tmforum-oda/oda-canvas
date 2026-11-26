@@ -80,7 +80,7 @@ Entra ID is selectable with `IDM_PROVIDER=entraid`, but `/auth/login`, `/auth/re
 - The check fails closed: an empty `adminGroups` list denies everyone.
 - `backend.auth.allowAllAuthenticated: true` (env `AUTHZ_ALLOW_ALL_AUTHENTICATED`) turns the check off, so any logged-in user can use Helm and conformance again.
 - **Upgrading an existing install:** after the upgrade, Helm and conformance return 403 until users are in the group or have the role. To keep the old behaviour, set `backend.auth.allowAllAuthenticated: true`.
-- The UI does not hide these pages from other users. They see an error when the API returns 403.
+- The UI does not hide these pages from other users. When the API returns 403, the Deploy and BDD pages show an "Admin access required" message that names the `canvas-admin` group, instead of the page.
 
 ### Security notes
 
@@ -237,4 +237,11 @@ Backend unit tests use `pytest`:
 cd backend
 pip install -r requirements-dev.txt
 pytest
+```
+
+Frontend unit tests use Node's built-in test runner (Node 22.6 or later), with no extra dependencies:
+
+```bash
+cd frontend
+npm test
 ```
