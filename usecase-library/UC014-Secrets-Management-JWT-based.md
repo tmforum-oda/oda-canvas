@@ -126,6 +126,8 @@ spec:
 If there exists a structure "spec.securityFunction.secretsManagement" the Secrets-Management-Operator will create 
 a KV-Store for this component. 
 
+For a guide to using this in a component, with the sidecar API and what was tested, see [Secrets management without bootstrap credentials](../source/operators/TMFOP007-Secrets-Management/secrets-management-without-bootstrap-credentials.md).
+
 ## Limitations
 
 The current setup only allows one configuration for gaining full access (read & write) and only one set of POD selectors.

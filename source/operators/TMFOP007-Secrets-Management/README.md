@@ -6,6 +6,8 @@ At present, there is one implementation:
 
 * [Vault](./vault/): Implementation of a Secrets Management Operator for HashiCorp Vault.
 
+For how a component uses it, without any bootstrap credential, see [Secrets management without bootstrap credentials](secrets-management-without-bootstrap-credentials.md).
+
 ## Sequence Diagrams
 
 See [UC014-Secrets-Management-JWT-based](../../../usecase-library/UC014-Secrets-Management-JWT-based.md) for details of the Secrets Management use case.
