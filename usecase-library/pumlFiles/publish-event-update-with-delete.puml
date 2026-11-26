@@ -1,27 +1,25 @@
 @startuml
-
+' UC004 "Upgrade component - with deleted publishedNotifications" scenario
 actor Operations
 entity Component
 participant ComponentOperator
-entity SubscribedNotifications
-participant EventSubscriptionEnablementOperator
+entity PublishedNotification
+participant EventPublishingEnablementOperator
 participant "Event Manager" as TMFC019
-
 Component <- Operations : Install
 Component -> ComponentOperator: on.update
-group For each subscribedNotification
-ComponentOperator -> SubscribedNotifications: delete
+group For each publishedNotification
+ComponentOperator -> PublishedNotification: delete
 note right
-    A separate subscribedNotification resource is created
+    A separate publishedNotification resource is created
     for each published notification in the core function,
     security and management sections
 end note
-    SubscribedNotifications -> EventSubscriptionEnablementOperator: on.delete
-    EventSubscriptionEnablementOperator -> TMFC019: delete Hub
-    EventSubscriptionEnablementOperator <-- TMFC019: removed
-    SubscribedNotifications <- EventSubscriptionEnablementOperator: update
-    ComponentOperator <- SubscribedNotifications: on.update
+    PublishedNotification -> EventPublishingEnablementOperator: on.delete
+    EventPublishingEnablementOperator -> TMFC019: delete Hub
+    EventPublishingEnablementOperator <-- TMFC019: removed
+    PublishedNotification <- EventPublishingEnablementOperator: update
+    ComponentOperator <- PublishedNotification: on.update
 end
 Component <- ComponentOperator: update
-
 @enduml
