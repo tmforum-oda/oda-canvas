@@ -4,7 +4,7 @@ This document describes the design artefacts for the AI-Native Canvas part of th
 
 There is an introductory video at 
 
-[![AI-Native-Canvas-video](images/AI-Native%20Canvas/End-to-end%20AI%20Native%20Canvas%20architecture.PNG)](https://www.youtube.com/watch?v=MICzwN8VB_o)
+[![AI-Native-Canvas-video](images/AI-Native%20Canvas/End-to-end%20AI%20Native%20Canvas%20architecture.PNG)](https://youtu.be/0QtnMJDblvE)
 
 ## Overview
 
@@ -311,16 +311,31 @@ The Canvas provides the foundation for CSPs to confidently deploy and operate mu
 
 ## Reference Video
 
-Full presentation: [AI Native ODA Canvas](https://www.youtube.com/watch?v=MICzwN8VB_o) (30:35)
+Full presentation: [The AI-Native ODA Canvas](https://youtu.be/0QtnMJDblvE) (13:52)
 
 ### Video Chapters
 
-* [0:00 - Introduction](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=0)
-* [1:58 - Lessons learned](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=118)
-* [5:30 - MCP support](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=330)
-* [9:17 - Agents packaged as composable ODA Components](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=557)
-* [15:53 - Canvas services to support AI Agents at scale](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=953)
-* [17:21 - End-to-end Data and AI Architecture](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=1041)
-* [22:10 - Canvas Resource Inventory](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=1330)
-* [24:54 - Classical ML Models](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=1494)
-* [25:56 - Evaluation and testing](https://youtu.be/MICzwN8VB_o?si=LujPxQMV7_E4kTf9&t=1556)
+* [0:00 - Introduction](https://youtu.be/0QtnMJDblvE?t=0)
+* [1:18 - Four questions](https://youtu.be/0QtnMJDblvE?t=78)
+* [1:45 - What the 2026 Catalysts show](https://youtu.be/0QtnMJDblvE?t=105)
+* [2:23 - MCP is one more exposed API](https://youtu.be/0QtnMJDblvE?t=143)
+* [2:58 - Descriptions are written for agents](https://youtu.be/0QtnMJDblvE?t=178)
+* [3:37 - Agents as components](https://youtu.be/0QtnMJDblvE?t=217)
+* [4:07 - Dependent AI models](https://youtu.be/0QtnMJDblvE?t=247)
+* [4:42 - Training builds intelligence, inference builds cost](https://youtu.be/0QtnMJDblvE?t=282)
+* [5:16 - Three options](https://youtu.be/0QtnMJDblvE?t=316)
+* [5:42 - What the control plane provides](https://youtu.be/0QtnMJDblvE?t=342)
+* [6:16 - The model gateway in the Canvas](https://youtu.be/0QtnMJDblvE?t=376)
+* [6:46 - Preview: the Model Gateway in the Canvas Portal](https://youtu.be/0QtnMJDblvE?t=406)
+* [7:16 - Six levers of inference cost](https://youtu.be/0QtnMJDblvE?t=436)
+* [7:47 - Canvas services for AI](https://youtu.be/0QtnMJDblvE?t=467)
+* [8:20 - The Canvas with AI and data](https://youtu.be/0QtnMJDblvE?t=500)
+* [8:59 - The Canvas describes itself](https://youtu.be/0QtnMJDblvE?t=539)
+* [9:39 - Evaluation](https://youtu.be/0QtnMJDblvE?t=579)
+* [10:12 - AI is an amplifier](https://youtu.be/0QtnMJDblvE?t=612)
+* [10:45 - Why ODA suits AI development](https://youtu.be/0QtnMJDblvE?t=645)
+* [11:09 - Live: AGENTS.md in the oda-canvas repository](https://youtu.be/0QtnMJDblvE?t=669)
+* [11:38 - Agent skills: knowledge as a reusable asset](https://youtu.be/0QtnMJDblvE?t=698)
+* [12:15 - Live: the create-oda-operator skill](https://youtu.be/0QtnMJDblvE?t=735)
+* [12:46 - What's available today](https://youtu.be/0QtnMJDblvE?t=766)
+* [13:21 - Find out more](https://youtu.be/0QtnMJDblvE?t=801)

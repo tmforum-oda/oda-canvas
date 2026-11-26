@@ -6,7 +6,13 @@ type: application
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 1.0.0
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-# This is the version number of the application being deployed.
+version: 1.0.1
+# version: 1.0.1 - Updated dockerfile to use node:22-alpine base image
+# version: 1.0.0 - initial version
+
+
+# This is the version number of the application being deployed. We are versioning the canvas as the
+# version of the latest component spec that it supports.
 appVersion: "v1"

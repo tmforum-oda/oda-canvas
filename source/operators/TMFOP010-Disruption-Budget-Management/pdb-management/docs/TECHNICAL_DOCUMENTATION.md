@@ -26,6 +26,7 @@ The PDB (Pod Disruption Budget) Management Operator is a Kubernetes operator des
 - **Automated PDB Management**: Automatically creates and updates PDBs based on deployment annotations
 - **Policy-Based Configuration**: Define organization-wide availability policies using CRDs
 - **Flexible Enforcement**: Three enforcement modes (Strict, Flexible, Advisory) for different scenarios
+- **AI-Powered Intelligence**: Integrated MCP server for cluster analysis and intelligent recommendations
 - **ODA Canvas Integration**: Seamlessly integrates with ODA Canvas component architecture
 - **High Performance**: Optimized for managing 200+ deployments with efficient caching
 - **Maintenance Windows**: Support for scheduled maintenance periods
@@ -33,39 +34,45 @@ The PDB (Pod Disruption Budget) Management Operator is a Kubernetes operator des
 
 ### Architecture Overview
 
+```mermaid
+graph TB
+    subgraph cluster["Kubernetes Cluster"]
+        subgraph inputs["Input Resources"]
+            deployments["Deployments<br/>(with annotations)"]
+            policies["AvailabilityPolicies<br/>(CRDs)"]
+        end
+
+        subgraph operator["PDB Management Operator"]
+            subgraph controllers["Controllers"]
+                dc["Deployment<br/>Controller"]
+                pc["AvailabilityPolicy<br/>Controller"]
+                wh["Webhook<br/>Server"]
+            end
+
+            subgraph shared["Shared Components"]
+                cache["Cache"]
+                metrics["Metrics"]
+                events["Events"]
+                tracing["Tracing"]
+            end
+        end
+
+        pdbs["PDBs<br/>(auto-managed)"]
+    end
+
+    deployments --> dc
+    policies --> pc
+    dc --> shared
+    pc --> shared
+    wh --> shared
+    shared --> pdbs
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Kubernetes Cluster                       │
-│                                                             │
-│  ┌──────────────────┐        ┌─────────────────────────┐    │
-│  │   Deployments    │        │  AvailabilityPolicies   │    │
-│  │  (with annot.)   │        │        (CRDs)           │    │
-│  └────────┬─────────┘        └──────────┬──────────────┘    │
-│           │                             │                   │
-│           ▼                             ▼                   │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │           PDB Management Operator                   │    │
-│  │                                                     │    │
-│  │  ┌───────────────┐  ┌──────────────┐  ┌───────────┐ │    │
-│  │  │  Deployment   │  │ Availability │  │  Webhook  │ │    │
-│  │  │  Controller   │  │Policy Ctrl   │  │  Server   │ │    │
-│  │  └───────┬───────┘  └──────┬───────┘  └────┬──────┘ │    │
-│  │          │                 │               │        │    │
-│  │  ┌───────▼─────────────────▼───────────────▼──────┐ │    │
-│  │  │           Shared Components                    │ │    │
-│  │  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────┐ │ │    │
-│  │  │  │  Cache  │ │ Metrics │ │ Events  │ │Tracing│ │ │    │
-│  │  │  └─────────┘ └─────────┘ └─────────┘ └───────┘ │ │    │
-│  │  └────────────────────────────────────────────────┘ │    │
-│  └─────────────────────┬───────────────────────────────┘    │
-│                        │                                    │
-│                        ▼                                    │
-│               ┌────────────────┐                            │
-│               │      PDBs      │                            │
-│               │ (auto-managed) │                            │
-│               └────────────────┘                            │
-└─────────────────────────────────────────────────────────────┘
-```
+
+### Full Reconciliation Sequence
+
+The following diagram shows the complete sequence of operations during deployment reconciliation, including all enforcement modes and edge cases:
+
+![PDB Management Operator Sequence](diagrams/pdb-management-operator.png)
 
 ## Architecture
 
@@ -80,48 +87,26 @@ The PDB (Pod Disruption Budget) Management Operator is a Kubernetes operator des
 
 ### Controller Architecture
 
-The operator implements two main controllers and an admission webhook:
+The operator implements two main controllers, an admission webhook, and an MCP server:
 
 1. **Deployment Controller**: Watches deployments for availability annotations
 2. **AvailabilityPolicy Controller**: Manages custom availability policies
 3. **Admission Webhook**: Validates and defaults AvailabilityPolicy resources
+4. **MCP Server**: Provides AI-powered cluster analysis and recommendations via Model Context Protocol
 
 ### Data Flow
 
-```
-Deployment Created/Updated
-         │
-         ▼
-┌──────────────────────┐
-│ Deployment Controller│
-└─────────┬────────────┘
-          │
-          ▼
-    Check Annotations
-          │
-    ┌─────┴─────┐
-    │           │
-    ▼           ▼
-Annotation   Policy
- Based       Based
-    │           │
-    │    ┌──────▼───────┐
-    │    │Policy Lookup │
-    │    └──────┬───────┘
-    │           │
-    └─────┬─────┘
-          │
-          ▼
-  Enforcement Logic
-  (Strict/Flexible/
-   Advisory)
-          │
-          ▼
-   Calculate PDB
-     Parameters
-          │
-          ▼
-   Create/Update PDB
+```mermaid
+flowchart TD
+    A[Deployment Created/Updated] --> B[Deployment Controller]
+    B --> C{Check Annotations}
+    C -->|Has Annotations| D[Annotation Based]
+    C -->|No Annotations| E[Policy Based]
+    E --> F[Policy Lookup]
+    D --> G[Enforcement Logic<br/>Strict/Flexible/Advisory]
+    F --> G
+    G --> H[Calculate PDB Parameters]
+    H --> I[Create/Update PDB]
 ```
 
 ## Components
@@ -161,6 +146,115 @@ Provides:
 - Warning generation for best practices
 - Prevention of invalid configurations
 
+![Admission Webhook Validation](diagrams/admission-webhook-validation.png)
+
+## MCP Server Architecture
+
+The integrated Model Context Protocol (MCP) server extends the operator with AI-powered cluster analysis capabilities. This component enables intelligent recommendations and natural language interaction for cluster management.
+
+### MCP Components
+
+```mermaid
+graph TB
+    subgraph mcpserver["MCP Server Layer"]
+        subgraph tools["Tool Categories"]
+            analysis["Analysis<br/>Tools"]
+            recommendation["Recommendation<br/>Tools"]
+            management["Management<br/>Tools"]
+        end
+
+        subgraph core["MCP Core Server"]
+            protocol["Protocol<br/>Handler"]
+            transport["Transport<br/>Layer"]
+            registry["Tool<br/>Registry"]
+            router["Request<br/>Router"]
+        end
+    end
+
+    http["HTTP Transport<br/>(Port 8090)"]
+    clients["MCP Clients"]
+
+    analysis --> core
+    recommendation --> core
+    management --> core
+    core --> http
+    http --> clients
+```
+
+### Analysis Tools
+
+1. **Cluster Availability Analysis**
+
+   - PDB coverage assessment across namespaces
+   - Availability gap identification
+   - Deployment risk analysis
+   - Compliance reporting
+
+2. **Workload Pattern Detection**
+   - Automatic pattern classification (API, database, frontend, etc.)
+   - Replica distribution analysis
+   - Component function inference
+   - Deployment characteristics analysis
+
+### Recommendation Engine
+
+1. **Availability Class Recommendations**
+
+   - AI-powered classification based on workload characteristics
+   - Security component detection and upgrade suggestions
+   - Confidence scoring for recommendations
+   - Impact analysis for changes
+
+2. **Policy Recommendations**
+   - Cluster-wide policy analysis
+   - Pattern-based policy generation
+   - Conflict resolution suggestions
+   - Priority optimization
+
+### Management Interface
+
+1. **Policy Creation**
+
+   - Interactive policy definition
+   - Validation and conflict checking
+   - Template-based policy generation
+
+2. **Impact Simulation**
+
+   - What-if analysis for policy changes
+   - Deployment impact assessment
+   - Risk evaluation before applying changes
+
+3. **Deployment Management**
+   - Annotation updates via natural language
+   - Batch operations across multiple deployments
+
+### MCP Protocol Implementation
+
+The server implements the full MCP specification:
+
+- **JSON-RPC 2.0**: Standard protocol for request/response
+- **Tools**: Structured function calls with typed parameters
+- **Prompts**: Template-based interaction patterns
+- **Resources**: Dynamic resource access and management
+- **Notifications**: Real-time updates and status changes
+
+### Security and Access Control
+
+- **Network Policies**: Restricted access via Kubernetes NetworkPolicy
+- **Client Authentication**: Support for authenticated MCP clients
+- **Audit Logging**: All MCP operations are logged with correlation IDs
+- **Rate Limiting**: Built-in protection against abuse
+
+### Integration Points
+
+The MCP server integrates with all existing operator components:
+
+- **Policy Cache**: Leverages existing caching for performance
+- **Event System**: Publishes events for MCP operations
+- **Metrics**: Exposes MCP-specific metrics
+- **Tracing**: Full OpenTelemetry correlation with operator traces
+
 ## Features
 
 ### 1. Enforcement Modes
@@ -179,6 +273,8 @@ spec:
   availabilityClass: mission-critical
 ```
 
+![Strict Enforcement Flow](diagrams/policy-based-creation-strict-enforcement.png)
+
 #### Flexible Enforcement
 
 - Annotations accepted if they meet minimum requirements
@@ -192,6 +288,8 @@ spec:
   minimumClass: standard # annotations must be >= standard
 ```
 
+![Flexible Enforcement Flow](diagrams/policy-based-creation-flexible-enforcement.png)
+
 #### Advisory Enforcement
 
 - Annotations take precedence when present
@@ -203,6 +301,8 @@ spec:
   enforcement: advisory # default
   availabilityClass: standard
 ```
+
+![Advisory Override Flow](diagrams/policy-based-creation-advisory-override.png)
 
 ### 2. Component Function Intelligence
 
@@ -239,6 +339,8 @@ During maintenance windows:
 - PDB enforcement is temporarily suspended
 - Metrics indicate maintenance mode
 - Audit logs track window activation
+
+![Maintenance Window Suspension](diagrams/maintenance-window-suspension.png)
 
 ### 4. Intelligent Caching
 
@@ -315,6 +417,10 @@ Prevents cascading failures:
 ## Usage
 
 ### Basic Usage - Annotation Based
+
+The simplest way to use the operator is via deployment annotations:
+
+![Annotation-Based Deployment Creation](diagrams/annotation-based-deployment-creation.png)
 
 1. **Add annotations to your deployment**:
 
@@ -660,6 +766,12 @@ spec:
 
 #### 5. Priority and Conflict Resolution
 
+When multiple policies match a deployment, the operator uses priority to resolve conflicts:
+
+![Policy Priority Resolution](diagrams/policy-priority-resolution.png)
+
+![Policy Conflict Resolution](diagrams/policy-conflict-resolution.png)
+
 **Priority Chain Example**
 
 ```yaml
@@ -820,6 +932,12 @@ Settings: gobreaker.Settings{
    - Processes policy changes
    - Triggers re-reconciliation of affected deployments
    - Updates policy metrics
+
+### Deployment Deletion Handling
+
+When a deployment is deleted, the operator ensures proper cleanup of associated PDBs:
+
+![Deployment Deletion Flow](diagrams/deployment-deletion.png)
 
 ## Monitoring & Observability
 
@@ -997,19 +1115,19 @@ Advanced log analysis capabilities:
 
 ```bash
 # Filter by trace ID for distributed tracing
-kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
+kubectl logs -n canvas deployment/pdb-management-controller-manager | \
   jq 'select(.trace.trace_id == "2b4148def0c46c496b41c1ade1c7cc7f")'
 
 # Find all audit logs for a specific resource
-kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
+kubectl logs -n canvas deployment/pdb-management-controller-manager | \
   jq 'select(.msg == "Audit log" and .details.resource == "my-app-pdb")'
 
 # Track complete reconciliation flow
-kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
+kubectl logs -n canvas deployment/pdb-management-controller-manager | \
   jq 'select(.reconcileID == "deployment-f959cd46-f5c8-497f-b84d-b6d0d0ce04a2")'
 
 # Analyze enforcement decisions
-kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
+kubectl logs -n canvas deployment/pdb-management-controller-manager | \
   jq 'select(.details.enforcement) | .details'
 ```
 
@@ -1017,18 +1135,17 @@ kubectl logs -n canvas deployment/canvas-pdb-management-operator | \
 
 The operator supports OpenTelemetry tracing with full context propagation:
 
-```go
-// Example trace with unified logging
-deployment-reconcile
-├── get-deployment
-├── check-annotations
-├── lookup-policies
-│   └── cache-lookup
-├── resolve-configuration
-│   └── apply-enforcement
-└── manage-pdb
-    ├── get-existing-pdb
-    └── create-or-update-pdb
+```mermaid
+graph TD
+    A[deployment-reconcile] --> B[get-deployment]
+    A --> C[check-annotations]
+    A --> D[lookup-policies]
+    D --> E[cache-lookup]
+    A --> F[resolve-configuration]
+    F --> G[apply-enforcement]
+    A --> H[manage-pdb]
+    H --> I[get-existing-pdb]
+    H --> J[create-or-update-pdb]
 ```
 
 All trace spans include the unified logging context for complete observability.
@@ -1103,7 +1220,7 @@ kubectl get deployment my-app -o jsonpath='{.metadata.annotations}'
 Check operator logs:
 
 ```bash
-kubectl logs -n canvas deployment/canvas-pdb-management-operator
+kubectl logs -n canvas deployment/pdb-management-controller-manager
 ```
 
 2. **Policy Not Matching**
@@ -1139,7 +1256,7 @@ curl http://operator-pod:8080/metrics | grep enforcement_decisions
 Verify timezone:
 
 ```bash
-kubectl exec -n canvas deployment/canvas-pdb-management-operator -- date
+kubectl exec -n canvas deployment/pdb-management-controller-manager -- date
 ```
 
 Check maintenance window configuration:
@@ -1168,7 +1285,7 @@ kubectl get deployments -A -o json | jq '.items | length'
 Enable debug logging:
 
 ```bash
-kubectl -n canvas set env deployment/canvas-pdb-management-operator LOG_LEVEL=debug
+kubectl -n canvas set env deployment/pdb-management-controller-manager LOG_LEVEL=debug
 ```
 
 ### Health Checks

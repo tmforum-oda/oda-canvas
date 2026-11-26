@@ -1,0 +1,61 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  labels:
+    app.kubernetes.io/name: mcp
+    app.kubernetes.io/instance: mcp-resources
+    app.kubernetes.io/part-of: pdb-management
+  annotations:
+    config.kubernetes.io/local-config: "true"
+
+resources:
+- service.yaml
+- configmap.yaml
+- network-policy.yaml
+- ingress.yaml
+- auth-secret.yaml
+- webui-deployment.yaml
+
+namespace: canvas
+
+patches:
+# Add environment variables and args to the operator deployment for MCP
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: pdb-management-operator
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: ENABLE_MCP
+        value: "true"
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: MCP_BIND_ADDRESS
+        value: ":8090"
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: pdb-management-operator
+  patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: pdb-management-operator
+    spec:
+      template:
+        spec:
+          containers:
+          - name: manager
+            args:
+            - --metrics-bind-address=:8443
+            - --leader-elect
+            - --health-probe-bind-address=:8081
+            - --enable-webhook=true
+            - --enable-mcp=true
+            - --mcp-bind-address=:8090

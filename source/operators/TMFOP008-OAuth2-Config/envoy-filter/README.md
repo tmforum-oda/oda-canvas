@@ -82,7 +82,7 @@ kubectl apply -f source/operators/TMFOP008-OAuth2-Config/envoy-filter/docker/man
 ## Testdeployment of component with dependency
 
 ```
-helm upgrade --install demo-b -n components feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1  --set=add_dependency_envvars=true
+helm upgrade --install demo-b -n components feature-definition-and-test-kit/testData/productcatalog-v1 --set component.dependentAPIs.enabled=true  --set=add_dependency_envvars=true
 ```
 
 check if dependencies are injected (requires waiting and restart)

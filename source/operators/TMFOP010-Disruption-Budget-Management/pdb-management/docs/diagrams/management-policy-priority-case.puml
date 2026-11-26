@@ -1,0 +1,144 @@
+@startuml Management Policy Priority Case
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+
+title Management Deployment Gets Core Policy - Priority Resolution Case
+
+actor User as U
+participant "test-controller-deployment" as D
+participant "PDB Operator" as O
+participant "Policy Cache" as C
+participant "core-components-ha\n(priority 100)" as CORE
+participant "management-components-standard\n(priority 50)" as MGMT
+participant "PDB" as PDB
+
+== Initial Setup ==
+
+U -> CORE: Create policy\n(priority 100, core functions)
+U -> MGMT: Create policy\n(priority 50, management functions)
+
+== Deployment Creation ==
+
+U -> D: Create deployment\n(test-controller-deployment, 2 replicas)
+D -> O: Reconcile deployment
+
+== Component Classification ==
+
+O -> O: inferComponentFunction("test-controller-deployment")
+note right
+  Check patterns:
+  - Security: no auth/security patterns
+  - Management: contains "controller"
+  - Result: "management" function
+end note
+
+O -> O: Classify as "management"
+
+== Policy Discovery & Matching ==
+
+O -> C: Get all AvailabilityPolicies
+C -> O: Return [core-components-ha, management-components-standard]
+
+loop For each policy
+    O -> CORE: Check policy selector
+    CORE -> O: componentFunctions: ["core"]
+    
+    O -> O: policyMatchesDeployment()
+    note right
+      Deployment: "management" function
+      Policy: "core" functions
+      Result:  NO MATCH
+    end note
+    
+    O -> MGMT: Check policy selector
+    MGMT -> O: componentFunctions: ["management"]
+    
+    O -> O: policyMatchesDeployment()
+    note right
+      Deployment: "management" function
+      Policy: "management" functions
+      Result: MATCH
+    end note
+    
+    O -> O: Store matching policy (priority 50)
+end
+
+== Wait! Cross-Namespace Policy Matching ==
+
+note over O
+  The operator also checks policies
+  from other namespaces that might
+  have broader selectors
+end note
+
+O -> CORE: Check cross-namespace matching
+CORE -> O: componentFunctions: ["core"]
+O -> O: Check if deployment matches "core"
+note right
+  Since deployment was classified as "management",
+  it shouldn't match "core" policy, right?
+  
+  But wait... let me check the actual logic...
+end note
+
+== Priority Resolution ==
+
+O -> O: resolveConfiguration()
+note right
+  Found matching policies:
+  - management-components-standard (priority 50)
+  - core-components-ha (priority 100) - if it matches
+  
+  Priority resolution:
+  - Higher priority wins
+  - 100 > 50
+end note
+
+alt Multiple matching policies
+    O -> O: Select highest priority policy
+    note right
+      Priority 100 > Priority 50
+      core-components-ha wins
+    end note
+else Single matching policy
+    O -> O: Use management-components-standard
+end
+
+== PDB Creation ==
+
+O -> O: Check replicas (2 replicas)
+O -> O: cleanupDuplicatePDBs()
+O -> PDB: Create PDB with core policy settings
+PDB -> O: PDB created
+
+== Final Result ==
+
+O -> U: Return reconciliation result
+
+note over PDB
+  Final PDB configuration:
+  - Name: test-controller-deployment-pdb
+  - Policy: core-components-ha (priority 100)
+  - Class: high-availability
+  - MinAvailable: 75%
+  - Enforcement: strict
+  - Function: management (but policy was core)
+end note
+
+note over U
+  User expected:
+  - management-components-standard
+  - standard availability class
+  - 50% minAvailable
+  - advisory enforcement
+  
+  But got:
+  - core-components-ha
+  - high-availability class
+  - 75% minAvailable
+  - strict enforcement
+end note
+
+@enduml 

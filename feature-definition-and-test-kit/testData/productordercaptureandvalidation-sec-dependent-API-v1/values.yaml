@@ -1,0 +1,77 @@
+# Default values for productordercaptureandvalidation.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+component:
+  id: TMFC002
+  name: productordercaptureandvalidation
+  functionalBlock: CoreCommerce
+  publicationDate: 2024-11-12T00:00:00.000Z
+  version: "0.0.1"
+  storageClassName: default
+  apipolicy:
+    apiKeyVerification:
+      enabled: false
+      location: "header"
+    rateLimit:
+      enabled: false
+      identifier: "IP"
+      limit: "6"
+      interval: "pm"
+    quota:
+      identifier: ""
+      limit: ""
+    OASValidation:
+      requestEnabled: false
+      responseEnabled: false
+      allowUnspecifiedHeaders: false
+      allowUnspecifiedQueryParams: false
+      allowUnspecifiedCookies: false
+    CORS:
+      enabled: false
+      allowCredentials: false
+      allowOrigins: "https://allowed-origin.com, https://allowed-origin2.com"    
+      handlePreflightRequests:
+        enabled: false
+        allowHeaders: "Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
+        allowMethods: "GET, POST"
+        maxAge: 36000
+    template: ""
+  dependentAPIs:
+    enabled: true
+    rejectUnauthorizedCertificates: false
+security:
+  canvasSystemRole: canvasRole
+mongodb:
+  port: 27017
+  database: tmf
+api:
+  image: tmforumodacanvas/productorderingapi:1.0.0
+  versionLabel: productorderingapi-1.0.0
+  otlp:
+    console:
+      enabled: false
+    protobuffCollector:
+      enabled: true
+      url: http://observability-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces
+metrics:
+  image: tmforumodacanvas/productordercaptureandvalidationmetrics:1.0.0
+  versionLabel: productordercaptureandvalidationmetrics-1.0.0
+processor:
+  image: tmforumodacanvas/productorderprocessor:1.0.0
+  versionLabel: productorderprocessor-1.0.0
+  replicas: 1
+partyrole:
+  image: tmforumodacanvas/partyroleapi:1.0.0
+  versionLabel: partyroleapi-1.0.0
+permissionspec:
+  image: tmforumodacanvas/permissionspecapi:1.0.0
+  versionLabel: permissionspecapi-1.0.0
+  enabled: true
+canvasinfo:
+  host: info.canvas.svc.cluster.local
+  basepath: /
+initialization:
+  image: tmforumodacanvas/productorderinitialization:1.0.0
+roleinitialization:
+  image: tmforumodacanvas/productordercaptureandvalidation-roleinitialization:1.0.0

@@ -23,7 +23,7 @@ A Helm chart for installing the cert manager
 | istioCert.certificate.duration | string | `"21600h"` |  |
 | istioCert.certificate.renewBefore | string | `"360h"` |  |
 | istioCert.namespace | string | `"istio-ingress"` |  |
-| leaseWaitTimeonStartup | int | `70` |  |
+| certManagerReadyTimeout | int | `600` |  |
 | nameOverride | string | `""` |  |
 | namespace | string | `"canvas"` |  |
 

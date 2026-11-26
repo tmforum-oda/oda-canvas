@@ -243,7 +243,7 @@ func (l *StructuredLogger) WithController(controllerType, controllerName, group,
 	}
 
 	return &StructuredLogger{
-		Logger: l.Logger.WithValues("controller", controllerInfo),
+		Logger: l.WithValues("controller", controllerInfo),
 		ctx:    l.ctx,
 	}
 }
@@ -257,7 +257,7 @@ func (l *StructuredLogger) WithResource(resourceType, name, namespace string) *S
 	}
 
 	return &StructuredLogger{
-		Logger: l.Logger.WithValues("resource", resourceInfo),
+		Logger: l.WithValues("resource", resourceInfo),
 		ctx:    l.ctx,
 	}
 }
@@ -273,7 +273,7 @@ func (l *StructuredLogger) WithTrace() *StructuredLogger {
 		}
 
 		return &StructuredLogger{
-			Logger: l.Logger.WithValues("trace", traceInfo),
+			Logger: l.WithValues("trace", traceInfo),
 			ctx:    l.ctx,
 		}
 	}
@@ -284,7 +284,7 @@ func (l *StructuredLogger) WithTrace() *StructuredLogger {
 // WithReconcileID adds reconcile ID to the logger
 func (l *StructuredLogger) WithReconcileID(reconcileID string) *StructuredLogger {
 	return &StructuredLogger{
-		Logger: l.Logger.WithValues("reconcileID", reconcileID),
+		Logger: l.WithValues("reconcileID", reconcileID),
 		ctx:    l.ctx,
 	}
 }
@@ -292,7 +292,7 @@ func (l *StructuredLogger) WithReconcileID(reconcileID string) *StructuredLogger
 // WithCorrelationID adds correlation ID to the logger
 func (l *StructuredLogger) WithCorrelationID(correlationID string) *StructuredLogger {
 	return &StructuredLogger{
-		Logger: l.Logger.WithValues("correlationID", correlationID),
+		Logger: l.WithValues("correlationID", correlationID),
 		ctx:    l.ctx,
 	}
 }
@@ -300,7 +300,7 @@ func (l *StructuredLogger) WithCorrelationID(correlationID string) *StructuredLo
 // WithDetails adds additional contextual details
 func (l *StructuredLogger) WithDetails(details map[string]any) *StructuredLogger {
 	return &StructuredLogger{
-		Logger: l.Logger.WithValues("details", details),
+		Logger: l.WithValues("details", details),
 		ctx:    l.ctx,
 	}
 }

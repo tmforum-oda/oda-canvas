@@ -1,6 +1,6 @@
 apiVersion: v2
 name: productcatalog
-description: A reference example TMFC001-ProductCatalogManagement ODA Component
+description: BDD test chart - the reference TMFC001-ProductCatalogManagement ODA Component, unchanged
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -15,7 +15,19 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.2.7
+version: 1.4.5
+# BDD test chart productcatalog-dynamic-roles-v1, used by feature-definition-and-test-kit/features.
+# It is the ProductCatalog chart 1.4.5 from https://github.com/tmforum-oda/reference-example-components
+# unchanged. UC005-F002 uses its TMF672 User Roles and Permissions API (userrolesandpermissions) to add
+# and delete PermissionSpecificationSets, which the identity operator turns into dynamic roles.
+#
+# version: 1.4.5 - Images moved to the tmforumodacanvas Docker Hub organization as 1.0.0 (issue 84)
+# version: 1.4.4 - Fixed TMF672 specification URL (issue 63)
+# version: 1.4.3 - Added architecture diagram to README
+# version: 1.4.2 - Updated for consistency using agent skill.
+# version: 1.4.1 - Fixed hardcoded release name in MCP API URL.
+# version: 1.4.0 - Updated MCP to Streamable-HTTP.
+# version: 1.3.0 - Added User Roles and Permissions API for dynamic role management.
 # version: 1.2.7 - Updated ProductCatalog component to v1 of the Component spec.
 # version: 1.2.5 - Self-signed certificates is an option in the helm chart: component.dependentAPIs.rejectUnauthorizedCertificates=false
 # version: 1.2.4 - Added dev environment workaround for localhost and self-signed certificates

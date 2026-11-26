@@ -1,0 +1,35 @@
+{{- $pv := .Values.backend.persistence.persistentVolume -}}
+{{- if and .Values.backend.persistence.enabled $pv.enabled (not .Values.backend.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "canvas-portal.backend.pvName" . }}
+  labels:
+    {{- include "canvas-portal.backend.labels" . | nindent 4 }}
+  {{- with $pv.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  capacity:
+    storage: {{ default .Values.backend.persistence.size $pv.capacity }}
+  accessModes:
+    {{- toYaml (default .Values.backend.persistence.accessModes $pv.accessModes) | nindent 4 }}
+  persistentVolumeReclaimPolicy: {{ $pv.reclaimPolicy | default "Retain" }}
+  volumeMode: {{ $pv.volumeMode | default "Filesystem" }}
+  storageClassName: {{ default .Values.backend.persistence.storageClass $pv.storageClass | quote }}
+  claimRef:
+    namespace: {{ .Release.Namespace }}
+    name: {{ include "canvas-portal.backend.pvcName" . }}
+  {{- if $pv.hostPath.path }}
+  hostPath:
+    path: {{ $pv.hostPath.path | quote }}
+    type: {{ $pv.hostPath.type | default "DirectoryOrCreate" | quote }}
+  {{- else if and $pv.nfs.server $pv.nfs.path }}
+  nfs:
+    server: {{ $pv.nfs.server | quote }}
+    path: {{ $pv.nfs.path | quote }}
+  {{- else }}
+  {{- fail "backend.persistence.persistentVolume requires hostPath.path or nfs.server and nfs.path" }}
+  {{- end }}
+{{- end }}

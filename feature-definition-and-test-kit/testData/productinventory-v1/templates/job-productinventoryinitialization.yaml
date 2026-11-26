@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{.Release.Name}}-productinventoryinitialization
+  labels:
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-productinventoryinitialization
+    spec:
+      containers:
+      - name: {{.Release.Name}}-productinventoryinitialization
+        image: {{.Values.initialization.image}}
+        env:
+        - name: RELEASE_NAME
+          value: {{.Release.Name}}           
+        - name: COMPONENT_NAME
+          value: {{.Release.Name}}-{{.Values.component.name}}           
+        imagePullPolicy: Always
+      restartPolicy: OnFailure
+  backoffLimit: 10

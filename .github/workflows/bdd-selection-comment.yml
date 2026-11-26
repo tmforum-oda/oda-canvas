@@ -1,0 +1,74 @@
+name: BDD test selection comment
+
+# Posts the BDD test selection on the PR as one comment, and updates it on each
+# push. The selection comes from the test-selection artifact of the BDD test
+# selection check workflow, which runs on the PR with a read-only token (also
+# for PRs from forks). This workflow runs from the default branch with write
+# access, so it never runs code from the PR: the artifact is only read as data
+# and formatted by format-comment.js from the default branch. Because of
+# workflow_run, changes to this file only take effect once they're on main.
+on:
+  workflow_run:
+    workflows: [BDD test selection check]
+    types: [completed]
+
+permissions:
+  actions: read
+  pull-requests: write
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion != 'cancelled'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the test selection
+        id: download
+        continue-on-error: true    # PRs to other branches have no selection
+        uses: actions/download-artifact@v4
+        with:
+          name: test-selection
+          path: selection
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Check out the comment formatter from the default branch
+        if: steps.download.outcome == 'success'
+        uses: actions/checkout@v4
+        with:
+          path: trusted
+          sparse-checkout: feature-definition-and-test-kit/test-selection/format-comment.js
+          sparse-checkout-cone-mode: false
+
+      - name: Post or update the comment
+        if: steps.download.outcome == 'success'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          set -euo pipefail
+          PR=$(jq -r '.prNumber // empty' selection/test-selection-meta.json)
+          if ! [[ "$PR" =~ ^[0-9]+$ ]]; then
+            echo "The selection has no PR number; nothing to post."
+            exit 0
+          fi
+          # Only post for the PR whose head is the commit this run checked
+          PR_HEAD=$(gh api "repos/$REPO/pulls/$PR" --jq '.head.sha')
+          if [ "$PR_HEAD" != "$HEAD_SHA" ]; then
+            echo "PR #$PR is now at $PR_HEAD, not $HEAD_SHA; the run for that push will update the comment."
+            exit 0
+          fi
+          jq --arg sha "$HEAD_SHA" --arg url "$RUN_URL" '{skipReason: (.skipReason // "")} + {headSha: $sha, runUrl: $url}' \
+            selection/test-selection-meta.json > meta.json
+          node trusted/feature-definition-and-test-kit/test-selection/format-comment.js selection/test-selection.json meta.json > body.md
+          COMMENT_ID=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- bdd-test-selection -->"))) | .id' | head -1)
+          if [ -n "$COMMENT_ID" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$COMMENT_ID" -F body=@body.md > /dev/null
+            echo "Updated comment $COMMENT_ID on #$PR"
+          else
+            gh api "repos/$REPO/issues/$PR/comments" -F body=@body.md > /dev/null
+            echo "Posted a comment on #$PR"
+          fi

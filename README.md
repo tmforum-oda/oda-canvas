@@ -22,7 +22,7 @@ see [Installation Guide](installation/README.md) for installation instructions.
 
 There is an introductory video on the ODA Canvas at:
 
-[![How do I buy or build an ODA Canvas?](https://img.youtube.com/vi/dYyyCDPlVHY/0.jpg)](https://youtu.be/B5lF94l-Dek?si=gKQAW57j8GEDx6Yv&t=1)
+[![Introduction to the ODA Canvas](https://img.youtube.com/vi/xLdFY9mGJxI/0.jpg)](https://youtu.be/xLdFY9mGJxI)
 
 The ODA Canvas is itself a modular architecture, with independent **operators** that embed the management and operations activities in software. The **Component Management** operator manages the lifecycle of each component, and the decomposition into ExposedAPIs, IdentityConfigs and other sub-resources (that are processed by their corresponding operators). The **API Management** operators manage the API Gateway and/or Service Mesh to provide security, throttling and other non-functional services to allow API endpoints to be exposed to external consumers. You deploy the matching API Management operator for whatever API Gateway or Service Mesh you are using. The **Identity Config** operator configures the Identity Management Services. The **Secrets Management** operator is an optional operator to configure secrets. The **Dependency Management** operator provides services to allow a Component to discover API dependencies.
 
@@ -65,8 +65,10 @@ Security principles for the ODA Canvas design are documented in [ODA Security Pr
 | 1.0.0      | First tracked release for component version v1beta3 (also supports N-2 versions i.e. v1beta2 and v1beta1).
 
 
-## For Developers
+## Additional Documentation
 
-How to work with this repository:
-
-* [How-To work with Dockerimages](./docs/developer/work-with-dockerimages.md)
+| | |
+| ---- | ---- |
+| [Component Registry](./docs/component-registry/README.md) | Not yet released, but will be included in the next release.<br> Contains documentation of Component Registry UI as well as how to install a standalone Component Registry for a multi-canvas scenario |
+| [How To work with Dockerimages](./docs/developer/work-with-dockerimages.md) | For developers, documents the build and release process for Docker images in this repository | 
+ 

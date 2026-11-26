@@ -134,7 +134,7 @@ curl -skX POST "%RCAT_API%/category" -H  "accept: application/json;charset=utf-8
 ## deploy f-cat
 
 ```
-helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1 --set component.dependentAPIs.enabled=true
 ```
 
 
@@ -272,7 +272,7 @@ Scenario Outline: Configure DependentAPI for single downstream productcatalog co
     And the 'productcatalogmanagement' component has a deployment status of 'Complete'
     And I should see the 'productcatalogmanagement' ExposedAPI resource on the 'productcatalogmanagement' component with a url on the Service Mesh or Gateway
     # Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
-    When I install the 'productcatalog-dependendent-API-v1' package as release 'f-cat'
+    When I install the 'productcatalog-v1' package as release 'f-cat' with component.dependentAPIs.enabled=true
     Then I should see the 'downstreamproductcatalog' DependentAPI resource on the 'productcatalogmanagement' component with a ready status
     And the 'productcatalogmanagement' component has a deployment status of 'Complete'
 
@@ -343,12 +343,12 @@ kubectl get exposedapi -n components
 
 ## [green] Install the federated productcatalog component that has a dependency on a downstream  productcatalog as release f-cat
 
-When I install the 'productcatalog-dependendent-API-v1' package as release 'f-cat'
+When I install the 'productcatalog-v1' package as release 'f-cat' with component.dependentAPIs.enabled=true
 
 ```
 # [green] IHC-DT-A
 cd %USERPROFILE%\git\oda-canvas
-helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1 --set component.dependentAPIs.enabled=true
 
   Release "f-cat" does not exist. Installing it now.
   NAME: f-cat
@@ -598,7 +598,7 @@ helm upgrade --install r-cat2 -n components --create-namespace feature-definitio
 ## install f-cat
 
 ```
-helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-dependendent-API-v1
+helm upgrade --install f-cat -n components --create-namespace feature-definition-and-test-kit/testData/productcatalog-v1 --set component.dependentAPIs.enabled=true
 ```
 
 

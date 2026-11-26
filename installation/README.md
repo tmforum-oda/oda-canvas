@@ -146,11 +146,11 @@ helm install istio-ingress istio/gateway -n istio-ingress --set labels.app=istio
 ### 4. HashiCorp Vault
 
 By default HashiCorp Vault is deployed into the namespace canvas-vault. 
-The deployment can be supressed when setting `canvas-vault.enabled` to `false` in the values.yaml:
+The deployment can be disabled by setting `canvas-vault.enabled` to `false` in the values.yaml:
 
 https://github.com/tmforum-oda/oda-canvas/blob/21329156c71a361baaec0955fd244755d01f0227/charts/canvas-oda/values.yaml#L202-L203
 
-Instead of changing the values.yaml the value can also be overwritten on command line:
+Instead of changing the values.yaml the value can also be overridden on the command line:
 
 ```
 helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set=canvas-vault.enabled=false
@@ -162,6 +162,7 @@ If HashiCorp Vault is **NOT** installed:
 
 Components which do not request Secrets-Management will work without any errors.
 
+
 ### 5. Reference implementation
 
 1. Add oda-canvas helm repo
@@ -172,6 +173,8 @@ Components which do not request Secrets-Management will work without any errors.
    ```
 
 2. Install the reference implementation
+
+   **Do not use `--wait` on `helm install` or `helm upgrade`.** The chart runs post-install hooks that create TLS certificates and initialize Vault. With `--wait`, Helm blocks until Deployments and StatefulSets are Ready before running those hooks; but since several workloads need hook-created secrets first, the whole installation ends in a deadlock. Install without `--wait`; hooks run immediately after the manifest phase and pods recover as secrets appear. A `--timeout` is still useful for hook completion.
 
    **Istio API Operator as the Default:**
    By default, the Istio API Operator is enabled in the Canvas installation. If you do not modify the [values.yaml](https://github.com/tmforum-oda/oda-canvas/blob/main/charts/canvas-oda/values.yaml) file, Canvas will use the Istio API Operator which manages a Canvas environment that exposes APIs through the Istio Service Mesh without any additional API Gateway.
@@ -252,6 +255,64 @@ Components which do not request Secrets-Management will work without any errors.
     --set apisix-gateway-install.enabled=false \
     --set kong-gateway-install.enabled=true
     ```
+
+### Component Registry
+
+> [!NOTE]
+> The Component Registry is included in the `main` branch, but is not part of the latest release (1.2.5 from March 2026).
+
+By default, the Component Registry is deployed into the canvas namespace.  
+A description of the UI and instructions on how to set up Component Registry for a multi-canvas scenario  
+can be found here: [Component Registry](../docs/component-registry/README.md)
+
+#### Disable Component Registry
+  
+The deployment of the Component Registry can be disabled by setting `component-registry.enabled` to `false` in the `values.yaml`:
+
+https://github.com/tmforum-oda/oda-canvas/blob/6218a78420c731a36456b62b0f6de5c07d4bafd4/charts/canvas-oda/values.yaml#L647-L648
+
+To tell the dependency resolver that there is no Component Registry the `componentRegistryUrl` has to be removed:
+
+https://github.com/tmforum-oda/oda-canvas/blob/6218a78420c731a36456b62b0f6de5c07d4bafd4/charts/canvas-oda/values.yaml#L224-L225
+
+Instead of changing the `values.yaml`, the values can also be overridden on the command line:
+
+```
+helm install canvas oda-canvas/canvas-oda \
+   -n canvas --create-namespace \\
+   --set component-registry.enabled=false \
+   --set dependentapi-simple-operator.componentRegistryUrl=
+```
+
+In a single canvas scenario everything works as expected.  
+Dependencies are resolved by directly using Kubernetes Custom Resources instead of the Component Registry.
+
+
+### Local clusters (kind)
+
+kind has no load balancer, so the `istio-ingress` service never gets an external IP. Two things depend on that address.
+
+**The Istio pre-install check.** `pre-install-check-istio` fails while the ingress has no external IP. Skip it, as the CI workflows do:
+
+```bash
+helm install canvas oda-canvas/canvas-oda -n canvas --create-namespace --set preqrequisitechecks.istio=false
+```
+
+**API URLs.** The API operator builds each `ExposedAPI` URL from the ingress address. Without one, the URLs stay empty and components stay at `In-Progress-CompCon`. Give the ingress an address **before installing components**, because the operator reads it when the APIs are created (see [#621](https://github.com/tmforum-oda/oda-canvas/issues/621)). Either:
+
+- run [cloud-provider-kind](https://github.com/kubernetes-sigs/cloud-provider-kind), which allocates LoadBalancer IPs (used in the `Chart-Releaser-ReleasedChartTester-TrivyScanner` workflow); or
+- on a single machine, set the address yourself and forward the gateway ports to it:
+
+  ```bash
+  kubectl patch svc istio-ingress -n istio-ingress --subresource=status --type=merge \
+    -p '{"status":{"loadBalancer":{"ingress":[{"ip":"127.0.0.1"}]}}}'
+  kubectl port-forward -n istio-ingress svc/istio-ingress 80:80 443:443
+  ```
+
+**Conformance testing.** The TM Forum Open API CTKs run in Docker containers and call the URLs the canvas publishes. Inside a container `127.0.0.1` is the container itself, so use an address that both your machine and its containers can reach:
+
+- **Docker Desktop:** use the hostname `host.docker.internal` (`{"hostname":"host.docker.internal"}` in the patch above). The containers reach it through Docker Desktop; to call the APIs from the host as well, the port-forward must also listen on the address `host.docker.internal` resolves to on the host.
+- **Linux:** use the `docker0` address (for example `172.17.0.1`) and run the port-forward with `--address 0.0.0.0`.
 
 ## Troubleshooting
 
@@ -381,10 +442,9 @@ Force the release of the lease without waiting for a timeout
 kubectl delete lease cert-manager-cainjector-leader-election -n kube-system
 ```
 
-The installation has a configurable wait time *cert-manager.leaseWaitTimeonStartup*
-Increase `leaseWaitTimeonStartup` value btw 80-100 in `canvas-oda/values.yaml`
-
-Reinstall it with the new time.
+The post-install hook waits for the cert-manager webhook to be ready before creating issuers, for up to
+`cert-manager-init.certManagerReadyTimeout` seconds (default 600). If the wait timed out, increase it, for example
+`--set cert-manager-init.certManagerReadyTimeout=900`, and reinstall.
 
 ## Changes
 
@@ -402,8 +462,8 @@ The Helm chart has been refactored to move all the different subcharts to the sa
 
 ## oda-canvas helm chart uninstallation
 
-To  uninstall the oda-canvas chart:
+Uninstall any components first: the chart's pre-uninstall check aborts the uninstallation while components are deployed. Then uninstall the canvas release (named `canvas` in the install steps above):
 
 ```bash
-helm uninstall oda-canvas -n canvas
+helm uninstall canvas -n canvas
 ```

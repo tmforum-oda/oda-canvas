@@ -2,6 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}
+  labels:
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: oauth2-envoy-filter-operator
+    oda.tmforum.org/operatorId: TMFOP008
 spec:
   strategy:
     type: Recreate

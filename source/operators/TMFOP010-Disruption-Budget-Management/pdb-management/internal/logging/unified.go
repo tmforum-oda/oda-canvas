@@ -136,10 +136,8 @@ func (l *UnifiedLogger) Error(err error, msg string, details map[string]any) {
 	if entry.Details == nil {
 		entry.Details = make(map[string]any)
 	}
-	if details != nil {
-		for k, v := range details {
-			entry.Details[k] = v
-		}
+	for k, v := range details {
+		entry.Details[k] = v
 	}
 	if err != nil {
 		entry.Details["error"] = err.Error()

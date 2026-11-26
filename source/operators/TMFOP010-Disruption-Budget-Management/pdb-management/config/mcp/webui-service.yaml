@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: mcp-webui
+    app.kubernetes.io/created-by: pdb-management
+    app.kubernetes.io/instance: mcp-webui
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: mcp-webui
+    app.kubernetes.io/part-of: pdb-management
+  name: pdb-management-mcp-webui-service
+  namespace: canvas
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: metrics
+    port: 8081
+    protocol: TCP
+    targetPort: metrics
+  selector:
+    app.kubernetes.io/name: mcp-webui
+    app.kubernetes.io/instance: mcp-webui
+    app.kubernetes.io/component: mcp-webui
+  type: ClusterIP

@@ -1,13 +1,15 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: serving-cert
+  name: pdb-management-serving-cert
   namespace: canvas
 spec:
   dnsNames:
-  - webhook-service.canvas.svc
-  - webhook-service.canvas.svc.cluster.local
+  - pdb-management-webhook-service.canvas.svc
+  - pdb-management-webhook-service.canvas.svc.cluster.local
   secretName: webhook-server-cert
+  privateKey:
+    rotationPolicy: Always
   issuerRef:
     name: pdb-management-selfsigned-issuer
     kind: ClusterIssuer
@@ -15,6 +17,6 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: selfsigned-issuer
+  name: pdb-management-selfsigned-issuer
 spec:
   selfSigned: {} 

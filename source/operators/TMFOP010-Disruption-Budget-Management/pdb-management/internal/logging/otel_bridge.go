@@ -143,7 +143,6 @@ func EnsureTraceFields(ctx context.Context, logger logr.Logger) logr.Logger {
 func parseTraceHeader(header string) map[string]string {
 	// Simplified parser - in production, use a proper W3C parser
 	// Format: version-traceid-spanid-traceflags
-	const expectedParts = 4
 	const traceIDLen = 32
 	const spanIDLen = 16
 

@@ -51,16 +51,15 @@ cert-manager-init:
   #
   # -- Duration of the certificates generate for the webhook in hours |
   certificateDuration: 21600h
-  #Cert manager get a lease  object on kube-system namespace to elect leader.
-  #The time to wait for a leader is 60s.
-  #The lease can survive among installations, so cainjectot can waits up to 60s to become leader
-  #If cainjector is not fully initialized we can find the following error
+  #The post-install hook waits until the cert-manager webhook can admit an Issuer before creating
+  #the Issuers and Certificates. Creating them earlier (e.g. while cert-manager images are still
+  #downloading, or while the cainjector waits for a leftover leader-election lease) fails with
   #  cert-manager-init/templates/issuer.yaml failed: Internal error occurred:
   #  failed calling webhook "webhook.cert-manager.io": failed to call webhook:
   #  Post "https://cert-manager-webhook.cert-manager.svc:443/mutate?timeout=10s": x509: certificate signed by unknown authority
   # In seconds
-  # -- Time to wait CertManager to be ready to prevent issuer creation errors
-  leaseWaitTimeonStartup: 80
+  # -- Maximum time to wait for the cert-manager webhook to be ready before creating issuers
+  certManagerReadyTimeout: 600
 
   cert-manager:
     enabled: true
@@ -409,7 +408,7 @@ pdb-management-operator:
   deployment:
     operatorName: pdb-management-operator
     image: tmforumodacanvas/pdb-management-operator
-    version: 1.0.0
+    version: 1.1.0
     prereleaseSuffix:
     imagePullPolicy: IfNotPresent
     watchNamespace: ''
@@ -436,8 +435,8 @@ pdb-management-operator:
 
 oda-webhook:
   image: tmforumodacanvas/compcrdwebhook
-  version: 1.0.2
-  prereleaseSuffix: 
+  version: 1.0.3
+  prereleaseSuffix:
   imagePullPolicy: IfNotPresent
  
 # -----------------------------------------------------------------------------
@@ -539,7 +538,7 @@ api-operator-kong:
     kongistiooperatordeploymentnamespace: canvas
     kongoperatorimage:
       kongopImage: tmforumodacanvas/api-operator-kong
-      kongopVersion: 1.1.0
+      kongopVersion: 1.1.2
       kongopPrereleaseSuffix: 
       pullPolicy: IfNotPresent
     initContainerImage: busybox:1.28
@@ -580,7 +579,7 @@ api-operator-apisix:
     #apisixistiooperatordeploymentnamespace: canvas
   apisixoperatorimage:
     apisixopImage: tmforumodacanvas/api-operator-apisix
-    apisixopVersion: 1.1.0
+    apisixopVersion: 1.1.1
     apisixopPrereleaseSuffix: 
     pullPolicy: IfNotPresent
   IstioGatewayServerhostName: "*"
@@ -611,7 +610,7 @@ api-operator-apisix:
 canvas-info-service:
   enabled: true
   image: tmforumodacanvas/tmf638-service-inventory-api
-  version: 1.0.0
+  version: 1.0.1
   prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   serverUrl: http://info.canvas.svc.cluster.local
@@ -633,7 +632,7 @@ canvas-info-service:
 resource-inventory:
   enabled: true
   image: tmforumodacanvas/tmf639-resource-inventory-api
-  version: 1.1.0
+  version: 1.1.1
   prereleaseSuffix:
   imagePullPolicy: IfNotPresent
   serverUrl: http://resource-inventory.canvas.svc.cluster.local/tmf-api/resourceInventoryManagement/v5

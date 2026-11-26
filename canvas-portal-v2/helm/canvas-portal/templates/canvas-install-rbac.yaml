@@ -1,0 +1,42 @@
+{{- if .Values.rbac.canvasInstallAccess.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "canvas-portal.fullname" . }}-oda-admin-extension
+  labels:
+    {{- include "canvas-portal.labels" . | nindent 4 }}
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+  - apiGroups: ["oda.tmforum.org"]
+    resources:
+      - "*"
+    verbs: ["*"]
+---
+{{- range $namespace := .Values.rbac.canvasInstallAccess.targetNamespaces }}
+{{- if $.Values.rbac.canvasInstallAccess.createNamespaces }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $namespace }}
+  labels:
+    {{- include "canvas-portal.labels" $ | nindent 4 }}
+---
+{{- end }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "canvas-portal.fullname" $ }}-install-admin
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "canvas-portal.labels" $ | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $.Values.rbac.canvasInstallAccess.clusterRoleName }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "canvas-portal.backend.serviceAccountName" $ }}
+    namespace: {{ $.Release.Namespace }}
+---
+{{- end }}
+{{- end }}

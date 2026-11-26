@@ -2,10 +2,11 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    control-plane: controller-manager
+    control-plane: pdb-management-operator
     app.kubernetes.io/name: pdb-management
+    app.kubernetes.io/component: operator
     app.kubernetes.io/managed-by: kustomize
-  name: metrics
+  name: pdb-management-operator-metrics-service
   namespace: canvas
 spec:
   ports:
@@ -14,5 +15,5 @@ spec:
     protocol: TCP
     targetPort: 8443
   selector:
-    control-plane: controller-manager
+    control-plane: pdb-management-operator
     app.kubernetes.io/name: pdb-management

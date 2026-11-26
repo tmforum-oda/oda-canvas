@@ -26,47 +26,15 @@ go.work
 *.swo
 *~
 
-# PlantUML diagram files
-*.puml
 
-# macOS system files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+cmd.txt
 
-# Local development and testing tools
-toolsforlocal/
-!toolsforlocal/README.md
+# Web UI build artifacts
+web/node_modules/
+web/dist/
+web/.vite/
 
-# Development documentation (keeping main docs)
-docs/diagrams/*.puml
-docs/PERFORMANCE_AND_CACHING.md
-docs/VERIFICATION.md
-docs/WEBHOOK_DEPLOYMENT.md
-
-# ToolforLocal
-toolsforlocal/observability/*
-toolsforlocal/debug-pdb-events.sh
-toolsforlocal/test-pdb-recreation.sh
-toolsforlocal/test-suite.sh
-
-
-# Temporary and cache files
-*.tmp
-*.temp
-*.log
-*.cache
-
-# Development environment files
+# Environment files
 .env
 .env.local
-venv/
-.venv/
-
-# Generated files
-coverage.out
-coverage.html
+.env.*.local

@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "credentialsmanagement-operator.labels" . | nindent 4 }}
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: credentials-management-operator
+    oda.tmforum.org/operatorId: TMFOP004
 spec:
   replicas: 1
   selector:

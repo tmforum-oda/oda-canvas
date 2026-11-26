@@ -12,9 +12,10 @@ on:
   push:
     branches:
     - main
-    paths: 
+    paths:
       - source/tmf-services/TMF639_Resource_Inventory/**/*
-
+      # changes to tests alone don't need a new release image
+      - '!**/tests/**'
 jobs:
   build-tmf639-resource-inventory-api-release-dockerfile-job:
     runs-on: ubuntu-latest

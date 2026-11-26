@@ -2,6 +2,10 @@
 
 This document describes the design artefacts for the Observability part of the [overall ODA Canvas design](Canvas-design.md).
 
+There is an introductory video, showing the reference observability stack (Prometheus, Grafana and Jaeger) live:
+
+[![Observability in the ODA Canvas](https://img.youtube.com/vi/3Mcv0oc-0rs/0.jpg)](https://youtu.be/3Mcv0oc-0rs)
+
 ## Use cases
 
 The observability use cases are documented in the [use case library](usecase-library/README.md) as follows:

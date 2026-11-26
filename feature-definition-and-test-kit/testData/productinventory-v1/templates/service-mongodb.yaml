@@ -3,13 +3,13 @@ kind: Service
 metadata:
   name: {{.Release.Name}}-mongodb
   labels:
-    app: {{.Release.Name}}-mongodb
-    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
+    app: {{.Release.Name}}-{{.Values.component.name}}
 spec:
   ports:
-  - port: 27017
-    targetPort: mongodb
-    name: mongodb
+  - port: {{.Values.mongodb.port}}
+    targetPort: {{.Release.Name}}-mongodb
+    name: tcp-{{.Release.Name}}-mongodb
   type: NodePort
   selector:
-    app: {{.Release.Name}}-mongodb
+    impl: {{.Release.Name}}-mongodb

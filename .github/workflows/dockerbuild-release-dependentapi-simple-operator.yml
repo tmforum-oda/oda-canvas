@@ -12,9 +12,10 @@ on:
   push:
     branches:
     - main
-    paths: 
+    paths:
       - source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker/**/*
-
+      # changes to tests alone don't need a new release image
+      - '!**/tests/**'
 jobs:
   build-dependentapi-simple-operator-release-dockerfile-job:
     runs-on: ubuntu-latest

@@ -65,12 +65,12 @@ Feature: UC017-F001 PDB Management - Annotation Based
         And the PDB operator processes the deletion
         Then the PDB named 'delete-test-pdb' should not exist
 
-    Scenario: Handle invalid availability class gracefully
+    Scenario: Reject invalid availability class
         Given a deployment 'invalid-test' with '3' replicas in namespace 'components'
         And the deployment has annotation 'oda.tmforum.org/availability-class' set to 'invalid-class'
         When the PDB operator processes the deployment
-        Then a PDB named 'invalid-test-pdb' should be created
-        And the PDB should have '50%' as minAvailable
+        Then a PDB should not be created for 'invalid-test'
+        And the operator should log a warning about invalid availability class
         And I delete the deployment 'invalid-test'
 
     Scenario: Skip PDB creation for single replica deployments

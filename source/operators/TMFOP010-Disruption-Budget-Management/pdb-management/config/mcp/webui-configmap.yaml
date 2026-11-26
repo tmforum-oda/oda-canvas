@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: mcp-webui
+    app.kubernetes.io/created-by: pdb-management
+    app.kubernetes.io/instance: mcp-webui
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: mcp-webui
+    app.kubernetes.io/part-of: pdb-management
+  name: pdb-management-mcp-webui-config
+  namespace: canvas
+data:
+  # Web UI Configuration
+  WEBUI_LISTEN_ADDR: ":8080"
+  WEBUI_METRICS_ADDR: ":8081"
+  WEBUI_LOG_LEVEL: "info"
+  WEBUI_LOG_FORMAT: "json"
+  
+  # MCP Server Configuration
+  MCP_SERVER_URL: "http://pdb-management-mcp-service:8090"
+  MCP_HEALTH_CHECK_INTERVAL: "30s"
+  MCP_REQUEST_TIMEOUT: "30s"
+  
+  # UI Features Configuration
+  WEBUI_ENABLE_CHAT: "true"
+  WEBUI_ENABLE_TOOLS: "true"
+  WEBUI_ENABLE_DOCS: "true"
+  WEBUI_MAX_CHAT_HISTORY: "100"
+  
+  # Security Configuration
+  WEBUI_CORS_ENABLED: "true"
+  WEBUI_CORS_ORIGINS: "*"
+  WEBUI_STATIC_FILES_CACHE: "3600"
+  
+  # ODA Canvas Branding
+  WEBUI_TITLE: "ODA Canvas MCP Interface"
+  WEBUI_BRAND_NAME: "TM Forum ODA Canvas"
+  WEBUI_BRAND_URL: "https://www.tmforum.org/oda"
+  WEBUI_LOGO_URL: "https://www.tmforum.org/wp-content/uploads/2019/05/TM-Forum-logo.png"
+  
+  # Default AI Provider Settings
+  DEFAULT_CLAUDE_MODEL: "claude-3-sonnet-20240229"
+  DEFAULT_OPENAI_MODEL: "gpt-4"
+  DEFAULT_GEMINI_MODEL: "gemini-pro"
+  
+  # Feature Flags
+  WEBUI_ENABLE_AI_STREAMING: "false"
+  WEBUI_ENABLE_TOOL_EXECUTION: "true"
+  WEBUI_ENABLE_CONFIG_PERSISTENCE: "true"
+  
+  # Performance Settings
+  WEBUI_MAX_CONCURRENT_REQUESTS: "10"
+  WEBUI_REQUEST_RATE_LIMIT: "100"
+  WEBUI_RESPONSE_TIMEOUT: "120s"

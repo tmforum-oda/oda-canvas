@@ -1334,8 +1334,16 @@ def createAPIImplementationStatus(
                     )
 
 
+# The gateway operator's on.delete handler puts a kopf finalizer on every ExposedAPI, and kopf
+# then runs on.field handlers in the deletion cycle too. Once the parent Component is gone they
+# can only fail and retry, which holds the finalizer and blocks the ExposedAPI deletion for minutes.
+# Filtering them out of the deletion cycle lets kopf release the finalizer straight away.
+def exposedapi_not_being_deleted(meta, **_):
+    return not meta.get("deletionTimestamp")
+
+
 # When api adds url address of where api is exposed, update parent Component object
-@kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.apiStatus", retries=5)
+@kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.apiStatus", retries=5, when=exposedapi_not_being_deleted)
 async def updateAPIStatus(meta, status, namespace, name, **kwargs):
     """Handler function to register for status changes in child API resources.
     Processes status updates to the *apiStatus* in the child API Custom resources, so that the Component status reflects a summary of all the childrens status.
@@ -1471,7 +1479,7 @@ async def updateAPIStatus(meta, status, namespace, name, **kwargs):
     return None
 
 
-@kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.implementation", retries=5)
+@kopf.on.field(GROUP, VERSION, APIS_PLURAL, field="status.implementation", retries=5, when=exposedapi_not_being_deleted)
 async def updateAPIReady(meta, status, namespace, name, **kwargs):
     """Handler function to register for status changes in child API resources.
 

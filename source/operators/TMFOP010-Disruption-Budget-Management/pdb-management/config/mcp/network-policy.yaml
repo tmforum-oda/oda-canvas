@@ -1,0 +1,59 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/component: mcp-server
+    app.kubernetes.io/created-by: pdb-management
+    app.kubernetes.io/instance: mcp-server-network-policy
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: mcp-server-network-policy
+    app.kubernetes.io/part-of: pdb-management
+  name: pdb-management-mcp-network-policy
+  namespace: canvas
+spec:
+  podSelector:
+    matchLabels:
+      control-plane: controller-manager
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow MCP server access from specific namespaces/pods
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: canvas
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: claude-mcp-client
+    ports:
+    - protocol: TCP
+      port: 8090
+  # Allow health checks from within the cluster
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 8090
+  # Allow webhook access from Kubernetes API server
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 9443
+  egress:
+  # Allow access to Kubernetes API
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 6443
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53

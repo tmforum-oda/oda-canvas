@@ -1,0 +1,68 @@
+{{- if .Values.rbac.backendGatewayReadAccess.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "canvas-portal.backend.fullname" . }}-gateway-reader
+  labels:
+    {{- include "canvas-portal.backend.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - pods
+      - pods/log
+      - services
+      - events
+      - namespaces
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["oda.tmforum.org"]
+    resources:
+      - components
+      - exposedapis
+      - modelgatewayservices
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources:
+      - customresourcedefinitions
+    resourceNames:
+      - modelgatewayservices.oda.tmforum.org
+    verbs: ["get"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources:
+      - gateways
+      - gatewayclasses
+      - httproutes
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["configuration.konghq.com"]
+    resources:
+      - kongplugins
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apisix.apache.org"]
+    resources:
+      - apisixroutes
+      - apisixpluginconfigs
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.istio.io"]
+    resources:
+      - virtualservices
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "canvas-portal.backend.fullname" . }}-gateway-reader
+  labels:
+    {{- include "canvas-portal.backend.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "canvas-portal.backend.fullname" . }}-gateway-reader
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "canvas-portal.backend.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "dependency-management-keycloak-authz.labels" . | nindent 4 }}
+    oda.tmforum.org/operator: "true"
+    oda.tmforum.org/operatorName: dependency-management-keycloak-authz
+    oda.tmforum.org/operatorId: TMFOP005
 spec:
   replicas: 1
   selector:

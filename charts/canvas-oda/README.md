@@ -133,7 +133,7 @@ A Helm of helm to orchestrate the ODA installation
 | cert-manager-init.cert-manager.namespace | string | `"cert-manager"` |  |
 | cert-manager-init.certificateDuration | string | `"21600h"` | Duration of the certificates generate for the webhook in hours | |
 | cert-manager-init.fullnameOverride | string | `""` |  |
-| cert-manager-init.leaseWaitTimeonStartup | int | `80` | Time to wait CertManager to be ready to prevent issuer creation errors |
+| cert-manager-init.certManagerReadyTimeout | int | `600` | Maximum time to wait for the cert-manager webhook to be ready before creating issuers |
 | cert-manager-init.nameOverride | string | `""` |  |
 | cert-manager-init.namespace | string | `"canvas"` |  |
 | component-operator.deployment.compopImage | string | `"tmforumodacanvas/component-operator"` |  |

@@ -94,7 +94,7 @@ help: ## Display this help.
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) rbac:roleName=pdb-management-operator-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
@@ -378,3 +378,87 @@ catalog-build: opm ## Build a catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
+
+##@ Web UI
+
+WEBUI_IMG ?= pdb-management-webui:latest
+
+.PHONY: webui-build
+webui-build: ## Build the web UI docker image
+	cd web && $(CONTAINER_TOOL) build -t $(WEBUI_IMG) .
+
+.PHONY: webui-dev
+webui-dev: ## Run web UI in development mode
+	cd web && npm run dev
+
+.PHONY: webui-install
+webui-install: ## Install web UI npm dependencies
+	cd web && npm install
+
+##@ Local Development
+
+.PHONY: kind-create
+kind-create: ## Create a kind cluster for local development
+	kind create cluster --name pdb-management --wait 5m || true
+	kubectl cluster-info --context kind-pdb-management
+
+.PHONY: kind-delete
+kind-delete: ## Delete the kind cluster
+	kind delete cluster --name pdb-management
+
+.PHONY: kind-load-images
+kind-load-images: docker-build webui-build ## Load docker images into kind cluster
+	kind load docker-image $(IMG) --name pdb-management
+	kind load docker-image $(WEBUI_IMG) --name pdb-management
+
+.PHONY: helm-repo-add
+helm-repo-add: ## Add Helm repositories for dependencies
+	helm repo add jetstack https://charts.jetstack.io || true
+	helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/ || true
+	helm repo update
+
+.PHONY: install-cert-manager
+install-cert-manager: helm-repo-add ## Install cert-manager using Helm
+	helm upgrade --install cert-manager jetstack/cert-manager \
+		--namespace cert-manager \
+		--create-namespace \
+		--set crds.enabled=true \
+		--wait
+
+.PHONY: install-metrics-server
+install-metrics-server: helm-repo-add ## Install metrics-server using Helm (with insecure TLS for kind)
+	helm upgrade --install metrics-server metrics-server/metrics-server \
+		--namespace kube-system \
+		--set args={--kubelet-insecure-tls} \
+		--wait
+
+.PHONY: uninstall-cert-manager
+uninstall-cert-manager: ## Uninstall cert-manager
+	helm uninstall cert-manager -n cert-manager --ignore-not-found || true
+	kubectl delete namespace cert-manager --ignore-not-found || true
+
+.PHONY: uninstall-metrics-server
+uninstall-metrics-server: ## Uninstall metrics-server
+	helm uninstall metrics-server -n kube-system --ignore-not-found || true
+
+.PHONY: local-deps
+local-deps: install-cert-manager install-metrics-server ## Install all local development dependencies
+
+.PHONY: local-deploy
+local-deploy: manifests kustomize ## Deploy to local kind cluster (run kind-load-images first)
+	$(KUSTOMIZE) build config/default | kubectl apply -f -
+
+.PHONY: local-undeploy
+local-undeploy: ## Undeploy from local kind cluster
+	$(KUSTOMIZE) build config/default | kubectl delete --ignore-not-found -f -
+
+.PHONY: local-setup
+local-setup: kind-create local-deps install kind-load-images local-deploy ## Full local setup: create cluster, install deps, deploy operator
+
+.PHONY: port-forward-webui
+port-forward-webui: ## Port forward web UI to localhost:8080
+	kubectl port-forward -n canvas svc/pdb-management-webui 8080:8080
+
+.PHONY: port-forward-mcp
+port-forward-mcp: ## Port forward MCP server to localhost:8090
+	kubectl port-forward -n canvas svc/pdb-management-mcp-service 8090:8090

@@ -224,8 +224,8 @@ func (e *EventRecorder) SafeEventf(obj runtime.Object, eventType string, reason,
 	// Try to create the event, but don't fail if namespace is gone
 	defer func() {
 		if r := recover(); r != nil {
-			// Log the panic but don't crash
-			// This can happen when namespace is deleted during event creation
+			// Silently recover from panic - this can happen when namespace is deleted during event creation
+			_ = r // Acknowledge the panic value
 		}
 	}()
 

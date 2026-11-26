@@ -1,0 +1,233 @@
+name: Run BDD tests on a kind cluster
+description: >
+  Creates a kind cluster, installs Istio and the canvas from this checkout,
+  runs the BDD features selected by a cucumber tag expression, uploads the
+  report and deletes the cluster. Used by trigger_tests.yml for the default
+  run and for each gateway run.
+
+inputs:
+  tags:
+    description: Cucumber tag expression to run. Empty runs every feature.
+    required: false
+    default: ''
+  helm-set:
+    description: Extra --set values for the canvas install, one key=value per line.
+    required: false
+    default: ''
+  pre-install:
+    description: Shell commands to run before the canvas install, one per line.
+    required: false
+    default: ''
+  report-name:
+    description: Name of the uploaded test report artifact.
+    required: false
+    default: test-report
+
+runs:
+  using: composite
+  steps:
+    - name: Install kubectl
+      shell: bash
+      run: |
+        echo "Installing kubectl version 1.30.0"
+        curl -LO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+        kubectl version --client
+        uname -m
+
+    - name: Install kind
+      shell: bash
+      run: |
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+        chmod +x ./kind
+        sudo mv ./kind /usr/local/bin/kind
+
+    - name: Create kind cluster
+      shell: bash
+      run: |
+        echo "Creating kind cluster pinned to latest version supported by the Canvas - v1.30.0"
+        kind create cluster --image kindest/node:v1.30.0
+        kubectl get nodes --show-labels
+
+    - name: Download Kind LB Cloud Provider # Pinned to v0.10.0 because newer versions broke Kind LB behaviour in CI
+      shell: bash
+      run: |
+        git clone --branch v0.10.0 --depth 1 https://github.com/kubernetes-sigs/cloud-provider-kind.git
+        cd cloud-provider-kind && make
+        bin/cloud-provider-kind &
+
+    - name: Install Helm
+      shell: bash
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/v3.18.4/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh --version v3.18.4
+        kubectl get ns
+
+    - name: Install helm-git
+      shell: bash
+      run: |
+        helm plugin install https://github.com/aslafy-z/helm-git.git
+
+    - name: Install istio Helm chart
+      shell: bash
+      run: |
+        helm repo add istio https://istio-release.storage.googleapis.com/charts
+        helm repo update
+        kubectl create namespace istio-system
+        helm install istio-base istio/base -n istio-system
+        helm install istiod istio/istiod -n istio-system --wait
+        kubectl create namespace istio-ingress
+        kubectl label namespace istio-ingress istio-injection=enabled
+        echo "Installing istio gateway pinned to version 1.26.3"
+        sleep 5
+        kubectl version
+        helm version
+        helm install istio-ingress istio/gateway --version 1.26.3 -n istio-ingress --set labels.app=istio-ingress --set labels.istio=ingressgateway
+
+    - name: Run pre-install commands
+      if: inputs.pre-install != ''
+      shell: bash
+      env:
+        PRE_INSTALL: ${{ inputs.pre-install }}
+      run: |
+        while IFS= read -r command; do
+          [ -z "$command" ] && continue
+          echo "+ $command"
+          bash -c "$command"
+        done <<< "$PRE_INSTALL"
+
+    - name: Install Helm chart from Git repo
+      shell: bash
+      env:
+        HELM_SET: ${{ inputs.helm-set }}
+      run: |
+        SET_ARGS=()
+        while IFS= read -r value; do
+          [ -n "$value" ] && SET_ARGS+=(--set "$value")
+        done <<< "$HELM_SET"
+        echo DEBUG: update ./charts/cert-manager-init
+        helm dependency update ./charts/cert-manager-init
+        helm dependency update ./charts/apisix-gateway
+        helm dependency update ./charts/kong-gateway
+        helm dependency update ./charts/canvas-vault
+        helm dependency update ./charts/pdb-management-operator
+        echo DEBUG: update ./charts/canvas-oda
+        helm dependency update ./charts/canvas-oda
+        echo "DEBUG: helm install canvas -n canvas ${SET_ARGS[*]}"
+        helm install canvas -n canvas --create-namespace ./charts/canvas-oda "${SET_ARGS[@]}"
+        echo DEBUG: finished Install Helm chart from Git repo
+
+    - name: Port Forwarding Keycloak Service
+      shell: bash
+      run: |
+        sleep 30
+        kubectl -n canvas port-forward svc/canvas-keycloak 8083:8083 &
+
+    - name: Port Forwarding Resource Inventory Service
+      shell: bash
+      run: |
+        kubectl -n canvas port-forward svc/resource-inventory 8639:80 &
+        sleep 1
+        echo "Test Resource Inventory API"
+        curl http://localhost:8639/tmf-api/resourceInventoryManagement/v5/
+
+    - name: Installing example component PC into default and other namespace
+      shell: bash
+      run: |
+        helm install ctk feature-definition-and-test-kit/testData/productcatalog-static-roles-v1/ -n components
+        helm install pcother feature-definition-and-test-kit/testData/productcatalog-v1/ -n odacompns-1 --create-namespace
+        sleep 30
+        kubectl get all -n components
+        kubectl logs -l app=component-operator -n canvas
+
+    - name: Check status of deployments
+      shell: bash
+      run: |
+        sleep 90
+        kubectl get all -n canvas
+        kubectl get all -n components
+        kubectl get all -n istio-ingress
+        kubectl get all -n istio-system
+        kubectl get exposedapis -n components
+        kubectl get components -n components
+
+    - name: Remove the example PC Component
+      shell: bash
+      run: |
+        helm uninstall ctk -n components
+
+    # Test failures don't stop the action here: the report is uploaded and the
+    # cluster deleted first, then "check test success" fails the job.
+    - name: Install test Kit
+      shell: bash
+      env:
+        TAGS: ${{ inputs.tags }}
+      run: |
+        set +e
+        cd feature-definition-and-test-kit/utilities/identity-manager-utils-keycloak
+        npm install
+        cd ../package-manager-utils-helm
+        npm install
+        cd ../resource-inventory-utils-kubernetes
+        npm install
+        cd ..
+        cd ..
+        npm install
+        export KEYCLOAK_USER=admin
+        export KEYCLOAK_PASSWORD=adpass
+        export KEYCLOAK_BASE_URL="http://localhost:8083/auth/"
+        export KEYCLOAK_REALM=odari
+        # Runs cucumber-js directly rather than `npm start`, to leave out
+        # --publish: the upload to reports.cucumber.io can hang until the job
+        # times out, and the anonymous report is deleted after 24 hours anyway.
+        # The badges and the test-report artifact use /tmp/cucumber.json.
+        CUCUMBER_ARGS=(--publish-quiet --format json:/tmp/cucumber.json)
+        if [ -n "$TAGS" ]; then
+          echo "Running the BDD features selected by: $TAGS"
+          CUCUMBER_ARGS+=(--tags "$TAGS")
+        else
+          echo "Running every BDD feature"
+        fi
+        npx cucumber-js "${CUCUMBER_ARGS[@]}" 2>&1 | tee /tmp/test_results.log
+        kubectl get exposedapis -n components
+        kubectl -n canvas logs deployment/component-operator | tee /tmp/component-operator.log
+        # The gateway runs deploy the Kong or APISIX operator instead of Istio's
+        for deployment in $(kubectl -n canvas get deployments -o name | grep -E "api-operator-istio|kongistio-operator|apisixistio-operator"); do
+          kubectl -n canvas logs "$deployment" | tee "/tmp/${deployment#deployment.apps/}.log"
+        done
+        exit 0
+
+    - name: Upload Test Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.report-name }}
+        path: |
+          /tmp/component-operator.log
+          /tmp/api-operator-istio.log
+          /tmp/*istio-operator.log
+          /tmp/test_results.log
+          /tmp/cucumber.json
+
+    - name: Delete kind cluster
+      if: always()
+      shell: bash
+      run: |
+        kubectl get pods -n canvas-vault || true
+        kubectl logs -n canvas-vault job/canvas-vault-hc-post-install-hook || true
+        kind delete cluster
+
+    - name: check test success
+      shell: bash
+      run: |
+        tail -10 /tmp/test_results.log
+        tail -10 /tmp/test_results.log | grep --color=always failed || true
+        if tail -10 /tmp/test_results.log | grep failed >/dev/null
+        then
+          echo There are failed tests!
+          exit 1
+        else
+          echo OK, no test failures.
+        fi

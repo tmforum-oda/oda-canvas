@@ -4,6 +4,8 @@ This is a simple kubectl utility to display information on the ODA Component dep
 
 # Installation
 
+Requires Node.js 20 or later.
+
 ```
 npm install @lesterthomas/kubectl-component_info -g
 ```
@@ -31,7 +33,13 @@ During development, you can test the utility locally by installing the dependenc
 npm install
 ```
 
-and running the command
+and running the utility against your current kubeconfig with
+
+```
+npm start
+```
+
+The component status formatting logic is in `lib/componentTree.js` and the Kubernetes helpers are in `lib/kubernetes.js`. Run the unit tests (no cluster needed) with
 
 ```
 npm test

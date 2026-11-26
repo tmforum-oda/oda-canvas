@@ -1,0 +1,26 @@
+# Simple single binary deployment
+tempo:
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+  
+  # Configure receivers for OTLP (your operator uses this)
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+# Persistence for traces
+persistence:
+  enabled: true
+  storageClassName: standard
+  size: 5Gi
+
+# Service configuration
+service:
+  type: ClusterIP

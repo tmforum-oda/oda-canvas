@@ -1,0 +1,22 @@
+@startuml
+actor KubernetesAPI
+participant Operator as Operator
+participant DeploymentController
+participant PDBController
+database Kubernetes as K8s
+
+== Deployment Created ==
+
+KubernetesAPI -> Operator: Deployment Created
+Operator -> DeploymentController: Reconcile()
+
+DeploymentController -> DeploymentController: Read Annotations
+DeploymentController -> DeploymentController: Resolve Availability Class
+DeploymentController -> PDBController: Create/Update PDB
+
+PDBController -> K8s: Apply PodDisruptionBudget
+PDBController -> DeploymentController: Return Success/Failure
+
+DeploymentController -> Operator: Record Metrics
+DeploymentController -> Operator: Emit Events
+@enduml

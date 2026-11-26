@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{.Release.Name}}-mongodb-pv-claim
   labels:
-    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.type}}
+    oda.tmforum.org/componentName: {{.Release.Name}}-{{.Values.component.name}}
 spec:
   accessModes:
   - ReadWriteOnce

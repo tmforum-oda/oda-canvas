@@ -1,0 +1,132 @@
+# Default policy for team-a namespace (applies to backend tier)
+---
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: team-a-default-policy
+  namespace: team-a
+spec:
+  availabilityClass: standard
+  enforcement: advisory
+  allowOverride: true
+  componentSelector:
+    namespaces:
+      - team-a
+    matchLabels:
+      tier: backend
+  priority: 10
+---
+# High availability policy for frontend tier
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: frontend-ha-policy
+  namespace: team-a
+spec:
+  availabilityClass: high-availability
+  enforcement: strict
+  allowOverride: false
+  componentSelector:
+    namespaces:
+      - team-a
+    matchLabels:
+      tier: frontend
+  priority: 100
+---
+# Mission critical policy for team-b API
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: team-b-api-policy
+  namespace: team-b
+spec:
+  availabilityClass: mission-critical
+  enforcement: strict
+  allowOverride: false
+  componentSelector:
+    namespaces:
+      - team-b
+    matchLabels:
+      tier: api
+  priority: 100
+---
+# Non-critical policy for workers
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: team-b-worker-policy
+  namespace: team-b
+spec:
+  availabilityClass: non-critical
+  enforcement: flexible
+  minimumClass: non-critical
+  allowOverride: true
+  componentSelector:
+    namespaces:
+      - team-b
+    matchLabels:
+      tier: worker
+  priority: 50
+---
+# Custom policy for team-c with maintenance windows
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: team-c-custom-policy
+  namespace: team-c
+spec:
+  availabilityClass: custom
+  enforcement: advisory
+  allowOverride: true
+  componentSelector:
+    namespaces:
+      - team-c
+    matchLabels:
+      tier: web
+  customPDBConfig:
+    minAvailable: 2
+  maintenanceWindows:
+    - start: "02:00"
+      end: "06:00"
+      timezone: "UTC"
+      daysOfWeek: [0, 6]  # Weekends
+  priority: 75
+---
+# Default policy for team-d with label expressions
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: team-d-core-policy
+  namespace: team-d
+spec:
+  availabilityClass: high-availability
+  enforcement: strict
+  allowOverride: false
+  componentSelector:
+    namespaces:
+      - team-d
+    matchExpressions:
+      - key: component
+        operator: In
+        values:
+          - core
+          - critical
+  priority: 90
+---
+# Team-D app policy (applies to app tier)
+apiVersion: availability.oda.tmforum.org/v1alpha1
+kind: AvailabilityPolicy
+metadata:
+  name: team-d-app-policy
+  namespace: team-d
+spec:
+  availabilityClass: standard
+  enforcement: advisory
+  allowOverride: true
+  overrideRequiresReason: true
+  componentSelector:
+    namespaces:
+      - team-d
+    matchLabels:
+      tier: app
+  priority: 50
