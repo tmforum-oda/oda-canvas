@@ -973,8 +973,8 @@ helm uninstall carbon-intensity-service -n canvas
 
 ## Related Documentation
 
-- **Helm Chart**: [charts/carbon-management-operator/](../../../../charts/carbon-management-operator/)
-- **Carbon Intensity Service**: [charts/carbon-intensity-service/](../../../../charts/carbon-intensity-service/)
+- **Helm Chart**: [charts/carbon-management-operator](../../../../charts/carbon-management-operator/README.md)
+- **Carbon Intensity Service**: [charts/carbon-intensity-service](../../../../charts/carbon-intensity-service/README.md)
 - **Observability Stack**: [charts/observability-stack/README.md](../../../../charts/observability-stack/README.md)
 - **KEDA Documentation**: https://keda.sh/docs/
 - **Canvas Design**: [Canvas-design.md](../../../../Canvas-design.md)

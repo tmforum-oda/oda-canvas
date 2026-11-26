@@ -345,7 +345,7 @@ The ProductOrderCaptureAndValidation component successfully processed the same o
 ## Related Resources
 
 - [Carbon Management Operator Documentation](./README.md)
-- [TMF628 Performance Management API Specification](../../../tmf-services/TMF628_Performance_Management/api/TMF628-Performance-v5.0.0.oas.yaml)
+- [TMF628 Performance Management API Specification](https://github.com/tmforum-oda/oda-canvas/blob/main/source/tmf-services/TMF628_Performance_Management/api/TMF628-Performance-v5.0.0.oas.yaml)
 - [KEDA Documentation](https://keda.sh/)
 - [ODA Component Specification](https://github.com/tmforum-oda/reference-example-components/tree/master/charts)
 
