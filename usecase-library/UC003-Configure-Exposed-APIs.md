@@ -21,3 +21,7 @@ This use-case describes how each Exposed APIs is configured in the API Gateway a
 ![exposed-API-delete](./pumlFiles/exposed-API-delete.svg)
 [plantUML code](pumlFiles/exposed-API-delete.puml)
 
+
+## Gateway policies
+
+A component can ask for policies, such as rate limiting or API key verification, in the `gatewayConfiguration` of each exposed API. Which of them take effect depends on the API operator: see [API exposure and gateway policies](../source/operators/TMFOP002-API-Management/API-exposure-and-gateway-policies.md).
