@@ -1,0 +1,27 @@
+# permissions for end users to edit mlmodels.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: demo-mlmodel-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: mlmodel-editor-role
+rules:
+- apiGroups:
+  - oda.tmforum.org.oda.tmforum.org
+  resources:
+  - mlmodels
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - oda.tmforum.org.oda.tmforum.org
+  resources:
+  - mlmodels/status
+  verbs:
+  - get
