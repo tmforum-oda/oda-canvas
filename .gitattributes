@@ -1,0 +1,3 @@
+# Shell scripts run in Linux containers and in bash on Windows, so always check them out
+# with Unix line endings, whatever core.autocrlf is set to.
+*.sh text eol=lf
