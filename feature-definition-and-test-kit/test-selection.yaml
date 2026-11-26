@@ -104,7 +104,6 @@ noTests:
   - "source/operators/rbac.yaml"
   - "source/operators/requirements.txt"
   - "source/operators/testAPIResource.yaml"
-  - "source/operators/tests/**"
   - "source/operators/TMFOP002-API-Management/ExposedAPI-example.yaml"
   - "feature-definition-and-test-kit/local-tests/**"
   - "feature-definition-and-test-kit/getTags.js"
