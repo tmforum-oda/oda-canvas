@@ -14,8 +14,9 @@ on:
     - main
     paths:
       - source/operators/TMFOP005-Dependency-Management/simple-dependency-management/docker/**/*
-      # changes to tests alone don't need a new release image
+      # changes to tests or docs alone don't need a new release image
       - '!**/tests/**'
+      - '!**/*.md'
 jobs:
   build-dependentapi-simple-operator-release-dockerfile-job:
     runs-on: ubuntu-latest
