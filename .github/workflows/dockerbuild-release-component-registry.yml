@@ -14,8 +14,9 @@ on:
     - main
     paths:
       - source/services/ComponentRegistry/**/*
-      # changes to tests alone don't need a new release image
+      # changes to tests or docs alone don't need a new release image
       - '!**/tests/**'
+      - '!**/*.md'
 jobs:
   build-component-registry-release-dockerfile-job:
     runs-on: ubuntu-latest

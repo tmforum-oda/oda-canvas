@@ -15,8 +15,9 @@ on:
     paths:
       - source/operators/TMFOP003-Identity-Config/keycloak/identity-listener-keycloak/*
       - source/operators/TMFOP003-Identity-Config/keycloak/keycloakUtils.py
-      # changes to tests alone don't need a new release image
+      # changes to tests or docs alone don't need a new release image
       - '!**/tests/**'
+      - '!**/*.md'
 jobs:
   build-identity-listener-keycloak-release-dockerfile-job:
     runs-on: ubuntu-latest

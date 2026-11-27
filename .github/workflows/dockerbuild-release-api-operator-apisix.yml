@@ -14,8 +14,9 @@ on:
     - main
     paths:
       - source/operators/TMFOP002-API-Management/apache-apisix/*
-      # changes to tests alone don't need a new release image
+      # changes to tests or docs alone don't need a new release image
       - '!**/tests/**'
+      - '!**/*.md'
 jobs:
   build-api-operator-apisix-release-dockerfile-job:
     runs-on: ubuntu-latest

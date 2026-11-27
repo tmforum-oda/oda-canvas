@@ -14,8 +14,9 @@ on:
     - main
     paths:
       - source/operators/TMFOP010-Disruption-Budget-Management/pdb-management/*
-      # changes to tests alone don't need a new release image
+      # changes to tests or docs alone don't need a new release image
       - '!**/tests/**'
+      - '!**/*.md'
 jobs:
   build-pdb-management-operator-release-dockerfile-job:
     runs-on: ubuntu-latest

@@ -14,8 +14,9 @@ on:
     - main
     paths:
       - source/operators/TMFOP005-Dependency-Management/dependency-management-using-keycloak-authorization/docker/**/*
-      # changes to tests alone don't need a new release image
+      # changes to tests or docs alone don't need a new release image
       - '!**/tests/**'
+      - '!**/*.md'
 jobs:
   build-dependency-management-keycloak-authz-release-dockerfile-job:
     runs-on: ubuntu-latest
